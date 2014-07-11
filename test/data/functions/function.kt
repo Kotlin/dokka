@@ -1,4 +1,4 @@
 /**
- * doc
+ * Function fn
  */
 fun fn() {}

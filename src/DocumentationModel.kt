@@ -4,6 +4,8 @@ import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetFile
 
 public enum class DocumentationNodeKind {
+    Unknown
+
     Package
     Class
     Function

@@ -10,23 +10,40 @@ fun BindingContext.createDocumentation(file: JetFile): DocumentationModel {
     val packageFragment = getPackageFragment(file)
     if (packageFragment == null) throw IllegalArgumentException("File $file should have package fragment")
 
-    val visitor = DocumentationBuilderVisitor()
+    val visitor = DocumentationBuilderVisitor(this)
     visitDescriptor(packageFragment, model, visitor)
 
     return model
 }
 
-class DocumentationBuilderVisitor() : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
+class DocumentationBuilderVisitor(val context : BindingContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
 
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = DocumentationNode(descriptor!!.getName().asString(), "doc", DocumentationNodeKind.Function)
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Unknown)
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }
 
     override fun visitValueParameterDescriptor(descriptor: ValueParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = DocumentationNode(descriptor!!.getName().asString(), "doc", DocumentationNodeKind.Function)
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Parameter)
         data?.addReferenceTo(node, DocumentationReferenceKind.Detail)
+        return node
+    }
+
+
+    override fun visitFunctionDescriptor(descriptor: FunctionDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Function)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Member)
+        return node
+    }
+
+
+    override fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val node = DocumentationNode(descriptor!!.fqName.asString(), "", DocumentationNodeKind.Package)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }
 }

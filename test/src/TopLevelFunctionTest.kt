@@ -11,7 +11,7 @@ public class TopLevelFunctionTest {
             val item = model.nodes.single().members.single()
             assertEquals(DocumentationNodeKind.Function, item.kind)
             assertEquals("fn", item.name)
-            assertEquals("doc", item.doc)
+            assertEquals("Function fn", item.doc)
             assertTrue(item.details.none())
             assertTrue(item.members.none())
             assertTrue(item.links.none())
@@ -23,8 +23,12 @@ public class TopLevelFunctionTest {
             val item = model.nodes.single().members.single()
             assertEquals(DocumentationNodeKind.Function, item.kind)
             assertEquals("function", item.name)
-            assertEquals("doc", item.doc)
+            assertEquals("""Multiline
+Function
+Documentation"""
+            , item.doc)
             assertEquals("x", item.details.single().name)
+            assertEquals(DocumentationNodeKind.Parameter, item.details.single().kind)
 
             assertTrue(item.members.none())
             assertTrue(item.links.none())
