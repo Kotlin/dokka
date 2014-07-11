@@ -7,39 +7,67 @@ import com.jetbrains.dokka.*
 public class ClassTest {
     Test fun emptyClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
-            val item = model.nodes.single().members.single()
-            assertEquals(DocumentationNodeKind.Class, item.kind)
-            assertEquals("Klass", item.name)
-            assertEquals("", item.doc)
-            assertTrue(item.details.none())
-            assertEquals("<init>", item.members.single().name)
-            assertTrue(item.links.none())
+            with(model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals("Klass", name)
+                assertEquals("", doc)
+                assertTrue(details.none())
+                assertEquals("<init>", members.single().name)
+                assertTrue(links.none())
+            }
         }
     }
 
     Test fun classWithConstructor() {
         verifyModel("test/data/classes/classWithConstructor.kt") { model ->
-            val item = model.nodes.single().members.single()
-            assertEquals(DocumentationNodeKind.Class, item.kind)
-            assertEquals("Klass", item.name)
-            assertEquals("", item.doc)
-            assertTrue(item.details.none())
-            assertEquals("<init>", item.members.single().name)
-            assertTrue(item.links.none())
+            with (model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals("Klass", name)
+                assertEquals("", doc)
+                assertTrue(details.none())
+                assertTrue(links.none())
+
+                assertEquals(1, members.count())
+                with(members.elementAt(0)) {
+                    assertEquals("<init>", name)
+                    assertEquals("", doc)
+                    assertEquals(1, details.count())
+                    with(details.elementAt(0)) {
+                        assertEquals("name", name)
+                        assertEquals("", doc)
+                    }
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+            }
         }
     }
 
     Test fun classWithFunction() {
         verifyModel("test/data/classes/classWithFunction.kt") { model ->
-            val item = model.nodes.single().members.single()
-            assertEquals(DocumentationNodeKind.Class, item.kind)
-            assertEquals("Klass", item.name)
-            assertEquals("", item.doc)
-            assertTrue(item.details.none())
-            assertEquals(2, item.members.count())
-            assertEquals("<init>", item.members.elementAt(0).name)
-            assertEquals("fn", item.members.elementAt(1).name)
-            assertTrue(item.links.none())
+            with(model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals("Klass", name)
+                assertEquals("", doc)
+                assertTrue(details.none())
+                assertTrue(links.none())
+
+                assertEquals(2, members.count())
+                with(members.elementAt(0)) {
+                    assertEquals("<init>", name)
+                    assertEquals("", doc)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+                with(members.elementAt(1)) {
+                    assertEquals("fn", name)
+                    assertEquals("", doc)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+            }
         }
     }
 }
