@@ -7,6 +7,7 @@ public class ConsoleGenerator() {
         generateHeader(node, indent)
         generateDetails(node, indent)
         generateMembers(node, indent)
+        generateLinks(node, indent)
     }
 
     public fun generateHeader(node: DocumentationNode, indent: String = "") {
@@ -22,6 +23,11 @@ public class ConsoleGenerator() {
 
     public fun generateMembers(node: DocumentationNode, indent: String = "") {
         for (child in node.members)
+            generate(child, indent + IndentStep)
+    }
+
+    public fun generateLinks(node: DocumentationNode, indent: String = "") {
+        for (child in node.links)
             generate(child, indent + IndentStep)
     }
 }

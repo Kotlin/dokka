@@ -29,15 +29,15 @@ class Class {
  * This is a class with constructor and space after doc
  */
 
-class ClassWithConstructor(val name: String)
+class ClassWithConstructor(/** Doc at parameter */ val name: String)
 
 /**
- * This is data class with constructor and comment after doc
- * $name Person's name
- * $age Person's age
+ * This is data class $Person with constructor and two properties
+ *
+ * $name: Person's name
+ * $age: Person's age
  */
-// irrelevant comment
-data class Person(/** Doc at parameter */ val name: String, val age: Int) {}
+data class Person(val name: String, val age: Int) {}
 
 object Object {
     throws(javaClass<IllegalArgumentException>())
@@ -52,7 +52,10 @@ object Object {
 
 class OuterClass {
 
-    class NestedClass {
+    /**
+     * $T: type of the item
+     */
+    class NestedClass<T> {
         fun nestedClassFunction() {
         }
     }

@@ -2,20 +2,15 @@ package org.jetbrains.dokka
 
 import org.jetbrains.jet.lang.resolve.scopes.*
 import org.jetbrains.jet.lang.resolve.name.*
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor
-
+import org.jetbrains.jet.lang.descriptors.*
 
 fun DocumentationNode.resolve(): DocumentationNode {
-    return this
-}
-
-fun DocumentationNode.resolve(scope: JetScope): DocumentationNode {
     for (detail in details) {
-        val symbol = when (detail.kind) {
+        val symbol: DeclarationDescriptor? = when (detail.kind) {
             DocumentationNodeKind.Receiver -> (scope.getContainingDeclaration() as FunctionDescriptor).getReceiverParameter()
             DocumentationNodeKind.Parameter -> scope.getLocalVariable(Name.guess(detail.name))
-            DocumentationNodeKind.Function -> scope.getFunctions(Name.guess(detail.name)).single()
-            DocumentationNodeKind.Property -> scope.getProperties(Name.guess(detail.name)).single()
+            DocumentationNodeKind.Function -> scope.getFunctions(Name.guess(detail.name)).firstOrNull()
+            DocumentationNodeKind.Property -> scope.getProperties(Name.guess(detail.name)).firstOrNull()
             DocumentationNodeKind.TypeParameter -> scope.getClassifier(Name.guess(detail.name))
             else -> scope.getClassifier(Name.guess(detail.name))
         }
@@ -25,3 +20,4 @@ fun DocumentationNode.resolve(scope: JetScope): DocumentationNode {
     }
     return this
 }
+
