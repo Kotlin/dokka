@@ -13,12 +13,7 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
 import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
-import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.jet.lang.resolve.scopes.WritableScope
-import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl
-import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler
-import org.jetbrains.jet.lang.types.TypeUtils
+import org.jetbrains.jet.lang.resolve.scopes.*
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -67,6 +62,25 @@ fun DeclarationDescriptor.isUserCode() =
             else -> true
         }
 
+public fun getClassInnerScope(outerScope: JetScope, descriptor: ClassDescriptor): JetScope {
+    val redeclarationHandler = object : RedeclarationHandler {
+        override fun handleRedeclaration(first: DeclarationDescriptor, second: DeclarationDescriptor) {
+            // TODO: check if we can ignore redeclarations
+        }
+    }
+
+    val parameterScope = WritableScopeImpl(outerScope, descriptor, redeclarationHandler, "Function KDoc scope")
+    for (typeParameter in descriptor.getTypeConstructor().getParameters()) {
+        parameterScope.addTypeParameterDescriptor(typeParameter)
+    }
+    for (constructor in descriptor.getConstructors()) {
+        parameterScope.addFunctionDescriptor(constructor)
+    }
+    parameterScope.addLabeledDeclaration(descriptor)
+    parameterScope.changeLockLevel(WritableScope.LockLevel.READING)
+    return parameterScope
+}
+
 public fun getFunctionInnerScope(outerScope: JetScope, descriptor: FunctionDescriptor): JetScope {
     val redeclarationHandler = object : RedeclarationHandler {
         override fun handleRedeclaration(first: DeclarationDescriptor, second: DeclarationDescriptor) {
@@ -90,17 +104,39 @@ public fun getFunctionInnerScope(outerScope: JetScope, descriptor: FunctionDescr
     return parameterScope
 }
 
+public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescriptor): JetScope {
+    val redeclarationHandler = object : RedeclarationHandler {
+        override fun handleRedeclaration(first: DeclarationDescriptor, second: DeclarationDescriptor) {
+            // TODO: check if we can ignore redeclarations
+        }
+    }
+
+    val parameterScope = WritableScopeImpl(outerScope, descriptor, redeclarationHandler, "Function KDoc scope")
+    val receiver = descriptor.getReceiverParameter()
+    if (receiver != null) {
+        parameterScope.setImplicitReceiver(receiver)
+    }
+    for (typeParameter in descriptor.getTypeParameters()) {
+        parameterScope.addTypeParameterDescriptor(typeParameter)
+    }
+    for (valueParameterDescriptor in descriptor.getValueParameters()) {
+        parameterScope.addVariableDescriptor(valueParameterDescriptor)
+    }
+    for (accessor in descriptor.getAccessors()) {
+        parameterScope.addFunctionDescriptor(accessor)
+    }
+    parameterScope.addLabeledDeclaration(descriptor)
+    parameterScope.changeLockLevel(WritableScope.LockLevel.READING)
+    return parameterScope
+}
+
 fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetScope {
     when (descriptor) {
         is PackageFragmentDescriptor -> return descriptor.getMemberScope()
         is PackageViewDescriptor -> return descriptor.getMemberScope()
-
-        is ClassDescriptorWithResolutionScopes -> return descriptor.getScopeForMemberDeclarationResolution()
-        is ClassDescriptor -> {
-            val typeParameters: List<TypeParameterDescriptor> = descriptor.getTypeConstructor().getParameters()
-            return descriptor.getMemberScope(TypeUtils.getDefaultTypeProjections(typeParameters))
-        }
+        is ClassDescriptor -> return getClassInnerScope(descriptor.getDefaultType().getMemberScope(), descriptor)
         is FunctionDescriptor -> return getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
+        is PropertyDescriptor -> return getPropertyInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
     }
 
     if (descriptor is DeclarationDescriptorNonRoot)

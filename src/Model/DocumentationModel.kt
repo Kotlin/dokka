@@ -59,6 +59,7 @@ public open class DocumentationNode(val name: String,
     }
 
     public fun references(kind: DocumentationReferenceKind): List<DocumentationReference> = references.filter { it.kind == kind }
+    public fun allReferences(): List<DocumentationReference> = references
 
     public override fun toString(): String {
         return "$kind $name"
@@ -86,6 +87,8 @@ fun BindingContext.createDocumentationModel(file: JetFile): DocumentationModel {
 
     val visitor = DocumentationNodeBuilder(this)
     packageFragment.accept(DocumentationBuildingVisitor(this, visitor), model)
+
+    model.resolveAll()
 
     return model
 }
