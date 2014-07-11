@@ -18,6 +18,19 @@ public class ClassTest {
         }
     }
 
+    Test fun emptyObject() {
+        verifyModel("test/data/classes/emptyObject.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Object, kind)
+                assertEquals("Obj", name)
+                assertEquals("", doc)
+                assertTrue(details.none())
+                assertTrue(members.none())
+                assertTrue(links.none())
+            }
+        }
+    }
+
     Test fun classWithConstructor() {
         verifyModel("test/data/classes/classWithConstructor.kt") { model ->
             with (model.nodes.single().members.single()) {

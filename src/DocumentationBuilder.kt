@@ -16,7 +16,7 @@ fun BindingContext.createDocumentation(file: JetFile): DocumentationModel {
     return model
 }
 
-class DocumentationBuilderVisitor(val context : BindingContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
+class DocumentationBuilderVisitor(val context: BindingContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
 
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val doc = context.getDocumentation(descriptor!!).extractText()
@@ -34,7 +34,12 @@ class DocumentationBuilderVisitor(val context : BindingContext) : DeclarationDes
 
     override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val doc = context.getDocumentation(descriptor!!).extractText()
-        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Class)
+        val node = DocumentationNode(descriptor.getName().asString(), doc,
+                                     when (descriptor.getKind()) {
+                                         ClassKind.OBJECT -> DocumentationNodeKind.Object
+                                         else -> DocumentationNodeKind.Class
+                                     }
+                                    )
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }

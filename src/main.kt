@@ -27,36 +27,11 @@ public fun main(args: Array<String>) {
 
     println()
 
-    val results = environment.processFiles { context, file ->
+    val result = environment.processFiles { context, file ->
         println("Processing: ${file.getName()}")
-        println()
-        context.analyseFile(file)
-    }
+        context.createDocumentation(file)
+    }.fold(DocumentationModel()) {(aggregate, item) -> aggregate.merge(item) }
 
-    println()
-    println("Results:")
-    results.forEach {
-        println(it)
-    }
-
+    println(result)
     Disposer.dispose(environment)
-}
-
-
-fun BindingContext.analyseFile(file: JetFile) {
-    val packageFragment = getPackageFragment(file)
-    if (packageFragment == null) {
-        println("PackageFragment is null")
-        return
-    }
-
-    println("Package: ${packageFragment}")
-    for (descriptor in packageFragment.getMemberScope().getAllDescriptors()) {
-        println("Member: ${descriptor}")
-        val doc = getDocumentation(descriptor)
-        if (doc != null) {
-            println("Comment:\n${doc.getText()}")
-        }
-        println()
-    }
 }

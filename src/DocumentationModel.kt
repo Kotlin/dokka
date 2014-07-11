@@ -8,6 +8,7 @@ public enum class DocumentationNodeKind {
 
     Package
     Class
+    Object
     Constructor
     Function
     Property

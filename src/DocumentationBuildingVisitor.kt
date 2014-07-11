@@ -66,9 +66,12 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     public override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        visitChildren(descriptor.getConstructors(), node)
-        visitChildren(descriptor.getTypeConstructor().getParameters(), node)
-        visitChild(descriptor.getClassObjectDescriptor(), node)
+        if (descriptor.getKind() != ClassKind.OBJECT) {
+            // do not go inside object for class object and constructors, they are generated
+            visitChildren(descriptor.getTypeConstructor().getParameters(), node)
+            visitChildren(descriptor.getConstructors(), node)
+            visitChild(descriptor.getClassObjectDescriptor(), node)
+        }
         val members = descriptor.getDefaultType().getMemberScope().getAllDescriptors().filter {
             it !is CallableMemberDescriptor || it.isUserCode()
         }
