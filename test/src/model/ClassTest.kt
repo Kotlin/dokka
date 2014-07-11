@@ -18,6 +18,28 @@ public class ClassTest {
         }
     }
 
+    Test fun genericClass() {
+        verifyModel("test/data/classes/genericClass.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals("Klass", name)
+                assertEquals("", doc)
+
+                with(details.single()) {
+                    assertEquals("T", name)
+                    assertEquals(DocumentationNodeKind.TypeParameter, kind)
+                    assertEquals("", doc)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+
+                assertEquals("<init>", members.single().name)
+                assertTrue(links.none())
+            }
+        }
+    }
+
     Test fun emptyObject() {
         verifyModel("test/data/classes/emptyObject.kt") { model ->
             with(model.nodes.single().members.single()) {

@@ -18,6 +18,28 @@ public class FunctionTest {
         }
     }
 
+    Test fun genericFunction() {
+        verifyModel("test/data/functions/genericFunction.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("generic", name)
+                assertEquals(DocumentationNodeKind.Function, kind)
+                assertEquals("generic function", doc)
+
+                with(details.single()) {
+                    assertEquals("T", name)
+                    assertEquals(DocumentationNodeKind.TypeParameter, kind)
+                    assertEquals("", doc)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+
+                assertTrue(members.none())
+                assertTrue(links.none())
+            }
+        }
+    }
+
     Test fun functionWithParams() {
         verifyModel("test/data/functions/functionWithParams.kt") { model ->
             with(model.nodes.single().members.single()) {

@@ -40,6 +40,7 @@ class ClassWithConstructor(val name: String)
 data class Person(/** Doc at parameter */ val name: String, val age: Int) {}
 
 object Object {
+    throws(javaClass<IllegalArgumentException>())
     fun objectFunction() {
     }
 
