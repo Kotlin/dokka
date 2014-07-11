@@ -5,7 +5,7 @@ import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.descriptors.impl.*
 
-fun BindingContext.createDocumentation(file: JetFile): DocumentationModel {
+fun BindingContext.createSourceModel(file: JetFile): DocumentationModel {
     val model = DocumentationModel()
     val packageFragment = getPackageFragment(file)
     if (packageFragment == null) throw IllegalArgumentException("File $file should have package fragment")

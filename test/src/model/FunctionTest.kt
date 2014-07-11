@@ -30,6 +30,7 @@ Documentation"""
                 with(details.single()) {
                     assertEquals("x", name)
                     assertEquals(DocumentationNodeKind.Parameter, kind)
+                    assertEquals("parameter", doc)
                     assertTrue(details.none())
                     assertTrue(members.none())
                     assertTrue(links.none())

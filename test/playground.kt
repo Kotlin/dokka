@@ -1,5 +1,6 @@
 // this file is not included in sources or tests, you can play with it for debug purposes
 // Console run configuration will analyse it and provide lots of debug output
+package dokka.playground
 
 fun topLevelFunction() {
 }
@@ -32,9 +33,11 @@ class ClassWithConstructor(val name: String)
 
 /**
  * This is data class with constructor and comment after doc
+ * $name Person's name
+ * $age Person's age
  */
 // irrelevant comment
-data class DataClass(val name: String, val age: Int) {}
+data class Person(/** Doc at parameter */ val name: String, val age: Int) {}
 
 object Object {
     fun objectFunction() {
