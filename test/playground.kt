@@ -14,6 +14,9 @@ var topLevelVariable : String
     set(value) {
     }
 
+/**
+ * This is a class
+ */
 class Class {
     fun memberFunction() {
     }

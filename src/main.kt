@@ -52,5 +52,10 @@ fun BindingContext.analyseFile(file: JetFile) {
     println("Package: ${packageFragment}")
     for (descriptor in packageFragment.getMemberScope().getAllDescriptors()) {
         println("Member: ${descriptor}")
+        val doc = getComments(descriptor)
+        if (doc != null) {
+            println("Comment: ${doc.getText()}")
+        }
+        println()
     }
 }
