@@ -20,7 +20,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor!!.getName().asString(), "", DocumentationNodeKind.Receiver, context.getResolutionScope(descriptor))
         data!!.addReferenceTo(node, DocumentationReferenceKind.Detail)
 
-        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.UpperBound, context.getResolutionScope(descriptor))
+        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.Type, context.getResolutionScope(descriptor))
         node.addReferenceTo(typeNode, DocumentationReferenceKind.Detail)
 
         node.addReferenceTo(data, DocumentationReferenceKind.Owner)
@@ -32,7 +32,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Parameter, context.getResolutionScope(descriptor))
         data!!.addReferenceTo(node, DocumentationReferenceKind.Detail)
 
-        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.UpperBound, context.getResolutionScope(descriptor))
+        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.Type, context.getResolutionScope(descriptor))
         node.addReferenceTo(typeNode, DocumentationReferenceKind.Detail)
 
         node.addReferenceTo(data, DocumentationReferenceKind.Owner)
@@ -56,7 +56,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Function, context.getResolutionScope(descriptor))
         data!!.addReferenceTo(node, DocumentationReferenceKind.Member)
 
-        val typeNode = DocumentationNode(descriptor.getReturnType().toString(), "", DocumentationNodeKind.UpperBound, context.getResolutionScope(descriptor))
+        val typeNode = DocumentationNode(descriptor.getReturnType().toString(), "", DocumentationNodeKind.Type, context.getResolutionScope(descriptor))
         node.addReferenceTo(typeNode, DocumentationReferenceKind.Detail)
 
         node.addReferenceTo(data, DocumentationReferenceKind.Owner)
@@ -89,7 +89,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Property, context.getResolutionScope(descriptor))
         data!!.addReferenceTo(node, DocumentationReferenceKind.Member)
 
-        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.UpperBound, context.getResolutionScope(descriptor))
+        val typeNode = DocumentationNode(descriptor.getType().toString(), "", DocumentationNodeKind.Type, context.getResolutionScope(descriptor))
         node.addReferenceTo(typeNode, DocumentationReferenceKind.Detail)
 
         node.addReferenceTo(data, DocumentationReferenceKind.Owner)

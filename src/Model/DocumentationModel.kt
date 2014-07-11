@@ -19,6 +19,7 @@ public enum class DocumentationNodeKind {
     Parameter
     Receiver
     TypeParameter
+    Type
     UpperBound
     LowerBound
     Exception
