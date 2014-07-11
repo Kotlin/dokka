@@ -18,22 +18,13 @@ public class ClassTest {
         }
     }
 
-    Test fun genericClass() {
-        verifyModel("test/data/classes/genericClass.kt") { model ->
+    Test fun gnClass() {
+        verifyModel("test/data/classes/emptyClass.kt") { model ->
             with(model.nodes.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals("", doc)
-
-                with(details.single()) {
-                    assertEquals("T", name)
-                    assertEquals(DocumentationNodeKind.TypeParameter, kind)
-                    assertEquals("", doc)
-                    assertTrue(details.none())
-                    assertTrue(members.none())
-                    assertTrue(links.none())
-                }
-
+                assertTrue(details.none())
                 assertEquals("<init>", members.single().name)
                 assertTrue(links.none())
             }
@@ -72,7 +63,7 @@ public class ClassTest {
                         assertEquals("name", name)
                         assertEquals(DocumentationNodeKind.Parameter, kind)
                         assertEquals("", doc)
-                        assertTrue(details.none())
+                        assertEquals("String", details.single().name)
                         assertTrue(links.none())
                         assertTrue(members.none())
                     }
@@ -105,7 +96,7 @@ public class ClassTest {
                     assertEquals("fn", name)
                     assertEquals("", doc)
                     assertEquals(DocumentationNodeKind.Function, kind)
-                    assertTrue(details.none())
+                    assertEquals("Unit", details.single().name)
                     assertTrue(links.none())
                     assertTrue(members.none())
                 }
@@ -135,7 +126,7 @@ public class ClassTest {
                     assertEquals("name", name)
                     assertEquals("", doc)
                     assertEquals(DocumentationNodeKind.Property, kind)
-                    assertTrue(details.none())
+                    assertEquals("String", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }

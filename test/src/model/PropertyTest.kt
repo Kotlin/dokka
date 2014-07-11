@@ -11,7 +11,7 @@ public class PropertyTest {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals("", doc)
-                assertTrue(details.none())
+                assertEquals("String", details.single().name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -24,7 +24,7 @@ public class PropertyTest {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals("", doc)
-                assertTrue(details.none())
+                assertEquals("String", details.single().name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -37,13 +37,13 @@ public class PropertyTest {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals("", doc)
-                assertTrue(details.none())
+                assertEquals("String", details.single().name)
                 assertTrue(links.none())
                 with(members.single()) {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNodeKind.Function, kind)
                     assertEquals("", doc)
-                    assertTrue(details.none())
+                    assertEquals("String", details.single().name)
                     assertTrue(links.none())
                     assertTrue(members.none())
                 }
@@ -57,7 +57,7 @@ public class PropertyTest {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals("", doc)
-                assertTrue(details.none())
+                assertEquals("String", details.single().name)
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
@@ -65,7 +65,7 @@ public class PropertyTest {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNodeKind.Function, kind)
                     assertEquals("", doc)
-                    assertTrue(details.none())
+                    assertEquals("String", details.single().name)
                     assertTrue(links.none())
                     assertTrue(members.none())
                 }
@@ -73,11 +73,13 @@ public class PropertyTest {
                     assertEquals("<set-property>", name)
                     assertEquals(DocumentationNodeKind.Function, kind)
                     assertEquals("", doc)
-                    with(details.single()) {
+                    assertEquals(2, details.count())
+                    assertEquals("Unit", details.elementAt(0).name)
+                    with(details.elementAt(1)) {
                         assertEquals("value", name)
                         assertEquals(DocumentationNodeKind.Parameter, kind)
                         assertEquals("", doc)
-                        assertTrue(details.none())
+                        assertEquals("String", details.single().name)
                         assertTrue(links.none())
                         assertTrue(members.none())
                     }

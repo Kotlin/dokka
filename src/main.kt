@@ -25,8 +25,8 @@ public fun main(args: Array<String>) {
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         /*
                 addClasspath(PathUtil.getJdkClassesRoots())
+                addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         */
-        addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         addSources(sources)
     }
 

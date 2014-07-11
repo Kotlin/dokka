@@ -11,7 +11,7 @@ public class FunctionTest {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("Function fn", doc)
-                assertTrue(details.none())
+                assertEquals("Unit", details.single().name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -24,11 +24,14 @@ public class FunctionTest {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("Function with receiver", doc)
-                with(details.single()) {
+                assertEquals("Unit", details.elementAt(0).name)
+
+                assertEquals(2, details.count())
+                with(details.elementAt(1)) {
                     assertEquals("<this>", name)
                     assertEquals(DocumentationNodeKind.Receiver, kind)
                     assertEquals("", doc)
-                    assertTrue(details.none())
+                    assertEquals("String", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
@@ -45,7 +48,9 @@ public class FunctionTest {
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("generic function", doc)
 
-                with(details.single()) {
+                assertEquals(2, details.count())
+                assertEquals("Unit", details.elementAt(0).name)
+                with(details.elementAt(1)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNodeKind.TypeParameter, kind)
                     assertEquals("", doc)
@@ -66,8 +71,9 @@ public class FunctionTest {
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("generic function", doc)
 
-                assertEquals(2, details.count())
-                with(details.elementAt(0)) {
+                assertEquals(3, details.count())
+                assertEquals("Unit", details.elementAt(0).name)
+                with(details.elementAt(1)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNodeKind.TypeParameter, kind)
                     assertEquals("", doc)
@@ -82,7 +88,7 @@ public class FunctionTest {
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                with(details.elementAt(1)) {
+                with(details.elementAt(2)) {
                     assertEquals("R", name)
                     assertEquals(DocumentationNodeKind.TypeParameter, kind)
                     assertEquals("", doc)
@@ -105,11 +111,14 @@ public class FunctionTest {
 Function
 Documentation"""
                              , doc)
-                with(details.single()) {
+
+                assertEquals(2, details.count())
+                assertEquals("Unit", details.elementAt(0).name)
+                with(details.elementAt(1)) {
                     assertEquals("x", name)
                     assertEquals(DocumentationNodeKind.Parameter, kind)
                     assertEquals("parameter", doc)
-                    assertTrue(details.none())
+                    assertEquals("Int", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
