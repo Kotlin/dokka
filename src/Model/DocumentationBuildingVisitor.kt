@@ -28,19 +28,19 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
         visitChildren(descriptor.getTypeParameters(), node)
         visitChild(descriptor.getReceiverParameter(), node)
         visitChildren(descriptor.getValueParameters(), node)
-        return node.resolve()
+        return node
     }
 
     public override fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChildren(descriptor.getMemberScope().getAllDescriptors(), node)
-        return node.resolve()
+        return node
     }
 
     public override fun visitPackageViewDescriptor(descriptor: PackageViewDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChildren(descriptor.getMemberScope().getAllDescriptors(), node)
-        return node.resolve()
+        return node
     }
 
     public override fun visitVariableDescriptor(descriptor: VariableDescriptor?, data: DocumentationNode?): DocumentationNode? {
@@ -57,12 +57,12 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
 
     public override fun visitFunctionDescriptor(descriptor: FunctionDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = processCallable(descriptor!!, data!!)
-        return node.resolve()
+        return node
     }
 
     public override fun visitTypeParameterDescriptor(descriptor: TypeParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        return node.resolve()
+        return node
     }
 
     public override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
@@ -77,43 +77,43 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
             it !is CallableMemberDescriptor || it.isUserCode()
         }
         visitChildren(members, node)
-        return node.resolve()
+        return node
     }
 
     public override fun visitModuleDeclaration(descriptor: ModuleDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChild(descriptor.getPackage(FqName.ROOT), node)
-        return node.resolve()
+        return node
     }
 
     public override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = visitFunctionDescriptor(descriptor!!, data)
-        return node?.resolve()
+        return node
     }
 
     public override fun visitScriptDescriptor(scriptDescriptor: ScriptDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val classDescriptor = scriptDescriptor!!.getClassDescriptor()
         val node = visitClassDescriptor(classDescriptor, data)
-        return node?.resolve()
+        return node
     }
 
     public override fun visitValueParameterDescriptor(descriptor: ValueParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = visitVariableDescriptor(descriptor!!, data)
-        return node?.resolve()
+        return node
     }
 
     public override fun visitPropertyGetterDescriptor(descriptor: PropertyGetterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = visitFunctionDescriptor(descriptor!!, data)
-        return node?.resolve()
+        return node
     }
 
     public override fun visitPropertySetterDescriptor(descriptor: PropertySetterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = visitFunctionDescriptor(descriptor!!, data)
-        return node?.resolve()
+        return node
     }
 
     public override fun visitReceiverParameterDescriptor(descriptor: ReceiverParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        return node.resolve()
+        return node
     }
 }
