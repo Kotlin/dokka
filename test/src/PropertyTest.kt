@@ -1,4 +1,4 @@
-package com.jetbrains.dokka.tests
+package org.jetbrains.dokka.tests
 
 import org.junit.Test
 import kotlin.test.*

@@ -1,4 +1,4 @@
-package com.jetbrains.dokka
+package org.jetbrains.dokka
 
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.*

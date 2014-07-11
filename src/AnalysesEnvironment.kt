@@ -1,4 +1,4 @@
-package com.jetbrains.dokka
+package org.jetbrains.dokka
 
 import com.intellij.openapi.*
 import org.jetbrains.jet.cli.common.messages.*

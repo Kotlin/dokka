@@ -1,4 +1,4 @@
-package com.jetbrains.dokka
+package org.jetbrains.dokka
 
 import com.sampullara.cli.*
 import com.intellij.openapi.util.*
@@ -27,11 +27,11 @@ public fun main(args: Array<String>) {
 
     println()
 
-    val result = environment.processFiles { context, file ->
+    val model = environment.processFiles { context, file ->
         println("Processing: ${file.getName()}")
         context.createDocumentation(file)
     }.fold(DocumentationModel()) {(aggregate, item) -> aggregate.merge(item) }
 
-    println(result)
+    println(model)
     Disposer.dispose(environment)
 }

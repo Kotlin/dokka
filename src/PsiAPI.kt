@@ -1,4 +1,4 @@
-package com.jetbrains.dokka
+package org.jetbrains.dokka
 
 import com.intellij.psi.PsiElement
 import kotlin.support.AbstractIterator
