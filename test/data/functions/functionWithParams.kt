@@ -3,4 +3,5 @@
  * Function
  * Documentation
  */
-fun function(x : Int) {}
+fun function(x: Int) {
+}

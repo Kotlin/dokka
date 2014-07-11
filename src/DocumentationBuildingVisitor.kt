@@ -64,11 +64,10 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     public override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        visitChildren(descriptor.getThisAsReceiverParameter(), node)
         visitChildren(descriptor.getConstructors(), node)
         visitChildren(descriptor.getTypeConstructor().getParameters(), node)
         visitChildren(descriptor.getClassObjectDescriptor(), node)
-        visitChildren(descriptor.getDefaultType().getMemberScope().getAllDescriptors(), node)
+        visitChildren(descriptor.getDefaultType().getMemberScope().getOwnDeclaredDescriptors(), node)
         return node
     }
 

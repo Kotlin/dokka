@@ -7,7 +7,8 @@ import org.jetbrains.jet.lang.psi.JetDeclaration
 
 fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): KDoc? {
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
-    if (psiElement == null) throw IllegalArgumentException("$descriptor doesn't have connection to source code, is it synthetic?")
+    if (psiElement == null)
+        throw IllegalArgumentException("$descriptor doesn't have connection to source code, is it synthetic?")
 
     return psiElement.previousSiblings().takeWhile { it !is JetDeclaration }.firstOrNull { it is KDoc } as KDoc?
 }

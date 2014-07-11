@@ -5,7 +5,7 @@ import kotlin.test.*
 import com.jetbrains.dokka.*
 
 
-public class TopLevelFunctionTest {
+public class FunctionTest {
     Test fun function() {
         verifyModel("test/data/functions/function.kt") { model ->
             val item = model.nodes.single().members.single()

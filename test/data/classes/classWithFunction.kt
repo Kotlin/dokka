@@ -1,0 +1,4 @@
+class Klass {
+    fun fn() {
+    }
+}

@@ -32,6 +32,12 @@ class DocumentationBuilderVisitor(val context : BindingContext) : DeclarationDes
         return node
     }
 
+    override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Class)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Member)
+        return node
+    }
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val doc = context.getDocumentation(descriptor!!).extractText()

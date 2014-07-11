@@ -1,0 +1,1 @@
+class Klass(name: String)

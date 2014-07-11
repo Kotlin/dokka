@@ -1,4 +1,5 @@
 /**
  * Function fn
  */
-fun fn() {}
+fun fn() {
+}
