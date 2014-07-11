@@ -1,7 +1,7 @@
 package com.jetbrains.dokka
 
-import com.intellij.psi.PsiFile
 import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.jet.lang.psi.JetFile
 
 public enum class DocumentationNodeKind {
     Package
@@ -13,7 +13,7 @@ public enum class DocumentationNodeKind {
     Exception
 
     Page
-    Module
+    Model
 }
 
 public enum class DocumentationReferenceKind {
@@ -24,7 +24,7 @@ public enum class DocumentationReferenceKind {
     Override
 }
 
-public class DocumentationNode(val name: String, val doc: String, val kind: DocumentationNodeKind) {
+public open class DocumentationNode(val name: String, val doc: String, val kind: DocumentationNodeKind) {
     private val references = arrayListOf<DocumentationReference>()
 
     public val owner: DocumentationNode
@@ -36,39 +36,28 @@ public class DocumentationNode(val name: String, val doc: String, val kind: Docu
     public val links: List<DocumentationNode>
         get() = references(DocumentationReferenceKind.Link).map { it.to }
 
+    // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     public fun addReferenceTo(to: DocumentationNode, kind: DocumentationReferenceKind) {
         references.add(DocumentationReference(this, to, kind))
+    }
+
+    public fun addAllReferencesFrom(other: DocumentationNode) {
+        references.addAll(other.references)
     }
 
     public fun references(kind: DocumentationReferenceKind): List<DocumentationReference> = references.filter { it.kind == kind }
 }
 
-public class DocumentationModel {
-    private val items = arrayListOf<DocumentationNode>()
-
+public class DocumentationModel : DocumentationNode("model", "", DocumentationNodeKind.Model) {
     fun merge(other: DocumentationModel): DocumentationModel {
         val model = DocumentationModel()
-        model.addNodes(other.nodes)
-        model.addNodes(this.nodes)
+        model.addAllReferencesFrom(other)
+        model.addAllReferencesFrom(this)
         return model
     }
 
-    public fun addNode(node: DocumentationNode) {
-        items.add(node)
-    }
-
-    public fun addNodes(nodes: List<DocumentationNode>) {
-        items.addAll(nodes)
-    }
-
     public val nodes: List<DocumentationNode>
-        get() = items
+        get() = members
 }
 
 public data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReferenceKind)
-
-fun BindingContext.createDocumentation(file: PsiFile): DocumentationModel {
-    val model = DocumentationModel()
-    model.addNode(DocumentationNode("fn", "doc", DocumentationNodeKind.Function))
-    return model
-}
