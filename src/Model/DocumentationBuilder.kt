@@ -26,6 +26,12 @@ class DocumentationBuilderVisitor(val context: BindingContext) : DeclarationDesc
         return node
     }
 
+    override fun visitReceiverParameterDescriptor(descriptor: ReceiverParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val node = DocumentationNode(descriptor!!.getName().asString(), "", DocumentationNodeKind.Receiver)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Detail)
+        return node
+    }
+
     override fun visitValueParameterDescriptor(descriptor: ValueParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Parameter)

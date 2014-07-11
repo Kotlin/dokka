@@ -18,6 +18,26 @@ public class FunctionTest {
         }
     }
 
+    Test fun functionWithReceiver() {
+        verifyModel("test/data/functions/functionWithReceiver.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("fn", name)
+                assertEquals(DocumentationNodeKind.Function, kind)
+                assertEquals("Function with receiver", doc)
+                with(details.single()) {
+                    assertEquals("<this>", name)
+                    assertEquals(DocumentationNodeKind.Receiver, kind)
+                    assertEquals("", doc)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+                assertTrue(members.none())
+                assertTrue(links.none())
+            }
+        }
+    }
+
     Test fun genericFunction() {
         verifyModel("test/data/functions/genericFunction.kt") { model ->
             with(model.nodes.single().members.single()) {

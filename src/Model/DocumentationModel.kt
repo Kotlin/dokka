@@ -13,6 +13,7 @@ public enum class DocumentationNodeKind {
     Function
     Property
     Parameter
+    Receiver
     TypeParameter
     UpperBound
     LowerBound
