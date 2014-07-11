@@ -88,7 +88,7 @@ fun BindingContext.createDocumentationModel(file: JetFile): DocumentationModel {
     val visitor = DocumentationNodeBuilder(this)
     packageFragment.accept(DocumentationBuildingVisitor(this, visitor), model)
 
-    model.resolveAll()
+    model.checkResolve()
 
     return model
 }
