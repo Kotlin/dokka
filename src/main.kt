@@ -13,10 +13,11 @@ public fun main(args: Array<String>) {
     val compilerArguments = K2JVMCompilerArguments()
     val sources: List<String> = Args.parse(compilerArguments, args) ?: listOf()
 
-    val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
+    val environment = AnalysesEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
+/*
         addClasspath(PathUtil.getJdkClassesRoots())
         addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
-
+*/
         addSources(sources)
     }
 
@@ -52,9 +53,9 @@ fun BindingContext.analyseFile(file: JetFile) {
     println("Package: ${packageFragment}")
     for (descriptor in packageFragment.getMemberScope().getAllDescriptors()) {
         println("Member: ${descriptor}")
-        val doc = getComments(descriptor)
+        val doc = getDocumentation(descriptor)
         if (doc != null) {
-            println("Comment: ${doc.getText()}")
+            println("Comment:\n${doc.getText()}")
         }
         println()
     }

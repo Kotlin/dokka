@@ -6,10 +6,10 @@ fun topLevelFunction() {
 
 val topLevelConstantValue = "Hello"
 
-val topLevelValue : String
+val topLevelValue: String
     get() = "Bye bye"
 
-var topLevelVariable : String
+var topLevelVariable: String
     get() = "Modify me!"
     set(value) {
     }
@@ -22,6 +22,18 @@ class Class {
     }
 
 }
+
+/**
+ * This is a class with constructor and space after doc
+ */
+
+class ClassWithConstructor(val name: String)
+
+/**
+ * This is data class with constructor and comment after doc
+ */
+// irrelevant comment
+data class DataClass(val name: String, val age: Int) {}
 
 object Object {
     fun objectFunction() {

@@ -6,7 +6,7 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.kdoc.psi.api.*
 import org.jetbrains.jet.lang.psi.JetDeclaration
 
-fun BindingContext.getComments(descriptor: DeclarationDescriptor): KDoc? {
+fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): KDoc? {
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
     if (psiElement == null) throw IllegalArgumentException("$descriptor doesn't have connection to source code, is it synthetic?")
 
