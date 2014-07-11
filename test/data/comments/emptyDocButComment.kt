@@ -1,0 +1,2 @@
+/* comment */
+val property = "test"

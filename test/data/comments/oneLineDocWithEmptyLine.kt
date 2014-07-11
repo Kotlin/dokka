@@ -1,0 +1,3 @@
+/** doc */
+
+val property = "test"

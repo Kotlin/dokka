@@ -19,21 +19,21 @@ fun BindingContext.createDocumentation(file: JetFile): DocumentationModel {
 class DocumentationBuilderVisitor(val context: BindingContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
 
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Unknown)
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }
 
     override fun visitValueParameterDescriptor(descriptor: ValueParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Parameter)
         data?.addReferenceTo(node, DocumentationReferenceKind.Detail)
         return node
     }
 
     override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc,
                                      when (descriptor.getKind()) {
                                          ClassKind.OBJECT -> DocumentationNodeKind.Object
@@ -45,21 +45,21 @@ class DocumentationBuilderVisitor(val context: BindingContext) : DeclarationDesc
     }
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Function)
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }
 
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Property)
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node
     }
 
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val doc = context.getDocumentation(descriptor!!).extractText()
+        val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Constructor)
         data?.addReferenceTo(node, DocumentationReferenceKind.Member)
         return node

@@ -21,6 +21,7 @@ class Class {
     fun memberFunction() {
     }
 
+    val memberValue = "Member"
 }
 
 /**
@@ -38,6 +39,11 @@ data class DataClass(val name: String, val age: Int) {}
 object Object {
     fun objectFunction() {
     }
+
+    val objectValue: String
+    /** one line getter doc */
+        get() = "Member"
+
 }
 
 class OuterClass {
