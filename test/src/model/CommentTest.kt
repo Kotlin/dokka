@@ -74,4 +74,87 @@ doc3""", doc.summary)
             }
         }
     }
+
+    Test fun emptySection() {
+        verifyModel("test/data/comments/emptySection.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("", text)
+                }
+            }
+        }
+    }
+
+    Test fun section1() {
+        verifyModel("test/data/comments/section1.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("section one", text)
+                }
+            }
+        }
+    }
+
+    Test fun section2() {
+        verifyModel("test/data/comments/section2.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(2, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("section one", text)
+                }
+                with (doc.sections.elementAt(1)) {
+                    assertEquals("two", label)
+                    assertEquals("section two", text)
+                }
+            }
+        }
+    }
+
+    Test fun sectionOnOneLine() {
+        verifyModel("test/data/comments/sectionOnOneLine.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("same line", text)
+                }
+            }
+        }
+    }
+
+    Test fun emptySectionOnOneLine() {
+        verifyModel("test/data/comments/emptySectionOnOneLine.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("", text)
+                }
+            }
+        }
+    }
+
+    Test fun multilineSection() {
+        verifyModel("test/data/comments/multilineSection.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("one", label)
+                    assertEquals("""line one
+line two""", text)
+                }
+            }
+        }
+    }
 }
