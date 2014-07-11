@@ -39,6 +39,34 @@ public class FunctionTest {
             }
         }
     }
+    Test fun genericFunctionWithConstraints() {
+        verifyModel("test/data/functions/genericFunctionWithConstraints.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("generic", name)
+                assertEquals(DocumentationNodeKind.Function, kind)
+                assertEquals("generic function", doc)
+
+                with(details.single()) {
+                    assertEquals("T", name)
+                    assertEquals(DocumentationNodeKind.TypeParameter, kind)
+                    assertEquals("", doc)
+                    with(details.single()) {
+                        assertEquals("CharSequence", name)
+                        assertEquals(DocumentationNodeKind.UpperBound, kind)
+                        assertEquals("", doc)
+                        assertTrue(details.none())
+                        assertTrue(members.none())
+                        assertTrue(links.none())
+                    }
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+
+                assertTrue(members.none())
+                assertTrue(links.none())
+            }
+        }
+    }
 
     Test fun functionWithParams() {
         verifyModel("test/data/functions/functionWithParams.kt") { model ->

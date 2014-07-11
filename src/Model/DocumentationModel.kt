@@ -14,6 +14,8 @@ public enum class DocumentationNodeKind {
     Property
     Parameter
     TypeParameter
+    UpperBound
+    LowerBound
     Exception
 
     Page

@@ -4,6 +4,7 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.descriptors.impl.*
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 fun BindingContext.createSourceModel(file: JetFile): DocumentationModel {
     val model = DocumentationModel()
@@ -55,6 +56,19 @@ class DocumentationBuilderVisitor(val context: BindingContext) : DeclarationDesc
         val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.TypeParameter)
         data?.addReferenceTo(node, DocumentationReferenceKind.Detail)
+        val builtIns = KotlinBuiltIns.getInstance()
+        for (constraint in descriptor.getUpperBounds()) {
+            if (constraint == builtIns.getDefaultBound())
+                continue
+            val constraintNode = DocumentationNode(constraint.toString(), "", DocumentationNodeKind.UpperBound)
+            node.addReferenceTo(constraintNode, DocumentationReferenceKind.Detail)
+        }
+        for (constraint in descriptor.getLowerBounds()) {
+            if (builtIns.isNothing(constraint))
+                continue
+            val constraintNode = DocumentationNode(constraint.toString(), "", DocumentationNodeKind.LowerBound)
+            node.addReferenceTo(constraintNode, DocumentationReferenceKind.Detail)
+        }
         return node
     }
 
