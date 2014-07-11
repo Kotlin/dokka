@@ -67,7 +67,10 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
         visitChildren(descriptor.getConstructors(), node)
         visitChildren(descriptor.getTypeConstructor().getParameters(), node)
         visitChildren(descriptor.getClassObjectDescriptor(), node)
-        visitChildren(descriptor.getDefaultType().getMemberScope().getOwnDeclaredDescriptors(), node)
+        val members = descriptor.getDefaultType().getMemberScope().getAllDescriptors().filter {
+            it !is CallableMemberDescriptor || it.getKind().isReal()
+        }
+        visitChildren(members, node)
         return node
     }
 

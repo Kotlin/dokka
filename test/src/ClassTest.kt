@@ -36,7 +36,9 @@ public class ClassTest {
             assertEquals("Klass", item.name)
             assertEquals("", item.doc)
             assertTrue(item.details.none())
-            assertEquals("<init>", item.members.single().name)
+            assertEquals(2, item.members.count())
+            assertEquals("<init>", item.members.elementAt(0).name)
+            assertEquals("fn", item.members.elementAt(1).name)
             assertTrue(item.links.none())
         }
     }
