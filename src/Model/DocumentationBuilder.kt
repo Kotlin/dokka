@@ -6,13 +6,13 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.descriptors.impl.*
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
-fun BindingContext.createSourceModel(file: JetFile): DocumentationModel {
+fun BindingContext.createDocumentationModel(file: JetFile): DocumentationModel {
     val model = DocumentationModel()
     val packageFragment = getPackageFragment(file)
     if (packageFragment == null) throw IllegalArgumentException("File $file should have package fragment")
 
     val visitor = DocumentationBuilderVisitor(this)
-    visitDescriptor(packageFragment, model, visitor)
+    packageFragment.accept(DocumentationBuildingVisitor(this, visitor), model)
 
     return model
 }

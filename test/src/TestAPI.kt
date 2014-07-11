@@ -28,7 +28,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> U
     }
 
     val result = environment.processFiles { context, file ->
-        context.createSourceModel(file)
+        context.createDocumentationModel(file)
     }.fold(DocumentationModel()) {(aggregate, item) -> aggregate.merge(item) }
     verifier(result)
     Disposer.dispose(environment)

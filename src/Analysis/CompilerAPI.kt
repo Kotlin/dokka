@@ -13,6 +13,11 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
 import org.jetbrains.jet.lang.descriptors.*
+import org.jetbrains.jet.lang.resolve.scopes.JetScope
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.jet.lang.resolve.scopes.WritableScope
+import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl
+import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -60,3 +65,55 @@ fun DeclarationDescriptor.isUserCode() =
             is CallableMemberDescriptor -> getKind() == CallableMemberDescriptor.Kind.DECLARATION
             else -> true
         }
+
+public fun getFunctionInnerScope(outerScope: JetScope, descriptor: FunctionDescriptor): JetScope {
+    val redeclarationHandler = object : RedeclarationHandler {
+        override fun handleRedeclaration(first: DeclarationDescriptor, second: DeclarationDescriptor) {
+            // TODO: check if we can ignore redeclarations
+        }
+    }
+
+    val parameterScope = WritableScopeImpl(outerScope, descriptor, redeclarationHandler, "Function KDoc scope")
+    val receiver = descriptor.getReceiverParameter()
+    if (receiver != null) {
+        parameterScope.setImplicitReceiver(receiver)
+    }
+    for (typeParameter in descriptor.getTypeParameters()) {
+        parameterScope.addTypeParameterDescriptor(typeParameter)
+    }
+    for (valueParameterDescriptor in descriptor.getValueParameters()) {
+        parameterScope.addVariableDescriptor(valueParameterDescriptor)
+    }
+    parameterScope.addLabeledDeclaration(descriptor)
+    parameterScope.changeLockLevel(WritableScope.LockLevel.READING)
+    return parameterScope
+}
+
+fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetScope {
+    when (descriptor) {
+        is PackageFragmentDescriptor -> return descriptor.getMemberScope()
+        is PackageViewDescriptor -> return descriptor.getMemberScope()
+
+        is ClassDescriptor -> return descriptor.getUnsubstitutedInnerClassesScope()
+        is PropertyAccessorDescriptor -> return getResolutionScope(descriptor.getCorrespondingProperty())
+        is FunctionDescriptor -> {
+            val container = getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
+            if (container is JetFunction)
+                return getFunctionBodyScope(container)
+        }
+    }
+
+    if (descriptor is DeclarationDescriptorNonRoot)
+        return getResolutionScope(descriptor.getContainingDeclaration())
+
+    throw IllegalArgumentException("Cannot find resolution scope for root $descriptor")
+}
+
+fun BindingContext.getFunctionBodyScope(element: JetFunction): JetScope {
+    val body = element.getBodyExpression()
+    val scope = get(BindingContext.RESOLUTION_SCOPE, body)
+    if (scope != null)
+        return scope
+    throw IllegalArgumentException("Cannot find resolution scope for function $element")
+}
+

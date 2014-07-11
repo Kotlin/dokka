@@ -1,9 +1,10 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.jet.lang.resolve.name.*
+import org.jetbrains.jet.lang.resolve.*
 
-class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)
+class DocumentationBuildingVisitor(val context: BindingContext, private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)
 : DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode> {
 
     private fun visitChildren(descriptors: Collection<DeclarationDescriptor>, data: DocumentationNode) {
@@ -27,19 +28,19 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
         visitChildren(descriptor.getTypeParameters(), node)
         visitChild(descriptor.getReceiverParameter(), node)
         visitChildren(descriptor.getValueParameters(), node)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChildren(descriptor.getMemberScope().getAllDescriptors(), node)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitPackageViewDescriptor(descriptor: PackageViewDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChildren(descriptor.getMemberScope().getAllDescriptors(), node)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitVariableDescriptor(descriptor: VariableDescriptor?, data: DocumentationNode?): DocumentationNode? {
@@ -56,12 +57,12 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     public override fun visitFunctionDescriptor(descriptor: FunctionDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = processCallable(descriptor!!, data!!)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitTypeParameterDescriptor(descriptor: TypeParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitClassDescriptor(descriptor: ClassDescriptor?, data: DocumentationNode?): DocumentationNode? {
@@ -76,46 +77,43 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
             it !is CallableMemberDescriptor || it.isUserCode()
         }
         visitChildren(members, node)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitModuleDeclaration(descriptor: ModuleDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
         visitChild(descriptor.getPackage(FqName.ROOT), node)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
 
-    public override fun visitConstructorDescriptor(constructorDescriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitFunctionDescriptor(constructorDescriptor, data)
-        return node
+    public override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val node = visitFunctionDescriptor(descriptor!!, data)
+        return node?.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitScriptDescriptor(scriptDescriptor: ScriptDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitClassDescriptor(scriptDescriptor!!.getClassDescriptor(), data)
-        return node
+        val classDescriptor = scriptDescriptor!!.getClassDescriptor()
+        val node = visitClassDescriptor(classDescriptor, data)
+        return node?.resolve(context.getResolutionScope(classDescriptor))
     }
 
     public override fun visitValueParameterDescriptor(descriptor: ValueParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitVariableDescriptor(descriptor, data)
-        return node
+        val node = visitVariableDescriptor(descriptor!!, data)
+        return node?.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitPropertyGetterDescriptor(descriptor: PropertyGetterDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitFunctionDescriptor(descriptor, data)
-        return node
+        val node = visitFunctionDescriptor(descriptor!!, data)
+        return node?.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitPropertySetterDescriptor(descriptor: PropertySetterDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitFunctionDescriptor(descriptor, data)
-        return node
+        val node = visitFunctionDescriptor(descriptor!!, data)
+        return node?.resolve(context.getResolutionScope(descriptor))
     }
 
     public override fun visitReceiverParameterDescriptor(descriptor: ReceiverParameterDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        return node
+        return node.resolve(context.getResolutionScope(descriptor))
     }
-}
-
-public fun visitDescriptor(descriptor: DeclarationDescriptor, data: DocumentationNode, visitor: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>): DocumentationNode {
-    return descriptor.accept(DocumentationBuildingVisitor(visitor), data)
 }
