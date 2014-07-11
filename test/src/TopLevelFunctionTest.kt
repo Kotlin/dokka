@@ -7,7 +7,7 @@ import com.jetbrains.dokka.*
 
 public class TopLevelFunctionTest {
     Test fun function() {
-        verifyFiles("test/data/functions/function.kt") { model ->
+        verifyModel("test/data/functions/function.kt") { model ->
             val item = model.nodes.single().members.single()
             assertEquals(DocumentationNodeKind.Function, item.kind)
             assertEquals("fn", item.name)
@@ -19,7 +19,7 @@ public class TopLevelFunctionTest {
     }
 
     Test fun functionWithParams() {
-        verifyFiles("test/data/functions/functionWithParams.kt") { model ->
+        verifyModel("test/data/functions/functionWithParams.kt") { model ->
             val item = model.nodes.single().members.single()
             assertEquals(DocumentationNodeKind.Function, item.kind)
             assertEquals("function", item.name)

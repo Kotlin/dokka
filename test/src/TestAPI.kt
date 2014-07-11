@@ -5,7 +5,7 @@ import com.intellij.openapi.util.*
 import com.jetbrains.dokka.*
 import kotlin.test.fail
 
-public fun verifyFiles(vararg files: String, verifier: (DocumentationModel) -> Unit) {
+public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {

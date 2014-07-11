@@ -6,7 +6,7 @@ import com.jetbrains.dokka.*
 
 public class PackageTest {
     Test fun rootPackage() {
-        verifyFiles("test/data/packages/rootPackage.kt") { model ->
+        verifyModel("test/data/packages/rootPackage.kt") { model ->
             val item = model.nodes.single()
             assertEquals(DocumentationNodeKind.Package, item.kind)
             assertEquals("", item.name)
@@ -18,7 +18,7 @@ public class PackageTest {
     }
 
     Test fun simpleNamePackage() {
-        verifyFiles("test/data/packages/simpleNamePackage.kt") { model ->
+        verifyModel("test/data/packages/simpleNamePackage.kt") { model ->
             val item = model.nodes.single()
             assertEquals(DocumentationNodeKind.Package, item.kind)
             assertEquals("simple", item.name)
@@ -30,7 +30,7 @@ public class PackageTest {
     }
 
     Test fun dottedNamePackage() {
-        verifyFiles("test/data/packages/dottedNamePackage.kt") { model ->
+        verifyModel("test/data/packages/dottedNamePackage.kt") { model ->
             val item = model.nodes.single()
             assertEquals(DocumentationNodeKind.Package, item.kind)
             assertEquals("dot.name", item.name)
