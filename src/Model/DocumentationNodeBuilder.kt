@@ -35,6 +35,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val doc = context.getDocumentation(descriptor!!)
         val node = DocumentationNode(descriptor.getName().asString(), doc, when (descriptor.getKind()) {
             ClassKind.OBJECT -> DocumentationNodeKind.Object
+            ClassKind.TRAIT -> DocumentationNodeKind.Trait
             else -> DocumentationNodeKind.Class
         }, context.getResolutionScope(descriptor))
         data!!.addReferenceTo(node, DocumentationReferenceKind.Member)

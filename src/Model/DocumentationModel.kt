@@ -9,6 +9,7 @@ public enum class DocumentationNodeKind {
 
     Package
     Class
+    Trait
     Object
 
     Constructor
