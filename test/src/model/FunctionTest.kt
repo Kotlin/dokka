@@ -66,18 +66,26 @@ public class FunctionTest {
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("generic function", doc)
 
-                with(details.single()) {
+                assertEquals(2, details.count())
+                with(details.elementAt(0)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNodeKind.TypeParameter, kind)
                     assertEquals("", doc)
                     with(details.single()) {
-                        assertEquals("CharSequence", name)
+                        assertEquals("R", name)
                         assertEquals(DocumentationNodeKind.UpperBound, kind)
                         assertEquals("", doc)
                         assertTrue(details.none())
                         assertTrue(members.none())
                         assertTrue(links.none())
                     }
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
+                with(details.elementAt(1)) {
+                    assertEquals("R", name)
+                    assertEquals(DocumentationNodeKind.TypeParameter, kind)
+                    assertEquals("", doc)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }

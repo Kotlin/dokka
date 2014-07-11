@@ -53,6 +53,10 @@ public open class DocumentationNode(val name: String, val doc: String, val kind:
     }
 
     public fun references(kind: DocumentationReferenceKind): List<DocumentationReference> = references.filter { it.kind == kind }
+
+    public override fun toString() : String {
+        return "$kind $name"
+    }
 }
 
 public class DocumentationModel : DocumentationNode("model", "", DocumentationNodeKind.Model) {

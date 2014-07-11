@@ -2,5 +2,5 @@
 /**
  * generic function
  */
-fun <T : CharSequence> generic() {
+fun <T : R, R> generic() {
 }

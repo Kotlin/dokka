@@ -18,6 +18,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope
 import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl
 import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler
+import org.jetbrains.jet.lang.types.TypeUtils
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -94,13 +95,12 @@ fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetSco
         is PackageFragmentDescriptor -> return descriptor.getMemberScope()
         is PackageViewDescriptor -> return descriptor.getMemberScope()
 
-        is ClassDescriptor -> return descriptor.getUnsubstitutedInnerClassesScope()
-        is PropertyAccessorDescriptor -> return getResolutionScope(descriptor.getCorrespondingProperty())
-        is FunctionDescriptor -> {
-            val container = getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
-            if (container is JetFunction)
-                return getFunctionBodyScope(container)
+        is ClassDescriptorWithResolutionScopes -> return descriptor.getScopeForMemberDeclarationResolution()
+        is ClassDescriptor -> {
+            val typeParameters: List<TypeParameterDescriptor> = descriptor.getTypeConstructor().getParameters()
+            return descriptor.getMemberScope(TypeUtils.getDefaultTypeProjections(typeParameters))
         }
+        is FunctionDescriptor -> return getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
     }
 
     if (descriptor is DeclarationDescriptorNonRoot)
@@ -108,12 +108,3 @@ fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetSco
 
     throw IllegalArgumentException("Cannot find resolution scope for root $descriptor")
 }
-
-fun BindingContext.getFunctionBodyScope(element: JetFunction): JetScope {
-    val body = element.getBodyExpression()
-    val scope = get(BindingContext.RESOLUTION_SCOPE, body)
-    if (scope != null)
-        return scope
-    throw IllegalArgumentException("Cannot find resolution scope for function $element")
-}
-
