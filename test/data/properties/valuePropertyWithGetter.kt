@@ -1,0 +1,2 @@
+val property
+    get() = "test"

@@ -9,8 +9,8 @@ public class FunctionTest {
     Test fun function() {
         verifyModel("test/data/functions/function.kt") { model ->
             with(model.nodes.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("fn", name)
+                assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("Function fn", doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
@@ -22,14 +22,19 @@ public class FunctionTest {
     Test fun functionWithParams() {
         verifyModel("test/data/functions/functionWithParams.kt") { model ->
             with(model.nodes.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("function", name)
+                assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("""Multiline
 Function
 Documentation"""
                              , doc)
-                assertEquals("x", details.single().name)
-                assertEquals(DocumentationNodeKind.Parameter, details.single().kind)
+                with(details.single()) {
+                    assertEquals("x", name)
+                    assertEquals(DocumentationNodeKind.Parameter, kind)
+                    assertTrue(details.none())
+                    assertTrue(members.none())
+                    assertTrue(links.none())
+                }
 
                 assertTrue(members.none())
                 assertTrue(links.none())
