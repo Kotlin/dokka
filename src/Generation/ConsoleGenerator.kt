@@ -12,7 +12,7 @@ public class ConsoleGenerator() {
 
     public fun generateHeader(node: DocumentationNode, indent: String = "") {
         println("$indent${node.kind}: ${node.name}")
-        println("$indent\"${node.doc.replace("\n", "\n$indent")}\"")
+        println("$indent\"${node.doc.summary.replace("\n", "\n$indent")}\"")
         println()
     }
 

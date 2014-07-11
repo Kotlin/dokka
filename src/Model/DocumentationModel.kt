@@ -36,7 +36,7 @@ public enum class DocumentationReferenceKind {
 }
 
 public open class DocumentationNode(val name: String,
-                                    val doc: String,
+                                    val doc: DocumentationContent,
                                     val kind: DocumentationNodeKind,
                                     val scope: JetScope) {
     private val references = arrayListOf<DocumentationReference>()
@@ -67,7 +67,7 @@ public open class DocumentationNode(val name: String,
     }
 }
 
-public class DocumentationModel : DocumentationNode("model", "", DocumentationNodeKind.Model, JetScope.EMPTY) {
+public class DocumentationModel : DocumentationNode("model", DocumentationContent.Empty, DocumentationNodeKind.Model, JetScope.EMPTY) {
     fun merge(other: DocumentationModel): DocumentationModel {
         val model = DocumentationModel()
         model.addAllReferencesFrom(other)

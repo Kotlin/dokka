@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.descriptors.*
+import org.jetbrains.jet.lang.resolve.name.*
 
 fun DocumentationNode.checkResolve() {
     val parentScope = scope
@@ -31,7 +31,7 @@ fun DocumentationNode.checkResolve() {
     }
 }
 
-fun path(node: DocumentationNode) : String {
+fun path(node: DocumentationNode): String {
     val owner = node.owner
     if (owner != null)
         return "$node in ${path(owner)}"

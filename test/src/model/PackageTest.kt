@@ -10,7 +10,7 @@ public class PackageTest {
             with(model.nodes.single()) {
                 assertEquals(DocumentationNodeKind.Package, kind)
                 assertEquals("", name)
-                assertEquals("", doc)
+                assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class PackageTest {
             with(model.nodes.single()) {
                 assertEquals(DocumentationNodeKind.Package, kind)
                 assertEquals("simple", name)
-                assertEquals("", doc)
+                assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -36,7 +36,7 @@ public class PackageTest {
             with(model.nodes.single()) {
                 assertEquals(DocumentationNodeKind.Package, kind)
                 assertEquals("dot.name", name)
-                assertEquals("", doc)
+                assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
