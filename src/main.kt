@@ -1,38 +1,49 @@
 package com.jetbrains.dokka
 
-import org.jetbrains.jet.cli.common.arguments.*
 import com.sampullara.cli.*
 import com.intellij.openapi.util.*
 import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.utils.*
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetFile
+import org.jetbrains.jet.cli.common.arguments.K2JVMCompilerArguments
 
 public fun main(args: Array<String>) {
-    val dokka = DokkaContext(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR)
 
-    dokka.addClasspath(getClasspath(PathUtil.getKotlinPathsForCompiler()))
-    val arguments = K2JVMCompilerArguments()
-    val sources: List<String> = Args.parse(arguments, args) ?: listOf()
-    dokka.addSources(sources)
+    val compilerArguments = K2JVMCompilerArguments()
+    val sources: List<String> = Args.parse(compilerArguments, args) ?: listOf()
+
+    val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
+        addClasspath(PathUtil.getJdkClassesRoots())
+        addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
+
+        addSources(sources)
+    }
 
     println("Dokka is preparing sources and libraries...")
-    println("Sources: ${dokka.sources.join()}")
-    println("Classpath: ${dokka.classpath.joinToString()}")
+    println("Sources: ${environment.sources.join()}")
+    println("Classpath: ${environment.classpath.joinToString()}")
 
     println()
 
-    dokka.analyzeFiles { context, file ->
+    val results = environment.processFiles { context, file ->
         println("Processing: ${file.getName()}")
         println()
-        analyseFile(context, file)
+        context.analyseFile(file)
     }
 
-    Disposer.dispose(dokka)
+    println()
+    println("Results:")
+    results.forEach {
+        println(it)
+    }
+
+    Disposer.dispose(environment)
 }
 
-fun analyseFile(context: BindingContext, file: JetFile) {
-    val packageFragment = context.get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
+
+fun BindingContext.analyseFile(file: JetFile) {
+    val packageFragment = getPackageFragment(file)
     if (packageFragment == null) {
         println("PackageFragment is null")
         return

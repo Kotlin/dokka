@@ -12,30 +12,33 @@ import com.intellij.openapi.util.Disposer
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetFile
 
-public class DokkaContext(val messageCollector: MessageCollector) : Disposable {
-    val configuration = CompilerConfiguration()
+public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.()->Unit = {}) : Disposable {
+    val configuration = CompilerConfiguration();
 
-            ;
     {
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+        body()
     }
 
-    private fun analyze<T>(analyser: (JetCoreEnvironment, BindingContext) -> T) {
+    private fun processContext<T>(processor: (JetCoreEnvironment, BindingContext) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
         val result = environment.analyze(messageCollector)
-        analyser(environment, result)
+        return processor(environment, result)
     }
 
-    public fun analyze<T>(analyser: (BindingContext) -> T) {
-        analyze { environment, context ->
-            analyser(context)
+    public fun processContext<T>(processor: (BindingContext) -> T): T {
+        return processContext { environment, context -> processor(context) }
+    }
+
+    public fun streamFiles<T>(processor: (BindingContext, JetFile) -> T): Stream<T> {
+        return processContext { environment, context ->
+            environment.getSourceFiles().stream().map { file -> processor(context, file) }
         }
     }
 
-    public fun analyzeFiles<T>(analyser: (BindingContext, JetFile) -> T) {
-        analyze { environment, context ->
-            for (file in environment.getSourceFiles())
-                analyser(context, file)
+    public fun processFiles<T>(processor: (BindingContext, JetFile) -> T): List<T> {
+        return processContext { environment, context ->
+            environment.getSourceFiles().map { file -> processor(context, file) }
         }
     }
 
@@ -44,6 +47,10 @@ public class DokkaContext(val messageCollector: MessageCollector) : Disposable {
 
     public fun addClasspath(list: List<File>) {
         configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, list)
+    }
+
+    public fun addClasspath(file: File) {
+        configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, file)
     }
 
     public val sources: List<String>

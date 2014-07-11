@@ -13,13 +13,6 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
 
-private fun getClasspath(paths: KotlinPaths): MutableList<File> {
-    val classpath = arrayListOf<File>()
-    classpath.addAll(PathUtil.getJdkClassesRoots())
-    classpath.add(paths.getRuntimePath())
-    return classpath
-}
-
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
     annotationsPath.add(paths.getJdkAnnotationsPath())
@@ -56,3 +49,5 @@ private fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): Bind
 }
 
 fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)
+
+fun BindingContext.getPackageFragment(file: JetFile) = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
