@@ -8,12 +8,14 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     private fun visitChildren(descriptors: Collection<DeclarationDescriptor>, data: DocumentationNode) {
         for (descriptor in descriptors) {
-            descriptor.accept(this, data)
+            if (descriptor.isUserCode())
+                descriptor.accept(this, data)
         }
     }
 
-    private fun visitChildren(descriptor: DeclarationDescriptor?, data: DocumentationNode) {
-        descriptor?.accept(this, data)
+    private fun visitChild(descriptor: DeclarationDescriptor?, data: DocumentationNode) {
+        if (descriptor != null && descriptor.isUserCode())
+            descriptor.accept(this, data)
     }
 
     private fun createDocumentation(descriptor: DeclarationDescriptor, data: DocumentationNode): DocumentationNode {
@@ -23,7 +25,7 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
     private fun processCallable(descriptor: CallableDescriptor, data: DocumentationNode): DocumentationNode {
         val node = createDocumentation(descriptor, data)
         visitChildren(descriptor.getTypeParameters(), node)
-        visitChildren(descriptor.getReceiverParameter(), node)
+        visitChild(descriptor.getReceiverParameter(), node)
         visitChildren(descriptor.getValueParameters(), node)
         return node
     }
@@ -47,8 +49,8 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     public override fun visitPropertyDescriptor(descriptor: PropertyDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = processCallable(descriptor!!, data!!)
-        visitChildren(descriptor.getGetter(), node)
-        visitChildren(descriptor.getSetter(), node)
+        visitChild(descriptor.getGetter(), node)
+        visitChild(descriptor.getSetter(), node)
         return node
     }
 
@@ -66,9 +68,9 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
         val node = createDocumentation(descriptor!!, data!!)
         visitChildren(descriptor.getConstructors(), node)
         visitChildren(descriptor.getTypeConstructor().getParameters(), node)
-        visitChildren(descriptor.getClassObjectDescriptor(), node)
+        visitChild(descriptor.getClassObjectDescriptor(), node)
         val members = descriptor.getDefaultType().getMemberScope().getAllDescriptors().filter {
-            it !is CallableMemberDescriptor || it.getKind().isReal()
+            it !is CallableMemberDescriptor || it.isUserCode()
         }
         visitChildren(members, node)
         return node
@@ -76,7 +78,7 @@ class DocumentationBuildingVisitor(private val worker: DeclarationDescriptorVisi
 
     public override fun visitModuleDeclaration(descriptor: ModuleDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = createDocumentation(descriptor!!, data!!)
-        visitChildren(descriptor.getPackage(FqName.ROOT), node)
+        visitChild(descriptor.getPackage(FqName.ROOT), node)
         return node
     }
 

@@ -31,13 +31,18 @@ public class ClassTest {
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
                     assertEquals("", doc)
+                    assertEquals(DocumentationNodeKind.Constructor, kind)
                     assertEquals(1, details.count())
                     with(details.elementAt(0)) {
                         assertEquals("name", name)
+                        assertEquals(DocumentationNodeKind.Parameter, kind)
                         assertEquals("", doc)
+                        assertTrue(details.none())
+                        assertTrue(links.none())
+                        assertTrue(members.none())
                     }
-                    assertTrue(members.none())
                     assertTrue(links.none())
+                    assertTrue(members.none())
                 }
             }
         }
@@ -56,13 +61,45 @@ public class ClassTest {
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
                     assertEquals("", doc)
+                    assertEquals(DocumentationNodeKind.Constructor, kind)
+                    assertTrue(details.none())
+                    assertTrue(links.none())
+                    assertTrue(members.none())
+                }
+                with(members.elementAt(1)) {
+                    assertEquals("fn", name)
+                    assertEquals("", doc)
+                    assertEquals(DocumentationNodeKind.Function, kind)
+                    assertTrue(details.none())
+                    assertTrue(links.none())
+                    assertTrue(members.none())
+                }
+            }
+        }
+    }
+
+    Test fun classWithProperty() {
+        verifyModel("test/data/classes/classWithProperty.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals("Klass", name)
+                assertEquals("", doc)
+                assertTrue(details.none())
+                assertTrue(links.none())
+
+                assertEquals(2, members.count())
+                with(members.elementAt(0)) {
+                    assertEquals("<init>", name)
+                    assertEquals("", doc)
+                    assertEquals(DocumentationNodeKind.Constructor, kind)
                     assertTrue(details.none())
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
                 with(members.elementAt(1)) {
-                    assertEquals("fn", name)
+                    assertEquals("name", name)
                     assertEquals("", doc)
+                    assertEquals(DocumentationNodeKind.Property, kind)
                     assertTrue(details.none())
                     assertTrue(members.none())
                     assertTrue(links.none())

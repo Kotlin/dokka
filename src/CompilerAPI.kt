@@ -12,6 +12,7 @@ import com.intellij.psi.*
 import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
+import org.jetbrains.jet.lang.descriptors.*
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -51,3 +52,11 @@ private fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): Bind
 fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)
 
 fun BindingContext.getPackageFragment(file: JetFile) = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
+
+fun DeclarationDescriptor.isUserCode() =
+        when (this) {
+            is PackageFragmentDescriptor -> false
+            is PropertyAccessorDescriptor -> !isDefault()
+            is CallableMemberDescriptor -> getKind() == CallableMemberDescriptor.Kind.DECLARATION
+            else -> true
+        }

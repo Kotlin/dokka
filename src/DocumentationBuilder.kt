@@ -46,6 +46,19 @@ class DocumentationBuilderVisitor(val context : BindingContext) : DeclarationDes
         return node
     }
 
+    override fun visitPropertyDescriptor(descriptor: PropertyDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Property)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Member)
+        return node
+    }
+
+    override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val doc = context.getDocumentation(descriptor!!).extractText()
+        val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNodeKind.Constructor)
+        data?.addReferenceTo(node, DocumentationReferenceKind.Member)
+        return node
+    }
 
     override fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = DocumentationNode(descriptor!!.fqName.asString(), "", DocumentationNodeKind.Package)
