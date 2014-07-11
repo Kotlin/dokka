@@ -23,10 +23,18 @@ fun DocumentationNode.checkResolve() {
         }
 
         if (symbol == null)
-            throw IllegalStateException("Cannot resolve $item in $this")
+            println("WARNING: Cannot resolve $item in ${path(this)}")
     }
 
     for (reference in allReferences().filterNot { it.kind == DocumentationReferenceKind.Owner }) {
         reference.to.checkResolve()
     }
+}
+
+fun path(node: DocumentationNode) : String {
+    val owner = node.owner
+    if (owner != null)
+        return "$node in ${path(owner)}"
+    else
+        return "$node"
 }

@@ -29,7 +29,7 @@ class Class {
  * This is a class with constructor and space after doc
  */
 
-class ClassWithConstructor(/** Doc at parameter */ val name: String)
+class ClassWithConstructor(/** Doc at parameter */ val name: Class)
 
 /**
  * This is data class $Person with constructor and two properties
@@ -37,7 +37,7 @@ class ClassWithConstructor(/** Doc at parameter */ val name: String)
  * $name: Person's name
  * $age: Person's age
  */
-data class Person(val name: String, val age: Int) {}
+data class Person(val name: ClassWithConstructor, val age: Int) {}
 
 object Object {
     throws(javaClass<IllegalArgumentException>())

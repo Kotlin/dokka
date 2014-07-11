@@ -4,6 +4,7 @@ import com.sampullara.cli.*
 import com.intellij.openapi.util.*
 import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
+import org.jetbrains.jet.utils.PathUtil
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -24,8 +25,8 @@ public fun main(args: Array<String>) {
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         /*
                 addClasspath(PathUtil.getJdkClassesRoots())
-                addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         */
+        addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         addSources(sources)
     }
 

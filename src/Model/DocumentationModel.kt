@@ -40,8 +40,8 @@ public open class DocumentationNode(val name: String,
                                     val scope: JetScope) {
     private val references = arrayListOf<DocumentationReference>()
 
-    public val owner: DocumentationNode
-        get() = references(DocumentationReferenceKind.Owner).single().to
+    public val owner: DocumentationNode?
+        get() = references(DocumentationReferenceKind.Owner).firstOrNull()?.to // TODO: should be singleOrNull, but bugz!
     public val details: List<DocumentationNode>
         get() = references(DocumentationReferenceKind.Detail).map { it.to }
     public val members: List<DocumentationNode>
@@ -62,7 +62,7 @@ public open class DocumentationNode(val name: String,
     public fun allReferences(): List<DocumentationReference> = references
 
     public override fun toString(): String {
-        return "$kind $name"
+        return "$kind:$name"
     }
 }
 
