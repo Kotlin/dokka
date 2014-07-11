@@ -13,11 +13,11 @@ public fun main(args: Array<String>) {
     val compilerArguments = K2JVMCompilerArguments()
     val sources: List<String> = Args.parse(compilerArguments, args) ?: listOf()
 
-    val environment = AnalysesEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
-/*
-        addClasspath(PathUtil.getJdkClassesRoots())
-        addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
-*/
+    val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
+        /*
+                addClasspath(PathUtil.getJdkClassesRoots())
+                addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
+        */
         addSources(sources)
     }
 

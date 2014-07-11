@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.kdoc.psi.api.*
-import org.jetbrains.jet.lang.psi.JetDeclaration
+import org.jetbrains.jet.lang.psi.*
 
 fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): KDoc? {
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)

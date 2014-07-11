@@ -26,7 +26,7 @@ private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArgum
     return annotationsPath
 }
 
-private fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): BindingContext {
+fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): BindingContext {
     val project = getProject()
     val sourceFiles = getSourceFiles()
 

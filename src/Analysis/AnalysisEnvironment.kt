@@ -1,18 +1,17 @@
 package org.jetbrains.dokka
 
-import com.intellij.openapi.*
 import org.jetbrains.jet.cli.common.messages.*
-import org.jetbrains.jet.cli.common.*
+import com.intellij.openapi.*
 import org.jetbrains.jet.cli.jvm.compiler.*
-import java.io.*
-import org.jetbrains.jet.cli.jvm.*
-import org.jetbrains.jet.config.*
-import com.intellij.openapi.util.*
 import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
-import kotlin.platform.*
+import java.io.File
+import org.jetbrains.jet.config.*
+import org.jetbrains.jet.cli.common.*
+import org.jetbrains.jet.cli.jvm.*
+import com.intellij.openapi.util.*
 
-public class AnalysesEnvironment(val messageCollector: MessageCollector, body: AnalysesEnvironment.() -> Unit = {}) : Disposable {
+public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
     val configuration = CompilerConfiguration();
 
     {

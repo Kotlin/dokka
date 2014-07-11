@@ -2,8 +2,8 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.jet.cli.common.messages.*
 import com.intellij.openapi.util.*
-import com.jetbrains.dokka.*
 import kotlin.test.fail
+import org.jetbrains.dokka.*
 
 public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> Unit) {
     val messageCollector = object : MessageCollector {
@@ -23,7 +23,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> U
         }
     }
 
-    val environment = AnalysesEnvironment(messageCollector) {
+    val environment = AnalysisEnvironment(messageCollector) {
         addSources(files.toList())
     }
 

@@ -2,8 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.junit.Test
 import kotlin.test.*
-import com.jetbrains.dokka.*
-
+import org.jetbrains.dokka.*
 
 public class PropertyTest {
     Test fun valueProperty() {

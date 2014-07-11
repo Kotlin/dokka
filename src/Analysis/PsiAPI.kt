@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
-import com.intellij.psi.PsiElement
-import kotlin.support.AbstractIterator
+import com.intellij.psi.*
+import kotlin.support.*
 
 fun PsiElement.previousSiblings(): Stream<PsiElement> {
     var element: PsiElement? = this
