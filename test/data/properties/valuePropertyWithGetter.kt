@@ -1,2 +1,2 @@
-val property
+val property: String
     get() = "test"
