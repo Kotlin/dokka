@@ -8,7 +8,7 @@ import org.jetbrains.jet.lang.psi.*
 fun BindingContext.getDocumentationElements(descriptor: DeclarationDescriptor): List<KDoc> {
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
     if (psiElement == null)
-        throw IllegalArgumentException("$descriptor doesn't have connection to source code, is it synthetic?")
+        return listOf()
 
     return psiElement.previousSiblings() // go backwards
             .takeWhile { it !is JetDeclaration } // till previous declaration
