@@ -25,6 +25,14 @@ class JavaSignatureGenerator : SignatureGenerator {
         return "package ${node.name}"
     }
 
+    override fun renderModifier(node: DocumentationNode): String {
+        return when (node.name) {
+            "open" -> ""
+            "internal" -> ""
+            else -> node.name
+        }
+    }
+
     override fun renderType(node: DocumentationNode): String {
         return when (node.name) {
             "Unit" -> "void"
@@ -61,6 +69,13 @@ class JavaSignatureGenerator : SignatureGenerator {
                 append("> ")
             }
         }.toString()
+    }
+
+    override fun renderModifiersForNode(node: DocumentationNode): String {
+        val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != ""}
+        if (modifiers.none())
+            return ""
+        return modifiers.join(" ", postfix = " ")
     }
 
     override fun renderClass(node: DocumentationNode): String {

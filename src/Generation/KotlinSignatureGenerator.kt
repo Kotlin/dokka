@@ -14,6 +14,7 @@ class KotlinSignatureGenerator : SignatureGenerator {
             Kind.Type,
             Kind.UpperBound -> renderType(node)
 
+            Kind.Modifier -> renderModifier(node)
             Kind.Constructor,
             Kind.Function -> renderFunction(node)
             Kind.Property -> renderProperty(node)
@@ -27,6 +28,14 @@ class KotlinSignatureGenerator : SignatureGenerator {
 
     override fun renderType(node: DocumentationNode): String {
         return node.name
+    }
+
+    override fun renderModifier(node: DocumentationNode): String {
+        return when (node.name) {
+            "final" -> ""
+            "internal" -> ""
+            else -> node.name
+        }
     }
 
     override fun renderTypeParameter(node: DocumentationNode): String {
@@ -53,8 +62,16 @@ class KotlinSignatureGenerator : SignatureGenerator {
         }.toString()
     }
 
+    override fun renderModifiersForNode(node: DocumentationNode): String {
+        val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != ""}
+        if (modifiers.none())
+            return ""
+        return modifiers.join(" ", postfix = " ")
+    }
+
     override fun renderClass(node: DocumentationNode): String {
         return StringBuilder {
+            append(renderModifiersForNode(node))
             when (node.kind) {
                 Kind.Class -> append("class ")
                 Kind.Interface -> append("trait ")
@@ -73,6 +90,7 @@ class KotlinSignatureGenerator : SignatureGenerator {
 
     override fun renderFunction(node: DocumentationNode): String {
         return StringBuilder {
+            append(renderModifiersForNode(node))
             when (node.kind) {
                 Kind.Constructor -> append("init")
                 Kind.Function -> append("fun ")
@@ -100,6 +118,7 @@ class KotlinSignatureGenerator : SignatureGenerator {
 
     override fun renderProperty(node: DocumentationNode): String {
         return StringBuilder {
+            append(renderModifiersForNode(node))
             when (node.kind) {
                 Kind.Property -> append("val ")
                 else -> throw IllegalArgumentException("Node $node is not a property")
