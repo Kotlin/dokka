@@ -12,8 +12,8 @@ fun BindingContext.checkResolveChildren(node : DocumentationNode) {
         for (item in node.details + node.members) {
             val symbolName = item.name
             val symbol: DeclarationDescriptor? = when (item.kind) {
-                DocumentationNode.Kind.Modifier -> continue // do not resolve modifiers
-                DocumentationNode.Kind.Receiver -> (parentScope.getContainingDeclaration() as CallableDescriptor).getReceiverParameter()
+                DocumentationNode.Kind.Modifier -> continue // do not resolve modifiers, they are not names
+                DocumentationNode.Kind.Receiver -> continue // what is receiver's name in platform?
                 DocumentationNode.Kind.Parameter -> parentScope.getLocalVariable(Name.guess(symbolName))
                 DocumentationNode.Kind.Function -> parentScope.getFunctions(Name.guess(symbolName)).firstOrNull()
                 DocumentationNode.Kind.Property -> parentScope.getProperties(Name.guess(symbolName)).firstOrNull()

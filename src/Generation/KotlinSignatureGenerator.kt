@@ -8,6 +8,8 @@ class KotlinSignatureGenerator : SignatureGenerator {
             Kind.Package -> renderPackage(node)
             Kind.Class,
             Kind.Interface,
+            Kind.Enum,
+            Kind.EnumItem,
             Kind.Object -> renderClass(node)
 
             Kind.TypeParameter -> renderTypeParameter(node)
@@ -75,6 +77,8 @@ class KotlinSignatureGenerator : SignatureGenerator {
             when (node.kind) {
                 Kind.Class -> append("class ")
                 Kind.Interface -> append("trait ")
+                Kind.Enum -> append("enum class ")
+                Kind.EnumItem -> append("enum val ")
                 Kind.Object -> append("object ")
                 else -> throw IllegalArgumentException("Node $node is not a class-like object")
             }

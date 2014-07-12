@@ -55,6 +55,12 @@ object Object {
 
 }
 
+enum class Color(r: Int, g: Int, b: Int) {
+    Red : Color(100,0,0)
+    Green : Color(0,100,0)
+    Blue : Color(0,0,100)
+}
+
 class OuterClass {
 
     /**

@@ -50,6 +50,8 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
         Package
         Class
         Interface
+        Enum
+        EnumItem
         Object
 
         Constructor

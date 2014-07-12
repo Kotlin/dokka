@@ -8,6 +8,8 @@ class JavaSignatureGenerator : SignatureGenerator {
             Kind.Package -> renderPackage(node)
             Kind.Class,
             Kind.Interface,
+            Kind.Enum,
+            Kind.EnumItem,
             Kind.Object -> renderClass(node)
 
             Kind.TypeParameter -> renderTypeParameter(node)
@@ -83,6 +85,8 @@ class JavaSignatureGenerator : SignatureGenerator {
             when (node.kind) {
                 Kind.Class -> append("class ")
                 Kind.Interface -> append("interface ")
+                Kind.Enum -> append("enum ")
+                Kind.EnumItem -> append("enum value ")
                 Kind.Object -> append("class ")
                 else -> throw IllegalArgumentException("Node $node is not a class-like object")
             }
