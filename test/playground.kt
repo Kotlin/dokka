@@ -50,6 +50,9 @@ object Object {
             /** one line getter doc */
         get() = "Member"
 
+    val String.valueWithReceiver: Int
+        get() = 1
+
 }
 
 class OuterClass {
@@ -60,6 +63,9 @@ class OuterClass {
     class NestedClass<T> {
         fun nestedClassFunction(item: T) {
         }
+
+        fun String.functionWithReceiver(): Int = 1
+
     }
 
     inner class InnerClass {
@@ -67,7 +73,7 @@ class OuterClass {
                 /** doc for R1 type param */
                 R1,
                 /** doc for R2 type param */
-                R2,
+                R2
                 >() {
         }
     }

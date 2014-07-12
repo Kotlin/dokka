@@ -41,7 +41,7 @@ public fun main(args: Array<String>) {
         context.createDocumentationModule(module, file)
     }.reduce {(aggregate, item) -> aggregate.merge(item) }
 
-    ConsoleGenerator(JavaSignatureGenerator()).generate(documentation)
+    ConsoleGenerator(KotlinSignatureGenerator()).generate(documentation)
 
     Disposer.dispose(environment)
 }

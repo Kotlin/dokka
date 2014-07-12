@@ -2,5 +2,5 @@
 /**
  * generic function
  */
-fun <T : R, R> generic() {
+public fun <T : R, R> generic() {
 }

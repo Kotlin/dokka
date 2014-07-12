@@ -64,6 +64,8 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
         LowerBound
         Exception
 
+        Modifier
+
         Module
     }
 

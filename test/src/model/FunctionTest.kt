@@ -11,7 +11,7 @@ public class FunctionTest {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("Function fn", doc.summary)
-                assertEquals("Unit", details.single().name)
+                assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -26,8 +26,10 @@ public class FunctionTest {
                 assertEquals("Function with receiver", doc.summary)
                 assertEquals("Unit", details.elementAt(0).name)
 
-                assertEquals(2, details.count())
-                with(details.elementAt(1)) {
+                assertEquals(4, details.count())
+                assertEquals("final", details.elementAt(1).name)
+                assertEquals("internal", details.elementAt(2).name)
+                with(details.elementAt(3)) {
                     assertEquals("<this>", name)
                     assertEquals(DocumentationNode.Kind.Receiver, kind)
                     assertEquals(DocumentationContent.Empty, doc)
@@ -48,9 +50,11 @@ public class FunctionTest {
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("generic function", doc.summary)
 
-                assertEquals(2, details.count())
+                assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
-                with(details.elementAt(1)) {
+                assertEquals("final", details.elementAt(1).name)
+                assertEquals("private", details.elementAt(2).name)
+                with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
                     assertEquals(DocumentationContent.Empty, doc)
@@ -71,9 +75,11 @@ public class FunctionTest {
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("generic function", doc.summary)
 
-                assertEquals(3, details.count())
+                assertEquals(5, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
-                with(details.elementAt(1)) {
+                assertEquals("final", details.elementAt(1).name)
+                assertEquals("public", details.elementAt(2).name)
+                with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
                     assertEquals(DocumentationContent.Empty, doc)
@@ -88,7 +94,7 @@ public class FunctionTest {
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                with(details.elementAt(2)) {
+                with(details.elementAt(4)) {
                     assertEquals("R", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
                     assertEquals(DocumentationContent.Empty, doc)
@@ -112,9 +118,11 @@ Function
 Documentation"""
                              , doc.summary)
 
-                assertEquals(2, details.count())
+                assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
-                with(details.elementAt(1)) {
+                assertEquals("final", details.elementAt(1).name)
+                assertEquals("internal", details.elementAt(2).name)
+                with(details.elementAt(3)) {
                     assertEquals("x", name)
                     assertEquals(DocumentationNode.Kind.Parameter, kind)
                     assertEquals("parameter", doc.summary)

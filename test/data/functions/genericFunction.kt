@@ -2,4 +2,4 @@
 /**
  * generic function
  */
-fun <T> generic() {}
+private fun <T> generic() {}
