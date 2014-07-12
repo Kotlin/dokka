@@ -5,18 +5,18 @@ import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.BindingContext
 
 fun BindingContext.checkResolveChildren(node : DocumentationNode) {
-    if (node.kind != DocumentationNodeKind.Module && node.kind != DocumentationNodeKind.Package) {
+    if (node.kind != DocumentationNode.Kind.Module && node.kind != DocumentationNode.Kind.Package) {
         // TODO: we don't resolve packages and modules for now
 
         val parentScope = getResolutionScope(node.descriptor)
         for (item in node.details + node.members) {
             val symbolName = item.name
             val symbol: DeclarationDescriptor? = when (item.kind) {
-                DocumentationNodeKind.Receiver -> (parentScope.getContainingDeclaration() as FunctionDescriptor).getReceiverParameter()
-                DocumentationNodeKind.Parameter -> parentScope.getLocalVariable(Name.guess(symbolName))
-                DocumentationNodeKind.Function -> parentScope.getFunctions(Name.guess(symbolName)).firstOrNull()
-                DocumentationNodeKind.Property -> parentScope.getProperties(Name.guess(symbolName)).firstOrNull()
-                DocumentationNodeKind.Constructor -> parentScope.getFunctions(Name.guess(symbolName)).firstOrNull()
+                DocumentationNode.Kind.Receiver -> (parentScope.getContainingDeclaration() as FunctionDescriptor).getReceiverParameter()
+                DocumentationNode.Kind.Parameter -> parentScope.getLocalVariable(Name.guess(symbolName))
+                DocumentationNode.Kind.Function -> parentScope.getFunctions(Name.guess(symbolName)).firstOrNull()
+                DocumentationNode.Kind.Property -> parentScope.getProperties(Name.guess(symbolName)).firstOrNull()
+                DocumentationNode.Kind.Constructor -> parentScope.getFunctions(Name.guess(symbolName)).firstOrNull()
                 else -> parentScope.getClassifier(Name.guess(symbolName))
             }
 
@@ -25,7 +25,7 @@ fun BindingContext.checkResolveChildren(node : DocumentationNode) {
         }
     }
 
-    for (reference in node.allReferences().filterNot { it.kind == DocumentationReferenceKind.Owner }) {
+    for (reference in node.allReferences().filterNot { it.kind == DocumentationReference.Kind.Owner }) {
         checkResolveChildren(reference.to)
     }
 }

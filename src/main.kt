@@ -38,7 +38,7 @@ public fun main(args: Array<String>) {
 
     val model = environment.processFiles { context, module, file ->
         println("Processing: ${file.getName()}")
-        context.createDocumentationModel(module, file)
+        context.createDocumentationModule(module, file)
     }.reduce {(aggregate, item) -> aggregate.merge(item) }
 
     ConsoleGenerator().generate(model)

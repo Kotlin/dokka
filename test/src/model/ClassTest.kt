@@ -8,7 +8,7 @@ public class ClassTest {
     Test fun emptyClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -21,7 +21,7 @@ public class ClassTest {
     Test fun gnClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -34,7 +34,7 @@ public class ClassTest {
     Test fun emptyObject() {
         verifyModel("test/data/classes/emptyObject.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Object, kind)
+                assertEquals(DocumentationNode.Kind.Object, kind)
                 assertEquals("Obj", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -47,7 +47,7 @@ public class ClassTest {
     Test fun classWithConstructor() {
         verifyModel("test/data/classes/classWithConstructor.kt") { model ->
             with (model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -57,11 +57,11 @@ public class ClassTest {
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
                     assertEquals(DocumentationContent.Empty, doc)
-                    assertEquals(DocumentationNodeKind.Constructor, kind)
+                    assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertEquals(1, details.count())
                     with(details.elementAt(0)) {
                         assertEquals("name", name)
-                        assertEquals(DocumentationNodeKind.Parameter, kind)
+                        assertEquals(DocumentationNode.Kind.Parameter, kind)
                         assertEquals(DocumentationContent.Empty, doc)
                         assertEquals("String", details.single().name)
                         assertTrue(links.none())
@@ -77,7 +77,7 @@ public class ClassTest {
     Test fun classWithFunction() {
         verifyModel("test/data/classes/classWithFunction.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -87,7 +87,7 @@ public class ClassTest {
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
                     assertEquals(DocumentationContent.Empty, doc)
-                    assertEquals(DocumentationNodeKind.Constructor, kind)
+                    assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertTrue(details.none())
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -95,7 +95,7 @@ public class ClassTest {
                 with(members.elementAt(1)) {
                     assertEquals("fn", name)
                     assertEquals(DocumentationContent.Empty, doc)
-                    assertEquals(DocumentationNodeKind.Function, kind)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals("Unit", details.single().name)
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -107,7 +107,7 @@ public class ClassTest {
     Test fun classWithProperty() {
         verifyModel("test/data/classes/classWithProperty.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(DocumentationNodeKind.Class, kind)
+                assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertTrue(details.none())
@@ -117,7 +117,7 @@ public class ClassTest {
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
                     assertEquals(DocumentationContent.Empty, doc)
-                    assertEquals(DocumentationNodeKind.Constructor, kind)
+                    assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertTrue(details.none())
                     assertTrue(members.none())
                     assertTrue(links.none())
@@ -125,7 +125,7 @@ public class ClassTest {
                 with(members.elementAt(1)) {
                     assertEquals("name", name)
                     assertEquals(DocumentationContent.Empty, doc)
-                    assertEquals(DocumentationNodeKind.Property, kind)
+                    assertEquals(DocumentationNode.Kind.Property, kind)
                     assertEquals("String", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())

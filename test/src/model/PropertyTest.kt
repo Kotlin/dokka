@@ -9,7 +9,7 @@ public class PropertyTest {
         verifyModel("test/data/properties/valueProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNodeKind.Property, kind)
+                assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertEquals("String", details.single().name)
                 assertTrue(members.none())
@@ -22,7 +22,7 @@ public class PropertyTest {
         verifyModel("test/data/properties/variableProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNodeKind.Property, kind)
+                assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertEquals("String", details.single().name)
                 assertTrue(members.none())
@@ -35,13 +35,13 @@ public class PropertyTest {
         verifyModel("test/data/properties/valuePropertyWithGetter.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNodeKind.Property, kind)
+                assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertEquals("String", details.single().name)
                 assertTrue(links.none())
                 with(members.single()) {
                     assertEquals("<get-property>", name)
-                    assertEquals(DocumentationNodeKind.Function, kind)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(DocumentationContent.Empty, doc)
                     assertEquals("String", details.single().name)
                     assertTrue(links.none())
@@ -55,7 +55,7 @@ public class PropertyTest {
         verifyModel("test/data/properties/variablePropertyWithAccessors.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNodeKind.Property, kind)
+                assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
                 assertEquals("String", details.single().name)
                 assertTrue(links.none())
@@ -63,7 +63,7 @@ public class PropertyTest {
                 assertEquals(2, members.count())
                 with(members.elementAt(0)) {
                     assertEquals("<get-property>", name)
-                    assertEquals(DocumentationNodeKind.Function, kind)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(DocumentationContent.Empty, doc)
                     assertEquals("String", details.single().name)
                     assertTrue(links.none())
@@ -71,13 +71,13 @@ public class PropertyTest {
                 }
                 with(members.elementAt(1)) {
                     assertEquals("<set-property>", name)
-                    assertEquals(DocumentationNodeKind.Function, kind)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(DocumentationContent.Empty, doc)
                     assertEquals(2, details.count())
                     assertEquals("Unit", details.elementAt(0).name)
                     with(details.elementAt(1)) {
                         assertEquals("value", name)
-                        assertEquals(DocumentationNodeKind.Parameter, kind)
+                        assertEquals(DocumentationNode.Kind.Parameter, kind)
                         assertEquals(DocumentationContent.Empty, doc)
                         assertEquals("String", details.single().name)
                         assertTrue(links.none())
