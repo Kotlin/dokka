@@ -1,8 +1,8 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetFile
+import org.jetbrains.jet.lang.descriptors.*
 
 public enum class DocumentationNodeKind {
     Unknown
@@ -24,7 +24,7 @@ public enum class DocumentationNodeKind {
     LowerBound
     Exception
 
-    Model
+    Module
 }
 
 public enum class DocumentationReferenceKind {
@@ -35,10 +35,11 @@ public enum class DocumentationReferenceKind {
     Override
 }
 
-public open class DocumentationNode(val name: String,
+public open class DocumentationNode(val descriptor: DeclarationDescriptor,
+                                    val name: String,
                                     val doc: DocumentationContent,
-                                    val kind: DocumentationNodeKind,
-                                    val scope: JetScope) {
+                                    val kind: DocumentationNodeKind) {
+
     private val references = arrayListOf<DocumentationReference>()
 
     public val owner: DocumentationNode?
@@ -67,9 +68,9 @@ public open class DocumentationNode(val name: String,
     }
 }
 
-public class DocumentationModel : DocumentationNode("model", DocumentationContent.Empty, DocumentationNodeKind.Model, JetScope.EMPTY) {
-    fun merge(other: DocumentationModel): DocumentationModel {
-        val model = DocumentationModel()
+public class DocumentationModule(val module: ModuleDescriptor) : DocumentationNode(module, "model", DocumentationContent.Empty, DocumentationNodeKind.Module) {
+    fun merge(other: DocumentationModule): DocumentationModule {
+        val model = DocumentationModule(module)
         model.addAllReferencesFrom(other)
         model.addAllReferencesFrom(this)
         return model
@@ -81,15 +82,15 @@ public class DocumentationModel : DocumentationNode("model", DocumentationConten
 
 public data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReferenceKind)
 
-fun BindingContext.createDocumentationModel(file: JetFile): DocumentationModel {
-    val model = DocumentationModel()
+fun BindingContext.createDocumentationModel(module: ModuleDescriptor, file: JetFile): DocumentationModule {
     val packageFragment = getPackageFragment(file)
+    val model = DocumentationModule(module)
     if (packageFragment == null) throw IllegalArgumentException("File $file should have package fragment")
 
     val visitor = DocumentationNodeBuilder(this)
     packageFragment.accept(DocumentationBuildingVisitor(this, visitor), model)
 
-    model.checkResolve()
+    checkResolveChildren(model)
 
     return model
 }

@@ -28,7 +28,7 @@ private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArgum
     return annotationsPath
 }
 
-fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): BindingContext {
+fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhaust {
     val project = getProject()
     val sourceFiles = getSourceFiles()
 
@@ -48,7 +48,7 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): BindingConte
     val exhaust = analyzerWithCompilerReport.getAnalyzeExhaust()
     assert(exhaust != null) { "AnalyzeExhaust should be non-null, compiling: " + sourceFiles }
 
-    return exhaust!!.getBindingContext()
+    return exhaust!!
 }
 
 fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)

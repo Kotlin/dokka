@@ -10,6 +10,7 @@ import org.jetbrains.jet.config.*
 import org.jetbrains.jet.cli.common.*
 import org.jetbrains.jet.cli.jvm.*
 import com.intellij.openapi.util.*
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
     val configuration = CompilerConfiguration();
@@ -19,30 +20,36 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         body()
     }
 
-    private fun withContext<T>(processor: (JetCoreEnvironment, BindingContext) -> T): T {
+    private fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
-        val result = environment.analyze(messageCollector)
-        return processor(environment, result)
+        val exhaust = environment.analyze(messageCollector)
+        return processor(environment, exhaust.getModuleDescriptor(), exhaust.getBindingContext())
     }
 
     public fun withContext<T>(processor: (BindingContext) -> T): T {
-        return withContext { environment, context -> processor(context) }
+        return withContext { environment, module, context -> processor(context) }
     }
 
     public fun streamFiles<T>(processor: (BindingContext, JetFile) -> T): Stream<T> {
-        return withContext { environment, context ->
+        return withContext { environment, module, context ->
             environment.getSourceFiles().stream().map { file -> processor(context, file) }
         }
     }
 
     public fun processFiles<T>(processor: (BindingContext, JetFile) -> T): List<T> {
-        return withContext { environment, context ->
+        return withContext { environment, module, context ->
             environment.getSourceFiles().map { file -> processor(context, file) }
         }
     }
 
+    public fun processFiles<T>(processor: (BindingContext, ModuleDescriptor, JetFile) -> T): List<T> {
+        return withContext { environment, module, context ->
+            environment.getSourceFiles().map { file -> processor(context, module, file) }
+        }
+    }
+
     public fun processFilesFlat<T>(processor: (BindingContext, JetFile) -> List<T>): List<T> {
-        return withContext { environment, context ->
+        return withContext { environment, module, context ->
             environment.getSourceFiles().flatMap { file -> processor(context, file) }
         }
     }

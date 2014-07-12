@@ -5,7 +5,7 @@ import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
 
-public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> Unit) {
+public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {
@@ -27,9 +27,9 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModel) -> U
         addSources(files.toList())
     }
 
-    val result = environment.processFiles { context, file ->
-        context.createDocumentationModel(file)
-    }.fold(DocumentationModel()) {(aggregate, item) -> aggregate.merge(item) }
+    val result = environment.processFiles { context, module, file ->
+        context.createDocumentationModel(module, file)
+    }.reduce {(aggregate, item) -> aggregate.merge(item) }
     verifier(result)
     Disposer.dispose(environment)
 }
