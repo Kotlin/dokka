@@ -2,7 +2,7 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DocumentationNode.*
 
-class KotlinSignatureGenerator : SignatureGenerator {
+class JavaSignatureGenerator : SignatureGenerator {
     override fun render(node: DocumentationNode): String {
         return when (node.kind) {
             Kind.Package -> renderPackage(node)
@@ -26,7 +26,17 @@ class KotlinSignatureGenerator : SignatureGenerator {
     }
 
     override fun renderType(node: DocumentationNode): String {
-        return node.name
+        return when (node.name) {
+            "Unit" -> "void"
+            "Int" -> "int"
+            "Long" -> "long"
+            "Double" -> "double"
+            "Float" -> "float"
+            "Char" -> "char"
+            "Boolean" -> "bool"
+        // TODO: render arrays
+            else -> node.name
+        }
     }
 
     override fun renderTypeParameter(node: DocumentationNode): String {
@@ -34,12 +44,12 @@ class KotlinSignatureGenerator : SignatureGenerator {
         return if (constraints.none())
             node.name
         else {
-            node.name + " : " + constraints.map { renderType(node) }.join()
+            node.name + " extends " + constraints.map { renderType(node) }.join()
         }
     }
 
     override fun renderParameter(node: DocumentationNode): String {
-        return node.name + ": " + renderType(node.detail(Kind.Type))
+        return "${renderType(node.detail(Kind.Type))} ${node.name}"
     }
 
     override fun renderTypeParametersForNode(node: DocumentationNode): String {
@@ -57,44 +67,39 @@ class KotlinSignatureGenerator : SignatureGenerator {
         return StringBuilder {
             when (node.kind) {
                 Kind.Class -> append("class ")
-                Kind.Interface -> append("trait ")
-                Kind.Object -> append("object ")
+                Kind.Interface -> append("interface ")
+                Kind.Object -> append("class ")
                 else -> throw IllegalArgumentException("Node $node is not a class-like object")
             }
 
             append(node.name)
             append(renderTypeParametersForNode(node))
-
-            append("(")
-            append(node.details(Kind.Parameter).map { renderParameter(it) }.join())
-            append(")")
         }.toString()
     }
 
     override fun renderFunction(node: DocumentationNode): String {
         return StringBuilder {
             when (node.kind) {
-                Kind.Constructor -> append("init")
-                Kind.Function -> append("fun ")
+                Kind.Constructor -> {
+                    append(node.owner?.name)
+                }
+                Kind.Function -> {
+                    append(renderTypeParametersForNode(node))
+                    append(renderType(node.detail(Kind.Type)))
+                    append(" ")
+                    append(node.name)
+                }
                 else -> throw IllegalArgumentException("Node $node is not a function-like object")
             }
-            append(renderTypeParametersForNode(node))
+
             val receiver = node.details(Kind.Receiver).firstOrNull() // TODO: replace with singleOrNull when fixed
-            if (receiver != null) {
-                append(renderType(receiver.detail(Kind.Type)))
-                append(".")
-            }
-
-            if (node.kind != Kind.Constructor)
-                append(node.name)
-
             append("(")
-            append(node.details(Kind.Parameter).map { renderParameter(it) }.join())
+            if (receiver != null)
+                append((listOf(receiver) + node.details(Kind.Parameter)).map { renderParameter(it) }.join())
+            else
+                append(node.details(Kind.Parameter).map { renderParameter(it) }.join())
+
             append(")")
-            if (node.kind != Kind.Constructor) {
-                append(": ")
-                append(renderType(node.detail(Kind.Type)))
-            }
         }.toString()
     }
 

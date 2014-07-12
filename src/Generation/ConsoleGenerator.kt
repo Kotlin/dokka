@@ -1,8 +1,6 @@
 package org.jetbrains.dokka
 
-public class ConsoleGenerator() {
-    val signatureGenerator = KotlinSignatureGenerator()
-
+public class ConsoleGenerator(val signatureGenerator : SignatureGenerator) {
     val IndentStep = "  "
 
     public fun generate(node: DocumentationNode, indent: String = "") {

@@ -36,12 +36,12 @@ public fun main(args: Array<String>) {
 
     println()
 
-    val model = environment.processFiles { context, module, file ->
+    val documentation = environment.processFiles { context, module, file ->
         println("Processing: ${file.getName()}")
         context.createDocumentationModule(module, file)
     }.reduce {(aggregate, item) -> aggregate.merge(item) }
 
-    ConsoleGenerator().generate(model)
+    ConsoleGenerator(JavaSignatureGenerator()).generate(documentation)
 
     Disposer.dispose(environment)
 }

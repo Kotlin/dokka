@@ -49,7 +49,7 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
 
         Package
         Class
-        Trait
+        Interface
         Object
 
         Constructor
