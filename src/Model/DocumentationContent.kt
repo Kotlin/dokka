@@ -62,7 +62,7 @@ fun String.parseLabel(index: Int): Pair<String, Int> {
         }
         c == '{' -> {
             val end = indexOf('}', index + 1)
-            return substring(index, end) to index + 2
+            return substring(index + 1, end) to end + 2
         }
     }
     return "" to -1

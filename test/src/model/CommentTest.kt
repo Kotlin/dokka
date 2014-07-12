@@ -157,4 +157,17 @@ line two""", text)
             }
         }
     }
+
+    Test fun sectionWithBracedLabel() {
+        verifyModel("test/data/comments/sectionWithBracedLabel.kt") { model ->
+            with(model.nodes.single().members.single()) {
+                assertEquals("Summary", doc.summary)
+                assertEquals(1, doc.sections.count())
+                with (doc.sections.elementAt(0)) {
+                    assertEquals("this.label.is.really.long", label)
+                    assertEquals("section one", text)
+                }
+            }
+        }
+    }
 }
