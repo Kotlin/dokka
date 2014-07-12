@@ -19,7 +19,7 @@ public class ConsoleGenerator(val signatureGenerator : SignatureGenerator) {
     }
 
     public fun generateMembers(node: DocumentationNode, indent: String = "") {
-        val items = node.members
+        val items = node.members.sortBy { it.name }
         for (child in items)
             generate(child, indent + IndentStep)
     }
