@@ -4,7 +4,7 @@ import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.descriptors.*
 
-public class DocumentationModule(val module: ModuleDescriptor) : DocumentationNode(module, "model", DocumentationContent.Empty, DocumentationNode.Kind.Module) {
+public class DocumentationModule(val module: ModuleDescriptor) : DocumentationNode(module, "module", DocumentationContent.Empty, DocumentationNode.Kind.Module) {
     fun merge(other: DocumentationModule): DocumentationModule {
         val model = DocumentationModule(module)
         model.addAllReferencesFrom(other)

@@ -29,10 +29,11 @@ class Class {
  * This is a class with constructor and space after doc
  */
 
-class ClassWithConstructor(/** Doc at parameter */ val name: Class)
+class ClassWithConstructor(
+        /** Doc at parameter */ val name: Class)
 
 /**
- * This is data class $Person with constructor and two properties
+ * This is data class with constructor and two properties
  *
  * $name Person's name
  * $age Person's age
@@ -46,7 +47,7 @@ object Object {
     }
 
     val objectValue: String
-    /** one line getter doc */
+            /** one line getter doc */
         get() = "Member"
 
 }
@@ -54,15 +55,20 @@ object Object {
 class OuterClass {
 
     /**
-     * $T: type of the item
+     * $T type of the item
      */
     class NestedClass<T> {
-        fun nestedClassFunction() {
+        fun nestedClassFunction(item: T) {
         }
     }
 
     inner class InnerClass {
-        fun innerClassFunction() {
+        fun innerClassFunction<
+                /** doc for R1 type param */
+                R1,
+                /** doc for R2 type param */
+                R2,
+                >() {
         }
     }
 

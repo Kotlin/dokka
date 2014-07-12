@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.jet.lang.descriptors.*
+import java.util.LinkedHashSet
 
 
 public open class DocumentationNode(val descriptor: DeclarationDescriptor,
@@ -8,7 +9,7 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
                                     val doc: DocumentationContent,
                                     val kind: DocumentationNode.Kind) {
 
-    private val references = arrayListOf<DocumentationReference>()
+    private val references = LinkedHashSet<DocumentationReference>()
 
     public val owner: DocumentationNode?
         get() = references(DocumentationReference.Kind.Owner).firstOrNull()?.to // TODO: should be singleOrNull, but bugz!
@@ -28,8 +29,16 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
         references.addAll(other.references)
     }
 
+    public fun details(kind: DocumentationNode.Kind): List<DocumentationNode> = details.filter { it.kind == kind }
+    public fun members(kind: DocumentationNode.Kind): List<DocumentationNode> = members.filter { it.kind == kind }
+    public fun links(kind: DocumentationNode.Kind): List<DocumentationNode> = links.filter { it.kind == kind }
+
+    public fun detail(kind: DocumentationNode.Kind): DocumentationNode = details.filter { it.kind == kind }.single()
+    public fun member(kind: DocumentationNode.Kind): DocumentationNode = members.filter { it.kind == kind }.single()
+    public fun link(kind: DocumentationNode.Kind): DocumentationNode = links.filter { it.kind == kind }.single()
+
     public fun references(kind: DocumentationReference.Kind): List<DocumentationReference> = references.filter { it.kind == kind }
-    public fun allReferences(): List<DocumentationReference> = references
+    public fun allReferences(): Set<DocumentationReference> = references
 
     public override fun toString(): String {
         return "$kind:$name"
