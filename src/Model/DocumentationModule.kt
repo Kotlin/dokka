@@ -75,9 +75,6 @@ public class DocumentationModule(val module: ModuleDescriptor) : DocumentationNo
         model.addAllReferencesFrom(this)
         return model
     }
-
-    public val nodes: List<DocumentationNode>
-        get() = members
 }
 
 public data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReferenceKind)

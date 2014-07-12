@@ -34,8 +34,9 @@ class ClassWithConstructor(/** Doc at parameter */ val name: Class)
 /**
  * This is data class $Person with constructor and two properties
  *
- * $name: Person's name
- * $age: Person's age
+ * $name Person's name
+ * $age Person's age
+ *
  */
 data class Person(val name: ClassWithConstructor, val age: Int) {}
 

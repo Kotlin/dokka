@@ -7,7 +7,7 @@ import org.jetbrains.dokka.*
 public class FunctionTest {
     Test fun function() {
         verifyModel("test/data/functions/function.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("Function fn", doc.summary)
@@ -20,7 +20,7 @@ public class FunctionTest {
 
     Test fun functionWithReceiver() {
         verifyModel("test/data/functions/functionWithReceiver.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("Function with receiver", doc.summary)
@@ -43,7 +43,7 @@ public class FunctionTest {
 
     Test fun genericFunction() {
         verifyModel("test/data/functions/genericFunction.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("generic function", doc.summary)
@@ -66,7 +66,7 @@ public class FunctionTest {
     }
     Test fun genericFunctionWithConstraints() {
         verifyModel("test/data/functions/genericFunctionWithConstraints.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("generic function", doc.summary)
@@ -104,7 +104,7 @@ public class FunctionTest {
 
     Test fun functionWithParams() {
         verifyModel("test/data/functions/functionWithParams.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("function", name)
                 assertEquals(DocumentationNodeKind.Function, kind)
                 assertEquals("""Multiline

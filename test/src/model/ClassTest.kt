@@ -7,7 +7,7 @@ import org.jetbrains.dokka.*
 public class ClassTest {
     Test fun emptyClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -20,7 +20,7 @@ public class ClassTest {
 
     Test fun gnClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -33,7 +33,7 @@ public class ClassTest {
 
     Test fun emptyObject() {
         verifyModel("test/data/classes/emptyObject.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Object, kind)
                 assertEquals("Obj", name)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -46,7 +46,7 @@ public class ClassTest {
 
     Test fun classWithConstructor() {
         verifyModel("test/data/classes/classWithConstructor.kt") { model ->
-            with (model.nodes.single().members.single()) {
+            with (model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -76,7 +76,7 @@ public class ClassTest {
 
     Test fun classWithFunction() {
         verifyModel("test/data/classes/classWithFunction.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -106,7 +106,7 @@ public class ClassTest {
 
     Test fun classWithProperty() {
         verifyModel("test/data/classes/classWithProperty.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals(DocumentationNodeKind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(DocumentationContent.Empty, doc)

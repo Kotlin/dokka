@@ -7,7 +7,7 @@ import org.jetbrains.dokka.*
 public class PropertyTest {
     Test fun valueProperty() {
         verifyModel("test/data/properties/valueProperty.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -20,7 +20,7 @@ public class PropertyTest {
 
     Test fun variableProperty() {
         verifyModel("test/data/properties/variableProperty.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -33,7 +33,7 @@ public class PropertyTest {
 
     Test fun valuePropertyWithGetter() {
         verifyModel("test/data/properties/valuePropertyWithGetter.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
@@ -53,7 +53,7 @@ public class PropertyTest {
 
     Test fun variablePropertyWithAccessors() {
         verifyModel("test/data/properties/variablePropertyWithAccessors.kt") { model ->
-            with(model.nodes.single().members.single()) {
+            with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNodeKind.Property, kind)
                 assertEquals(DocumentationContent.Empty, doc)
