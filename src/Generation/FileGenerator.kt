@@ -1,18 +1,25 @@
 package org.jetbrains.dokka
 
-import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
+import java.util.LinkedHashMap
 
 public class FileGenerator(val signatureGenerator: SignatureGenerator,
                            val locationService: LocationService,
                            val formatService: FormatService) {
 
-    public fun generate(node: DocumentationNode) {
-        val location = locationService.location(node)
-        val file = location.file.appendExtension(formatService.extension)
-        file.getParentFile()?.mkdirs()
-        file.writeText(formatService.format(node), defaultCharset)
-        val members = node.members.sortBy { it.name }
-        for (member in members)
-            generate(member)
+    public fun generate(node: DocumentationNode): Unit = generate(listOf(node))
+
+    public fun generate(nodes: Iterable<DocumentationNode>) {
+        for ((location, items) in nodes.groupByTo(LinkedHashMap()) { locationService.location(it) }) {
+            val file = location.file.appendExtension(formatService.extension)
+            file.getParentFile()?.mkdirs()
+            FileOutputStream(file).use {
+                OutputStreamWriter(it, defaultCharset).use {
+                    it.write(formatService.format(items))
+                }
+            }
+            generate(items.flatMap { it.members })
+        }
     }
 }
