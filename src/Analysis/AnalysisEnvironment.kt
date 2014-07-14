@@ -36,51 +36,93 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         return processor(environment, exhaust.getModuleDescriptor(), exhaust.getBindingContext())
     }
 
+    /**
+     * Executes [processor] when analysis is complete.
+     * $processor is a function to receive compiler module and context for symbol resolution
+     */
     public fun withContext<T>(processor: (ModuleDescriptor, BindingContext) -> T): T {
         return withContext { environment, module, context -> processor(module, context) }
     }
 
+    /**
+     * Streams files into [processor] and returns a stream of its results
+     * $processor is a function to receive context for symbol resolution and file for processing
+     */
     public fun streamFiles<T>(processor: (BindingContext, JetFile) -> T): Stream<T> {
         return withContext { environment, module, context ->
             environment.getSourceFiles().stream().map { file -> processor(context, file) }
         }
     }
 
+    /**
+     * Runs [processor] for each file and collects its results into single list
+     * $processor is a function to receive context for symbol resolution and file for processing
+     */
     public fun processFiles<T>(processor: (BindingContext, JetFile) -> T): List<T> {
         return withContext { environment, module, context ->
             environment.getSourceFiles().map { file -> processor(context, file) }
         }
     }
 
+    /**
+     * Runs [processor] for each file and collects its results into single list
+     * $processor is a function to receive context for symbol resolution, module and file for processing
+     */
     public fun processFiles<T>(processor: (BindingContext, ModuleDescriptor, JetFile) -> T): List<T> {
         return withContext { environment, module, context ->
             environment.getSourceFiles().map { file -> processor(context, module, file) }
         }
     }
 
+    /**
+     * Runs [processor] for each file and collects its results into single list
+     * $processor is a function to receive context for symbol resolution and file for processing
+     */
     public fun processFilesFlat<T>(processor: (BindingContext, JetFile) -> List<T>): List<T> {
         return withContext { environment, module, context ->
             environment.getSourceFiles().flatMap { file -> processor(context, file) }
         }
     }
 
+    /**
+     * Classpath for this environment.
+     */
     public val classpath: List<File>
         get() = configuration.get(JVMConfigurationKeys.CLASSPATH_KEY) ?: listOf()
 
-    public fun addClasspath(list: List<File>) {
-        configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, list)
+    /**
+     * Adds list of paths to classpath.
+     * $paths collection of paths to add
+     */
+    public fun addClasspath(paths: List<File>) {
+        configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, paths)
     }
 
-    public fun addClasspath(file: File) {
-        configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, file)
+    /**
+     * Adds path to classpath.
+     * $path path to add
+     */
+    public fun addClasspath(path: File) {
+        configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, path)
     }
 
+    /**
+     * List of source roots for this environment.
+     */
     public val sources: List<String>
         get() = configuration.get(CommonConfigurationKeys.SOURCE_ROOTS_KEY) ?: listOf()
+
+    /**
+     * Adds list of paths to source roots.
+     * $list collection of files to add
+     */
     public fun addSources(list: List<String>) {
         configuration.addAll(CommonConfigurationKeys.SOURCE_ROOTS_KEY, list)
     }
 
+    /**
+     * Disposes the environment and frees all associated resources.
+     */
     public override fun dispose() {
         Disposer.dispose(this)
     }
