@@ -20,14 +20,14 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         body()
     }
 
-    private fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
+    public fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
         val exhaust = environment.analyze(messageCollector)
         return processor(environment, exhaust.getModuleDescriptor(), exhaust.getBindingContext())
     }
 
-    public fun withContext<T>(processor: (BindingContext) -> T): T {
-        return withContext { environment, module, context -> processor(context) }
+    public fun withContext<T>(processor: (ModuleDescriptor, BindingContext) -> T): T {
+        return withContext { environment, module, context -> processor(module, context) }
     }
 
     public fun streamFiles<T>(processor: (BindingContext, JetFile) -> T): Stream<T> {

@@ -130,6 +130,12 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         return node
     }
 
+    override fun visitPackageViewDescriptor(descriptor: PackageViewDescriptor?, data: DocumentationNode?): DocumentationNode? {
+        val node = DocumentationNode(descriptor!!, descriptor.getFqName().asString(), DocumentationContent.Empty, DocumentationNode.Kind.Package)
+        reference(data!!, node, DocumentationReference.Kind.Member)
+        return node
+    }
+
     override fun visitPackageFragmentDescriptor(descriptor: PackageFragmentDescriptor?, data: DocumentationNode?): DocumentationNode? {
         val node = DocumentationNode(descriptor!!, descriptor.fqName.asString(), DocumentationContent.Empty, DocumentationNode.Kind.Package)
         reference(data!!, node, DocumentationReference.Kind.Member)

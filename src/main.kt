@@ -35,10 +35,13 @@ public fun main(args: Array<String>) {
 
     println()
 
-    val documentation = environment.processFiles { context, module, file ->
-        println("Processing: ${file.getName()}")
-        context.createDocumentationModule(module, file)
-    }.reduce {(aggregate, item) -> aggregate.merge(item) }
+    val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
+        val packageSet = environment.getSourceFiles().map { file ->
+            context.getPackageFragment(file)!!.fqName
+        }.toSet()
+
+        context.createDocumentationModule(module, packageSet)
+    }
 
     val signatureGenerator = KotlinSignatureGenerator()
     val locationService = FoldersLocationService(arguments.outputDir ?: "out/doc/")

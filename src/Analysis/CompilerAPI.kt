@@ -53,10 +53,11 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhau
 
 fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)
 
-fun BindingContext.getPackageFragment(file: JetFile) = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
+fun BindingContext.getPackageFragment(file: JetFile) : PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
 
 fun DeclarationDescriptor.isUserCode() =
         when (this) {
+            is PackageViewDescriptor -> false
             is PackageFragmentDescriptor -> false
             is PropertyAccessorDescriptor -> !isDefault()
             is CallableMemberDescriptor -> getKind() == CallableMemberDescriptor.Kind.DECLARATION

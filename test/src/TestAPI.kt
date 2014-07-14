@@ -27,10 +27,14 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         addSources(files.toList())
     }
 
-    val result = environment.processFiles { context, module, file ->
-        context.createDocumentationModule(module, file)
-    }.reduce {(aggregate, item) -> aggregate.merge(item) }
-    verifier(result)
+    val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
+        val packageSet = environment.getSourceFiles().map { file ->
+            context.getPackageFragment(file)!!.fqName
+        }.toSet()
+
+        context.createDocumentationModule(module, packageSet)
+    }
+    verifier(documentation)
     Disposer.dispose(environment)
 }
 
