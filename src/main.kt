@@ -57,7 +57,7 @@ public fun main(args: Array<String>) {
 
     val signatureGenerator = KotlinSignatureGenerator()
     val locationService = FoldersLocationService(arguments.outputDir)
-    val markdown = MarkdownFormatService(locationService, signatureGenerator)
+    val markdown = JekyllFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, markdown)
     generator.generate(documentation)
     Disposer.dispose(environment)

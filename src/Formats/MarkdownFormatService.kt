@@ -3,8 +3,8 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.DocumentationNode.Kind
 import java.util.LinkedHashMap
 
-public class MarkdownFormatService(val locationService: LocationService,
-                                   val signatureGenerator: SignatureGenerator) : FormatService {
+public open class MarkdownFormatService(val locationService: LocationService,
+                                        val signatureGenerator: SignatureGenerator) : FormatService {
     override val extension: String = "md"
     override fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         with (to) {
