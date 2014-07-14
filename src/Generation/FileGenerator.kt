@@ -7,7 +7,6 @@ public class FileGenerator(val signatureGenerator: SignatureGenerator,
                            val formatService: FormatService) {
     public fun generate(node: DocumentationNode) {
         val location = locationService.location(node)
-        println("@${location.file} : ${signatureGenerator.render(node)}")
         val file = location.file.appendExtension(formatService.extension)
         file.getParentFile()?.mkdirs()
         file.writeText(formatService.format(node), defaultCharset)
