@@ -5,6 +5,8 @@ import com.intellij.openapi.util.*
 import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
+import com.google.common.base.Splitter
+import java.io.File
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -13,7 +15,15 @@ class DokkaArguments {
 
     Argument(value = "output", description = "Output directory path for .md files")
     ValueDescription("<path>")
-    public var outputDir: String? = null
+    public var outputDir: String = "out/doc/"
+
+    Argument(value = "module", description = "Name of the documentation module")
+    ValueDescription("<name>")
+    public var moduleName: String = ""
+
+    Argument(value = "classpath", description = "Classpath for symbol resolution")
+    ValueDescription("<path>")
+    public var classpath: String = ""
 }
 
 public fun main(args: Array<String>) {
@@ -24,7 +34,10 @@ public fun main(args: Array<String>) {
 
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         addClasspath(PathUtil.getJdkClassesRoots())
-     //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
+        for (element in arguments.classpath.split(File.pathSeparatorChar)) {
+            addClasspath(File(element))
+        }
+        //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         addSources(sources)
     }
 
@@ -39,11 +52,11 @@ public fun main(args: Array<String>) {
             context.getPackageFragment(file)!!.fqName
         }.toSet()
 
-        context.createDocumentationModule(module, packageSet)
+        context.createDocumentationModule(arguments.moduleName, module, packageSet)
     }
 
     val signatureGenerator = KotlinSignatureGenerator()
-    val locationService = FoldersLocationService(arguments.outputDir ?: "out/doc/")
+    val locationService = FoldersLocationService(arguments.outputDir)
     val markdown = MarkdownFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, markdown)
     generator.generate(documentation)
