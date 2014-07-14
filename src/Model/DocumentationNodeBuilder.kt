@@ -4,6 +4,7 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.descriptors.impl.*
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.jet.lang.types.JetType
 
 class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
 
@@ -15,18 +16,32 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
             to.addReferenceTo(from, DocumentationReference.Kind.Owner)
     }
 
-    fun addModality(descriptor: MemberDescriptor, data: DocumentationNode): DocumentationNode {
+    fun addModality(descriptor: MemberDescriptor, data: DocumentationNode) {
         val modifier = descriptor.getModality().name().toLowerCase()
         val node = DocumentationNode(descriptor, modifier, DocumentationContent.Empty, DocumentationNode.Kind.Modifier)
         reference(data, node, DocumentationReference.Kind.Detail)
-        return node
     }
 
-    fun addVisibility(descriptor: MemberDescriptor, data: DocumentationNode): DocumentationNode {
+    fun addVisibility(descriptor: MemberDescriptor, data: DocumentationNode) {
         val modifier = descriptor.getVisibility().toString()
         val node = DocumentationNode(descriptor, modifier, DocumentationContent.Empty, DocumentationNode.Kind.Modifier)
         reference(data, node, DocumentationReference.Kind.Detail)
-        return node
+    }
+
+    fun addType(descriptor: DeclarationDescriptor, t: JetType?, data: DocumentationNode) {
+        if (t == null)
+            return
+        val typeConstructor = t.getConstructor()
+        val classifierDescriptor = typeConstructor.getDeclarationDescriptor()
+        val name = when (classifierDescriptor) {
+            is Named -> classifierDescriptor.getName().asString()
+            else -> "<BAD>"
+        }
+        val node = DocumentationNode(descriptor, name, DocumentationContent.Empty, DocumentationNode.Kind.Type)
+        reference(data, node, DocumentationReference.Kind.Detail)
+
+        for (param in t.getArguments())
+            addType(descriptor, param.getType(), node)
     }
 
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor?, data: DocumentationNode?): DocumentationNode? {
@@ -40,8 +55,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor!!, descriptor.getName().asString(), DocumentationContent.Empty, DocumentationNode.Kind.Receiver)
         reference(data!!, node, DocumentationReference.Kind.Detail)
 
-        val typeNode = DocumentationNode(descriptor, descriptor.getType().toString(), DocumentationContent.Empty, DocumentationNode.Kind.Type)
-        reference(node, typeNode, DocumentationReference.Kind.Detail)
+        addType(descriptor, descriptor.getType(), node)
 
         return node
     }
@@ -51,8 +65,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor, descriptor.getName().asString(), doc, DocumentationNode.Kind.Parameter)
         reference(data!!, node, DocumentationReference.Kind.Detail)
 
-        val typeNode = DocumentationNode(descriptor, descriptor.getType().toString(), DocumentationContent.Empty, DocumentationNode.Kind.Type)
-        reference(node, typeNode, DocumentationReference.Kind.Detail)
+        addType(descriptor, descriptor.getType(), node)
 
         return node
     }
@@ -78,9 +91,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor, descriptor.getName().asString(), doc, DocumentationNode.Kind.Function)
         reference(data!!, node, DocumentationReference.Kind.Member)
 
-        val typeNode = DocumentationNode(descriptor, descriptor.getReturnType().toString(), DocumentationContent.Empty, DocumentationNode.Kind.Type)
-        reference(node, typeNode, DocumentationReference.Kind.Detail)
-
+        addType(descriptor, descriptor.getReturnType(), node)
         addModality(descriptor, node)
         addVisibility(descriptor, node)
 
@@ -112,9 +123,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val node = DocumentationNode(descriptor, descriptor.getName().asString(), doc, DocumentationNode.Kind.Property)
         reference(data!!, node, DocumentationReference.Kind.Member)
 
-        val typeNode = DocumentationNode(descriptor, descriptor.getType().toString(), DocumentationContent.Empty, DocumentationNode.Kind.Type)
-        reference(node, typeNode, DocumentationReference.Kind.Detail)
-
+        addType(descriptor, descriptor.getType(), node)
         addModality(descriptor, node)
         addVisibility(descriptor, node)
         return node
