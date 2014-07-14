@@ -4,17 +4,17 @@ import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.name.FqName
 
-public class DocumentationModule(val module: ModuleDescriptor) : DocumentationNode(module, "module", DocumentationContent.Empty, DocumentationNode.Kind.Module) {
+public class DocumentationModule(name: String, val module: ModuleDescriptor) : DocumentationNode(module, name, DocumentationContent.Empty, DocumentationNode.Kind.Module) {
     fun merge(other: DocumentationModule): DocumentationModule {
-        val model = DocumentationModule(module)
+        val model = DocumentationModule(name, module)
         model.addAllReferencesFrom(other)
         model.addAllReferencesFrom(this)
         return model
     }
 }
 
-fun BindingContext.createDocumentationModule(module: ModuleDescriptor, packages: Set<FqName>): DocumentationModule {
-    val documentationModule = DocumentationModule(module)
+fun BindingContext.createDocumentationModule(name: String, module: ModuleDescriptor, packages: Set<FqName>): DocumentationModule {
+    val documentationModule = DocumentationModule(name, module)
     val visitor = DocumentationNodeBuilder(this)
     for (packageName in packages) {
         val pkg = module.getPackage(packageName)
