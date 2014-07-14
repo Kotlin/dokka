@@ -1,3 +1,7 @@
+---
+layout: post
+title: getClassInnerScope
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [getClassInnerScope](getClassInnerScope.md)
 
 # getClassInnerScope

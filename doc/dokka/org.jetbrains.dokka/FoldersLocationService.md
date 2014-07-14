@@ -1,3 +1,7 @@
+---
+layout: post
+title: FoldersLocationService
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [FoldersLocationService](FoldersLocationService.md)
 
 # FoldersLocationService

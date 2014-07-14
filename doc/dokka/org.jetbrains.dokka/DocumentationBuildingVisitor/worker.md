@@ -1,3 +1,7 @@
+---
+layout: post
+title: worker
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [worker](worker.md)
 
 # worker

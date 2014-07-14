@@ -1,3 +1,7 @@
+---
+layout: post
+title: hashCode
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationContent](index.md) / [hashCode](hashCode.md)
 
 # hashCode

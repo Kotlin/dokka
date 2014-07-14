@@ -1,3 +1,7 @@
+---
+layout: post
+title: addAllReferencesFrom
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [addAllReferencesFrom](addAllReferencesFrom.md)
 
 # addAllReferencesFrom

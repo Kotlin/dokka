@@ -1,3 +1,7 @@
+---
+layout: post
+title: generate
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [FileGenerator](index.md) / [generate](generate.md)
 
 # generate

@@ -1,3 +1,7 @@
+---
+layout: post
+title: streamFiles
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [streamFiles](streamFiles.md)
 
 # streamFiles

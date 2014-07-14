@@ -1,3 +1,7 @@
+---
+layout: post
+title: processFiles
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [processFiles](processFiles.md)
 
 # processFiles

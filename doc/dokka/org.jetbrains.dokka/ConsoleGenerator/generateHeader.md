@@ -1,3 +1,7 @@
+---
+layout: post
+title: generateHeader
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [ConsoleGenerator](index.md) / [generateHeader](generateHeader.md)
 
 # generateHeader

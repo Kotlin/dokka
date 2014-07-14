@@ -1,3 +1,7 @@
+---
+layout: post
+title: previousSiblings
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [previousSiblings](previousSiblings.md)
 
 # previousSiblings

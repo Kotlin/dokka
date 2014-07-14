@@ -1,3 +1,7 @@
+---
+layout: post
+title: createDocumentation
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [createDocumentation](createDocumentation.md)
 
 # createDocumentation

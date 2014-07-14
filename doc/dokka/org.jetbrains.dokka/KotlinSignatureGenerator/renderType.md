@@ -1,3 +1,7 @@
+---
+layout: post
+title: renderType
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [KotlinSignatureGenerator](index.md) / [renderType](renderType.md)
 
 # renderType

@@ -1,3 +1,7 @@
+---
+layout: post
+title: formatLocation
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [MarkdownFormatService](index.md) / [formatLocation](formatLocation.md)
 
 # formatLocation

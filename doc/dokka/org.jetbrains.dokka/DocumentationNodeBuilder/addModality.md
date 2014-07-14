@@ -1,3 +1,7 @@
+---
+layout: post
+title: addModality
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNodeBuilder](index.md) / [addModality](addModality.md)
 
 # addModality

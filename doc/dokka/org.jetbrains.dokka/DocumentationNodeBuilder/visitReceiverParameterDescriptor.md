@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitReceiverParameterDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNodeBuilder](index.md) / [visitReceiverParameterDescriptor](visitReceiverParameterDescriptor.md)
 
 # visitReceiverParameterDescriptor

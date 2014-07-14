@@ -1,3 +1,7 @@
+---
+layout: post
+title: renderModifier
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [JavaSignatureGenerator](index.md) / [renderModifier](renderModifier.md)
 
 # renderModifier

@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitPackageViewDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [visitPackageViewDescriptor](visitPackageViewDescriptor.md)
 
 # visitPackageViewDescriptor

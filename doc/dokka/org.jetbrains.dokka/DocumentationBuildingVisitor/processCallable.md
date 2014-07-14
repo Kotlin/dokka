@@ -1,3 +1,7 @@
+---
+layout: post
+title: processCallable
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [processCallable](processCallable.md)
 
 # processCallable

@@ -1,3 +1,7 @@
+---
+layout: post
+title: <init>
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [<init>](_init_.md)
 
 # <init>

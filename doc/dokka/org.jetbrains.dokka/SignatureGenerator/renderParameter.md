@@ -1,3 +1,7 @@
+---
+layout: post
+title: renderParameter
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [SignatureGenerator](index.md) / [renderParameter](renderParameter.md)
 
 # renderParameter

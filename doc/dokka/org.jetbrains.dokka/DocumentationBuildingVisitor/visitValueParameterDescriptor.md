@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitValueParameterDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [visitValueParameterDescriptor](visitValueParameterDescriptor.md)
 
 # visitValueParameterDescriptor

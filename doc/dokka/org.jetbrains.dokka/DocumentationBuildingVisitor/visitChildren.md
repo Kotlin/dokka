@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitChildren
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [visitChildren](visitChildren.md)
 
 # visitChildren

@@ -1,3 +1,7 @@
+---
+layout: post
+title: equals
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationContent](index.md) / [equals](equals.md)
 
 # equals

@@ -1,3 +1,7 @@
+---
+layout: post
+title: format
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [TextFormatService](index.md) / [format](format.md)
 
 # format

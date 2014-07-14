@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitDeclarationDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNodeBuilder](index.md) / [visitDeclarationDescriptor](visitDeclarationDescriptor.md)
 
 # visitDeclarationDescriptor

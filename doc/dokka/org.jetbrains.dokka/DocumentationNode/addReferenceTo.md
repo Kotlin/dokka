@@ -1,3 +1,7 @@
+---
+layout: post
+title: addReferenceTo
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [addReferenceTo](addReferenceTo.md)
 
 # addReferenceTo

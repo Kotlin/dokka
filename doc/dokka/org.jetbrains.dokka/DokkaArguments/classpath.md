@@ -1,3 +1,7 @@
+---
+layout: post
+title: classpath
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DokkaArguments](index.md) / [classpath](classpath.md)
 
 # classpath

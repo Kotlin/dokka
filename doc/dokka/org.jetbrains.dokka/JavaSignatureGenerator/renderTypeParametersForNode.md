@@ -1,3 +1,7 @@
+---
+layout: post
+title: renderTypeParametersForNode
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [JavaSignatureGenerator](index.md) / [renderTypeParametersForNode](renderTypeParametersForNode.md)
 
 # renderTypeParametersForNode

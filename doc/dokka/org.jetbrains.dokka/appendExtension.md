@@ -1,3 +1,7 @@
+---
+layout: post
+title: appendExtension
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [appendExtension](appendExtension.md)
 
 # appendExtension

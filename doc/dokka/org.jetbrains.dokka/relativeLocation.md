@@ -1,3 +1,7 @@
+---
+layout: post
+title: relativeLocation
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [relativeLocation](relativeLocation.md)
 
 # relativeLocation

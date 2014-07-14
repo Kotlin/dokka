@@ -1,3 +1,7 @@
+---
+layout: post
+title: renderName
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [SignatureGenerator](index.md) / [renderName](renderName.md)
 
 # renderName

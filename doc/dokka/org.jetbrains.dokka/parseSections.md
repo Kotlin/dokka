@@ -1,3 +1,7 @@
+---
+layout: post
+title: parseSections
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [parseSections](parseSections.md)
 
 # parseSections

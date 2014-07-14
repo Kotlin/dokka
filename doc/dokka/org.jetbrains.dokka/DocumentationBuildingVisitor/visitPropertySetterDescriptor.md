@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitPropertySetterDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [visitPropertySetterDescriptor](visitPropertySetterDescriptor.md)
 
 # visitPropertySetterDescriptor

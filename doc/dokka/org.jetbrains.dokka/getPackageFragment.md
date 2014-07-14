@@ -1,3 +1,7 @@
+---
+layout: post
+title: getPackageFragment
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [getPackageFragment](getPackageFragment.md)
 
 # getPackageFragment

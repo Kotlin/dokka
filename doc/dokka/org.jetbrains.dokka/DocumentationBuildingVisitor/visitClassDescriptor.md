@@ -1,3 +1,7 @@
+---
+layout: post
+title: visitClassDescriptor
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationBuildingVisitor](index.md) / [visitClassDescriptor](visitClassDescriptor.md)
 
 # visitClassDescriptor

@@ -1,3 +1,7 @@
+---
+layout: post
+title: doc
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [doc](doc.md)
 
 # doc

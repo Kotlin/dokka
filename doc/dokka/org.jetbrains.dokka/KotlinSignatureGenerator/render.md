@@ -1,3 +1,7 @@
+---
+layout: post
+title: render
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [KotlinSignatureGenerator](index.md) / [render](render.md)
 
 # render

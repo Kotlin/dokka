@@ -1,3 +1,7 @@
+---
+layout: post
+title: getResolutionScope
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [getResolutionScope](getResolutionScope.md)
 
 # getResolutionScope

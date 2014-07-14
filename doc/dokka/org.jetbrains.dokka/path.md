@@ -1,3 +1,7 @@
+---
+layout: post
+title: path
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [path](path.md)
 
 # path

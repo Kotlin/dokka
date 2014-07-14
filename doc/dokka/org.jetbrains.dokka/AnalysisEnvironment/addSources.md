@@ -1,3 +1,7 @@
+---
+layout: post
+title: addSources
+---
 [dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [addSources](addSources.md)
 
 # addSources

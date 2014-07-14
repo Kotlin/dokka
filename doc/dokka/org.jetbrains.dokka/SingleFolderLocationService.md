@@ -1,3 +1,7 @@
+---
+layout: post
+title: SingleFolderLocationService
+---
 [dokka](../index.md) / [org.jetbrains.dokka](index.md) / [SingleFolderLocationService](SingleFolderLocationService.md)
 
 # SingleFolderLocationService
