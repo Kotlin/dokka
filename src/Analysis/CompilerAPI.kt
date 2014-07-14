@@ -66,8 +66,8 @@ fun DeclarationDescriptor.isUserCode() =
 
 public fun getPackageInnerScope(descriptor: PackageFragmentDescriptor): JetScope {
     val module = descriptor.getContainingDeclaration()
-    val packageScope = ChainedScope(descriptor, "Package ${descriptor.getName()} scope", descriptor.getMemberScope(),
-                                    module.getPackage(FqName.ROOT)!!.getMemberScope())
+    val packageView = module.getPackage(descriptor.fqName)
+    val packageScope = packageView!!.getMemberScope()
     return packageScope
 }
 
@@ -131,11 +131,20 @@ public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescr
 
 fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetScope {
     when (descriptor) {
-        is PackageFragmentDescriptor -> return getPackageInnerScope(descriptor)
-        is PackageViewDescriptor -> return descriptor.getMemberScope()
-        is ClassDescriptor -> return getClassInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
-        is FunctionDescriptor -> return getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
-        is PropertyDescriptor -> return getPropertyInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
+        is PackageFragmentDescriptor ->
+            return getPackageInnerScope(descriptor)
+
+        is PackageViewDescriptor ->
+            return descriptor.getMemberScope()
+
+        is ClassDescriptor ->
+            return getClassInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
+
+        is FunctionDescriptor ->
+            return getFunctionInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
+
+        is PropertyDescriptor ->
+            return getPropertyInnerScope(getResolutionScope(descriptor.getContainingDeclaration()), descriptor)
     }
 
     if (descriptor is DeclarationDescriptorNonRoot)
