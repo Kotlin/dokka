@@ -9,7 +9,7 @@ class DocumentationContentSection(val label: String, val text: String) {
     }
 }
 
-class DocumentationContent(val summary: String, val sections: List<DocumentationContentSection>) {
+class DocumentationContent(val summary: String, val description: String, val sections: List<DocumentationContentSection>) {
 
     override fun equals(other: Any?): Boolean {
         if (other !is DocumentationContent)
@@ -36,17 +36,16 @@ class DocumentationContent(val summary: String, val sections: List<Documentation
     }
 
     class object {
-        val Empty = DocumentationContent("", listOf())
+        val Empty = DocumentationContent("", "", listOf())
     }
 }
 
 
 fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): DocumentationContent {
     val docText = getDocumentationElements(descriptor).map { it.extractText() }.join("\n")
-
     val sections = docText.parseSections()
-
-    return DocumentationContent(sections.first().text, sections.drop(1))
+    val content = sections.first().text
+    return DocumentationContent(content.substringBefore('\n'), content.substringAfter('\n'), sections.drop(1))
 }
 
 fun String.parseLabel(index: Int): Pair<String, Int> {
