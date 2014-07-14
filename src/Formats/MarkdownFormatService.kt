@@ -8,10 +8,11 @@ public class MarkdownFormatService(val locationService: LocationService,
             appendln(node.path.map { "[${it.name}](${locationService.relativeLocation(node, it, extension)})" }.joinToString(" / "))
             appendln()
             appendln("# ${node.name}")
+            appendln(node.doc.summary)
             appendln("```")
             appendln(signatureGenerator.render(node))
             appendln("```")
-            appendln(node.doc.summary)
+            appendln(node.doc.description)
             appendln()
             for (section in node.doc.sections) {
                 append("### ")
@@ -19,15 +20,17 @@ public class MarkdownFormatService(val locationService: LocationService,
                 appendln(section.text)
             }
 
-            appendln("### Members")
-            appendln("| Name | Signature | Summary |")
-            appendln("|------|-----------|---------|")
-            for (member in node.members.sortBy { it.name }) {
-                val relativePath = locationService.relativeLocation(node, member, extension)
-                append("|[${member.name}](${relativePath})")
-                append("|${signatureGenerator.render(member)}")
-                append("|${member.doc.summary} ")
-                appendln("|")
+            if (node.members.any()) {
+                appendln("### Members")
+                appendln("| Name | Signature | Summary |")
+                appendln("|------|-----------|---------|")
+                for (member in node.members.sortBy { it.name }) {
+                    val relativePath = locationService.relativeLocation(node, member, extension)
+                    append("|[${member.name}](${relativePath})")
+                    append("|`${signatureGenerator.render(member)}`")
+                    append("|${member.doc.summary} ")
+                    appendln("|")
+                }
             }
         }
     }
