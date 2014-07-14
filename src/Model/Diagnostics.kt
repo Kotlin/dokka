@@ -4,7 +4,7 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.BindingContext
 
-fun BindingContext.checkResolveChildren(node : DocumentationNode) {
+fun BindingContext.checkResolveChildren(node: DocumentationNode) {
     if (node.kind != DocumentationNode.Kind.Module && node.kind != DocumentationNode.Kind.Package) {
         // TODO: we don't resolve packages and modules for now
 

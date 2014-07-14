@@ -66,7 +66,7 @@ fun DeclarationDescriptor.isUserCode() =
 public fun getPackageInnerScope(descriptor: PackageFragmentDescriptor): JetScope {
     val module = descriptor.getContainingDeclaration()
     val packageScope = ChainedScope(descriptor, "Package ${descriptor.getName()} scope", descriptor.getMemberScope(),
-                                  module.getPackage(FqName.ROOT)!!.getMemberScope())
+                                    module.getPackage(FqName.ROOT)!!.getMemberScope())
     return packageScope
 }
 

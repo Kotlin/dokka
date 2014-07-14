@@ -26,7 +26,7 @@ fun KDoc?.extractText(): String {
         return ""
     val lines = text.replace("\r", "").split("\n")
     return lines.map {
-        val comment = it.trim().dropWhile { it == '/' || it == '*'}
+        val comment = it.trim().dropWhile { it == '/' || it == '*' }
         (if (comment.endsWith("*/"))
             comment.substring(0, comment.length - 2)
         else

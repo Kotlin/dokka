@@ -65,7 +65,7 @@ class KotlinSignatureGenerator : SignatureGenerator {
     }
 
     override fun renderModifiersForNode(node: DocumentationNode): String {
-        val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != ""}
+        val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != "" }
         if (modifiers.none())
             return ""
         return modifiers.join(" ", postfix = " ")

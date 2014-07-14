@@ -4,7 +4,6 @@ import com.sampullara.cli.*
 import com.intellij.openapi.util.*
 import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
-import org.jetbrains.jet.utils.PathUtil
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -41,7 +40,10 @@ public fun main(args: Array<String>) {
         context.createDocumentationModule(module, file)
     }.reduce {(aggregate, item) -> aggregate.merge(item) }
 
-    ConsoleGenerator(KotlinSignatureGenerator()).generate(documentation)
-
+    val signatureGenerator = KotlinSignatureGenerator()
+    val locationService = FoldersLocationService(arguments.outputDir ?: "out/doc/")
+    val markdown = MarkdownFormatService(locationService, signatureGenerator)
+    val generator = FileGenerator(signatureGenerator, locationService, markdown)
+    generator.generate(documentation)
     Disposer.dispose(environment)
 }

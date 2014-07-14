@@ -10,7 +10,7 @@ trait SignatureGenerator {
     fun renderType(node: DocumentationNode): String
     fun renderPackage(node: DocumentationNode): String
     fun renderProperty(node: DocumentationNode): String
-    open fun renderModifier(node: DocumentationNode): String
-    open fun renderModifiersForNode(node: DocumentationNode): String
+    fun renderModifier(node: DocumentationNode): String
+    fun renderModifiersForNode(node: DocumentationNode): String
 }
 

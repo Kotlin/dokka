@@ -1,9 +1,10 @@
 package org.jetbrains.dokka
 
-public class ConsoleGenerator(val signatureGenerator : SignatureGenerator) {
+public class ConsoleGenerator(val signatureGenerator: SignatureGenerator, val locationService: LocationService) {
     val IndentStep = "  "
 
     public fun generate(node: DocumentationNode, indent: String = "") {
+        println("@${locationService.location(node).file}")
         generateHeader(node, indent)
         //generateDetails(node, indent)
         generateMembers(node, indent)
