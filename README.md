@@ -19,7 +19,7 @@ Each reference between nodes also has semantic attached, and there are three of 
 2. Detail - reference means that target describes source in more details, form tree.
 3. Link - any link to any other node, free form.
 
-Member & Detail has reverse Owner reference, while Link's reference is also Link. 
+Member & Detail has reverse Owner reference, while Link's back reference is also Link. 
 
 Nodes that are Details of other nodes cannot have Members. 
 
@@ -40,6 +40,10 @@ Basically, given the `documentation` as a model, we do this:
     val generator = FileGenerator(signatureGenerator, locationService, markdown)
     generator.generate(documentation) 
 ```
+
+Samples
+====
+[Dokka docs](https://github.com/orangy/dokka/blob/gh-pages/doc/dokka/index.md) are built with Dokka. Yes, we bootstrap and dogfood :)
 
 Roadmap
 =====
