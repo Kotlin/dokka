@@ -35,6 +35,9 @@ class DocumentationContent(val summary: String, val description: String, val sec
         return "$summary | " + sections.joinToString()
     }
 
+    val hasDescription : Boolean
+        get() = !description.isEmpty() || sections.any()
+
     class object {
         val Empty = DocumentationContent("", "", listOf())
     }
