@@ -2,7 +2,7 @@ package org.jetbrains.dokka
 
 public class JekyllFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
 : MarkdownFormatService(locationService, signatureGenerator) {
-    override val extension: String = "html"
+    override val extension: String = "md"
     override fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         to.appendln("---")
         to.appendln("layout: post")
