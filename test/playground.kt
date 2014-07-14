@@ -34,12 +34,15 @@ class ClassWithConstructor(
 
 /**
  * This is data class with constructor and two properties
+ * Also look at [Employee]
  *
  * $name Person's name
  * $age Person's age
  *
  */
 data class Person(val name: ClassWithConstructor, val age: Int) {}
+
+data class Employee(val name: ClassWithConstructor, val age: Int) {}
 
 object Object {
     throws(javaClass<IllegalArgumentException>())

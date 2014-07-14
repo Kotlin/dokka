@@ -12,6 +12,12 @@ import org.jetbrains.jet.cli.jvm.*
 import com.intellij.openapi.util.*
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
+/**
+ * Kotlin as a service entry point
+ * Configures environment, analyses files and provides facilities to perform code processing without emitting bytecode
+ * $messageCollector is required by compiler infrastructure and will receive all compiler messages
+ * $body is optional and can be used to configure environment without creating local variable
+ */
 public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
     val configuration = CompilerConfiguration();
 
@@ -20,6 +26,10 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         body()
     }
 
+    /**
+     * Executes [processor] when analysis is complete.
+     * $processor is a function to receive compiler environment, module and context for symbol resolution
+     */
     public fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
         val exhaust = environment.analyze(messageCollector)

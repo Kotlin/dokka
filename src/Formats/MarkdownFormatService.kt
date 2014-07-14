@@ -1,5 +1,7 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.DocumentationNode.Kind
+
 public class MarkdownFormatService(val locationService: LocationService,
                                    val signatureGenerator: SignatureGenerator) : FormatService {
     override val extension: String = "md"
@@ -15,9 +17,11 @@ public class MarkdownFormatService(val locationService: LocationService,
             appendln(node.doc.description)
             appendln()
             for (section in node.doc.sections) {
-                append("### ")
-                appendln(section.label)
-                appendln(section.text)
+                append("##### ")
+                append(section.label)
+                appendln()
+                append(section.text)
+                appendln()
             }
 
             if (node.members.any()) {
@@ -26,7 +30,11 @@ public class MarkdownFormatService(val locationService: LocationService,
                 appendln("|------|-----------|---------|")
                 for (member in node.members.sortBy { it.name }) {
                     val relativePath = locationService.relativeLocation(node, member, extension)
-                    append("|[${member.name}](${relativePath})")
+                    val displayName = when (member.kind) {
+                        Kind.Constructor -> "*.init*"
+                        else -> signatureGenerator.renderName(member).htmlEscape()
+                    }
+                    append("|[${displayName}](${relativePath})")
                     append("|`${signatureGenerator.render(member)}`")
                     append("|${member.doc.summary} ")
                     appendln("|")
