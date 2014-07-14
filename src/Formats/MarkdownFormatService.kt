@@ -7,9 +7,10 @@ public class MarkdownFormatService(val locationService: LocationService,
         with (to) {
             appendln(node.path.map { "[${it.name}](${locationService.relativeLocation(node, it, extension)})" }.joinToString(" / "))
             appendln()
-            append("# ")
+            appendln("# ${node.name}")
+            appendln("```")
             appendln(signatureGenerator.render(node))
-            appendln()
+            appendln("```")
             appendln(node.doc.summary)
             appendln()
             for (section in node.doc.sections) {
@@ -17,7 +18,6 @@ public class MarkdownFormatService(val locationService: LocationService,
                 appendln(section.label)
                 appendln(section.text)
             }
-
 
             appendln("### Members")
             appendln("| Name | Signature | Summary |")
