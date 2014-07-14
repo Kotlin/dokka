@@ -20,6 +20,8 @@ fun BindingContext.createDocumentationModule(module: ModuleDescriptor, packages:
         val pkg = module.getPackage(packageName)
         pkg!!.accept(DocumentationBuildingVisitor(this, visitor), documentationModule)
     }
-    checkResolveChildren(documentationModule)
+
+    // TODO: Uncomment for resolve verification
+    // checkResolveChildren(documentationModule)
     return documentationModule
 }
