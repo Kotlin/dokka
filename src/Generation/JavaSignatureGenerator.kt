@@ -23,6 +23,13 @@ class JavaSignatureGenerator : SignatureGenerator {
         }
     }
 
+    override fun renderName(node: DocumentationNode): String {
+        return when (node.kind) {
+            Kind.Constructor -> node.owner!!.name
+            else -> node.name
+        }
+    }
+
     override fun renderPackage(node: DocumentationNode): String {
         return "package ${node.name}"
     }
@@ -99,9 +106,7 @@ class JavaSignatureGenerator : SignatureGenerator {
     override fun renderFunction(node: DocumentationNode): String {
         return StringBuilder {
             when (node.kind) {
-                Kind.Constructor -> {
-                    append(node.owner?.name)
-                }
+                Kind.Constructor -> append(node.owner?.name)
                 Kind.Function -> {
                     append(renderTypeParametersForNode(node))
                     append(renderType(node.detail(Kind.Type)))

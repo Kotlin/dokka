@@ -24,6 +24,13 @@ class KotlinSignatureGenerator : SignatureGenerator {
         }
     }
 
+    override fun renderName(node: DocumentationNode): String {
+        return when (node.kind) {
+            Kind.Constructor -> node.owner!!.name
+            else -> node.name
+        }
+    }
+
     override fun renderPackage(node: DocumentationNode): String {
         return "package ${node.name}"
     }
@@ -99,9 +106,14 @@ class KotlinSignatureGenerator : SignatureGenerator {
             append(node.name)
             append(renderTypeParametersForNode(node))
 
-            append("(")
-            append(node.details(Kind.Parameter).map { renderParameter(it) }.join())
-            append(")")
+            /*
+                        val constructors = node.members(Kind.Constructor)
+                        if (constructors.count() == 1) {
+                            append("(")
+                            append(constructors[0].details(Kind.Parameter).map { renderParameter(it) }.join())
+                            append(")")
+                        }
+            */
         }.toString()
     }
 
@@ -109,7 +121,7 @@ class KotlinSignatureGenerator : SignatureGenerator {
         return StringBuilder {
             append(renderModifiersForNode(node))
             when (node.kind) {
-                Kind.Constructor -> append("init")
+                Kind.Constructor -> append(node.owner!!.name)
                 Kind.Function -> append("fun ")
                 else -> throw IllegalArgumentException("Node $node is not a function-like object")
             }

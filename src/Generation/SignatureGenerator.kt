@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 trait SignatureGenerator {
     fun render(node: DocumentationNode): String
+    fun renderName(node: DocumentationNode): String
     fun renderFunction(node: DocumentationNode): String
     fun renderClass(node: DocumentationNode): String
     fun renderTypeParametersForNode(node: DocumentationNode): String
