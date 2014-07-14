@@ -113,10 +113,10 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("""Multiline
-Function
+                assertEquals("Multiline", doc.summary)
+                assertEquals("""Function
 Documentation"""
-                             , doc.summary)
+                             , doc.description)
 
                 assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)

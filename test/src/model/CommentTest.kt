@@ -24,9 +24,8 @@ public class CommentTest {
     Test fun multilineDoc() {
         verifyModel("test/data/comments/multilineDoc.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("""doc1
-doc2
-doc3""", doc.summary)
+                assertEquals("doc1", doc.summary)
+                assertEquals("doc2\ndoc3", doc.description)
             }
         }
     }
@@ -34,9 +33,8 @@ doc3""", doc.summary)
     Test fun multipleDocs() {
         verifyModel("test/data/comments/multipleDocs.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("""doc1
-doc2
-doc3""", doc.summary)
+                assertEquals("doc1", doc.summary)
+                assertEquals("doc2\ndoc3", doc.description)
             }
         }
     }
@@ -44,9 +42,8 @@ doc3""", doc.summary)
     Test fun multilineDocWithComment() {
         verifyModel("test/data/comments/multilineDocWithComment.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("""doc1
-doc2
-doc3""", doc.summary)
+                assertEquals("doc1", doc.summary)
+                assertEquals("doc2\ndoc3", doc.description)
             }
         }
     }
