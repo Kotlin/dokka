@@ -1,0 +1,27 @@
+#content-main {
+    padding: 20px 0;
+    margin: 0px 4%;
+}
+
+#readme span.name {
+    display: none;
+}
+
+.markdown-body h1 {
+    border: none;
+}
+
+.markdown-body h2,
+.markdown-body h3 {
+    border: none;
+}
+
+.markdown-body .highlight pre, .markdown-body pre {
+    background-color: #f0f0f0;
+    border: 1px solid #d5d5d5;
+}
+
+.markdown-body table code {
+    border: none;
+    background: none;
+}
