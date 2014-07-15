@@ -30,9 +30,12 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     open public fun appendDescription(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val described = nodes.filter { it.doc.hasDescription }
         if (described.any()) {
-            appendHeader(to, "Description")
+            val single = described.size == 1
+            appendHeader(to, "Description", 3)
             for (node in described) {
-                appendBlockCode(to, languageService.render(node))
+                if (!single) {
+                    appendBlockCode(to, languageService.render(node))
+                }
                 appendLine(to, node.doc.description)
                 appendLine(to)
                 for (section in node.doc.sections) {
@@ -77,7 +80,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
         for (node in nodes) {
             if (node.members.any()) {
-                appendHeader(to, "Members")
+                appendHeader(to, "Members", 3)
 
                 appendLine(to, "| Name | Summary |") // TODO: hardcoded
                 appendLine(to, "|------|---------|")
@@ -90,11 +93,11 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     for ((summary, items) in breakdownBySummary) {
                         if (!summary.isEmpty()) {
                             appendText(to, summary)
-                            appendText(to, "<br/>") // TODO: hardcoded
+                            to.append("<br/>") // TODO: hardcoded
                         }
 
                         val signatures = items.map { formatBold(formatCode("${languageService.render(it)}")) }
-                        appendText(to, signatures.join("<br/>")) // TODO: hardcoded
+                        to.append(signatures.join("<br/>")) // TODO: hardcoded
                     }
 
                     appendLine(to, "|")
@@ -115,4 +118,5 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             }
         }
     }
+    public abstract fun formatText(text: String): String
 }

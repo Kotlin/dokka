@@ -41,11 +41,11 @@ class KotlinLanguageService : LanguageService {
 
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
-            return "(${renders.take(renders.size - 1).join()})->${renders.last()}"
+            return "(${renders.take(renders.size - 1).join()}) -> ${renders.last()}"
         }
         if (node.name == "ExtensionFunction${typeArguments.count() - 2}") {
             // extension lambda
-            return "${renders.first()}.(${renders.drop(1).take(renders.size - 2).join()})->${renders.last()}"
+            return "${renders.first()}.(${renders.drop(1).take(renders.size - 2).join()}) -> ${renders.last()}"
         }
         if (typeArguments.none())
             return node.name

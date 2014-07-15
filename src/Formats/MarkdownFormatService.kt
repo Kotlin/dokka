@@ -10,6 +10,10 @@ public open class MarkdownFormatService(locationService: LocationService, signat
         return items.map { formatLink(it) }.joinToString(" / ")
     }
 
+    override public fun formatText(text: String): String {
+        return text.htmlEscape()
+    }
+
     override public fun formatCode(code: String): String {
         return "`$code`"
     }
@@ -27,11 +31,11 @@ public open class MarkdownFormatService(locationService: LocationService, signat
     }
 
     override public fun appendLine(to: StringBuilder, text: String) {
-        to.appendln(text)
+        to.appendln(formatText(text))
     }
 
     override public fun appendText(to: StringBuilder, text: String) {
-        to.append(text)
+        to.append(formatText(text))
     }
 
     override public fun appendHeader(to: StringBuilder, text: String, level: Int) {
@@ -41,15 +45,17 @@ public open class MarkdownFormatService(locationService: LocationService, signat
     }
 
     override public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
+        appendLine(to)
         appendLine(to, "```")
         for (line in lines)
-            appendLine(to, line)
+            to.appendln(line)
         appendLine(to, "```")
+        appendLine(to)
     }
 
     override public fun appendBlockCode(to: StringBuilder, line: String) {
         appendLine(to, "```")
-        appendLine(to, line)
+        to.appendln(line)
         appendLine(to, "```")
     }
 
