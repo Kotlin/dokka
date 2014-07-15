@@ -1,0 +1,16 @@
+# Jekyll Settings
+name: Dokka
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+highlighter: pygments
+exclude:
+  - vendor
+  - bin
+  - Rakefile
+  - Gemfile
+  - Gemfile.lock
+  - rake
+include:
+  - doc
