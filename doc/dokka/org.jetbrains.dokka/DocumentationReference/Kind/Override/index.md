@@ -16,6 +16,6 @@ public enum val Override
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Override&gt;](_class-object-for-Override_.html)|**`public object <class-object-for-Override>`**|
+

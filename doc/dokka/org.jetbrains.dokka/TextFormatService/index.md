@@ -16,6 +16,6 @@ public class TextFormatService
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public TextFormatService(signatureGenerator: LanguageService)`**|
+

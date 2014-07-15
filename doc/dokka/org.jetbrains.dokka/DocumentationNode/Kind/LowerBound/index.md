@@ -16,6 +16,6 @@ public enum val LowerBound
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-LowerBound&gt;](_class-object-for-LowerBound_.html)|**`public object <class-object-for-LowerBound>`**|
+

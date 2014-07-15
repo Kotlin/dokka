@@ -16,6 +16,6 @@ public val links: List<DocumentationNode>
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-links&gt;](_get-links_.html)|**`public fun <get-links>(): List<DocumentationNode>`**|
+

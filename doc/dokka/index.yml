@@ -4,69 +4,14 @@
     - title: org.jetbrains.dokka
       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/index
       content:
-        - title: AnalysisEnvironment
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/index
-          content:
-            - title: AnalysisEnvironment
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/_init_
+        - title: getClassInnerScope
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getClassInnerScope
 
-            - title: withContext
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/withContext
+        - title: getPropertyInnerScope
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getPropertyInnerScope
 
-            - title: withContext
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/withContext
-
-            - title: streamFiles
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/streamFiles
-
-            - title: processFiles
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFiles
-
-            - title: processFiles
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFiles
-
-            - title: processFilesFlat
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFilesFlat
-
-            - title: classpath
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/classpath/index
-              content:
-                - title: &lt;get-classpath&gt;
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/classpath/_get-classpath_
-
-
-            - title: addClasspath
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addClasspath
-
-            - title: addClasspath
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addClasspath
-
-            - title: sources
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/sources/index
-              content:
-                - title: &lt;get-sources&gt;
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/sources/_get-sources_
-
-
-            - title: addSources
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addSources
-
-            - title: dispose
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/dispose
-
-
-        - title: DocumentationModule
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationModule/index
-          content:
-            - title: DocumentationModule
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationModule/_init_
-
-
-        - title: LocationService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/LocationService
-
-        - title: getFunctionInnerScope
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getFunctionInnerScope
+        - title: main
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/main
 
         - title: DocumentationNode
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/index
@@ -77,139 +22,139 @@
             - title: Kind
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/index
               content:
-                - title: &lt;class-object-for-Kind&gt;
+                - title: <class-object-for-Kind>
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/_class-object-for-Kind_
 
                 - title: Unknown
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Unknown/index
                   content:
-                    - title: &lt;class-object-for-Unknown&gt;
+                    - title: <class-object-for-Unknown>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Unknown/_class-object-for-Unknown_
 
 
                 - title: Package
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Package/index
                   content:
-                    - title: &lt;class-object-for-Package&gt;
+                    - title: <class-object-for-Package>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Package/_class-object-for-Package_
 
 
                 - title: Class
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Class/index
                   content:
-                    - title: &lt;class-object-for-Class&gt;
+                    - title: <class-object-for-Class>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Class/_class-object-for-Class_
 
 
                 - title: Interface
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Interface/index
                   content:
-                    - title: &lt;class-object-for-Interface&gt;
+                    - title: <class-object-for-Interface>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Interface/_class-object-for-Interface_
 
 
                 - title: Enum
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Enum/index
                   content:
-                    - title: &lt;class-object-for-Enum&gt;
+                    - title: <class-object-for-Enum>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Enum/_class-object-for-Enum_
 
 
                 - title: EnumItem
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/EnumItem/index
                   content:
-                    - title: &lt;class-object-for-EnumItem&gt;
+                    - title: <class-object-for-EnumItem>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/EnumItem/_class-object-for-EnumItem_
 
 
                 - title: Object
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Object/index
                   content:
-                    - title: &lt;class-object-for-Object&gt;
+                    - title: <class-object-for-Object>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Object/_class-object-for-Object_
 
 
                 - title: Constructor
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Constructor/index
                   content:
-                    - title: &lt;class-object-for-Constructor&gt;
+                    - title: <class-object-for-Constructor>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Constructor/_class-object-for-Constructor_
 
 
                 - title: Function
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Function/index
                   content:
-                    - title: &lt;class-object-for-Function&gt;
+                    - title: <class-object-for-Function>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Function/_class-object-for-Function_
 
 
                 - title: Property
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Property/index
                   content:
-                    - title: &lt;class-object-for-Property&gt;
+                    - title: <class-object-for-Property>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Property/_class-object-for-Property_
 
 
                 - title: Parameter
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Parameter/index
                   content:
-                    - title: &lt;class-object-for-Parameter&gt;
+                    - title: <class-object-for-Parameter>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Parameter/_class-object-for-Parameter_
 
 
                 - title: Receiver
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Receiver/index
                   content:
-                    - title: &lt;class-object-for-Receiver&gt;
+                    - title: <class-object-for-Receiver>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Receiver/_class-object-for-Receiver_
 
 
                 - title: TypeParameter
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/TypeParameter/index
                   content:
-                    - title: &lt;class-object-for-TypeParameter&gt;
+                    - title: <class-object-for-TypeParameter>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/TypeParameter/_class-object-for-TypeParameter_
 
 
                 - title: Type
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Type/index
                   content:
-                    - title: &lt;class-object-for-Type&gt;
+                    - title: <class-object-for-Type>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Type/_class-object-for-Type_
 
 
                 - title: UpperBound
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/UpperBound/index
                   content:
-                    - title: &lt;class-object-for-UpperBound&gt;
+                    - title: <class-object-for-UpperBound>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/UpperBound/_class-object-for-UpperBound_
 
 
                 - title: LowerBound
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/LowerBound/index
                   content:
-                    - title: &lt;class-object-for-LowerBound&gt;
+                    - title: <class-object-for-LowerBound>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/LowerBound/_class-object-for-LowerBound_
 
 
                 - title: Exception
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Exception/index
                   content:
-                    - title: &lt;class-object-for-Exception&gt;
+                    - title: <class-object-for-Exception>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Exception/_class-object-for-Exception_
 
 
                 - title: Modifier
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Modifier/index
                   content:
-                    - title: &lt;class-object-for-Modifier&gt;
+                    - title: <class-object-for-Modifier>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Modifier/_class-object-for-Modifier_
 
 
                 - title: Module
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Module/index
                   content:
-                    - title: &lt;class-object-for-Module&gt;
+                    - title: <class-object-for-Module>
                       url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/Kind/Module/_class-object-for-Module_
 
 
@@ -217,28 +162,28 @@
             - title: owner
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/owner/index
               content:
-                - title: &lt;get-owner&gt;
+                - title: <get-owner>
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/owner/_get-owner_
 
 
             - title: details
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/details/index
               content:
-                - title: &lt;get-details&gt;
+                - title: <get-details>
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/details/_get-details_
 
 
             - title: members
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/members/index
               content:
-                - title: &lt;get-members&gt;
+                - title: <get-members>
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/members/_get-members_
 
 
             - title: links
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/links/index
               content:
-                - title: &lt;get-links&gt;
+                - title: <get-links>
                   url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/links/_get-links_
 
 
@@ -276,20 +221,91 @@
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationNode/toString
 
 
+        - title: htmlEscape
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/htmlEscape
+
+        - title: AnalysisEnvironment
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/index
+          content:
+            - title: AnalysisEnvironment
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/_init_
+
+            - title: withContext
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/withContext
+
+            - title: withContext
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/withContext
+
+            - title: streamFiles
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/streamFiles
+
+            - title: processFiles
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFiles
+
+            - title: processFiles
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFiles
+
+            - title: processFilesFlat
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/processFilesFlat
+
+            - title: classpath
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/classpath/index
+              content:
+                - title: <get-classpath>
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/classpath/_get-classpath_
+
+
+            - title: addClasspath
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addClasspath
+
+            - title: addClasspath
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addClasspath
+
+            - title: sources
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/sources/index
+              content:
+                - title: <get-sources>
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/sources/_get-sources_
+
+
+            - title: addSources
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/addSources
+
+            - title: dispose
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/AnalysisEnvironment/dispose
+
+
         - title: FormatService
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FormatService
+
+        - title: FormatLink
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FormatLink/index
+          content:
+            - title: FormatLink
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FormatLink/_init_
+
 
         - title: SingleFolderLocationService
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/SingleFolderLocationService
 
-        - title: JekyllFormatService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/index
-          content:
-            - title: JekyllFormatService
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/_init_
+        - title: LocationService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/LocationService
 
-            - title: link
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/link
+        - title: getFunctionInnerScope
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getFunctionInnerScope
+
+        - title: DocumentationModule
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationModule/index
+          content:
+            - title: DocumentationModule
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationModule/_init_
+
+
+        - title: SingleFolderLocationService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/SingleFolderLocationService/index
+          content:
+            - title: SingleFolderLocationService
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/SingleFolderLocationService/_init_
 
 
         - title: FileGenerator
@@ -311,21 +327,18 @@
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FileGenerator/buildOutlines
 
 
-        - title: getPropertyInnerScope
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getPropertyInnerScope
+        - title: escapeUri
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/escapeUri
 
-        - title: getClassInnerScope
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getClassInnerScope
-
-        - title: TextFormatService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/TextFormatService/index
+        - title: JekyllFormatService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/index
           content:
-            - title: TextFormatService
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/TextFormatService/_init_
+            - title: JekyllFormatService
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/_init_
 
+            - title: link
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/JekyllFormatService/link
 
-        - title: getPackageInnerScope
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getPackageInnerScope
 
         - title: MarkdownFormatService
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/index
@@ -366,119 +379,26 @@
             - title: appendBlockCode
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendBlockCode
 
+            - title: appendTable
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendTable
+
+            - title: appendTableHeader
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendTableHeader
+
+            - title: appendTableBody
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendTableBody
+
+            - title: appendTableRow
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendTableRow
+
+            - title: appendTableCell
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendTableCell
+
             - title: appendOutlineHeader
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendOutlineHeader
 
             - title: appendOutlineChildren
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/MarkdownFormatService/appendOutlineChildren
-
-
-        - title: HtmlFormatService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/index
-          content:
-            - title: HtmlFormatService
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/_init_
-
-            - title: formatText
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatText
-
-            - title: appendBlockCode
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendBlockCode
-
-            - title: appendBlockCode
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendBlockCode
-
-            - title: appendHeader
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendHeader
-
-            - title: appendText
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendText
-
-            - title: appendLine
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendLine
-
-            - title: appendLine
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendLine
-
-            - title: formatLink
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatLink
-
-            - title: formatBold
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatBold
-
-            - title: formatCode
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatCode
-
-            - title: formatBreadcrumbs
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatBreadcrumbs
-
-            - title: appendOutlineChildren
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendOutlineChildren
-
-            - title: appendOutlineHeader
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendOutlineHeader
-
-
-        - title: htmlEscape
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/htmlEscape
-
-        - title: main
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/main
-
-        - title: DocumentationReference
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/index
-          content:
-            - title: DocumentationReference
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/_init_
-
-            - title: Kind
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/index
-              content:
-                - title: &lt;class-object-for-Kind&gt;
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/_class-object-for-Kind_
-
-                - title: Owner
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Owner/index
-                  content:
-                    - title: &lt;class-object-for-Owner&gt;
-                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Owner/_class-object-for-Owner_
-
-
-                - title: Member
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Member/index
-                  content:
-                    - title: &lt;class-object-for-Member&gt;
-                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Member/_class-object-for-Member_
-
-
-                - title: Detail
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Detail/index
-                  content:
-                    - title: &lt;class-object-for-Detail&gt;
-                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Detail/_class-object-for-Detail_
-
-
-                - title: Link
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Link/index
-                  content:
-                    - title: &lt;class-object-for-Link&gt;
-                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Link/_class-object-for-Link_
-
-
-                - title: Override
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Override/index
-                  content:
-                    - title: &lt;class-object-for-Override&gt;
-                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Override/_class-object-for-Override_
-
-
-
-
-        - title: FormatLink
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FormatLink/index
-          content:
-            - title: FormatLink
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FormatLink/_init_
 
 
         - title: ConsoleGenerator
@@ -503,12 +423,57 @@
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/ConsoleGenerator/generateLinks
 
 
-        - title: SingleFolderLocationService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/SingleFolderLocationService/index
+        - title: DocumentationReference
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/index
           content:
-            - title: SingleFolderLocationService
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/SingleFolderLocationService/_init_
+            - title: DocumentationReference
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/_init_
 
+            - title: Kind
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/index
+              content:
+                - title: <class-object-for-Kind>
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/_class-object-for-Kind_
+
+                - title: Owner
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Owner/index
+                  content:
+                    - title: <class-object-for-Owner>
+                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Owner/_class-object-for-Owner_
+
+
+                - title: Member
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Member/index
+                  content:
+                    - title: <class-object-for-Member>
+                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Member/_class-object-for-Member_
+
+
+                - title: Detail
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Detail/index
+                  content:
+                    - title: <class-object-for-Detail>
+                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Detail/_class-object-for-Detail_
+
+
+                - title: Link
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Link/index
+                  content:
+                    - title: <class-object-for-Link>
+                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Link/_class-object-for-Link_
+
+
+                - title: Override
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Override/index
+                  content:
+                    - title: <class-object-for-Override>
+                      url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/DocumentationReference/Kind/Override/_class-object-for-Override_
+
+
+
+
+        - title: getPackageInnerScope
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/getPackageInnerScope
 
         - title: FoldersLocationService
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FoldersLocationService/index
@@ -516,6 +481,23 @@
             - title: FoldersLocationService
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FoldersLocationService/_init_
 
+
+        - title: Location
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/index
+          content:
+            - title: Location
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/_init_
+
+            - title: path
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/path/index
+              content:
+                - title: <get-path>
+                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/path/_get-path_
+
+
+
+        - title: FoldersLocationService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FoldersLocationService
 
         - title: StructuredFormatService
           url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/index
@@ -540,6 +522,24 @@
 
             - title: appendLine
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendLine
+
+            - title: appendTable
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendTable
+
+            - title: appendTableHeader
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendTableHeader
+
+            - title: appendTableBody
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendTableBody
+
+            - title: appendTableRow
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendTableRow
+
+            - title: appendTableCell
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendTableCell
+
+            - title: formatText
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/formatText
 
             - title: formatLink
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/formatLink
@@ -580,28 +580,73 @@
             - title: appendOutline
               url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/appendOutline
 
-            - title: formatText
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/StructuredFormatService/formatText
 
-
-        - title: FoldersLocationService
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/FoldersLocationService
-
-        - title: Location
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/index
+        - title: TextFormatService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/TextFormatService/index
           content:
-            - title: Location
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/_init_
-
-            - title: path
-              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/path/index
-              content:
-                - title: &lt;get-path&gt;
-                  url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/Location/path/_get-path_
+            - title: TextFormatService
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/TextFormatService/_init_
 
 
+        - title: HtmlFormatService
+          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/index
+          content:
+            - title: HtmlFormatService
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/_init_
 
-        - title: escapeUri
-          url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/escapeUri
+            - title: formatText
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatText
+
+            - title: appendBlockCode
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendBlockCode
+
+            - title: appendBlockCode
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendBlockCode
+
+            - title: appendHeader
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendHeader
+
+            - title: appendText
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendText
+
+            - title: appendLine
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendLine
+
+            - title: appendLine
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendLine
+
+            - title: appendTable
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendTable
+
+            - title: appendTableHeader
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendTableHeader
+
+            - title: appendTableBody
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendTableBody
+
+            - title: appendTableRow
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendTableRow
+
+            - title: appendTableCell
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendTableCell
+
+            - title: formatLink
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatLink
+
+            - title: formatBold
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatBold
+
+            - title: formatCode
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatCode
+
+            - title: formatBreadcrumbs
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/formatBreadcrumbs
+
+            - title: appendOutlineChildren
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendOutlineChildren
+
+            - title: appendOutlineHeader
+              url: ../dokka-doc/doc/dokka/org.jetbrains.dokka/HtmlFormatService/appendOutlineHeader
+
 
 

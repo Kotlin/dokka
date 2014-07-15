@@ -16,6 +16,6 @@ public class FoldersLocationService
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public FoldersLocationService(root: File)`**|
+

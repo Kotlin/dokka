@@ -16,6 +16,6 @@ public val sources: List<String>
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-sources&gt;](_get-sources_.html)|**`public fun <get-sources>(): List<String>`**|
+

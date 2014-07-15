@@ -16,8 +16,7 @@ public enum class Kind
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Kind&gt;](_class-object-for-Kind_.html)|**`public object <class-object-for-Kind>`**|
 |[Class](Class/index.html)|**`public enum val Class`**|
 |[Constructor](Constructor/index.html)|**`public enum val Constructor`**|
@@ -38,3 +37,4 @@ public enum class Kind
 |[TypeParameter](TypeParameter/index.html)|**`public enum val TypeParameter`**|
 |[Unknown](Unknown/index.html)|**`public enum val Unknown`**|
 |[UpperBound](UpperBound/index.html)|**`public enum val UpperBound`**|
+

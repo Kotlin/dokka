@@ -16,8 +16,7 @@ open public class DocumentationNode
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public DocumentationNode(descriptor: DeclarationDescriptor, name: String, doc: DocumentationContent, kind: Kind)`**|
 |[Kind](Kind/index.html)|**`public enum class Kind`**|
 |[addAllReferencesFrom](addAllReferencesFrom.html)|**`public fun addAllReferencesFrom(other: DocumentationNode): Unit`**|
@@ -35,3 +34,4 @@ open public class DocumentationNode
 |[owner](owner/index.html)|**`public val owner: DocumentationNode`**|
 |[references](references.html)|**`public fun references(kind: Kind): List<DocumentationReference>`**|
 |[toString](toString.html)|**`open public fun toString(): String`**|
+

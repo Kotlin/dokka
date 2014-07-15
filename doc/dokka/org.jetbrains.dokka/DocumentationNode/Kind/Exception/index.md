@@ -16,6 +16,6 @@ public enum val Exception
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Exception&gt;](_class-object-for-Exception_.html)|**`public object <class-object-for-Exception>`**|
+

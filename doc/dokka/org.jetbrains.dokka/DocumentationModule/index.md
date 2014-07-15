@@ -16,6 +16,6 @@ public class DocumentationModule
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public DocumentationModule(name: String, module: ModuleDescriptor)`**|
+

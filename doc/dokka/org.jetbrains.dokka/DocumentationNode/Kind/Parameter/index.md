@@ -16,6 +16,6 @@ public enum val Parameter
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Parameter&gt;](_class-object-for-Parameter_.html)|**`public object <class-object-for-Parameter>`**|
+

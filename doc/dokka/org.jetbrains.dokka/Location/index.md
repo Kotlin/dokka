@@ -16,7 +16,7 @@ public class Location
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public Location(file: File)`**|
 |[path](path/index.html)|**`public val path: String`**|
+

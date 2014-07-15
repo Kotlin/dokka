@@ -16,6 +16,6 @@ public val details: List<DocumentationNode>
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-details&gt;](_get-details_.html)|**`public fun <get-details>(): List<DocumentationNode>`**|
+

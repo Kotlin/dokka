@@ -16,6 +16,6 @@ public class SingleFolderLocationService
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public SingleFolderLocationService(root: File)`**|
+

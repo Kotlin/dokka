@@ -16,6 +16,6 @@ public enum val Constructor
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Constructor&gt;](_class-object-for-Constructor_.html)|**`public object <class-object-for-Constructor>`**|
+

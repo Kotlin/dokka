@@ -16,6 +16,6 @@ public enum val TypeParameter
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-TypeParameter&gt;](_class-object-for-TypeParameter_.html)|**`public object <class-object-for-TypeParameter>`**|
+

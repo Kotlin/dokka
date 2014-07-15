@@ -16,6 +16,6 @@ public enum val Package
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Package&gt;](_class-object-for-Package_.html)|**`public object <class-object-for-Package>`**|
+

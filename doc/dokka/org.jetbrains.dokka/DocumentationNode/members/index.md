@@ -16,6 +16,6 @@ public val members: List<DocumentationNode>
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-members&gt;](_get-members_.html)|**`public fun <get-members>(): List<DocumentationNode>`**|
+

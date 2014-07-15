@@ -16,6 +16,6 @@ public enum val Receiver
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Receiver&gt;](_class-object-for-Receiver_.html)|**`public object <class-object-for-Receiver>`**|
+

@@ -16,6 +16,6 @@ public enum val Detail
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Detail&gt;](_class-object-for-Detail_.html)|**`public object <class-object-for-Detail>`**|
+

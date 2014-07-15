@@ -16,6 +16,6 @@ public val path: String
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-path&gt;](_get-path_.html)|**`public fun <get-path>(): String`**|
+

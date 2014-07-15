@@ -16,6 +16,6 @@ public enum val Link
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Link&gt;](_class-object-for-Link_.html)|**`public object <class-object-for-Link>`**|
+

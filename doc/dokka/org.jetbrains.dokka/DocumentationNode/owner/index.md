@@ -16,6 +16,6 @@ public val owner: DocumentationNode
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-owner&gt;](_get-owner_.html)|**`public fun <get-owner>(): DocumentationNode`**|
+

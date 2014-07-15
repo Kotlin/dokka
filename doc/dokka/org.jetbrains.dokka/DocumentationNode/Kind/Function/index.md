@@ -16,6 +16,6 @@ public enum val Function
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Function&gt;](_class-object-for-Function_.html)|**`public object <class-object-for-Function>`**|
+

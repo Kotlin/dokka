@@ -16,6 +16,6 @@ public enum val Class
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Class&gt;](_class-object-for-Class_.html)|**`public object <class-object-for-Class>`**|
+

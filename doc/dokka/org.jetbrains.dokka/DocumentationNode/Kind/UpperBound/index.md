@@ -16,6 +16,6 @@ public enum val UpperBound
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-UpperBound&gt;](_class-object-for-UpperBound_.html)|**`public object <class-object-for-UpperBound>`**|
+

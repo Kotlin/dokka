@@ -16,6 +16,6 @@ public enum val Interface
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Interface&gt;](_class-object-for-Interface_.html)|**`public object <class-object-for-Interface>`**|
+

@@ -16,8 +16,7 @@ package org.jetbrains.dokka
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[AnalysisEnvironment](AnalysisEnvironment/index.html)|Kotlin as a service entry point<br/>**`public class AnalysisEnvironment`**|
 |[ConsoleGenerator](ConsoleGenerator/index.html)|**`public class ConsoleGenerator`**|
 |[DocumentationModule](DocumentationModule/index.html)|**`public class DocumentationModule`**|
@@ -44,3 +43,4 @@ package org.jetbrains.dokka
 |[getPropertyInnerScope](getPropertyInnerScope.html)|**`public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescriptor): JetScope`**|
 |[htmlEscape](htmlEscape.html)|Replaces symbols reserved in HTML with their respective entities.<br/>**`public fun String.htmlEscape(): String`**|
 |[main](main.html)|**`public fun main(args: Array<String>): Unit`**|
+

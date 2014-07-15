@@ -16,6 +16,6 @@ public class FormatLink
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;init&gt;](_init_.html)|**`public FormatLink(text: String, location: Location)`**|
+

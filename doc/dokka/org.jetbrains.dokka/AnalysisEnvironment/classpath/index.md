@@ -16,6 +16,6 @@ public val classpath: List<File>
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;get-classpath&gt;](_get-classpath_.html)|**`public fun <get-classpath>(): List<File>`**|
+

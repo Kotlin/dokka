@@ -16,6 +16,6 @@ public enum val Owner
 
 ### Members
 
-| Name | Summary |
-|------|---------|
+
 |[&lt;class-object-for-Owner&gt;](_class-object-for-Owner_.html)|**`public object <class-object-for-Owner>`**|
+
