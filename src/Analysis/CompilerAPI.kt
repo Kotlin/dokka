@@ -14,7 +14,6 @@ import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.scopes.*
-import org.jetbrains.jet.lang.resolve.name.*
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -27,6 +26,23 @@ private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArgum
     }
     return annotationsPath
 }
+
+fun JetCoreEnvironment.analyze2(messageCollector: MessageCollector): AnalyzeExhaust {
+    val project = getProject()
+    val sourceFiles = getSourceFiles()
+    val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
+    val sharedTrace = support.getTrace()
+    val sharedModule = support.getModule()
+    val compilerConfiguration = getConfiguration()!!
+    val exhaust = AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
+                                                         Predicates.alwaysFalse<PsiFile>(),
+                                                         sharedModule,
+                                                         compilerConfiguration.get(JVMConfigurationKeys.MODULE_IDS),
+                                                         compilerConfiguration.get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR))
+    return exhaust
+}
+
+
 
 fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhaust {
     val project = getProject()
@@ -53,7 +69,7 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhau
 
 fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)
 
-fun BindingContext.getPackageFragment(file: JetFile) : PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
+fun BindingContext.getPackageFragment(file: JetFile): PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
 
 fun DeclarationDescriptor.isUserCode() =
         when (this) {

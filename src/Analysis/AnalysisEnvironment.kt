@@ -32,7 +32,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      */
     public fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
-        val exhaust = environment.analyze(messageCollector)
+        val exhaust = environment.analyze2(messageCollector)
         return processor(environment, exhaust.getModuleDescriptor(), exhaust.getBindingContext())
     }
 
