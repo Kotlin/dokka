@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: getPackageInnerScope
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [getPackageInnerScope](getPackageInnerScope.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [getPackageInnerScope](getPackageInnerScope.html)
+
 
 # getPackageInnerScope
+
 
 ```
 public fun getPackageInnerScope(descriptor: PackageFragmentDescriptor): JetScope

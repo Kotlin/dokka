@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: dokka
 ---
-[dokka](index.md)
+[dokka](index.html)
+
 
 # dokka
+
 
 ```
 Module: dokka
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[org.jetbrains.dokka](org.jetbrains.dokka/index.md)|&nbsp;&nbsp;`package org.jetbrains.dokka`<br>|
+|[org.jetbrains.dokka](org.jetbrains.dokka/index.html)|**`package org.jetbrains.dokka`**|

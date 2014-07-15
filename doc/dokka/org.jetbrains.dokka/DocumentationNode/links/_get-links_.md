@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: <get-links>
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationNode](../index.md) / [links](index.md) / [<get-links>](_get-links_.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [links](index.html) / [<get-links>](_get-links_.html)
+
 
 # <get-links>
+
 
 ```
 public fun <get-links>(): List<DocumentationNode>

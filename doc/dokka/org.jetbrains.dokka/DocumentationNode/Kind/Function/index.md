@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Function
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Function](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Function](index.html)
+
 
 # Function
+
 
 ```
 public enum val Function
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Function&gt;](_class-object-for-Function_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Function>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Function()`<br>|
+|[<class-object-for-Function>](_class-object-for-Function_.html)|**`public object <class-object-for-Function>`**|

@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: details
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationNode](../index.md) / [details](index.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [details](index.html)
+
 
 # details
+
 
 ```
 public val details: List<DocumentationNode>
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;get-details&gt;](_get-details_.md)|&nbsp;&nbsp;`public fun <get-details>(): List<DocumentationNode>`<br>|
+|[<get-details>](_get-details_.html)|**`public fun <get-details>(): List<DocumentationNode>`**|

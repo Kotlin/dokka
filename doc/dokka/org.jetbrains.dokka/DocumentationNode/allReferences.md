@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: allReferences
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [allReferences](allReferences.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [allReferences](allReferences.html)
+
 
 # allReferences
+
 
 ```
 public fun allReferences(): Set<DocumentationReference>

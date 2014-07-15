@@ -1,18 +1,19 @@
 ---
-layout: post
+layout: api
 title: TextFormatService
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [TextFormatService](index.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [TextFormatService](index.html)
+
 
 # TextFormatService
+
 
 ```
 public class TextFormatService
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`public TextFormatService(signatureGenerator: SignatureGenerator)`<br>|
-|[extension](extension.md)|&nbsp;&nbsp;`open val extension: String`<br>|
-|[format](format.md)|&nbsp;&nbsp;`open fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder): Unit`<br>|
-|[signatureGenerator](signatureGenerator.md)|&nbsp;&nbsp;`val signatureGenerator: SignatureGenerator`<br>|
+|[<init>](_init_.html)|**`public TextFormatService(signatureGenerator: LanguageService)`**|

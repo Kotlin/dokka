@@ -1,19 +1,23 @@
 ---
-layout: post
+layout: api
 title: FileGenerator
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [FileGenerator](index.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [FileGenerator](index.html)
+
 
 # FileGenerator
+
 
 ```
 public class FileGenerator
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`public FileGenerator(signatureGenerator: SignatureGenerator, locationService: LocationService, formatService: FormatService)`<br>|
-|[formatService](formatService.md)|&nbsp;&nbsp;`val formatService: FormatService`<br>|
-|[generate](generate.md)|&nbsp;&nbsp;`public fun generate(node: DocumentationNode): Unit`<br>&nbsp;&nbsp;`public fun generate(nodes: Iterable<DocumentationNode>): Unit`<br>|
-|[locationService](locationService.md)|&nbsp;&nbsp;`val locationService: LocationService`<br>|
-|[signatureGenerator](signatureGenerator.md)|&nbsp;&nbsp;`val signatureGenerator: SignatureGenerator`<br>|
+|[<init>](_init_.html)|**`public FileGenerator(signatureGenerator: LanguageService, locationService: LocationService, formatService: FormatService)`**|
+|[buildOutline](buildOutline.html)|**`public fun buildOutline(node: DocumentationNode): Unit`**|
+|[buildOutlines](buildOutlines.html)|**`public fun buildOutlines(nodes: Iterable<DocumentationNode>): Unit`**|
+|[buildPage](buildPage.html)|**`public fun buildPage(node: DocumentationNode): Unit`**|
+|[buildPages](buildPages.html)|**`public fun buildPages(nodes: Iterable<DocumentationNode>): Unit`**|

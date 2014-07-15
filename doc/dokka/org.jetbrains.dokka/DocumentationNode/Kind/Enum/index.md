@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Enum
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Enum](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Enum](index.html)
+
 
 # Enum
+
 
 ```
 public enum val Enum
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Enum&gt;](_class-object-for-Enum_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Enum>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Enum()`<br>|
+|[<class-object-for-Enum>](_class-object-for-Enum_.html)|**`public object <class-object-for-Enum>`**|

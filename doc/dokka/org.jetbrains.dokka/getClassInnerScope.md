@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: getClassInnerScope
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [getClassInnerScope](getClassInnerScope.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [getClassInnerScope](getClassInnerScope.html)
+
 
 # getClassInnerScope
+
 
 ```
 public fun getClassInnerScope(outerScope: JetScope, descriptor: ClassDescriptor): JetScope

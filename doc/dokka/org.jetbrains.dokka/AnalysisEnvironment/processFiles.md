@@ -1,16 +1,20 @@
 ---
-layout: post
+layout: api
 title: processFiles
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [processFiles](processFiles.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [AnalysisEnvironment](index.html) / [processFiles](processFiles.html)
+
 
 # processFiles
+
 Runs [processor] for each file and collects its results into single list
 ```
 public fun <T> processFiles(processor: (BindingContext, JetFile)->T): List<T>
 public fun <T> processFiles(processor: (BindingContext, ModuleDescriptor, JetFile)->T): List<T>
 ```
-## Description
+
+# Description
+
 ```
 public fun <T> processFiles(processor: (BindingContext, JetFile)->T): List<T>
 ```

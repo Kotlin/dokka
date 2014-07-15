@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Override
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationReference](../../index.md) / [Kind](../index.md) / [Override](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationReference](../../index.html) / [Kind](../index.html) / [Override](index.html)
+
 
 # Override
+
 
 ```
 public enum val Override
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Override&gt;](_class-object-for-Override_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Override>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Override()`<br>|
+|[<class-object-for-Override>](_class-object-for-Override_.html)|**`public object <class-object-for-Override>`**|

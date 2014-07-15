@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: generateHeader
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [ConsoleGenerator](index.md) / [generateHeader](generateHeader.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [ConsoleGenerator](index.html) / [generateHeader](generateHeader.html)
+
 
 # generateHeader
+
 
 ```
 public fun generateHeader(node: DocumentationNode, indent: String): Unit

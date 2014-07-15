@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: classpath
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [AnalysisEnvironment](../index.md) / [classpath](index.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [AnalysisEnvironment](../index.html) / [classpath](index.html)
+
 
 # classpath
+
 Classpath for this environment.
 ```
 public val classpath: List<File>
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;get-classpath&gt;](_get-classpath_.md)|&nbsp;&nbsp;`public fun <get-classpath>(): List<File>`<br>|
+|[<get-classpath>](_get-classpath_.html)|**`public fun <get-classpath>(): List<File>`**|

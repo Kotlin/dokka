@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: addClasspath
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [addClasspath](addClasspath.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [AnalysisEnvironment](index.html) / [addClasspath](addClasspath.html)
+
 
 # addClasspath
+
 Adds list of paths to classpath.
 ```
 public fun addClasspath(paths: List<File>): Unit
@@ -13,7 +15,9 @@ Adds path to classpath.
 ```
 public fun addClasspath(path: File): Unit
 ```
-## Description
+
+# Description
+
 ```
 public fun addClasspath(paths: List<File>): Unit
 ```

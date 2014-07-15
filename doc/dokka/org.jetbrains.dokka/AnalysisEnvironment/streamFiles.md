@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: streamFiles
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [streamFiles](streamFiles.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [AnalysisEnvironment](index.html) / [streamFiles](streamFiles.html)
+
 
 # streamFiles
+
 Streams files into [processor] and returns a stream of its results
 ```
 public fun <T> streamFiles(processor: (BindingContext, JetFile)->T): Stream<T>
 ```
-## Description
+
+# Description
+
 ```
 public fun <T> streamFiles(processor: (BindingContext, JetFile)->T): Stream<T>
 ```

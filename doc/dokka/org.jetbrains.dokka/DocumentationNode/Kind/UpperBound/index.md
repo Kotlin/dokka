@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: UpperBound
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [UpperBound](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [UpperBound](index.html)
+
 
 # UpperBound
+
 
 ```
 public enum val UpperBound
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-UpperBound&gt;](_class-object-for-UpperBound_/index.md)|&nbsp;&nbsp;`public object <class-object-for-UpperBound>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private UpperBound()`<br>|
+|[<class-object-for-UpperBound>](_class-object-for-UpperBound_.html)|**`public object <class-object-for-UpperBound>`**|

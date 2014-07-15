@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: links
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [links](links.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [links](links.html)
+
 
 # links
+
 
 ```
 public fun links(kind: Kind): List<DocumentationNode>

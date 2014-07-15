@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Modifier
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Modifier](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Modifier](index.html)
+
 
 # Modifier
+
 
 ```
 public enum val Modifier
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Modifier&gt;](_class-object-for-Modifier_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Modifier>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Modifier()`<br>|
+|[<class-object-for-Modifier>](_class-object-for-Modifier_.html)|**`public object <class-object-for-Modifier>`**|

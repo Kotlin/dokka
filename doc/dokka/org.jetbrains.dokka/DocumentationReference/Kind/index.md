@@ -1,21 +1,24 @@
 ---
-layout: post
+layout: api
 title: Kind
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationReference](../index.md) / [Kind](index.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationReference](../index.html) / [Kind](index.html)
+
 
 # Kind
+
 
 ```
 public enum class Kind
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Kind&gt;](_class-object-for-Kind_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Kind>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Kind()`<br>|
-|[Detail](Detail/index.md)|&nbsp;&nbsp;`public enum val Detail`<br>|
-|[Link](Link/index.md)|&nbsp;&nbsp;`public enum val Link`<br>|
-|[Member](Member/index.md)|&nbsp;&nbsp;`public enum val Member`<br>|
-|[Override](Override/index.md)|&nbsp;&nbsp;`public enum val Override`<br>|
-|[Owner](Owner/index.md)|&nbsp;&nbsp;`public enum val Owner`<br>|
+|[<class-object-for-Kind>](_class-object-for-Kind_.html)|**`public object <class-object-for-Kind>`**|
+|[Detail](Detail/index.html)|**`public enum val Detail`**|
+|[Link](Link/index.html)|**`public enum val Link`**|
+|[Member](Member/index.html)|**`public enum val Member`**|
+|[Override](Override/index.html)|**`public enum val Override`**|
+|[Owner](Owner/index.html)|**`public enum val Owner`**|

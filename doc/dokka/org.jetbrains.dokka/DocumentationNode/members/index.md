@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: members
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationNode](../index.md) / [members](index.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [members](index.html)
+
 
 # members
+
 
 ```
 public val members: List<DocumentationNode>
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;get-members&gt;](_get-members_.md)|&nbsp;&nbsp;`public fun <get-members>(): List<DocumentationNode>`<br>|
+|[<get-members>](_get-members_.html)|**`public fun <get-members>(): List<DocumentationNode>`**|

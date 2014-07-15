@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: FoldersLocationService
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [FoldersLocationService](FoldersLocationService.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [FoldersLocationService](FoldersLocationService.html)
+
 
 # FoldersLocationService
+
 
 ```
 public fun FoldersLocationService(root: String): FoldersLocationService

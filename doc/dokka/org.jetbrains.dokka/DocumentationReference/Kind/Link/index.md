@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Link
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationReference](../../index.md) / [Kind](../index.md) / [Link](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationReference](../../index.html) / [Kind](../index.html) / [Link](index.html)
+
 
 # Link
+
 
 ```
 public enum val Link
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Link&gt;](_class-object-for-Link_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Link>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Link()`<br>|
+|[<class-object-for-Link>](_class-object-for-Link_.html)|**`public object <class-object-for-Link>`**|

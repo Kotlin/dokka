@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: addSources
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [addSources](addSources.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [AnalysisEnvironment](index.html) / [addSources](addSources.html)
+
 
 # addSources
+
 Adds list of paths to source roots.
 ```
 public fun addSources(list: List<String>): Unit
 ```
-## Description
+
+# Description
+
 ```
 public fun addSources(list: List<String>): Unit
 ```

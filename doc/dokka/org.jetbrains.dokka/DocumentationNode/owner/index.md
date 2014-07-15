@@ -1,15 +1,19 @@
 ---
-layout: post
+layout: api
 title: owner
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationNode](../index.md) / [owner](index.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [owner](index.html)
+
 
 # owner
+
 
 ```
 public val owner: DocumentationNode
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;get-owner&gt;](_get-owner_.md)|&nbsp;&nbsp;`public fun <get-owner>(): DocumentationNode`<br>|
+|[<get-owner>](_get-owner_.html)|**`public fun <get-owner>(): DocumentationNode`**|

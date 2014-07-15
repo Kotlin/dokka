@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: <init>
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [FoldersLocationService](index.md) / [<init>](_init_.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [FoldersLocationService](index.html) / [<init>](_init_.html)
+
 
 # <init>
+
 
 ```
 public FoldersLocationService(root: File)

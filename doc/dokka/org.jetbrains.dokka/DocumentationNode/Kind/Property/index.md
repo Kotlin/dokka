@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Property
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Property](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Property](index.html)
+
 
 # Property
+
 
 ```
 public enum val Property
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Property&gt;](_class-object-for-Property_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Property>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Property()`<br>|
+|[<class-object-for-Property>](_class-object-for-Property_.html)|**`public object <class-object-for-Property>`**|

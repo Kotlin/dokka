@@ -1,17 +1,20 @@
 ---
-layout: post
+layout: api
 title: JekyllFormatService
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [JekyllFormatService](index.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [JekyllFormatService](index.html)
+
 
 # JekyllFormatService
+
 
 ```
 public class JekyllFormatService
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`public JekyllFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)`<br>|
-|[extension](extension.md)|&nbsp;&nbsp;`open val extension: String`<br>|
-|[format](format.md)|&nbsp;&nbsp;`open fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder): Unit`<br>|
+|[<init>](_init_.html)|**`public JekyllFormatService(locationService: LocationService, signatureGenerator: LanguageService)`**|
+|[link](link.html)|**`open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink`**|

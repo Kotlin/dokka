@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: TypeParameter
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [TypeParameter](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [TypeParameter](index.html)
+
 
 # TypeParameter
+
 
 ```
 public enum val TypeParameter
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-TypeParameter&gt;](_class-object-for-TypeParameter_/index.md)|&nbsp;&nbsp;`public object <class-object-for-TypeParameter>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private TypeParameter()`<br>|
+|[<class-object-for-TypeParameter>](_class-object-for-TypeParameter_.html)|**`public object <class-object-for-TypeParameter>`**|

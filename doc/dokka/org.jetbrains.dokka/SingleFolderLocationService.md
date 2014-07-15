@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: SingleFolderLocationService
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [SingleFolderLocationService](SingleFolderLocationService.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [SingleFolderLocationService](SingleFolderLocationService.html)
+
 
 # SingleFolderLocationService
+
 
 ```
 public fun SingleFolderLocationService(root: String): SingleFolderLocationService

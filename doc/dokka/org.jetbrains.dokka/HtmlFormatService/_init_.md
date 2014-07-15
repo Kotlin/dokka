@@ -1,11 +1,13 @@
 ---
-layout: post
+layout: api
 title: <init>
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [HtmlFormatService](index.md) / [<init>](_init_.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [HtmlFormatService](index.html) / [<init>](_init_.html)
+
 
 # <init>
 
+
 ```
-public HtmlFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
+public HtmlFormatService(locationService: LocationService, signatureGenerator: LanguageService)
 ```

@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Object
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Object](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Object](index.html)
+
 
 # Object
+
 
 ```
 public enum val Object
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Object&gt;](_class-object-for-Object_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Object>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Object()`<br>|
+|[<class-object-for-Object>](_class-object-for-Object_.html)|**`public object <class-object-for-Object>`**|

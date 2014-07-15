@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: detail
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [detail](detail.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [detail](detail.html)
+
 
 # detail
+
 
 ```
 public fun detail(kind: Kind): DocumentationNode

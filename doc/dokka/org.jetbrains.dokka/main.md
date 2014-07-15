@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: main
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [main](main.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [main](main.html)
+
 
 # main
+
 
 ```
 public fun main(args: Array<String>): Unit

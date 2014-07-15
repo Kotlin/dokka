@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Detail
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationReference](../../index.md) / [Kind](../index.md) / [Detail](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationReference](../../index.html) / [Kind](../index.html) / [Detail](index.html)
+
 
 # Detail
+
 
 ```
 public enum val Detail
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Detail&gt;](_class-object-for-Detail_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Detail>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Detail()`<br>|
+|[<class-object-for-Detail>](_class-object-for-Detail_.html)|**`public object <class-object-for-Detail>`**|

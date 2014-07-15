@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: generateMembers
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [ConsoleGenerator](index.md) / [generateMembers](generateMembers.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [ConsoleGenerator](index.html) / [generateMembers](generateMembers.html)
+
 
 # generateMembers
+
 
 ```
 public fun generateMembers(node: DocumentationNode, indent: String): Unit

@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Type
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Type](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Type](index.html)
+
 
 # Type
+
 
 ```
 public enum val Type
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Type&gt;](_class-object-for-Type_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Type>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Type()`<br>|
+|[<class-object-for-Type>](_class-object-for-Type_.html)|**`public object <class-object-for-Type>`**|

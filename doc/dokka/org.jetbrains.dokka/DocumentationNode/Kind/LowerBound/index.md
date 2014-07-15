@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: LowerBound
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [LowerBound](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [LowerBound](index.html)
+
 
 # LowerBound
+
 
 ```
 public enum val LowerBound
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-LowerBound&gt;](_class-object-for-LowerBound_/index.md)|&nbsp;&nbsp;`public object <class-object-for-LowerBound>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private LowerBound()`<br>|
+|[<class-object-for-LowerBound>](_class-object-for-LowerBound_.html)|**`public object <class-object-for-LowerBound>`**|

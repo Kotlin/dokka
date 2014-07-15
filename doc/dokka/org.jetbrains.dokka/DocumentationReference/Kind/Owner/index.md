@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Owner
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationReference](../../index.md) / [Kind](../index.md) / [Owner](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationReference](../../index.html) / [Kind](../index.html) / [Owner](index.html)
+
 
 # Owner
+
 
 ```
 public enum val Owner
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Owner&gt;](_class-object-for-Owner_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Owner>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Owner()`<br>|
+|[<class-object-for-Owner>](_class-object-for-Owner_.html)|**`public object <class-object-for-Owner>`**|

@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: <get-classpath>
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [AnalysisEnvironment](../index.md) / [classpath](index.md) / [<get-classpath>](_get-classpath_.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [AnalysisEnvironment](../index.html) / [classpath](index.html) / [<get-classpath>](_get-classpath_.html)
+
 
 # <get-classpath>
+
 
 ```
 public fun <get-classpath>(): List<File>

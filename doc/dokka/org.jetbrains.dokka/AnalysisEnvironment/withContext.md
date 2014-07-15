@@ -1,16 +1,20 @@
 ---
-layout: post
+layout: api
 title: withContext
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [AnalysisEnvironment](index.md) / [withContext](withContext.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [AnalysisEnvironment](index.html) / [withContext](withContext.html)
+
 
 # withContext
+
 Executes [processor] when analysis is complete.
 ```
 public fun <T> withContext(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext)->T): T
 public fun <T> withContext(processor: (ModuleDescriptor, BindingContext)->T): T
 ```
-## Description
+
+# Description
+
 ```
 public fun <T> withContext(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext)->T): T
 ```

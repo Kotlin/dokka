@@ -1,16 +1,20 @@
 ---
-layout: post
+layout: api
 title: Location
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [Location](index.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [Location](index.html)
+
 
 # Location
 
+
 ```
-class Location
+public class Location
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`public Location(file: File)`<br>|
-|[file](file.md)|&nbsp;&nbsp;`val file: File`<br>|
+|[<init>](_init_.html)|**`public Location(file: File)`**|
+|[path](path/index.html)|**`public val path: String`**|

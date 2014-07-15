@@ -1,12 +1,13 @@
 ---
-layout: post
+layout: api
 title: references
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [references](references.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [references](references.html)
+
 
 # references
 
+
 ```
-private val references: LinkedHashSet<DocumentationReference>
 public fun references(kind: Kind): List<DocumentationReference>
 ```

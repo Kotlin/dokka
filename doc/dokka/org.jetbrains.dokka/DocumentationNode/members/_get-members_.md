@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: <get-members>
 ---
-[dokka](../../../index.md) / [org.jetbrains.dokka](../../index.md) / [DocumentationNode](../index.md) / [members](index.md) / [<get-members>](_get-members_.md)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [members](index.html) / [<get-members>](_get-members_.html)
+
 
 # <get-members>
+
 
 ```
 public fun <get-members>(): List<DocumentationNode>

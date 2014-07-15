@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Constructor
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Constructor](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Constructor](index.html)
+
 
 # Constructor
+
 
 ```
 public enum val Constructor
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Constructor&gt;](_class-object-for-Constructor_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Constructor>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Constructor()`<br>|
+|[<class-object-for-Constructor>](_class-object-for-Constructor_.html)|**`public object <class-object-for-Constructor>`**|

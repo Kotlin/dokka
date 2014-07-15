@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: addAllReferencesFrom
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [addAllReferencesFrom](addAllReferencesFrom.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [addAllReferencesFrom](addAllReferencesFrom.html)
+
 
 # addAllReferencesFrom
+
 
 ```
 public fun addAllReferencesFrom(other: DocumentationNode): Unit

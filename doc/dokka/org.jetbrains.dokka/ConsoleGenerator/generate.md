@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: generate
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [ConsoleGenerator](index.md) / [generate](generate.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [ConsoleGenerator](index.html) / [generate](generate.html)
+
 
 # generate
+
 
 ```
 public fun generate(node: DocumentationNode, indent: String): Unit

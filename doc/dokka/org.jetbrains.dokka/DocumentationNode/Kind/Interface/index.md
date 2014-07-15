@@ -1,16 +1,19 @@
 ---
-layout: post
+layout: api
 title: Interface
 ---
-[dokka](../../../../index.md) / [org.jetbrains.dokka](../../../index.md) / [DocumentationNode](../../index.md) / [Kind](../index.md) / [Interface](index.md)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Interface](index.html)
+
 
 # Interface
+
 
 ```
 public enum val Interface
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[&lt;class-object-for-Interface&gt;](_class-object-for-Interface_/index.md)|&nbsp;&nbsp;`public object <class-object-for-Interface>`<br>|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`private Interface()`<br>|
+|[<class-object-for-Interface>](_class-object-for-Interface_.html)|**`public object <class-object-for-Interface>`**|

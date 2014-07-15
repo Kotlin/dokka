@@ -1,17 +1,19 @@
 ---
-layout: post
+layout: api
 title: SingleFolderLocationService
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [SingleFolderLocationService](index.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [SingleFolderLocationService](index.html)
+
 
 # SingleFolderLocationService
+
 
 ```
 public class SingleFolderLocationService
 ```
-## Members
+
+# Members
+
 | Name | Summary |
 |------|---------|
-|[*.init*](_init_.md)|&nbsp;&nbsp;`public SingleFolderLocationService(root: File)`<br>|
-|[location](location.md)|&nbsp;&nbsp;`open fun location(node: DocumentationNode): Location`<br>|
-|[root](root.md)|&nbsp;&nbsp;`val root: File`<br>|
+|[<init>](_init_.html)|**`public SingleFolderLocationService(root: File)`**|

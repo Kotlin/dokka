@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: members
 ---
-[dokka](../../index.md) / [org.jetbrains.dokka](../index.md) / [DocumentationNode](index.md) / [members](members.md)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationNode](index.html) / [members](members.html)
+
 
 # members
+
 
 ```
 public fun members(kind: Kind): List<DocumentationNode>

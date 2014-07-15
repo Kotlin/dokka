@@ -1,10 +1,12 @@
 ---
-layout: post
+layout: api
 title: escapeUri
 ---
-[dokka](../index.md) / [org.jetbrains.dokka](index.md) / [escapeUri](escapeUri.md)
+[dokka](../index.html) / [org.jetbrains.dokka](index.html) / [escapeUri](escapeUri.html)
+
 
 # escapeUri
+
 
 ```
 public fun escapeUri(path: String): String
