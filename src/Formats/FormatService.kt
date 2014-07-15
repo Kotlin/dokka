@@ -2,7 +2,8 @@ package org.jetbrains.dokka
 
 public trait FormatService {
     val extension: String
-    fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder)
+    fun appendNodes(to: StringBuilder,
+               nodes: Iterable<DocumentationNode>)
 }
 
-fun FormatService.format(node: Iterable<DocumentationNode>): String = StringBuilder { format(node, this) }.toString()
+fun FormatService.format(nodes: Iterable<DocumentationNode>): String = StringBuilder { appendNodes(this, nodes) }.toString()

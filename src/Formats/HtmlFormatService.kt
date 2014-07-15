@@ -1,64 +1,50 @@
 package org.jetbrains.dokka
 
-public class HtmlFormatService(val locationService: LocationService,
-                               val signatureGenerator: SignatureGenerator) : FormatService {
+public open class HtmlFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
+: StructuredFormatService(locationService, signatureGenerator) {
     override val extension: String = "html"
-    override fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
-        for (node in nodes) {
-            with (to) {
-                appendln("<h2>")
-                appendln("Summary for ${node.name}")
-                appendln("</h2>")
-                appendln("<code>")
-                appendln(signatureGenerator.render(node))
-                appendln("</code>")
-                appendln()
-                appendln("<p>")
-                appendln(node.doc.summary)
-                appendln("</p>")
-                appendln("<hr/>")
 
-                for (section in node.doc.sections) {
-                    appendln("<h3>")
-                    appendln(section.label)
-                    appendln("</h3>")
-                    appendln("<p>")
-                    appendln(section.text)
-                    appendln("</p>")
-                }
+    override fun appendBlockCode(to: StringBuilder, line: String) {
+        to.appendln("<code>")
+        to.appendln(line)
+        to.appendln("</code>")
+    }
 
-                appendln("<h3>")
-                appendln("Members")
-                appendln("</h3>")
-                appendln("<table>")
+    override fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
+        to.appendln("<code>")
+        to.appendln(lines.join("\n"))
+        to.appendln("</code>")
+    }
 
-                appendln("<thead>")
-                appendln("<tr>")
-                appendln("<td>Member</td>")
-                appendln("<td>Signature</td>")
-                appendln("<td>Summary</td>")
-                appendln("</tr>")
-                appendln("</thead>")
+    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
+        to.appendln("<h$level>$text</h$level>")
+    }
 
-                appendln("<tbody>")
-                for (member in node.members.sortBy { it.name }) {
-                    val relativePath = locationService.relativeLocation(node, member, extension)
-                    appendln("<tr>")
-                    appendln("<td>")
-                    append("<a href=\"${relativePath}\">${member.name}</a>")
-                    appendln("</td>")
-                    appendln("<td>")
-                    append("${signatureGenerator.render(member)}")
-                    appendln("</td>")
-                    appendln("<td>")
-                    append("${member.doc.summary}")
-                    appendln("</td>")
-                    appendln("</tr>")
-                }
-                appendln("</tbody>")
-                appendln("</table>")
+    override fun appendText(to: StringBuilder, text: String) {
+        to.appendln("<p>$text</p>")
+    }
 
-            }
-        }
+    override fun appendLine(to: StringBuilder, text: String) {
+        to.appendln("$text<br/>")
+    }
+
+    override fun appendLine(to: StringBuilder) {
+        to.appendln("<br/>")
+    }
+
+    override fun formatLink(link: FormatLink): String {
+        return "<a href=\"${link.location.path}\">${link.text}</a>"
+    }
+
+    override fun formatBold(text: String): String {
+        return "<b>$text</b>"
+    }
+
+    override fun formatCode(code: String): String {
+        return "<code>$code</code>"
+    }
+
+    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
+        return items.map { formatLink(it) }.joinToString("&nbsp;/&nbsp;")
     }
 }

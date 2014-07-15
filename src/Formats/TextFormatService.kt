@@ -2,7 +2,8 @@ package org.jetbrains.dokka
 
 public class TextFormatService(val signatureGenerator: SignatureGenerator) : FormatService {
     override val extension: String = "txt"
-    override fun format(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
+    override fun appendNodes(to: StringBuilder,
+                        nodes: Iterable<DocumentationNode>) {
         for (node in nodes) {
             with (to) {
                 appendln(signatureGenerator.render(node))
