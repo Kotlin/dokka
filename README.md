@@ -43,7 +43,7 @@ Basically, given the `documentation` as a model, we do this:
 
 Samples
 ====
-[Dokka docs](https://github.com/orangy/dokka/blob/gh-pages/doc/dokka/index.md) are built with Dokka. Yes, we bootstrap and dogfood :)
+[Dokka docs](http://orangy.github.io/dokka/doc/dokka/index.html) are built with Dokka. Yes, we bootstrap and dogfood :)
 
 Roadmap
 =====
