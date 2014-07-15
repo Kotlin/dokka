@@ -3,7 +3,7 @@ name: Dokka
 markdown: kramdown
 kramdown:
   input: GFM
-  hard_wrap: false
+  hard_wrap: true
 highlighter: pygments
 exclude:
   - vendor
