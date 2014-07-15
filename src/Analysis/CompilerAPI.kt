@@ -39,7 +39,7 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhau
         val sharedModule = support.getModule()
         val compilerConfiguration = getConfiguration()!!
         AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
-                                                             Predicates.alwaysTrue<PsiFile>(),
+                                                             Predicates.alwaysFalse<PsiFile>(),
                                                              sharedModule,
                                                              compilerConfiguration.get(JVMConfigurationKeys.MODULE_IDS),
                                                              compilerConfiguration.get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR))
