@@ -32,7 +32,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
             context.getPackageFragment(file)!!.fqName
         }.toSet()
 
-        context.createDocumentationModule("test", module, packageSet)
+        context.createDocumentationModule("test", module, packageSet, DocumentationOptions(includeNonPublic = true))
     }
     verifier(documentation)
     Disposer.dispose(environment)

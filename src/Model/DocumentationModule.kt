@@ -13,12 +13,15 @@ public class DocumentationModule(name: String, val module: ModuleDescriptor) : D
     }
 }
 
-fun BindingContext.createDocumentationModule(name: String, module: ModuleDescriptor, packages: Set<FqName>): DocumentationModule {
+fun BindingContext.createDocumentationModule(name: String,
+                                             module: ModuleDescriptor,
+                                             packages: Set<FqName>,
+                                             options : DocumentationOptions = DocumentationOptions()): DocumentationModule {
     val documentationModule = DocumentationModule(name, module)
     val visitor = DocumentationNodeBuilder(this)
     for (packageName in packages) {
         val pkg = module.getPackage(packageName)
-        pkg!!.accept(DocumentationBuildingVisitor(this, visitor), documentationModule)
+        pkg!!.accept(DocumentationBuildingVisitor(this, options, visitor), documentationModule)
     }
 
     // TODO: Uncomment for resolve verification

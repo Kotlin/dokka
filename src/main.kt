@@ -5,7 +5,6 @@ import com.intellij.openapi.util.*
 import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
-import com.google.common.base.Splitter
 import java.io.File
 
 class DokkaArguments {
@@ -48,7 +47,8 @@ public fun main(args: Array<String>) {
 
     println()
 
-    println("Analysing sources and libraries...")
+    print("Analysing sources and libraries... ")
+    val startAnalyse = System.currentTimeMillis()
     val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
         val packageSet = environment.getSourceFiles().map { file ->
             context.getPackageFragment(file)!!.fqName
@@ -56,15 +56,20 @@ public fun main(args: Array<String>) {
 
         context.createDocumentationModule(arguments.moduleName, module, packageSet)
     }
+    val timeAnalyse = System.currentTimeMillis() - startAnalyse
+    println("done in ${timeAnalyse / 1000} secs")
 
+    val startBuild = System.currentTimeMillis()
     val signatureGenerator = KotlinLanguageService()
     val locationService = FoldersLocationService(arguments.outputDir)
     val formatter = JekyllFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
-    println("Building pages...")
+    print("Building pages... ")
     generator.buildPage(documentation)
-    println("Building outline...")
     generator.buildOutline(documentation)
+    val timeBuild = System.currentTimeMillis() - startBuild
+    println("done in ${timeBuild / 1000} secs")
+    println()
     println("Done.")
     Disposer.dispose(environment)
 }

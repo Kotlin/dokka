@@ -4,7 +4,10 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.*
 
-class DocumentationBuildingVisitor(val context: BindingContext, private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)
+public data class DocumentationOptions(val includeNonPublic : Boolean = false)
+class DocumentationBuildingVisitor(val context: BindingContext,
+                                   val options: DocumentationOptions,
+                                   private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)
 : DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode> {
 
     private fun visitChildren(descriptors: Collection<DeclarationDescriptor>, data: DocumentationNode) {
@@ -15,7 +18,7 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
 
     private fun visitChild(descriptor: DeclarationDescriptor?, data: DocumentationNode) {
         if (descriptor != null && descriptor.isUserCode()) {
-            if (descriptor !is MemberDescriptor || descriptor.getVisibility().isPublicAPI()) {
+            if (options.includeNonPublic || descriptor !is MemberDescriptor || descriptor.getVisibility().isPublicAPI()) {
                 descriptor.accept(this, data)
             }
         }
