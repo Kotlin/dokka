@@ -16,4 +16,4 @@ include:
   - doc
 
 # Site Settings
-baseurl:
+baseurl: /dokka
