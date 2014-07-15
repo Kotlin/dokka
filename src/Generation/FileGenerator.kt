@@ -4,13 +4,14 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.util.LinkedHashMap
 
-public class FileGenerator(val signatureGenerator: SignatureGenerator,
+public class FileGenerator(val signatureGenerator: LanguageService,
                            val locationService: LocationService,
                            val formatService: FormatService) {
 
-    public fun generate(node: DocumentationNode): Unit = generate(listOf(node))
+    public fun buildPage(node: DocumentationNode): Unit = buildPages(listOf(node))
+    public fun buildOutline(node: DocumentationNode): Unit = buildOutlines(listOf(node))
 
-    public fun generate(nodes: Iterable<DocumentationNode>) {
+    public fun buildPages(nodes: Iterable<DocumentationNode>) {
         for ((location, items) in nodes.groupByTo(LinkedHashMap()) { locationService.location(it) }) {
             val file = location.file.appendExtension(formatService.extension)
             file.getParentFile()?.mkdirs()
@@ -19,7 +20,19 @@ public class FileGenerator(val signatureGenerator: SignatureGenerator,
                     it.write(formatService.format(items))
                 }
             }
-            generate(items.flatMap { it.members })
+            buildPages(items.flatMap { it.members })
+        }
+    }
+
+    public fun buildOutlines(nodes: Iterable<DocumentationNode>) {
+        for ((location, items) in nodes.groupByTo(LinkedHashMap()) { locationService.location(it) }) {
+            val file = location.file.appendExtension("yml")
+            file.getParentFile()?.mkdirs()
+            FileOutputStream(file).use {
+                OutputStreamWriter(it, defaultCharset).use {
+                    it.write(formatService.formatOutline(items))
+                }
+            }
         }
     }
 }

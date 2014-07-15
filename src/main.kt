@@ -55,10 +55,11 @@ public fun main(args: Array<String>) {
         context.createDocumentationModule(arguments.moduleName, module, packageSet)
     }
 
-    val signatureGenerator = KotlinSignatureGenerator()
+    val signatureGenerator = KotlinLanguageService()
     val locationService = FoldersLocationService(arguments.outputDir)
-    val formatter = HtmlFormatService(locationService, signatureGenerator)
+    val formatter = JekyllFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
-    generator.generate(documentation)
+    generator.buildPage(documentation)
+    generator.buildOutline(documentation)
     Disposer.dispose(environment)
 }

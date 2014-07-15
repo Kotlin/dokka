@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public class JekyllFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
+public class JekyllFormatService(locationService: LocationService, signatureGenerator: LanguageService)
 : MarkdownFormatService(locationService, signatureGenerator) {
 
     override fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, "html")

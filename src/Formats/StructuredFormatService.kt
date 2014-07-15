@@ -6,7 +6,7 @@ import org.jetbrains.dokka.DocumentationNode.Kind
 public data class FormatLink(val text: String, val location: Location)
 
 public abstract class StructuredFormatService(val locationService: LocationService,
-                                              val signatureGenerator: SignatureGenerator) : FormatService {
+                                              val languageService: LanguageService) : FormatService {
 
     abstract public fun appendBlockCode(to: StringBuilder, line: String)
     abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>)
@@ -14,7 +14,10 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     abstract public fun appendText(to: StringBuilder, text: String)
     abstract public fun appendLine(to: StringBuilder, text: String)
     public abstract fun appendLine(to: StringBuilder)
-    public abstract fun formatLink(link: FormatLink): String
+
+    public abstract fun formatLink(text: String, location: Location): String
+    public open fun formatLink(link: FormatLink): String =  formatLink(link.text, link.location)
+
     public abstract fun formatBold(text: String): String
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
@@ -30,7 +33,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         if (described.any()) {
             appendHeader(to, "Description")
             for (node in described) {
-                appendBlockCode(to, signatureGenerator.render(node))
+                appendBlockCode(to, languageService.render(node))
                 appendLine(to, node.doc.description)
                 appendLine(to)
                 for (section in node.doc.sections) {
@@ -49,7 +52,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
         for ((summary, items) in breakdownBySummary) {
             appendLine(to, summary)
-            appendBlockCode(to, items.map { signatureGenerator.render(it) })
+            appendBlockCode(to, items.map { languageService.render(it) })
         }
     }
 
@@ -86,7 +89,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     val mainMember = members.first()
                     val displayName = when (mainMember.kind) {
                         Kind.Constructor -> "*.init*"
-                        else -> signatureGenerator.renderName(mainMember).htmlEscape()
+                        else -> languageService.renderName(mainMember).htmlEscape()
                     }
 
                     appendText(to, "|${formatLink(location)}|")
@@ -94,7 +97,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     val breakdownBySummary = members.groupByTo(LinkedHashMap()) { it.doc.summary }
                     for ((summary, items) in breakdownBySummary) {
                         appendLine(to, summary)
-                        appendBlockCode(to, items.map { formatBold("${signatureGenerator.render(it)}") })
+                        appendBlockCode(to, items.map { formatBold("${languageService.render(it)}") })
                     }
 
                     appendLine(to, "|")
@@ -104,4 +107,15 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
     }
 
+    abstract public fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode)
+    abstract public fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>)
+
+    override public fun appendOutline(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+        for (node in nodes) {
+            appendOutlineHeader(to, node)
+            if (node.members.any()) {
+                appendOutlineChildren(to, node.members)
+            }
+        }
+    }
 }

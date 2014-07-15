@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public class TextFormatService(val signatureGenerator: SignatureGenerator) : FormatService {
+public class TextFormatService(val signatureGenerator: LanguageService) : FormatService {
     override val extension: String = "txt"
     override fun appendNodes(to: StringBuilder,
                         nodes: Iterable<DocumentationNode>) {
@@ -18,5 +18,8 @@ public class TextFormatService(val signatureGenerator: SignatureGenerator) : For
                 }
             }
         }
+    }
+
+    override fun appendOutline(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
     }
 }

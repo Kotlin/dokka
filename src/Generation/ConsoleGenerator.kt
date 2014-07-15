@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public class ConsoleGenerator(val signatureGenerator: SignatureGenerator, val locationService: LocationService) {
+public class ConsoleGenerator(val signatureGenerator: LanguageService, val locationService: LocationService) {
     val IndentStep = "  "
 
     public fun generate(node: DocumentationNode, indent: String = "") {

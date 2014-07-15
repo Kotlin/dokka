@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public open class HtmlFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
+public open class HtmlFormatService(locationService: LocationService, signatureGenerator: LanguageService)
 : StructuredFormatService(locationService, signatureGenerator) {
     override val extension: String = "html"
 
@@ -32,8 +32,8 @@ public open class HtmlFormatService(locationService: LocationService, signatureG
         to.appendln("<br/>")
     }
 
-    override fun formatLink(link: FormatLink): String {
-        return "<a href=\"${link.location.path}\">${link.text}</a>"
+    override fun formatLink(text: String, location: Location): String {
+        return "<a href=\"${location.path}\">${text}</a>"
     }
 
     override fun formatBold(text: String): String {
@@ -46,5 +46,10 @@ public open class HtmlFormatService(locationService: LocationService, signatureG
 
     override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString("&nbsp;/&nbsp;")
+    }
+
+    override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    }
+    override fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode) {
     }
 }

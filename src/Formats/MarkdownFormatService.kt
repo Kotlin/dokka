@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
 
-public open class MarkdownFormatService(locationService: LocationService, signatureGenerator: SignatureGenerator)
+public open class MarkdownFormatService(locationService: LocationService, signatureGenerator: LanguageService)
 : StructuredFormatService(locationService, signatureGenerator) {
 
     override val extension: String = "md"
@@ -18,8 +18,8 @@ public open class MarkdownFormatService(locationService: LocationService, signat
         return "**$text**"
     }
 
-    override public fun formatLink(link: FormatLink): String {
-        return "[${link.text}](${link.location.path})"
+    override public fun formatLink(text: String, location: Location): String {
+        return "[${text}](${location.path})"
     }
 
     override public fun appendLine(to: StringBuilder) {
@@ -51,5 +51,26 @@ public open class MarkdownFormatService(locationService: LocationService, signat
         appendLine(to, "```")
         appendLine(to, line)
         appendLine(to, "```")
+    }
+
+    var outlineLevel = 0
+    override fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode) {
+        val indent = "    ".repeat(outlineLevel)
+        appendLine(to, "$indent- title: ${languageService.renderName(node)}")
+        appendLine(to, "$indent  url: ${locationService.location(node).path}")
+    }
+
+    override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+        val indent = "    ".repeat(outlineLevel)
+        appendLine(to, "$indent  content:")
+        outlineLevel++
+        for (node in nodes) {
+            appendOutlineHeader(to, node)
+            if (node.members.any()) {
+                appendOutlineChildren(to, node.members)
+            }
+            appendLine(to)
+        }
+        outlineLevel--
     }
 }
