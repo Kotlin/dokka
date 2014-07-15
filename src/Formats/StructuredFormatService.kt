@@ -14,9 +14,15 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     abstract public fun appendLine(to: StringBuilder, text: String)
     public abstract fun appendLine(to: StringBuilder)
 
-    public abstract fun formatLink(text: String, location: Location): String
-    public open fun formatLink(link: FormatLink): String = formatLink(link.text, link.location)
+    public abstract fun appendTable(to: StringBuilder, body: () -> Unit)
+    public abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
+    public abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
+    public abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
+    public abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
 
+    public abstract fun formatText(text: String): String
+    public abstract fun formatLink(text: String, location: Location): String
+    public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
     public abstract fun formatBold(text: String): String
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
@@ -36,11 +42,11 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 if (!single) {
                     appendBlockCode(to, languageService.render(node))
                 }
-                appendLine(to, node.doc.description)
+                appendLine(to, formatText(node.doc.description))
                 appendLine(to)
                 for (section in node.doc.sections) {
-                    appendLine(to, formatBold(section.label))
-                    appendLine(to, section.text)
+                    appendLine(to, formatBold(formatText(section.label)))
+                    appendLine(to, formatText(section.text))
                     appendLine(to)
                 }
             }
@@ -61,7 +67,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     open public fun appendLocation(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownByName = nodes.groupByTo(LinkedHashMap()) { node -> node.name }
         for ((name, items) in breakdownByName) {
-            appendHeader(to, "${name}")
+            appendHeader(to, formatText(name))
             appendSummary(to, items)
             appendDescription(to, items)
         }
@@ -82,28 +88,33 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             if (node.members.any()) {
                 appendHeader(to, "Members", 3)
 
-                appendLine(to, "| Name | Summary |") // TODO: hardcoded
-                appendLine(to, "|------|---------|")
                 val children = node.members.sortBy { it.name }
                 val membersMap = children.groupByTo(LinkedHashMap()) { link(node, it) }
 
-                for ((location, members) in membersMap) {
-                    appendText(to, "|${formatLink(location)}|")
-                    val breakdownBySummary = members.groupByTo(LinkedHashMap()) { it.doc.summary }
-                    for ((summary, items) in breakdownBySummary) {
-                        if (!summary.isEmpty()) {
-                            appendText(to, summary)
-                            to.append("<br/>") // TODO: hardcoded
+                appendTable(to) {
+                    appendTableBody(to) {
+                        for ((location, members) in membersMap) {
+                            appendTableRow(to) {
+                                appendTableCell(to) {
+                                    appendText(to, formatLink(location))
+                                }
+                                appendTableCell(to) {
+                                    val breakdownBySummary = members.groupByTo(LinkedHashMap()) { it.doc.summary }
+                                    for ((summary, items) in breakdownBySummary) {
+                                        if (!summary.isEmpty()) {
+                                            appendText(to, formatText(summary))
+                                            to.append("<br/>") // TODO: hardcoded
+                                        }
+
+                                        val signatures = items.map { formatBold(formatCode("${languageService.render(it)}")) }
+                                        to.append(signatures.join("<br/>")) // TODO: hardcoded
+                                    }
+                                }
+                            }
                         }
-
-                        val signatures = items.map { formatBold(formatCode("${languageService.render(it)}")) }
-                        to.append(signatures.join("<br/>")) // TODO: hardcoded
                     }
-
-                    appendLine(to, "|")
                 }
             }
-
         }
     }
 
@@ -118,5 +129,4 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             }
         }
     }
-    public abstract fun formatText(text: String): String
 }

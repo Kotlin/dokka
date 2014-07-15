@@ -31,11 +31,11 @@ public open class MarkdownFormatService(locationService: LocationService, signat
     }
 
     override public fun appendLine(to: StringBuilder, text: String) {
-        to.appendln(formatText(text))
+        to.appendln(text)
     }
 
     override public fun appendText(to: StringBuilder, text: String) {
-        to.append(formatText(text))
+        to.append(text)
     }
 
     override public fun appendHeader(to: StringBuilder, text: String, level: Int) {
@@ -57,6 +57,31 @@ public open class MarkdownFormatService(locationService: LocationService, signat
         appendLine(to, "```")
         to.appendln(line)
         appendLine(to, "```")
+    }
+
+    override fun appendTable(to: StringBuilder, body: () -> Unit) {
+        to.appendln()
+        body()
+        to.appendln()
+    }
+
+    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
+        body()
+    }
+
+    override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
+        body()
+    }
+
+    override fun appendTableRow(to: StringBuilder, body: () -> Unit) {
+        to.append("|")
+        body()
+        to.appendln()
+    }
+
+    override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
+        body()
+        to.append("|")
     }
 
     var outlineLevel = 0
