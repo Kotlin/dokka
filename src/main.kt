@@ -41,12 +41,14 @@ public fun main(args: Array<String>) {
         addSources(sources)
     }
 
-    println("Dokka is preparing sources and libraries...")
+    println("Module: ${arguments.moduleName}")
+    println("Output: ${arguments.outputDir}")
     println("Sources: ${environment.sources.join()}")
     println("Classpath: ${environment.classpath.joinToString()}")
 
     println()
 
+    println("Analysing sources and libraries...")
     val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
         val packageSet = environment.getSourceFiles().map { file ->
             context.getPackageFragment(file)!!.fqName
@@ -59,7 +61,10 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val formatter = JekyllFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
+    println("Building pages...")
     generator.buildPage(documentation)
+    println("Building outline...")
     generator.buildOutline(documentation)
+    println("Done.")
     Disposer.dispose(environment)
 }
