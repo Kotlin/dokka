@@ -9,14 +9,16 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
 
     private fun visitChildren(descriptors: Collection<DeclarationDescriptor>, data: DocumentationNode) {
         for (descriptor in descriptors) {
-            if (descriptor.isUserCode())
-                descriptor.accept(this, data)
+            visitChild(descriptor, data)
         }
     }
 
     private fun visitChild(descriptor: DeclarationDescriptor?, data: DocumentationNode) {
-        if (descriptor != null && descriptor.isUserCode())
-            descriptor.accept(this, data)
+        if (descriptor != null && descriptor.isUserCode()) {
+            if (descriptor !is MemberDescriptor || descriptor.getVisibility().isPublicAPI()) {
+                descriptor.accept(this, data)
+            }
+        }
     }
 
     private fun createDocumentation(descriptor: DeclarationDescriptor, data: DocumentationNode): DocumentationNode {
@@ -73,10 +75,7 @@ class DocumentationBuildingVisitor(val context: BindingContext, private val work
             visitChildren(descriptor.getConstructors(), node)
             visitChild(descriptor.getClassObjectDescriptor(), node)
         }
-        val members = descriptor.getDefaultType().getMemberScope().getAllDescriptors().filter {
-            it !is CallableMemberDescriptor || it.isUserCode()
-        }
-        visitChildren(members, node)
+        visitChildren(descriptor.getDefaultType().getMemberScope().getAllDescriptors(), node)
         return node
     }
 
