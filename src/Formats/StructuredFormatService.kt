@@ -1,7 +1,6 @@
 package org.jetbrains.dokka
 
 import java.util.LinkedHashMap
-import org.jetbrains.dokka.DocumentationNode.Kind
 
 public data class FormatLink(val text: String, val location: Location)
 
@@ -16,7 +15,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun appendLine(to: StringBuilder)
 
     public abstract fun formatLink(text: String, location: Location): String
-    public open fun formatLink(link: FormatLink): String =  formatLink(link.text, link.location)
+    public open fun formatLink(link: FormatLink): String = formatLink(link.text, link.location)
 
     public abstract fun formatBold(text: String): String
     public abstract fun formatCode(code: String): String
@@ -80,24 +79,22 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             if (node.members.any()) {
                 appendHeader(to, "Members")
 
-                appendLine(to, "| Name | Summary |")
+                appendLine(to, "| Name | Summary |") // TODO: hardcoded
                 appendLine(to, "|------|---------|")
                 val children = node.members.sortBy { it.name }
                 val membersMap = children.groupByTo(LinkedHashMap()) { link(node, it) }
 
                 for ((location, members) in membersMap) {
-                    val mainMember = members.first()
-                    val displayName = when (mainMember.kind) {
-                        Kind.Constructor -> "*.init*"
-                        else -> languageService.renderName(mainMember).htmlEscape()
-                    }
-
                     appendText(to, "|${formatLink(location)}|")
-
                     val breakdownBySummary = members.groupByTo(LinkedHashMap()) { it.doc.summary }
                     for ((summary, items) in breakdownBySummary) {
-                        appendLine(to, summary)
-                        appendBlockCode(to, items.map { formatBold("${languageService.render(it)}") })
+                        if (!summary.isEmpty()) {
+                            appendText(to, summary)
+                            appendText(to, "<br/>") // TODO: hardcoded
+                        }
+
+                        val signatures = items.map { formatBold(formatCode("${languageService.render(it)}")) }
+                        appendText(to, signatures.join("<br/>")) // TODO: hardcoded
                     }
 
                     appendLine(to, "|")
