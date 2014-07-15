@@ -8,12 +8,14 @@ title: LowerBound
 # LowerBound
 
 
+
 ```
 public enum val LowerBound
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-LowerBound>](_class-object-for-LowerBound_.html)|**`public object <class-object-for-LowerBound>`**|
+|[&lt;class-object-for-LowerBound&gt;](_class-object-for-LowerBound_.html)|**`public object <class-object-for-LowerBound>`**|

@@ -8,12 +8,14 @@ title: DocumentationModule
 # DocumentationModule
 
 
+
 ```
 public class DocumentationModule
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public DocumentationModule(name: String, module: ModuleDescriptor)`**|
+|[&lt;init&gt;](_init_.html)|**`public DocumentationModule(name: String, module: ModuleDescriptor)`**|

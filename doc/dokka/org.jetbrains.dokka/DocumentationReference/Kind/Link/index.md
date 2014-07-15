@@ -8,12 +8,14 @@ title: Link
 # Link
 
 
+
 ```
 public enum val Link
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Link>](_class-object-for-Link_.html)|**`public object <class-object-for-Link>`**|
+|[&lt;class-object-for-Link&gt;](_class-object-for-Link_.html)|**`public object <class-object-for-Link>`**|

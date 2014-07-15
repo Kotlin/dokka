@@ -8,12 +8,14 @@ title: Detail
 # Detail
 
 
+
 ```
 public enum val Detail
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Detail>](_class-object-for-Detail_.html)|**`public object <class-object-for-Detail>`**|
+|[&lt;class-object-for-Detail&gt;](_class-object-for-Detail_.html)|**`public object <class-object-for-Detail>`**|

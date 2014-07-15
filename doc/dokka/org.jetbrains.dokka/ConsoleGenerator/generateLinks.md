@@ -8,6 +8,8 @@ title: generateLinks
 # generateLinks
 
 
+
 ```
 public fun generateLinks(node: DocumentationNode, indent: String): Unit
 ```
+

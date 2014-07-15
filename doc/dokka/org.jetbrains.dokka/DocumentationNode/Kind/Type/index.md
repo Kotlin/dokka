@@ -8,12 +8,14 @@ title: Type
 # Type
 
 
+
 ```
 public enum val Type
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Type>](_class-object-for-Type_.html)|**`public object <class-object-for-Type>`**|
+|[&lt;class-object-for-Type&gt;](_class-object-for-Type_.html)|**`public object <class-object-for-Type>`**|

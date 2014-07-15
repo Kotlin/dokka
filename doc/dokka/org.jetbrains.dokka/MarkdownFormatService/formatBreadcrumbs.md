@@ -8,6 +8,8 @@ title: formatBreadcrumbs
 # formatBreadcrumbs
 
 
+
 ```
 open public fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 ```
+

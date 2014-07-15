@@ -2,12 +2,14 @@
 layout: api
 title: <get-details>
 ---
-[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [details](index.html) / [<get-details>](_get-details_.html)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [details](index.html) / [&lt;get-details&gt;](_get-details_.html)
 
 
-# <get-details>
+# &lt;get-details&gt;
+
 
 
 ```
 public fun <get-details>(): List<DocumentationNode>
 ```
+

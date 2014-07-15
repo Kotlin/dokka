@@ -8,7 +8,9 @@ title: formatLink
 # formatLink
 
 
+
 ```
 abstract public fun formatLink(text: String, location: Location): String
 open public fun formatLink(link: FormatLink): String
 ```
+

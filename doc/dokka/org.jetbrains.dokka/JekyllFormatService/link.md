@@ -8,6 +8,8 @@ title: link
 # link
 
 
+
 ```
 open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink
 ```
+

@@ -8,12 +8,14 @@ title: UpperBound
 # UpperBound
 
 
+
 ```
 public enum val UpperBound
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-UpperBound>](_class-object-for-UpperBound_.html)|**`public object <class-object-for-UpperBound>`**|
+|[&lt;class-object-for-UpperBound&gt;](_class-object-for-UpperBound_.html)|**`public object <class-object-for-UpperBound>`**|

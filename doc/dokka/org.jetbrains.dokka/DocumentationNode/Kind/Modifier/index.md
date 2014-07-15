@@ -8,12 +8,14 @@ title: Modifier
 # Modifier
 
 
+
 ```
 public enum val Modifier
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Modifier>](_class-object-for-Modifier_.html)|**`public object <class-object-for-Modifier>`**|
+|[&lt;class-object-for-Modifier&gt;](_class-object-for-Modifier_.html)|**`public object <class-object-for-Modifier>`**|

@@ -8,6 +8,8 @@ title: member
 # member
 
 
+
 ```
 public fun member(kind: Kind): DocumentationNode
 ```
+

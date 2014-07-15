@@ -8,12 +8,14 @@ title: SingleFolderLocationService
 # SingleFolderLocationService
 
 
+
 ```
 public class SingleFolderLocationService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public SingleFolderLocationService(root: File)`**|
+|[&lt;init&gt;](_init_.html)|**`public SingleFolderLocationService(root: File)`**|

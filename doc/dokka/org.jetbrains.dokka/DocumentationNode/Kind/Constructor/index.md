@@ -8,12 +8,14 @@ title: Constructor
 # Constructor
 
 
+
 ```
 public enum val Constructor
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Constructor>](_class-object-for-Constructor_.html)|**`public object <class-object-for-Constructor>`**|
+|[&lt;class-object-for-Constructor&gt;](_class-object-for-Constructor_.html)|**`public object <class-object-for-Constructor>`**|

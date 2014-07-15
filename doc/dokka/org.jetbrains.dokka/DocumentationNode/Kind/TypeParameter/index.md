@@ -8,12 +8,14 @@ title: TypeParameter
 # TypeParameter
 
 
+
 ```
 public enum val TypeParameter
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-TypeParameter>](_class-object-for-TypeParameter_.html)|**`public object <class-object-for-TypeParameter>`**|
+|[&lt;class-object-for-TypeParameter&gt;](_class-object-for-TypeParameter_.html)|**`public object <class-object-for-TypeParameter>`**|

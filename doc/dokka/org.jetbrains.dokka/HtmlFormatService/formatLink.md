@@ -8,6 +8,8 @@ title: formatLink
 # formatLink
 
 
+
 ```
 open public fun formatLink(text: String, location: Location): String
 ```
+

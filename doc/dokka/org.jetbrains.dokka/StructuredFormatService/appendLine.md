@@ -8,7 +8,9 @@ title: appendLine
 # appendLine
 
 
+
 ```
 abstract public fun appendLine(to: StringBuilder, text: String): Unit
 abstract public fun appendLine(to: StringBuilder): Unit
 ```
+

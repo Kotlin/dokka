@@ -8,15 +8,17 @@ title: DocumentationNode
 # DocumentationNode
 
 
+
 ```
 open public class DocumentationNode
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public DocumentationNode(descriptor: DeclarationDescriptor, name: String, doc: DocumentationContent, kind: Kind)`**|
+|[&lt;init&gt;](_init_.html)|**`public DocumentationNode(descriptor: DeclarationDescriptor, name: String, doc: DocumentationContent, kind: Kind)`**|
 |[Kind](Kind/index.html)|**`public enum class Kind`**|
 |[addAllReferencesFrom](addAllReferencesFrom.html)|**`public fun addAllReferencesFrom(other: DocumentationNode): Unit`**|
 |[addReferenceTo](addReferenceTo.html)|**`public fun addReferenceTo(to: DocumentationNode, kind: Kind): Unit`**|

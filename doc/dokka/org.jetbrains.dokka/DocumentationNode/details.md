@@ -8,6 +8,8 @@ title: details
 # details
 
 
+
 ```
 public fun details(kind: Kind): List<DocumentationNode>
 ```
+

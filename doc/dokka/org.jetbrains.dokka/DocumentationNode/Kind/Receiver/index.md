@@ -8,12 +8,14 @@ title: Receiver
 # Receiver
 
 
+
 ```
 public enum val Receiver
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Receiver>](_class-object-for-Receiver_.html)|**`public object <class-object-for-Receiver>`**|
+|[&lt;class-object-for-Receiver&gt;](_class-object-for-Receiver_.html)|**`public object <class-object-for-Receiver>`**|

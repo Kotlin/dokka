@@ -8,6 +8,8 @@ title: generateHeader
 # generateHeader
 
 
+
 ```
 public fun generateHeader(node: DocumentationNode, indent: String): Unit
 ```
+

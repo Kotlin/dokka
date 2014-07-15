@@ -8,15 +8,14 @@ title: addSources
 # addSources
 
 Adds list of paths to source roots.
-```
-public fun addSources(list: List<String>): Unit
-```
-
-# Description
 
 ```
 public fun addSources(list: List<String>): Unit
 ```
+
+
+### Description
+
 
 
 **list**

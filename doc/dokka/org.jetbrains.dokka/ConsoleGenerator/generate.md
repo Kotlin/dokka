@@ -8,6 +8,8 @@ title: generate
 # generate
 
 
+
 ```
 public fun generate(node: DocumentationNode, indent: String): Unit
 ```
+

@@ -8,7 +8,9 @@ title: appendBlockCode
 # appendBlockCode
 
 
+
 ```
 abstract public fun appendBlockCode(to: StringBuilder, line: String): Unit
 abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>): Unit
 ```
+

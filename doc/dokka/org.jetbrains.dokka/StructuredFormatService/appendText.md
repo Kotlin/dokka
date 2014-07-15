@@ -8,6 +8,8 @@ title: appendText
 # appendText
 
 
+
 ```
 abstract public fun appendText(to: StringBuilder, text: String): Unit
 ```
+

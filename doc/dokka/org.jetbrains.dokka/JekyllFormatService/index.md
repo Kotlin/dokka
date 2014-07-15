@@ -8,13 +8,15 @@ title: JekyllFormatService
 # JekyllFormatService
 
 
+
 ```
 public class JekyllFormatService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public JekyllFormatService(locationService: LocationService, signatureGenerator: LanguageService)`**|
+|[&lt;init&gt;](_init_.html)|**`public JekyllFormatService(locationService: LocationService, signatureGenerator: LanguageService)`**|
 |[link](link.html)|**`open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink`**|

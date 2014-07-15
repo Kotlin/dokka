@@ -8,6 +8,8 @@ title: getPropertyInnerScope
 # getPropertyInnerScope
 
 
+
 ```
 public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescriptor): JetScope
 ```
+

@@ -8,12 +8,14 @@ title: Package
 # Package
 
 
+
 ```
 public enum val Package
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Package>](_class-object-for-Package_.html)|**`public object <class-object-for-Package>`**|
+|[&lt;class-object-for-Package&gt;](_class-object-for-Package_.html)|**`public object <class-object-for-Package>`**|

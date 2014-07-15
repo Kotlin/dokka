@@ -8,6 +8,8 @@ title: appendHeader
 # appendHeader
 
 
+
 ```
 abstract public fun appendHeader(to: StringBuilder, text: String, level: Int): Unit
 ```
+

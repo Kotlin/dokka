@@ -8,7 +8,9 @@ title: appendLine
 # appendLine
 
 
+
 ```
 open public fun appendLine(to: StringBuilder, text: String): Unit
 open public fun appendLine(to: StringBuilder): Unit
 ```
+

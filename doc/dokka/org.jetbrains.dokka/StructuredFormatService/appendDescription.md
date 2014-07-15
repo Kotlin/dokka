@@ -8,6 +8,8 @@ title: appendDescription
 # appendDescription
 
 
+
 ```
 open public fun appendDescription(to: StringBuilder, nodes: Iterable<DocumentationNode>): Unit
 ```
+

@@ -8,6 +8,8 @@ title: formatBold
 # formatBold
 
 
+
 ```
 abstract public fun formatBold(text: String): String
 ```
+

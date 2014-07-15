@@ -2,12 +2,14 @@
 layout: api
 title: <get-owner>
 ---
-[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [owner](index.html) / [<get-owner>](_get-owner_.html)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [owner](index.html) / [&lt;get-owner&gt;](_get-owner_.html)
 
 
-# <get-owner>
+# &lt;get-owner&gt;
+
 
 
 ```
 public fun <get-owner>(): DocumentationNode
 ```
+

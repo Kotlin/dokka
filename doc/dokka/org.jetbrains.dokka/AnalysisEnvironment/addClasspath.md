@@ -8,15 +8,19 @@ title: addClasspath
 # addClasspath
 
 Adds list of paths to classpath.
+
 ```
 public fun addClasspath(paths: List<File>): Unit
 ```
+
 Adds path to classpath.
+
 ```
 public fun addClasspath(path: File): Unit
 ```
 
-# Description
+
+### Description
 
 ```
 public fun addClasspath(paths: List<File>): Unit

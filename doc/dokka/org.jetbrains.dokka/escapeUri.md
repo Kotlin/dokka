@@ -8,6 +8,8 @@ title: escapeUri
 # escapeUri
 
 
+
 ```
 public fun escapeUri(path: String): String
 ```
+

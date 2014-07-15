@@ -2,12 +2,14 @@
 layout: api
 title: <class-object-for-Kind>
 ---
-[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [Kind](index.html) / [<class-object-for-Kind>](_class-object-for-Kind_.html)
+[dokka](../../../index.html) / [org.jetbrains.dokka](../../index.html) / [DocumentationNode](../index.html) / [Kind](index.html) / [&lt;class-object-for-Kind&gt;](_class-object-for-Kind_.html)
 
 
-# <class-object-for-Kind>
+# &lt;class-object-for-Kind&gt;
+
 
 
 ```
 public object <class-object-for-Kind>
 ```
+

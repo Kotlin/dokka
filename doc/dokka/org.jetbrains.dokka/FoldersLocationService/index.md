@@ -8,12 +8,14 @@ title: FoldersLocationService
 # FoldersLocationService
 
 
+
 ```
 public class FoldersLocationService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public FoldersLocationService(root: File)`**|
+|[&lt;init&gt;](_init_.html)|**`public FoldersLocationService(root: File)`**|

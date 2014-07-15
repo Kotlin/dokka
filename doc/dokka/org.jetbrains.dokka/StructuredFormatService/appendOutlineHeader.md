@@ -8,6 +8,8 @@ title: appendOutlineHeader
 # appendOutlineHeader
 
 
+
 ```
 abstract public fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode): Unit
 ```
+

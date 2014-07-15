@@ -8,12 +8,14 @@ title: owner
 # owner
 
 
+
 ```
 public val owner: DocumentationNode
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<get-owner>](_get-owner_.html)|**`public fun <get-owner>(): DocumentationNode`**|
+|[&lt;get-owner&gt;](_get-owner_.html)|**`public fun <get-owner>(): DocumentationNode`**|

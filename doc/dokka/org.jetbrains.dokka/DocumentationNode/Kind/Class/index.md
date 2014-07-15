@@ -8,12 +8,14 @@ title: Class
 # Class
 
 
+
 ```
 public enum val Class
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Class>](_class-object-for-Class_.html)|**`public object <class-object-for-Class>`**|
+|[&lt;class-object-for-Class&gt;](_class-object-for-Class_.html)|**`public object <class-object-for-Class>`**|

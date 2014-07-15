@@ -8,12 +8,14 @@ title: Owner
 # Owner
 
 
+
 ```
 public enum val Owner
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Owner>](_class-object-for-Owner_.html)|**`public object <class-object-for-Owner>`**|
+|[&lt;class-object-for-Owner&gt;](_class-object-for-Owner_.html)|**`public object <class-object-for-Owner>`**|

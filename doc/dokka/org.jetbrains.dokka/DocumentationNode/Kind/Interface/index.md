@@ -8,12 +8,14 @@ title: Interface
 # Interface
 
 
+
 ```
 public enum val Interface
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Interface>](_class-object-for-Interface_.html)|**`public object <class-object-for-Interface>`**|
+|[&lt;class-object-for-Interface&gt;](_class-object-for-Interface_.html)|**`public object <class-object-for-Interface>`**|

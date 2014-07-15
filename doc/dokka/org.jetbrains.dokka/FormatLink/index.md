@@ -8,12 +8,14 @@ title: FormatLink
 # FormatLink
 
 
+
 ```
 public class FormatLink
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public FormatLink(text: String, location: Location)`**|
+|[&lt;init&gt;](_init_.html)|**`public FormatLink(text: String, location: Location)`**|

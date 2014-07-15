@@ -8,15 +8,17 @@ title: StructuredFormatService
 # StructuredFormatService
 
 
+
 ```
 abstract public class StructuredFormatService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public StructuredFormatService(locationService: LocationService, languageService: LanguageService)`**|
+|[&lt;init&gt;](_init_.html)|**`public StructuredFormatService(locationService: LocationService, languageService: LanguageService)`**|
 |[appendBlockCode](appendBlockCode.html)|**`abstract public fun appendBlockCode(to: StringBuilder, line: String): Unit`**<br/>**`abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>): Unit`**|
 |[appendDescription](appendDescription.html)|**`open public fun appendDescription(to: StringBuilder, nodes: Iterable<DocumentationNode>): Unit`**|
 |[appendHeader](appendHeader.html)|**`abstract public fun appendHeader(to: StringBuilder, text: String, level: Int): Unit`**|
@@ -31,4 +33,5 @@ abstract public class StructuredFormatService
 |[formatBreadcrumbs](formatBreadcrumbs.html)|**`abstract public fun formatBreadcrumbs(items: Iterable<FormatLink>): String`**|
 |[formatCode](formatCode.html)|**`abstract public fun formatCode(code: String): String`**|
 |[formatLink](formatLink.html)|**`abstract public fun formatLink(text: String, location: Location): String`**<br/>**`open public fun formatLink(link: FormatLink): String`**|
+|[formatText](formatText.html)|**`abstract public fun formatText(text: String): String`**|
 |[link](link.html)|**`open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink`**<br/>**`open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink`**|

@@ -8,6 +8,8 @@ title: formatCode
 # formatCode
 
 
+
 ```
 open public fun formatCode(code: String): String
 ```
+

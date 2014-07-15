@@ -8,6 +8,8 @@ title: getPackageInnerScope
 # getPackageInnerScope
 
 
+
 ```
 public fun getPackageInnerScope(descriptor: PackageFragmentDescriptor): JetScope
 ```
+

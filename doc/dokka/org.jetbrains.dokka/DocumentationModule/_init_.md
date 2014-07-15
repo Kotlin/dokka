@@ -2,12 +2,14 @@
 layout: api
 title: <init>
 ---
-[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationModule](index.html) / [<init>](_init_.html)
+[dokka](../../index.html) / [org.jetbrains.dokka](../index.html) / [DocumentationModule](index.html) / [&lt;init&gt;](_init_.html)
 
 
-# <init>
+# &lt;init&gt;
+
 
 
 ```
 public DocumentationModule(name: String, module: ModuleDescriptor)
 ```
+

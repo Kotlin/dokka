@@ -8,12 +8,14 @@ title: Property
 # Property
 
 
+
 ```
 public enum val Property
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Property>](_class-object-for-Property_.html)|**`public object <class-object-for-Property>`**|
+|[&lt;class-object-for-Property&gt;](_class-object-for-Property_.html)|**`public object <class-object-for-Property>`**|

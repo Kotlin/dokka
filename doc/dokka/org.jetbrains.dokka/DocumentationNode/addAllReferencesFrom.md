@@ -8,6 +8,8 @@ title: addAllReferencesFrom
 # addAllReferencesFrom
 
 
+
 ```
 public fun addAllReferencesFrom(other: DocumentationNode): Unit
 ```
+

@@ -8,12 +8,14 @@ title: Function
 # Function
 
 
+
 ```
 public enum val Function
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Function>](_class-object-for-Function_.html)|**`public object <class-object-for-Function>`**|
+|[&lt;class-object-for-Function&gt;](_class-object-for-Function_.html)|**`public object <class-object-for-Function>`**|

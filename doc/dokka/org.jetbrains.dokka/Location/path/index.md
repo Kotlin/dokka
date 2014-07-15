@@ -8,12 +8,14 @@ title: path
 # path
 
 
+
 ```
 public val path: String
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<get-path>](_get-path_.html)|**`public fun <get-path>(): String`**|
+|[&lt;get-path&gt;](_get-path_.html)|**`public fun <get-path>(): String`**|

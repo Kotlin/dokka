@@ -8,6 +8,8 @@ title: getClassInnerScope
 # getClassInnerScope
 
 
+
 ```
 public fun getClassInnerScope(outerScope: JetScope, descriptor: ClassDescriptor): JetScope
 ```
+

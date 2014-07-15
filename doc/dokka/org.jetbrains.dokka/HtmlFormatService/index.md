@@ -8,15 +8,17 @@ title: HtmlFormatService
 # HtmlFormatService
 
 
+
 ```
 open public class HtmlFormatService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public HtmlFormatService(locationService: LocationService, signatureGenerator: LanguageService)`**|
+|[&lt;init&gt;](_init_.html)|**`public HtmlFormatService(locationService: LocationService, signatureGenerator: LanguageService)`**|
 |[appendBlockCode](appendBlockCode.html)|**`open public fun appendBlockCode(to: StringBuilder, line: String): Unit`**<br/>**`open public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>): Unit`**|
 |[appendHeader](appendHeader.html)|**`open public fun appendHeader(to: StringBuilder, text: String, level: Int): Unit`**|
 |[appendLine](appendLine.html)|**`open public fun appendLine(to: StringBuilder, text: String): Unit`**<br/>**`open public fun appendLine(to: StringBuilder): Unit`**|
@@ -27,3 +29,4 @@ open public class HtmlFormatService
 |[formatBreadcrumbs](formatBreadcrumbs.html)|**`open public fun formatBreadcrumbs(items: Iterable<FormatLink>): String`**|
 |[formatCode](formatCode.html)|**`open public fun formatCode(code: String): String`**|
 |[formatLink](formatLink.html)|**`open public fun formatLink(text: String, location: Location): String`**|
+|[formatText](formatText.html)|**`open public fun formatText(text: String): String`**|

@@ -8,12 +8,14 @@ title: Exception
 # Exception
 
 
+
 ```
 public enum val Exception
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Exception>](_class-object-for-Exception_.html)|**`public object <class-object-for-Exception>`**|
+|[&lt;class-object-for-Exception&gt;](_class-object-for-Exception_.html)|**`public object <class-object-for-Exception>`**|

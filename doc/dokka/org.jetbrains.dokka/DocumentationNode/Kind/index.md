@@ -8,15 +8,17 @@ title: Kind
 # Kind
 
 
+
 ```
 public enum class Kind
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Kind>](_class-object-for-Kind_.html)|**`public object <class-object-for-Kind>`**|
+|[&lt;class-object-for-Kind&gt;](_class-object-for-Kind_.html)|**`public object <class-object-for-Kind>`**|
 |[Class](Class/index.html)|**`public enum val Class`**|
 |[Constructor](Constructor/index.html)|**`public enum val Constructor`**|
 |[Enum](Enum/index.html)|**`public enum val Enum`**|

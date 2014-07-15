@@ -8,6 +8,8 @@ title: link
 # link
 
 
+
 ```
 public fun link(kind: Kind): DocumentationNode
 ```
+

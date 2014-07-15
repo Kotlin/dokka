@@ -8,6 +8,8 @@ title: generateDetails
 # generateDetails
 
 
+
 ```
 public fun generateDetails(node: DocumentationNode, indent: String): Unit
 ```
+

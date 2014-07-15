@@ -8,6 +8,8 @@ title: dispose
 # dispose
 
 Disposes the environment and frees all associated resources.
+
 ```
 open public fun dispose(): Unit
 ```
+

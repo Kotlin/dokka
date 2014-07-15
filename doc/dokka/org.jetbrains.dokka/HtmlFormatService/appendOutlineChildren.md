@@ -8,6 +8,8 @@ title: appendOutlineChildren
 # appendOutlineChildren
 
 
+
 ```
 open public fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>): Unit
 ```
+

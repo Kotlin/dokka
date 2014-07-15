@@ -8,6 +8,8 @@ title: detail
 # detail
 
 
+
 ```
 public fun detail(kind: Kind): DocumentationNode
 ```
+

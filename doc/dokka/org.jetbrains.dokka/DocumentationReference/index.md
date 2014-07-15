@@ -8,13 +8,15 @@ title: DocumentationReference
 # DocumentationReference
 
 
+
 ```
 public class DocumentationReference
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public DocumentationReference(from: DocumentationNode, to: DocumentationNode, kind: Kind)`**|
+|[&lt;init&gt;](_init_.html)|**`public DocumentationReference(from: DocumentationNode, to: DocumentationNode, kind: Kind)`**|
 |[Kind](Kind/index.html)|**`public enum class Kind`**|

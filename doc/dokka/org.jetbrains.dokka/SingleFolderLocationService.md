@@ -8,6 +8,8 @@ title: SingleFolderLocationService
 # SingleFolderLocationService
 
 
+
 ```
 public fun SingleFolderLocationService(root: String): SingleFolderLocationService
 ```
+

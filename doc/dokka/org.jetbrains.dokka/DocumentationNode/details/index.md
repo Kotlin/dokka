@@ -8,12 +8,14 @@ title: details
 # details
 
 
+
 ```
 public val details: List<DocumentationNode>
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<get-details>](_get-details_.html)|**`public fun <get-details>(): List<DocumentationNode>`**|
+|[&lt;get-details&gt;](_get-details_.html)|**`public fun <get-details>(): List<DocumentationNode>`**|

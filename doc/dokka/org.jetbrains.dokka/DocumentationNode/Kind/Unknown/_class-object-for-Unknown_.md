@@ -2,12 +2,14 @@
 layout: api
 title: <class-object-for-Unknown>
 ---
-[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Unknown](index.html) / [<class-object-for-Unknown>](_class-object-for-Unknown_.html)
+[dokka](../../../../index.html) / [org.jetbrains.dokka](../../../index.html) / [DocumentationNode](../../index.html) / [Kind](../index.html) / [Unknown](index.html) / [&lt;class-object-for-Unknown&gt;](_class-object-for-Unknown_.html)
 
 
-# <class-object-for-Unknown>
+# &lt;class-object-for-Unknown&gt;
+
 
 
 ```
 public object <class-object-for-Unknown>
 ```
+

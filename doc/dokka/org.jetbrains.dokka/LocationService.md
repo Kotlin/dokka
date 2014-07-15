@@ -8,6 +8,8 @@ title: LocationService
 # LocationService
 
 
+
 ```
 abstract public trait LocationService
 ```
+

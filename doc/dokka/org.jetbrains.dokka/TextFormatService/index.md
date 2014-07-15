@@ -8,12 +8,14 @@ title: TextFormatService
 # TextFormatService
 
 
+
 ```
 public class TextFormatService
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public TextFormatService(signatureGenerator: LanguageService)`**|
+|[&lt;init&gt;](_init_.html)|**`public TextFormatService(signatureGenerator: LanguageService)`**|

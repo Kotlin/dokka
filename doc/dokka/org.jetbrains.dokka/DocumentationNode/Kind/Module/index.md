@@ -8,12 +8,14 @@ title: Module
 # Module
 
 
+
 ```
 public enum val Module
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Module>](_class-object-for-Module_.html)|**`public object <class-object-for-Module>`**|
+|[&lt;class-object-for-Module&gt;](_class-object-for-Module_.html)|**`public object <class-object-for-Module>`**|

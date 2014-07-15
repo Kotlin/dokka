@@ -8,12 +8,14 @@ title: sources
 # sources
 
 List of source roots for this environment.
+
 ```
 public val sources: List<String>
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<get-sources>](_get-sources_.html)|**`public fun <get-sources>(): List<String>`**|
+|[&lt;get-sources&gt;](_get-sources_.html)|**`public fun <get-sources>(): List<String>`**|

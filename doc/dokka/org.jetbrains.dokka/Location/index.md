@@ -8,13 +8,15 @@ title: Location
 # Location
 
 
+
 ```
 public class Location
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public Location(file: File)`**|
+|[&lt;init&gt;](_init_.html)|**`public Location(file: File)`**|
 |[path](path/index.html)|**`public val path: String`**|

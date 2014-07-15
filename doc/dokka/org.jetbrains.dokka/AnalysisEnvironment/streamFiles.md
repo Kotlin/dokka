@@ -8,15 +8,14 @@ title: streamFiles
 # streamFiles
 
 Streams files into [processor] and returns a stream of its results
-```
-public fun <T> streamFiles(processor: (BindingContext, JetFile)->T): Stream<T>
-```
-
-# Description
 
 ```
-public fun <T> streamFiles(processor: (BindingContext, JetFile)->T): Stream<T>
+public fun <T> streamFiles(processor: (BindingContext, JetFile) -> T): Stream<T>
 ```
+
+
+### Description
+
 
 
 **processor**

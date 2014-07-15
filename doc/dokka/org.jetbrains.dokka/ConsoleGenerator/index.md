@@ -8,15 +8,17 @@ title: ConsoleGenerator
 # ConsoleGenerator
 
 
+
 ```
 public class ConsoleGenerator
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<init>](_init_.html)|**`public ConsoleGenerator(signatureGenerator: LanguageService, locationService: LocationService)`**|
+|[&lt;init&gt;](_init_.html)|**`public ConsoleGenerator(signatureGenerator: LanguageService, locationService: LocationService)`**|
 |[generate](generate.html)|**`public fun generate(node: DocumentationNode, indent: String): Unit`**|
 |[generateDetails](generateDetails.html)|**`public fun generateDetails(node: DocumentationNode, indent: String): Unit`**|
 |[generateHeader](generateHeader.html)|**`public fun generateHeader(node: DocumentationNode, indent: String): Unit`**|

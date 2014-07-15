@@ -8,12 +8,14 @@ title: Override
 # Override
 
 
+
 ```
 public enum val Override
 ```
 
-# Members
+
+### Members
 
 | Name | Summary |
 |------|---------|
-|[<class-object-for-Override>](_class-object-for-Override_.html)|**`public object <class-object-for-Override>`**|
+|[&lt;class-object-for-Override&gt;](_class-object-for-Override_.html)|**`public object <class-object-for-Override>`**|
