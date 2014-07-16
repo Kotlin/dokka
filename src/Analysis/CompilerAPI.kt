@@ -32,13 +32,13 @@ fun JetCoreEnvironment.analyze2(messageCollector: MessageCollector): AnalyzeExha
     val sourceFiles = getSourceFiles()
     val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
     val sharedTrace = support.getTrace()
-    val sharedModule = support.getModule()
-    val compilerConfiguration = getConfiguration()!!
+    val sharedModule = support.newModule()
+    val compilerConfiguration = getConfiguration()
     val exhaust = AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
                                                          Predicates.alwaysFalse<PsiFile>(),
                                                          sharedModule,
-                                                         compilerConfiguration.get(JVMConfigurationKeys.MODULE_IDS),
-                                                         compilerConfiguration.get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR))
+                                                         null,
+                                                         null)
     return exhaust
 }
 
@@ -52,13 +52,13 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhau
     analyzerWithCompilerReport.analyzeAndReport(sourceFiles) {
         val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
         val sharedTrace = support.getTrace()
-        val sharedModule = support.getModule()
-        val compilerConfiguration = getConfiguration()!!
+        val sharedModule = support.newModule()
+        val compilerConfiguration = getConfiguration()
         AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
                                                              Predicates.alwaysFalse<PsiFile>(),
                                                              sharedModule,
-                                                             compilerConfiguration.get(JVMConfigurationKeys.MODULE_IDS),
-                                                             compilerConfiguration.get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR))
+                                                             null,
+                                                             null)
     }
 
     val exhaust = analyzerWithCompilerReport.getAnalyzeExhaust()
@@ -66,8 +66,6 @@ fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhau
 
     return exhaust!!
 }
-
-fun AnalyzerWithCompilerReport.analyzeAndReport(files: List<JetFile>, analyser: () -> AnalyzeExhaust) = analyzeAndReport(analyser, files)
 
 fun BindingContext.getPackageFragment(file: JetFile): PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
 

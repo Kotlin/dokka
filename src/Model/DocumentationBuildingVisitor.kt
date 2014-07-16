@@ -82,8 +82,8 @@ class DocumentationBuildingVisitor(val context: BindingContext,
         return node
     }
 
-    public override fun visitModuleDeclaration(descriptor: ModuleDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = createDocumentation(descriptor!!, data!!)
+    public override fun visitModuleDeclaration(descriptor: ModuleDescriptor, data: DocumentationNode): DocumentationNode {
+        val node = createDocumentation(descriptor, data)
         visitChild(descriptor.getPackage(FqName.ROOT), node)
         return node
     }
