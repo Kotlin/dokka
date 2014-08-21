@@ -12,7 +12,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
     public fun buildOutline(node: DocumentationNode): Unit = buildOutlines(listOf(node))
 
     public fun buildPages(nodes: Iterable<DocumentationNode>) {
-        for ((location, items) in nodes.groupByTo(LinkedHashMap()) { locationService.location(it) }) {
+        for ((location, items) in nodes.groupBy { locationService.location(it) }) {
             val file = location.file.appendExtension(formatService.extension)
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
@@ -25,7 +25,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
     }
 
     public fun buildOutlines(nodes: Iterable<DocumentationNode>) {
-        for ((location, items) in nodes.groupByTo(LinkedHashMap()) { locationService.location(it) }) {
+        for ((location, items) in nodes.groupBy { locationService.location(it) }) {
             val file = location.file.appendExtension("yml") // TODO: hardcoded
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {

@@ -65,7 +65,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     open public fun appendLocation(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val breakdownByName = nodes.groupByTo(LinkedHashMap()) { node -> node.name }
+        val breakdownByName = nodes.groupBy { node -> node.name }
         for ((name, items) in breakdownByName) {
             appendHeader(to, formatText(name))
             appendSummary(to, items)
@@ -74,7 +74,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     override fun appendNodes(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val breakdownByLocation = nodes.groupByTo(LinkedHashMap()) { node ->
+        val breakdownByLocation = nodes.groupBy { node ->
             formatBreadcrumbs(node.path.map { link(node, it) })
         }
 
@@ -89,7 +89,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 appendHeader(to, "Members", 3)
 
                 val children = node.members.sortBy { it.name }
-                val membersMap = children.groupByTo(LinkedHashMap()) { link(node, it) }
+                val membersMap = children.groupBy { link(node, it) }
 
                 appendTable(to) {
                     appendTableBody(to) {
@@ -99,7 +99,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                     appendText(to, formatLink(location))
                                 }
                                 appendTableCell(to) {
-                                    val breakdownBySummary = members.groupByTo(LinkedHashMap()) { it.doc.summary }
+                                    val breakdownBySummary = members.groupBy { it.doc.summary }
                                     for ((summary, items) in breakdownBySummary) {
                                         if (!summary.isEmpty()) {
                                             appendText(to, formatText(summary))
