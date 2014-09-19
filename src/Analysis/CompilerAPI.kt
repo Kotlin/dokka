@@ -27,44 +27,18 @@ private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArgum
     return annotationsPath
 }
 
-fun JetCoreEnvironment.analyze2(messageCollector: MessageCollector): AnalyzeExhaust {
+fun JetCoreEnvironment.analyze(): AnalyzeExhaust {
     val project = getProject()
     val sourceFiles = getSourceFiles()
     val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
     val sharedTrace = support.getTrace()
     val sharedModule = support.newModule()
-    val compilerConfiguration = getConfiguration()
-    val exhaust = AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
+    val exhaust = TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
                                                          Predicates.alwaysFalse<PsiFile>(),
                                                          sharedModule,
                                                          null,
                                                          null)
     return exhaust
-}
-
-
-
-fun JetCoreEnvironment.analyze(messageCollector: MessageCollector): AnalyzeExhaust {
-    val project = getProject()
-    val sourceFiles = getSourceFiles()
-
-    val analyzerWithCompilerReport = AnalyzerWithCompilerReport(messageCollector)
-    analyzerWithCompilerReport.analyzeAndReport(sourceFiles) {
-        val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
-        val sharedTrace = support.getTrace()
-        val sharedModule = support.newModule()
-        val compilerConfiguration = getConfiguration()
-        AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
-                                                             Predicates.alwaysFalse<PsiFile>(),
-                                                             sharedModule,
-                                                             null,
-                                                             null)
-    }
-
-    val exhaust = analyzerWithCompilerReport.getAnalyzeExhaust()
-    assert(exhaust != null) { "AnalyzeExhaust should be non-null, compiling: " + sourceFiles }
-
-    return exhaust!!
 }
 
 fun BindingContext.getPackageFragment(file: JetFile): PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
