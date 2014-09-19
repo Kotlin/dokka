@@ -1,2 +1,2 @@
-/** Summary $one same line */
+/** Summary $one: same line */
 val property = "test"

@@ -1,2 +1,2 @@
-/** Summary $one*/
+/** Summary $one:*/
 val property = "test"

@@ -10,7 +10,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function fn", doc.summary)
+                assertEquals("Function fn".toRichString(), doc.summary)
                 assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function with receiver", doc.summary)
+                assertEquals("Function with receiver".toRichString(), doc.summary)
                 assertEquals("Unit", details.elementAt(0).name)
 
                 assertEquals(4, details.count())
@@ -48,7 +48,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("generic function", doc.summary)
+                assertEquals("generic function".toRichString(), doc.summary)
 
                 assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
@@ -73,7 +73,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("generic function", doc.summary)
+                assertEquals("generic function".toRichString(), doc.summary)
 
                 assertEquals(5, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
@@ -113,9 +113,9 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Multiline", doc.summary)
+                assertEquals("Multiline".toRichString(), doc.summary)
                 assertEquals("""Function
-Documentation"""
+Documentation""".toRichString()
                              , doc.description)
 
                 assertEquals(4, details.count())
@@ -125,7 +125,7 @@ Documentation"""
                 with(details.elementAt(3)) {
                     assertEquals("x", name)
                     assertEquals(DocumentationNode.Kind.Parameter, kind)
-                    assertEquals("parameter", doc.summary)
+                    assertEquals("parameter".toRichString(), doc.summary)
                     assertEquals("Int", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())
