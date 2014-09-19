@@ -5,6 +5,7 @@ import java.util.LinkedHashMap
 public data class FormatLink(val text: String, val location: Location)
 
 public abstract class StructuredFormatService(val locationService: LocationService,
+                                              val resolutionService: ResolutionService,
                                               val languageService: LanguageService) : FormatService {
 
     abstract public fun appendBlockCode(to: StringBuilder, line: String)
@@ -27,6 +28,24 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 
+    open fun formatText(text: RichString): String {
+        return StringBuilder {
+            for (slice in text.slices) {
+                val style = slice.style
+                when (style) {
+                    is NormalStyle -> append(slice.text)
+                    is BoldStyle -> append(formatBold(slice.text))
+                    is CodeStyle -> append(formatCode(slice.text))
+                    is LinkStyle -> {
+                        val node = resolutionService.resolve(style.link)
+                        val location = locationService.location(node)
+                        append(formatLink(slice.text, location))
+                    }
+                }
+            }
+        }.toString()
+    }
+
     open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
 
     open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
@@ -34,7 +53,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     open public fun appendDescription(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val described = nodes.filter { it.doc.hasDescription }
+        val described = nodes.filter { !it.doc.isEmpty }
         if (described.any()) {
             val single = described.size == 1
             appendHeader(to, "Description", 3)
@@ -59,8 +78,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
 
         for ((summary, items) in breakdownBySummary) {
-            appendLine(to, summary)
             appendBlockCode(to, items.map { languageService.render(it) })
+            appendLine(to, formatText(summary))
+            appendLine(to)
         }
     }
 
@@ -101,13 +121,14 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                 appendTableCell(to) {
                                     val breakdownBySummary = members.groupBy { it.doc.summary }
                                     for ((summary, items) in breakdownBySummary) {
-                                        if (!summary.isEmpty()) {
-                                            appendText(to, formatText(summary))
-                                            to.append("<br/>") // TODO: hardcoded
+                                        val signatures = items.map { formatCode("${languageService.render(it)}") }
+                                        for (signature in signatures) {
+                                            appendText(to, signature)
                                         }
 
-                                        val signatures = items.map { formatBold(formatCode("${languageService.render(it)}")) }
-                                        to.append(signatures.join("<br/>")) // TODO: hardcoded
+                                        if (!summary.isEmpty()) {
+                                            appendText(to, formatText(summary))
+                                        }
                                     }
                                 }
                             }

@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
-import java.util.LinkedHashMap
 
 public class FileGenerator(val signatureGenerator: LanguageService,
                            val locationService: LocationService,

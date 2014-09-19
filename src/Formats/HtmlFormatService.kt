@@ -1,7 +1,10 @@
 package org.jetbrains.dokka
 
-public open class HtmlFormatService(locationService: LocationService, signatureGenerator: LanguageService)
-: StructuredFormatService(locationService, signatureGenerator) {
+public open class HtmlFormatService(locationService: LocationService,
+                                    resolutionService: ResolutionService,
+                                    signatureGenerator: LanguageService,
+                                    val templateService: HtmlTemplateService = HtmlTemplateService.default())
+: StructuredFormatService(locationService, resolutionService, signatureGenerator) {
     override val extension: String = "html"
 
     override public fun formatText(text: String): String {
@@ -10,13 +13,13 @@ public open class HtmlFormatService(locationService: LocationService, signatureG
 
     override fun appendBlockCode(to: StringBuilder, line: String) {
         to.appendln("<code>")
-        to.appendln(line)
+        to.appendln(line.htmlEscape())
         to.appendln("</code>")
     }
 
     override fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
         to.appendln("<code>")
-        to.appendln(lines.map { it }.join("\n"))
+        to.appendln(lines.map { it.htmlEscape() }.join("\n"))
         to.appendln("</code>")
     }
 
@@ -75,11 +78,18 @@ public open class HtmlFormatService(locationService: LocationService, signatureG
     }
 
     override fun formatCode(code: String): String {
-        return "<code>${code}</code>"
+        return "<code>${code.htmlEscape()}</code>"
     }
 
     override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString("&nbsp;/&nbsp;")
+    }
+
+
+    override fun appendNodes(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+        templateService.appendHeader(to)
+        super<StructuredFormatService>.appendNodes(to, nodes)
+        templateService.appendFooter(to)
     }
 
     override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {

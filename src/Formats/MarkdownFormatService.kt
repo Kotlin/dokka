@@ -1,8 +1,10 @@
 package org.jetbrains.dokka
 
 
-public open class MarkdownFormatService(locationService: LocationService, signatureGenerator: LanguageService)
-: StructuredFormatService(locationService, signatureGenerator) {
+public open class MarkdownFormatService(locationService: LocationService,
+                                        resolutionService: ResolutionService,
+                                        signatureGenerator: LanguageService)
+: StructuredFormatService(locationService, resolutionService, signatureGenerator) {
 
     override val extension: String = "md"
 
@@ -12,6 +14,10 @@ public open class MarkdownFormatService(locationService: LocationService, signat
 
     override public fun formatText(text: String): String {
         return text.htmlEscape()
+    }
+
+    override public fun formatText(text: RichString): String {
+        return text.toString().htmlEscape()
     }
 
     override public fun formatCode(code: String): String {
