@@ -9,6 +9,7 @@ public class DocumentationContentSection(public val label: String, public val te
     }
 }
 
+// TODO: refactor sections to map
 public class DocumentationContent(public val summary: RichString,
                                   public val description: RichString,
                                   public val sections: List<DocumentationContentSection>) {
@@ -54,6 +55,10 @@ fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): Document
 }
 
 fun List<DocumentationContentSection>.extractSummaryAndDescription() : Pair<RichString, RichString> {
+    // TODO: rework to unify
+    // if no $summary and $description is present, parse unnamed section and create specific sections
+    // otherwise, create empty sections for missing
+
     val summary = firstOrNull { it.label == "\$summary" }
     if (summary != null) {
         val description = firstOrNull { it.label == "\$description" }

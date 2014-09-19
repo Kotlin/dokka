@@ -126,7 +126,7 @@ class KotlinLanguageService : LanguageService {
                 else -> throw IllegalArgumentException("Node $node is not a function-like object")
             }
             append(renderTypeParametersForNode(node))
-            val receiver = node.details(Kind.Receiver).firstOrNull() // TODO: replace with singleOrNull when fixed
+            val receiver = node.details(Kind.Receiver).singleOrNull()
             if (receiver != null) {
                 append(renderType(receiver.detail(Kind.Type)))
                 append(".")
@@ -153,7 +153,7 @@ class KotlinLanguageService : LanguageService {
                 else -> throw IllegalArgumentException("Node $node is not a property")
             }
             append(renderTypeParametersForNode(node))
-            val receiver = node.details(Kind.Receiver).firstOrNull() // TODO: replace with singleOrNull when fixed
+            val receiver = node.details(Kind.Receiver).singleOrNull()
             if (receiver != null) {
                 append(renderType(receiver.detail(Kind.Type)))
                 append(".")

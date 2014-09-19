@@ -12,7 +12,7 @@ public open class DocumentationNode(val descriptor: DeclarationDescriptor,
     private val references = LinkedHashSet<DocumentationReference>()
 
     public val owner: DocumentationNode?
-        get() = references(DocumentationReference.Kind.Owner).firstOrNull()?.to // TODO: should be singleOrNull, but bugz!
+        get() = references(DocumentationReference.Kind.Owner).singleOrNull()?.to
     public val details: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Detail).map { it.to }
     public val members: List<DocumentationNode>

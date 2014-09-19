@@ -116,7 +116,7 @@ class JavaLanguageService : LanguageService {
                 else -> throw IllegalArgumentException("Node $node is not a function-like object")
             }
 
-            val receiver = node.details(Kind.Receiver).firstOrNull() // TODO: replace with singleOrNull when fixed
+            val receiver = node.details(Kind.Receiver).singleOrNull()
             append("(")
             if (receiver != null)
                 append((listOf(receiver) + node.details(Kind.Parameter)).map { renderParameter(it) }.join())
@@ -134,7 +134,7 @@ class JavaLanguageService : LanguageService {
                 else -> throw IllegalArgumentException("Node $node is not a property")
             }
             append(renderTypeParametersForNode(node))
-            val receiver = node.details(Kind.Receiver).firstOrNull() // TODO: replace with singleOrNull when fixed
+            val receiver = node.details(Kind.Receiver).singleOrNull()
             if (receiver != null) {
                 append(renderType(receiver.detail(Kind.Type)))
                 append(".")
