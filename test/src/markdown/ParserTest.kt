@@ -14,6 +14,16 @@ public class ParserTest {
         println(markdown.dump())
     }
 
+    Test fun link() {
+        val markdown = MarkdownProcessor().parse("text [links]")
+        println(markdown.dump())
+    }
+
+    Test fun linkWithHref() {
+        val markdown = MarkdownProcessor().parse("text [links](http://destination)")
+        println(markdown.dump())
+    }
+
     Test fun multiline() {
         val markdown = MarkdownProcessor().parse(
 """
@@ -41,6 +51,28 @@ number two
 * list item 1
 * list item 2
 """)
+        println(markdown.dump())
+    }
+
+    Test fun bulletListWithLines() {
+        val markdown = MarkdownProcessor().parse(
+"""
+* list item 1
+  continue 1
+* list item 2
+  continue 2
+ """)
+        println(markdown.dump())
+    }
+
+    Test fun bulletListStrong() {
+        val markdown = MarkdownProcessor().parse(
+"""
+* list *item* 1
+  continue 1
+* list *item* 2
+  continue 2
+ """)
         println(markdown.dump())
     }
 

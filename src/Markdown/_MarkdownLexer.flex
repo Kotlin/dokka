@@ -1,4 +1,4 @@
-package org.jetbrains.markdown.impl;
+package org.jetbrains.markdown.lexer;
 
 import com.intellij.lexer.*;
 import com.intellij.psi.tree.IElementType;
@@ -21,9 +21,9 @@ import static org.jetbrains.markdown.MarkdownElementTypes.*;
 
 Newline="\r"|"\n"|"\r\n"
 Spacechar=[\ \t\f]
-NUMBER=[0-9]+(\.[0-9]*)?
-STRING=[^~\*_`&\[\]()<!#\\ \t\n\r]+
-ANYCHAR=.
+Number=[0-9]+(\.[0-9]*)?
+String=[^~\*_`&\[\]()<!#\\ \t\n\r]+
+AnyChar=.
 Line=!'\r' !'\n' .* {Newline}
 
 %%
@@ -32,9 +32,9 @@ Line=!'\r' !'\n' .* {Newline}
   {Newline}                             { return NEWLINE; }
   "\\357\\273\\277"                 { return BOM; }
 
-  {NUMBER}                          { return NUMBER; }
-  {STRING}                          { return STRING; }
-  {ANYCHAR}                         { return ANYCHAR; }
+  {Number}                          { return NUMBER; }
+  {String}                          { return STRING; }
+  {AnyChar}                         { return ANYCHAR; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
 }

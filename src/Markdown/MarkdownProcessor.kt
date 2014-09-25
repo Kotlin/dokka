@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IFileElementType
 import com.intellij.lang.LighterASTNode
 import com.intellij.util.diff.FlyweightCapableTreeStructure
 import com.intellij.openapi.util.Ref
-import org.jetbrains.dokka.Markdown.MarkdownLexer
+import org.jetbrains.markdown.lexer.MarkdownLexer
 
 public class MarkdownProcessor {
     class object {

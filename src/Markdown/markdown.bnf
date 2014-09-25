@@ -8,30 +8,32 @@
 
   tokenTypeClass = 'org.jetbrains.dokka.Markdown.MarkdownTokenType'
 
+  generatePsi = false
+
   tokens=[
     LINE_WS='regexp:[\ \t\f]'
     EOL='"\r"|"\n"|"\r\n"'
     BOM = '\357\273\277'
-    number='regexp:\d+(\.\d*)?'
+    Number='regexp:\d+(\.\d*)?'
     String='regexp:[^~\*_`&\[\]()<!#\\ \t\n\r]+'
     AnyChar='regexp:.'
   ]
+
 }
 
 Document ::= BOM? ( Block )*
 
-OptionalSpace ::= Spacechar*
-RequiredSpace ::= Spacechar+
-NonindentSpace ::= ("   " | "  " | " ")?
+private OptionalSpace ::= Spacechar*
+private RequiredSpace ::= Spacechar+
+private NonindentSpace ::= ("   " | "  " | " ")?
 
 BlankLine ::= OptionalSpace Newline
 
 Whitespace ::= Spacechar | Newline
-EndLine ::=   LineBreak | TerminalEndline | NormalEndline
-NormalEndline ::=   OptionalSpace Newline !BlankLine
-TerminalEndline ::= OptionalSpace Newline <<eof>>
-LineBreak ::= "  " NormalEndline
-Indent ::=            "\t" | "    "
+EndLine ::= TerminalEndline | NormalEndline
+private NormalEndline ::=   OptionalSpace Newline !BlankLine
+private TerminalEndline ::= OptionalSpace Newline <<eof>>
+private Indent ::=            "\t" | "    "
 
 // ---- BLOCKS ----
 Block ::= BlankLine* (
@@ -42,7 +44,7 @@ Block ::= BlankLine* (
         )
 
 Para ::= NonindentSpace Inlines (BlankLine+ | TerminalEndline)
-Plain ::= Inlines
+private Plain ::= Inlines
 
 HorizontalRule ::= NonindentSpace
                  ( '*' OptionalSpace '*' OptionalSpace '*' (OptionalSpace '*')*
@@ -51,12 +53,12 @@ HorizontalRule ::= NonindentSpace
                  OptionalSpace Newline BlankLine+
 
 Bullet ::= !HorizontalRule NonindentSpace ('+' | '*' | '-') Spacechar+
-Enumerator ::= NonindentSpace number '.' Spacechar+
+Enumerator ::= NonindentSpace Number '.' Spacechar+
 
 BulletList ::= &Bullet List
 OrderedList ::= &Enumerator List
 
-List ::=  (ListItem BlankLine*)+
+private List ::=  (ListItem BlankLine*)+
 ListItem      ::= (Bullet | Enumerator) ListBlock ( ListContinuationBlock )*
 
 ListBlock ::= !BlankLine Plain ( ListBlockLine )*
@@ -66,18 +68,19 @@ ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 
 
 // ---- INLINES ----
-Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
-Inline  ::= String | EndLine | RequiredSpace | Strong | Emph | Link
+private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
+Inline  ::= String | Number | EndLine | Spacechar+ | Strong | Emph | Link
 
 Emph ::= EmphStar | EmphUnderscore
-EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'
-EmphUnderscore ::= '_' !Whitespace (!'_' Inline)+ '_'
+private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'
+private EmphUnderscore ::= '_' !Whitespace (!'_' Inline)+ '_'
 
 Strong ::= StrongStar | StrongUnderscore
 StrongStar ::= '**' !Whitespace (!'**' Inline)+ '**'
 StrongUnderscore ::= '__' !Whitespace (!'__' Inline)+ '__'
 
-Link ::=  ReferenceLink
-ReferenceLink ::= ReferenceLinkSingle
-ReferenceLinkSingle ::= '[' Target ']'
+Link ::=  HrefLink | ReferenceLink
+private ReferenceLink ::= '[' Target ']'
+private HrefLink ::= '[' Target ']' '(' Href ')'
 Target ::= String
+Href ::= String
