@@ -5,7 +5,8 @@ public class RichString {
     public val slices: List<RichStringSlice> get() = sliceList
 
     public fun addSlice(slice: RichStringSlice) {
-        sliceList.add(slice)
+        if (slice.text.length() > 0)
+            sliceList.add(slice)
     }
 
     public fun addSlice(text: String, style: RichStringStyle) {

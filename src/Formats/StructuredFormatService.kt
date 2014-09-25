@@ -63,8 +63,10 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 }
                 appendLine(to, formatText(node.doc.description))
                 appendLine(to)
-                for (section in node.doc.sections) {
-                    appendLine(to, formatBold(formatText(section.label)))
+                for ((label, section) in node.doc.sections) {
+                    if (label.startsWith("$"))
+                        continue
+                    appendLine(to, formatBold(formatText(label)))
                     appendLine(to, formatText(section.text))
                     appendLine(to)
                 }

@@ -9,40 +9,38 @@ public class DocumentationContentSection(public val label: String, public val te
     }
 }
 
-// TODO: refactor sections to map
-public class DocumentationContent(public val summary: RichString,
-                                  public val description: RichString,
-                                  public val sections: List<DocumentationContentSection>) {
+public class DocumentationContent(public val sections: Map<String, DocumentationContentSection>) {
+
+    public val summary: RichString get() = sections["\$summary"]?.text ?: RichString.empty
+    public val description: RichString get() = sections["\$description"]?.text ?: RichString.empty
 
     override fun equals(other: Any?): Boolean {
         if (other !is DocumentationContent)
             return false
-        if (summary != other.summary)
-            return false
         if (sections.size != other.sections.size)
             return false
-        for (index in sections.indices)
-            if (sections[index] != other.sections[index])
+        for (keys in sections.keySet())
+            if (sections[keys] != other.sections[keys])
                 return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return summary.hashCode() + sections.map { it.hashCode() }.sum()
+        return sections.map { it.hashCode() }.sum()
     }
 
     override fun toString(): String {
         if (sections.isEmpty())
-            return summary.toString()
-        return "$summary | " + sections.joinToString()
+            return "<empty>"
+        return sections.values().joinToString()
     }
 
     val isEmpty: Boolean
         get() = description.isEmpty() && sections.none()
 
     class object {
-        val Empty = DocumentationContent(RichString.empty, RichString.empty, listOf())
+        val Empty = DocumentationContent(mapOf())
     }
 }
 
@@ -50,31 +48,33 @@ public class DocumentationContent(public val summary: RichString,
 fun BindingContext.getDocumentation(descriptor: DeclarationDescriptor): DocumentationContent {
     val docText = getDocumentationElements(descriptor).map { it.extractText() }.join("\n")
     val sections = docText.parseSections()
-    val (summary, description) = sections.extractSummaryAndDescription()
-    return DocumentationContent(summary, description, sections.drop(1))
+    sections.createSummaryAndDescription()
+    return DocumentationContent(sections)
 }
 
-fun List<DocumentationContentSection>.extractSummaryAndDescription() : Pair<RichString, RichString> {
-    // TODO: rework to unify
-    // if no $summary and $description is present, parse unnamed section and create specific sections
-    // otherwise, create empty sections for missing
+fun MutableMap<String, DocumentationContentSection>.createSummaryAndDescription() {
 
-    val summary = firstOrNull { it.label == "\$summary" }
-    if (summary != null) {
-        val description = firstOrNull { it.label == "\$description" }
-        return Pair(summary.text, description?.text ?: RichString.empty)
+    val summary = get("\$summary")
+    val description = get("\$description")
+    if (summary != null && description == null) {
+        return
     }
 
-    val description = firstOrNull { it.label == "\$description" }
-    if (description != null) {
-        return Pair(RichString.empty, description.text)
+    if (summary == null && description != null) {
+        return
     }
 
-    val default = firstOrNull { it.label == "" }?.text
-    if (default == null)
-        return Pair(RichString.empty, RichString.empty)
+    val unnamed = get("")
+    if (unnamed == null) {
+        return
+    }
 
-    return default.splitBy("\n")
+    val split = unnamed.text.splitBy("\n")
+    remove("")
+    if (!split.first.isEmpty())
+        put("\$summary", DocumentationContentSection("\$summary", split.first))
+    if (!split.second.isEmpty())
+        put("\$description", DocumentationContentSection("\$description", split.second))
 }
 
 fun String.parseLabel(index: Int): Pair<String, Int> {
@@ -104,8 +104,8 @@ fun String.parseLabel(index: Int): Pair<String, Int> {
     return "" to -1
 }
 
-fun String.parseSections(): List<DocumentationContentSection> {
-    val sections = arrayListOf<DocumentationContentSection>()
+fun String.parseSections(): MutableMap<String, DocumentationContentSection> {
+    val sections = hashMapOf<String, DocumentationContentSection>()
     var currentLabel = ""
     var currentSectionStart = 0
     var currentIndex = 0
@@ -117,7 +117,7 @@ fun String.parseSections(): List<DocumentationContentSection> {
                 // section starts, add previous section
                 val currentContent = substring(currentSectionStart, currentIndex).trim()
                 val section = DocumentationContentSection(currentLabel, currentContent.toRichString())
-                sections.add(section)
+                sections.put(section.label, section)
 
                 currentLabel = label
                 currentIndex = index + 1
@@ -131,12 +131,20 @@ fun String.parseSections(): List<DocumentationContentSection> {
 
     val currentContent = substring(currentSectionStart, currentIndex).trim()
     val section = DocumentationContentSection(currentLabel, currentContent.toRichString())
-    sections.add(section)
+    sections.put(section.label, section)
     return sections
 }
 
 fun String.toRichString() : RichString {
     val content = RichString()
+    for(index in indices) {
+        val ch = get(index)
+        when {
+            ch == '\\' -> continue
+            ch == '*' && index < length-1 && !get(index + 1).isWhitespace() -> ch
+        }
+    }
+
     content.addSlice(this, NormalStyle)
     return content
 }

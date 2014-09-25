@@ -12,8 +12,8 @@ public class TextFormatService(val signatureGenerator: LanguageService) : Format
                 for (n in 0..node.doc.summary.length())
                     append("=")
 
-                for (section in node.doc.sections) {
-                    appendln(section.label)
+                for ((label,section) in node.doc.sections) {
+                    appendln(label)
                     appendln(section.text)
                 }
             }

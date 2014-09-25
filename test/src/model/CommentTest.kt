@@ -77,8 +77,8 @@ public class CommentTest {
             with(model.members.single().members.single()) {
                 assertEquals(NormalStyle, NormalStyle)
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals(RichString.empty, text)
                 }
@@ -90,8 +90,8 @@ public class CommentTest {
         verifyModel("test/data/comments/section1.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("section one".toRichString(), text)
                 }
@@ -103,12 +103,12 @@ public class CommentTest {
         verifyModel("test/data/comments/section2.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(2, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(3, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("section one".toRichString(), text)
                 }
-                with (doc.sections.elementAt(1)) {
+                with (doc.sections["two"]!!) {
                     assertEquals("two", label)
                     assertEquals("section two".toRichString(), text)
                 }
@@ -120,8 +120,8 @@ public class CommentTest {
         verifyModel("test/data/comments/sectionOnOneLine.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("same line".toRichString(), text)
                 }
@@ -133,8 +133,8 @@ public class CommentTest {
         verifyModel("test/data/comments/emptySectionOnOneLine.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals(RichString.empty, text)
                 }
@@ -146,8 +146,8 @@ public class CommentTest {
         verifyModel("test/data/comments/multilineSection.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("""line one
 line two""".toRichString(), text)
@@ -160,8 +160,8 @@ line two""".toRichString(), text)
         verifyModel("test/data/comments/sectionWithBracedLabel.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary".toRichString(), doc.summary)
-                assertEquals(1, doc.sections.count())
-                with (doc.sections.elementAt(0)) {
+                assertEquals(2, doc.sections.count())
+                with (doc.sections["this.label.is.really.long"]!!) {
                     assertEquals("this.label.is.really.long", label)
                     assertEquals("section one".toRichString(), text)
                 }

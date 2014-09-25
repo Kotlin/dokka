@@ -35,7 +35,7 @@ class DocumentationNodeBuilder(val context: BindingContext) : DeclarationDescrip
         val classifierDescriptor = typeConstructor.getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
             is Named -> classifierDescriptor.getName().asString()
-            else -> "<BAD>"
+            else -> "<anonymous>"
         }
         val node = DocumentationNode(descriptor, name, DocumentationContent.Empty, DocumentationNode.Kind.Type)
         reference(data, node, DocumentationReference.Kind.Detail)
