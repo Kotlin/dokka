@@ -15,7 +15,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
             val file = location.file.appendExtension(formatService.extension)
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
-                OutputStreamWriter(it, defaultCharset).use {
+                OutputStreamWriter(it, Charsets.UTF_8).use {
                     it.write(formatService.format(items))
                 }
             }
@@ -28,7 +28,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
             val file = location.file.appendExtension("yml") // TODO: hardcoded
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
-                OutputStreamWriter(it, defaultCharset).use {
+                OutputStreamWriter(it, Charsets.UTF_8).use {
                     it.write(formatService.formatOutline(items))
                 }
             }
