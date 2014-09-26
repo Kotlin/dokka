@@ -1,84 +1,83 @@
 package org.jetbrains.dokka.tests
 
 import org.junit.Test
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka
+import org.jetbrains.dokka.MarkdownProcessor
+import org.jetbrains.dokka.dump
+import org.jetbrains.dokka.toHtml
 
 public class ParserTest {
+    fun runTestFor(text : String) {
+        val markdownTree = MarkdownProcessor().parse(text)
+        println(markdownTree.dump())
+        println(markdownTree.toHtml())
+    }
+
     Test fun text() {
-        val markdown = MarkdownProcessor().parse("text")
-        println(markdown.dump())
+        runTestFor("text")
     }
 
     Test fun textWithSpaces() {
-        val markdown = MarkdownProcessor().parse("text and string")
-        println(markdown.dump())
+        runTestFor("text and string")
     }
 
     Test fun link() {
-        val markdown = MarkdownProcessor().parse("text [links]")
-        println(markdown.dump())
+        runTestFor("text [links]")
     }
 
     Test fun linkWithHref() {
-        val markdown = MarkdownProcessor().parse("text [links](http://destination)")
-        println(markdown.dump())
+        runTestFor("text [links](http://destination)")
     }
 
     Test fun multiline() {
-        val markdown = MarkdownProcessor().parse(
-"""
+        runTestFor(
+                """
 text
 and
 string
 """)
-        println(markdown.dump())
     }
 
     Test fun para() {
-        val markdown = MarkdownProcessor().parse(
-"""paragraph number
+        runTestFor(
+                """
+paragraph number
 one
 
 paragraph
 number two
 """)
-        println(markdown.dump())
     }
 
     Test fun bulletList() {
-        val markdown = MarkdownProcessor().parse(
-"""
-* list item 1
+        runTestFor(
+                """* list item 1
 * list item 2
 """)
-        println(markdown.dump())
     }
 
     Test fun bulletListWithLines() {
-        val markdown = MarkdownProcessor().parse(
-"""
+        runTestFor(
+                """
 * list item 1
   continue 1
 * list item 2
   continue 2
  """)
-        println(markdown.dump())
     }
 
     Test fun bulletListStrong() {
-        val markdown = MarkdownProcessor().parse(
-"""
+        runTestFor(
+                """
 * list *item* 1
   continue 1
 * list *item* 2
   continue 2
  """)
-        println(markdown.dump())
     }
 
     Test fun emph() {
-        val markdown = MarkdownProcessor().parse("*text*")
-        println(markdown.dump())
+        runTestFor("*text*")
     }
 }
 

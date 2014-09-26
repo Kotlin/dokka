@@ -32,19 +32,24 @@ BlankLine ::= OptionalSpace Newline
 Whitespace ::= Spacechar | Newline
 EndLine ::= TerminalEndline | NormalEndline
 private NormalEndline ::=   OptionalSpace Newline !BlankLine
-private TerminalEndline ::= OptionalSpace Newline <<eof>>
+private TerminalEndline ::= (OptionalSpace Newline <<eof>>) | (OptionalSpace <<eof>>)
 private Indent ::=            "\t" | "    "
+NonblankIndentedLine ::= !BlankLine IndentedLine
+IndentedLine ::= Indent PlainText
 
 // ---- BLOCKS ----
-Block ::= BlankLine* (
-        Para
-        | Plain
+private Block ::= BlankLine* (
+          Para
+        | Verbatim
         | OrderedList
         | BulletList
+        | Inlines
         )
 
-Para ::= NonindentSpace Inlines (BlankLine+ | TerminalEndline)
-private Plain ::= Inlines
+Para ::= NonindentSpace Inlines (BlankLine | TerminalEndline)
+
+Verbatim ::= VerbatimItem+
+VerbatimItem ::= BlankLine* NonblankIndentedLine
 
 HorizontalRule ::= NonindentSpace
                  ( '*' OptionalSpace '*' OptionalSpace '*' (OptionalSpace '*')*
@@ -61,15 +66,16 @@ OrderedList ::= &Enumerator List
 private List ::=  (ListItem BlankLine*)+
 ListItem      ::= (Bullet | Enumerator) ListBlock ( ListContinuationBlock )*
 
-ListBlock ::= !BlankLine Plain ( ListBlockLine )*
-ListBlockLine ::= !BlankLine !(Indent? (Bullet | Enumerator)) !HorizontalRule Indent? Plain
+ListBlock ::= !BlankLine Inlines ( ListBlockLine )*
+ListBlockLine ::= !BlankLine !(Indent? (Bullet | Enumerator)) !HorizontalRule Indent? Inlines
 
 ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 
 
 // ---- INLINES ----
 private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
-Inline  ::= String | Number | EndLine | Spacechar+ | Strong | Emph | Link
+private Inline  ::= Strong | Emph | Link | PlainText
+PlainText ::= (String | Number | Spacechar)+
 
 Emph ::= EmphStar | EmphUnderscore
 private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'

@@ -25,9 +25,6 @@ public class MarkdownParser implements PsiParser {
     if (root_ == BLANK_LINE) {
       result_ = BlankLine(builder_, 0);
     }
-    else if (root_ == BLOCK) {
-      result_ = Block(builder_, 0);
-    }
     else if (root_ == BULLET) {
       result_ = Bullet(builder_, 0);
     }
@@ -49,8 +46,8 @@ public class MarkdownParser implements PsiParser {
     else if (root_ == HREF) {
       result_ = Href(builder_, 0);
     }
-    else if (root_ == INLINE) {
-      result_ = Inline(builder_, 0);
+    else if (root_ == INDENTED_LINE) {
+      result_ = IndentedLine(builder_, 0);
     }
     else if (root_ == LINK) {
       result_ = Link(builder_, 0);
@@ -67,11 +64,17 @@ public class MarkdownParser implements PsiParser {
     else if (root_ == LIST_ITEM) {
       result_ = ListItem(builder_, 0);
     }
+    else if (root_ == NONBLANK_INDENTED_LINE) {
+      result_ = NonblankIndentedLine(builder_, 0);
+    }
     else if (root_ == ORDERED_LIST) {
       result_ = OrderedList(builder_, 0);
     }
     else if (root_ == PARA) {
       result_ = Para(builder_, 0);
+    }
+    else if (root_ == PLAIN_TEXT) {
+      result_ = PlainText(builder_, 0);
     }
     else if (root_ == STRONG) {
       result_ = Strong(builder_, 0);
@@ -84,6 +87,12 @@ public class MarkdownParser implements PsiParser {
     }
     else if (root_ == TARGET) {
       result_ = Target(builder_, 0);
+    }
+    else if (root_ == VERBATIM) {
+      result_ = Verbatim(builder_, 0);
+    }
+    else if (root_ == VERBATIM_ITEM) {
+      result_ = VerbatimItem(builder_, 0);
     }
     else if (root_ == WHITESPACE) {
       result_ = Whitespace(builder_, 0);
@@ -113,18 +122,19 @@ public class MarkdownParser implements PsiParser {
 
   /* ********************************************************** */
   // BlankLine* (
-  //         Para
-  //         | Plain
+  //           Para
+  //         | Verbatim
   //         | OrderedList
   //         | BulletList
+  //         | Inlines
   //         )
-  public static boolean Block(PsiBuilder builder_, int level_) {
+  static boolean Block(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Block")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<block>");
+    Marker marker_ = enter_section_(builder_);
     result_ = Block_0(builder_, level_ + 1);
     result_ = result_ && Block_1(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, BLOCK, result_, false, null);
+    exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
@@ -141,17 +151,19 @@ public class MarkdownParser implements PsiParser {
   }
 
   // Para
-  //         | Plain
+  //         | Verbatim
   //         | OrderedList
   //         | BulletList
+  //         | Inlines
   private static boolean Block_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Block_1")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = Para(builder_, level_ + 1);
-    if (!result_) result_ = Plain(builder_, level_ + 1);
+    if (!result_) result_ = Verbatim(builder_, level_ + 1);
     if (!result_) result_ = OrderedList(builder_, level_ + 1);
     if (!result_) result_ = BulletList(builder_, level_ + 1);
+    if (!result_) result_ = Inlines(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
@@ -409,7 +421,6 @@ public class MarkdownParser implements PsiParser {
   // TerminalEndline | NormalEndline
   public static boolean EndLine(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "EndLine")) return false;
-    if (!nextTokenIs(builder_, "<end line>", NEWLINE, SPACECHAR)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<end line>");
     result_ = TerminalEndline(builder_, level_ + 1);
@@ -652,34 +663,27 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // String | Number | EndLine | Spacechar+ | Strong | Emph | Link
-  public static boolean Inline(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "Inline")) return false;
+  // Indent PlainText
+  public static boolean IndentedLine(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "IndentedLine")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<inline>");
-    result_ = consumeToken(builder_, STRING);
-    if (!result_) result_ = consumeToken(builder_, NUMBER);
-    if (!result_) result_ = EndLine(builder_, level_ + 1);
-    if (!result_) result_ = Inline_3(builder_, level_ + 1);
-    if (!result_) result_ = Strong(builder_, level_ + 1);
-    if (!result_) result_ = Emph(builder_, level_ + 1);
-    if (!result_) result_ = Link(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, INLINE, result_, false, null);
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<indented line>");
+    result_ = Indent(builder_, level_ + 1);
+    result_ = result_ && PlainText(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, INDENTED_LINE, result_, false, null);
     return result_;
   }
 
-  // Spacechar+
-  private static boolean Inline_3(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "Inline_3")) return false;
+  /* ********************************************************** */
+  // Strong | Emph | Link | PlainText
+  static boolean Inline(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "Inline")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, SPACECHAR);
-    int pos_ = current_position_(builder_);
-    while (result_) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
-      if (!empty_element_parsed_guard_(builder_, "Inline_3", pos_)) break;
-      pos_ = current_position_(builder_);
-    }
+    result_ = Strong(builder_, level_ + 1);
+    if (!result_) result_ = Emph(builder_, level_ + 1);
+    if (!result_) result_ = Link(builder_, level_ + 1);
+    if (!result_) result_ = PlainText(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
@@ -825,13 +829,13 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // !BlankLine Plain ( ListBlockLine )*
+  // !BlankLine Inlines ( ListBlockLine )*
   public static boolean ListBlock(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "ListBlock")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<list block>");
     result_ = ListBlock_0(builder_, level_ + 1);
-    result_ = result_ && Plain(builder_, level_ + 1);
+    result_ = result_ && Inlines(builder_, level_ + 1);
     result_ = result_ && ListBlock_2(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, LIST_BLOCK, result_, false, null);
     return result_;
@@ -870,7 +874,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // !BlankLine !(Indent? (Bullet | Enumerator)) !HorizontalRule Indent? Plain
+  // !BlankLine !(Indent? (Bullet | Enumerator)) !HorizontalRule Indent? Inlines
   public static boolean ListBlockLine(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "ListBlockLine")) return false;
     boolean result_;
@@ -879,7 +883,7 @@ public class MarkdownParser implements PsiParser {
     result_ = result_ && ListBlockLine_1(builder_, level_ + 1);
     result_ = result_ && ListBlockLine_2(builder_, level_ + 1);
     result_ = result_ && ListBlockLine_3(builder_, level_ + 1);
-    result_ = result_ && Plain(builder_, level_ + 1);
+    result_ = result_ && Inlines(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, LIST_BLOCK_LINE, result_, false, null);
     return result_;
   }
@@ -1048,6 +1052,28 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
+  // !BlankLine IndentedLine
+  public static boolean NonblankIndentedLine(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "NonblankIndentedLine")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<nonblank indented line>");
+    result_ = NonblankIndentedLine_0(builder_, level_ + 1);
+    result_ = result_ && IndentedLine(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, NONBLANK_INDENTED_LINE, result_, false, null);
+    return result_;
+  }
+
+  // !BlankLine
+  private static boolean NonblankIndentedLine_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "NonblankIndentedLine_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_, null);
+    result_ = !BlankLine(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
   // ("   " | "  " | " ")?
   static boolean NonindentSpace(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "NonindentSpace")) return false;
@@ -1127,7 +1153,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // NonindentSpace Inlines (BlankLine+ | TerminalEndline)
+  // NonindentSpace Inlines (BlankLine | TerminalEndline)
   public static boolean Para(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Para")) return false;
     boolean result_;
@@ -1139,37 +1165,44 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // BlankLine+ | TerminalEndline
+  // BlankLine | TerminalEndline
   private static boolean Para_2(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Para_2")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = Para_2_0(builder_, level_ + 1);
+    result_ = BlankLine(builder_, level_ + 1);
     if (!result_) result_ = TerminalEndline(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // BlankLine+
-  private static boolean Para_2_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "Para_2_0")) return false;
+  /* ********************************************************** */
+  // (String | Number | Spacechar)+
+  public static boolean PlainText(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "PlainText")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = BlankLine(builder_, level_ + 1);
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<plain text>");
+    result_ = PlainText_0(builder_, level_ + 1);
     int pos_ = current_position_(builder_);
     while (result_) {
-      if (!BlankLine(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "Para_2_0", pos_)) break;
+      if (!PlainText_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "PlainText", pos_)) break;
       pos_ = current_position_(builder_);
     }
-    exit_section_(builder_, marker_, null, result_);
+    exit_section_(builder_, level_, marker_, PLAIN_TEXT, result_, false, null);
     return result_;
   }
 
-  /* ********************************************************** */
-  // Inlines
-  static boolean Plain(PsiBuilder builder_, int level_) {
-    return Inlines(builder_, level_ + 1);
+  // String | Number | Spacechar
+  private static boolean PlainText_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "PlainText_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, STRING);
+    if (!result_) result_ = consumeToken(builder_, NUMBER);
+    if (!result_) result_ = consumeToken(builder_, SPACECHAR);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
   }
 
   /* ********************************************************** */
@@ -1350,10 +1383,20 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // OptionalSpace Newline <<eof>>
+  // (OptionalSpace Newline <<eof>>) | (OptionalSpace <<eof>>)
   static boolean TerminalEndline(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "TerminalEndline")) return false;
-    if (!nextTokenIs(builder_, "", NEWLINE, SPACECHAR)) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = TerminalEndline_0(builder_, level_ + 1);
+    if (!result_) result_ = TerminalEndline_1(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // OptionalSpace Newline <<eof>>
+  private static boolean TerminalEndline_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "TerminalEndline_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = OptionalSpace(builder_, level_ + 1);
@@ -1361,6 +1404,58 @@ public class MarkdownParser implements PsiParser {
     result_ = result_ && eof(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
+  }
+
+  // OptionalSpace <<eof>>
+  private static boolean TerminalEndline_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "TerminalEndline_1")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = OptionalSpace(builder_, level_ + 1);
+    result_ = result_ && eof(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // VerbatimItem+
+  public static boolean Verbatim(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "Verbatim")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<verbatim>");
+    result_ = VerbatimItem(builder_, level_ + 1);
+    int pos_ = current_position_(builder_);
+    while (result_) {
+      if (!VerbatimItem(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "Verbatim", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    exit_section_(builder_, level_, marker_, VERBATIM, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // BlankLine* NonblankIndentedLine
+  public static boolean VerbatimItem(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "VerbatimItem")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<verbatim item>");
+    result_ = VerbatimItem_0(builder_, level_ + 1);
+    result_ = result_ && NonblankIndentedLine(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, VERBATIM_ITEM, result_, false, null);
+    return result_;
+  }
+
+  // BlankLine*
+  private static boolean VerbatimItem_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "VerbatimItem_0")) return false;
+    int pos_ = current_position_(builder_);
+    while (true) {
+      if (!BlankLine(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "VerbatimItem_0", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    return true;
   }
 
   /* ********************************************************** */

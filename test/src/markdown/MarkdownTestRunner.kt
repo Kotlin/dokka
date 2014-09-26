@@ -84,7 +84,10 @@ public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>
     private fun createTests(parent: MarkdownTestSection, lines: List<String>): Int {
         val testMark = lines.takeWhile { it.trim() != "." }
         val testHtml = lines.drop(testMark.size).drop(1).takeWhile { it.trim() != "." }
-        parent.children.add(MarkdownTestCase(spec, testMark.join("\n", postfix = "\n"), testHtml.join("\n", postfix = "\n")))
+        val markdown = testMark.join("\n", postfix = "\n", prefix = "\n")
+        val html = testHtml.join("\n", postfix = "\n")
+        val markdownTestCase = MarkdownTestCase(spec, markdown, html)
+        parent.children.add(markdownTestCase)
         return testMark.size + testHtml.size + 3
     }
 
