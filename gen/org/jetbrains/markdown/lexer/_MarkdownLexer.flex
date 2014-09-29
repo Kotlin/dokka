@@ -19,24 +19,26 @@ import static org.jetbrains.markdown.MarkdownElementTypes.*;
 %type IElementType
 %unicode
 
-Newline="\r"|"\n"|"\r\n"
-Spacechar=[\ \t\f]
-Number=[0-9]+(\.[0-9]*)?
-String=[^~:{}$\*_`&\[\]()<!#\\ \t\n\r]+
-AnyChar=.
-Line=!'\r' !'\n' .* {Newline}
+LineTerminator = \r|\n|\r\n
+Word = {Letter}+
+Number = [:digit:]+
+Space     = [ \t\f]
+Letter = [^~:{}$\*_`&\[\]()<!#\\ \t\n\r]
+Special = [~:{}$\*_`&\[\]()<!#\\ \t\n\r]
+EOL = {Space}* {LineTerminator}
+EOP = {Space}* {LineTerminator} {Space}* {LineTerminator}
 
 %%
 <YYINITIAL> {
-  {Spacechar}                         { return SPACECHAR; }
-  {Newline}                             { return NEWLINE; }
+  {Space}                           { return SPACE; }
+  {EOP}                             { return EOP; }
+  {EOL}                             { return EOL; }
   "\\357\\273\\277"                 { return BOM; }
 
-
   {Number}                          { return NUMBER; }
-  {String}                          { return STRING; }
 
-  {AnyChar}                         { return ANYCHAR; }
+  {Special}                         { return SPECIAL; }
+  {Word}                          { return WORD; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
 }

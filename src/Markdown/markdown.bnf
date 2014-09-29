@@ -11,12 +11,12 @@
   generatePsi = false
 
   tokens=[
-    LINE_WS='regexp:[\ \t\f]'
-    EOL='"\r"|"\n"|"\r\n"'
-    BOM = '\357\273\277'
-    Number='regexp:\d+(\.\d*)?'
-    String='regexp:[^~\*_`&\[\]()<!#\\ \t\n\r]+'
-    AnyChar='regexp:.'
+    BOM
+    EOL
+    EOP
+    Number
+    SPECIAL
+    Word
   ]
 
 }
@@ -26,18 +26,19 @@ Document ::= BOM? Whitespace* AnonymousSection? (Whitespace* NamedSection)*
 AnonymousSection ::= SectionBody
 NamedSection ::= SectionHeader SectionBody
 private SectionHeader ::= '$' SectionName OptionalSpace ':' OptionalSpace
-SectionName ::= SectionNameStart | '{' OptionalSpace SectionNameStart (Spacechar+ String)* OptionalSpace '}'
-private SectionNameStart ::= '$'? String
+SectionName ::= SectionNameStart | '{' OptionalSpace SectionNameStart (Space+ Word)* OptionalSpace '}'
+private SectionNameStart ::= '$'? Word
 SectionBody::= Block*
 
-BlankLine ::= OptionalSpace Newline
+Unused ::= Special
+BlankLine ::= OptionalSpace EOL
 
-Whitespace ::= Spacechar | Newline
-private OptionalSpace ::= Spacechar*
+Whitespace ::= Space | EOL | EOP
+private OptionalSpace ::= Space*
 private NonindentSpace ::= ("   " | "  " | " ")?
 
 EndLine ::= TerminalEndline | NormalEndline
-private NormalEndline ::=   Newline !BlankLine
+private NormalEndline ::=   EOL !BlankLine
 private TerminalEndline ::= OptionalSpace <<eof>>
 private Indent ::=            "\t" | "    "
 
@@ -49,16 +50,16 @@ Block ::= BlankLine* (
             | Para
             )
 
-Para ::= Inlines (BlankLine | TerminalEndline)?
+Para ::= Inlines (EOP | Space* <<eof>>)?
 
 HorizontalRule ::= NonindentSpace
                  ( '*' OptionalSpace '*' OptionalSpace '*' (OptionalSpace '*')*
                  | '-' OptionalSpace '-' OptionalSpace '-' (OptionalSpace '-')*
                  | '_' OptionalSpace '_' OptionalSpace '_' (OptionalSpace '_')*)
-                 OptionalSpace Newline BlankLine+
+                 OptionalSpace EOL BlankLine+
 
-Bullet ::= !HorizontalRule NonindentSpace ('+' | '*' | '-') Spacechar+
-Enumerator ::= NonindentSpace Number '.' Spacechar+
+Bullet ::= !HorizontalRule NonindentSpace ('+' | '*' | '-') Space+
+Enumerator ::= NonindentSpace Number '.' Space+
 
 BulletList ::= &Bullet List
 OrderedList ::= &Enumerator List
@@ -75,7 +76,7 @@ ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 // ---- INLINES ----
 private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
 Inline  ::= Strong | Emph | Link | PlainText
-PlainText ::= (String | Number | Spacechar+)+
+PlainText ::= (Word | Number | Space+)+
 
 Emph ::= EmphStar | EmphUnderscore
 private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'
@@ -88,5 +89,5 @@ StrongUnderscore ::= '__' !Whitespace (!'__' Inline)+ '__'
 Link ::=  HrefLink | ReferenceLink
 private ReferenceLink ::= '[' Target ']'
 private HrefLink ::= '[' Target ']' '(' Href ')'
-Target ::= String
-Href ::= String
+Target ::= Word+
+Href ::= Word+

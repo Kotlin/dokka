@@ -32,14 +32,14 @@ public interface MarkdownElementTypes {
   IElementType STRONG_STAR = new IElementType("STRONG_STAR", null);
   IElementType STRONG_UNDERSCORE = new IElementType("STRONG_UNDERSCORE", null);
   IElementType TARGET = new IElementType("TARGET", null);
+  IElementType UNUSED = new IElementType("UNUSED", null);
   IElementType WHITESPACE = new IElementType("WHITESPACE", null);
 
-  IElementType ANYCHAR = new MarkdownTokenType("AnyChar");
-  IElementType BOM = new MarkdownTokenType("\\357\\273\\277");
-  IElementType EOL = new MarkdownTokenType("\"\\r\"|\"\\n\"|\"\\r\\n\"");
-  IElementType LINE_WS = new MarkdownTokenType("LINE_WS");
-  IElementType NEWLINE = new MarkdownTokenType("Newline");
+  IElementType BOM = new MarkdownTokenType("BOM");
+  IElementType EOL = new MarkdownTokenType("EOL");
+  IElementType EOP = new MarkdownTokenType("EOP");
   IElementType NUMBER = new MarkdownTokenType("Number");
-  IElementType SPACECHAR = new MarkdownTokenType("Spacechar");
-  IElementType STRING = new MarkdownTokenType("String");
+  IElementType SPACE = new MarkdownTokenType("Space");
+  IElementType SPECIAL = new MarkdownTokenType("Special");
+  IElementType WORD = new MarkdownTokenType("Word");
 }

@@ -100,6 +100,9 @@ public class MarkdownParser implements PsiParser {
     else if (root_ == TARGET) {
       result_ = Target(builder_, 0);
     }
+    else if (root_ == UNUSED) {
+      result_ = Unused(builder_, 0);
+    }
     else if (root_ == WHITESPACE) {
       result_ = Whitespace(builder_, 0);
     }
@@ -125,14 +128,14 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // OptionalSpace Newline
+  // OptionalSpace EOL
   public static boolean BlankLine(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "BlankLine")) return false;
-    if (!nextTokenIs(builder_, "<blank line>", NEWLINE, SPACECHAR)) return false;
+    if (!nextTokenIs(builder_, "<blank line>", EOL, SPACE)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<blank line>");
     result_ = OptionalSpace(builder_, level_ + 1);
-    result_ = result_ && consumeToken(builder_, NEWLINE);
+    result_ = result_ && consumeToken(builder_, EOL);
     exit_section_(builder_, level_, marker_, BLANK_LINE, result_, false, null);
     return result_;
   }
@@ -183,7 +186,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // !HorizontalRule NonindentSpace ('+' | '*' | '-') Spacechar+
+  // !HorizontalRule NonindentSpace ('+' | '*' | '-') Space+
   public static boolean Bullet(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Bullet")) return false;
     boolean result_;
@@ -218,15 +221,15 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // Spacechar+
+  // Space+
   private static boolean Bullet_3(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Bullet_3")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, SPACECHAR);
+    result_ = consumeToken(builder_, SPACE);
     int pos_ = current_position_(builder_);
     while (result_) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
+      if (!consumeToken(builder_, SPACE)) break;
       if (!empty_element_parsed_guard_(builder_, "Bullet_3", pos_)) break;
       pos_ = current_position_(builder_);
     }
@@ -478,7 +481,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // NonindentSpace Number '.' Spacechar+
+  // NonindentSpace Number '.' Space+
   public static boolean Enumerator(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Enumerator")) return false;
     boolean result_;
@@ -491,15 +494,15 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // Spacechar+
+  // Space+
   private static boolean Enumerator_3(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Enumerator_3")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, SPACECHAR);
+    result_ = consumeToken(builder_, SPACE);
     int pos_ = current_position_(builder_);
     while (result_) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
+      if (!consumeToken(builder_, SPACE)) break;
       if (!empty_element_parsed_guard_(builder_, "Enumerator_3", pos_)) break;
       pos_ = current_position_(builder_);
     }
@@ -512,7 +515,7 @@ public class MarkdownParser implements PsiParser {
   //                  ( '*' OptionalSpace '*' OptionalSpace '*' (OptionalSpace '*')*
   //                  | '-' OptionalSpace '-' OptionalSpace '-' (OptionalSpace '-')*
   //                  | '_' OptionalSpace '_' OptionalSpace '_' (OptionalSpace '_')*)
-  //                  OptionalSpace Newline BlankLine+
+  //                  OptionalSpace EOL BlankLine+
   public static boolean HorizontalRule(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "HorizontalRule")) return false;
     boolean result_;
@@ -520,7 +523,7 @@ public class MarkdownParser implements PsiParser {
     result_ = NonindentSpace(builder_, level_ + 1);
     result_ = result_ && HorizontalRule_1(builder_, level_ + 1);
     result_ = result_ && OptionalSpace(builder_, level_ + 1);
-    result_ = result_ && consumeToken(builder_, NEWLINE);
+    result_ = result_ && consumeToken(builder_, EOL);
     result_ = result_ && HorizontalRule_4(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, HORIZONTAL_RULE, result_, false, null);
     return result_;
@@ -671,13 +674,19 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // String
+  // Word+
   public static boolean Href(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Href")) return false;
-    if (!nextTokenIs(builder_, STRING)) return false;
+    if (!nextTokenIs(builder_, WORD)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, STRING);
+    result_ = consumeToken(builder_, WORD);
+    int pos_ = current_position_(builder_);
+    while (result_) {
+      if (!consumeToken(builder_, WORD)) break;
+      if (!empty_element_parsed_guard_(builder_, "Href", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
     exit_section_(builder_, marker_, HREF, result_);
     return result_;
   }
@@ -1120,13 +1129,13 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // Newline !BlankLine
+  // EOL !BlankLine
   static boolean NormalEndline(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "NormalEndline")) return false;
-    if (!nextTokenIs(builder_, NEWLINE)) return false;
+    if (!nextTokenIs(builder_, EOL)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, NEWLINE);
+    result_ = consumeToken(builder_, EOL);
     result_ = result_ && NormalEndline_1(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
@@ -1143,12 +1152,12 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // Spacechar*
+  // Space*
   static boolean OptionalSpace(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "OptionalSpace")) return false;
     int pos_ = current_position_(builder_);
     while (true) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
+      if (!consumeToken(builder_, SPACE)) break;
       if (!empty_element_parsed_guard_(builder_, "OptionalSpace", pos_)) break;
       pos_ = current_position_(builder_);
     }
@@ -1178,7 +1187,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // Inlines (BlankLine | TerminalEndline)?
+  // Inlines (EOP | Space* <<eof>>)?
   public static boolean Para(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Para")) return false;
     boolean result_;
@@ -1189,26 +1198,49 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // (BlankLine | TerminalEndline)?
+  // (EOP | Space* <<eof>>)?
   private static boolean Para_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Para_1")) return false;
     Para_1_0(builder_, level_ + 1);
     return true;
   }
 
-  // BlankLine | TerminalEndline
+  // EOP | Space* <<eof>>
   private static boolean Para_1_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Para_1_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = BlankLine(builder_, level_ + 1);
-    if (!result_) result_ = TerminalEndline(builder_, level_ + 1);
+    result_ = consumeToken(builder_, EOP);
+    if (!result_) result_ = Para_1_0_1(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
+  // Space* <<eof>>
+  private static boolean Para_1_0_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "Para_1_0_1")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = Para_1_0_1_0(builder_, level_ + 1);
+    result_ = result_ && eof(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // Space*
+  private static boolean Para_1_0_1_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "Para_1_0_1_0")) return false;
+    int pos_ = current_position_(builder_);
+    while (true) {
+      if (!consumeToken(builder_, SPACE)) break;
+      if (!empty_element_parsed_guard_(builder_, "Para_1_0_1_0", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    return true;
+  }
+
   /* ********************************************************** */
-  // (String | Number | Spacechar+)+
+  // (Word | Number | Space+)+
   public static boolean PlainText(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "PlainText")) return false;
     boolean result_;
@@ -1224,27 +1256,27 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // String | Number | Spacechar+
+  // Word | Number | Space+
   private static boolean PlainText_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "PlainText_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, STRING);
+    result_ = consumeToken(builder_, WORD);
     if (!result_) result_ = consumeToken(builder_, NUMBER);
     if (!result_) result_ = PlainText_0_2(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // Spacechar+
+  // Space+
   private static boolean PlainText_0_2(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "PlainText_0_2")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, SPACECHAR);
+    result_ = consumeToken(builder_, SPACE);
     int pos_ = current_position_(builder_);
     while (result_) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
+      if (!consumeToken(builder_, SPACE)) break;
       if (!empty_element_parsed_guard_(builder_, "PlainText_0_2", pos_)) break;
       pos_ = current_position_(builder_);
     }
@@ -1296,7 +1328,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // SectionNameStart | '{' OptionalSpace SectionNameStart (Spacechar+ String)* OptionalSpace '}'
+  // SectionNameStart | '{' OptionalSpace SectionNameStart (Space+ Word)* OptionalSpace '}'
   public static boolean SectionName(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionName")) return false;
     boolean result_;
@@ -1307,7 +1339,7 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // '{' OptionalSpace SectionNameStart (Spacechar+ String)* OptionalSpace '}'
+  // '{' OptionalSpace SectionNameStart (Space+ Word)* OptionalSpace '}'
   private static boolean SectionName_1(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionName_1")) return false;
     boolean result_;
@@ -1322,7 +1354,7 @@ public class MarkdownParser implements PsiParser {
     return result_;
   }
 
-  // (Spacechar+ String)*
+  // (Space+ Word)*
   private static boolean SectionName_1_3(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionName_1_3")) return false;
     int pos_ = current_position_(builder_);
@@ -1334,26 +1366,26 @@ public class MarkdownParser implements PsiParser {
     return true;
   }
 
-  // Spacechar+ String
+  // Space+ Word
   private static boolean SectionName_1_3_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionName_1_3_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = SectionName_1_3_0_0(builder_, level_ + 1);
-    result_ = result_ && consumeToken(builder_, STRING);
+    result_ = result_ && consumeToken(builder_, WORD);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 
-  // Spacechar+
+  // Space+
   private static boolean SectionName_1_3_0_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionName_1_3_0_0")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, SPACECHAR);
+    result_ = consumeToken(builder_, SPACE);
     int pos_ = current_position_(builder_);
     while (result_) {
-      if (!consumeToken(builder_, SPACECHAR)) break;
+      if (!consumeToken(builder_, SPACE)) break;
       if (!empty_element_parsed_guard_(builder_, "SectionName_1_3_0_0", pos_)) break;
       pos_ = current_position_(builder_);
     }
@@ -1362,13 +1394,13 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // '$'? String
+  // '$'? Word
   static boolean SectionNameStart(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "SectionNameStart")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = SectionNameStart_0(builder_, level_ + 1);
-    result_ = result_ && consumeToken(builder_, STRING);
+    result_ = result_ && consumeToken(builder_, WORD);
     exit_section_(builder_, marker_, null, result_);
     return result_;
   }
@@ -1515,13 +1547,19 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // String
+  // Word+
   public static boolean Target(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Target")) return false;
-    if (!nextTokenIs(builder_, STRING)) return false;
+    if (!nextTokenIs(builder_, WORD)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, STRING);
+    result_ = consumeToken(builder_, WORD);
+    int pos_ = current_position_(builder_);
+    while (result_) {
+      if (!consumeToken(builder_, WORD)) break;
+      if (!empty_element_parsed_guard_(builder_, "Target", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
     exit_section_(builder_, marker_, TARGET, result_);
     return result_;
   }
@@ -1539,14 +1577,26 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // Spacechar | Newline
+  // Special
+  public static boolean Unused(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "Unused")) return false;
+    if (!nextTokenIs(builder_, SPECIAL)) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, SPECIAL);
+    exit_section_(builder_, marker_, UNUSED, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // Space | EOL | EOP
   public static boolean Whitespace(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "Whitespace")) return false;
-    if (!nextTokenIs(builder_, "<whitespace>", NEWLINE, SPACECHAR)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<whitespace>");
-    result_ = consumeToken(builder_, SPACECHAR);
-    if (!result_) result_ = consumeToken(builder_, NEWLINE);
+    result_ = consumeToken(builder_, SPACE);
+    if (!result_) result_ = consumeToken(builder_, EOL);
+    if (!result_) result_ = consumeToken(builder_, EOP);
     exit_section_(builder_, level_, marker_, WHITESPACE, result_, false, null);
     return result_;
   }
