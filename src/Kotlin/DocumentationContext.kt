@@ -23,7 +23,7 @@ public class DocumentationContext(val bindingContext: BindingContext) {
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val docText = bindingContext.getDocumentationElements(descriptor).map { it.extractText() }.join("\n")
         val tree = MarkdownProcessor.parse(docText)
-        println(tree.toTestString())
+        //println(tree.toTestString())
         val content = tree.toContent()
         return content
     }

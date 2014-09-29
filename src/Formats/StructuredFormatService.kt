@@ -32,14 +32,12 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         return nodes.map { formatText(it) }.join("")
     }
 
-    open fun formatText(text: ContentNode): String {
+    open fun formatText(node: ContentNode): String {
         return StringBuilder {
-            for (node in text.children) {
-                when (node) {
-                    is ContentText -> append(node.text)
-                    is ContentEmphasis -> append(formatBold(formatText(node.children)))
-                    else -> append(formatText(node.children))
-                }
+            when (node) {
+                is ContentText -> append(node.text)
+                is ContentEmphasis -> append(formatBold(formatText(node.children)))
+                else -> append(formatText(node.children))
             }
         }.toString()
     }
