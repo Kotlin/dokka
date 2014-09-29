@@ -10,7 +10,7 @@ public class ClassTest {
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertEquals("<init>", members.single().name)
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class ClassTest {
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertEquals("<init>", members.single().name)
                 assertTrue(links.none())
@@ -36,7 +36,7 @@ public class ClassTest {
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Object, kind)
                 assertEquals("Obj", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -49,21 +49,21 @@ public class ClassTest {
             with (model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(1, members.count())
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertEquals(2, details.count())
                     assertEquals("public", details.elementAt(0).name)
                     with(details.elementAt(1)) {
                         assertEquals("name", name)
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
-                        assertEquals(DocumentationContent.Empty, doc)
+                        assertEquals(Content.Empty, doc)
                         assertEquals("String", details.single().name)
                         assertTrue(links.none())
                         assertTrue(members.none())
@@ -80,14 +80,14 @@ public class ClassTest {
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertEquals(1, details.count())
                     assertEquals("public", details.elementAt(0).name)
@@ -96,7 +96,7 @@ public class ClassTest {
                 }
                 with(members.elementAt(1)) {
                     assertEquals("fn", name)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
@@ -111,14 +111,14 @@ public class ClassTest {
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
                 with(members.elementAt(0)) {
                     assertEquals("<init>", name)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(DocumentationNode.Kind.Constructor, kind)
                     assertEquals(1, details.count())
                     assertEquals("public", details.elementAt(0).name)
@@ -127,7 +127,7 @@ public class ClassTest {
                 }
                 with(members.elementAt(1)) {
                     assertEquals("name", name)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(DocumentationNode.Kind.Property, kind)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(members.none())

@@ -6,7 +6,9 @@ import org.jetbrains.dokka.Markdown.MarkdownTokenType;
 
 public interface MarkdownElementTypes {
 
+  IElementType ANONYMOUS_SECTION = new IElementType("ANONYMOUS_SECTION", null);
   IElementType BLANK_LINE = new IElementType("BLANK_LINE", null);
+  IElementType BLOCK = new IElementType("BLOCK", null);
   IElementType BULLET = new IElementType("BULLET", null);
   IElementType BULLET_LIST = new IElementType("BULLET_LIST", null);
   IElementType EMPH = new IElementType("EMPH", null);
@@ -14,22 +16,22 @@ public interface MarkdownElementTypes {
   IElementType ENUMERATOR = new IElementType("ENUMERATOR", null);
   IElementType HORIZONTAL_RULE = new IElementType("HORIZONTAL_RULE", null);
   IElementType HREF = new IElementType("HREF", null);
-  IElementType INDENTED_LINE = new IElementType("INDENTED_LINE", null);
+  IElementType INLINE = new IElementType("INLINE", null);
   IElementType LINK = new IElementType("LINK", null);
   IElementType LIST_BLOCK = new IElementType("LIST_BLOCK", null);
   IElementType LIST_BLOCK_LINE = new IElementType("LIST_BLOCK_LINE", null);
   IElementType LIST_CONTINUATION_BLOCK = new IElementType("LIST_CONTINUATION_BLOCK", null);
   IElementType LIST_ITEM = new IElementType("LIST_ITEM", null);
-  IElementType NONBLANK_INDENTED_LINE = new IElementType("NONBLANK_INDENTED_LINE", null);
+  IElementType NAMED_SECTION = new IElementType("NAMED_SECTION", null);
   IElementType ORDERED_LIST = new IElementType("ORDERED_LIST", null);
   IElementType PARA = new IElementType("PARA", null);
   IElementType PLAIN_TEXT = new IElementType("PLAIN_TEXT", null);
+  IElementType SECTION_BODY = new IElementType("SECTION_BODY", null);
+  IElementType SECTION_NAME = new IElementType("SECTION_NAME", null);
   IElementType STRONG = new IElementType("STRONG", null);
   IElementType STRONG_STAR = new IElementType("STRONG_STAR", null);
   IElementType STRONG_UNDERSCORE = new IElementType("STRONG_UNDERSCORE", null);
   IElementType TARGET = new IElementType("TARGET", null);
-  IElementType VERBATIM = new IElementType("VERBATIM", null);
-  IElementType VERBATIM_ITEM = new IElementType("VERBATIM_ITEM", null);
   IElementType WHITESPACE = new IElementType("WHITESPACE", null);
 
   IElementType ANYCHAR = new MarkdownTokenType("AnyChar");

@@ -10,7 +10,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -36,13 +36,13 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(links.none())
                 with(members.single()) {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -56,7 +56,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertEquals(3, details.count())
                 with(details.elementAt(0)) {
                     assertEquals(DocumentationNode.Kind.Type, kind)
@@ -76,7 +76,7 @@ public class PropertyTest {
                 with(members.elementAt(0)) {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -84,7 +84,7 @@ public class PropertyTest {
                 with(members.elementAt(1)) {
                     assertEquals("<set-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(DocumentationContent.Empty, doc)
+                    assertEquals(Content.Empty, doc)
                     assertEquals(4, details.count())
                     assertEquals("Unit", details.elementAt(0).name)
                     assertEquals("final", details.elementAt(1).name)
@@ -92,7 +92,7 @@ public class PropertyTest {
                     with(details.elementAt(3)) {
                         assertEquals("value", name)
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
-                        assertEquals(DocumentationContent.Empty, doc)
+                        assertEquals(Content.Empty, doc)
                         assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                         assertTrue(links.none())
                         assertTrue(members.none())

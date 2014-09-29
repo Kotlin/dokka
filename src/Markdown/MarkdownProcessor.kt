@@ -9,12 +9,11 @@ import com.intellij.lang.LighterASTNode
 import com.intellij.util.diff.FlyweightCapableTreeStructure
 import com.intellij.openapi.util.Ref
 import org.jetbrains.markdown.lexer.MarkdownLexer
+import com.intellij.psi.tree.IElementType
 
-public class MarkdownProcessor {
-    class object {
-        val EXPR_LANGUAGE = object : Language("MARKDOWN") {}
-        val DOCUMENT = IFileElementType("DOCUMENT", EXPR_LANGUAGE);
-    }
+public object MarkdownProcessor {
+    val EXPR_LANGUAGE = object : Language("MARKDOWN") {}
+    val DOCUMENT = IFileElementType("DOCUMENT", EXPR_LANGUAGE);
 
     public fun parse(markdown: String): MarkdownTree {
         val parser = MarkdownParser()
@@ -28,6 +27,28 @@ public class MarkdownProcessor {
 public class MarkdownTree(private val text: String, private val structure: FlyweightCapableTreeStructure<LighterASTNode>) {
     fun visit(action: (LighterASTNode, String, visitChildren: () -> Unit) -> Unit) {
         visit(structure.getRoot(), action)
+    }
+
+    fun findChildByType(node: LighterASTNode, findType: IElementType) : LighterASTNode? {
+        val ref = Ref.create<Array<LighterASTNode>?>()
+        val count = structure.getChildren(node, ref)
+        val children = ref.get()
+        if (children != null) {
+            for (index in 0..count - 1) {
+                val child = children[index]
+                val nodeType = child.getTokenType()
+                if (nodeType == findType)
+                    return child
+                val nestedChild = findChildByType(child, findType)
+                if (nestedChild != null)
+                    return nestedChild
+            }
+        }
+        return null
+    }
+
+    fun getNodeText(node: LighterASTNode) : String {
+        return text.substring(node.getStartOffset(), node.getEndOffset())
     }
 
     fun visit(node: LighterASTNode, action: (LighterASTNode, String, visitChildren: () -> Unit) -> Unit) {
@@ -46,7 +67,7 @@ public class MarkdownTree(private val text: String, private val structure: Flywe
 
 }
 
-public fun MarkdownTree.dump(): String {
+public fun MarkdownTree.toTestString(): String {
     val sb = StringBuilder()
     var level = 0
     visit {(node, text, visitChildren) ->
@@ -64,29 +85,25 @@ public fun MarkdownTree.dump(): String {
 
 public fun MarkdownTree.toHtml(): String {
     val sb = StringBuilder()
-    var level = 0
     visit {(node, text, processChildren) ->
         val nodeType = node.getTokenType()
         val nodeText = text.substring(node.getStartOffset(), node.getEndOffset())
-        val indent = " ".repeat(level * 2)
         when (nodeType) {
             MarkdownElementTypes.BULLET_LIST -> {
-                sb.appendln("$indent<ul>")
-                level++
+                sb.appendln("<ul>")
                 processChildren()
-                level--
-                sb.appendln("$indent</ul>")
+                sb.appendln("</ul>")
             }
             MarkdownElementTypes.HORIZONTAL_RULE -> {
-                sb.appendln("$indent<hr/>")
+                sb.appendln("<hr/>")
             }
             MarkdownElementTypes.ORDERED_LIST -> {
-                sb.appendln("$indent<ol>")
+                sb.appendln("<ol>")
                 processChildren()
-                sb.appendln("$indent</ol>")
+                sb.appendln("</ol>")
             }
             MarkdownElementTypes.LIST_BLOCK -> {
-                sb.append("$indent<li>")
+                sb.append("<li>")
                 processChildren()
                 sb.appendln("</li>")
             }
@@ -110,14 +127,9 @@ public fun MarkdownTree.toHtml(): String {
                 sb.appendln()
             }
             MarkdownElementTypes.PARA -> {
-                sb.appendln("$indent<p>")
+                sb.append("<p>")
                 processChildren()
-                sb.appendln("$indent</p>")
-            }
-            MarkdownElementTypes.VERBATIM -> {
-                sb.appendln("$indent<pre><code>")
-                processChildren()
-                sb.appendln("$indent</code></pre>")
+                sb.appendln("</p>")
             }
             else -> {
                 processChildren()
@@ -129,8 +141,8 @@ public fun MarkdownTree.toHtml(): String {
 
 
 fun markdownToHtml(markdown: String): String {
-    val markdownTree = MarkdownProcessor().parse(markdown)
-    val ast = markdownTree.dump()
+    val markdownTree = MarkdownProcessor.parse(markdown)
+    val ast = markdownTree.toTestString()
     return markdownTree.toHtml()
 }
 

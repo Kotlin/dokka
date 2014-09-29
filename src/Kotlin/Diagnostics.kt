@@ -4,11 +4,11 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.BindingContext
 
-fun BindingContext.checkResolveChildren(node: DocumentationNode) {
+fun DocumentationContext.checkResolveChildren(node: DocumentationNode) {
     if (node.kind != DocumentationNode.Kind.Module && node.kind != DocumentationNode.Kind.Package) {
         // TODO: we don't resolve packages and modules for now
 
-        val parentScope = getResolutionScope(node.descriptor)
+        val parentScope = getResolutionScope(node)
         for (item in node.details + node.members) {
             val symbolName = item.name
             val symbol: DeclarationDescriptor? = when (item.kind) {

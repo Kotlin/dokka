@@ -3,13 +3,13 @@ package org.jetbrains.dokka.tests
 import org.junit.Test
 import org.jetbrains.dokka
 import org.jetbrains.dokka.MarkdownProcessor
-import org.jetbrains.dokka.dump
+import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.toHtml
 
 public class ParserTest {
     fun runTestFor(text : String) {
-        val markdownTree = MarkdownProcessor().parse(text)
-        println(markdownTree.dump())
+        val markdownTree = MarkdownProcessor.parse(text)
+        println(markdownTree.toTestString())
         println(markdownTree.toHtml())
     }
 
@@ -79,5 +79,37 @@ number two
     Test fun emph() {
         runTestFor("*text*")
     }
+
+    Test fun emphAndEmptySection() {
+        runTestFor("*text* \$sec:")
+    }
+
+    Test fun emphAndSection() {
+        runTestFor("*text* \$sec: some text")
+    }
+
+    Test fun emphAndBracedSection() {
+        runTestFor("Text *bold* text \${sec}: some text")
+    }
+
+    Test fun section() {
+        runTestFor(
+                "Plain text \$one: Summary \${two}: Description with *emphasis* \${An example of a section}: Example")
+    }
+
+    Test fun anonymousSection() {
+        runTestFor("Summary\n\nDescription\n")
+    }
+
+    Test fun specialSection() {
+        runTestFor(
+                "Plain text \$\$summary: Summary \${\$description}: Description \${\$An example of a section}: Example")
+    }
+
+    Test fun emptySection() {
+        runTestFor(
+                "Plain text \$summary:")
+    }
+
 }
 

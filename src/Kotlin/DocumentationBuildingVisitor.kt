@@ -5,6 +5,7 @@ import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.*
 
 public data class DocumentationOptions(val includeNonPublic : Boolean = false)
+
 class DocumentationBuildingVisitor(val context: BindingContext,
                                    val options: DocumentationOptions,
                                    private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)

@@ -22,7 +22,7 @@ import static org.jetbrains.markdown.MarkdownElementTypes.*;
 Newline="\r"|"\n"|"\r\n"
 Spacechar=[\ \t\f]
 Number=[0-9]+(\.[0-9]*)?
-String=[^~\*_`&\[\]()<!#\\ \t\n\r]+
+String=[^~:{}$\*_`&\[\]()<!#\\ \t\n\r]+
 AnyChar=.
 Line=!'\r' !'\n' .* {Newline}
 
@@ -32,8 +32,10 @@ Line=!'\r' !'\n' .* {Newline}
   {Newline}                             { return NEWLINE; }
   "\\357\\273\\277"                 { return BOM; }
 
+
   {Number}                          { return NUMBER; }
   {String}                          { return STRING; }
+
   {AnyChar}                         { return ANYCHAR; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }

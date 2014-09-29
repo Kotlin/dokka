@@ -1,12 +1,9 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.descriptors.*
 import java.util.LinkedHashSet
 
-
-public open class DocumentationNode(val descriptor: DeclarationDescriptor,
-                                    val name: String,
-                                    val doc: DocumentationContent,
+public open class DocumentationNode(val name: String,
+                                    val doc: Content,
                                     val kind: DocumentationNode.Kind) {
 
     private val references = LinkedHashSet<DocumentationReference>()

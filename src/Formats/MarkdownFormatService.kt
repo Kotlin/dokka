@@ -16,10 +16,6 @@ public open class MarkdownFormatService(locationService: LocationService,
         return text.htmlEscape()
     }
 
-    override public fun formatText(text: RichString): String {
-        return text.toString().htmlEscape()
-    }
-
     override public fun formatCode(code: String): String {
         return "`$code`"
     }

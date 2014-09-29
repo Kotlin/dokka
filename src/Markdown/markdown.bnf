@@ -21,35 +21,35 @@
 
 }
 
-Document ::= BOM? ( Block )*
+Document ::= BOM? Whitespace* AnonymousSection? (Whitespace* NamedSection)*
 
-private OptionalSpace ::= Spacechar*
-private RequiredSpace ::= Spacechar+
-private NonindentSpace ::= ("   " | "  " | " ")?
+AnonymousSection ::= SectionBody
+NamedSection ::= SectionHeader SectionBody
+private SectionHeader ::= '$' SectionName OptionalSpace ':' OptionalSpace
+SectionName ::= SectionNameStart | '{' OptionalSpace SectionNameStart (Spacechar+ String)* OptionalSpace '}'
+private SectionNameStart ::= '$'? String
+SectionBody::= Block*
 
 BlankLine ::= OptionalSpace Newline
 
 Whitespace ::= Spacechar | Newline
+private OptionalSpace ::= Spacechar*
+private NonindentSpace ::= ("   " | "  " | " ")?
+
 EndLine ::= TerminalEndline | NormalEndline
-private NormalEndline ::=   OptionalSpace Newline !BlankLine
-private TerminalEndline ::= (OptionalSpace Newline <<eof>>) | (OptionalSpace <<eof>>)
+private NormalEndline ::=   Newline !BlankLine
+private TerminalEndline ::= OptionalSpace <<eof>>
 private Indent ::=            "\t" | "    "
-NonblankIndentedLine ::= !BlankLine IndentedLine
-IndentedLine ::= Indent PlainText
 
 // ---- BLOCKS ----
-private Block ::= BlankLine* (
-          Para
-        | Verbatim
-        | OrderedList
-        | BulletList
-        | Inlines
-        )
+Block ::= BlankLine* (
+              OrderedList
+            | BulletList
+            | HorizontalRule
+            | Para
+            )
 
-Para ::= NonindentSpace Inlines (BlankLine | TerminalEndline)
-
-Verbatim ::= VerbatimItem+
-VerbatimItem ::= BlankLine* NonblankIndentedLine
+Para ::= Inlines (BlankLine | TerminalEndline)?
 
 HorizontalRule ::= NonindentSpace
                  ( '*' OptionalSpace '*' OptionalSpace '*' (OptionalSpace '*')*
@@ -74,8 +74,8 @@ ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 
 // ---- INLINES ----
 private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
-private Inline  ::= Strong | Emph | Link | PlainText
-PlainText ::= (String | Number | Spacechar)+
+Inline  ::= Strong | Emph | Link | PlainText
+PlainText ::= (String | Number | Spacechar+)+
 
 Emph ::= EmphStar | EmphUnderscore
 private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'

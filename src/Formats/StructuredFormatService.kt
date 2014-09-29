@@ -28,19 +28,17 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 
-    open fun formatText(text: RichString): String {
+    open fun formatText(nodes: Iterable<ContentNode>): String {
+        return nodes.map { formatText(it) }.join("")
+    }
+
+    open fun formatText(text: ContentNode): String {
         return StringBuilder {
-            for (slice in text.slices) {
-                val style = slice.style
-                when (style) {
-                    is NormalStyle -> append(slice.text)
-                    is BoldStyle -> append(formatBold(slice.text))
-                    is CodeStyle -> append(formatCode(slice.text))
-                    is LinkStyle -> {
-                        val node = resolutionService.resolve(style.link)
-                        val location = locationService.location(node)
-                        append(formatLink(slice.text, location))
-                    }
+            for (node in text.children) {
+                when (node) {
+                    is ContentText -> append(node.text)
+                    is ContentEmphasis -> append(formatBold(formatText(node.children)))
+                    else -> append(formatText(node.children))
                 }
             }
         }.toString()
@@ -67,7 +65,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     if (label.startsWith("$"))
                         continue
                     appendLine(to, formatBold(formatText(label)))
-                    appendLine(to, formatText(section.text))
+                    appendLine(to, formatText(section))
                     appendLine(to)
                 }
             }

@@ -10,7 +10,7 @@ public class PackageTest {
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
                 assertEquals("", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class PackageTest {
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
                 assertEquals("simple", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -36,7 +36,7 @@ public class PackageTest {
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
                 assertEquals("dot.name", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -50,14 +50,14 @@ public class PackageTest {
             with(model.members.single { it.name == "simple" }) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
                 assertEquals("simple", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
             with(model.members.single { it.name == "dot.name" }) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -71,7 +71,7 @@ public class PackageTest {
             with(model.members.elementAt(0)) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
                 assertEquals("simple", name)
-                assertEquals(DocumentationContent.Empty, doc)
+                assertEquals(Content.Empty, doc)
                 assertTrue(details.none())
                 assertTrue(members.none())
                 assertTrue(links.none())
