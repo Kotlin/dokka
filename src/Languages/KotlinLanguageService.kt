@@ -65,35 +65,35 @@ class KotlinLanguageService : LanguageService {
             // lambda
             symbol("(")
             renderList(typeArguments.take(typeArguments.size - 1)) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
             symbol(")")
             text(" ")
             symbol("->")
             text(" ")
-            renderLinked(typeArguments.last()) { renderType(it) }
+            renderType(typeArguments.last())
             return
         }
         if (node.name == "ExtensionFunction${typeArguments.count() - 2}") {
             // extension lambda
-            renderLinked(typeArguments.first()) { renderType(it) }
+            renderType(typeArguments.first())
             symbol(".")
             symbol("(")
             renderList(typeArguments.drop(1).take(typeArguments.size - 2)) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
             symbol(")")
             text(" ")
             symbol("->")
             text(" ")
-            renderLinked(typeArguments.last()) { renderType(it) }
+            renderType(typeArguments.last())
             return
         }
-        identifier(node.name)
+        renderLinked(node) { identifier(it.name) }
         if (typeArguments.any()) {
             symbol("<")
             renderList(typeArguments) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
             symbol(">")
         }
@@ -113,7 +113,7 @@ class KotlinLanguageService : LanguageService {
         if (constraints.any()) {
             symbol(" : ")
             renderList(constraints) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
         }
     }
@@ -122,7 +122,7 @@ class KotlinLanguageService : LanguageService {
         identifier(node.name)
         symbol(": ")
         val parameterType = node.detail(Kind.Type)
-        renderLinked(parameterType) { renderType(it) }
+        renderType(parameterType)
     }
 
     fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
@@ -130,7 +130,7 @@ class KotlinLanguageService : LanguageService {
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
             symbol("> ")
         }
@@ -141,7 +141,7 @@ class KotlinLanguageService : LanguageService {
         if (supertypes.any()) {
             symbol(" : ")
             renderList(supertypes) {
-                renderLinked(it) { renderType(it) }
+                renderType(it)
             }
         }
     }
@@ -182,7 +182,7 @@ class KotlinLanguageService : LanguageService {
         renderTypeParametersForNode(node)
         val receiver = node.details(Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderLinked(receiver.detail(Kind.Type)) { renderType(it) }
+            renderType(receiver.detail(Kind.Type))
             symbol(".")
         }
 
@@ -196,7 +196,7 @@ class KotlinLanguageService : LanguageService {
         symbol(")")
         if (node.kind != Kind.Constructor) {
             symbol(": ")
-            renderLinked(node.detail(Kind.Type)) { renderType(it) }
+            renderType(node.detail(Kind.Type))
         }
     }
 
@@ -209,12 +209,12 @@ class KotlinLanguageService : LanguageService {
         renderTypeParametersForNode(node)
         val receiver = node.details(Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderLinked(receiver.detail(Kind.Type)) { renderType(it) }
+            renderType(receiver.detail(Kind.Type))
             symbol(".")
         }
 
         identifier(node.name)
         symbol(": ")
-        renderLinked(node.detail(Kind.Type)) { renderType(it) }
+        renderType(node.detail(Kind.Type))
     }
 }

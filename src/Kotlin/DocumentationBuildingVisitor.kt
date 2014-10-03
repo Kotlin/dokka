@@ -90,7 +90,8 @@ class DocumentationBuildingVisitor(val context: BindingContext,
     }
 
     public override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
-        val node = visitFunctionDescriptor(descriptor!!, data)
+        val node = createDocumentation(descriptor!!, data!!)
+        visitChildren(descriptor.getValueParameters(), node)
         return node
     }
 

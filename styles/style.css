@@ -49,6 +49,11 @@ a {
     text-decoration:none;
 }
 
+a:hover {
+    color: inherit;
+    text-decoration:underline;
+}
+
 a small {
     font-size:11px;
     color:#555;
