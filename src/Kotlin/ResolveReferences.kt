@@ -46,38 +46,36 @@ public fun DocumentationContext.resolveReferences(node: DocumentationNode) {
     }
 }
 
-fun DocumentationContext.resolveContentLinks(node : DocumentationNode, content: ContentNode) {
+fun DocumentationContext.resolveContentLinks(node: DocumentationNode, content: ContentNode) {
     val snapshot = content.children.toList()
     for (child in snapshot) {
-        if (child is ContentNameLink) {
+        val referenceText = when (child) {
+            is ContentExternalLink -> child.href
+            is ContentNameLink -> child.name
+            else -> null
+        }
+
+        if (referenceText != null && Name.isValidIdentifier(referenceText)) {
             val scope = getResolutionScope(node)
-            val symbolName = child.name
+            val symbolName = Name.guess(referenceText)
             val symbol =
-                    scope.getLocalVariable(Name.guess(symbolName)) ?:
-                    scope.getProperties(Name.guess(symbolName)).firstOrNull() ?:
-                    scope.getFunctions(Name.guess(symbolName)).firstOrNull() ?:
-                    scope.getClassifier(Name.guess(symbolName))
+                    scope.getLocalVariable(symbolName) ?:
+                            scope.getProperties(symbolName).firstOrNull() ?:
+                            scope.getFunctions(symbolName).firstOrNull() ?:
+                            scope.getClassifier(symbolName)
 
             if (symbol != null) {
                 val targetNode = descriptorToNode[symbol]
                 if (targetNode != null) {
-                    // we have a doc node for the symbol
                     val index = content.children.indexOf(child)
                     content.children.remove(index)
                     val contentLink = ContentNodeLink(targetNode)
-                    contentLink.children.add(ContentIdentifier(symbolName))
-                    //contentLink.children.addAll(child.children)
-                    content.children.add(index, contentLink)
-                } else {
-                    // we don't have a doc node for the symbol, render as identifier
-                    val index = content.children.indexOf(child)
-                    content.children.remove(index)
-                    val contentLink = ContentIdentifier(symbolName)
                     contentLink.children.addAll(child.children)
                     content.children.add(index, contentLink)
                 }
             }
         }
+
         resolveContentLinks(node, child)
     }
 }

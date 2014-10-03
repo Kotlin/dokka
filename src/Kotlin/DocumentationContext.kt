@@ -9,9 +9,9 @@ import org.jetbrains.jet.lang.resolve.name.FqName
 /**
  * Context for documentation generation.
  *
- * Holds information about relations between nodes and descriptors during documentation generation
+ * Holds information about relations between [nodes](DocumentationNode) and [descriptors](DeclarationDescriptor) during documentation generation
  *
- * %bindingContext: symbol resolution context
+ * $bindingContext: symbol resolution context
  */
 public class DocumentationContext(val bindingContext: BindingContext) {
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
