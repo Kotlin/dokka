@@ -59,12 +59,6 @@ public fun main(args: Array<String>) {
     val timeAnalyse = System.currentTimeMillis() - startAnalyse
     println("done in ${timeAnalyse / 1000} secs")
 
-    print("Processing cross references... ")
-    val startProcessing = System.currentTimeMillis()
-    documentation.buildCrossReferences()
-    val timeProcessing = System.currentTimeMillis() - startProcessing
-    println("done in ${timeProcessing / 1000} secs")
-
     val startBuild = System.currentTimeMillis()
     val signatureGenerator = KotlinLanguageService()
     val locationService = FoldersLocationService(arguments.outputDir)

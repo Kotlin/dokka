@@ -21,10 +21,11 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
 
     fun reference(from: DocumentationNode, to: DocumentationNode, kind: DocumentationReference.Kind) {
         from.addReferenceTo(to, kind)
-        if (kind == DocumentationReference.Kind.Link)
-            to.addReferenceTo(from, DocumentationReference.Kind.Link)
-        else
-            to.addReferenceTo(from, DocumentationReference.Kind.Owner)
+        when (kind) {
+            DocumentationReference.Kind.Detail -> to.addReferenceTo(from, DocumentationReference.Kind.Owner)
+            DocumentationReference.Kind.Member -> to.addReferenceTo(from, DocumentationReference.Kind.Owner)
+            DocumentationReference.Kind.Owner -> to.addReferenceTo(from, DocumentationReference.Kind.Member)
+        }
     }
 
     fun addModality(descriptor: MemberDescriptor, data: DocumentationNode) {
@@ -42,15 +43,16 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
     fun addType(descriptor: DeclarationDescriptor, t: JetType?, data: DocumentationNode) {
         if (t == null)
             return
-        val typeConstructor = t.getConstructor()
-        val classifierDescriptor = typeConstructor.getDeclarationDescriptor()
+        val classifierDescriptor = t.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
             is Named -> classifierDescriptor.getName().asString()
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, DocumentationNode.Kind.Type)
-        reference(data, node, DocumentationReference.Kind.Detail)
+        if (classifierDescriptor != null)
+            context.attach(node, classifierDescriptor)
 
+        reference(data, node, DocumentationReference.Kind.Detail)
         for (param in t.getArguments())
             addType(descriptor, param.getType(), node)
     }
@@ -59,7 +61,7 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
         descriptor!!
         val doc = context.parseDocumentation(descriptor)
         val node = DocumentationNode(descriptor.getName().asString(), doc, DocumentationNode.Kind.Unknown)
-        reference(data!!, node, DocumentationReference.Kind.Link)
+        reference(data!!, node, DocumentationReference.Kind.Member)
         context.register(descriptor, node)
         return node
     }

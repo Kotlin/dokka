@@ -14,6 +14,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Detail).map { it.to }
     public val members: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Member).map { it.to }
+    public val extensions: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.Extension).map { it.to }
     public val links: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Link).map { it.to }
 

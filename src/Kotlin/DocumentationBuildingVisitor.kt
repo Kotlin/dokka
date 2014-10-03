@@ -32,7 +32,7 @@ class DocumentationBuildingVisitor(val context: BindingContext,
     private fun processCallable(descriptor: CallableDescriptor, data: DocumentationNode): DocumentationNode {
         val node = createDocumentation(descriptor, data)
         visitChildren(descriptor.getTypeParameters(), node)
-        visitChild(descriptor.getReceiverParameter(), node)
+        visitChild(descriptor.getExtensionReceiverParameter(), node)
         visitChildren(descriptor.getValueParameters(), node)
         return node
     }

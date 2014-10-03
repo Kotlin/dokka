@@ -103,30 +103,36 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
 
         for (node in nodes) {
-            if (node.members.any()) {
-                appendHeader(to, "Members", 3)
+            appendSection("Members", node.members, node, to)
+            appendSection("Extensions", node.extensions, node, to)
+            appendSection("Links", node.links, node, to)
+        }
+    }
 
-                val children = node.members.sortBy { it.name }
-                val membersMap = children.groupBy { link(node, it) }
+    private fun StructuredFormatService.appendSection(caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
+        if (nodes.any()) {
+            appendHeader(to, caption, 3)
 
-                appendTable(to) {
-                    appendTableBody(to) {
-                        for ((location, members) in membersMap) {
-                            appendTableRow(to) {
-                                appendTableCell(to) {
-                                    appendText(to, formatLink(location))
-                                }
-                                appendTableCell(to) {
-                                    val breakdownBySummary = members.groupBy { it.doc.summary }
-                                    for ((summary, items) in breakdownBySummary) {
-                                        val signatures = items.map { formatCode("${languageService.render(it)}") }
-                                        for (signature in signatures) {
-                                            appendText(to, signature)
-                                        }
+            val children = nodes.sortBy { it.name }
+            val membersMap = children.groupBy { link(node, it) }
 
-                                        if (!summary.isEmpty()) {
-                                            appendText(to, formatText(summary))
-                                        }
+            appendTable(to) {
+                appendTableBody(to) {
+                    for ((location, members) in membersMap) {
+                        appendTableRow(to) {
+                            appendTableCell(to) {
+                                appendText(to, formatLink(location))
+                            }
+                            appendTableCell(to) {
+                                val breakdownBySummary = members.groupBy { it.doc.summary }
+                                for ((summary, items) in breakdownBySummary) {
+                                    val signatures = items.map { formatCode("${languageService.render(it)}") }
+                                    for (signature in signatures) {
+                                        appendText(to, signature)
+                                    }
+
+                                    if (!summary.isEmpty()) {
+                                        appendText(to, formatText(summary))
                                     }
                                 }
                             }

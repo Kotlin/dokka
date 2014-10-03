@@ -80,7 +80,7 @@ public fun getFunctionInnerScope(outerScope: JetScope, descriptor: FunctionDescr
     val redeclarationHandler = RedeclarationHandler.DO_NOTHING
 
     val functionScope = WritableScopeImpl(outerScope, descriptor, redeclarationHandler, "Function ${descriptor.getName()} scope")
-    val receiver = descriptor.getReceiverParameter()
+    val receiver = descriptor.getExtensionReceiverParameter()
     if (receiver != null) {
         functionScope.setImplicitReceiver(receiver)
     }
@@ -99,7 +99,7 @@ public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescr
     val redeclarationHandler = RedeclarationHandler.DO_NOTHING
 
     val propertyScope = WritableScopeImpl(outerScope, descriptor, redeclarationHandler, "Property ${descriptor.getName()} scope")
-    val receiver = descriptor.getReceiverParameter()
+    val receiver = descriptor.getExtensionReceiverParameter()
     if (receiver != null) {
         propertyScope.setImplicitReceiver(receiver)
     }

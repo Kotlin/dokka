@@ -6,9 +6,22 @@ import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.name.FqName
 
+/**
+ * Context for documentation generation.
+ *
+ * Holds information about relations between nodes and descriptors during documentation generation
+ *
+ * %bindingContext: symbol resolution context
+ */
 public class DocumentationContext(val bindingContext: BindingContext) {
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
+
+    val relations = hashMapOf<DocumentationNode, DeclarationDescriptor>()
+
+    fun attach(node: DocumentationNode, descriptor: DeclarationDescriptor) {
+        relations.put(node, descriptor)
+    }
 
     fun register(descriptor: DeclarationDescriptor, node: DocumentationNode) {
         descriptorToNode.put(descriptor, node)
@@ -40,6 +53,8 @@ fun BindingContext.createDocumentationModule(name: String,
         val pkg = module.getPackage(packageName)
         pkg!!.accept(DocumentationBuildingVisitor(this, options, visitor), documentationModule)
     }
+
+    context.buildCrossReferences(documentationModule)
 
     // TODO: Uncomment for resolve verification
     // checkResolveChildren(documentationModule)

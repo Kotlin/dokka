@@ -50,10 +50,8 @@
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-js-tests-junit/src/test/kotlin" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-classpath/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-helloworld/src/test/java" />
-      <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-inlineDisabled/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-classpath/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-helloworld/src/test/java" />
-      <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-inlineDisabled/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/simpleProject/src/main/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/additionalJavaSrc/src/main/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/additionalJavaSrc/generated" />
@@ -116,10 +114,8 @@
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-js-tests-junit/src/test/kotlin" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-classpath/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-helloworld/src/test/java" />
-      <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/src/it/test-inlineDisabled/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-classpath/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-helloworld/src/test/java" />
-      <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-maven-plugin-test/target/it/test-inlineDisabled/src/test/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/simpleProject/src/main/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/additionalJavaSrc/src/main/java" />
       <root url="file://$PROJECT_DIR$/../kotlin/libraries/tools/kotlin-gradle-plugin-core/src/test/resources/testProject/additionalJavaSrc/generated" />
