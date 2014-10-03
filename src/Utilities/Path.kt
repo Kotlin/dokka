@@ -8,11 +8,11 @@ fun File.getRelativePath(name: File): File {
     if (parent == null)
         throw IOException("No common directory");
 
-    val basePath = getCanonicalPath();
+    val basePath = getCanonicalPath() + File.separator;
     val targetPath = name.getCanonicalPath();
 
     if (targetPath.startsWith(basePath)) {
-        return File(targetPath.substring(basePath.length() + 1))
+        return File(targetPath.substring(basePath.length()))
     } else {
         return File(".." + File.separator + parent.getRelativePath(name))
     }
