@@ -54,7 +54,7 @@ public fun main(args: Array<String>) {
             context.getPackageFragment(file)!!.fqName
         }.toSet()
 
-        context.createDocumentationModule(arguments.moduleName, module, packageSet)
+        context.createDocumentationModule(arguments.moduleName, module, packageSet, DocumentationOptions(true))
     }
     val timeAnalyse = System.currentTimeMillis() - startAnalyse
     println("done in ${timeAnalyse / 1000} secs")
@@ -63,13 +63,8 @@ public fun main(args: Array<String>) {
     val signatureGenerator = KotlinLanguageService()
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
-    val resolutionService = object : ResolutionService {
-        override fun resolve(text: String): DocumentationNode {
-            return documentation
-        }
-    }
 
-    val formatter = HtmlFormatService(locationService, resolutionService, signatureGenerator, templateService)
+    val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
     print("Building pages... ")
     generator.buildPage(documentation)

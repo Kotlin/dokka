@@ -16,7 +16,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
-                    it.write(formatService.format(items))
+                    it.write(formatService.format(location, items))
                 }
             }
             buildPages(items.flatMap { it.members })
@@ -29,7 +29,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
-                    it.write(formatService.formatOutline(items))
+                    it.write(formatService.formatOutline(location, items))
                 }
             }
         }

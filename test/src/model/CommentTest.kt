@@ -75,7 +75,6 @@ public class CommentTest {
     Test fun emptySection() {
         verifyModel("test/data/comments/emptySection.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(NormalStyle, NormalStyle)
                 assertEquals("Summary", doc.summary.toTestString())
                 assertEquals(2, doc.sections.count())
                 with (doc.sections["one"]!!) {

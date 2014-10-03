@@ -1,10 +1,9 @@
 package org.jetbrains.dokka
 
 public open class HtmlFormatService(locationService: LocationService,
-                                    resolutionService: ResolutionService,
                                     signatureGenerator: LanguageService,
                                     val templateService: HtmlTemplateService = HtmlTemplateService.default())
-: StructuredFormatService(locationService, resolutionService, signatureGenerator) {
+: StructuredFormatService(locationService, signatureGenerator) {
     override val extension: String = "html"
 
     override public fun formatText(text: String): String {
@@ -95,9 +94,9 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
 
-    override fun appendNodes(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         templateService.appendHeader(to)
-        super<StructuredFormatService>.appendNodes(to, nodes)
+        super<StructuredFormatService>.appendNodes(location, to, nodes)
         templateService.appendFooter(to)
     }
 

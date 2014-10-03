@@ -5,7 +5,6 @@ import java.util.LinkedHashMap
 public data class FormatLink(val text: String, val location: Location)
 
 public abstract class StructuredFormatService(val locationService: LocationService,
-                                              val resolutionService: ResolutionService,
                                               val languageService: LanguageService) : FormatService {
 
     abstract public fun appendBlockCode(to: StringBuilder, line: String)
@@ -31,19 +30,24 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 
-    open fun formatText(nodes: Iterable<ContentNode>): String {
-        return nodes.map { formatText(it) }.join("")
+    open fun formatText(location: Location, nodes: Iterable<ContentNode>): String {
+        return nodes.map { formatText(location, it) }.join("")
     }
 
-    open fun formatText(node: ContentNode): String {
+    open fun formatText(location: Location, content: ContentNode): String {
         return StringBuilder {
-            when (node) {
-                is ContentText -> append(node.text)
-                is ContentSymbol -> append(formatSymbol(node.text))
-                is ContentKeyword -> append(formatKeyword(node.text))
-                is ContentIdentifier -> append(formatIdentifier(node.text))
-                is ContentEmphasis -> append(formatBold(formatText(node.children)))
-                else -> append(formatText(node.children))
+            when (content) {
+                is ContentText -> append(content.text)
+                is ContentSymbol -> append(formatSymbol(content.text))
+                is ContentKeyword -> append(formatKeyword(content.text))
+                is ContentIdentifier -> append(formatIdentifier(content.text))
+                is ContentEmphasis -> append(formatBold(formatText(location, content.children)))
+                is ContentNodeLink -> {
+                    val linkTo = locationService.relativeLocation(location, content.node, extension)
+                    val linkText = formatText(location, content.children)
+                    append(formatLink(linkText, linkTo))
+                }
+                else -> append(formatText(location, content.children))
             }
         }.toString()
     }
@@ -54,71 +58,52 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         return FormatLink(to.name, locationService.relativeLocation(from, to, extension))
     }
 
-    open public fun appendDescription(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    fun appendDescription(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val described = nodes.filter { !it.doc.isEmpty }
         if (described.any()) {
             val single = described.size == 1
             appendHeader(to, "Description", 3)
             for (node in described) {
                 if (!single) {
-                    appendBlockCode(to, formatText(languageService.render(node)))
+                    appendBlockCode(to, formatText(location, languageService.render(node)))
                 }
-                appendLine(to, formatText(node.doc.description))
+                appendLine(to, formatText(location,node.doc.description))
                 appendLine(to)
                 for ((label, section) in node.doc.sections) {
                     if (label.startsWith("$"))
                         continue
                     appendLine(to, formatBold(formatText(label)))
-                    appendLine(to, formatText(section))
+                    appendLine(to, formatText(location, section))
                     appendLine(to)
                 }
             }
         }
     }
 
-    open public fun appendSummary(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    fun appendSummary(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownBySummary = nodes.groupByTo(LinkedHashMap()) { node ->
             node.doc.summary
         }
 
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
-                appendBlockCode(to, formatText(languageService.render(it)))
+                appendBlockCode(to, formatText(location, languageService.render(it)))
             }
-            appendLine(to, formatText(summary))
+            appendLine(to, formatText(location, summary))
             appendLine(to)
         }
     }
 
-    open public fun appendLocation(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    fun appendLocation(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownByName = nodes.groupBy { node -> node.name }
         for ((name, items) in breakdownByName) {
             appendHeader(to, formatText(name))
-            appendSummary(to, items)
-            appendDescription(to, items)
+            appendSummary(location, to, items)
+            appendDescription(location, to, items)
         }
     }
 
-    override fun appendNodes(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val breakdownByLocation = nodes.groupBy { node ->
-            formatBreadcrumbs(node.path.map { link(node, it) })
-        }
-
-        for ((breadcrumbs, items) in breakdownByLocation) {
-            appendLine(to, breadcrumbs)
-            appendLine(to)
-            appendLocation(to, items)
-        }
-
-        for (node in nodes) {
-            appendSection("Members", node.members, node, to)
-            appendSection("Extensions", node.extensions, node, to)
-            appendSection("Inheritors", node.inheritors, node, to)
-            appendSection("Links", node.links, node, to)
-        }
-    }
-
-    private fun StructuredFormatService.appendSection(caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
+    private fun StructuredFormatService.appendSection(location : Location, caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
         if (nodes.any()) {
             appendHeader(to, caption, 3)
 
@@ -127,20 +112,20 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
             appendTable(to) {
                 appendTableBody(to) {
-                    for ((location, members) in membersMap) {
+                    for ((memberLocation, members) in membersMap) {
                         appendTableRow(to) {
                             appendTableCell(to) {
-                                appendText(to, formatLink(location))
+                                appendText(to, formatLink(memberLocation))
                             }
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { it.doc.summary }
                                 for ((summary, items) in breakdownBySummary) {
                                     for (signature in items) {
-                                        appendBlockCode(to, formatText(languageService.render(signature)))
+                                        appendBlockCode(to, formatText(location, languageService.render(signature)))
                                     }
 
                                     if (!summary.isEmpty()) {
-                                        appendText(to, formatText(summary))
+                                        appendText(to, formatText(location, summary))
                                     }
                                 }
                             }
@@ -151,10 +136,30 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
     }
 
+    override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+        val breakdownByLocation = nodes.groupBy { node ->
+            formatBreadcrumbs(node.path.map { link(node, it) })
+        }
+
+        for ((breadcrumbs, items) in breakdownByLocation) {
+            appendLine(to, breadcrumbs)
+            appendLine(to)
+            appendLocation(location, to, items)
+        }
+
+        for (node in nodes) {
+            appendSection(location, "Members", node.members, node, to)
+            appendSection(location, "Extensions", node.extensions, node, to)
+            appendSection(location, "Inheritors", node.inheritors, node, to)
+            appendSection(location, "Links", node.links, node, to)
+
+        }
+    }
+
     abstract public fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode)
     abstract public fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>)
 
-    override public fun appendOutline(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    public override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         for (node in nodes) {
             appendOutlineHeader(to, node)
             if (node.members.any()) {

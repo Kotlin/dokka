@@ -49,41 +49,51 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
+    fun ContentNode.renderLinked(node: DocumentationNode, body: ContentNode.(DocumentationNode)->Unit) {
+        val to = node.links.firstOrNull()
+        if (to == null)
+            body(node)
+        else
+            link(to) {
+                body(node)
+            }
+    }
+
     fun ContentNode.renderType(node: DocumentationNode) {
         val typeArguments = node.details(Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
             symbol("(")
             renderList(typeArguments.take(typeArguments.size - 1)) {
-                renderType(it)
+                renderLinked(it) { renderType(it) }
             }
             symbol(")")
             text(" ")
             symbol("->")
             text(" ")
-            renderType(typeArguments.last())
+            renderLinked(typeArguments.last()) { renderType(it) }
             return
         }
         if (node.name == "ExtensionFunction${typeArguments.count() - 2}") {
             // extension lambda
-            renderType(typeArguments.first())
+            renderLinked(typeArguments.first()) { renderType(it) }
             symbol(".")
             symbol("(")
             renderList(typeArguments.drop(1).take(typeArguments.size - 2)) {
-                renderType(it)
+                renderLinked(it) { renderType(it) }
             }
             symbol(")")
             text(" ")
             symbol("->")
             text(" ")
-            renderType(typeArguments.last())
+            renderLinked(typeArguments.last()) { renderType(it) }
             return
         }
         identifier(node.name)
         if (typeArguments.any()) {
             symbol("<")
             renderList(typeArguments) {
-                renderType(it)
+                renderLinked(it) { renderType(it) }
             }
             symbol(">")
         }
@@ -103,7 +113,7 @@ class KotlinLanguageService : LanguageService {
         if (constraints.any()) {
             symbol(" : ")
             renderList(constraints) {
-                renderType(it)
+                renderLinked(it) { renderType(it) }
             }
         }
     }
@@ -111,7 +121,8 @@ class KotlinLanguageService : LanguageService {
     fun ContentNode.renderParameter(node: DocumentationNode) {
         identifier(node.name)
         symbol(": ")
-        renderType(node.detail(Kind.Type))
+        val parameterType = node.detail(Kind.Type)
+        renderLinked(parameterType) { renderType(it) }
     }
 
     fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
@@ -119,7 +130,7 @@ class KotlinLanguageService : LanguageService {
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
-                renderTypeParameter(it)
+                renderLinked(it) { renderType(it) }
             }
             symbol("> ")
         }
@@ -130,7 +141,7 @@ class KotlinLanguageService : LanguageService {
         if (supertypes.any()) {
             symbol(" : ")
             renderList(supertypes) {
-                renderTypeParameter(it)
+                renderLinked(it) { renderType(it) }
             }
         }
     }
@@ -171,7 +182,7 @@ class KotlinLanguageService : LanguageService {
         renderTypeParametersForNode(node)
         val receiver = node.details(Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderType(receiver.detail(Kind.Type))
+            renderLinked(receiver.detail(Kind.Type)) { renderType(it) }
             symbol(".")
         }
 
@@ -185,7 +196,7 @@ class KotlinLanguageService : LanguageService {
         symbol(")")
         if (node.kind != Kind.Constructor) {
             symbol(": ")
-            renderType(node.detail(Kind.Type))
+            renderLinked(node.detail(Kind.Type)) { renderType(it) }
         }
     }
 
@@ -198,12 +209,12 @@ class KotlinLanguageService : LanguageService {
         renderTypeParametersForNode(node)
         val receiver = node.details(Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderType(receiver.detail(Kind.Type))
+            renderLinked(receiver.detail(Kind.Type)) { renderType(it) }
             symbol(".")
         }
 
         identifier(node.name)
         symbol(": ")
-        renderType(node.detail(Kind.Type))
+        renderLinked(node.detail(Kind.Type)) { renderType(it) }
     }
 }

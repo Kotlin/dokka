@@ -19,3 +19,9 @@ fun LocationService.relativeLocation(node: DocumentationNode, link: Documentatio
     val memberPath = location(link).file.appendExtension(extension)
     return Location(ownerFolder.getRelativePath(memberPath))
 }
+
+fun LocationService.relativeLocation(location: Location, link: DocumentationNode, extension: String): Location {
+    val ownerFolder = location.file.getParentFile()!!
+    val memberPath = location(link).file.appendExtension(extension)
+    return Location(ownerFolder.getRelativePath(memberPath))
+}

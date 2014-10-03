@@ -2,9 +2,8 @@ package org.jetbrains.dokka
 
 
 public open class MarkdownFormatService(locationService: LocationService,
-                                        resolutionService: ResolutionService,
                                         signatureGenerator: LanguageService)
-: StructuredFormatService(locationService, resolutionService, signatureGenerator) {
+: StructuredFormatService(locationService, signatureGenerator) {
 
     override val extension: String = "md"
 

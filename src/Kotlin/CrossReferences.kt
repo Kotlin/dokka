@@ -1,7 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.descriptors.ClassKind
-
 /**
  * Generates cross-references for documentation such as extensions for a type
  *
@@ -24,6 +22,15 @@ public fun DocumentationContext.buildCrossReferences(node: DocumentationNode) {
         if (descriptor != null) {
             val typeNode = descriptorToNode[descriptor]
             typeNode?.addReferenceTo(node, DocumentationReference.Kind.Inheritor)
+        }
+    }
+    node.details.forEach { detail ->
+        val descriptor = relations[detail]
+        if (descriptor != null) {
+            val typeNode = descriptorToNode[descriptor]
+            if (typeNode != null) {
+                detail.addReferenceTo(typeNode, DocumentationReference.Kind.Link)
+            }
         }
     }
 

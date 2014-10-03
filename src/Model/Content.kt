@@ -18,16 +18,18 @@ public abstract class ContentNode {
 }
 
 public object ContentEmpty : ContentNode()
+public open class ContentBlock() : ContentNode()
 
 public class ContentText(val text: String) : ContentNode()
 public class ContentKeyword(val text: String) : ContentNode()
 public class ContentIdentifier(val text: String) : ContentNode()
 public class ContentSymbol(val text: String) : ContentNode()
-public class ContentBlock() : ContentNode()
-public class ContentEmphasis() : ContentNode()
-public class ContentStrong() : ContentNode()
-public class ContentList() : ContentNode()
-public class ContentSection(public val label: String) : ContentNode()
+public class ContentEmphasis() : ContentBlock()
+public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
+public class ContentExternalLink(val href : String) : ContentBlock()
+public class ContentStrong() : ContentBlock()
+public class ContentList() : ContentBlock()
+public class ContentSection(public val label: String) : ContentBlock()
 
 fun content(body: ContentNode.() -> Unit): ContentNode {
     val block = ContentBlock()
@@ -39,6 +41,12 @@ fun ContentNode.text(value: String) = append(ContentText(value))
 fun ContentNode.keyword(value: String) = append(ContentKeyword(value))
 fun ContentNode.symbol(value: String) = append(ContentSymbol(value))
 fun ContentNode.identifier(value: String) = append(ContentIdentifier(value))
+
+fun ContentNode.link(to: DocumentationNode, body: ContentNode.() -> Unit) {
+    val block = ContentNodeLink(to)
+    block.body()
+    append(block)
+}
 
 public class Content() : ContentNode() {
     public val sections: Map<String, ContentSection> by Delegates.lazy {
