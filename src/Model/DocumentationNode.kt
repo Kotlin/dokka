@@ -16,6 +16,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Member).map { it.to }
     public val extensions: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Extension).map { it.to }
+    public val inheritors: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.Inheritor).map { it.to }
     public val links: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Link).map { it.to }
 
@@ -61,6 +63,7 @@ public open class DocumentationNode(val name: String,
         Receiver
         TypeParameter
         Type
+        Supertype
         UpperBound
         LowerBound
         Exception

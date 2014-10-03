@@ -40,6 +40,18 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
         reference(data, node, DocumentationReference.Kind.Detail)
     }
 
+    fun addSupertypes(descriptor: ClassDescriptor, data: DocumentationNode) {
+        val superTypes = descriptor.getTypeConstructor().getSupertypes()
+        for (superType in superTypes) {
+            val superDescriptor = superType.getConstructor().getDeclarationDescriptor()
+            if (superDescriptor != null && superType.toString() != "Any") {
+                val node = DocumentationNode(superType.toString(), Content.Empty, DocumentationNode.Kind.Supertype)
+                context.attach(node, superDescriptor)
+                reference(data, node, DocumentationReference.Kind.Detail)
+            }
+        }
+    }
+
     fun addType(descriptor: DeclarationDescriptor, t: JetType?, data: DocumentationNode) {
         if (t == null)
             return
@@ -101,6 +113,7 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
         reference(data!!, node, DocumentationReference.Kind.Member)
         addModality(descriptor, node)
         addVisibility(descriptor, node)
+        addSupertypes(descriptor, node)
         context.register(descriptor, node)
         return node
     }

@@ -10,16 +10,25 @@ public open class HtmlFormatService(locationService: LocationService,
     override public fun formatText(text: String): String {
         return text.htmlEscape()
     }
+    override fun formatSymbol(text: String): String {
+        return "<span class=\"symbol\">${formatText(text)}</span>"
+    }
+    override fun formatKeyword(text: String): String {
+        return "<span class=\"keyword\">${formatText(text)}</span>"
+    }
+    override fun formatIdentifier(text: String): String {
+        return "<span class=\"identifier\">${formatText(text)}</span>"
+    }
 
     override fun appendBlockCode(to: StringBuilder, line: String) {
         to.appendln("<code>")
-        to.appendln(line.htmlEscape())
+        to.appendln(line)
         to.appendln("</code>")
     }
 
     override fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
         to.appendln("<code>")
-        to.appendln(lines.map { it.htmlEscape() }.join("\n"))
+        to.appendln(lines.join("\n"))
         to.appendln("</code>")
     }
 

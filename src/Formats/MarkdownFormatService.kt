@@ -16,6 +16,17 @@ public open class MarkdownFormatService(locationService: LocationService,
         return text.htmlEscape()
     }
 
+    override fun formatSymbol(text: String): String {
+        return text.htmlEscape()
+    }
+
+    override fun formatKeyword(text: String): String {
+        return text.htmlEscape()
+    }
+    override fun formatIdentifier(text: String): String {
+        return text.htmlEscape()
+    }
+
     override public fun formatCode(code: String): String {
         return "`$code`"
     }

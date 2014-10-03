@@ -9,17 +9,36 @@ public abstract class ContentNode {
         val empty = ContentEmpty
     }
 
+    fun append(node : ContentNode) : ContentNode {
+        children.add(node)
+        return this
+    }
+
     fun isEmpty() = children.isEmpty()
 }
 
-public object ContentEmpty : ContentNode( )
+public object ContentEmpty : ContentNode()
 
-public class ContentText(val text : String) : ContentNode( )
-public class ContentBlock() : ContentNode( )
+public class ContentText(val text: String) : ContentNode()
+public class ContentKeyword(val text: String) : ContentNode()
+public class ContentIdentifier(val text: String) : ContentNode()
+public class ContentSymbol(val text: String) : ContentNode()
+public class ContentBlock() : ContentNode()
 public class ContentEmphasis() : ContentNode()
 public class ContentStrong() : ContentNode()
 public class ContentList() : ContentNode()
 public class ContentSection(public val label: String) : ContentNode()
+
+fun content(body: ContentNode.() -> Unit): ContentNode {
+    val block = ContentBlock()
+    block.body()
+    return block
+}
+
+fun ContentNode.text(value: String) = append(ContentText(value))
+fun ContentNode.keyword(value: String) = append(ContentKeyword(value))
+fun ContentNode.symbol(value: String) = append(ContentSymbol(value))
+fun ContentNode.identifier(value: String) = append(ContentIdentifier(value))
 
 public class Content() : ContentNode() {
     public val sections: Map<String, ContentSection> by Delegates.lazy {

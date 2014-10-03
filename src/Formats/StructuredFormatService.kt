@@ -22,6 +22,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
 
     public abstract fun formatText(text: String): String
+    public abstract fun formatSymbol(text: String): String
+    public abstract fun formatKeyword(text: String): String
+    public abstract fun formatIdentifier(text: String): String
     public abstract fun formatLink(text: String, location: Location): String
     public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
     public abstract fun formatBold(text: String): String
@@ -36,6 +39,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         return StringBuilder {
             when (node) {
                 is ContentText -> append(node.text)
+                is ContentSymbol -> append(formatSymbol(node.text))
+                is ContentKeyword -> append(formatKeyword(node.text))
+                is ContentIdentifier -> append(formatIdentifier(node.text))
                 is ContentEmphasis -> append(formatBold(formatText(node.children)))
                 else -> append(formatText(node.children))
             }
@@ -55,7 +61,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             appendHeader(to, "Description", 3)
             for (node in described) {
                 if (!single) {
-                    appendBlockCode(to, languageService.render(node))
+                    appendBlockCode(to, formatText(languageService.render(node)))
                 }
                 appendLine(to, formatText(node.doc.description))
                 appendLine(to)
@@ -76,7 +82,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
 
         for ((summary, items) in breakdownBySummary) {
-            appendBlockCode(to, items.map { languageService.render(it) })
+            items.forEach {
+                appendBlockCode(to, formatText(languageService.render(it)))
+            }
             appendLine(to, formatText(summary))
             appendLine(to)
         }
@@ -105,6 +113,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         for (node in nodes) {
             appendSection("Members", node.members, node, to)
             appendSection("Extensions", node.extensions, node, to)
+            appendSection("Inheritors", node.inheritors, node, to)
             appendSection("Links", node.links, node, to)
         }
     }
@@ -126,9 +135,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { it.doc.summary }
                                 for ((summary, items) in breakdownBySummary) {
-                                    val signatures = items.map { formatCode("${languageService.render(it)}") }
-                                    for (signature in signatures) {
-                                        appendText(to, signature)
+                                    for (signature in items) {
+                                        appendBlockCode(to, formatText(languageService.render(signature)))
                                     }
 
                                     if (!summary.isEmpty()) {
