@@ -49,33 +49,27 @@ public fun DocumentationContext.resolveReferences(node: DocumentationNode) {
 fun DocumentationContext.resolveContentLinks(node: DocumentationNode, content: ContentNode) {
     val snapshot = content.children.toList()
     for (child in snapshot) {
-        val referenceText = when (child) {
-            is ContentExternalLink -> child.href
-            is ContentNameLink -> child.name
-            else -> null
-        }
+        if (child is ContentExternalLink) {
+            val referenceText = child.href
+            if (Name.isValidIdentifier(referenceText)) {
+                val scope = getResolutionScope(node)
+                val symbolName = Name.guess(referenceText)
+                val symbol = scope.getLocalVariable(symbolName) ?:
+                        scope.getProperties(symbolName).firstOrNull() ?:
+                        scope.getFunctions(symbolName).firstOrNull() ?:
+                        scope.getClassifier(symbolName)
 
-        if (referenceText != null && Name.isValidIdentifier(referenceText)) {
-            val scope = getResolutionScope(node)
-            val symbolName = Name.guess(referenceText)
-            val symbol =
-                    scope.getLocalVariable(symbolName) ?:
-                            scope.getProperties(symbolName).firstOrNull() ?:
-                            scope.getFunctions(symbolName).firstOrNull() ?:
-                            scope.getClassifier(symbolName)
+                if (symbol != null) {
+                    val targetNode = descriptorToNode[symbol]
+                    val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
 
-            if (symbol != null) {
-                val targetNode = descriptorToNode[symbol]
-                if (targetNode != null) {
                     val index = content.children.indexOf(child)
                     content.children.remove(index)
-                    val contentLink = ContentNodeLink(targetNode)
                     contentLink.children.addAll(child.children)
                     content.children.add(index, contentLink)
                 }
             }
         }
-
         resolveContentLinks(node, child)
     }
 }

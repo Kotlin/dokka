@@ -53,10 +53,7 @@ public fun MarkdownTree.toContent(): Content {
             MarkdownElementTypes.LINK -> {
                 val target = findChildByType(node, MarkdownElementTypes.TARGET)?.let { getNodeText(it) } ?: ""
                 val href = findChildByType(node, MarkdownElementTypes.HREF)?.let { getNodeText(it) }
-                val link = if (href != null)
-                    ContentExternalLink(href)
-                else
-                    ContentNameLink(target)
+                val link = if (href != null) ContentExternalLink(href) else ContentExternalLink(target)
                 link.append(ContentText(target))
                 parent.append(link)
             }

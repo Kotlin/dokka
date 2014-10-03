@@ -5,7 +5,7 @@ package org.jetbrains.dokka
  */
 trait LanguageService {
     /**
-     * Renders [node] as a class, function, property or other signature
+     * Renders a [node](DocumentationNode) as a class, function, property or other signature in a target language.
      * $node: A [DocumentationNode] to render
      * $returns: [ContentNode] which is a root for a rich content tree suitable for formatting with [FormatService]
      */
