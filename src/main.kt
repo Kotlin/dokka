@@ -54,7 +54,7 @@ public fun main(args: Array<String>) {
             context.getPackageFragment(file)!!.fqName
         }.toSet()
 
-        context.createDocumentationModule(arguments.moduleName, module, packageSet, DocumentationOptions(true))
+        context.createDocumentationModule(arguments.moduleName, module, packageSet)
     }
     val timeAnalyse = System.currentTimeMillis() - startAnalyse
     println("done in ${timeAnalyse / 1000} secs")

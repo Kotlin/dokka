@@ -4,12 +4,14 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.*
 
-public data class DocumentationOptions(val includeNonPublic : Boolean = false)
+public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
 class DocumentationBuildingVisitor(val context: BindingContext,
                                    val options: DocumentationOptions,
                                    private val worker: DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode>)
 : DeclarationDescriptorVisitor<DocumentationNode, DocumentationNode> {
+
+    val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
 
     private fun visitChildren(descriptors: Collection<DeclarationDescriptor>, data: DocumentationNode) {
         for (descriptor in descriptors) {
@@ -19,7 +21,9 @@ class DocumentationBuildingVisitor(val context: BindingContext,
 
     private fun visitChild(descriptor: DeclarationDescriptor?, data: DocumentationNode) {
         if (descriptor != null && descriptor.isUserCode()) {
-            if (options.includeNonPublic || descriptor !is MemberDescriptor || descriptor.getVisibility().isPublicAPI()) {
+            if (options.includeNonPublic
+                    || descriptor !is MemberDescriptor
+                    || descriptor.getVisibility() in visibleToDocumentation) {
                 descriptor.accept(this, data)
             }
         }
