@@ -81,6 +81,10 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<a href=\"${location.path}\">${text}</a>"
     }
 
+    override fun formatLink(text: String, href: String): String {
+        return "<a href=\"${href}\">${text}</a>"
+    }
+
     override fun formatBold(text: String): String {
         return "<b>${text}</b>"
     }

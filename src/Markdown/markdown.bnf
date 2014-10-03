@@ -86,8 +86,6 @@ Strong ::= StrongStar | StrongUnderscore
 StrongStar ::= '**' !Whitespace (!'**' Inline)+ '**'
 StrongUnderscore ::= '__' !Whitespace (!'__' Inline)+ '__'
 
-Link ::=  HrefLink | ReferenceLink
-private ReferenceLink ::= '[' Target ']'
-private HrefLink ::= '[' Target ']' '(' Href ')'
+Link ::=  '[' Target ']' ('(' Href ')')?
 Target ::= Word+
-Href ::= Word+
+Href ::= (Word | Number | ':' | '/')+

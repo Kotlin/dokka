@@ -9,13 +9,19 @@ body, table {
 
 .keyword {
     color:black;
+    font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-size:12px;
 }
 
 .symbol {
+    font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-size:12px;
 }
 
 .identifier {
     color: darkblue;
+    font-size:12px;
+    font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
 }
 
 h1, h2, h3, h4, h5, h6 {

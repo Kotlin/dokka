@@ -2,7 +2,10 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DocumentationNode.*
 
-class JavaLanguageService : LanguageService {
+/**
+ * Implements [LanguageService] and provides rendering of symbols in Java language
+ */
+public class JavaLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
         return ContentText(when (node.kind) {
             Kind.Package -> renderPackage(node)
@@ -30,11 +33,11 @@ class JavaLanguageService : LanguageService {
         }
     }
 
-    fun renderPackage(node: DocumentationNode): String {
+    private fun renderPackage(node: DocumentationNode): String {
         return "package ${node.name}"
     }
 
-    fun renderModifier(node: DocumentationNode): String {
+    private fun renderModifier(node: DocumentationNode): String {
         return when (node.name) {
             "open" -> ""
             "internal" -> ""
@@ -42,7 +45,7 @@ class JavaLanguageService : LanguageService {
         }
     }
 
-    fun renderType(node: DocumentationNode): String {
+    private fun renderType(node: DocumentationNode): String {
         return when (node.name) {
             "Unit" -> "void"
             "Int" -> "int"
@@ -56,7 +59,7 @@ class JavaLanguageService : LanguageService {
         }
     }
 
-    fun renderTypeParameter(node: DocumentationNode): String {
+    private fun renderTypeParameter(node: DocumentationNode): String {
         val constraints = node.details(Kind.UpperBound)
         return if (constraints.none())
             node.name
@@ -65,11 +68,11 @@ class JavaLanguageService : LanguageService {
         }
     }
 
-    fun renderParameter(node: DocumentationNode): String {
+    private fun renderParameter(node: DocumentationNode): String {
         return "${renderType(node.detail(Kind.Type))} ${node.name}"
     }
 
-    fun renderTypeParametersForNode(node: DocumentationNode): String {
+    private fun renderTypeParametersForNode(node: DocumentationNode): String {
         return StringBuilder {
             val typeParameters = node.details(Kind.TypeParameter)
             if (typeParameters.any()) {
@@ -80,14 +83,14 @@ class JavaLanguageService : LanguageService {
         }.toString()
     }
 
-    fun renderModifiersForNode(node: DocumentationNode): String {
+    private fun renderModifiersForNode(node: DocumentationNode): String {
         val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != "" }
         if (modifiers.none())
             return ""
         return modifiers.join(" ", postfix = " ")
     }
 
-    fun renderClass(node: DocumentationNode): String {
+    private fun renderClass(node: DocumentationNode): String {
         return StringBuilder {
             when (node.kind) {
                 Kind.Class -> append("class ")
@@ -103,7 +106,7 @@ class JavaLanguageService : LanguageService {
         }.toString()
     }
 
-    fun renderFunction(node: DocumentationNode): String {
+    private fun renderFunction(node: DocumentationNode): String {
         return StringBuilder {
             when (node.kind) {
                 Kind.Constructor -> append(node.owner?.name)
@@ -127,7 +130,7 @@ class JavaLanguageService : LanguageService {
         }.toString()
     }
 
-    fun renderProperty(node: DocumentationNode): String {
+    private fun renderProperty(node: DocumentationNode): String {
         return StringBuilder {
             when (node.kind) {
                 Kind.Property -> append("val ")

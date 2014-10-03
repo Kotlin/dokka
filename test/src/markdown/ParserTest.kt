@@ -26,7 +26,7 @@ public class ParserTest {
     }
 
     Test fun linkWithHref() {
-        runTestFor("text [links](http://destination)")
+        runTestFor("text [links](http://google.com)")
     }
 
     Test fun multiline() {

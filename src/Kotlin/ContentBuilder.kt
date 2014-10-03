@@ -15,50 +15,60 @@ public fun MarkdownTree.toContent(): Content {
             MarkdownElementTypes.BULLET_LIST -> {
                 nodeStack.push(ContentList())
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.ORDERED_LIST -> {
                 nodeStack.push(ContentList()) // TODO: add list kind
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.HORIZONTAL_RULE -> {
             }
             MarkdownElementTypes.LIST_BLOCK -> {
                 nodeStack.push(ContentBlock())
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.EMPH -> {
                 nodeStack.push(ContentEmphasis())
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.STRONG -> {
                 nodeStack.push(ContentStrong())
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.ANONYMOUS_SECTION -> {
                 nodeStack.push(ContentSection(""))
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.NAMED_SECTION -> {
                 val label = findChildByType(node, MarkdownElementTypes.SECTION_NAME)?.let { getNodeText(it) } ?: ""
                 nodeStack.push(ContentSection(label))
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
+            }
+            MarkdownElementTypes.LINK -> {
+                val target = findChildByType(node, MarkdownElementTypes.TARGET)?.let { getNodeText(it) } ?: ""
+                val href = findChildByType(node, MarkdownElementTypes.HREF)?.let { getNodeText(it) }
+                val link = if (href != null)
+                    ContentExternalLink(href)
+                else
+                    ContentNameLink(target)
+                link.append(ContentText(target))
+                parent.append(link)
             }
             MarkdownElementTypes.PLAIN_TEXT -> {
                 nodeStack.push(ContentText(nodeText))
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.END_LINE -> {
                 nodeStack.push(ContentText(nodeText))
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.BLANK_LINE -> {
                 processChildren()
@@ -66,7 +76,7 @@ public fun MarkdownTree.toContent(): Content {
             MarkdownElementTypes.PARA -> {
                 nodeStack.push(ContentBlock())
                 processChildren()
-                parent.children.add(nodeStack.pop())
+                parent.append(nodeStack.pop())
             }
             else -> {
                 processChildren()

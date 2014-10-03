@@ -35,7 +35,11 @@ public open class MarkdownFormatService(locationService: LocationService,
     }
 
     override public fun formatLink(text: String, location: Location): String {
-        return "[${text}](${location.path})"
+        return "[$text](${location.path})"
+    }
+
+    override fun formatLink(text: String, href: String): String {
+        return "[$text]($href)"
     }
 
     override public fun appendLine(to: StringBuilder) {

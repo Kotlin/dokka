@@ -2,6 +2,9 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DocumentationNode.*
 
+/**
+ * Implements [LanguageService] and provides rendering of symbols in Kotlin language
+ */
 class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
         return content {
@@ -33,13 +36,13 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderPackage(node: DocumentationNode) {
+    private fun ContentNode.renderPackage(node: DocumentationNode) {
         keyword("package")
         text(" ")
         identifier(node.name)
     }
 
-    fun ContentNode.renderList(nodes: List<DocumentationNode>, separator: String = ", ", renderItem: (DocumentationNode) -> Unit) {
+    private fun ContentNode.renderList(nodes: List<DocumentationNode>, separator: String = ", ", renderItem: (DocumentationNode) -> Unit) {
         if (nodes.none())
             return
         renderItem(nodes.first())
@@ -49,7 +52,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderLinked(node: DocumentationNode, body: ContentNode.(DocumentationNode)->Unit) {
+    private fun ContentNode.renderLinked(node: DocumentationNode, body: ContentNode.(DocumentationNode)->Unit) {
         val to = node.links.firstOrNull()
         if (to == null)
             body(node)
@@ -59,7 +62,7 @@ class KotlinLanguageService : LanguageService {
             }
     }
 
-    fun ContentNode.renderType(node: DocumentationNode) {
+    private fun ContentNode.renderType(node: DocumentationNode) {
         val typeArguments = node.details(Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
@@ -99,7 +102,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderModifier(node: DocumentationNode) {
+    private fun ContentNode.renderModifier(node: DocumentationNode) {
         when (node.name) {
             "final", "internal" -> {
             }
@@ -107,7 +110,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderTypeParameter(node: DocumentationNode) {
+    private fun ContentNode.renderTypeParameter(node: DocumentationNode) {
         val constraints = node.details(Kind.UpperBound)
         identifier(node.name)
         if (constraints.any()) {
@@ -118,14 +121,14 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderParameter(node: DocumentationNode) {
+    private fun ContentNode.renderParameter(node: DocumentationNode) {
         identifier(node.name)
         symbol(": ")
         val parameterType = node.detail(Kind.Type)
         renderType(parameterType)
     }
 
-    fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
+    private fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
         val typeParameters = node.details(Kind.TypeParameter)
         if (typeParameters.any()) {
             symbol("<")
@@ -136,7 +139,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderSupertypesForNode(node: DocumentationNode) {
+    private fun ContentNode.renderSupertypesForNode(node: DocumentationNode) {
         val supertypes = node.details(Kind.Supertype)
         if (supertypes.any()) {
             symbol(" : ")
@@ -146,7 +149,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderModifiersForNode(node: DocumentationNode) {
+    private fun ContentNode.renderModifiersForNode(node: DocumentationNode) {
         val modifiers = node.details(Kind.Modifier)
         for (it in modifiers) {
             if (node.kind == Kind.Interface && it.name == "abstract")
@@ -156,7 +159,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderClass(node: DocumentationNode) {
+    private fun ContentNode.renderClass(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
             Kind.Class -> keyword("class ")
@@ -172,7 +175,7 @@ class KotlinLanguageService : LanguageService {
         renderSupertypesForNode(node)
     }
 
-    fun ContentNode.renderFunction(node: DocumentationNode) {
+    private fun ContentNode.renderFunction(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
             Kind.Constructor -> identifier(node.owner!!.name)
@@ -200,7 +203,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    fun ContentNode.renderProperty(node: DocumentationNode) {
+    private fun ContentNode.renderProperty(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
             Kind.Property -> keyword("val ")

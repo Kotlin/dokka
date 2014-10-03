@@ -9,9 +9,8 @@ public abstract class ContentNode {
         val empty = ContentEmpty
     }
 
-    fun append(node : ContentNode) : ContentNode {
+    fun append(node : ContentNode)  {
         children.add(node)
-        return this
     }
 
     fun isEmpty() = children.isEmpty()
@@ -26,6 +25,7 @@ public class ContentIdentifier(val text: String) : ContentNode()
 public class ContentSymbol(val text: String) : ContentNode()
 public class ContentEmphasis() : ContentBlock()
 public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
+public class ContentNameLink(val name : String) : ContentBlock()
 public class ContentExternalLink(val href : String) : ContentBlock()
 public class ContentStrong() : ContentBlock()
 public class ContentList() : ContentBlock()

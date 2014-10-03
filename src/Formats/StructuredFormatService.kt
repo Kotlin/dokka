@@ -25,6 +25,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatKeyword(text: String): String
     public abstract fun formatIdentifier(text: String): String
     public abstract fun formatLink(text: String, location: Location): String
+    public abstract fun formatLink(text: String, href: String): String
     public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
     public abstract fun formatBold(text: String): String
     public abstract fun formatCode(code: String): String
@@ -46,6 +47,10 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     val linkTo = locationService.relativeLocation(location, content.node, extension)
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, linkTo))
+                }
+                is ContentExternalLink -> {
+                    val linkText = formatText(location, content.children)
+                    append(formatLink(linkText, content.href))
                 }
                 else -> append(formatText(location, content.children))
             }

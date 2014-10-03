@@ -54,7 +54,7 @@ fun BindingContext.createDocumentationModule(name: String,
         pkg!!.accept(DocumentationBuildingVisitor(this, options, visitor), documentationModule)
     }
 
-    context.buildCrossReferences(documentationModule)
+    context.resolveReferences(documentationModule)
 
     // TODO: Uncomment for resolve verification
     // checkResolveChildren(documentationModule)
