@@ -90,14 +90,14 @@ public open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendTableRow(to: StringBuilder, body: () -> Unit) {
-        to.append("|")
+        to.append("| ")
         body()
         to.appendln()
     }
 
     override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
         body()
-        to.append("|")
+        to.append(" | ")
     }
 
     var outlineLevel = 0
