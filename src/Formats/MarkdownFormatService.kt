@@ -70,9 +70,11 @@ public open class MarkdownFormatService(locationService: LocationService,
     }
 
     override public fun appendBlockCode(to: StringBuilder, line: String) {
-        appendLine(to, "```")
+        appendLine(to)
+        to.appendln("```")
         to.appendln(line)
-        appendLine(to, "```")
+        to.appendln("```")
+        appendLine(to)
     }
 
     override fun appendTable(to: StringBuilder, body: () -> Unit) {
