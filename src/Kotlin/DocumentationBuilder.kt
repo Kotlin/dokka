@@ -193,8 +193,9 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
 
     fun PropertyDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Property)
-        node.appendType(getReturnType())
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
+        getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
+        node.appendType(getReturnType())
         getGetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)
