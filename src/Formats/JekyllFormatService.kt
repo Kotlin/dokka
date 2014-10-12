@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public class JekyllFormatService(locationService: LocationService,
+public open class JekyllFormatService(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : MarkdownFormatService(locationService, signatureGenerator) {
 
@@ -11,6 +11,7 @@ public class JekyllFormatService(locationService: LocationService,
         to.appendln("layout: api")
         to.appendln("title: ${nodes.first().name}")
         to.appendln("---")
+        to.appendln("")
         super<MarkdownFormatService>.appendNodes(location, to, nodes)
     }
 }
