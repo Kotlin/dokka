@@ -12,6 +12,8 @@ import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.resolve.name.FqName
 
+public data class DocumentationOptions(val includeNonPublic: Boolean = false)
+
 class DocumentationBuilder(val context: BindingContext, val options: DocumentationOptions) {
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
