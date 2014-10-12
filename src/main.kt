@@ -6,8 +6,6 @@ import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
 import java.io.File
-import org.jetbrains.jet.lang.resolve.name.FqName
-import org.jetbrains.dokka.DocumentationNode.Kind
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -53,12 +51,17 @@ public fun main(args: Array<String>) {
     val startAnalyse = System.currentTimeMillis()
 
     val documentation = environment.withContext { environment, module, context ->
+        println("building documentation ... ")
         val documentationModule = DocumentationModule("test")
         val options = DocumentationOptions()
         val documentationBuilder = DocumentationBuilder(context, options)
         with(documentationBuilder) {
-            documentationModule.appendFiles(environment.getSourceFiles())
+            for (sourceFile in environment.getSourceFiles()) {
+                println(sourceFile.getName())
+                documentationModule.appendFile(sourceFile)
+            }
         }
+        print("... resolving links ... ")
         documentationBuilder.resolveReferences(documentationModule)
         documentationModule
     }
