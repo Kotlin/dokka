@@ -27,18 +27,22 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         addSources(files.toList())
     }
 
-    val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
-        val packageSet = environment.getSourceFiles().map { file ->
-            context.getPackageFragment(file)!!.fqName
-        }.toSet()
+    val options = DocumentationOptions(includeNonPublic = true)
 
-        context.createDocumentationModule("test", module, packageSet, DocumentationOptions(includeNonPublic = true))
+    val documentation = environment.withContext { environment, module, context ->
+        val documentationModule = DocumentationModule("test")
+        val documentationBuilder = DocumentationBuilder(context, options)
+        with(documentationBuilder) {
+            documentationModule.appendFiles(environment.getSourceFiles())
+        }
+        documentationBuilder.resolveReferences(documentationModule)
+        documentationModule
     }
     verifier(documentation)
     Disposer.dispose(environment)
 }
 
-fun StringBuilder.appendChildren(node: ContentNode) : StringBuilder {
+fun StringBuilder.appendChildren(node: ContentNode): StringBuilder {
     for (child in node.children) {
         val childText = child.toTestString()
         append(childText)
@@ -46,7 +50,7 @@ fun StringBuilder.appendChildren(node: ContentNode) : StringBuilder {
     return this
 }
 
-fun StringBuilder.appendNode(node: ContentNode) : StringBuilder {
+fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
     when (node) {
         is ContentText -> {
             append(node.text)

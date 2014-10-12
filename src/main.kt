@@ -6,6 +6,8 @@ import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
 import java.io.File
+import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.dokka.DocumentationNode.Kind
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -49,13 +51,18 @@ public fun main(args: Array<String>) {
 
     print("Analysing sources and libraries... ")
     val startAnalyse = System.currentTimeMillis()
-    val documentation = environment.withContext<DocumentationModule> { environment, module, context ->
-        val packageSet = environment.getSourceFiles().map { file ->
-            context.getPackageFragment(file)!!.fqName
-        }.toSet()
 
-        context.createDocumentationModule(arguments.moduleName, module, packageSet)
+    val documentation = environment.withContext { environment, module, context ->
+        val documentationModule = DocumentationModule("test")
+        val options = DocumentationOptions()
+        val documentationBuilder = DocumentationBuilder(context, options)
+        with(documentationBuilder) {
+            documentationModule.appendFiles(environment.getSourceFiles())
+        }
+        documentationBuilder.resolveReferences(documentationModule)
+        documentationModule
     }
+
     val timeAnalyse = System.currentTimeMillis() - startAnalyse
     println("done in ${timeAnalyse / 1000} secs")
 
@@ -64,7 +71,7 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
-    val formatter = KotlinWebsiteFormatService(locationService, signatureGenerator)
+    val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
     print("Building pages... ")
     generator.buildPage(documentation)

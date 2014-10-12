@@ -47,16 +47,14 @@ fun BindingContext.createDocumentationModule(name: String,
                                              packages: Set<FqName>,
                                              options: DocumentationOptions = DocumentationOptions()): DocumentationModule {
     val documentationModule = DocumentationModule(name)
-    val context = DocumentationContext(this)
-    val visitor = DocumentationNodeBuilder(context)
-    for (packageName in packages) {
-        val pkg = module.getPackage(packageName)
-        pkg!!.accept(DocumentationBuildingVisitor(this, options, visitor), documentationModule)
+    val builder = DocumentationBuilder(this, options)
+    with(builder) {
+        for (packageName in packages) {
+            val pkg = module.getPackage(packageName)
+            if (pkg != null)
+                documentationModule.appendChild(pkg, DocumentationReference.Kind.Member)
+        }
     }
-
-    context.resolveReferences(documentationModule)
-
-    // TODO: Uncomment for resolve verification
-    // checkResolveChildren(documentationModule)
+    builder.resolveReferences(documentationModule)
     return documentationModule
 }

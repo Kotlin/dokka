@@ -18,6 +18,7 @@ import org.jetbrains.jet.lang.descriptors.ClassKind
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.types.TypeProjection
 import org.jetbrains.jet.lang.types.Variance
+import org.jetbrains.dokka.DocumentationNode.Kind
 
 class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DocumentationNode>() {
 
@@ -110,12 +111,12 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
         descriptor!!
         val doc = context.parseDocumentation(descriptor)
         val node = DocumentationNode(descriptor.getName().asString(), doc, when (descriptor.getKind()) {
-            ClassKind.OBJECT -> org.jetbrains.dokka.DocumentationNode.Kind.Object
-            ClassKind.CLASS_OBJECT -> org.jetbrains.dokka.DocumentationNode.Kind.Object
-            ClassKind.TRAIT -> org.jetbrains.dokka.DocumentationNode.Kind.Interface
-            ClassKind.ENUM_CLASS -> org.jetbrains.dokka.DocumentationNode.Kind.Enum
-            ClassKind.ENUM_ENTRY -> org.jetbrains.dokka.DocumentationNode.Kind.EnumItem
-            else -> DocumentationNode.Kind.Class
+            ClassKind.OBJECT -> Kind.Object
+            ClassKind.CLASS_OBJECT -> Kind.Object
+            ClassKind.TRAIT -> Kind.Interface
+            ClassKind.ENUM_CLASS -> Kind.Enum
+            ClassKind.ENUM_ENTRY -> Kind.EnumItem
+            else -> Kind.Class
         })
         reference(data!!, node, DocumentationReference.Kind.Member)
         addModality(descriptor, node)
@@ -182,7 +183,7 @@ class DocumentationNodeBuilder(val context: DocumentationContext) : DeclarationD
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor?, data: DocumentationNode?): DocumentationNode? {
         descriptor!!
         val doc = context.parseDocumentation(descriptor)
-        val node = DocumentationNode("<constructor>", doc, DocumentationNode.Kind.Constructor)
+        val node = DocumentationNode("<init>", doc, DocumentationNode.Kind.Constructor)
         reference(data!!, node, DocumentationReference.Kind.Member)
 
         addVisibility(descriptor, node)

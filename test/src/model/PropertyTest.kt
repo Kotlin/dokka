@@ -58,18 +58,10 @@ public class PropertyTest {
                 assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(Content.Empty, doc)
                 assertEquals(3, details.count())
-                with(details.elementAt(0)) {
-                    assertEquals(DocumentationNode.Kind.Type, kind)
-                    assertEquals("String", name)
-                }
-                with(details.elementAt(1)) {
-                    assertEquals(DocumentationNode.Kind.Modifier, kind)
-                    assertEquals("final", name)
-                }
-                with(details.elementAt(2)) {
-                    assertEquals(DocumentationNode.Kind.Modifier, kind)
-                    assertEquals("internal", name)
-                }
+                assertEquals("String", detail(DocumentationNode.Kind.Type).name)
+                val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                assertTrue("final" in modifiers)
+                assertTrue("internal" in modifiers)
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
@@ -77,6 +69,9 @@ public class PropertyTest {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(Content.Empty, doc)
+                    val get_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                    assertTrue("final" in get_modifiers)
+                    assertTrue("internal" in get_modifiers)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -86,10 +81,11 @@ public class PropertyTest {
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(Content.Empty, doc)
                     assertEquals(4, details.count())
-                    assertEquals("Unit", details.elementAt(0).name)
-                    assertEquals("final", details.elementAt(1).name)
-                    assertEquals("internal", details.elementAt(2).name)
-                    with(details.elementAt(3)) {
+                    assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
+                    val set_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                    assertTrue("final" in set_modifiers)
+                    assertTrue("internal" in set_modifiers)
+                    with(detail(DocumentationNode.Kind.Parameter)) {
                         assertEquals("value", name)
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
                         assertEquals(Content.Empty, doc)
