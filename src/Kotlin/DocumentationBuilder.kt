@@ -15,6 +15,7 @@ import org.jetbrains.jet.lang.resolve.name.FqName
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
 class DocumentationBuilder(val context: BindingContext, val options: DocumentationOptions) {
+    val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
     val links = hashMapOf<DocumentationNode, DeclarationDescriptor>()
@@ -104,8 +105,6 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
             node.appendProjection(typeArgument)
     }
 
-    val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
-
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
@@ -122,15 +121,19 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
     }
 
+    fun DocumentationNode.appendFile(sourceFile : JetFile) {
+        val fragment = context.getPackageFragment(sourceFile)!!
+        val packageNode = packages.getOrPut(fragment.fqName) {
+            val packageNode = DocumentationNode(fragment.fqName.asString(), Content.Empty, Kind.Package)
+            append(packageNode, DocumentationReference.Kind.Member)
+            packageNode
+        }
+        packageNode.appendChildren(fragment.getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
+    }
+
     fun DocumentationNode.appendFiles(sourceFiles : List<JetFile>) {
         for (sourceFile in sourceFiles) {
-            val fragment = context.getPackageFragment(sourceFile)!!
-            val packageNode = packages.getOrPut(fragment.fqName) {
-                val packageNode = DocumentationNode(fragment.fqName.asString(), Content.Empty, Kind.Package)
-                append(packageNode, DocumentationReference.Kind.Member)
-                packageNode
-            }
-            packageNode.appendChildren(fragment.getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
+            appendFile(sourceFile)
         }
     }
 
@@ -171,7 +174,6 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
         register(this, node)
         return node
     }
-
 
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Constructor)
@@ -244,7 +246,7 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Receiver)
+        val node = DocumentationNode(getName().asString(), Content.Empty, Kind.Receiver)
         node.appendType(getType())
         return node
     }

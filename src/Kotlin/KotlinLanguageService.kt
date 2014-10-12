@@ -1,29 +1,35 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.DocumentationNode.*
+import org.jetbrains.dokka.symbol
+import org.jetbrains.dokka.text
+import org.jetbrains.dokka.identifier
+import org.jetbrains.dokka.link
+import org.jetbrains.dokka.keyword
+import org.jetbrains.dokka.LanguageService
+import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.ContentNode
+import org.jetbrains.dokka
+import org.jetbrains.dokka.ContentText
 
-/**
- * Implements [LanguageService] and provides rendering of symbols in Kotlin language
- */
 class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
-        return content {
+        return dokka.content {
             when (node.kind) {
-                Kind.Package -> renderPackage(node)
-                Kind.Class,
-                Kind.Interface,
-                Kind.Enum,
-                Kind.EnumItem,
-                Kind.Object -> renderClass(node)
+                DocumentationNode.Kind.Package -> renderPackage(node)
+                DocumentationNode.Kind.Class,
+                DocumentationNode.Kind.Interface,
+                DocumentationNode.Kind.Enum,
+                DocumentationNode.Kind.EnumItem,
+                DocumentationNode.Kind.Object -> renderClass(node)
 
-                Kind.TypeParameter -> renderTypeParameter(node)
-                Kind.Type,
-                Kind.UpperBound -> renderType(node)
+                DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
+                DocumentationNode.Kind.Type,
+                DocumentationNode.Kind.UpperBound -> renderType(node)
 
-                Kind.Modifier -> renderModifier(node)
-                Kind.Constructor,
-                Kind.Function -> renderFunction(node)
-                Kind.Property -> renderProperty(node)
+                DocumentationNode.Kind.Modifier -> renderModifier(node)
+                DocumentationNode.Kind.Constructor,
+                DocumentationNode.Kind.Function -> renderFunction(node)
+                DocumentationNode.Kind.Property -> renderProperty(node)
                 else -> ContentText("${node.kind}: ${node.name}")
             }
         }
@@ -31,7 +37,7 @@ class KotlinLanguageService : LanguageService {
 
     override fun renderName(node: DocumentationNode): String {
         return when (node.kind) {
-            Kind.Constructor -> node.owner!!.name
+            DocumentationNode.Kind.Constructor -> node.owner!!.name
             else -> node.name
         }
     }
@@ -63,7 +69,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderType(node: DocumentationNode) {
-        val typeArguments = node.details(Kind.Type)
+        val typeArguments = node.details(DocumentationNode.Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
             symbol("(")
@@ -111,7 +117,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderTypeParameter(node: DocumentationNode) {
-        val constraints = node.details(Kind.UpperBound)
+        val constraints = node.details(DocumentationNode.Kind.UpperBound)
         identifier(node.name)
         if (constraints.any()) {
             symbol(" : ")
@@ -124,12 +130,12 @@ class KotlinLanguageService : LanguageService {
     private fun ContentNode.renderParameter(node: DocumentationNode) {
         identifier(node.name)
         symbol(": ")
-        val parameterType = node.detail(Kind.Type)
+        val parameterType = node.detail(DocumentationNode.Kind.Type)
         renderType(parameterType)
     }
 
     private fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
-        val typeParameters = node.details(Kind.TypeParameter)
+        val typeParameters = node.details(DocumentationNode.Kind.TypeParameter)
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
@@ -140,7 +146,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderSupertypesForNode(node: DocumentationNode) {
-        val supertypes = node.details(Kind.Supertype)
+        val supertypes = node.details(DocumentationNode.Kind.Supertype)
         if (supertypes.any()) {
             symbol(" : ")
             renderList(supertypes) {
@@ -150,9 +156,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderModifiersForNode(node: DocumentationNode) {
-        val modifiers = node.details(Kind.Modifier)
+        val modifiers = node.details(DocumentationNode.Kind.Modifier)
         for (it in modifiers) {
-            if (node.kind == Kind.Interface && it.name == "abstract")
+            if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
                 continue
             renderModifier(it)
             text(" ")
@@ -162,11 +168,11 @@ class KotlinLanguageService : LanguageService {
     private fun ContentNode.renderClass(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
-            Kind.Class -> keyword("class ")
-            Kind.Interface -> keyword("trait ")
-            Kind.Enum -> keyword("enum class ")
-            Kind.EnumItem -> keyword("enum val ")
-            Kind.Object -> keyword("object ")
+            DocumentationNode.Kind.Class -> keyword("class ")
+            DocumentationNode.Kind.Interface -> keyword("trait ")
+            DocumentationNode.Kind.Enum -> keyword("enum class ")
+            DocumentationNode.Kind.EnumItem -> keyword("enum val ")
+            DocumentationNode.Kind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
         }
 
@@ -178,46 +184,46 @@ class KotlinLanguageService : LanguageService {
     private fun ContentNode.renderFunction(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
-            Kind.Constructor -> identifier(node.owner!!.name)
-            Kind.Function -> keyword("fun ")
+            DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
+            DocumentationNode.Kind.Function -> keyword("fun ")
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
         renderTypeParametersForNode(node)
-        val receiver = node.details(Kind.Receiver).singleOrNull()
+        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderType(receiver.detail(Kind.Type))
+            renderType(receiver.detail(DocumentationNode.Kind.Type))
             symbol(".")
         }
 
-        if (node.kind != Kind.Constructor)
+        if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
             identifier(node.name)
 
         symbol("(")
-        renderList(node.details(Kind.Parameter)) {
+        renderList(node.details(DocumentationNode.Kind.Parameter)) {
             renderParameter(it)
         }
         symbol(")")
-        if (node.kind != Kind.Constructor) {
+        if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor) {
             symbol(": ")
-            renderType(node.detail(Kind.Type))
+            renderType(node.detail(DocumentationNode.Kind.Type))
         }
     }
 
     private fun ContentNode.renderProperty(node: DocumentationNode) {
         renderModifiersForNode(node)
         when (node.kind) {
-            Kind.Property -> keyword("val ")
+            DocumentationNode.Kind.Property -> keyword("val ")
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
         renderTypeParametersForNode(node)
-        val receiver = node.details(Kind.Receiver).singleOrNull()
+        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderType(receiver.detail(Kind.Type))
+            renderType(receiver.detail(DocumentationNode.Kind.Type))
             symbol(".")
         }
 
         identifier(node.name)
         symbol(": ")
-        renderType(node.detail(Kind.Type))
+        renderType(node.detail(DocumentationNode.Kind.Type))
     }
 }
