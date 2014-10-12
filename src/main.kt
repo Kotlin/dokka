@@ -6,6 +6,7 @@ import org.jetbrains.jet.cli.common.messages.*
 import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
 import java.io.File
+import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -47,21 +48,28 @@ public fun main(args: Array<String>) {
 
     println()
 
-    print("Analysing sources and libraries... ")
+    println("Analysing sources and libraries... ")
     val startAnalyse = System.currentTimeMillis()
 
     val documentation = environment.withContext { environment, module, context ->
-        println("building documentation ... ")
-        val documentationModule = DocumentationModule("test")
+        val fragments = environment.getSourceFiles().map { context.getPackageFragment(it) }.filterNotNull().distinct()
+        val documentationModule = DocumentationModule(arguments.moduleName)
         val options = DocumentationOptions()
         val documentationBuilder = DocumentationBuilder(context, options)
+
         with(documentationBuilder) {
-            for (sourceFile in environment.getSourceFiles()) {
-                println(sourceFile.getName())
-                documentationModule.appendFile(sourceFile)
+            val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
+            for ((name, parts) in fragments.groupBy { it.fqName }) {
+                descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
+            }
+            for ((packageName, declarations) in descriptors) {
+                println("  package $packageName: ${declarations.count()} nodes")
+                val packageNode = DocumentationNode(packageName, Content.Empty, DocumentationNode.Kind.Package)
+                packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
+                documentationModule.append(packageNode, DocumentationReference.Kind.Member)
             }
         }
-        print("... resolving links ... ")
+
         documentationBuilder.resolveReferences(documentationModule)
         documentationModule
     }
@@ -76,7 +84,7 @@ public fun main(args: Array<String>) {
 
     val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
-    print("Building pages... ")
+    print("Generating pages... ")
     generator.buildPage(documentation)
     generator.buildOutline(documentation)
     val timeBuild = System.currentTimeMillis() - startBuild

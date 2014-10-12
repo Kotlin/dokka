@@ -4,6 +4,7 @@ import org.jetbrains.jet.cli.common.messages.*
 import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
+import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 
 public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
@@ -30,10 +31,16 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     val options = DocumentationOptions(includeNonPublic = true)
 
     val documentation = environment.withContext { environment, module, context ->
+        val fragments = environment.getSourceFiles().map { context.getPackageFragment(it) }.filterNotNull().distinct()
+        val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
+        for ((name, parts) in fragments.groupBy { it.fqName }) {
+            descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
+        }
+
         val documentationModule = DocumentationModule("test")
         val documentationBuilder = DocumentationBuilder(context, options)
         with(documentationBuilder) {
-            documentationModule.appendFiles(environment.getSourceFiles())
+            documentationModule.appendFragments(fragments)
         }
         documentationBuilder.resolveReferences(documentationModule)
         documentationModule
