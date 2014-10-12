@@ -121,19 +121,16 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
     }
 
-    fun DocumentationNode.appendFile(sourceFile : JetFile) {
-        val fragment = context.getPackageFragment(sourceFile)!!
-        val packageNode = packages.getOrPut(fragment.fqName) {
-            val packageNode = DocumentationNode(fragment.fqName.asString(), Content.Empty, Kind.Package)
-            append(packageNode, DocumentationReference.Kind.Member)
-            packageNode
+    fun DocumentationNode.appendFragments(fragments: Collection<PackageFragmentDescriptor>) {
+        val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
+        for ((name, parts) in fragments.groupBy { it.fqName }) {
+            descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
-        packageNode.appendChildren(fragment.getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
-    }
-
-    fun DocumentationNode.appendFiles(sourceFiles : List<JetFile>) {
-        for (sourceFile in sourceFiles) {
-            appendFile(sourceFile)
+        for ((packageName, declarations) in descriptors) {
+            println("  package $packageName: ${declarations.count()} nodes")
+            val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
+            packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
+            append(packageNode, DocumentationReference.Kind.Member)
         }
     }
 
