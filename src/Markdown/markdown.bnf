@@ -75,12 +75,14 @@ ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 
 // ---- INLINES ----
 private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
-Inline  ::= Strong | Emph | Link | PlainText
+Inline  ::= Strong | Emph | Code | Link | PlainText
 PlainText ::= (Word | Number | Space+)+
 
 Emph ::= EmphStar | EmphUnderscore
 private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'
 private EmphUnderscore ::= '_' !Whitespace (!'_' Inline)+ '_'
+
+Code ::= '`' !Whitespace (!'`' Inline)+ '`'
 
 Strong ::= StrongStar | StrongUnderscore
 StrongStar ::= '**' !Whitespace (!'**' Inline)+ '**'

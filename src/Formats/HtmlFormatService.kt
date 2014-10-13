@@ -20,15 +20,15 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
     override fun appendBlockCode(to: StringBuilder, line: String) {
-        to.appendln("<code>")
-        to.appendln(line)
-        to.appendln("</code>")
+        to.append("<pre><code>")
+        to.append(line)
+        to.append("</code></pre>")
     }
 
     override fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
-        to.appendln("<code>")
-        to.appendln(lines.join("\n"))
-        to.appendln("</code>")
+        to.append("<pre><code>")
+        to.append(lines.join("\n"))
+        to.append("</code></pre>")
     }
 
     override fun appendHeader(to: StringBuilder, text: String, level: Int) {
@@ -85,8 +85,12 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<a href=\"${href}\">${text}</a>"
     }
 
-    override fun formatBold(text: String): String {
-        return "<b>${text}</b>"
+    override fun formatStrong(text: String): String {
+        return "<strong>${text}</strong>"
+    }
+
+    override fun formatEmphasis(text: String): String {
+        return "<emph>${text}</emph>"
     }
 
     override fun formatCode(code: String): String {

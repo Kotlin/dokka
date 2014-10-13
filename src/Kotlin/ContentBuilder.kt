@@ -39,6 +39,11 @@ public fun MarkdownTree.toContent(): Content {
                 processChildren()
                 parent.append(nodeStack.pop())
             }
+            MarkdownElementTypes.CODE -> {
+                nodeStack.push(ContentCode())
+                processChildren()
+                parent.append(nodeStack.pop())
+            }
             MarkdownElementTypes.ANONYMOUS_SECTION -> {
                 nodeStack.push(ContentSection(""))
                 processChildren()

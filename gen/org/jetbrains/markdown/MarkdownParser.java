@@ -37,6 +37,9 @@ public class MarkdownParser implements PsiParser {
     else if (t == BULLET_LIST) {
       r = BulletList(b, 0);
     }
+    else if (t == CODE) {
+      r = Code(b, 0);
+    }
     else if (t == EMPH) {
       r = Emph(b, 0);
     }
@@ -255,6 +258,67 @@ public class MarkdownParser implements PsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _AND_, null);
     r = Bullet(b, l + 1);
+    exit_section_(b, l, m, null, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // '`' !Whitespace (!'`' Inline)+ '`'
+  public static boolean Code(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Code")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<code>");
+    r = consumeToken(b, "`");
+    r = r && Code_1(b, l + 1);
+    r = r && Code_2(b, l + 1);
+    r = r && consumeToken(b, "`");
+    exit_section_(b, l, m, CODE, r, false, null);
+    return r;
+  }
+
+  // !Whitespace
+  private static boolean Code_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Code_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_, null);
+    r = !Whitespace(b, l + 1);
+    exit_section_(b, l, m, null, r, false, null);
+    return r;
+  }
+
+  // (!'`' Inline)+
+  private static boolean Code_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Code_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Code_2_0(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!Code_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "Code_2", c)) break;
+      c = current_position_(b);
+    }
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // !'`' Inline
+  private static boolean Code_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Code_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Code_2_0_0(b, l + 1);
+    r = r && Inline(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // !'`'
+  private static boolean Code_2_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Code_2_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_, null);
+    r = !consumeToken(b, "`");
     exit_section_(b, l, m, null, r, false, null);
     return r;
   }
@@ -716,13 +780,14 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // Strong | Emph | Link | PlainText
+  // Strong | Emph | Code | Link | PlainText
   public static boolean Inline(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Inline")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<inline>");
     r = Strong(b, l + 1);
     if (!r) r = Emph(b, l + 1);
+    if (!r) r = Code(b, l + 1);
     if (!r) r = Link(b, l + 1);
     if (!r) r = PlainText(b, l + 1);
     exit_section_(b, l, m, INLINE, r, false, null);

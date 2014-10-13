@@ -83,10 +83,10 @@ code, pre {
     font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
     color:#333;
     font-size:12px;
-    display: block;
 }
 
 pre {
+    display: block;
     padding:8px 8px;
     background: #f8f8f8;
     border-radius:5px;
