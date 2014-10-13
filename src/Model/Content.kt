@@ -23,10 +23,12 @@ public class ContentText(val text: String) : ContentNode()
 public class ContentKeyword(val text: String) : ContentNode()
 public class ContentIdentifier(val text: String) : ContentNode()
 public class ContentSymbol(val text: String) : ContentNode()
+
 public class ContentEmphasis() : ContentBlock()
+public class ContentStrong() : ContentBlock()
+public class ContentCode() : ContentBlock()
 public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
 public class ContentExternalLink(val href : String) : ContentBlock()
-public class ContentStrong() : ContentBlock()
 public class ContentList() : ContentBlock()
 public class ContentSection(public val label: String) : ContentBlock()
 

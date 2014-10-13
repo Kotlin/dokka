@@ -27,7 +27,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatLink(text: String, location: Location): String
     public abstract fun formatLink(text: String, href: String): String
     public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
-    public abstract fun formatBold(text: String): String
+    public abstract fun formatStrong(text: String): String
+    public abstract fun formatEmphasis(text: String): String
     public abstract fun formatCode(code: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 
@@ -42,7 +43,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentSymbol -> append(formatSymbol(content.text))
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text))
-                is ContentEmphasis -> append(formatBold(formatText(location, content.children)))
+                is ContentStrong -> append(formatStrong(formatText(location, content.children)))
+                is ContentCode -> append(formatCode(formatText(location, content.children)))
+                is ContentEmphasis -> append(formatEmphasis(formatText(location, content.children)))
                 is ContentNodeLink -> {
                     val linkTo = locationService.relativeLocation(location, content.node, extension)
                     val linkText = formatText(location, content.children)
@@ -77,7 +80,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 for ((label, section) in node.doc.sections) {
                     if (label.startsWith("$"))
                         continue
-                    appendLine(to, formatBold(formatText(label)))
+                    appendLine(to, formatStrong(formatText(label)))
                     appendLine(to, formatText(location, section))
                     appendLine(to)
                 }
