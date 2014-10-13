@@ -1,19 +1,19 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.jet.cli.common.arguments.*
-import org.jetbrains.jet.cli.common.messages.*
-import org.jetbrains.jet.cli.jvm.*
 import org.jetbrains.jet.cli.jvm.compiler.*
 import org.jetbrains.jet.utils.*
 import java.io.*
 import org.jetbrains.jet.lang.resolve.java.*
-import com.google.common.base.*
-import com.intellij.psi.*
 import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.lang.psi.*
 import org.jetbrains.jet.analyzer.*
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.scopes.*
+import org.jetbrains.jet.context.GlobalContext
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.jet.lang.resolve.name.Name
+import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()
@@ -27,18 +27,23 @@ private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArgum
     return annotationsPath
 }
 
-fun JetCoreEnvironment.analyze(): AnalyzeExhaust {
+fun JetCoreEnvironment.analyze(): ResolveSession {
+    val globalContext = GlobalContext()
     val project = getProject()
     val sourceFiles = getSourceFiles()
-    val support = CliLightClassGenerationSupport.getInstanceForCli(project)!!
-    val sharedTrace = support.getTrace()
-    val sharedModule = support.newModule()
-    val exhaust = TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(project, sourceFiles, sharedTrace,
-                                                         Predicates.alwaysFalse<PsiFile>(),
-                                                         sharedModule,
-                                                         null,
-                                                         null)
-    return exhaust
+
+    val module = object : ModuleInfo {
+        override val name: Name = Name.special("<module>")
+        override fun dependencies(): List<ModuleInfo> = listOf(this)
+    }
+    val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
+            globalContext,
+            project,
+            listOf(module),
+            { ModuleContent(sourceFiles, GlobalSearchScope.allScope(project)) },
+            JvmPlatformParameters { module }
+    )
+    return resolverForProject.resolverForModule(module).lazyResolveSession
 }
 
 fun BindingContext.getPackageFragment(file: JetFile): PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
