@@ -47,6 +47,7 @@ Block ::= BlankLine* (
               OrderedList
             | BulletList
             | HorizontalRule
+            | Directive
             | Para
             )
 
@@ -57,6 +58,10 @@ HorizontalRule ::= NonindentSpace
                  | '-' OptionalSpace '-' OptionalSpace '-' (OptionalSpace '-')*
                  | '_' OptionalSpace '_' OptionalSpace '_' (OptionalSpace '_')*)
                  OptionalSpace EOL BlankLine+
+
+Directive ::= '{' DirectiveName DirectiveParams '}'
+DirectiveName ::= Word
+DirectiveParams ::= PlainText
 
 Bullet ::= !HorizontalRule NonindentSpace ('+' | '*' | '-') Space+
 Enumerator ::= NonindentSpace Number '.' Space+
@@ -76,7 +81,7 @@ ListContinuationBlock ::= BlankLine* (Indent ListBlock)+
 // ---- INLINES ----
 private Inlines ::= (!EndLine Inline | EndLine &Inline )+ EndLine?
 Inline  ::= Strong | Emph | Code | Link | PlainText
-PlainText ::= (Word | Number | Space+)+
+PlainText ::= (Word | Number | Space | ':')+
 
 Emph ::= EmphStar | EmphUnderscore
 private EmphStar ::= '*' !Whitespace (!'*' Inline)+ '*'

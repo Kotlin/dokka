@@ -21,6 +21,10 @@ public class ParserTest {
         runTestFor("text and string")
     }
 
+    Test fun textWithColon() {
+        runTestFor("text and string: cool!")
+    }
+
     Test fun link() {
         runTestFor("text [links]")
     }
@@ -78,6 +82,10 @@ number two
 
     Test fun emph() {
         runTestFor("*text*")
+    }
+
+    Test fun directive() {
+        runTestFor("A text {code with.another.value} with directive")
     }
 
     Test fun emphAndEmptySection() {
