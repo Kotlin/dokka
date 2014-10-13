@@ -5,8 +5,8 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.kdoc.psi.api.*
 import org.jetbrains.jet.lang.psi.*
 
-fun BindingContext.getDocumentationElements(descriptor: DeclarationDescriptor): List<KDoc> {
-    val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
+fun DeclarationDescriptor.getDocumentationElements(): List<KDoc> {
+    val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(this)
     if (psiElement == null)
         return listOf()
 

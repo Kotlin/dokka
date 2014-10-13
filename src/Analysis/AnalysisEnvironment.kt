@@ -11,6 +11,7 @@ import org.jetbrains.jet.cli.common.*
 import org.jetbrains.jet.cli.jvm.*
 import com.intellij.openapi.util.*
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
+import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 
 /**
  * Kotlin as a service entry point
@@ -30,28 +31,28 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * Executes [processor] when analysis is complete.
      * $processor is a function to receive compiler environment, module and context for symbol resolution
      */
-    public fun withContext<T>(processor: (JetCoreEnvironment, ModuleDescriptor, BindingContext) -> T): T {
+    public fun withContext<T>(processor: (JetCoreEnvironment, ResolveSession) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration)
         val resolveSession = environment.analyze()
         resolveSession.forceResolveAll()
-        return processor(environment, resolveSession.getModuleDescriptor(), resolveSession.getBindingContext())
+        return processor(environment, resolveSession)
     }
 
     /**
      * Executes [processor] when analysis is complete.
      * $processor is a function to receive compiler module and context for symbol resolution
      */
-    public fun withContext<T>(processor: (ModuleDescriptor, BindingContext) -> T): T {
-        return withContext { environment, module, context -> processor(module, context) }
+    public fun withContext<T>(processor: (ResolveSession) -> T): T {
+        return withContext { environment, session -> processor(session) }
     }
 
     /**
      * Streams files into [processor] and returns a stream of its results
      * $processor is a function to receive context for symbol resolution and file for processing
      */
-    public fun streamFiles<T>(processor: (BindingContext, JetFile) -> T): Stream<T> {
-        return withContext { environment, module, context ->
-            environment.getSourceFiles().stream().map { file -> processor(context, file) }
+    public fun streamFiles<T>(processor: (ResolveSession, JetFile) -> T): Stream<T> {
+        return withContext { environment, session ->
+            environment.getSourceFiles().stream().map { file -> processor(session, file) }
         }
     }
 
@@ -59,19 +60,9 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * Runs [processor] for each file and collects its results into single list
      * $processor is a function to receive context for symbol resolution and file for processing
      */
-    public fun processFiles<T>(processor: (BindingContext, JetFile) -> T): List<T> {
-        return withContext { environment, module, context ->
-            environment.getSourceFiles().map { file -> processor(context, file) }
-        }
-    }
-
-    /**
-     * Runs [processor] for each file and collects its results into single list
-     * $processor is a function to receive context for symbol resolution, module and file for processing
-     */
-    public fun processFiles<T>(processor: (BindingContext, ModuleDescriptor, JetFile) -> T): List<T> {
-        return withContext { environment, module, context ->
-            environment.getSourceFiles().map { file -> processor(context, module, file) }
+    public fun processFiles<T>(processor: (ResolveSession, JetFile) -> T): List<T> {
+        return withContext { environment, session ->
+            environment.getSourceFiles().map { file -> processor(session, file) }
         }
     }
 
@@ -79,9 +70,9 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * Runs [processor] for each file and collects its results into single list
      * $processor is a function to receive context for symbol resolution and file for processing
      */
-    public fun processFilesFlat<T>(processor: (BindingContext, JetFile) -> List<T>): List<T> {
-        return withContext { environment, module, context ->
-            environment.getSourceFiles().flatMap { file -> processor(context, file) }
+    public fun processFilesFlat<T>(processor: (ResolveSession, JetFile) -> List<T>): List<T> {
+        return withContext { environment, session ->
+            environment.getSourceFiles().flatMap { file -> processor(session, file) }
         }
     }
 

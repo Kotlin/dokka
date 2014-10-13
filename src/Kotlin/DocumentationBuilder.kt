@@ -11,10 +11,11 @@ import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
-class DocumentationBuilder(val context: BindingContext, val options: DocumentationOptions) {
+class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
@@ -22,7 +23,7 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
     val packages = hashMapOf<FqName, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
-        val docText = context.getDocumentationElements(descriptor).map { it.extractText() }.join("\n")
+        val docText = descriptor.getDocumentationElements().map { it.extractText() }.join("\n")
         val tree = MarkdownProcessor.parse(docText)
         //println(tree.toTestString())
         val content = buildContent(tree, descriptor)
@@ -295,7 +296,7 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
 
     fun getResolutionScope(node: DocumentationNode): JetScope {
         val descriptor = nodeToDescriptor[node] ?: throw IllegalArgumentException("Node is not known to this context")
-        return context.getResolutionScope(descriptor)
+        return getResolutionScope(descriptor)
     }
 
     fun resolveContentLinks(node: DocumentationNode, content: ContentNode) {

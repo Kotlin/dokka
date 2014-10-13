@@ -5,6 +5,8 @@ import java.util.ArrayDeque
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
+import org.jetbrains.jet.lang.resolve.scopes.JetScope
+import org.jetbrains.jet.lang.resolve.name.FqName
 
 public fun DocumentationBuilder.buildContent(tree: MarkdownTree, descriptor: DeclarationDescriptor): Content {
     val nodeStack = ArrayDeque<ContentNode>()
@@ -100,29 +102,40 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownTree, descriptor: Dec
 
 
 fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String): ContentNode {
-    var scope = context.getResolutionScope(descriptor)
+    val scope = getResolutionScope(descriptor)
+    val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
+    val rootScope = rootPackage.getMemberScope()
+    val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
+    if (symbol == null)
+        return ContentBlockCode().let() { it.append(ContentText("Unresolved: $functionName")); it }
+    val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
+    if (psiElement == null)
+        return ContentBlockCode().let() { it.append(ContentText("Source not found: $functionName")); it }
+
+    return ContentBlockCode().let() { it.append(ContentText(psiElement.getText())); it }
+}
+
+private fun DocumentationBuilder.resolveInScope(functionName: String, scope: JetScope): DeclarationDescriptor? {
+    var currentScope = scope
     val parts = functionName.split('.')
     var symbol: DeclarationDescriptor? = null
 
     for (part in parts) {
         // short name
         val symbolName = Name.guess(part)
-        val partSymbol = scope.getLocalVariable(symbolName) ?:
-                scope.getProperties(symbolName).firstOrNull() ?:
-                scope.getFunctions(symbolName).firstOrNull() ?:
-                scope.getClassifier(symbolName) ?:
-                scope.getPackage(symbolName)
+        val partSymbol = currentScope.getLocalVariable(symbolName) ?:
+                currentScope.getProperties(symbolName).firstOrNull() ?:
+                currentScope.getFunctions(symbolName).firstOrNull() ?:
+                currentScope.getClassifier(symbolName) ?:
+                currentScope.getPackage(symbolName)
 
-        if (partSymbol == null)
+        if (partSymbol == null) {
+            symbol = null
             break
-        scope = context.getResolutionScope(partSymbol)
+        }
+        currentScope = getResolutionScope(partSymbol)
         symbol = partSymbol
     }
 
-    if (symbol != null) {
-        val psi = DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
-
-
-    }
-    return ContentCode().let() { it.append(ContentText("inline")); it }
+    return symbol
 }

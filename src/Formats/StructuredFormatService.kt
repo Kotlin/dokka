@@ -58,6 +58,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentParagraph -> {
                     appendText(this, formatText(location, content.children))
                 }
+                is ContentBlockCode -> {
+                    appendBlockCode(this, formatText(location, content.children))
+                }
                 else -> append(formatText(location, content.children))
             }
         }.toString()
