@@ -30,15 +30,15 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
 
     val options = DocumentationOptions(includeNonPublic = true)
 
-    val documentation = environment.withContext { environment, module, context ->
-        val fragments = environment.getSourceFiles().map { context.getPackageFragment(it) }.filterNotNull().distinct()
+    val documentation = environment.withContext { environment, session ->
+        val fragments = environment.getSourceFiles().map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
         val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
         for ((name, parts) in fragments.groupBy { it.fqName }) {
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
 
         val documentationModule = DocumentationModule("test")
-        val documentationBuilder = DocumentationBuilder(context, options)
+        val documentationBuilder = DocumentationBuilder(session, options)
         with(documentationBuilder) {
             documentationModule.appendFragments(fragments)
         }

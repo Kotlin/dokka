@@ -59,7 +59,7 @@ public fun main(args: Array<String>) {
     println("Analysing sources and libraries... ")
     val startAnalyse = System.currentTimeMillis()
 
-    val documentation = environment.withContext { environment, module, context ->
+    val documentation = environment.withContext { environment, session ->
         val fragmentFiles = environment.getSourceFiles().filter {
             val sourceFile = File(it.getVirtualFile()!!.getPath())
             samples.none { sample ->
@@ -68,10 +68,10 @@ public fun main(args: Array<String>) {
                 canonicalSource.startsWith(canonicalSample)
             }
         }
-        val fragments = fragmentFiles.map { context.getPackageFragment(it) }.filterNotNull().distinct()
+        val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
         val documentationModule = DocumentationModule(arguments.moduleName)
         val options = DocumentationOptions()
-        val documentationBuilder = DocumentationBuilder(context, options)
+        val documentationBuilder = DocumentationBuilder(session, options)
 
         with(documentationBuilder) {
             val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()

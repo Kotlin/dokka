@@ -46,8 +46,6 @@ fun JetCoreEnvironment.analyze(): ResolveSession {
     return resolverForProject.resolverForModule(module).lazyResolveSession
 }
 
-fun BindingContext.getPackageFragment(file: JetFile): PackageFragmentDescriptor? = get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file)
-
 fun DeclarationDescriptor.isUserCode() =
         when (this) {
             is PackageViewDescriptor -> false
@@ -122,7 +120,7 @@ public fun getPropertyInnerScope(outerScope: JetScope, descriptor: PropertyDescr
     return propertyScope
 }
 
-fun BindingContext.getResolutionScope(descriptor: DeclarationDescriptor): JetScope {
+fun getResolutionScope(descriptor: DeclarationDescriptor): JetScope {
     when (descriptor) {
         is PackageFragmentDescriptor ->
             return getPackageInnerScope(descriptor)
