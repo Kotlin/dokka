@@ -55,6 +55,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, content.href))
                 }
+                is ContentParagraph -> {
+                    appendText(this, formatText(location, content.children))
+                }
                 else -> append(formatText(location, content.children))
             }
         }.toString()
@@ -82,7 +85,6 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         continue
                     appendLine(to, formatStrong(formatText(label)))
                     appendLine(to, formatText(location, section))
-                    appendLine(to)
                 }
             }
         }
@@ -126,14 +128,14 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                 appendText(to, formatLink(memberLocation))
                             }
                             appendTableCell(to) {
-                                val breakdownBySummary = members.groupBy { it.doc.summary }
+                                val breakdownBySummary = members.groupBy { formatText(location, it.doc.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     for (signature in items) {
                                         appendBlockCode(to, formatText(location, languageService.render(signature)))
                                     }
 
                                     if (!summary.isEmpty()) {
-                                        appendText(to, formatText(location, summary))
+                                        appendText(to, summary)
                                     }
                                 }
                             }

@@ -24,6 +24,7 @@ public class ContentKeyword(val text: String) : ContentNode()
 public class ContentIdentifier(val text: String) : ContentNode()
 public class ContentSymbol(val text: String) : ContentNode()
 
+public class ContentParagraph() : ContentBlock()
 public class ContentEmphasis() : ContentBlock()
 public class ContentStrong() : ContentBlock()
 public class ContentCode() : ContentBlock()
@@ -51,7 +52,7 @@ fun ContentNode.link(to: DocumentationNode, body: ContentNode.() -> Unit) {
 
 public class Content() : ContentNode() {
     public val sections: Map<String, ContentSection> by Delegates.lazy {
-        val map = hashMapOf<String, ContentSection>()
+        val map = linkedMapOf<String, ContentSection>()
         for (child in children) {
             if (child is ContentSection)
                 map.put(child.label, child)

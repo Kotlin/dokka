@@ -25,7 +25,7 @@ class DocumentationBuilder(val context: BindingContext, val options: Documentati
         val docText = context.getDocumentationElements(descriptor).map { it.extractText() }.join("\n")
         val tree = MarkdownProcessor.parse(docText)
         //println(tree.toTestString())
-        val content = tree.toContent()
+        val content = buildContent(tree, descriptor)
         return content
     }
 

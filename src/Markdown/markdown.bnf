@@ -59,7 +59,7 @@ HorizontalRule ::= NonindentSpace
                  | '_' OptionalSpace '_' OptionalSpace '_' (OptionalSpace '_')*)
                  OptionalSpace EOL BlankLine+
 
-Directive ::= '{' DirectiveName DirectiveParams '}'
+Directive ::= '{' DirectiveName Space+ DirectiveParams '}'
 DirectiveName ::= Word
 DirectiveParams ::= PlainText
 
