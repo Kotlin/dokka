@@ -30,7 +30,7 @@ public class MarkdownTree(private val text: String, private val structure: Flywe
     }
 
     fun findChildByType(node: LighterASTNode, findType: IElementType) : LighterASTNode? {
-        val ref = Ref.create<Array<LighterASTNode>?>()
+        val ref: Ref<Array<LighterASTNode>?> = Ref.create<Array<LighterASTNode>?>()
         val count = structure.getChildren(node, ref)
         val children = ref.get()
         if (children != null) {
@@ -53,7 +53,7 @@ public class MarkdownTree(private val text: String, private val structure: Flywe
 
     fun visit(node: LighterASTNode, action: (LighterASTNode, String, visitChildren: () -> Unit) -> Unit) {
         action(node, text) {
-            val ref = Ref.create<Array<LighterASTNode>?>()
+            val ref : Ref<Array<LighterASTNode>?> = Ref.create<Array<LighterASTNode>?>()
             val count = structure.getChildren(node, ref)
             val children = ref.get()
             if (children != null) {
