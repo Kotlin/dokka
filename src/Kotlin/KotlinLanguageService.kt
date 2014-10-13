@@ -110,9 +110,11 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderModifier(node: DocumentationNode) {
         when (node.name) {
-            "final", "internal" -> {
+            "final", "internal" -> {}
+            else -> {
+                keyword(node.name)
+                text(" ")
             }
-            else -> keyword(node.name)
         }
     }
 
@@ -161,7 +163,6 @@ class KotlinLanguageService : LanguageService {
             if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
                 continue
             renderModifier(it)
-            text(" ")
         }
     }
 

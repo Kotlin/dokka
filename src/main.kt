@@ -11,7 +11,11 @@ import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
     ValueDescription("<path>")
-    public var src: String? = null
+    public var src: String = ""
+
+    Argument(value = "samples", description = "Source root for samples")
+    ValueDescription("<path>")
+    public var samples: String = ""
 
     Argument(value = "output", description = "Output directory path for .md files")
     ValueDescription("<path>")
@@ -24,21 +28,25 @@ class DokkaArguments {
     Argument(value = "classpath", description = "Classpath for symbol resolution")
     ValueDescription("<path>")
     public var classpath: String = ""
+
 }
 
 public fun main(args: Array<String>) {
 
     val arguments = DokkaArguments()
-    val sourceFiles = Args.parse(arguments, args)
-    val sources: List<String> = sourceFiles ?: listOf()
+    val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
+    val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
+    val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
 
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         addClasspath(PathUtil.getJdkClassesRoots())
+        //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
         for (element in arguments.classpath.split(File.pathSeparatorChar)) {
             addClasspath(File(element))
         }
-        //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
+
         addSources(sources)
+        addSources(samples)
     }
 
     println("Module: ${arguments.moduleName}")
@@ -52,7 +60,15 @@ public fun main(args: Array<String>) {
     val startAnalyse = System.currentTimeMillis()
 
     val documentation = environment.withContext { environment, module, context ->
-        val fragments = environment.getSourceFiles().map { context.getPackageFragment(it) }.filterNotNull().distinct()
+        val fragmentFiles = environment.getSourceFiles().filter {
+            val sourceFile = File(it.getVirtualFile()!!.getPath())
+            samples.none { sample ->
+                val canonicalSample = File(sample).canonicalPath
+                val canonicalSource = sourceFile.canonicalPath
+                canonicalSource.startsWith(canonicalSample)
+            }
+        }
+        val fragments = fragmentFiles.map { context.getPackageFragment(it) }.filterNotNull().distinct()
         val documentationModule = DocumentationModule(arguments.moduleName)
         val options = DocumentationOptions()
         val documentationBuilder = DocumentationBuilder(context, options)

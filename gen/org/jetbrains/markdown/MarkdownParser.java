@@ -336,16 +336,33 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // '{' DirectiveName DirectiveParams '}'
+  // '{' DirectiveName Space+ DirectiveParams '}'
   public static boolean Directive(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Directive")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, "<directive>");
     r = consumeToken(b, "{");
     r = r && DirectiveName(b, l + 1);
+    r = r && Directive_2(b, l + 1);
     r = r && DirectiveParams(b, l + 1);
     r = r && consumeToken(b, "}");
     exit_section_(b, l, m, DIRECTIVE, r, false, null);
+    return r;
+  }
+
+  // Space+
+  private static boolean Directive_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Directive_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, SPACE);
+    int c = current_position_(b);
+    while (r) {
+      if (!consumeToken(b, SPACE)) break;
+      if (!empty_element_parsed_guard_(b, "Directive_2", c)) break;
+      c = current_position_(b);
+    }
+    exit_section_(b, m, null, r);
     return r;
   }
 
