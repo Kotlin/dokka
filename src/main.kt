@@ -98,7 +98,8 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
-    val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
+    //val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
+    val formatter = KotlinWebsiteFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
     print("Generating pages... ")
     generator.buildPage(documentation)
