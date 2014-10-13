@@ -12,6 +12,9 @@ public interface MarkdownElementTypes {
   IElementType BULLET = new IElementType("BULLET", null);
   IElementType BULLET_LIST = new IElementType("BULLET_LIST", null);
   IElementType CODE = new IElementType("CODE", null);
+  IElementType DIRECTIVE = new IElementType("DIRECTIVE", null);
+  IElementType DIRECTIVE_NAME = new IElementType("DIRECTIVE_NAME", null);
+  IElementType DIRECTIVE_PARAMS = new IElementType("DIRECTIVE_PARAMS", null);
   IElementType EMPH = new IElementType("EMPH", null);
   IElementType END_LINE = new IElementType("END_LINE", null);
   IElementType ENUMERATOR = new IElementType("ENUMERATOR", null);

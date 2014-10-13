@@ -40,6 +40,15 @@ public class MarkdownParser implements PsiParser {
     else if (t == CODE) {
       r = Code(b, 0);
     }
+    else if (t == DIRECTIVE) {
+      r = Directive(b, 0);
+    }
+    else if (t == DIRECTIVE_NAME) {
+      r = DirectiveName(b, 0);
+    }
+    else if (t == DIRECTIVE_PARAMS) {
+      r = DirectiveParams(b, 0);
+    }
     else if (t == EMPH) {
       r = Emph(b, 0);
     }
@@ -148,6 +157,7 @@ public class MarkdownParser implements PsiParser {
   //               OrderedList
   //             | BulletList
   //             | HorizontalRule
+  //             | Directive
   //             | Para
   //             )
   public static boolean Block(PsiBuilder b, int l) {
@@ -175,6 +185,7 @@ public class MarkdownParser implements PsiParser {
   // OrderedList
   //             | BulletList
   //             | HorizontalRule
+  //             | Directive
   //             | Para
   private static boolean Block_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Block_1")) return false;
@@ -183,6 +194,7 @@ public class MarkdownParser implements PsiParser {
     r = OrderedList(b, l + 1);
     if (!r) r = BulletList(b, l + 1);
     if (!r) r = HorizontalRule(b, l + 1);
+    if (!r) r = Directive(b, l + 1);
     if (!r) r = Para(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -320,6 +332,43 @@ public class MarkdownParser implements PsiParser {
     Marker m = enter_section_(b, l, _NOT_, null);
     r = !consumeToken(b, "`");
     exit_section_(b, l, m, null, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // '{' DirectiveName DirectiveParams '}'
+  public static boolean Directive(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Directive")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<directive>");
+    r = consumeToken(b, "{");
+    r = r && DirectiveName(b, l + 1);
+    r = r && DirectiveParams(b, l + 1);
+    r = r && consumeToken(b, "}");
+    exit_section_(b, l, m, DIRECTIVE, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // Word
+  public static boolean DirectiveName(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DirectiveName")) return false;
+    if (!nextTokenIs(b, WORD)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, WORD);
+    exit_section_(b, m, DIRECTIVE_NAME, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // PlainText
+  public static boolean DirectiveParams(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DirectiveParams")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, "<directive params>");
+    r = PlainText(b, l + 1);
+    exit_section_(b, l, m, DIRECTIVE_PARAMS, r, false, null);
     return r;
   }
 
@@ -1322,7 +1371,7 @@ public class MarkdownParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // (Word | Number | Space+)+
+  // (Word | Number | Space | ':')+
   public static boolean PlainText(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "PlainText")) return false;
     boolean r;
@@ -1338,30 +1387,15 @@ public class MarkdownParser implements PsiParser {
     return r;
   }
 
-  // Word | Number | Space+
+  // Word | Number | Space | ':'
   private static boolean PlainText_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "PlainText_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, WORD);
     if (!r) r = consumeToken(b, NUMBER);
-    if (!r) r = PlainText_0_2(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // Space+
-  private static boolean PlainText_0_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "PlainText_0_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, SPACE);
-    int c = current_position_(b);
-    while (r) {
-      if (!consumeToken(b, SPACE)) break;
-      if (!empty_element_parsed_guard_(b, "PlainText_0_2", c)) break;
-      c = current_position_(b);
-    }
+    if (!r) r = consumeToken(b, SPACE);
+    if (!r) r = consumeToken(b, ":");
     exit_section_(b, m, null, r);
     return r;
   }
