@@ -68,6 +68,7 @@ public open class DocumentationNode(val name: String,
         Constructor
         Function
         Property
+        PropertyAccessor
 
         Parameter
         Receiver
