@@ -284,7 +284,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             }
         }
 
-        resolveContentLinks(node, node.doc)
+        resolveContentLinks(node, node.content)
 
         for (child in node.members) {
             resolveReferences(child)

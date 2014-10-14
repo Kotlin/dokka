@@ -84,7 +84,9 @@ public class Content() : ContentNode() {
         map
     }
 
-    public val summary: ContentNode get() = sections["\$summary"] ?: ContentNode.empty
+    public val summary: ContentNode get()  {
+        return sections["\$summary"] ?: ContentNode.empty
+    }
     public val description: ContentNode get() = sections["\$description"] ?: ContentNode.empty
 
     override fun equals(other: Any?): Boolean {

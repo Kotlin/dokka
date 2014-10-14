@@ -10,7 +10,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function fn", doc.summary.toTestString())
+                assertEquals("Function fn", content.summary.toTestString())
                 assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function with receiver", doc.summary.toTestString())
+                assertEquals("Function with receiver", content.summary.toTestString())
                 assertEquals("Unit", details.elementAt(0).name)
 
                 assertEquals(4, details.count())
@@ -32,7 +32,7 @@ public class FunctionTest {
                 with(details.elementAt(3)) {
                     assertEquals("<this>", name)
                     assertEquals(DocumentationNode.Kind.Receiver, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     assertEquals("String", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())
@@ -48,7 +48,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("generic function", doc.summary.toTestString())
+                assertEquals("generic function", content.summary.toTestString())
 
                 assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
@@ -57,7 +57,7 @@ public class FunctionTest {
                 with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     assertTrue(details.none())
                     assertTrue(members.none())
                     assertTrue(links.none())
@@ -73,7 +73,7 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("generic function", doc.summary.toTestString())
+                assertEquals("generic function", content.summary.toTestString())
 
                 assertEquals(5, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
@@ -82,11 +82,11 @@ public class FunctionTest {
                 with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     with(details.single()) {
                         assertEquals("R", name)
                         assertEquals(DocumentationNode.Kind.UpperBound, kind)
-                        assertEquals(Content.Empty, doc)
+                        assertEquals(Content.Empty, content)
                         assertTrue(details.none())
                         assertTrue(members.none())
                         assertTrue(links.none())
@@ -97,7 +97,7 @@ public class FunctionTest {
                 with(details.elementAt(4)) {
                     assertEquals("R", name)
                     assertEquals(DocumentationNode.Kind.TypeParameter, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
@@ -113,9 +113,9 @@ public class FunctionTest {
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Multiline", doc.summary.toTestString())
+                assertEquals("Multiline", content.summary.toTestString())
                 assertEquals("""Function
-Documentation""", doc.description.toTestString())
+Documentation""", content.description.toTestString())
 
                 assertEquals(4, details.count())
                 assertEquals("Unit", details.elementAt(0).name)
@@ -124,7 +124,7 @@ Documentation""", doc.description.toTestString())
                 with(details.elementAt(3)) {
                     assertEquals("x", name)
                     assertEquals(DocumentationNode.Kind.Parameter, kind)
-                    assertEquals("parameter", doc.summary.toTestString())
+                    assertEquals("parameter", content.summary.toTestString())
                     assertEquals("Int", details.single().name)
                     assertTrue(members.none())
                     assertTrue(links.none())

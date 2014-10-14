@@ -11,7 +11,7 @@ public class JavaTest {
             with(pkg.members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function fn", doc.summary)
+                assertEquals("Function fn", content.summary)
                 assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())

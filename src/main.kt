@@ -7,11 +7,17 @@ import org.jetbrains.jet.cli.common.arguments.*
 import org.jetbrains.jet.utils.PathUtil
 import java.io.File
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
+import org.jetbrains.jet.lang.resolve.name.FqName
+import java.lang.reflect.Constructor
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
     ValueDescription("<path>")
     public var src: String = ""
+
+    Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
+    ValueDescription("<path>")
+    public var include: String = ""
 
     Argument(value = "samples", description = "Source root for samples")
     ValueDescription("<path>")
@@ -32,11 +38,11 @@ class DokkaArguments {
 }
 
 public fun main(args: Array<String>) {
-
     val arguments = DokkaArguments()
     val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
     val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
     val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
+    val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
 
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         addClasspath(PathUtil.getJdkClassesRoots())
@@ -59,6 +65,7 @@ public fun main(args: Array<String>) {
     println("Analysing sources and libraries... ")
     val startAnalyse = System.currentTimeMillis()
 
+
     val documentation = environment.withContext { environment, session ->
         val fragmentFiles = environment.getSourceFiles().filter {
             val sourceFile = File(it.getVirtualFile()!!.getPath())
@@ -69,11 +76,21 @@ public fun main(args: Array<String>) {
             }
         }
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-        val documentationModule = DocumentationModule(arguments.moduleName)
         val options = DocumentationOptions()
         val documentationBuilder = DocumentationBuilder(session, options)
 
         with(documentationBuilder) {
+
+            val moduleContent = Content()
+            for (include in includes) {
+                val text = File(include).readText()
+                val tree = MarkdownProcessor.parse(text)
+                val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
+                moduleContent.children.addAll(content.children)
+            }
+
+            val documentationModule = DocumentationModule(arguments.moduleName, moduleContent)
+
             val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
             for ((name, parts) in fragments.groupBy { it.fqName }) {
                 descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
@@ -84,10 +101,9 @@ public fun main(args: Array<String>) {
                 packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
                 documentationModule.append(packageNode, DocumentationReference.Kind.Member)
             }
+            documentationBuilder.resolveReferences(documentationModule)
+            documentationModule
         }
-
-        documentationBuilder.resolveReferences(documentationModule)
-        documentationModule
     }
 
     val timeAnalyse = System.currentTimeMillis() - startAnalyse
@@ -98,7 +114,7 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
-    //val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
+//    val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
     val formatter = KotlinWebsiteFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
     print("Generating pages... ")

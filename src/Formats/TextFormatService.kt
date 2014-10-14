@@ -7,9 +7,9 @@ public class TextFormatService(val signatureGenerator: LanguageService) : Format
             with (to) {
                 appendln(signatureGenerator.render(node))
                 appendln()
-                appendln(node.doc.summary)
+                appendln(node.content.summary)
 
-                for ((label, section) in node.doc.sections) {
+                for ((label, section) in node.content.sections) {
                     appendln(label)
                 }
             }
