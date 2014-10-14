@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="org.jetbrains.dokka" />
       <sourceFolder url="file://$MODULE_DIR$/test/src" isTestSource="true" packagePrefix="org.jetbrains.dokka.tests" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -14,4 +15,3 @@
     <orderEntry type="library" name="junit:junit:4.11" level="project" />
   </component>
 </module>
-
