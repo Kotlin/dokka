@@ -139,10 +139,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         is ClassDescriptor -> build()
         is ConstructorDescriptor -> build()
         is ScriptDescriptor -> build()
-        is FunctionDescriptor -> build()
         is PropertyDescriptor -> build()
-        is PropertyGetterDescriptor -> build()
-        is PropertySetterDescriptor -> build()
+        is PropertyAccessorDescriptor -> build()
+        is FunctionDescriptor -> build()
         is TypeParameterDescriptor -> build()
         is ValueParameterDescriptor -> build()
         is ReceiverParameterDescriptor -> build()
@@ -190,6 +189,17 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         register(this, node)
         return node
 
+    }
+
+    fun PropertyAccessorDescriptor.build(): DocumentationNode {
+        val doc = parseDocumentation(this)
+        val specialName = getName().asString().drop(1).takeWhile { it != '-' }
+        val node = DocumentationNode(specialName, doc, Kind.PropertyAccessor)
+
+        node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
+        node.appendType(getReturnType())
+        register(this, node)
+        return node
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
@@ -257,14 +267,16 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
      * $node: [DocumentationNode] to visit
      */
     public fun resolveReferences(node: DocumentationNode) {
-        node.details(DocumentationNode.Kind.Receiver).forEach { detail ->
-            val receiverType = detail.detail(DocumentationNode.Kind.Type)
-            val descriptor = links[receiverType]
-            if (descriptor != null) {
-                val typeNode = descriptorToNode[descriptor]
-                // if typeNode is null, extension is to external type like in a library
-                // should we create dummy node here?
-                typeNode?.addReferenceTo(node, DocumentationReference.Kind.Extension)
+        if (node.kind != Kind.PropertyAccessor) {
+            node.details(DocumentationNode.Kind.Receiver).forEach { receiver ->
+                val receiverType = receiver.detail(DocumentationNode.Kind.Type)
+                val descriptor = links[receiverType]
+                if (descriptor != null) {
+                    val typeNode = descriptorToNode[descriptor]
+                    // if typeNode is null, extension is to external type like in a library
+                    // should we create dummy node here?
+                    typeNode?.addReferenceTo(node, DocumentationReference.Kind.Extension)
+                }
             }
         }
         node.details(DocumentationNode.Kind.Supertype).forEach { detail ->

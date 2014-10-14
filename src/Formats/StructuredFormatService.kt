@@ -81,7 +81,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 if (!single) {
                     appendBlockCode(to, formatText(location, languageService.render(node)))
                 }
-                appendLine(to, formatText(location,node.content.description))
+                appendLine(to, formatText(location, node.content.description))
                 appendLine(to)
                 for ((label, section) in node.content.sections) {
                     if (label.startsWith("$"))
@@ -118,7 +118,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
     }
 
-    private fun StructuredFormatService.appendSection(location : Location, caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
+    private fun StructuredFormatService.appendSection(location: Location, caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
         if (nodes.any()) {
             appendHeader(to, caption, 3)
 
@@ -163,7 +163,30 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
 
         for (node in nodes) {
-            appendSection(location, "Members", node.members, node, to)
+            appendSection(location, "Packages", node.members(DocumentationNode.Kind.Package), node, to)
+            appendSection(location, "Types", node.members.filter {
+                it.kind in setOf(
+                        DocumentationNode.Kind.Class,
+                        DocumentationNode.Kind.Interface,
+                        DocumentationNode.Kind.Enum,
+                        DocumentationNode.Kind.Object)
+            }, node, to)
+            appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
+            appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
+            appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
+            appendSection(location, "Accessors", node.members(DocumentationNode.Kind.PropertyAccessor), node, to)
+            appendSection(location, "Other members", node.members.filter {
+                it.kind !in setOf(
+                        DocumentationNode.Kind.Class,
+                        DocumentationNode.Kind.Interface,
+                        DocumentationNode.Kind.Object,
+                        DocumentationNode.Kind.Constructor,
+                        DocumentationNode.Kind.Property,
+                        DocumentationNode.Kind.Package,
+                        DocumentationNode.Kind.Function,
+                        DocumentationNode.Kind.PropertyAccessor
+                        )
+            }, node, to)
             appendSection(location, "Extensions", node.extensions, node, to)
             appendSection(location, "Inheritors", node.inheritors, node, to)
             appendSection(location, "Links", node.links, node, to)
