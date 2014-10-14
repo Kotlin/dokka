@@ -43,10 +43,10 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         val doc = parseDocumentation(descriptor)
         val node = DocumentationNode(descriptor.getName().asString(), doc, kind)
         if (descriptor is MemberDescriptor) {
+            node.appendVisibility(descriptor)
             if (descriptor !is ConstructorDescriptor) {
                 node.appendModality(descriptor)
             }
-            node.appendVisibility(descriptor)
         }
         return node
     }
