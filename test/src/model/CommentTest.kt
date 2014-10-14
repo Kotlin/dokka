@@ -8,7 +8,7 @@ public class CommentTest {
     Test fun emptyDoc() {
         verifyModel("test/data/comments/emptyDoc.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
             }
         }
     }
@@ -16,7 +16,7 @@ public class CommentTest {
     Test fun emptyDocButComment() {
         verifyModel("test/data/comments/emptyDocButComment.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
             }
         }
     }
@@ -24,8 +24,8 @@ public class CommentTest {
     Test fun multilineDoc() {
         verifyModel("test/data/comments/multilineDoc.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc1", doc.summary.toTestString())
-                assertEquals("doc2\ndoc3\n", doc.description.toTestString())
+                assertEquals("doc1", content.summary.toTestString())
+                assertEquals("doc2\ndoc3\n", content.description.toTestString())
             }
         }
     }
@@ -33,8 +33,8 @@ public class CommentTest {
     Test fun multipleDocs() {
         verifyModel("test/data/comments/multipleDocs.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc1", doc.summary.toTestString())
-                assertEquals("doc2\ndoc3", doc.description.toTestString())
+                assertEquals("doc1", content.summary.toTestString())
+                assertEquals("doc2\ndoc3", content.description.toTestString())
             }
         }
     }
@@ -42,8 +42,8 @@ public class CommentTest {
     Test fun multilineDocWithComment() {
         verifyModel("test/data/comments/multilineDocWithComment.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc1", doc.summary.toTestString())
-                assertEquals("doc2\ndoc3", doc.description.toTestString())
+                assertEquals("doc1", content.summary.toTestString())
+                assertEquals("doc2\ndoc3", content.description.toTestString())
             }
         }
     }
@@ -51,7 +51,7 @@ public class CommentTest {
     Test fun oneLineDoc() {
         verifyModel("test/data/comments/oneLineDoc.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc", doc.summary.toTestString())
+                assertEquals("doc", content.summary.toTestString())
             }
         }
     }
@@ -59,7 +59,7 @@ public class CommentTest {
     Test fun oneLineDocWithComment() {
         verifyModel("test/data/comments/oneLineDocWithComment.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc", doc.summary.toTestString())
+                assertEquals("doc", content.summary.toTestString())
             }
         }
     }
@@ -67,7 +67,7 @@ public class CommentTest {
     Test fun oneLineDocWithEmptyLine() {
         verifyModel("test/data/comments/oneLineDocWithEmptyLine.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("doc", doc.summary.toTestString())
+                assertEquals("doc", content.summary.toTestString())
             }
         }
     }
@@ -75,9 +75,9 @@ public class CommentTest {
     Test fun emptySection() {
         verifyModel("test/data/comments/emptySection.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("", toTestString())
                 }
@@ -88,9 +88,9 @@ public class CommentTest {
     Test fun explicitSummary() {
         verifyModel("test/data/comments/explicitSummary.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals("Description", doc.description.toTestString())
-                assertEquals(2, doc.sections.count())
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals("Description", content.description.toTestString())
+                assertEquals(2, content.sections.count())
             }
         }
     }
@@ -98,9 +98,9 @@ public class CommentTest {
     Test fun section1() {
         verifyModel("test/data/comments/section1.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("section one", toTestString())
                 }
@@ -111,13 +111,13 @@ public class CommentTest {
     Test fun section2() {
         verifyModel("test/data/comments/section2.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(3, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(3, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("section one", toTestString())
                 }
-                with (doc.sections["two"]!!) {
+                with (content.sections["two"]!!) {
                     assertEquals("two", label)
                     assertEquals("section two", toTestString())
                 }
@@ -128,9 +128,9 @@ public class CommentTest {
     Test fun sectionOnOneLine() {
         verifyModel("test/data/comments/sectionOnOneLine.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("same line", toTestString())
                 }
@@ -141,9 +141,9 @@ public class CommentTest {
     Test fun emptySectionOnOneLine() {
         verifyModel("test/data/comments/emptySectionOnOneLine.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("", toTestString())
                 }
@@ -154,9 +154,9 @@ public class CommentTest {
     Test fun multilineSection() {
         verifyModel("test/data/comments/multilineSection.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["one"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["one"]!!) {
                     assertEquals("one", label)
                     assertEquals("""line one
 line two""", toTestString())
@@ -168,9 +168,9 @@ line two""", toTestString())
     Test fun sectionWithBracedLabel() {
         verifyModel("test/data/comments/sectionWithBracedLabel.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("Summary", doc.summary.toTestString())
-                assertEquals(2, doc.sections.count())
-                with (doc.sections["this.label.is.really.long"]!!) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.sections["this.label.is.really.long"]!!) {
                     assertEquals("this.label.is.really.long", label)
                     assertEquals("section one", toTestString())
                 }

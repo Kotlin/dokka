@@ -12,7 +12,7 @@ public trait LocationService {
 }
 
 
-public fun escapeUri(path: String): String = path.replace('<', '_').replace('>', '_')
+public fun escapeUri(path: String): String = path.replace('<', '-').replace('>', '-')
 
 fun LocationService.relativeLocation(owner: DocumentationNode, node: DocumentationNode, extension: String): Location {
     return relativeLocation(location(owner), node, extension)

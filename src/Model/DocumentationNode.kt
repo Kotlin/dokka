@@ -3,10 +3,20 @@ package org.jetbrains.dokka
 import java.util.LinkedHashSet
 
 public open class DocumentationNode(val name: String,
-                                    val doc: Content,
+                                    val content: Content,
                                     val kind: DocumentationNode.Kind) {
 
     private val references = LinkedHashSet<DocumentationReference>()
+
+    public val summary: ContentNode get()  {
+        val contentSection = content.sections["\$summary"]
+        if (contentSection != null)
+            return contentSection
+        val ownerSection = owner?.content?.sections?.get(name)
+        if (ownerSection != null)
+            return ownerSection
+        return ContentNode.empty
+    }
 
     public val owner: DocumentationNode?
         get() = references(DocumentationReference.Kind.Owner).singleOrNull()?.to

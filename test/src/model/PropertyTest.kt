@@ -10,7 +10,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -23,7 +23,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -36,13 +36,13 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(links.none())
                 with(members.single()) {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
                     assertTrue(members.none())
@@ -56,7 +56,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
-                assertEquals(Content.Empty, doc)
+                assertEquals(Content.Empty, content)
                 assertEquals(3, details.count())
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
@@ -68,7 +68,7 @@ public class PropertyTest {
                 with(members.elementAt(0)) {
                     assertEquals("<get-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     val get_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
                     assertTrue("final" in get_modifiers)
                     assertTrue("internal" in get_modifiers)
@@ -79,7 +79,7 @@ public class PropertyTest {
                 with(members.elementAt(1)) {
                     assertEquals("<set-property>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals(Content.Empty, doc)
+                    assertEquals(Content.Empty, content)
                     assertEquals(4, details.count())
                     assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                     val set_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
@@ -88,7 +88,7 @@ public class PropertyTest {
                     with(detail(DocumentationNode.Kind.Parameter)) {
                         assertEquals("value", name)
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
-                        assertEquals(Content.Empty, doc)
+                        assertEquals(Content.Empty, content)
                         assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                         assertTrue(links.none())
                         assertTrue(members.none())

@@ -73,7 +73,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     fun appendDescription(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val described = nodes.filter { !it.doc.isEmpty }
+        val described = nodes.filter { !it.content.isEmpty }
         if (described.any()) {
             val single = described.size == 1
             appendHeader(to, "Description", 3)
@@ -81,10 +81,12 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 if (!single) {
                     appendBlockCode(to, formatText(location, languageService.render(node)))
                 }
-                appendLine(to, formatText(location,node.doc.description))
+                appendLine(to, formatText(location,node.content.description))
                 appendLine(to)
-                for ((label, section) in node.doc.sections) {
+                for ((label, section) in node.content.sections) {
                     if (label.startsWith("$"))
+                        continue
+                    if (node.members.any { it.name == label })
                         continue
                     appendLine(to, formatStrong(formatText(label)))
                     appendLine(to, formatText(location, section))
@@ -95,14 +97,14 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
     fun appendSummary(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownBySummary = nodes.groupByTo(LinkedHashMap()) { node ->
-            node.doc.summary
+            formatText(location, node.summary)
         }
 
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
                 appendBlockCode(to, formatText(location, languageService.render(it)))
             }
-            appendLine(to, formatText(location, summary))
+            appendLine(to, summary)
             appendLine(to)
         }
     }
@@ -131,7 +133,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                 appendText(to, formatLink(memberLocation))
                             }
                             appendTableCell(to) {
-                                val breakdownBySummary = members.groupBy { formatText(location, it.doc.summary) }
+                                val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     for (signature in items) {
                                         appendBlockCode(to, formatText(location, languageService.render(signature)))

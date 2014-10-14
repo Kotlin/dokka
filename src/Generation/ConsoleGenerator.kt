@@ -13,7 +13,7 @@ public class ConsoleGenerator(val signatureGenerator: LanguageService, val locat
 
     public fun generateHeader(node: DocumentationNode, indent: String = "") {
         println(indent + signatureGenerator.render(node))
-        val docString = node.doc.toString()
+        val docString = node.content.toString()
         if (!docString.isEmpty())
             println("$indent\"${docString.replace("\n", "\n$indent")}\"")
         println()

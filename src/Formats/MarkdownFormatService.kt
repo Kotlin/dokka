@@ -55,7 +55,9 @@ public open class MarkdownFormatService(locationService: LocationService,
     }
 
     override public fun appendText(to: StringBuilder, text: String) {
-        to.append(text)
+        to.appendln()
+        to.appendln(text)
+        to.appendln()
     }
 
     override public fun appendHeader(to: StringBuilder, text: String, level: Int) {

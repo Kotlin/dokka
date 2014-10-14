@@ -27,10 +27,6 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         return "<a href=\"${href}\">${text}</a>"
     }
 
-    override fun appendText(to: StringBuilder, text: String) {
-        to.appendln("<p markdown=\"1\">${text}</p>")
-    }
-
     override fun appendTable(to: StringBuilder, body: () -> Unit) {
         to.appendln("<table class=\"api-docs-table\">")
         body()
