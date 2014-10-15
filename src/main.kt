@@ -83,10 +83,15 @@ public fun main(args: Array<String>) {
 
             val moduleContent = Content()
             for (include in includes) {
-                val text = File(include).readText()
-                val tree = MarkdownProcessor.parse(text)
-                val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
-                moduleContent.children.addAll(content.children)
+                val file = File(include)
+                if (file.exists()) {
+                    val text = file.readText()
+                    val tree = MarkdownProcessor.parse(text)
+                    val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
+                    moduleContent.children.addAll(content.children)
+                } else {
+                    println("WARN: Include file $file was not found.")
+                }
             }
 
             val documentationModule = DocumentationModule(arguments.moduleName, moduleContent)
