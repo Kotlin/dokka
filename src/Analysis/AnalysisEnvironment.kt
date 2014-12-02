@@ -32,7 +32,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * $processor is a function to receive compiler environment, module and context for symbol resolution
      */
     public fun withContext<T>(processor: (JetCoreEnvironment, ResolveSession) -> T): T {
-        val environment = JetCoreEnvironment.createForProduction(this, configuration)
+        val environment = JetCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val resolveSession = environment.analyze()
         resolveSession.forceResolveAll()
         return processor(environment, resolveSession)
