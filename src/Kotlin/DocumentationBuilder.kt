@@ -246,7 +246,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
 
         for (constraint in getLowerBounds()) {
-            if (builtIns.isNothing(constraint))
+            if (KotlinBuiltIns.isNothing(constraint))
                 continue
             val constraintNode = DocumentationNode(constraint.toString(), Content.Empty, DocumentationNode.Kind.LowerBound)
             node.append(constraintNode, DocumentationReference.Kind.Detail)
