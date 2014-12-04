@@ -94,7 +94,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             return
         val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
-            is Named -> prefix + classifierDescriptor.getName().asString() + if (jetType.isNullable()) "?" else ""
+            is Named -> prefix + classifierDescriptor.getName().asString() + if (jetType.isMarkedNullable()) "?" else ""
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, kind)
