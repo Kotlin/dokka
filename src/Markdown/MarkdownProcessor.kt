@@ -1,80 +1,34 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.markdown.*
-import com.intellij.lang.impl.PsiBuilderImpl
-import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.Language
-import com.intellij.psi.tree.IFileElementType
-import com.intellij.lang.LighterASTNode
-import com.intellij.util.diff.FlyweightCapableTreeStructure
-import com.intellij.openapi.util.Ref
-import org.jetbrains.markdown.lexer.MarkdownLexer
-import com.intellij.psi.tree.IElementType
+import net.nicoulaj.idea.markdown.lang.ast.*
+import net.nicoulaj.idea.markdown.lang.parser.dialects.commonmark.*
+import net.nicoulaj.idea.markdown.lang.parser.*
+import net.nicoulaj.idea.markdown.lang.*
 
-public object MarkdownProcessor {
-    val EXPR_LANGUAGE = object : Language("MARKDOWN") {}
-    val DOCUMENT = IFileElementType("DOCUMENT", EXPR_LANGUAGE);
+class MarkdownNode(val node: ASTNode, val markdown: String) {
+    val children: List<MarkdownNode> get() = node.children.map { MarkdownNode(it, markdown) }
+    val endOffset: Int get() = node.endOffset
+    val startOffset: Int get() = node.startOffset
+    val type: IElementType get() = node.type
+    val text: String get() = markdown.substring(startOffset, endOffset)
+    fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
+}
 
-    public fun parse(markdown: String): MarkdownTree {
-        val parser = MarkdownParser()
-        val builder = PsiBuilderImpl(null, null, TokenSet.EMPTY, TokenSet.EMPTY, MarkdownLexer(), null, markdown, null, null)
-        parser.parse_only_(DOCUMENT, builder)
-        val light = builder.getLightTree()!!
-        return MarkdownTree(markdown, light)
+fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {
+    action(this) {
+        for (child in children) {
+            child.visit(action)
+        }
     }
 }
 
-public class MarkdownTree(private val text: String, private val structure: FlyweightCapableTreeStructure<LighterASTNode>) {
-    fun visit(action: (LighterASTNode, String, visitChildren: () -> Unit) -> Unit) {
-        visit(structure.getRoot(), action)
-    }
-
-    fun findChildByType(node: LighterASTNode, findType: IElementType) : LighterASTNode? {
-        val ref: Ref<Array<LighterASTNode>?> = Ref.create<Array<LighterASTNode>?>()
-        val count = structure.getChildren(node, ref)
-        val children = ref.get()
-        if (children != null) {
-            for (index in 0..count - 1) {
-                val child = children[index]
-                val nodeType = child.getTokenType()
-                if (nodeType == findType)
-                    return child
-                val nestedChild = findChildByType(child, findType)
-                if (nestedChild != null)
-                    return nestedChild
-            }
-        }
-        return null
-    }
-
-    fun getNodeText(node: LighterASTNode) : String {
-        return text.substring(node.getStartOffset(), node.getEndOffset())
-    }
-
-    fun visit(node: LighterASTNode, action: (LighterASTNode, String, visitChildren: () -> Unit) -> Unit) {
-        action(node, text) {
-            val ref : Ref<Array<LighterASTNode>?> = Ref.create<Array<LighterASTNode>?>()
-            val count = structure.getChildren(node, ref)
-            val children = ref.get()
-            if (children != null) {
-                for (index in 0..count - 1) {
-                    val child = children[index]
-                    visit(child, action)
-                }
-            }
-        }
-    }
-
-}
-
-public fun MarkdownTree.toTestString(): String {
+public fun MarkdownNode.toTestString(): String {
     val sb = StringBuilder()
     var level = 0
-    visit {(node, text, visitChildren) ->
-        val nodeText = text.substring(node.getStartOffset(), node.getEndOffset())
+    visit {(node, visitChildren) ->
         sb.append(" ".repeat(level * 2))
-        sb.append(node.getTokenType().toString())
-        sb.append(":" + nodeText.replace("\n", "\u23CE"))
+        sb.append(node.type.toString())
+        sb.append(":" + node.text.replace("\n", "\u23CE"))
         sb.appendln()
         level++
         visitChildren()
@@ -83,26 +37,23 @@ public fun MarkdownTree.toTestString(): String {
     return sb.toString()
 }
 
-public fun MarkdownTree.toHtml(): String {
+public fun MarkdownNode.toHtml(): String {
     val sb = StringBuilder()
-    visit {(node, text, processChildren) ->
-        val nodeType = node.getTokenType()
-        val nodeText = text.substring(node.getStartOffset(), node.getEndOffset())
+    visit {(node, processChildren) ->
+        val nodeType = node.type
+        val nodeText = node.text
         when (nodeType) {
-            MarkdownElementTypes.BULLET_LIST -> {
+            MarkdownElementTypes.UNORDERED_LIST -> {
                 sb.appendln("<ul>")
                 processChildren()
                 sb.appendln("</ul>")
-            }
-            MarkdownElementTypes.HORIZONTAL_RULE -> {
-                sb.appendln("<hr/>")
             }
             MarkdownElementTypes.ORDERED_LIST -> {
                 sb.appendln("<ol>")
                 processChildren()
                 sb.appendln("</ol>")
             }
-            MarkdownElementTypes.LIST_BLOCK -> {
+            MarkdownElementTypes.LIST_ITEM -> {
                 sb.append("<li>")
                 processChildren()
                 sb.appendln("</li>")
@@ -117,19 +68,53 @@ public fun MarkdownTree.toHtml(): String {
                 processChildren()
                 sb.append("</strong>")
             }
-            MarkdownElementTypes.PLAIN_TEXT -> {
-                sb.append(nodeText)
+            MarkdownElementTypes.ATX_1 -> {
+                sb.append("<h1>")
+                processChildren()
+                sb.append("</h1>")
             }
-            MarkdownElementTypes.END_LINE -> {
-                sb.appendln()
+            MarkdownElementTypes.ATX_2 -> {
+                sb.append("<h2>")
+                processChildren()
+                sb.append("</h2>")
             }
-            MarkdownElementTypes.BLANK_LINE -> {
-                sb.appendln()
+            MarkdownElementTypes.ATX_3 -> {
+                sb.append("<h3>")
+                processChildren()
+                sb.append("</h3>")
             }
-            MarkdownElementTypes.PARA -> {
+            MarkdownElementTypes.ATX_4 -> {
+                sb.append("<h4>")
+                processChildren()
+                sb.append("</h4>")
+            }
+            MarkdownElementTypes.ATX_5 -> {
+                sb.append("<h5>")
+                processChildren()
+                sb.append("</h5>")
+            }
+            MarkdownElementTypes.ATX_6 -> {
+                sb.append("<h6>")
+                processChildren()
+                sb.append("</h6>")
+            }
+            MarkdownElementTypes.BLOCK_QUOTE -> {
+                sb.append("<blockquote>")
+                processChildren()
+                sb.append("</blockquote>")
+            }
+            MarkdownElementTypes.PARAGRAPH -> {
                 sb.append("<p>")
                 processChildren()
                 sb.appendln("</p>")
+            }
+            MarkdownTokenTypes.CODE -> {
+                sb.append("<pre><code>")
+                sb.append(nodeText)
+                sb.append("</code><pre>")
+            }
+            MarkdownTokenTypes.TEXT -> {
+                sb.append(nodeText)
             }
             else -> {
                 processChildren()
@@ -139,9 +124,16 @@ public fun MarkdownTree.toHtml(): String {
     return sb.toString()
 }
 
+fun parseMarkdown(markdown: String): MarkdownNode {
+    if (markdown.isEmpty())
+        return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), markdown)
+    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor()).buildMarkdownTreeFromString(markdown), markdown)
+}
 
 fun markdownToHtml(markdown: String): String {
-    val markdownTree = MarkdownProcessor.parse(markdown)
+
+    val tree = MarkdownParser(CommonMarkMarkerProcessor()).buildMarkdownTreeFromString(markdown)
+    val markdownTree = MarkdownNode(tree, markdown)
     val ast = markdownTree.toTestString()
     return markdownTree.toHtml()
 }

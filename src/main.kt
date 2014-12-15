@@ -8,7 +8,6 @@ import org.jetbrains.jet.utils.PathUtil
 import java.io.File
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.resolve.name.FqName
-import java.lang.reflect.Constructor
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -86,7 +85,7 @@ public fun main(args: Array<String>) {
                 val file = File(include)
                 if (file.exists()) {
                     val text = file.readText()
-                    val tree = MarkdownProcessor.parse(text)
+                    val tree = parseMarkdown(text)
                     val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
                     moduleContent.children.addAll(content.children)
                 } else {

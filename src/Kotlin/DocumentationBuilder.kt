@@ -1,17 +1,12 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.dokka.DocumentationNode.Kind
-import org.jetbrains.jet.lang.types.TypeProjection
-import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
-import org.jetbrains.jet.lang.psi.JetFile
-import org.jetbrains.jet.lang.resolve.name.FqName
-import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
+import org.jetbrains.dokka.DocumentationNode.*
+import org.jetbrains.jet.lang.types.*
+import org.jetbrains.jet.lang.types.lang.*
+import org.jetbrains.jet.lang.resolve.scopes.*
+import org.jetbrains.jet.lang.resolve.name.*
+import org.jetbrains.jet.lang.resolve.lazy.*
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
@@ -24,7 +19,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val docText = descriptor.getDocumentationElements().map { it.extractText() }.join("\n")
-        val tree = MarkdownProcessor.parse(docText)
+        val tree = parseMarkdown(docText)
         //println(tree.toTestString())
         val content = buildContent(tree, descriptor)
         return content

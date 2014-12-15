@@ -2,13 +2,13 @@ package org.jetbrains.dokka.tests
 
 import org.junit.Test
 import org.jetbrains.dokka
-import org.jetbrains.dokka.MarkdownProcessor
 import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.toHtml
+import org.jetbrains.dokka.parseMarkdown
 
 public class ParserTest {
     fun runTestFor(text : String) {
-        val markdownTree = MarkdownProcessor.parse(text)
+        val markdownTree = parseMarkdown(text)
         println(markdownTree.toTestString())
         println(markdownTree.toHtml())
     }
@@ -85,7 +85,7 @@ number two
     }
 
     Test fun directive() {
-        runTestFor("A text {code with.another.value} with directive")
+        runTestFor("A text \${code with.another.value} with directive")
     }
 
     Test fun emphAndEmptySection() {
@@ -117,6 +117,23 @@ number two
     Test fun emptySection() {
         runTestFor(
                 "Plain text \$summary:")
+    }
+
+    val b = "$"
+    Test fun pair() {
+        runTestFor(
+                """Represents a generic pair of two values.
+
+There is no meaning attached to values in this class, it can be used for any purpose.
+Pair exhibits value semantics, i.e. two pairs are equal if both components are equal.
+
+An example of decomposing it into values:
+${b}{code test.tuples.PairTest.pairMultiAssignment}
+
+${b}constructor: Creates new instance of [Pair]
+${b}first: First value
+${b}second: Second value""""
+                  )
     }
 
 }
