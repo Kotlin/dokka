@@ -10,9 +10,8 @@ fun DeclarationDescriptor.getDocumentationElements(): List<KDoc> {
     if (psiElement == null)
         return listOf()
 
-    return psiElement.previousSiblings() // go backwards
-            .takeWhile { it !is JetDeclaration } // till previous declaration
-            .filter { it is KDoc } // get KDocs
+    return psiElement.children() // visit children
+            .takeWhile { it is KDoc } // all KDoc
             .map { it as KDoc } // cast
             .toList()
             .reverse() // make reversed list
