@@ -64,8 +64,6 @@
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/test" />
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/kannotator-jps-plugin-test/test" />
-      <root url="file://$PROJECT_DIR$/../kotlin/build-tools/ant/src" />
-      <root url="file://$PROJECT_DIR$/../kotlin/build-tools/core/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/dependencies/download/asm-src" />
       <root url="file://$PROJECT_DIR$/../kotlin/injector-generator/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/ide-compiler-runner/src" />
@@ -128,8 +126,6 @@
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/test" />
       <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/kannotator-jps-plugin-test/test" />
-      <root url="file://$PROJECT_DIR$/../kotlin/build-tools/ant/src" />
-      <root url="file://$PROJECT_DIR$/../kotlin/build-tools/core/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/dependencies/download/asm-src" />
       <root url="file://$PROJECT_DIR$/../kotlin/injector-generator/src" />
       <root url="file://$PROJECT_DIR$/../kotlin/ide-compiler-runner/src" />

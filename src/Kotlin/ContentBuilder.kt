@@ -1,23 +1,22 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.markdown.MarkdownElementTypes
 import java.util.ArrayDeque
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
-import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
-import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.jet.lang.descriptors.*
+import org.jetbrains.jet.lang.resolve.*
+import org.jetbrains.jet.lang.resolve.scopes.*
+import org.jetbrains.jet.lang.resolve.name.*
+import net.nicoulaj.idea.markdown.lang.*
 
-public fun DocumentationBuilder.buildContent(tree: MarkdownTree, descriptor: DeclarationDescriptor): Content {
+public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: DeclarationDescriptor): Content {
     val nodeStack = ArrayDeque<ContentNode>()
     nodeStack.push(Content())
 
-    tree.visit {(node, text, processChildren) ->
+    tree.visit {(node, processChildren) ->
         val parent = nodeStack.peek()!!
-        val nodeType = node.getTokenType()
-        val nodeText = tree.getNodeText(node)
+        val nodeType = node.type
+        val nodeText = tree.text
         when (nodeType) {
-            MarkdownElementTypes.BULLET_LIST -> {
+            MarkdownElementTypes.UNORDERED_LIST -> {
                 nodeStack.push(ContentList())
                 processChildren()
                 parent.append(nodeStack.pop())
@@ -27,9 +26,7 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownTree, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownElementTypes.HORIZONTAL_RULE -> {
-            }
-            MarkdownElementTypes.LIST_BLOCK -> {
+            MarkdownElementTypes.LIST_ITEM -> {
                 nodeStack.push(ContentBlock())
                 processChildren()
                 parent.append(nodeStack.pop())
@@ -44,50 +41,42 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownTree, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownElementTypes.CODE -> {
+            MarkdownTokenTypes.CODE -> {
                 nodeStack.push(ContentCode())
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownElementTypes.ANONYMOUS_SECTION -> {
-                nodeStack.push(ContentSection(""))
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.DIRECTIVE -> {
-                val name = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_NAME)?.let { tree.getNodeText(it) } ?: ""
-                val params = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_PARAMS)?.let { tree.getNodeText(it) } ?: ""
-                when (name) {
-                    "code" -> parent.append(functionBody(descriptor, params))
-                }
-            }
-            MarkdownElementTypes.NAMED_SECTION -> {
-                val label = tree.findChildByType(node, MarkdownElementTypes.SECTION_NAME)?.let { tree.getNodeText(it) } ?: ""
-                nodeStack.push(ContentSection(label))
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.LINK -> {
-                val target = tree.findChildByType(node, MarkdownElementTypes.TARGET)?.let { tree.getNodeText(it) } ?: ""
-                val href = tree.findChildByType(node, MarkdownElementTypes.HREF)?.let { tree.getNodeText(it) }
+        /*            MarkdownElementTypes.ANONYMOUS_SECTION -> {
+                        nodeStack.push(ContentSection(""))
+                        processChildren()
+                        parent.append(nodeStack.pop())
+                    }
+                    MarkdownElementTypes.DIRECTIVE -> {
+                        val name = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_NAME)?.let { tree.getNodeText(it) } ?: ""
+                        val params = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_PARAMS)?.let { tree.getNodeText(it) } ?: ""
+                        when (name) {
+                            "code" -> parent.append(functionBody(descriptor, params))
+                        }
+                    }
+                    MarkdownElementTypes.NAMED_SECTION -> {
+                        val label = tree.findChildByType(node, MarkdownElementTypes.SECTION_NAME)?.let { tree.getNodeText(it) } ?: ""
+                        nodeStack.push(ContentSection(label))
+                        processChildren()
+                        parent.append(nodeStack.pop())
+                    }*/
+            MarkdownElementTypes.INLINE_LINK -> {
+                val target = node.child(MarkdownElementTypes.LINK_TITLE)?.let { it.text } ?: ""
+                val href = node.child(MarkdownElementTypes.LINK_DESTINATION)?.let { it.text }
                 val link = if (href != null) ContentExternalLink(href) else ContentExternalLink(target)
                 link.append(ContentText(target))
                 parent.append(link)
             }
-            MarkdownElementTypes.PLAIN_TEXT -> {
+            MarkdownTokenTypes.TEXT -> {
                 nodeStack.push(ContentText(nodeText))
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownElementTypes.END_LINE -> {
-                nodeStack.push(ContentText(nodeText))
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.BLANK_LINE -> {
-                processChildren()
-            }
-            MarkdownElementTypes.PARA -> {
+            MarkdownElementTypes.PARAGRAPH -> {
                 nodeStack.push(ContentParagraph())
                 processChildren()
                 parent.append(nodeStack.pop())

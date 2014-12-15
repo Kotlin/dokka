@@ -84,4 +84,4 @@ KDoc is a flavour of markdown with symbol processing extensions.
 * \[name\] - link to `name` (markdown style)
 * $name - link to `name` (Kotlin string interpolation style), or ${java.lang.String} for longer references
 * $name: - named section, optionally bound to symbol `name`, e.g. param doc
-* !{reference} -- include content of a file or symbol denoted by reference, e.g. code example 
+* ${code reference} -- include content of a symbol denoted by reference, e.g. code example
