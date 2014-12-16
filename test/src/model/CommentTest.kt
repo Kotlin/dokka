@@ -25,7 +25,7 @@ public class CommentTest {
         verifyModel("test/data/comments/multilineDoc.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc1", content.summary.toTestString())
-                assertEquals("doc2\ndoc3\n", content.description.toTestString())
+                assertEquals("doc2\ndoc3", content.description.toTestString())
             }
         }
     }

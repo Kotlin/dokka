@@ -63,6 +63,13 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
             append(node.text)
         }
         is ContentEmphasis -> append("*").appendChildren(node).append("*")
+        is ContentNodeLink -> {
+            append("[")
+            appendChildren(node)
+            append(" -> ")
+            append(node.node.toString())
+            append("]")
+        }
         else -> {
             appendChildren(node)
         }

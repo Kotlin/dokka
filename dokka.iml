@@ -13,6 +13,6 @@
     <orderEntry type="library" name="kotlin" level="project" />
     <orderEntry type="library" name="kotlin-compiler" level="project" />
     <orderEntry type="library" name="junit:junit:4.11" level="project" />
-    <orderEntry type="library" name="idea-markdown" level="project" />
+    <orderEntry type="library" name="markdown" level="project" />
   </component>
 </module>

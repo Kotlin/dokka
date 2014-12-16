@@ -4,7 +4,6 @@ import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.dokka.DocumentationNode.*
 import org.jetbrains.jet.lang.types.*
 import org.jetbrains.jet.lang.types.lang.*
-import org.jetbrains.jet.lang.resolve.scopes.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.lazy.*
 
@@ -218,6 +217,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
+        register(this, node)
         return node
     }
 
@@ -301,9 +301,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
     }
 
-    fun getResolutionScope(node: DocumentationNode): JetScope {
+    fun getResolutionScope(node: DocumentationNode): DeclarationDescriptor {
         val descriptor = nodeToDescriptor[node] ?: throw IllegalArgumentException("Node is not known to this context")
-        return getResolutionScope(descriptor)
+        return descriptor
     }
 
     fun resolveContentLinks(node: DocumentationNode, content: ContentNode) {
@@ -311,26 +311,38 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         for (child in snapshot) {
             if (child is ContentExternalLink) {
                 val referenceText = child.href
-                if (Name.isValidIdentifier(referenceText)) {
-                    val scope = getResolutionScope(node)
-                    val symbolName = Name.guess(referenceText)
-                    val symbol = scope.getLocalVariable(symbolName) ?:
-                            scope.getProperties(symbolName).firstOrNull() ?:
-                            scope.getFunctions(symbolName).firstOrNull() ?:
-                            scope.getClassifier(symbolName)
+                val symbol = resolveReference(getResolutionScope(node), referenceText)
+                if (symbol != null) {
+                    val targetNode = descriptorToNode[symbol]
+                    val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
 
-                    if (symbol != null) {
-                        val targetNode = descriptorToNode[symbol]
-                        val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
-
-                        val index = content.children.indexOf(child)
-                        content.children.remove(index)
-                        contentLink.children.addAll(child.children)
-                        content.children.add(index, contentLink)
-                    }
+                    val index = content.children.indexOf(child)
+                    content.children.remove(index)
+                    contentLink.children.addAll(child.children)
+                    content.children.add(index, contentLink)
                 }
+
             }
             resolveContentLinks(node, child)
         }
+    }
+
+    private fun resolveReference(context: DeclarationDescriptor, reference: String): DeclarationDescriptor? {
+        if (Name.isValidIdentifier(reference)) {
+            val scope = getResolutionScope(context)
+            val symbolName = Name.guess(reference)
+            return scope.getLocalVariable(symbolName) ?:
+                    scope.getProperties(symbolName).firstOrNull() ?:
+                    scope.getFunctions(symbolName).firstOrNull() ?:
+                    scope.getClassifier(symbolName)
+
+        }
+
+        val names = reference.split('.')
+        val result = names.fold<String, DeclarationDescriptor?>(context) {(nextContext, name) ->
+            nextContext?.let { resolveReference(it, name) }
+        }
+
+        return result
     }
 }
