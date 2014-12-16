@@ -1,17 +1,19 @@
 package org.jetbrains.dokka
 
-import net.nicoulaj.idea.markdown.lang.ast.*
-import net.nicoulaj.idea.markdown.lang.parser.dialects.commonmark.*
-import net.nicoulaj.idea.markdown.lang.parser.*
-import net.nicoulaj.idea.markdown.lang.*
+import org.intellij.markdown.*
+import org.intellij.markdown.ast.*
+import org.intellij.markdown.parser.*
+import org.intellij.markdown.parser.dialects.KDocMarkerProcessor
 
-class MarkdownNode(val node: ASTNode, val markdown: String) {
-    val children: List<MarkdownNode> get() = node.children.map { MarkdownNode(it, markdown) }
+class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: String) {
+    val children: List<MarkdownNode> = node.children.map { MarkdownNode(it, this, markdown) }
     val endOffset: Int get() = node.endOffset
     val startOffset: Int get() = node.startOffset
     val type: IElementType get() = node.type
     val text: String get() = markdown.substring(startOffset, endOffset)
     fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
+
+    override fun toString(): String = present()
 }
 
 fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {
@@ -27,14 +29,19 @@ public fun MarkdownNode.toTestString(): String {
     var level = 0
     visit {(node, visitChildren) ->
         sb.append(" ".repeat(level * 2))
-        sb.append(node.type.toString())
-        sb.append(":" + node.text.replace("\n", "\u23CE"))
-        sb.appendln()
+        node.presentTo(sb)
         level++
         visitChildren()
         level--
     }
     return sb.toString()
+}
+
+private fun MarkdownNode.present() = StringBuilder { presentTo(this) }.toString()
+private fun MarkdownNode.presentTo(sb: StringBuilder) {
+    sb.append(type.toString())
+    sb.append(":" + text.replace("\n", "\u23CE"))
+    sb.appendln()
 }
 
 public fun MarkdownNode.toHtml(): String {
@@ -126,14 +133,14 @@ public fun MarkdownNode.toHtml(): String {
 
 fun parseMarkdown(markdown: String): MarkdownNode {
     if (markdown.isEmpty())
-        return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), markdown)
-    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor()).buildMarkdownTreeFromString(markdown), markdown)
+        return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), null, markdown)
+    return MarkdownNode(MarkdownParser(KDocMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown), null, markdown)
 }
 
 fun markdownToHtml(markdown: String): String {
 
-    val tree = MarkdownParser(CommonMarkMarkerProcessor()).buildMarkdownTreeFromString(markdown)
-    val markdownTree = MarkdownNode(tree, markdown)
+    val tree = MarkdownParser(KDocMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown)
+    val markdownTree = MarkdownNode(tree, null, markdown)
     val ast = markdownTree.toTestString()
     return markdownTree.toHtml()
 }

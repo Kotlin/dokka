@@ -40,7 +40,7 @@ public class PropertyTest {
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(links.none())
                 with(members.single()) {
-                    assertEquals("<get-property>", name)
+                    assertEquals("<get>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(Content.Empty, content)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
@@ -66,7 +66,7 @@ public class PropertyTest {
 
                 assertEquals(2, members.count())
                 with(members.elementAt(0)) {
-                    assertEquals("<get-property>", name)
+                    assertEquals("<get>", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals(Content.Empty, content)
                     val get_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }

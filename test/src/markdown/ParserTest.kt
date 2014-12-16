@@ -5,12 +5,18 @@ import org.jetbrains.dokka
 import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.toHtml
 import org.jetbrains.dokka.parseMarkdown
+import org.junit.Ignore
 
-public class ParserTest {
+Ignore public class ParserTest {
     fun runTestFor(text : String) {
+        println("MD: ---")
+        println(text)
         val markdownTree = parseMarkdown(text)
+        println("AST: ---")
         println(markdownTree.toTestString())
+        println("HTML: ---")
         println(markdownTree.toHtml())
+        println()
     }
 
     Test fun text() {
@@ -89,20 +95,20 @@ number two
     }
 
     Test fun emphAndEmptySection() {
-        runTestFor("*text* \$sec:")
+        runTestFor("*text*\n\$sec:\n")
     }
 
     Test fun emphAndSection() {
-        runTestFor("*text* \$sec: some text")
+        runTestFor("*text*\n\$sec: some text\n")
     }
 
     Test fun emphAndBracedSection() {
-        runTestFor("Text *bold* text \${sec}: some text")
+        runTestFor("Text *bold* text \n\${sec}: some text")
     }
 
     Test fun section() {
         runTestFor(
-                "Plain text \$one: Summary \${two}: Description with *emphasis* \${An example of a section}: Example")
+                "Plain text \n\$one: Summary \n\${two}: Description with *emphasis* \n\${An example of a section}: Example")
     }
 
     Test fun anonymousSection() {
@@ -111,12 +117,12 @@ number two
 
     Test fun specialSection() {
         runTestFor(
-                "Plain text \$\$summary: Summary \${\$description}: Description \${\$An example of a section}: Example")
+                "Plain text \n\$\$summary: Summary \n\${\$description}: Description \n\${\$An example of a section}: Example")
     }
 
     Test fun emptySection() {
         runTestFor(
-                "Plain text \$summary:")
+                "Plain text \n\$summary:")
     }
 
     val b = "$"
