@@ -40,8 +40,8 @@ public class PropertyTest {
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(links.none())
                 with(members.single()) {
-                    assertEquals("<get>", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals("get", name)
+                    assertEquals(DocumentationNode.Kind.PropertyAccessor, kind)
                     assertEquals(Content.Empty, content)
                     assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                     assertTrue(links.none())
@@ -66,8 +66,8 @@ public class PropertyTest {
 
                 assertEquals(2, members.count())
                 with(members.elementAt(0)) {
-                    assertEquals("<get>", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals("get", name)
+                    assertEquals(DocumentationNode.Kind.PropertyAccessor, kind)
                     assertEquals(Content.Empty, content)
                     val get_modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
                     assertTrue("final" in get_modifiers)
@@ -77,8 +77,8 @@ public class PropertyTest {
                     assertTrue(members.none())
                 }
                 with(members.elementAt(1)) {
-                    assertEquals("<set-property>", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals("set", name)
+                    assertEquals(DocumentationNode.Kind.PropertyAccessor, kind)
                     assertEquals(Content.Empty, content)
                     assertEquals(4, details.count())
                     assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
