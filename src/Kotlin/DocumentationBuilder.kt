@@ -35,14 +35,18 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
         val doc = parseDocumentation(descriptor)
-        val node = DocumentationNode(descriptor.getName().asString(), doc, kind)
+        val node = DocumentationNode(descriptor.getName().asString(), doc, kind).withModifiers(descriptor)
+        return node
+    }
+
+    private fun DocumentationNode.withModifiers(descriptor: DeclarationDescriptor) : DocumentationNode{
         if (descriptor is MemberDescriptor) {
-            node.appendVisibility(descriptor)
+            appendVisibility(descriptor)
             if (descriptor !is ConstructorDescriptor) {
-                node.appendModality(descriptor)
+                appendModality(descriptor)
             }
         }
-        return node
+        return this
     }
 
     fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationReference.Kind) {
@@ -188,7 +192,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun PropertyAccessorDescriptor.build(): DocumentationNode {
         val doc = parseDocumentation(this)
         val specialName = getName().asString().drop(1).takeWhile { it != '-' }
-        val node = DocumentationNode(specialName, doc, Kind.PropertyAccessor)
+        val node = DocumentationNode(specialName, doc, Kind.PropertyAccessor).withModifiers(this)
 
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
