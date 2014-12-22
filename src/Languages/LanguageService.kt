@@ -14,9 +14,15 @@ trait LanguageService {
     /**
      * Renders [node] as a named representation in the target language
      *
+     * For example:
+     * ${code org.jetbrains.dokka.example}
+     *
      * $node: A [DocumentationNode] to render
      * $returns: [String] which is a string representation of the node's name
      */
-    fun renderName(node: DocumentationNode) : String
+    fun renderName(node: DocumentationNode): String
 }
 
+fun example(service: LanguageService, node: DocumentationNode) {
+    println("Node name: ${service.renderName(node)}")
+}

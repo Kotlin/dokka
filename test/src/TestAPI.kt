@@ -73,6 +73,12 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
             append(node.text)
         }
         is ContentEmphasis -> append("*").appendChildren(node).append("*")
+        is ContentBlockCode -> {
+            appendln("[code]")
+            appendChildren(node)
+            appendln()
+            appendln("[/code]")
+        }
         is ContentNodeLink -> {
             append("[")
             appendChildren(node)
