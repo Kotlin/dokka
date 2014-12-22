@@ -125,32 +125,6 @@ public class CommentTest {
         }
     }
 
-    Test fun sectionOnOneLine() {
-        verifyModel("test/data/comments/sectionOnOneLine.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["one"]!!) {
-                    assertEquals("one", label)
-                    assertEquals("same line", toTestString())
-                }
-            }
-        }
-    }
-
-    Test fun emptySectionOnOneLine() {
-        verifyModel("test/data/comments/emptySectionOnOneLine.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["one"]!!) {
-                    assertEquals("one", label)
-                    assertEquals("", toTestString())
-                }
-            }
-        }
-    }
-
     Test fun multilineSection() {
         verifyModel("test/data/comments/multilineSection.kt") { model ->
             with(model.members.single().members.single()) {
