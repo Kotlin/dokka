@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.scopes.*
 import org.jetbrains.kotlin.name.*
 import org.intellij.markdown.*
+import org.jetbrains.jet.lang.psi.*
 
 public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: DeclarationDescriptor): Content {
 //    println(tree.toTestString())
@@ -45,17 +46,18 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-/*
-            MarkdownElementTypes.DIRECTIVE -> {
-                val name = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_NAME)?.let { tree.getNodeText(it) } ?: ""
-                val params = tree.findChildByType(node, MarkdownElementTypes.DIRECTIVE_PARAMS)?.let { tree.getNodeText(it) } ?: ""
-                when (name) {
-                    "code" -> parent.append(functionBody(descriptor, params))
+            MarkdownTokenTypes.SECTION_ID -> {
+                if (parent !is ContentSection) {
+                    val text = node.text.trimLeading("$").trim("{", "}")
+                    val name = text.substringBefore(" ")
+                    val params = text.substringAfter(" ")
+                    when (name) {
+                        "code" -> parent.append(functionBody(descriptor, params))
+                    }
                 }
             }
-*/
             MarkdownElementTypes.SECTION -> {
-                val label = node.child(MarkdownTokenTypes.SECTION_ID)?.let { it.text.trimLeading("$").trim("{","}") } ?: ""
+                val label = node.child(MarkdownTokenTypes.SECTION_ID)?.let { it.text.trimLeading("$").trim("{", "}") } ?: ""
                 nodeStack.push(ContentSection(label))
                 processChildren()
                 parent.append(nodeStack.pop())
@@ -132,7 +134,21 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
     if (psiElement == null)
         return ContentBlockCode().let() { it.append(ContentText("Source not found: $functionName")); it }
 
-    return ContentBlockCode().let() { it.append(ContentText(psiElement.getText())); it }
+    val text = when (psiElement) {
+        is JetDeclarationWithBody -> ContentBlockCode().let() {
+            val bodyExpression = psiElement.getBodyExpression()
+            when (bodyExpression) {
+                is JetBlockExpression -> bodyExpression.getText().trim("{", "}")
+                else -> bodyExpression.getText()
+            }
+        }
+        else -> psiElement.getText()
+    }
+
+    val lines = text.trimTrailing().split("\n").filterNot { it.length() == 0 }
+    val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
+    val finalText = lines.map { it.drop(indent) }.join("\n")
+    return ContentBlockCode().let() { it.append(ContentText(finalText)); it }
 }
 
 private fun DocumentationBuilder.resolveInScope(functionName: String, scope: JetScope): DeclarationDescriptor? {
