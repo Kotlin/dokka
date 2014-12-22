@@ -38,5 +38,5 @@ fun KDoc?.extractText(): String {
             comment.substring(0, comment.length() - 2)
         else
             comment).trim()
-    }.join("\n")
+    }.join("\n").trim("\n")
 }
