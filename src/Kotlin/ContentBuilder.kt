@@ -26,7 +26,7 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.LIST_ITEM -> {
-                nodeStack.push(ContentBlock())
+                nodeStack.push(ContentListItem())
                 processChildren()
                 parent.append(nodeStack.pop())
             }
@@ -60,12 +60,26 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
+            MarkdownElementTypes.INLINE_LINK -> {
+                val label = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
+                val destination = node.child(MarkdownElementTypes.LINK_DESTINATION)
+                if (label != null) {
+                    if (destination != null) {
+                        val link = ContentExternalLink(destination.text)
+                        link.append(ContentText(label.text))
+                        parent.append(link)
+                    } else {
+                        val link = ContentExternalLink(label.text)
+                        link.append(ContentText(label.text))
+                        parent.append(link)
+                    }
+                }
+            }
             MarkdownElementTypes.SHORT_REFERENCE_LINK -> {
-                val label = node.child(MarkdownElementTypes.LINK_LABEL)
-                val target = label?.child(MarkdownTokenTypes.TEXT)
-                if (target != null) {
-                    val link = ContentExternalLink(target.text)
-                    link.append(ContentText(target.text))
+                val label = node.child(MarkdownElementTypes.LINK_LABEL)?.child(MarkdownTokenTypes.TEXT)
+                if (label != null) {
+                    val link = ContentExternalLink(label.text)
+                    link.append(ContentText(label.text))
                     parent.append(link)
                 }
             }

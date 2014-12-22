@@ -97,6 +97,14 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<code>${code.htmlEscape()}</code>"
     }
 
+    override fun formatList(text: String): String {
+        return "<ul>${text}</ul>"
+    }
+
+    override fun formatListItem(text: String): String {
+        return "<li>${text}</li>"
+    }
+
     override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString("&nbsp;/&nbsp;")
     }

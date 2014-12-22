@@ -14,10 +14,8 @@ trait LanguageService {
     /**
      * Renders [node] as a named representation in the target language
      *
-     * See also [google](http://google.com)
-     *
      * $node: A [DocumentationNode] to render
-     * $returns: [String] which is a string representation of the node
+     * $returns: [String] which is a string representation of the node's name
      */
     fun renderName(node: DocumentationNode) : String
 }

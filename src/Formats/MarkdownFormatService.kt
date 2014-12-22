@@ -30,6 +30,14 @@ public open class MarkdownFormatService(locationService: LocationService,
         return "`$code`"
     }
 
+    override public fun formatList(text: String): String {
+        return text
+    }
+
+    override fun formatListItem(text: String): String {
+        return "* $text"
+    }
+
     override public fun formatStrong(text: String): String {
         return "**$text**"
     }

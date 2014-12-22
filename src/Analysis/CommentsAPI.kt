@@ -5,6 +5,11 @@ import org.jetbrains.jet.lang.resolve.*
 import org.jetbrains.jet.kdoc.psi.api.*
 import org.jetbrains.jet.lang.psi.*
 
+/**
+ * Retrieves PSI elements representing documentation from the [DeclarationDescriptor]
+ *
+ * $$receiver: [DeclarationDescriptor] to get documentation nodes from
+ */
 fun DeclarationDescriptor.getDocumentationElements(): List<KDoc> {
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(this)
     if (psiElement == null)
@@ -17,6 +22,9 @@ fun DeclarationDescriptor.getDocumentationElements(): List<KDoc> {
             .reverse() // make reversed list
 }
 
+/**
+ * Extracts text from KDoc, removes comment symbols and trims whitespace
+ */
 fun KDoc?.extractText(): String {
     if (this == null)
         return ""
@@ -27,7 +35,7 @@ fun KDoc?.extractText(): String {
     return lines.map {
         val comment = it.trim().dropWhile { it == '/' || it == '*' }
         (if (comment.endsWith("*/"))
-            comment.substring(0, comment.length - 2)
+            comment.substring(0, comment.length() - 2)
         else
             comment).trim()
     }.join("\n")

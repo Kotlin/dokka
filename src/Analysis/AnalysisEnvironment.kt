@@ -15,9 +15,11 @@ import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 
 /**
  * Kotlin as a service entry point
+ *
  * Configures environment, analyses files and provides facilities to perform code processing without emitting bytecode
- * $messageCollector is required by compiler infrastructure and will receive all compiler messages
- * $body is optional and can be used to configure environment without creating local variable
+ *
+ * $messageCollector: required by compiler infrastructure and will receive all compiler messages
+ * $body: optional and can be used to configure environment without creating local variable
  */
 public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
     val configuration = CompilerConfiguration();
@@ -29,7 +31,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Executes [processor] when analysis is complete.
-     * $processor is a function to receive compiler environment, module and context for symbol resolution
+     * $processor: function to receive compiler environment, module and context for symbol resolution
      */
     public fun withContext<T>(processor: (JetCoreEnvironment, ResolveSession) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
@@ -40,7 +42,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Executes [processor] when analysis is complete.
-     * $processor is a function to receive compiler module and context for symbol resolution
+     * $processor: function to receive compiler module and context for symbol resolution
      */
     public fun withContext<T>(processor: (ResolveSession) -> T): T {
         return withContext { environment, session -> processor(session) }
@@ -48,7 +50,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Streams files into [processor] and returns a stream of its results
-     * $processor is a function to receive context for symbol resolution and file for processing
+     * $processor: function to receive context for symbol resolution and file for processing
      */
     public fun streamFiles<T>(processor: (ResolveSession, JetFile) -> T): Stream<T> {
         return withContext { environment, session ->
@@ -58,7 +60,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Runs [processor] for each file and collects its results into single list
-     * $processor is a function to receive context for symbol resolution and file for processing
+     * $processor: function to receive context for symbol resolution and file for processing
      */
     public fun processFiles<T>(processor: (ResolveSession, JetFile) -> T): List<T> {
         return withContext { environment, session ->
@@ -68,7 +70,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Runs [processor] for each file and collects its results into single list
-     * $processor is a function to receive context for symbol resolution and file for processing
+     * $processor: is a function to receive context for symbol resolution and file for processing
      */
     public fun processFilesFlat<T>(processor: (ResolveSession, JetFile) -> List<T>): List<T> {
         return withContext { environment, session ->
@@ -84,7 +86,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Adds list of paths to classpath.
-     * $paths collection of paths to add
+     * $paths: collection of files to add
      */
     public fun addClasspath(paths: List<File>) {
         configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, paths)
@@ -92,7 +94,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Adds path to classpath.
-     * $path path to add
+     * $path: path to add
      */
     public fun addClasspath(path: File) {
         configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, path)
@@ -106,7 +108,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
     /**
      * Adds list of paths to source roots.
-     * $list collection of files to add
+     * $list: collection of files to add
      */
     public fun addSources(list: List<String>) {
         configuration.addAll(CommonConfigurationKeys.SOURCE_ROOTS_KEY, list)
