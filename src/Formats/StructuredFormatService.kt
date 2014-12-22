@@ -30,6 +30,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatStrong(text: String): String
     public abstract fun formatEmphasis(text: String): String
     public abstract fun formatCode(code: String): String
+    public abstract fun formatList(text: String): String
+    public abstract fun formatListItem(text: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
 
     open fun formatText(location: Location, nodes: Iterable<ContentNode>): String {
@@ -46,6 +48,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentStrong -> append(formatStrong(formatText(location, content.children)))
                 is ContentCode -> append(formatCode(formatText(location, content.children)))
                 is ContentEmphasis -> append(formatEmphasis(formatText(location, content.children)))
+                is ContentList -> append(formatList(formatText(location, content.children)))
+                is ContentListItem -> append(formatListItem(formatText(location, content.children)))
+
                 is ContentNodeLink -> {
                     val linkTo = locationService.relativeLocation(location, content.node, extension)
                     val linkText = formatText(location, content.children)

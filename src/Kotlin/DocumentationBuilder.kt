@@ -338,6 +338,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
         }
 
+        if ("." !in reference)
+            return null
+
         val names = reference.split('.')
         val result = names.fold<String, DeclarationDescriptor?>(context) {(nextContext, name) ->
             nextContext?.let { resolveReference(it, name) }

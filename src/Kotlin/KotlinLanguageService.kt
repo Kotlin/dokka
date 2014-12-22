@@ -11,6 +11,9 @@ import org.jetbrains.dokka.ContentNode
 import org.jetbrains.dokka
 import org.jetbrains.dokka.ContentText
 
+/**
+ * Implements [LanguageService] and provides rendering of symbols in Kotlin language
+ */
 class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
         return dokka.content {

@@ -32,6 +32,7 @@ public class ContentBlockCode() : ContentBlock()
 public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
 public class ContentExternalLink(val href : String) : ContentBlock()
 public class ContentList() : ContentBlock()
+public class ContentListItem() : ContentBlock()
 public class ContentSection(public val label: String) : ContentBlock()
 
 fun content(body: ContentNode.() -> Unit): ContentNode {
