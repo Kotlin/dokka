@@ -55,8 +55,9 @@ public fun verifyOutput(path: String, outputGenerator: (DocumentationModule, Str
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
+        val trimmedOutput = output.toString().split('\n').map { it.trimTrailing() }.join("\n")
         val expectedOutput = File(path.replace(".kt", ".md")).readText()
-        assertEquals(expectedOutput, output.toString())
+        assertEquals(expectedOutput.trimTrailing(), trimmedOutput)
     }
 }
 

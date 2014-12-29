@@ -13,4 +13,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun classWithClassObject() {
+        verifyOutput("test/data/format/classWithClassObject.kt") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
