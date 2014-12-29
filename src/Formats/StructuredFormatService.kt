@@ -187,6 +187,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
             appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
+            appendSection(location, "Class Object Properties", node.members(DocumentationNode.Kind.ClassObjectProperty), node, to)
+            appendSection(location, "Class Object Functions", node.members(DocumentationNode.Kind.ClassObjectFunction), node, to)
             appendSection(location, "Accessors", node.members(DocumentationNode.Kind.PropertyAccessor), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
@@ -197,7 +199,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.Property,
                         DocumentationNode.Kind.Package,
                         DocumentationNode.Kind.Function,
-                        DocumentationNode.Kind.PropertyAccessor
+                        DocumentationNode.Kind.PropertyAccessor,
+                        DocumentationNode.Kind.ClassObjectProperty,
+                        DocumentationNode.Kind.ClassObjectFunction
                         )
             }, node, to)
             appendSection(location, "Extensions", node.extensions, node, to)
