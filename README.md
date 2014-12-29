@@ -1,9 +1,9 @@
 dokka
 =====
 
-Dokka is documentation engine for Kotlin, performing the same function as javadoc for Java.
+Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 
-**NOTE**: It is work in progress both on compiler side and this tool. Do not base your business on it. Yet.  
+**NOTE**: Both Kotlin itself and Dokka are work in progress. Do not base your business on it. Yet.
 
 Documentation Model
 =====
@@ -44,6 +44,9 @@ Basically, given the `documentation` as a model, we do this:
 Samples
 ====
 [Dokka docs](http://orangy.github.io/dokka/doc/dokka/index.html) are built with Dokka. Yes, we bootstrap and dogfood :)
+
+To generate the documentation for Dokka, simply run `main.kt` from the IDE. The default settings will do the right
+thing for the Dokka repository structure.
 
 Roadmap
 =====
