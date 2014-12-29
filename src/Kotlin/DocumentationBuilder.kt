@@ -112,7 +112,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         if (options.includeNonPublic
                 || descriptor !is MemberDescriptor
                 || descriptor.getVisibility() in visibleToDocumentation) {
-            append(descriptor.build(), kind)
+            val childDocumentationNode = descriptor.build()
+            register(descriptor, childDocumentationNode)
+            append(childDocumentationNode, kind)
         }
     }
 
@@ -166,14 +168,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 node.appendChild(classObjectDescriptor, DocumentationReference.Kind.Member)
         }
         node.appendChildren(getDefaultType().getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
-        register(this, node)
         return node
     }
 
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Constructor)
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
-        register(this, node)
         return node
     }
 
@@ -184,7 +184,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
-        register(this, node)
         return node
 
     }
@@ -196,7 +195,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
-        register(this, node)
         return node
     }
 
@@ -214,14 +212,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 node.appendChild(it, DocumentationReference.Kind.Member)
         }
 
-        register(this, node)
         return node
     }
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
-        register(this, node)
         return node
     }
 
