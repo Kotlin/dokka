@@ -128,11 +128,10 @@ public fun main(args: Array<String>) {
         "markdown" -> MarkdownFormatService(locationService, signatureGenerator)
         "jekyll" -> JekyllFormatService(locationService, signatureGenerator)
         "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator)
-        else -> null
-    }
-    if (formatter == null) {
-        print("Unrecognized output format ${arguments.outputFormat}")
-        return
+        else -> {
+            print("Unrecognized output format ${arguments.outputFormat}")
+            return
+        }
     }
 
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
