@@ -5,6 +5,8 @@ import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
+import java.io.File
+import kotlin.test.assertEquals
 
 public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
@@ -49,6 +51,15 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     Disposer.dispose(environment)
 }
 
+public fun verifyOutput(path: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyModel(path) {
+        val output = StringBuilder()
+        outputGenerator(it, output)
+        val expectedOutput = File(path.replace(".kt", ".md")).readText()
+        assertEquals(expectedOutput, output.toString())
+    }
+}
+
 fun StringBuilder.appendChildren(node: ContentNode): StringBuilder {
     for (child in node.children) {
         val childText = child.toTestString()
@@ -82,4 +93,10 @@ fun ContentNode.toTestString(): String {
     return StringBuilder {
         appendNode(node)
     }.toString()
+}
+
+val tempLocation = Location(File("/tmp/out"))
+
+object InMemoryLocationService: LocationService {
+    override fun location(node: DocumentationNode) = tempLocation;
 }

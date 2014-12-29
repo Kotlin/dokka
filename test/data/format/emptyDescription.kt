@@ -1,0 +1,5 @@
+/**
+ * Function fn
+ */
+fun fn() {
+}

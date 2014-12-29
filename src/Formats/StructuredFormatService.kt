@@ -78,9 +78,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     fun appendDescription(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val described = nodes.filter { !it.content.isEmpty }
+        val described = nodes.filter { it.hasDescription() }
         if (described.any()) {
-            val single = described.size == 1
+            val single = described.size() == 1
             appendHeader(to, "Description", 3)
             for (node in described) {
                 if (!single) {
@@ -89,15 +89,23 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 appendLine(to, formatText(location, node.content.description))
                 appendLine(to)
                 for ((label, section) in node.content.sections) {
-                    if (label.startsWith("$"))
-                        continue
-                    if (node.members.any { it.name == label })
-                        continue
+                    if (!isDescriptionSection(label, node)) continue
                     appendLine(to, formatStrong(formatText(label)))
                     appendLine(to, formatText(location, section))
                 }
             }
         }
+    }
+
+    private fun DocumentationNode.hasDescription() =
+       content.description != ContentEmpty || content.sections.any { isDescriptionSection(it.key, this) }
+
+    private fun isDescriptionSection(label: String, node: DocumentationNode): Boolean {
+        if (label.startsWith("$"))
+            return false
+        if (node.members.any { it.name == label })
+            return false
+        return true
     }
 
     fun appendSummary(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
