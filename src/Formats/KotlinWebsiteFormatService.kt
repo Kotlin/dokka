@@ -5,6 +5,11 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
 : JekyllFormatService(locationService, signatureGenerator) {
     override val extension: String = "md"
 
+    override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
+        super.appendFrontMatter(nodes, to)
+        to.appendln("layout: api")
+    }
+
     override public fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         items.drop(1)
 

@@ -22,9 +22,13 @@ class DokkaArguments {
     ValueDescription("<path>")
     public var samples: String = ""
 
-    Argument(value = "output", description = "Output directory path for .md files")
+    Argument(value = "output", description = "Output directory path")
     ValueDescription("<path>")
     public var outputDir: String = "out/doc/"
+
+    Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
+    ValueDescription("<name>")
+    public var outputFormat: String = "html"
 
     Argument(value = "module", description = "Name of the documentation module")
     ValueDescription("<name>")
@@ -118,8 +122,18 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
-//    val formatter = HtmlFormatService(locationService, signatureGenerator, templateService)
-    val formatter = KotlinWebsiteFormatService(locationService, signatureGenerator)
+    val formatter = when (arguments.outputFormat) {
+        "text" -> TextFormatService(signatureGenerator)
+        "html" -> HtmlFormatService(locationService, signatureGenerator, templateService)
+        "markdown" -> MarkdownFormatService(locationService, signatureGenerator)
+        "jekyll" -> JekyllFormatService(locationService, signatureGenerator)
+        "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator)
+        else -> {
+            print("Unrecognized output format ${arguments.outputFormat}")
+            return
+        }
+    }
+
     val generator = FileGenerator(signatureGenerator, locationService, formatter)
     print("Generating pages... ")
     generator.buildPage(documentation)
