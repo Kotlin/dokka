@@ -1,15 +1,6 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.symbol
-import org.jetbrains.dokka.text
-import org.jetbrains.dokka.identifier
-import org.jetbrains.dokka.link
-import org.jetbrains.dokka.keyword
-import org.jetbrains.dokka.LanguageService
-import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.ContentNode
 import org.jetbrains.dokka
-import org.jetbrains.dokka.ContentText
 
 /**
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
@@ -135,6 +126,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderParameter(node: DocumentationNode) {
+        renderAnnotationsForNode(node)
         identifier(node.name)
         symbol(": ")
         val parameterType = node.detail(DocumentationNode.Kind.Type)
@@ -171,8 +163,20 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
+    private fun ContentNode.renderAnnotationsForNode(node: DocumentationNode) {
+        node.annotations.forEach {
+            renderAnnotation(it)
+        }
+    }
+
+    private fun ContentNode.renderAnnotation(node: DocumentationNode) {
+        identifier(node.name)
+        text(" ")
+    }
+
     private fun ContentNode.renderClass(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Class -> keyword("class ")
             DocumentationNode.Kind.Interface -> keyword("trait ")
@@ -189,6 +193,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderFunction(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
@@ -218,6 +223,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderProperty(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Property,
             DocumentationNode.Kind.ClassObjectProperty -> keyword("val ")

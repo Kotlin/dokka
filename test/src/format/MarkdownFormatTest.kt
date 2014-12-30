@@ -21,7 +21,7 @@ public class MarkdownFormatTest {
     }
 
     Test fun annotations() {
-        verifyOutput("test/data/format/annotations.kt") { model, output ->
+        verifyOutput("test/data/format/annotations.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }

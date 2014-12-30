@@ -166,7 +166,6 @@ public class ClassTest {
             }
         }
     }
-}
 
     Test fun annotatedClass() {
         verifyModel("test/data/classes/annotatedClass.kt") { model ->

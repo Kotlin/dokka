@@ -1,4 +1,6 @@
 data class Foo {
-    inline fun bar() {
+    inline fun bar([noinline] notInlined: () -> Unit) {
     }
+
+    inline val x: Int
 }
