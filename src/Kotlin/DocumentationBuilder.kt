@@ -8,6 +8,7 @@ import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.lazy.*
 import org.jetbrains.jet.lang.descriptors.annotations.Annotated
 import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.jet.lang.resolve.DescriptorUtils
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
@@ -75,9 +76,18 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
         val superTypes = descriptor.getTypeConstructor().getSupertypes()
         for (superType in superTypes) {
-            if (superType.toString() != "Any")
+            if (!ignoreSupertype(superType))
                 appendType(superType, DocumentationNode.Kind.Supertype)
         }
+    }
+
+    private fun ignoreSupertype(superType: JetType): Boolean {
+        val superClass = superType.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor
+        if (superClass != null) {
+            val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
+            return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
+        }
+        return false
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
@@ -161,6 +171,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             ClassKind.CLASS_OBJECT -> Kind.Object
             ClassKind.TRAIT -> Kind.Interface
             ClassKind.ENUM_CLASS -> Kind.Enum
+            ClassKind.ANNOTATION_CLASS -> Kind.AnnotationClass
             ClassKind.ENUM_ENTRY -> Kind.EnumItem
             else -> Kind.Class
         }
@@ -267,7 +278,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             val constraintNode = DocumentationNode(constraint.toString(), Content.Empty, DocumentationNode.Kind.LowerBound)
             node.append(constraintNode, DocumentationReference.Kind.Detail)
         }
-        node.appendAnnotations(this)
         return node
     }
 

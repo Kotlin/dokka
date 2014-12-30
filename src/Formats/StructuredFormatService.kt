@@ -188,7 +188,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.Class,
                         DocumentationNode.Kind.Interface,
                         DocumentationNode.Kind.Enum,
-                        DocumentationNode.Kind.Object)
+                        DocumentationNode.Kind.Object,
+                        DocumentationNode.Kind.AnnotationClass)
             }, node, to)
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
@@ -200,7 +201,9 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 it.kind !in setOf(
                         DocumentationNode.Kind.Class,
                         DocumentationNode.Kind.Interface,
+                        DocumentationNode.Kind.Enum,
                         DocumentationNode.Kind.Object,
+                        DocumentationNode.Kind.AnnotationClass,
                         DocumentationNode.Kind.Constructor,
                         DocumentationNode.Kind.Property,
                         DocumentationNode.Kind.Package,

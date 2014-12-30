@@ -64,6 +64,7 @@ public open class DocumentationNode(val name: String,
         Class
         Interface
         Enum
+        AnnotationClass
         EnumItem
         Object
 

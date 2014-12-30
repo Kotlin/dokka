@@ -14,6 +14,7 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Interface,
                 DocumentationNode.Kind.Enum,
                 DocumentationNode.Kind.EnumItem,
+                DocumentationNode.Kind.AnnotationClass,
                 DocumentationNode.Kind.Object -> renderClass(node)
 
                 DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
@@ -181,6 +182,7 @@ class KotlinLanguageService : LanguageService {
             DocumentationNode.Kind.Class -> keyword("class ")
             DocumentationNode.Kind.Interface -> keyword("trait ")
             DocumentationNode.Kind.Enum -> keyword("enum class ")
+            DocumentationNode.Kind.AnnotationClass -> keyword("annotation class ")
             DocumentationNode.Kind.EnumItem -> keyword("enum val ")
             DocumentationNode.Kind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
