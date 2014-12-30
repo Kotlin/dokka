@@ -101,6 +101,17 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
+            MarkdownTokenTypes.COLON -> {
+                // TODO fix markdown parser
+                if (!isColonAfterSectionLabel(node)) {
+                    parent.append(ContentText(node.text))
+                }
+            }
+            MarkdownTokenTypes.DOUBLE_QUOTE,
+            MarkdownTokenTypes.LT,
+            MarkdownTokenTypes.GT -> {
+                parent.append(ContentText(node.text))
+            }
             else -> {
                 processChildren()
             }
@@ -147,4 +158,10 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
     }
 
     return symbol
+}
+
+private fun isColonAfterSectionLabel(node: MarkdownNode): Boolean {
+    val parent = node.parent
+    return parent != null && parent.type == MarkdownElementTypes.SECTION && parent.children.size() >= 2 &&
+            node == parent.children[1];
 }

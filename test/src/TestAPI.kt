@@ -51,11 +51,11 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     Disposer.dispose(environment)
 }
 
-public fun verifyOutput(path: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+public fun verifyOutput(path: String, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val expectedOutput = File(path.replace(".kt", ".md")).readText()
+        val expectedOutput = File(path.replace(".kt", outputExtension)).readText()
         assertEquals(expectedOutput, output.toString())
     }
 }

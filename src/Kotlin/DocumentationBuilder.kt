@@ -161,11 +161,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         if (getKind() != ClassKind.OBJECT) {
             node.appendChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
             node.appendChildren(getConstructors(), DocumentationReference.Kind.Member)
-            val classObjectDescriptor = getClassObjectDescriptor()
-            if (classObjectDescriptor != null)
-                node.appendChild(classObjectDescriptor, DocumentationReference.Kind.Member)
         }
         node.appendChildren(getDefaultType().getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
+        val classObjectDescriptor = getClassObjectDescriptor()
+        if (classObjectDescriptor != null) {
+            node.appendChildren(classObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
+                    DocumentationReference.Kind.Member)
+        }
         register(this, node)
         return node
     }
@@ -177,8 +179,11 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         return node
     }
 
+    private fun DeclarationDescriptor.inClassObject() =
+            getContainingDeclaration().let { it is ClassDescriptor && it.getKind() == ClassKind.CLASS_OBJECT }
+
     fun FunctionDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Function)
+        val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectFunction else Kind.Function)
 
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
@@ -201,7 +206,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Property)
+        val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectProperty else Kind.Property)
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())

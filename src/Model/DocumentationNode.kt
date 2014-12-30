@@ -70,6 +70,9 @@ public open class DocumentationNode(val name: String,
         Property
         PropertyAccessor
 
+        ClassObjectProperty
+        ClassObjectFunction
+
         Parameter
         Receiver
         TypeParameter

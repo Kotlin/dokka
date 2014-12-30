@@ -35,7 +35,7 @@ public open class HtmlFormatService(locationService: LocationService,
         to.appendln("<h$level>${text}</h$level>")
     }
 
-    override fun appendText(to: StringBuilder, text: String) {
+    override fun appendParagraph(to: StringBuilder, text: String) {
         to.appendln("<p>${text}</p>")
     }
 
@@ -94,7 +94,7 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
     override fun formatCode(code: String): String {
-        return "<code>${code.htmlEscape()}</code>"
+        return "<code>${code}</code>"
     }
 
     override fun formatList(text: String): String {
