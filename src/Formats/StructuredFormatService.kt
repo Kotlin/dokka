@@ -10,7 +10,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     abstract public fun appendBlockCode(to: StringBuilder, line: String)
     abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>)
     abstract public fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
-    abstract public fun appendText(to: StringBuilder, text: String)
+    abstract public fun appendParagraph(to: StringBuilder, text: String)
     abstract public fun appendLine(to: StringBuilder, text: String)
     public abstract fun appendLine(to: StringBuilder)
 
@@ -41,7 +41,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     open fun formatText(location: Location, content: ContentNode): String {
         return StringBuilder {
             when (content) {
-                is ContentText -> append(content.text)
+                is ContentText -> append(formatText(content.text))
                 is ContentSymbol -> append(formatSymbol(content.text))
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text))
@@ -61,7 +61,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     append(formatLink(linkText, content.href))
                 }
                 is ContentParagraph -> {
-                    appendText(this, formatText(location, content.children))
+                    appendParagraph(this, formatText(location, content.children))
                 }
                 is ContentBlockCode -> {
                     appendBlockCode(this, formatText(location, content.children))
@@ -143,17 +143,20 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     for ((memberLocation, members) in membersMap) {
                         appendTableRow(to) {
                             appendTableCell(to) {
-                                appendText(to, formatLink(memberLocation))
+                                to.append(formatLink(memberLocation))
                             }
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     for (signature in items) {
-                                        appendBlockCode(to, formatText(location, languageService.render(signature)))
+                                        val signature = languageService.render(signature)
+                                        val signatureAsCode = ContentCode()
+                                        signatureAsCode.append(signature)
+                                        to.append(formatText(location, signatureAsCode))
                                     }
 
                                     if (!summary.isEmpty()) {
-                                        appendText(to, summary)
+                                        to.append(summary)
                                     }
                                 }
                             }
