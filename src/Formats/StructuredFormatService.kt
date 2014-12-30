@@ -148,13 +148,16 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
-                                    for (signature in items) {
+                                    val signatureTexts = items map { signature ->
                                         val signature = languageService.render(signature)
                                         val signatureAsCode = ContentCode()
                                         signatureAsCode.append(signature)
-                                        to.append(formatText(location, signatureAsCode))
+                                        formatText(location, signatureAsCode)
                                     }
-
+                                    signatureTexts.subList(0, signatureTexts.size()-1).forEach {
+                                        appendLine(to, it)
+                                    }
+                                    to.append(signatureTexts.last())
                                     if (!summary.isEmpty()) {
                                         to.append(summary)
                                     }
