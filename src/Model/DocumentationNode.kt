@@ -30,6 +30,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Inheritor).map { it.to }
     public val links: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Link).map { it.to }
+    public val annotations: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.Annotation).map { it.to }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     public fun addReferenceTo(to: DocumentationNode, kind: DocumentationReference.Kind) {
@@ -85,6 +87,8 @@ public open class DocumentationNode(val name: String,
         Modifier
 
         Module
+
+        Annotation
     }
 
 }

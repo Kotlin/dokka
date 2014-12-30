@@ -6,6 +6,8 @@ import org.jetbrains.jet.lang.types.*
 import org.jetbrains.jet.lang.types.lang.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.lazy.*
+import org.jetbrains.jet.lang.descriptors.annotations.Annotated
+import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
@@ -104,6 +106,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             node.appendProjection(typeArgument)
     }
 
+    fun DocumentationNode.appendAnnotations(annotated: Annotated) {
+        annotated.getAnnotations().forEach {
+            append(it.build(), DocumentationReference.Kind.Annotation)
+        }
+    }
+
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
@@ -168,6 +176,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             node.appendChildren(classObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
         }
+        node.appendAnnotations(this)
         register(this, node)
         return node
     }
@@ -189,6 +198,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
+        node.appendAnnotations(this)
         register(this, node)
         return node
 
@@ -210,6 +220,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
+        node.appendAnnotations(this)
         getGetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)
@@ -226,6 +237,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
+        node.appendAnnotations(this)
         register(this, node)
         return node
     }
@@ -255,12 +267,20 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             val constraintNode = DocumentationNode(constraint.toString(), Content.Empty, DocumentationNode.Kind.LowerBound)
             node.append(constraintNode, DocumentationReference.Kind.Detail)
         }
+        node.appendAnnotations(this)
         return node
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(getName().asString(), Content.Empty, Kind.Receiver)
         node.appendType(getType())
+        return node
+    }
+
+    fun AnnotationDescriptor.build(): DocumentationNode {
+        val annotationClass = getType().getConstructor().getDeclarationDescriptor()
+        val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
+        // TODO handle parameters
         return node
     }
 

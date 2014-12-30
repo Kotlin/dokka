@@ -135,4 +135,32 @@ Documentation""", content.description.toTestString())
             }
         }
     }
+
+    Test fun annotatedFunction() {
+        verifyModel("test/data/functions/annotatedFunction.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("inline", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                }
+            }
+        }
+    }
+
+    Test fun functionWithAnnotatedParam() {
+        verifyModel("test/data/functions/functionWithAnnotatedParam.kt") { model ->
+            with(model.members.single().members.single()) {
+                with(details.elementAt(2)) {
+                    assertEquals(1, annotations.count())
+                    with(annotations[0]) {
+                        assertEquals("noinline", name)
+                        assertEquals(Content.Empty, content)
+                        assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    }
+                }
+            }
+        }
+    }
 }

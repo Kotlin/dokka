@@ -167,3 +167,17 @@ public class ClassTest {
         }
     }
 }
+
+    Test fun annotatedClass() {
+        verifyModel("test/data/classes/annotatedClass.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("data", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                }
+            }
+        }
+    }
+}
