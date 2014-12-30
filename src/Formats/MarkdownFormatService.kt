@@ -62,7 +62,7 @@ public open class MarkdownFormatService(locationService: LocationService,
         to.appendln(text)
     }
 
-    override public fun appendText(to: StringBuilder, text: String) {
+    override public fun appendParagraph(to: StringBuilder, text: String) {
         to.appendln()
         to.appendln(text)
         to.appendln()

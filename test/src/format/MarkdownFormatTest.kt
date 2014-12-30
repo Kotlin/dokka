@@ -9,7 +9,13 @@ public class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
 
     Test fun emptyDescription() {
-        verifyOutput("test/data/format/emptyDescription.kt") { model, output ->
+        verifyOutput("test/data/format/emptyDescription.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
+    Test fun classWithClassObject() {
+        verifyOutput("test/data/format/classWithClassObject.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
