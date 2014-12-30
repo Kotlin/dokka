@@ -9,6 +9,9 @@ import org.jetbrains.jet.lang.resolve.lazy.*
 import org.jetbrains.jet.lang.descriptors.annotations.Annotated
 import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.jet.lang.descriptors.impl.EnumEntrySyntheticClassDescriptor
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
@@ -290,8 +293,28 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun AnnotationDescriptor.build(): DocumentationNode {
         val annotationClass = getType().getConstructor().getDeclarationDescriptor()
         val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
-        // TODO handle parameters
+        val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
+        arguments.forEach {
+            val valueNode = it.second.build()
+            if (valueNode != null) {
+                val paramNode = DocumentationNode(it.first.getName().asString(), Content.Empty, DocumentationNode.Kind.Parameter)
+                paramNode.append(valueNode, DocumentationReference.Kind.Detail)
+                node.append(paramNode, DocumentationReference.Kind.Detail)
+            }
+        }
         return node
+    }
+
+    fun CompileTimeConstant<out Any?>.build(): DocumentationNode? {
+        val value = getValue()
+        val valueString = when(value) {
+            is String ->
+                "\"" + StringUtil.escapeStringCharacters(value) + "\""
+            is EnumEntrySyntheticClassDescriptor ->
+                value.getContainingDeclaration().getName().asString() + "." + value.getName()
+            else -> value?.toString()
+        }
+        return if (valueString != null) DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value) else null
     }
 
     /**

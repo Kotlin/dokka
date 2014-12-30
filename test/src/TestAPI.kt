@@ -7,6 +7,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import java.io.File
 import kotlin.test.assertEquals
+import com.intellij.openapi.application.PathManager
 
 public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
@@ -27,6 +28,8 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     }
 
     val environment = AnalysisEnvironment(messageCollector) {
+        val stringRoot = PathManager.getResourceRoot(javaClass<String>(), "/java/lang/String.class")
+        addClasspath(File(stringRoot))
         addSources(files.toList())
     }
 

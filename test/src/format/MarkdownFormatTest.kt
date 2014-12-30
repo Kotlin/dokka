@@ -31,4 +31,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun annotationParams() {
+        verifyOutput("test/data/format/annotationParams.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }

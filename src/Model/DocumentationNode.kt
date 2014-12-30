@@ -90,6 +90,8 @@ public open class DocumentationNode(val name: String,
         Module
 
         Annotation
+
+        Value
     }
 
 }

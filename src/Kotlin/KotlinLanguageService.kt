@@ -172,6 +172,14 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderAnnotation(node: DocumentationNode) {
         identifier(node.name)
+        val parameters = node.details(DocumentationNode.Kind.Parameter)
+        if (!parameters.isEmpty()) {
+            symbol("(")
+            renderList(parameters) {
+                text(it.detail(DocumentationNode.Kind.Value).name)
+            }
+            symbol(")")
+        }
         text(" ")
     }
 

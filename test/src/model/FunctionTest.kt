@@ -163,4 +163,27 @@ Documentation""", content.description.toTestString())
             }
         }
     }
+
+    Test fun annotatedFunctionWithAnnotationParameters() {
+        verifyModel("test/data/functions/annotatedFunctionWithAnnotationParameters.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("inlineOptions", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    assertEquals(1, details.count())
+                    with(details[0]) {
+                        assertEquals(DocumentationNode.Kind.Parameter, kind)
+                        assertEquals(1, details.count())
+                        with(details[0]) {
+                            assertEquals(DocumentationNode.Kind.Value, kind)
+                            assertEquals("[InlineOption.LOCAL_CONTINUE_AND_BREAK]", name)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
