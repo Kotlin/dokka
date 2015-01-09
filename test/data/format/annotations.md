@@ -14,17 +14,17 @@ data class Foo
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public Foo()` | 
+| [&lt;init&gt;](out.md) | `public Foo()` |
 
 
 ### Properties
 
 
-| [x](out.md) | `inline val x: Int` | 
+| [x](out.md) | `inline val x: Int` |
 
 
 ### Functions
 
 
-| [bar](out.md) | `inline fun bar(noinline notInlined: () -&gt; Unit): Unit` | 
+| [bar](out.md) | `inline fun bar(noinline notInlined: () -&gt; Unit): Unit` |
 

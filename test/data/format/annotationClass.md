@@ -14,5 +14,5 @@ annotation class fancy
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public fancy()` | 
+| [&lt;init&gt;](out.md) | `public fancy()` |
 
