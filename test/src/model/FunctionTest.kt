@@ -21,23 +21,32 @@ public class FunctionTest {
     Test fun functionWithReceiver() {
         verifyModel("test/data/functions/functionWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("fn", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Function with receiver", content.summary.toTestString())
-                assertEquals(4, details.count())
-                assertEquals("internal", details.elementAt(0).name)
-                assertEquals("final", details.elementAt(1).name)
-                with(details.elementAt(2)) {
-                    assertEquals("<this>", name)
-                    assertEquals(DocumentationNode.Kind.Receiver, kind)
-                    assertEquals(Content.Empty, content)
-                    assertEquals("String", details.single().name)
+                assertEquals("String", name)
+                assertEquals(DocumentationNode.Kind.ExternalClass, kind)
+                assertEquals(2, members.count())
+                with(members[0]) {
+                    assertEquals("fn", name)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals("Function with receiver", content.summary.toTestString())
+                    assertEquals(4, details.count())
+                    assertEquals("internal", details.elementAt(0).name)
+                    assertEquals("final", details.elementAt(1).name)
+                    with(details.elementAt(2)) {
+                        assertEquals("<this>", name)
+                        assertEquals(DocumentationNode.Kind.Receiver, kind)
+                        assertEquals(Content.Empty, content)
+                        assertEquals("String", details.single().name)
+                        assertTrue(members.none())
+                        assertTrue(links.none())
+                    }
+                    assertEquals("Unit", details.elementAt(3).name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                assertEquals("Unit", details.elementAt(3).name)
-                assertTrue(members.none())
-                assertTrue(links.none())
+                with(members[1]) {
+                    assertEquals("fn", name)
+                    assertEquals(DocumentationNode.Kind.Function, kind)
+                }
             }
         }
     }
@@ -186,4 +195,3 @@ Documentation""", content.description.toTestString())
         }
     }
 }
-

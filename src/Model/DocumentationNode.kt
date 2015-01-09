@@ -89,6 +89,7 @@ public open class DocumentationNode(val name: String,
 
         Module
 
+        ExternalClass
         Annotation
 
         Value

@@ -178,10 +178,15 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         for ((breadcrumbs, items) in breakdownByLocation) {
             appendLine(to, breadcrumbs)
             appendLine(to)
-            appendLocation(location, to, items)
+            appendLocation(location, to, items.filter { it.kind != DocumentationNode.Kind.ExternalClass })
         }
 
         for (node in nodes) {
+            if (node.kind == DocumentationNode.Kind.ExternalClass) {
+                appendSection(location, "Extensions for ${node.name}", node.members, node, to)
+                continue
+            }
+
             appendSection(location, "Packages", node.members(DocumentationNode.Kind.Package), node, to)
             appendSection(location, "Types", node.members.filter {
                 it.kind in setOf(
@@ -191,6 +196,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.Object,
                         DocumentationNode.Kind.AnnotationClass)
             }, node, to)
+            appendSection(location, "Extensions for External Classes", node.members(DocumentationNode.Kind.ExternalClass), node, to)
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
             appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
@@ -210,7 +216,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.Function,
                         DocumentationNode.Kind.PropertyAccessor,
                         DocumentationNode.Kind.ClassObjectProperty,
-                        DocumentationNode.Kind.ClassObjectFunction
+                        DocumentationNode.Kind.ClassObjectFunction,
+                        DocumentationNode.Kind.ExternalClass
                         )
             }, node, to)
             appendSection(location, "Extensions", node.extensions, node, to)

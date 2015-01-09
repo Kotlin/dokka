@@ -37,4 +37,13 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun extensions() {
+        verifyOutput("test/data/format/extensions.kt", ".package.md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members)
+        }
+        verifyOutput("test/data/format/extensions.kt", ".class.md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }

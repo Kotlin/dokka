@@ -15,6 +15,12 @@ import org.jetbrains.jet.lang.descriptors.impl.EnumEntrySyntheticClassDescriptor
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
+private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
+    val package1 = DescriptorUtils.getParentOfType(descriptor1, javaClass<PackageFragmentDescriptor>())
+    val package2 = DescriptorUtils.getParentOfType(descriptor2, javaClass<PackageFragmentDescriptor>())
+    return package1 != null && package2 != null && package1.fqName == package2.fqName
+}
+
 class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
@@ -141,6 +147,22 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
     }
 
+    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
+                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
+        if (descriptor is CallableMemberDescriptor) {
+            val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
+            if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor)) {
+                val fqName = DescriptorUtils.getFqNameFromTopLevelClass(extensionClassDescriptor)
+                return externalClassNodes.getOrPut(fqName, {
+                    val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
+                    append(newNode, DocumentationReference.Kind.Member)
+                    newNode
+                })
+            }
+        }
+        return this
+    }
+
     fun DocumentationNode.appendFragments(fragments: Collection<PackageFragmentDescriptor>) {
         val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
         for ((name, parts) in fragments.groupBy { it.fqName }) {
@@ -149,7 +171,11 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         for ((packageName, declarations) in descriptors) {
             println("  package $packageName: ${declarations.count()} nodes")
             val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
-            packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
+            val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
+            declarations.forEach { descriptor ->
+                val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
+                parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+            }
             append(packageNode, DocumentationReference.Kind.Member)
         }
     }
@@ -204,6 +230,15 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     private fun DeclarationDescriptor.inClassObject() =
             getContainingDeclaration().let { it is ClassDescriptor && it.getKind() == ClassKind.CLASS_OBJECT }
+
+    fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
+        val extensionReceiver = getExtensionReceiverParameter()
+        if (extensionReceiver != null) {
+            val type = extensionReceiver.getType()
+            return type.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
+        }
+        return null
+    }
 
     fun FunctionDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectFunction else Kind.Function)
