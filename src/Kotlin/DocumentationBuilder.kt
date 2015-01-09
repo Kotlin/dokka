@@ -127,7 +127,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
         annotated.getAnnotations().forEach {
-            append(it.build(), DocumentationReference.Kind.Annotation)
+            it.build()?.let { append(it, DocumentationReference.Kind.Annotation) }
         }
     }
 
@@ -325,8 +325,11 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         return node
     }
 
-    fun AnnotationDescriptor.build(): DocumentationNode {
+    fun AnnotationDescriptor.build(): DocumentationNode? {
         val annotationClass = getType().getConstructor().getDeclarationDescriptor()
+        if (ErrorUtils.isError(annotationClass)) {
+            return null
+        }
         val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
         val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
         arguments.forEach {
