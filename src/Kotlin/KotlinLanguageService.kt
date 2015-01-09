@@ -196,7 +196,7 @@ class KotlinLanguageService : LanguageService {
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
         }
 
-        identifier(node.name)
+        identifierOrDeprecated(node)
         renderTypeParametersForNode(node)
         renderSupertypesForNode(node)
     }
@@ -218,7 +218,7 @@ class KotlinLanguageService : LanguageService {
         }
 
         if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
-            identifier(node.name)
+            identifierOrDeprecated(node)
 
         symbol("(")
         renderList(node.details(DocumentationNode.Kind.Parameter)) {
@@ -246,8 +246,18 @@ class KotlinLanguageService : LanguageService {
             symbol(".")
         }
 
-        identifier(node.name)
+        identifierOrDeprecated(node)
         symbol(": ")
         renderType(node.detail(DocumentationNode.Kind.Type))
+    }
+
+    fun ContentNode.identifierOrDeprecated(node: DocumentationNode) {
+        if (node.deprecation != null) {
+            val strike = ContentStrikethrough()
+            strike.identifier(node.name)
+            append(strike)
+        } else {
+            identifier(node.name)
+        }
     }
 }

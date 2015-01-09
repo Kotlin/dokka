@@ -46,6 +46,10 @@ public open class MarkdownFormatService(locationService: LocationService,
         return "*$text*"
     }
 
+    override fun formatStrikethrough(text: String): String {
+        return "~~$text~~"
+    }
+
     override public fun formatLink(text: String, location: Location): String {
         return "[$text](${location.path})"
     }

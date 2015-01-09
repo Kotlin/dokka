@@ -183,8 +183,7 @@ public class ClassTest {
     Test fun annotatedClassWithAnnotationParameters() {
         verifyModel("test/data/classes/annotatedClassWithAnnotationParameters.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(1, annotations.count())
-                with(annotations[0]) {
+                with(deprecation!!) {
                     assertEquals("deprecated", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(DocumentationNode.Kind.Annotation, kind)

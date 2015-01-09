@@ -127,7 +127,11 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
         annotated.getAnnotations().forEach {
-            it.build()?.let { append(it, DocumentationReference.Kind.Annotation) }
+            val annotationNode = it.build()
+            if (annotationNode != null) {
+                append(annotationNode,
+                        if (annotationNode.name == "deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+            }
         }
     }
 

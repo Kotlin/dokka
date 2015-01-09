@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.util.LinkedHashMap
+import com.intellij.openapi.util.text.StringUtil
 
 public data class FormatLink(val text: String, val location: Location)
 
@@ -28,6 +29,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatLink(text: String, href: String): String
     public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
     public abstract fun formatStrong(text: String): String
+    public abstract fun formatStrikethrough(text: String): String
     public abstract fun formatEmphasis(text: String): String
     public abstract fun formatCode(code: String): String
     public abstract fun formatList(text: String): String
@@ -46,6 +48,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text))
                 is ContentStrong -> append(formatStrong(formatText(location, content.children)))
+                is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
                 is ContentCode -> append(formatCode(formatText(location, content.children)))
                 is ContentEmphasis -> append(formatEmphasis(formatText(location, content.children)))
                 is ContentList -> append(formatList(formatText(location, content.children)))
@@ -116,6 +119,17 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
                 appendBlockCode(to, formatText(location, languageService.render(it)))
+                val deprecation = it.deprecation
+                if (deprecation != null) {
+                    val deprecationParameter = deprecation.details(DocumentationNode.Kind.Parameter).firstOrNull()
+                    val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
+                    if (deprecationValue != null) {
+                        to.append(formatStrong("Deprecated: "))
+                        appendLine(to, formatText(StringUtil.unquoteString(deprecationValue.name)))
+                    } else {
+                        appendLine(to, formatStrong("Deprecated"))
+                    }
+                }
             }
             appendLine(to, summary)
             appendLine(to)
