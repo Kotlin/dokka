@@ -1,17 +1,17 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.cli.common.messages.*
+import org.jetbrains.kotlin.cli.common.messages.*
 import com.intellij.openapi.*
-import org.jetbrains.jet.cli.jvm.compiler.*
-import org.jetbrains.jet.lang.resolve.*
-import org.jetbrains.jet.lang.psi.*
+import org.jetbrains.kotlin.cli.jvm.compiler.*
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.psi.*
 import java.io.File
-import org.jetbrains.jet.config.*
-import org.jetbrains.jet.cli.common.*
-import org.jetbrains.jet.cli.jvm.*
+import org.jetbrains.kotlin.config.*
+import org.jetbrains.kotlin.cli.common.*
+import org.jetbrains.kotlin.cli.jvm.*
 import com.intellij.openapi.util.*
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
-import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
 /**
  * Kotlin as a service entry point

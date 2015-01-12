@@ -2,12 +2,12 @@ package org.jetbrains.dokka
 
 import com.sampullara.cli.*
 import com.intellij.openapi.util.*
-import org.jetbrains.jet.cli.common.messages.*
-import org.jetbrains.jet.cli.common.arguments.*
-import org.jetbrains.jet.utils.PathUtil
+import org.jetbrains.kotlin.cli.common.messages.*
+import org.jetbrains.kotlin.cli.common.arguments.*
+import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
-import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.name.FqName
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")

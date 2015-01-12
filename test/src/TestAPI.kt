@@ -1,9 +1,10 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.jet.cli.common.messages.*
+import org.jetbrains.kotlin.cli.common.messages.*
 import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import java.io.File
 import com.intellij.openapi.application.PathManager
 import org.junit.Assert

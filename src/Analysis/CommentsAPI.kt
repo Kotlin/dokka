@@ -1,9 +1,8 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.*
-import org.jetbrains.jet.kdoc.psi.api.*
-import org.jetbrains.jet.lang.psi.*
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.kdoc.psi.api.*
 
 /**
  * Retrieves PSI elements representing documentation from the [DeclarationDescriptor]

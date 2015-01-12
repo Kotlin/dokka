@@ -1,19 +1,17 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.cli.common.arguments.*
-import org.jetbrains.jet.cli.jvm.compiler.*
-import org.jetbrains.jet.utils.*
+import org.jetbrains.kotlin.cli.common.arguments.*
+import org.jetbrains.kotlin.cli.jvm.compiler.*
+import org.jetbrains.kotlin.utils.*
 import java.io.*
-import org.jetbrains.jet.lang.resolve.java.*
-import org.jetbrains.jet.lang.resolve.*
-import org.jetbrains.jet.lang.psi.*
-import org.jetbrains.jet.analyzer.*
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.scopes.*
-import org.jetbrains.jet.context.GlobalContext
+import org.jetbrains.kotlin.resolve.jvm.*
+import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.resolve.scopes.*
+import org.jetbrains.kotlin.context.GlobalContext
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
 private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
     val annotationsPath = arrayListOf<File>()

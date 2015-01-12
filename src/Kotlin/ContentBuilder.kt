@@ -1,10 +1,10 @@
 package org.jetbrains.dokka
 
 import java.util.ArrayDeque
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.*
-import org.jetbrains.jet.lang.resolve.scopes.*
-import org.jetbrains.jet.lang.resolve.name.*
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.scopes.*
+import org.jetbrains.kotlin.name.*
 import org.intellij.markdown.*
 
 public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: DeclarationDescriptor): Content {
