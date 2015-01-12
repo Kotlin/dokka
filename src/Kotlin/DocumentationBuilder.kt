@@ -173,7 +173,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
         for ((packageName, declarations) in descriptors) {
-            println("  package $packageName: ${declarations.count()} nodes")
+            println("  package $packageName: ${declarations.count()} declarations")
             val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->

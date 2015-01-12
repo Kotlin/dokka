@@ -1,7 +1,6 @@
 package org.jetbrains.dokka
 
 import java.util.LinkedHashMap
-import com.intellij.openapi.util.text.StringUtil
 
 public data class FormatLink(val text: String, val location: Location)
 
@@ -125,7 +124,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
                     if (deprecationValue != null) {
                         to.append(formatStrong("Deprecated: "))
-                        appendLine(to, formatText(StringUtil.unquoteString(deprecationValue.name)))
+                        appendLine(to, formatText(deprecationValue.name.substring(0, deprecationValue.name.length()-1)))
                     } else {
                         appendLine(to, formatStrong("Deprecated"))
                     }

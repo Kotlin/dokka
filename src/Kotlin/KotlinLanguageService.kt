@@ -1,13 +1,11 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka
-
 /**
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
-        return dokka.content {
+        return content {
             when (node.kind) {
                 DocumentationNode.Kind.Package -> renderPackage(node)
                 DocumentationNode.Kind.Class,
