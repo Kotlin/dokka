@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.util.LinkedHashMap
+import org.jetbrains.dokka.LanguageService.RenderMode
 
 public data class FormatLink(val text: String, val location: Location)
 
@@ -162,7 +163,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     val signatureTexts = items map { signature ->
-                                        val signature = languageService.render(signature)
+                                        val signature = languageService.render(signature, RenderMode.SUMMARY)
                                         val signatureAsCode = ContentCode()
                                         signatureAsCode.append(signature)
                                         formatText(location, signatureAsCode)

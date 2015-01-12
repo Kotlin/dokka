@@ -51,5 +51,9 @@ public class MarkdownFormatTest {
         verifyOutput("test/data/format/enumClass.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
+        verifyOutput("test/data/format/enumClass.kt", ".value.md") { model, output ->
+            val documentationNode = model.members.single()
+            markdownService.appendNodes(tempLocation, output, listOf(documentationNode.members[0].members[1]))
+        }
     }
 }
