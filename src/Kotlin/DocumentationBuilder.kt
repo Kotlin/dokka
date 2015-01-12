@@ -1,11 +1,11 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.descriptors.*
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.dokka.DocumentationNode.*
-import org.jetbrains.jet.lang.types.*
-import org.jetbrains.jet.lang.types.lang.*
-import org.jetbrains.jet.lang.resolve.name.*
-import org.jetbrains.jet.lang.resolve.lazy.*
+import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.builtins.*
+import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.resolve.lazy.*
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
