@@ -98,17 +98,7 @@ public fun main(args: Array<String>) {
             }
 
             val documentationModule = DocumentationModule(arguments.moduleName, moduleContent)
-
-            val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
-            for ((name, parts) in fragments.groupBy { it.fqName }) {
-                descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
-            }
-            for ((packageName, declarations) in descriptors) {
-                println("  package $packageName: ${declarations.count()} nodes")
-                val packageNode = DocumentationNode(packageName, Content.Empty, DocumentationNode.Kind.Package)
-                packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
-                documentationModule.append(packageNode, DocumentationReference.Kind.Member)
-            }
+            documentationModule.appendFragments(fragments)
             documentationBuilder.resolveReferences(documentationModule)
             documentationModule
         }

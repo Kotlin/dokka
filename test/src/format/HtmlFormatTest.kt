@@ -24,4 +24,13 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members)
         }
     }
+
+    Test fun deprecated() {
+        verifyOutput("test/data/format/deprecated.kt", ".package.html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members)
+        }
+        verifyOutput("test/data/format/deprecated.kt", ".class.html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }

@@ -1,0 +1,1 @@
+inline val property = "test"

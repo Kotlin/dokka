@@ -99,4 +99,30 @@ public class PropertyTest {
             }
         }
     }
+
+    Test fun annotatedProperty() {
+        verifyModel("test/data/properties/annotatedProperty.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("inline", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                }
+            }
+        }
+    }
+
+    Test fun propertyWithReceiver() {
+        verifyModel("test/data/properties/propertyWithReceiver.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("String", name)
+                assertEquals(DocumentationNode.Kind.ExternalClass, kind)
+                with(members.single()) {
+                    assertEquals("foobar", name)
+                    assertEquals(DocumentationNode.Kind.Property, kind)
+                }
+            }
+        }
+    }
 }
