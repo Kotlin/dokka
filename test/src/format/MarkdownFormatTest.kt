@@ -46,4 +46,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun enumClass() {
+        verifyOutput("test/data/format/enumClass.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
