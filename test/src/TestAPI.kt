@@ -4,9 +4,9 @@ import org.jetbrains.jet.cli.common.messages.*
 import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import java.io.File
-import kotlin.test.assertEquals
+import com.intellij.openapi.application.PathManager
+import org.junit.Assert
 
 public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
@@ -27,6 +27,8 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     }
 
     val environment = AnalysisEnvironment(messageCollector) {
+        val stringRoot = PathManager.getResourceRoot(javaClass<String>(), "/java/lang/String.class")
+        addClasspath(File(stringRoot))
         addSources(files.toList())
     }
 
@@ -34,10 +36,6 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
 
     val documentation = environment.withContext { environment, session ->
         val fragments = environment.getSourceFiles().map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-        val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
-        for ((name, parts) in fragments.groupBy { it.fqName }) {
-            descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
-        }
 
         val documentationModule = DocumentationModule("test")
         val documentationBuilder = DocumentationBuilder(session, options)
@@ -56,7 +54,7 @@ public fun verifyOutput(path: String, outputExtension: String, outputGenerator: 
         val output = StringBuilder()
         outputGenerator(it, output)
         val expectedOutput = File(path.replace(".kt", outputExtension)).readText()
-        assertEquals(expectedOutput, output.toString())
+        Assert.assertEquals(expectedOutput, output.toString())
     }
 }
 

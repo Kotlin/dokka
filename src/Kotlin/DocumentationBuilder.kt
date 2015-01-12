@@ -6,8 +6,20 @@ import org.jetbrains.jet.lang.types.*
 import org.jetbrains.jet.lang.types.lang.*
 import org.jetbrains.jet.lang.resolve.name.*
 import org.jetbrains.jet.lang.resolve.lazy.*
+import org.jetbrains.jet.lang.descriptors.annotations.Annotated
+import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.jet.lang.descriptors.impl.EnumEntrySyntheticClassDescriptor
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
+
+private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
+    val package1 = DescriptorUtils.getParentOfType(descriptor1, javaClass<PackageFragmentDescriptor>())
+    val package2 = DescriptorUtils.getParentOfType(descriptor2, javaClass<PackageFragmentDescriptor>())
+    return package1 != null && package2 != null && package1.fqName == package2.fqName
+}
 
 class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
@@ -73,9 +85,18 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
         val superTypes = descriptor.getTypeConstructor().getSupertypes()
         for (superType in superTypes) {
-            if (superType.toString() != "Any")
+            if (!ignoreSupertype(superType))
                 appendType(superType, DocumentationNode.Kind.Supertype)
         }
+    }
+
+    private fun ignoreSupertype(superType: JetType): Boolean {
+        val superClass = superType.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor
+        if (superClass != null) {
+            val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
+            return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
+        }
+        return false
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
@@ -104,6 +125,16 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             node.appendProjection(typeArgument)
     }
 
+    fun DocumentationNode.appendAnnotations(annotated: Annotated) {
+        annotated.getAnnotations().forEach {
+            val annotationNode = it.build()
+            if (annotationNode != null) {
+                append(annotationNode,
+                        if (annotationNode.name == "deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+            }
+        }
+    }
+
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
@@ -120,15 +151,35 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
     }
 
+    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
+                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
+        if (descriptor is CallableMemberDescriptor) {
+            val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
+            if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor)) {
+                val fqName = DescriptorUtils.getFqNameFromTopLevelClass(extensionClassDescriptor)
+                return externalClassNodes.getOrPut(fqName, {
+                    val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
+                    append(newNode, DocumentationReference.Kind.Member)
+                    newNode
+                })
+            }
+        }
+        return this
+    }
+
     fun DocumentationNode.appendFragments(fragments: Collection<PackageFragmentDescriptor>) {
         val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
         for ((name, parts) in fragments.groupBy { it.fqName }) {
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
         for ((packageName, declarations) in descriptors) {
-            println("  package $packageName: ${declarations.count()} nodes")
+            println("  package $packageName: ${declarations.count()} declarations")
             val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
-            packageNode.appendChildren(declarations, DocumentationReference.Kind.Member)
+            val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
+            declarations.forEach { descriptor ->
+                val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
+                parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+            }
             append(packageNode, DocumentationReference.Kind.Member)
         }
     }
@@ -153,6 +204,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             ClassKind.CLASS_OBJECT -> Kind.Object
             ClassKind.TRAIT -> Kind.Interface
             ClassKind.ENUM_CLASS -> Kind.Enum
+            ClassKind.ANNOTATION_CLASS -> Kind.AnnotationClass
             ClassKind.ENUM_ENTRY -> Kind.EnumItem
             else -> Kind.Class
         }
@@ -168,6 +220,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             node.appendChildren(classObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
         }
+        node.appendAnnotations(this)
         register(this, node)
         return node
     }
@@ -182,6 +235,15 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     private fun DeclarationDescriptor.inClassObject() =
             getContainingDeclaration().let { it is ClassDescriptor && it.getKind() == ClassKind.CLASS_OBJECT }
 
+    fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
+        val extensionReceiver = getExtensionReceiverParameter()
+        if (extensionReceiver != null) {
+            val type = extensionReceiver.getType()
+            return type.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
+        }
+        return null
+    }
+
     fun FunctionDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectFunction else Kind.Function)
 
@@ -189,6 +251,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
+        node.appendAnnotations(this)
         register(this, node)
         return node
 
@@ -210,6 +273,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
+        node.appendAnnotations(this)
         getGetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)
@@ -226,6 +290,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
+        node.appendAnnotations(this)
         register(this, node)
         return node
     }
@@ -262,6 +327,36 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         val node = DocumentationNode(getName().asString(), Content.Empty, Kind.Receiver)
         node.appendType(getType())
         return node
+    }
+
+    fun AnnotationDescriptor.build(): DocumentationNode? {
+        val annotationClass = getType().getConstructor().getDeclarationDescriptor()
+        if (ErrorUtils.isError(annotationClass)) {
+            return null
+        }
+        val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
+        val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
+        arguments.forEach {
+            val valueNode = it.second.build()
+            if (valueNode != null) {
+                val paramNode = DocumentationNode(it.first.getName().asString(), Content.Empty, DocumentationNode.Kind.Parameter)
+                paramNode.append(valueNode, DocumentationReference.Kind.Detail)
+                node.append(paramNode, DocumentationReference.Kind.Detail)
+            }
+        }
+        return node
+    }
+
+    fun CompileTimeConstant<out Any?>.build(): DocumentationNode? {
+        val value = getValue()
+        val valueString = when(value) {
+            is String ->
+                "\"" + StringUtil.escapeStringCharacters(value) + "\""
+            is EnumEntrySyntheticClassDescriptor ->
+                value.getContainingDeclaration().getName().asString() + "." + value.getName()
+            else -> value?.toString()
+        }
+        return if (valueString != null) DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value) else null
     }
 
     /**

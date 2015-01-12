@@ -14,17 +14,17 @@ class Klass
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public Klass()` | 
+| [&lt;init&gt;](out.md) | `public Klass()` |
 
 
 ### Class Object Properties
 
 
-| [x](out.md) | `val x: Int` | 
+| [x](out.md) | `val x: Int` |
 
 
 ### Class Object Functions
 
 
-| [foo](out.md) | `fun foo(): Unit` | 
+| [foo](out.md) | `fun foo(): Unit` |
 

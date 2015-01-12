@@ -9,6 +9,8 @@ public data class DocumentationReference(val from: DocumentationNode, val to: Do
         Extension
         Inheritor
         Override
+        Annotation
+        Deprecation
     }
 }
 

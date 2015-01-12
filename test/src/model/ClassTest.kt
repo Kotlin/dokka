@@ -166,4 +166,60 @@ public class ClassTest {
             }
         }
     }
+
+    Test fun annotatedClass() {
+        verifyModel("test/data/classes/annotatedClass.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("data", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                }
+            }
+        }
+    }
+
+    Test fun annotatedClassWithAnnotationParameters() {
+        verifyModel("test/data/classes/annotatedClassWithAnnotationParameters.kt") { model ->
+            with(model.members.single().members.single()) {
+                with(deprecation!!) {
+                    assertEquals("deprecated", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    assertEquals(1, details.count())
+                    with(details[0]) {
+                        assertEquals(DocumentationNode.Kind.Parameter, kind)
+                        assertEquals(1, details.count())
+                        with(details[0]) {
+                            assertEquals(DocumentationNode.Kind.Value, kind)
+                            assertEquals("\"should no longer be used\"", name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Test fun javaAnnotationClass() {
+        verifyModel("test/data/classes/javaAnnotationClass.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    assertEquals("Retention", name)
+                    assertEquals(Content.Empty, content)
+                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    assertEquals(1, details.count())
+                    with(details[0]) {
+                        assertEquals(DocumentationNode.Kind.Parameter, kind)
+                        assertEquals(1, details.count())
+                        with(details[0]) {
+                            assertEquals(DocumentationNode.Kind.Value, kind)
+                            assertEquals("RetentionPolicy.SOURCE", name)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

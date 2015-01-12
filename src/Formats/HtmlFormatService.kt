@@ -93,6 +93,10 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<emph>${text}</emph>"
     }
 
+    override fun formatStrikethrough(text: String): String {
+        return "<s>${text}</s>"
+    }
+
     override fun formatCode(code: String): String {
         return "<code>${code}</code>"
     }

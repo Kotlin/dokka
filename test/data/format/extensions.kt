@@ -1,3 +1,5 @@
+package foo
+
 /**
  * Function with receiver
  */
@@ -9,3 +11,9 @@ fun String.fn() {
  */
 fun String.fn(x: Int) {
 }
+
+/**
+ * Property with receiver.
+ */
+val String.foobar: Int
+     get() = size() * 2

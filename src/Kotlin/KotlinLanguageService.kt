@@ -1,28 +1,18 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.symbol
-import org.jetbrains.dokka.text
-import org.jetbrains.dokka.identifier
-import org.jetbrains.dokka.link
-import org.jetbrains.dokka.keyword
-import org.jetbrains.dokka.LanguageService
-import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.ContentNode
-import org.jetbrains.dokka
-import org.jetbrains.dokka.ContentText
-
 /**
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode): ContentNode {
-        return dokka.content {
+        return content {
             when (node.kind) {
                 DocumentationNode.Kind.Package -> renderPackage(node)
                 DocumentationNode.Kind.Class,
                 DocumentationNode.Kind.Interface,
                 DocumentationNode.Kind.Enum,
                 DocumentationNode.Kind.EnumItem,
+                DocumentationNode.Kind.AnnotationClass,
                 DocumentationNode.Kind.Object -> renderClass(node)
 
                 DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
@@ -135,6 +125,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentNode.renderParameter(node: DocumentationNode) {
+        renderAnnotationsForNode(node)
         identifier(node.name)
         symbol(": ")
         val parameterType = node.detail(DocumentationNode.Kind.Type)
@@ -171,24 +162,46 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
+    private fun ContentNode.renderAnnotationsForNode(node: DocumentationNode) {
+        node.annotations.forEach {
+            renderAnnotation(it)
+        }
+    }
+
+    private fun ContentNode.renderAnnotation(node: DocumentationNode) {
+        identifier(node.name)
+        val parameters = node.details(DocumentationNode.Kind.Parameter)
+        if (!parameters.isEmpty()) {
+            symbol("(")
+            renderList(parameters) {
+                text(it.detail(DocumentationNode.Kind.Value).name)
+            }
+            symbol(")")
+        }
+        text(" ")
+    }
+
     private fun ContentNode.renderClass(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Class -> keyword("class ")
             DocumentationNode.Kind.Interface -> keyword("trait ")
             DocumentationNode.Kind.Enum -> keyword("enum class ")
+            DocumentationNode.Kind.AnnotationClass -> keyword("annotation class ")
             DocumentationNode.Kind.EnumItem -> keyword("enum val ")
             DocumentationNode.Kind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
         }
 
-        identifier(node.name)
+        identifierOrDeprecated(node)
         renderTypeParametersForNode(node)
         renderSupertypesForNode(node)
     }
 
     private fun ContentNode.renderFunction(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
@@ -203,7 +216,7 @@ class KotlinLanguageService : LanguageService {
         }
 
         if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
-            identifier(node.name)
+            identifierOrDeprecated(node)
 
         symbol("(")
         renderList(node.details(DocumentationNode.Kind.Parameter)) {
@@ -218,6 +231,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderProperty(node: DocumentationNode) {
         renderModifiersForNode(node)
+        renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Property,
             DocumentationNode.Kind.ClassObjectProperty -> keyword("val ")
@@ -230,8 +244,18 @@ class KotlinLanguageService : LanguageService {
             symbol(".")
         }
 
-        identifier(node.name)
+        identifierOrDeprecated(node)
         symbol(": ")
         renderType(node.detail(DocumentationNode.Kind.Type))
+    }
+
+    fun ContentNode.identifierOrDeprecated(node: DocumentationNode) {
+        if (node.deprecation != null) {
+            val strike = ContentStrikethrough()
+            strike.identifier(node.name)
+            append(strike)
+        } else {
+            identifier(node.name)
+        }
     }
 }
