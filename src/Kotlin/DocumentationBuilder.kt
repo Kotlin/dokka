@@ -1,17 +1,17 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.jet.lang.descriptors.*
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.dokka.DocumentationNode.*
-import org.jetbrains.jet.lang.types.*
-import org.jetbrains.jet.lang.types.lang.*
-import org.jetbrains.jet.lang.resolve.name.*
-import org.jetbrains.jet.lang.resolve.lazy.*
-import org.jetbrains.jet.lang.descriptors.annotations.Annotated
-import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
-import org.jetbrains.jet.lang.resolve.DescriptorUtils
-import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant
+import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.builtins.*
+import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.resolve.lazy.*
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.descriptors.annotations.Annotated
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.jet.lang.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false)
 
