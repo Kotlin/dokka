@@ -1,19 +1,22 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.LanguageService.RenderMode
+
 /**
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
-    override fun render(node: DocumentationNode): ContentNode {
+    override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             when (node.kind) {
                 DocumentationNode.Kind.Package -> renderPackage(node)
                 DocumentationNode.Kind.Class,
                 DocumentationNode.Kind.Interface,
                 DocumentationNode.Kind.Enum,
-                DocumentationNode.Kind.EnumItem,
                 DocumentationNode.Kind.AnnotationClass,
                 DocumentationNode.Kind.Object -> renderClass(node)
+
+                DocumentationNode.Kind.EnumItem -> if (renderMode == RenderMode.FULL) identifier(node.name)
 
                 DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
                 DocumentationNode.Kind.Type,
