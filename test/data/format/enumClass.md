@@ -11,12 +11,6 @@ public enum class InlineOption
 
 
 
-### Constructors
-
-
-| [&lt;init&gt;](out.md) | `private InlineOption()` |
-
-
 ### Enum Values
 
 

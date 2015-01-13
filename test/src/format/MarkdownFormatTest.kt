@@ -2,8 +2,6 @@ package org.jetbrains.dokka.tests
 
 import org.junit.Test
 import org.jetbrains.dokka.*
-import java.io.File
-import kotlin.test.assertEquals
 
 public class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
@@ -52,8 +50,9 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
         verifyOutput("test/data/format/enumClass.kt", ".value.md") { model, output ->
-            val documentationNode = model.members.single()
-            markdownService.appendNodes(tempLocation, output, listOf(documentationNode.members[0].members[1]))
+            val enumClassNode = model.members.single().members[0]
+            markdownService.appendNodes(tempLocation, output,
+                    enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" })
         }
     }
 }
