@@ -6,7 +6,8 @@ import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.scopes.*
 import org.jetbrains.kotlin.name.*
 import org.intellij.markdown.*
-import org.jetbrains.jet.lang.psi.*
+import org.jetbrains.kotlin.psi.JetDeclarationWithBody
+import org.jetbrains.kotlin.psi.JetBlockExpression
 
 public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: DeclarationDescriptor): Content {
 //    println(tree.toTestString())
