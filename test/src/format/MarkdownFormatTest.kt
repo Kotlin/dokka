@@ -55,4 +55,10 @@ public class MarkdownFormatTest {
                     enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" })
         }
     }
+
+    Test fun varargsFunction() {
+        verifyOutput("test/data/format/varargsFunction.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
