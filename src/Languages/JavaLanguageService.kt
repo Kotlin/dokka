@@ -1,12 +1,13 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DocumentationNode.*
+import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
  * Implements [LanguageService] and provides rendering of symbols in Java language
  */
 public class JavaLanguageService : LanguageService {
-    override fun render(node: DocumentationNode): ContentNode {
+    override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return ContentText(when (node.kind) {
             Kind.Package -> renderPackage(node)
             Kind.Class,

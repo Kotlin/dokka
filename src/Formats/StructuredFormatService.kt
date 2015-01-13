@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.util.LinkedHashMap
+import org.jetbrains.dokka.LanguageService.RenderMode
 
 public data class FormatLink(val text: String, val location: Location)
 
@@ -162,7 +163,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     val signatureTexts = items map { signature ->
-                                        val signature = languageService.render(signature)
+                                        val signature = languageService.render(signature, RenderMode.SUMMARY)
                                         val signatureAsCode = ContentCode()
                                         signatureAsCode.append(signature)
                                         formatText(location, signatureAsCode)
@@ -216,6 +217,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             appendSection(location, "Class Object Properties", node.members(DocumentationNode.Kind.ClassObjectProperty), node, to)
             appendSection(location, "Class Object Functions", node.members(DocumentationNode.Kind.ClassObjectFunction), node, to)
             appendSection(location, "Accessors", node.members(DocumentationNode.Kind.PropertyAccessor), node, to)
+            appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
                         DocumentationNode.Kind.Class,
@@ -230,11 +232,13 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.PropertyAccessor,
                         DocumentationNode.Kind.ClassObjectProperty,
                         DocumentationNode.Kind.ClassObjectFunction,
-                        DocumentationNode.Kind.ExternalClass
+                        DocumentationNode.Kind.ExternalClass,
+                        DocumentationNode.Kind.EnumItem
                         )
             }, node, to)
             appendSection(location, "Extensions", node.extensions, node, to)
-            appendSection(location, "Inheritors", node.inheritors, node, to)
+            appendSection(location, "Inheritors",
+                    node.inheritors.filter { it.kind != DocumentationNode.Kind.EnumItem }, node, to)
             appendSection(location, "Links", node.links, node, to)
 
         }

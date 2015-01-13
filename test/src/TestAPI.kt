@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.cli.common.messages.*
 import com.intellij.openapi.util.*
 import kotlin.test.fail
 import org.jetbrains.dokka.*
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import java.io.File
 import com.intellij.openapi.application.PathManager
 import org.junit.Assert
@@ -54,7 +53,7 @@ public fun verifyOutput(path: String, outputExtension: String, outputGenerator: 
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val expectedOutput = File(path.replace(".kt", outputExtension)).readText()
+        val expectedOutput = File(path.replace(".kt", outputExtension)).readText().replace("\r\n", "\n")
         Assert.assertEquals(expectedOutput, output.toString())
     }
 }

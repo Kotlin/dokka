@@ -210,9 +210,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         val node = DocumentationNode(this, kind)
         node.appendSupertypes(this)
-        if (getKind() != ClassKind.OBJECT) {
+        if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
-            node.appendChildren(getConstructors(), DocumentationReference.Kind.Member)
+            val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
+                getConstructors().filter { it.getValueParameters().size() > 0 }
+            else
+                getConstructors()
+            node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
         }
         node.appendChildren(getDefaultType().getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
         val classObjectDescriptor = getClassObjectDescriptor()
