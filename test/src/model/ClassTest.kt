@@ -222,4 +222,14 @@ public class ClassTest {
             }
         }
     }
+
+    Test fun notOpenClass() {
+        verifyModel("test/data/classes/notOpenClass.kt") { model ->
+            with(model.members.single().members.first { it.name == "D"}.members.first { it.name == "f" }) {
+                val modifiers = details(DocumentationNode.Kind.Modifier)
+                assertEquals(2, modifiers.size())
+                assertEquals("final", modifiers[1].name)
+            }
+        }
+    }
 }
