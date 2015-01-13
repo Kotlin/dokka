@@ -71,7 +71,14 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun DocumentationNode.appendModality(descriptor: MemberDescriptor) {
-        val modifier = descriptor.getModality().name().toLowerCase()
+        var modality = descriptor.getModality()
+        if (modality == Modality.OPEN) {
+            val containingClass = descriptor.getContainingDeclaration() as? ClassDescriptor
+            if (containingClass?.getModality() == Modality.FINAL) {
+                modality = Modality.FINAL
+            }
+        }
+        val modifier = modality.name().toLowerCase()
         val node = DocumentationNode(modifier, Content.Empty, DocumentationNode.Kind.Modifier)
         append(node, DocumentationReference.Kind.Detail)
     }
