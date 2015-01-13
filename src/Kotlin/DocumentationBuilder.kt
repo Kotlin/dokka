@@ -293,7 +293,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
-        node.appendType(getType())
+        val varargType = getVarargElementType()
+        if (varargType != null) {
+            node.append(DocumentationNode("vararg", Content.Empty, Kind.Annotation), DocumentationReference.Kind.Annotation)
+            node.appendType(varargType)
+        } else {
+            node.appendType(getType())
+        }
         node.appendAnnotations(this)
         register(this, node)
         return node
