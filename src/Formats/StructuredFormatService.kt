@@ -119,20 +119,32 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
                 appendBlockCode(to, formatText(location, languageService.render(it)))
-                val deprecation = it.deprecation
-                if (deprecation != null) {
-                    val deprecationParameter = deprecation.details(DocumentationNode.Kind.Parameter).firstOrNull()
-                    val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
-                    if (deprecationValue != null) {
-                        to.append(formatStrong("Deprecated: "))
-                        appendLine(to, formatText(deprecationValue.name.trim("\"")))
-                    } else {
-                        appendLine(to, formatStrong("Deprecated"))
-                    }
-                }
+                it.appendOverrides(to)
+                it.appendDeprecation(to)
             }
             appendLine(to, summary)
             appendLine(to)
+        }
+    }
+
+    private fun DocumentationNode.appendOverrides(to: StringBuilder) {
+        overrides.forEach {
+            to.append("Overrides ")
+            val location = locationService.relativeLocation(this, it, extension)
+            appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
+        }
+    }
+
+    private fun DocumentationNode.appendDeprecation(to: StringBuilder) {
+        if (deprecation != null) {
+            val deprecationParameter = deprecation!!.details(DocumentationNode.Kind.Parameter).firstOrNull()
+            val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
+            if (deprecationValue != null) {
+                to.append(formatStrong("Deprecated: "))
+                appendLine(to, formatText(deprecationValue.name.trim("\"")))
+            } else {
+                appendLine(to, formatStrong("Deprecated"))
+            }
         }
     }
 

@@ -229,6 +229,22 @@ public class ClassTest {
                 val modifiers = details(DocumentationNode.Kind.Modifier)
                 assertEquals(2, modifiers.size())
                 assertEquals("final", modifiers[1].name)
+
+                val overrideReferences = references(DocumentationReference.Kind.Override)
+                assertEquals(1, overrideReferences.size())
+            }
+        }
+    }
+
+    Test fun indirectOverride() {
+        verifyModel("test/data/classes/indirectOverride.kt") { model ->
+            with(model.members.single().members.first { it.name == "E"}.members.first { it.name == "foo" }) {
+                val modifiers = details(DocumentationNode.Kind.Modifier)
+                assertEquals(2, modifiers.size())
+                assertEquals("final", modifiers[1].name)
+
+                val overrideReferences = references(DocumentationReference.Kind.Override)
+                assertEquals(1, overrideReferences.size())
             }
         }
     }

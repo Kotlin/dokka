@@ -28,6 +28,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Extension).map { it.to }
     public val inheritors: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Inheritor).map { it.to }
+    public val overrides: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.Override).map { it.to }
     public val links: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Link).map { it.to }
     public val annotations: List<DocumentationNode>
