@@ -69,4 +69,10 @@ public class MarkdownFormatTest {
         }
 
     }
+
+    Test fun functionWithDefaultParameter() {
+        verifyOutput("test/data/format/functionWithDefaultParameter.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
