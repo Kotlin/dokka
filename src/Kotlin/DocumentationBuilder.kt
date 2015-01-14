@@ -285,6 +285,10 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
         node.appendAnnotations(this)
+        if (isVar()) {
+            node.append(DocumentationNode("var", Content.Empty, DocumentationNode.Kind.Modifier),
+                    DocumentationReference.Kind.Detail)
+        }
         getGetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)
