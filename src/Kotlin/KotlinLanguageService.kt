@@ -133,6 +133,11 @@ class KotlinLanguageService : LanguageService {
         symbol(": ")
         val parameterType = node.detail(DocumentationNode.Kind.Type)
         renderType(parameterType)
+        val valueNode = node.details(DocumentationNode.Kind.Value).firstOrNull()
+        if (valueNode != null) {
+            symbol(" = ")
+            text(valueNode.name)
+        }
     }
 
     private fun ContentNode.renderTypeParametersForNode(node: DocumentationNode) {
