@@ -121,6 +121,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 appendBlockCode(to, formatText(location, languageService.render(it)))
                 it.appendOverrides(to)
                 it.appendDeprecation(to)
+                it.appendSourceLink(to)
             }
             appendLine(to, summary)
             appendLine(to)
@@ -145,6 +146,13 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             } else {
                 appendLine(to, formatStrong("Deprecated"))
             }
+        }
+    }
+
+    private fun DocumentationNode.appendSourceLink(to: StringBuilder) {
+        val sourceUrl = details(DocumentationNode.Kind.SourceUrl).firstOrNull()
+        if (sourceUrl != null) {
+            appendLine(to, formatLink("Source", sourceUrl.name))
         }
     }
 
