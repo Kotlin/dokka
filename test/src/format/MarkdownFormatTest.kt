@@ -61,4 +61,12 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun overridingFunction() {
+        verifyOutput("test/data/format/overridingFunction.kt", ".md") { model, output ->
+            val classMembers = model.members.single().members.first { it.name == "D" }.members
+            markdownService.appendNodes(tempLocation, output, classMembers.filter { it.name == "f" })
+        }
+
+    }
 }
