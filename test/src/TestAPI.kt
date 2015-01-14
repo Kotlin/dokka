@@ -32,7 +32,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         addSources(files.toList())
     }
 
-    val options = DocumentationOptions(includeNonPublic = true)
+    val options = DocumentationOptions(includeNonPublic = true, sourceLinks = listOf<SourceLinkDefinition>())
 
     val documentation = environment.withContext { environment, session ->
         val fragments = environment.getSourceFiles().map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
