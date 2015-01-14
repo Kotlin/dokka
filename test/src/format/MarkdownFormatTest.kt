@@ -69,4 +69,15 @@ public class MarkdownFormatTest {
         }
 
     }
+
+    Test fun accessor() {
+        verifyOutput("test/data/format/accessor.kt", ".get.md") { model, output ->
+            val propertyNode = model.members.single().members.first { it.name == "C" }.members.first { it.name == "x" }
+            markdownService.appendNodes(tempLocation, output, listOf(propertyNode.members[0]))
+        }
+        verifyOutput("test/data/format/accessor.kt", ".set.md") { model, output ->
+            val propertyNode = model.members.single().members.first { it.name == "C" }.members.first { it.name == "x" }
+            markdownService.appendNodes(tempLocation, output, listOf(propertyNode.members[1]))
+        }
+    }
 }

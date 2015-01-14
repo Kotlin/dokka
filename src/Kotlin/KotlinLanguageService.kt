@@ -25,7 +25,8 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Modifier -> renderModifier(node)
                 DocumentationNode.Kind.Constructor,
                 DocumentationNode.Kind.Function,
-                DocumentationNode.Kind.ClassObjectFunction -> renderFunction(node)
+                DocumentationNode.Kind.ClassObjectFunction,
+                DocumentationNode.Kind.PropertyAccessor -> renderFunction(node)
                 DocumentationNode.Kind.Property,
                 DocumentationNode.Kind.ClassObjectProperty -> renderProperty(node)
                 else -> ContentText("${node.kind}: ${node.name}")
@@ -209,6 +210,7 @@ class KotlinLanguageService : LanguageService {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
             DocumentationNode.Kind.ClassObjectFunction -> keyword("fun ")
+            DocumentationNode.Kind.PropertyAccessor -> {}
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
         renderTypeParametersForNode(node)
@@ -226,10 +228,16 @@ class KotlinLanguageService : LanguageService {
             renderParameter(it)
         }
         symbol(")")
-        if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor) {
+        if (needReturnType(node)) {
             symbol(": ")
             renderType(node.detail(DocumentationNode.Kind.Type))
         }
+    }
+
+    private fun needReturnType(node: DocumentationNode) = when(node.kind) {
+        DocumentationNode.Kind.Constructor -> false
+        DocumentationNode.Kind.PropertyAccessor -> node.name == "get"
+        else -> true
     }
 
     private fun ContentNode.renderProperty(node: DocumentationNode) {
