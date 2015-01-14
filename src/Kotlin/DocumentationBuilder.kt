@@ -12,8 +12,14 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.resolve.source.getPsi
+import java.io.File
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiNameIdentifierOwner
+import com.intellij.psi.PsiElement
 
-public data class DocumentationOptions(val includeNonPublic: Boolean = false)
+public data class DocumentationOptions(val includeNonPublic: Boolean = false,
+                                       val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
     val package1 = DescriptorUtils.getParentOfType(descriptor1, javaClass<PackageFragmentDescriptor>())
@@ -142,6 +148,36 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
     }
 
+    fun DocumentationNode.appendSourceLink(sourceElement: SourceElement) {
+        val psi = getTargetElement(sourceElement)
+        val path = psi?.getContainingFile()?.getVirtualFile()?.getPath()
+        if (path == null) {
+            return
+        }
+        val absPath = File(path).getAbsolutePath()
+        val linkDef = findSourceLinkDefinition(absPath)
+        if (linkDef != null) {
+            var url = linkDef.url + path.substring(linkDef.path.length())
+            if (linkDef.lineSuffix != null) {
+                val doc = PsiDocumentManager.getInstance(psi!!.getProject()).getDocument(psi.getContainingFile())
+                if (doc != null) {
+                    // IJ uses 0-based line-numbers; external source browsers use 1-based
+                    val line = doc.getLineNumber(psi.getTextRange().getStartOffset()) + 1
+                    url += linkDef.lineSuffix + line.toString()
+                }
+            }
+            append(DocumentationNode(url, Content.Empty, DocumentationNode.Kind.SourceUrl),
+                    DocumentationReference.Kind.Detail);
+        }
+    }
+
+    private fun getTargetElement(sourceElement: SourceElement): PsiElement? {
+        val psi = sourceElement.getPsi()
+        return if (psi is PsiNameIdentifierOwner) psi.getNameIdentifier() else psi
+    }
+
+    fun findSourceLinkDefinition(path: String) = options.sourceLinks.firstOrNull { path.startsWith(it.path) }
+
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
@@ -232,6 +268,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                     DocumentationReference.Kind.Member)
         }
         node.appendAnnotations(this)
+        node.appendSourceLink(getSource())
         register(this, node)
         return node
     }
@@ -263,6 +300,8 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
         node.appendAnnotations(this)
+        node.appendSourceLink(getSource())
+
         register(this, node)
         return node
 
@@ -285,6 +324,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
         node.appendAnnotations(this)
+        node.appendSourceLink(getSource())
         getGetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)

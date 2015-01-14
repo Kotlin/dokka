@@ -6,13 +6,16 @@ import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.common.arguments.*
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.name.FqName
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
     ValueDescription("<path>")
     public var src: String = ""
+
+    Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
+    ValueDescription("<path>=<url>[#lineSuffix]")
+    public var srcLink: String = ""
 
     Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
     ValueDescription("<path>")
@@ -40,12 +43,30 @@ class DokkaArguments {
 
 }
 
+class SourceLinkDefinition(val path: String, val url: String, val lineSuffix: String?)
+
+private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
+    val urlAndLine = srcLink.substringAfter("=")
+    return SourceLinkDefinition(File(srcLink.substringBefore("=")).getAbsolutePath(),
+            urlAndLine.substringBefore("#"),
+            urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
+}
+
 public fun main(args: Array<String>) {
     val arguments = DokkaArguments()
     val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
     val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
     val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
     val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
+
+    val sourceLinks = if (arguments.srcLink.isNotEmpty() && arguments.srcLink.contains("="))
+        listOf(parseSourceLinkDefinition(arguments.srcLink))
+    else {
+        if (arguments.srcLink.isNotEmpty()) {
+            println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+        }
+        listOf()
+    }
 
     val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
         addClasspath(PathUtil.getJdkClassesRoots())
@@ -79,7 +100,7 @@ public fun main(args: Array<String>) {
             }
         }
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-        val options = DocumentationOptions()
+        val options = DocumentationOptions(false, sourceLinks)
         val documentationBuilder = DocumentationBuilder(session, options)
 
         with(documentationBuilder) {
@@ -134,3 +155,4 @@ public fun main(args: Array<String>) {
     println("Done.")
     Disposer.dispose(environment)
 }
+

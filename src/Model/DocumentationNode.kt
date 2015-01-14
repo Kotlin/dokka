@@ -97,6 +97,8 @@ public open class DocumentationNode(val name: String,
         Annotation
 
         Value
+
+        SourceUrl
     }
 
 }
