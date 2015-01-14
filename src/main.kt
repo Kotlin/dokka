@@ -46,8 +46,8 @@ class DokkaArguments {
 class SourceLinkDefinition(val path: String, val url: String, val lineSuffix: String?)
 
 private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
-    val urlAndLine = srcLink.substringAfter("=")
-    return SourceLinkDefinition(File(srcLink.substringBefore("=")).getAbsolutePath(),
+    val (path, urlAndLine) = srcLink.split('=')
+    return SourceLinkDefinition(File(path).getAbsolutePath(),
             urlAndLine.substringBefore("#"),
             urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
 }
