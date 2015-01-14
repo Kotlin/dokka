@@ -108,7 +108,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentNode.renderModifier(node: DocumentationNode) {
         when (node.name) {
-            "final", "internal" -> {}
+            "final", "internal", "var" -> {}
             else -> {
                 keyword(node.name)
                 text(" ")
@@ -237,7 +237,7 @@ class KotlinLanguageService : LanguageService {
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Property,
-            DocumentationNode.Kind.ClassObjectProperty -> keyword("val ")
+            DocumentationNode.Kind.ClassObjectProperty -> keyword("${node.getPropertyKeyword()} ")
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
         renderTypeParametersForNode(node)
@@ -251,6 +251,9 @@ class KotlinLanguageService : LanguageService {
         symbol(": ")
         renderType(node.detail(DocumentationNode.Kind.Type))
     }
+
+    fun DocumentationNode.getPropertyKeyword() =
+            if (details(DocumentationNode.Kind.Modifier).any { it.name == "var" }) "var" else "val"
 
     fun ContentNode.identifierOrDeprecated(node: DocumentationNode) {
         if (node.deprecation != null) {

@@ -69,4 +69,10 @@ public class MarkdownFormatTest {
         }
 
     }
+
+    Test fun propertyVar() {
+        verifyOutput("test/data/format/propertyVar.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
