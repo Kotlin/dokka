@@ -412,6 +412,14 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             }
         }
 
+        val descriptor = nodeToDescriptor[node]
+        if (descriptor is FunctionDescriptor) {
+            val overrides = descriptor.getOverriddenDescriptors();
+            overrides?.forEach {
+                addOverrideLink(node, it)
+            }
+        }
+
         resolveContentLinks(node, node.content)
 
         for (child in node.members) {
@@ -419,6 +427,21 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         for (child in node.details) {
             resolveReferences(child)
+        }
+    }
+
+    /**
+     * Add an override link from a function node to the node corresponding to the specified descriptor.
+     * Note that this descriptor may be contained in a class where the function is not actually overridden
+     * (just inherited from the parent), so we need to go further up the override chain to find a function
+     * which exists in the code and for which we do have a documentation node.
+     */
+    private fun addOverrideLink(node: DocumentationNode, overriddenDescriptor: FunctionDescriptor) {
+        val overriddenNode = descriptorToNode[overriddenDescriptor.getOriginal()]
+        if (overriddenNode != null) {
+            node.addReferenceTo(overriddenNode, DocumentationReference.Kind.Override)
+        } else {
+            overriddenDescriptor.getOverriddenDescriptors().forEach { addOverrideLink(node, it) }
         }
     }
 
