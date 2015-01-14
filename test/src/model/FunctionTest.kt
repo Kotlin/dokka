@@ -194,4 +194,18 @@ Documentation""", content.description.toTestString())
             }
         }
     }
+
+    Test fun functionWithDefaultParameter() {
+        verifyModel("test/data/functions/functionWithDefaultParameter.kt") { model ->
+            with(model.members.single().members.single()) {
+                with(details.elementAt(2)) {
+                    val value = details(DocumentationNode.Kind.Value)
+                    assertEquals(1, value.count())
+                    with(value[0]) {
+                        assertEquals("\"\"", name)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -17,6 +17,8 @@ import java.io.File
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.resolve.source.getPsi
+import org.jetbrains.kotlin.psi.JetParameter
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -350,6 +352,15 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             node.appendType(varargType)
         } else {
             node.appendType(getType())
+        }
+        if (hasDefaultValue()) {
+            val psi = getSource().getPsi() as? JetParameter
+            if (psi != null) {
+                val defaultValueText = psi.getDefaultValue()?.getText()
+                if (defaultValueText != null) {
+                    node.append(DocumentationNode(defaultValueText, Content.Empty, Kind.Value), DocumentationReference.Kind.Detail)
+                }
+            }
         }
         node.appendAnnotations(this)
         register(this, node)
