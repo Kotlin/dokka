@@ -39,9 +39,7 @@ class DokkaAntTask(): Task() {
     }
 
     public fun setSrc(src: Path) {
-        log("setSrc($src)")
         sourcePath.append(src)
-        log("sourcePath=${sourcePath.list().join(",")}")
     }
 
     public fun setSrcRef(ref: Reference) {
@@ -90,7 +88,6 @@ class DokkaAntTask(): Task() {
 
         val url = javaClass<DokkaAntTask>().getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
         val jarRoot = url.getPath().substringBefore("!/").trimLeading("file:")
-        log(jarRoot)
 
         val generator = DokkaGenerator(
                 AntLogger(this),
