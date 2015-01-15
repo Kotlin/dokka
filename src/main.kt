@@ -68,95 +68,144 @@ public fun main(args: Array<String>) {
         listOf()
     }
 
-    val environment = AnalysisEnvironment(MessageCollectorPlainTextToStream.PLAIN_TEXT_TO_SYSTEM_ERR) {
-        addClasspath(PathUtil.getJdkClassesRoots())
-        //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
-        for (element in arguments.classpath.split(File.pathSeparatorChar)) {
-            addClasspath(File(element))
-        }
+    val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
+    val generator = DokkaGenerator(
+            DokkaConsoleLogger,
+            classPath,
+            sources,
+            samples,
+            includes,
+            arguments.moduleName,
+            arguments.outputDir,
+            arguments.outputFormat,
+            sourceLinks)
 
-        addSources(sources)
-        addSources(samples)
-    }
-
-    println("Module: ${arguments.moduleName}")
-    println("Output: ${arguments.outputDir}")
-    println("Sources: ${environment.sources.join()}")
-    println("Classpath: ${environment.classpath.joinToString()}")
-
-    println()
-
-    println("Analysing sources and libraries... ")
-    val startAnalyse = System.currentTimeMillis()
-
-
-    val documentation = environment.withContext { environment, session ->
-        val fragmentFiles = environment.getSourceFiles().filter {
-            val sourceFile = File(it.getVirtualFile()!!.getPath())
-            samples.none { sample ->
-                val canonicalSample = File(sample).canonicalPath
-                val canonicalSource = sourceFile.canonicalPath
-                canonicalSource.startsWith(canonicalSample)
-            }
-        }
-        val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-        val options = DocumentationOptions(false, sourceLinks)
-        val documentationBuilder = DocumentationBuilder(session, options)
-
-        with(documentationBuilder) {
-
-            val moduleContent = Content()
-            for (include in includes) {
-                val file = File(include)
-                if (file.exists()) {
-                    val text = file.readText()
-                    val tree = parseMarkdown(text)
-                    val content = buildContent(tree)
-                    moduleContent.children.addAll(content.children)
-                } else {
-                    println("WARN: Include file $file was not found.")
-                }
-            }
-
-            val documentationModule = DocumentationModule(arguments.moduleName, moduleContent)
-            documentationModule.appendFragments(fragments)
-            documentationBuilder.resolveReferences(documentationModule)
-            documentationModule
-        }
-    }
-
-    val timeAnalyse = System.currentTimeMillis() - startAnalyse
-    println("done in ${timeAnalyse / 1000} secs")
-
-    val startBuild = System.currentTimeMillis()
-    val signatureGenerator = KotlinLanguageService()
-    val locationService = FoldersLocationService(arguments.outputDir)
-    val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
-
-    val (formatter, outlineFormatter) = when (arguments.outputFormat) {
-        "html" -> {
-            val htmlFormatService = HtmlFormatService(locationService, signatureGenerator, templateService)
-            htmlFormatService to htmlFormatService
-        }
-        "markdown" -> MarkdownFormatService(locationService, signatureGenerator) to null
-        "jekyll" -> JekyllFormatService(locationService, signatureGenerator) to null
-        "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator) to
-                    YamlOutlineService(locationService, signatureGenerator)
-        else -> {
-            print("Unrecognized output format ${arguments.outputFormat}")
-            null to null
-        }
-    }
-    if (formatter == null) return
-
-    val generator = FileGenerator(signatureGenerator, locationService, formatter, outlineFormatter)
-    print("Generating pages... ")
-    generator.buildPage(documentation)
-    generator.buildOutline(documentation)
-    val timeBuild = System.currentTimeMillis() - startBuild
-    println("done in ${timeBuild / 1000} secs")
-    println()
-    println("Done.")
-    Disposer.dispose(environment)
+    generator.generate()
 }
 
+trait DokkaLogger {
+    fun info(message: String)
+    fun warn(message: String)
+    fun error(message: String)
+}
+
+object DokkaConsoleLogger: DokkaLogger {
+    override fun info(message: String) = println(message)
+    override fun warn(message: String) = println("WARN: $message")
+    override fun error(message: String) = println("ERROR: $message")
+}
+
+class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        logger.error(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
+    }
+}
+
+class DokkaGenerator(val logger: DokkaLogger,
+                     val classpath: List<String>,
+                     val sources: List<String>,
+                     val samples: List<String>,
+                     val includes: List<String>,
+                     val moduleName: String,
+                     val outputDir: String,
+                     val outputFormat: String,
+                     val sourceLinks: List<SourceLinkDefinition>) {
+    fun generate() {
+        val environment = createAnalysisEnvironment()
+
+        logger.info("Module: ${moduleName}")
+        logger.info("Output: ${outputDir}")
+        logger.info("Sources: ${environment.sources.join()}")
+        logger.info("Classpath: ${environment.classpath.joinToString()}")
+
+        logger.info("Analysing sources and libraries... ")
+        val startAnalyse = System.currentTimeMillis()
+
+        val documentation = buildDocumentationModule(environment)
+
+        val timeAnalyse = System.currentTimeMillis() - startAnalyse
+        logger.info("done in ${timeAnalyse / 1000} secs")
+
+        val startBuild = System.currentTimeMillis()
+        val signatureGenerator = KotlinLanguageService()
+        val locationService = FoldersLocationService(outputDir)
+        val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
+
+        val (formatter, outlineFormatter) = when (outputFormat) {
+            "html" -> {
+                val htmlFormatService = HtmlFormatService(locationService, signatureGenerator, templateService)
+                htmlFormatService to htmlFormatService
+            }
+            "markdown" -> MarkdownFormatService(locationService, signatureGenerator) to null
+            "jekyll" -> JekyllFormatService(locationService, signatureGenerator) to null
+            "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator) to
+                    YamlOutlineService(locationService, signatureGenerator)
+            else -> {
+                logger.error("Unrecognized output format ${outputFormat}")
+                null to null
+            }
+        }
+        if (formatter == null) return
+
+        val generator = FileGenerator(signatureGenerator, locationService, formatter, outlineFormatter)
+        logger.info("Generating pages... ")
+        generator.buildPage(documentation)
+        generator.buildOutline(documentation)
+        val timeBuild = System.currentTimeMillis() - startBuild
+        logger.info("done in ${timeBuild / 1000} secs")
+        Disposer.dispose(environment)
+    }
+
+    fun createAnalysisEnvironment(): AnalysisEnvironment {
+        val environment = AnalysisEnvironment(DokkaMessageCollector(logger)) {
+            addClasspath(PathUtil.getJdkClassesRoots())
+            //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
+            for (element in this@DokkaGenerator.classpath) {
+                addClasspath(File(element))
+            }
+
+            addSources(this@DokkaGenerator.sources)
+            addSources(this@DokkaGenerator.samples)
+        }
+        return environment
+    }
+
+    fun buildDocumentationModule(environment: AnalysisEnvironment): DocumentationModule {
+        val documentation = environment.withContext { environment, session ->
+            val fragmentFiles = environment.getSourceFiles().filter {
+                val sourceFile = File(it.getVirtualFile()!!.getPath())
+                samples.none { sample ->
+                    val canonicalSample = File(sample).canonicalPath
+                    val canonicalSource = sourceFile.canonicalPath
+                    canonicalSource.startsWith(canonicalSample)
+                }
+            }
+            val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
+            val options = DocumentationOptions(false, sourceLinks)
+            val documentationBuilder = DocumentationBuilder(session, options, logger)
+
+            with(documentationBuilder) {
+
+                val moduleContent = Content()
+                for (include in includes) {
+                    val file = File(include)
+                    if (file.exists()) {
+                        val text = file.readText()
+                        val tree = parseMarkdown(text)
+                        val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
+                        moduleContent.children.addAll(content.children)
+                    } else {
+                        logger.warn("Include file $file was not found.")
+                    }
+                }
+
+                val documentationModule = DocumentationModule(moduleName, moduleContent)
+                documentationModule.appendFragments(fragments)
+                documentationBuilder.resolveReferences(documentationModule)
+                documentationModule
+            }
+        }
+
+        return documentation
+    }
+}

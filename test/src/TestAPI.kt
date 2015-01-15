@@ -38,7 +38,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         val fragments = environment.getSourceFiles().map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
 
         val documentationModule = DocumentationModule("test")
-        val documentationBuilder = DocumentationBuilder(session, options)
+        val documentationBuilder = DocumentationBuilder(session, options, DokkaConsoleLogger)
         with(documentationBuilder) {
             documentationModule.appendFragments(fragments)
         }

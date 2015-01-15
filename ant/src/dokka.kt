@@ -1,0 +1,85 @@
+package org.jetbrains.dokka.ant
+
+import org.apache.tools.ant.Task
+import org.apache.tools.ant.types.Path
+import org.apache.tools.ant.types.Reference
+import org.apache.tools.ant.BuildException
+import org.apache.tools.ant.Project
+import org.jetbrains.dokka.DokkaLogger
+import org.jetbrains.dokka.DokkaGenerator
+
+class AntLogger(val task: Task): DokkaLogger {
+    override fun info(message: String) = task.log(message, Project.MSG_INFO)
+    override fun warn(message: String) = task.log(message, Project.MSG_WARN)
+    override fun error(message: String) = task.log(message, Project.MSG_ERR)
+}
+
+class DokkaAntTask(): Task() {
+    public var moduleName: String? = null
+    public var outputDir: String? = null
+    public var outputFormat: String = "html"
+
+    public val compileClasspath: Path = Path(getProject())
+    public val sourcePath: Path = Path(getProject())
+    public val samplesPath: Path = Path(getProject())
+    public val includesPath: Path = Path(getProject())
+
+    public fun setClasspath(classpath: Path) {
+        compileClasspath.append(classpath)
+    }
+
+    public fun setClasspathRef(ref: Reference) {
+        compileClasspath.createPath().setRefid(ref)
+    }
+
+    public fun setSrc(src: Path) {
+        log("setSrc($src)")
+        sourcePath.append(src)
+        log("sourcePath=${sourcePath.list().join(",")}")
+    }
+
+    public fun setSrcRef(ref: Reference) {
+        sourcePath.createPath().setRefid(ref)
+    }
+
+    public fun setSamples(samples: Path) {
+        samplesPath.append(samples)
+    }
+
+    public fun setSamplesRef(ref: Reference) {
+        samplesPath.createPath().setRefid(ref)
+    }
+
+    public fun setInclude(include: Path) {
+        includesPath.append(include)
+    }
+
+    override fun execute() {
+        if (sourcePath.list().size() == 0) {
+            throw BuildException("At least one source path needs to be specified")
+        }
+        if (moduleName == null) {
+            throw BuildException("Module name needs to be specified")
+        }
+        if (outputDir == null) {
+            throw BuildException("Output directory needs to be specified")
+        }
+
+        val url = javaClass<DokkaAntTask>().getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
+        val jarRoot = url.getPath().substringBefore("!/").trimLeading("file:")
+        log(jarRoot)
+
+        val generator = DokkaGenerator(
+                AntLogger(this),
+                listOf(jarRoot) + compileClasspath.list().toList(),
+                sourcePath.list().toList(),
+                samplesPath.list().toList(),
+                includesPath.list().toList(),
+                moduleName!!,
+                outputDir!!,
+                outputFormat,
+                listOf()
+        )
+        generator.generate()
+    }
+}

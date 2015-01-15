@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/ant/ant.iml" filepath="$PROJECT_DIR$/ant/ant.iml" />
       <module fileurl="file://$PROJECT_DIR$/dokka.iml" filepath="$PROJECT_DIR$/dokka.iml" />
     </modules>
   </component>
 </project>
-
