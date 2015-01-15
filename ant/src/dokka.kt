@@ -7,12 +7,16 @@ import org.apache.tools.ant.BuildException
 import org.apache.tools.ant.Project
 import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.SourceLinkDefinition
+import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {
     override fun info(message: String) = task.log(message, Project.MSG_INFO)
     override fun warn(message: String) = task.log(message, Project.MSG_WARN)
     override fun error(message: String) = task.log(message, Project.MSG_ERR)
 }
+
+class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
 class DokkaAntTask(): Task() {
     public var moduleName: String? = null
@@ -23,6 +27,8 @@ class DokkaAntTask(): Task() {
     public val sourcePath: Path = Path(getProject())
     public val samplesPath: Path = Path(getProject())
     public val includesPath: Path = Path(getProject())
+
+    public val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
 
     public fun setClasspath(classpath: Path) {
         compileClasspath.append(classpath)
@@ -54,6 +60,12 @@ class DokkaAntTask(): Task() {
         includesPath.append(include)
     }
 
+    public fun createSourceLink(): AntSourceLinkDefinition {
+        val def = AntSourceLinkDefinition()
+        antSourceLinks.add(def)
+        return def
+    }
+
     override fun execute() {
         if (sourcePath.list().size() == 0) {
             throw BuildException("At least one source path needs to be specified")
@@ -63,6 +75,17 @@ class DokkaAntTask(): Task() {
         }
         if (outputDir == null) {
             throw BuildException("Output directory needs to be specified")
+        }
+        val sourceLinks = antSourceLinks.map {
+            val path = it.path
+            if (path == null) {
+                throw BuildException("Path attribute of a <sourceLink> element is required")
+            }
+            val url = it.url
+            if (url == null) {
+                throw BuildException("Path attribute of a <sourceLink> element is required")
+            }
+            SourceLinkDefinition(File(path).getCanonicalFile().getAbsolutePath(), url, it.lineSuffix)
         }
 
         val url = javaClass<DokkaAntTask>().getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
@@ -78,7 +101,7 @@ class DokkaAntTask(): Task() {
                 moduleName!!,
                 outputDir!!,
                 outputFormat,
-                listOf()
+                sourceLinks
         )
         generator.generate()
     }
