@@ -133,19 +133,24 @@ public fun main(args: Array<String>) {
     val locationService = FoldersLocationService(arguments.outputDir)
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
-    val formatter = when (arguments.outputFormat) {
-        "text" -> TextFormatService(signatureGenerator)
-        "html" -> HtmlFormatService(locationService, signatureGenerator, templateService)
-        "markdown" -> MarkdownFormatService(locationService, signatureGenerator)
-        "jekyll" -> JekyllFormatService(locationService, signatureGenerator)
-        "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator)
+    val (formatter, outlineFormatter) = when (arguments.outputFormat) {
+        "text" -> TextFormatService(signatureGenerator) to null
+        "html" -> {
+            val htmlFormatService = HtmlFormatService(locationService, signatureGenerator, templateService)
+            htmlFormatService to htmlFormatService
+        }
+        "markdown" -> MarkdownFormatService(locationService, signatureGenerator) to null
+        "jekyll" -> JekyllFormatService(locationService, signatureGenerator) to null
+        "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator) to
+                    YamlOutlineService(locationService, signatureGenerator)
         else -> {
             print("Unrecognized output format ${arguments.outputFormat}")
-            return
+            null to null
         }
     }
+    if (formatter == null) return
 
-    val generator = FileGenerator(signatureGenerator, locationService, formatter)
+    val generator = FileGenerator(signatureGenerator, locationService, formatter, outlineFormatter)
     print("Generating pages... ")
     generator.buildPage(documentation)
     generator.buildOutline(documentation)

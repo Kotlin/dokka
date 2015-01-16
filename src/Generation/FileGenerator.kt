@@ -5,7 +5,8 @@ import java.io.OutputStreamWriter
 
 public class FileGenerator(val signatureGenerator: LanguageService,
                            val locationService: LocationService,
-                           val formatService: FormatService) {
+                           val formatService: FormatService,
+                           val outlineService: OutlineFormatService?) {
 
     public fun buildPage(node: DocumentationNode): Unit = buildPages(listOf(node))
     public fun buildOutline(node: DocumentationNode): Unit = buildOutlines(listOf(node))
@@ -24,12 +25,15 @@ public class FileGenerator(val signatureGenerator: LanguageService,
     }
 
     public fun buildOutlines(nodes: Iterable<DocumentationNode>) {
+        if (outlineService == null) {
+            return
+        }
         for ((location, items) in nodes.groupBy { locationService.location(it) }) {
-            val file = location.file.appendExtension("yml") // TODO: hardcoded
+            val file = outlineService.getOutlineFileName(location)
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
-                    it.write(formatService.formatOutline(location, items))
+                    it.write(outlineService.formatOutline(location, items))
                 }
             }
         }

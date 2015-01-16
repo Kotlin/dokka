@@ -15,7 +15,4 @@ public class TextFormatService(val signatureGenerator: LanguageService) : Format
             }
         }
     }
-
-    override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-    }
 }
