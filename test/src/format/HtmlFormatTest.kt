@@ -33,4 +33,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun brokenLink() {
+        verifyOutput("test/data/format/brokenLink.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
