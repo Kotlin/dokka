@@ -14,6 +14,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     abstract public fun appendParagraph(to: StringBuilder, text: String)
     abstract public fun appendLine(to: StringBuilder, text: String)
     public abstract fun appendLine(to: StringBuilder)
+    public abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
     public abstract fun appendTable(to: StringBuilder, body: () -> Unit)
     public abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
@@ -93,6 +94,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 appendLine(to)
                 for ((label, section) in node.content.sections) {
                     if (!isDescriptionSection(label, node)) continue
+                    appendAnchor(to, label)
                     appendLine(to, formatStrong(formatText(label)))
                     appendLine(to, formatText(location, section))
                 }

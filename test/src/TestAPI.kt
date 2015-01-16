@@ -102,5 +102,8 @@ fun ContentNode.toTestString(): String {
 val tempLocation = Location(File("/tmp/out"))
 
 object InMemoryLocationService: LocationService {
-    override fun location(node: DocumentationNode) = tempLocation;
+    override fun location(node: DocumentationNode): Location {
+        val (pageNode, anchor) = getParentPage(node)
+        return Location(File("/tmp/out"), anchor)
+    }
 }

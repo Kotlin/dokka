@@ -49,6 +49,10 @@ public open class HtmlFormatService(locationService: LocationService,
         to.appendln("<br/>")
     }
 
+    override fun appendAnchor(to: StringBuilder, anchor: String) {
+        to.appendln("<a name=\"${anchor.htmlEscape()}\"></a>")
+    }
+
     override fun appendTable(to: StringBuilder, body: () -> Unit) {
         to.appendln("<table>")
         body()
@@ -80,7 +84,7 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
     override fun formatLink(text: String, location: Location): String {
-        return "<a href=\"${location.path}\">${text}</a>"
+        return "<a href=\"${location.pathWithAnchor}\">${text}</a>"
     }
 
     override fun formatLink(text: String, href: String): String {
