@@ -1,9 +1,11 @@
 package org.jetbrains.dokka
 
+import java.io.File
+
 public open class HtmlFormatService(locationService: LocationService,
                                     signatureGenerator: LanguageService,
                                     val templateService: HtmlTemplateService = HtmlTemplateService.default())
-: StructuredFormatService(locationService, signatureGenerator) {
+: StructuredFormatService(locationService, signatureGenerator), OutlineFormatService {
     override val extension: String = "html"
 
     override public fun formatText(text: String): String {
@@ -120,8 +122,26 @@ public open class HtmlFormatService(locationService: LocationService,
         templateService.appendFooter(to)
     }
 
-    override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+        templateService.appendHeader(to)
+        super<OutlineFormatService>.appendOutline(location, to, nodes)
+        templateService.appendFooter(to)
     }
-    override fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode) {
+
+    override fun getOutlineFileName(location: Location): File {
+        return File("${location.path}-outline.html")
+    }
+
+    override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
+        val link = ContentNodeLink(node)
+        link.append(languageService.render(node, LanguageService.RenderMode.FULL))
+        val signature = formatText(location, link)
+        to.appendln("${formatLink(signature, location)}<br/>")
+    }
+
+    override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {
+        to.appendln("<ul>")
+        body()
+        to.appendln("</ul>")
     }
 }
