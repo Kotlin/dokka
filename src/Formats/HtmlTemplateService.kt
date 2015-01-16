@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
 public trait HtmlTemplateService {
-    fun appendHeader(to: StringBuilder)
+    fun appendHeader(to: StringBuilder, title: String?)
     fun appendFooter(to: StringBuilder)
 
     class object {
@@ -11,9 +11,12 @@ public trait HtmlTemplateService {
                     to.appendln("</BODY>")
                     to.appendln("</HTML>")
                 }
-                override fun appendHeader(to: StringBuilder) {
+                override fun appendHeader(to: StringBuilder, title: String?) {
                     to.appendln("<HTML>")
                     to.appendln("<HEAD>")
+                    if (title != null) {
+                        to.appendln("<title>$title</title>")
+                    }
                     if (css != null) {
                         to.appendln("<link rel=\"stylesheet\" href=\"$css\">")
                     }
