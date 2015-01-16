@@ -16,7 +16,8 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.AnnotationClass,
                 DocumentationNode.Kind.Object -> renderClass(node)
 
-                DocumentationNode.Kind.EnumItem -> if (renderMode == RenderMode.FULL) identifier(node.name)
+                DocumentationNode.Kind.EnumItem,
+                DocumentationNode.Kind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
 
                 DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
                 DocumentationNode.Kind.Type,

@@ -126,7 +126,7 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to)
+        templateService.appendHeader(to, "Module Contents")
         super<OutlineFormatService>.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }
