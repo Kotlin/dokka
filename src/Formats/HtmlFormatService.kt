@@ -9,12 +9,15 @@ public open class HtmlFormatService(locationService: LocationService,
     override public fun formatText(text: String): String {
         return text.htmlEscape()
     }
+
     override fun formatSymbol(text: String): String {
         return "<span class=\"symbol\">${formatText(text)}</span>"
     }
+
     override fun formatKeyword(text: String): String {
         return "<span class=\"keyword\">${formatText(text)}</span>"
     }
+
     override fun formatIdentifier(text: String): String {
         return "<span class=\"identifier\">${formatText(text)}</span>"
     }
@@ -122,23 +125,24 @@ public open class HtmlFormatService(locationService: LocationService,
 
     override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
     }
+
     override fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode) {
     }
+}
 
-    fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
-        val breakdownByLocation = nodes.groupBy { node -> formatPageTitle(node) }
-        return breakdownByLocation.keySet().singleOrNull()
-    }
+fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
+    val breakdownByLocation = nodes.groupBy { node -> formatPageTitle(node) }
+    return breakdownByLocation.keySet().singleOrNull()
+}
 
-    fun formatPageTitle(node: DocumentationNode): String {
-        val path = node.path
-        if (path.size() == 1) {
-            return path.first().name
-        }
-        val qualifiedName = path.drop(1).map { it.name }.filter { it.length() > 0 }.join(".")
-        if (qualifiedName.length() == 0 && path.size() == 2) {
-            return path.first().name + " / root package"
-        }
-        return path.first().name + " / " + qualifiedName
+fun formatPageTitle(node: DocumentationNode): String {
+    val path = node.path
+    if (path.size() == 1) {
+        return path.first().name
     }
+    val qualifiedName = path.drop(1).map { it.name }.filter { it.length() > 0 }.join(".")
+    if (qualifiedName.length() == 0 && path.size() == 2) {
+        return path.first().name + " / root package"
+    }
+    return path.first().name + " / " + qualifiedName
 }
