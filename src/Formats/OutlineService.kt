@@ -21,7 +21,6 @@ public trait OutlineFormatService {
                     appendOutline(location, to, sortedMembers)
                 }
             }
-            to.appendln()
         }
     }
 
