@@ -120,25 +120,4 @@ public open class MarkdownFormatService(locationService: LocationService,
         body()
         to.append(" |")
     }
-
-    var outlineLevel = 0
-    override fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode) {
-        val indent = "    ".repeat(outlineLevel)
-        appendLine(to, "$indent- title: ${languageService.renderName(node)}")
-        appendLine(to, "$indent  url: ${locationService.location(node).path}")
-    }
-
-    override fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val indent = "    ".repeat(outlineLevel)
-        appendLine(to, "$indent  content:")
-        outlineLevel++
-        for (node in nodes) {
-            appendOutlineHeader(to, node)
-            if (node.members.any()) {
-                appendOutlineChildren(to, node.members)
-            }
-            appendLine(to)
-        }
-        outlineLevel--
-    }
 }

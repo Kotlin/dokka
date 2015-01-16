@@ -263,16 +263,4 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
         }
     }
-
-    abstract public fun appendOutlineHeader(to: StringBuilder, node: DocumentationNode)
-    abstract public fun appendOutlineChildren(to: StringBuilder, nodes: Iterable<DocumentationNode>)
-
-    public override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        for (node in nodes) {
-            appendOutlineHeader(to, node)
-            if (node.members.any()) {
-                appendOutlineChildren(to, node.members)
-            }
-        }
-    }
 }

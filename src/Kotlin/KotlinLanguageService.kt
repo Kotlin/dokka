@@ -29,7 +29,7 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.PropertyAccessor -> renderFunction(node)
                 DocumentationNode.Kind.Property,
                 DocumentationNode.Kind.ClassObjectProperty -> renderProperty(node)
-                else -> ContentText("${node.kind}: ${node.name}")
+                else -> identifier(node.name)
             }
         }
     }
