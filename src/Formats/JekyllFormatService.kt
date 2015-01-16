@@ -15,6 +15,6 @@ public open class JekyllFormatService(locationService: LocationService,
     }
 
     protected open fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
-        to.appendln("title: ${nodes.first().name}")
+        to.appendln("title: ${getPageTitle(nodes)}")
     }
 }
