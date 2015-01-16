@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.resolve.source.getPsi
 import java.io.File
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiNameIdentifierOwner
@@ -506,24 +505,26 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun resolveContentLinks(node: DocumentationNode, content: ContentNode) {
-        val snapshot = content.children.toList()
-        for (child in snapshot) {
-            if (child is ContentExternalLink) {
-                val referenceText = child.href
-                val symbol = resolveReference(getResolutionScope(node), referenceText)
-                if (symbol != null) {
-                    val targetNode = descriptorToNode[symbol]
-                    val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
+        val resolvedContentChildren = content.children.map { resolveContentLink(node, it) }
+        content.children.clear()
+        content.children.addAll(resolvedContentChildren)
+    }
 
-                    val index = content.children.indexOf(child)
-                    content.children.remove(index)
-                    contentLink.children.addAll(child.children)
-                    content.children.add(index, contentLink)
-                }
-
+    private fun resolveContentLink(node: DocumentationNode, content: ContentNode): ContentNode {
+        if (content is ContentExternalLink) {
+            val referenceText = content.href
+            val symbol = resolveReference(getResolutionScope(node), referenceText)
+            // don't include unresolved links in generated doc
+            // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
+            if (symbol != null || "/" !in referenceText) {
+                val targetNode = descriptorToNode[symbol]
+                val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
+                contentLink.children.addAll(content.children.map { resolveContentLink(node, it) })
+                return contentLink
             }
-            resolveContentLinks(node, child)
         }
+        resolveContentLinks(node, content)
+        return content
     }
 
     private fun resolveReference(context: DeclarationDescriptor, reference: String): DeclarationDescriptor? {
