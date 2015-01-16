@@ -51,7 +51,7 @@ public open class MarkdownFormatService(locationService: LocationService,
     }
 
     override public fun formatLink(text: String, location: Location): String {
-        return "[$text](${location.path})"
+        return "[$text](${location.pathWithAnchor})"
     }
 
     override fun formatLink(text: String, href: String): String {
@@ -64,6 +64,10 @@ public open class MarkdownFormatService(locationService: LocationService,
 
     override public fun appendLine(to: StringBuilder, text: String) {
         to.appendln(text)
+    }
+
+    override fun appendAnchor(to: StringBuilder, anchor: String) {
+        // no anchors in Markdown
     }
 
     override public fun appendParagraph(to: StringBuilder, text: String) {

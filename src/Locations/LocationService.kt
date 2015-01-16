@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.io.File
+import org.jetbrains.dokka.DocumentationNode.Kind
 
 /**
  * Represents locations in the documentation in the form of [path](File).
@@ -10,9 +11,12 @@ import java.io.File
  * $file: [File] for this location
  * $path: [String] representing path of this location
  */
-public data class Location(val file: File) {
+public data class Location(val file: File, val anchor: String? = null) {
     public val path : String
         get() = file.path
+
+    public val pathWithAnchor: String
+        get() = if (anchor == null) path else "$path#$anchor"
 }
 
 /**
@@ -29,6 +33,13 @@ public trait LocationService {
      * Calculates location for particular node in output structure
      */
     fun location(node: DocumentationNode): Location
+
+    fun getParentPage(node: DocumentationNode): Pair<DocumentationNode, String?> {
+        if (node.kind == Kind.Parameter) {
+            return node.owner!! to node.name
+        }
+        return node to null
+    }
 }
 
 
@@ -46,6 +57,7 @@ fun LocationService.relativeLocation(owner: DocumentationNode, node: Documentati
  */
 fun LocationService.relativeLocation(owner: Location, node: DocumentationNode, extension: String): Location {
     val ownerFolder = owner.file.getParentFile()!!
-    val memberPath = location(node).file.appendExtension(extension)
-    return Location(ownerFolder.getRelativePath(memberPath))
+    val targetLocation = location(node)
+    val memberPath = targetLocation.file.appendExtension(extension)
+    return Location(ownerFolder.getRelativePath(memberPath), targetLocation.anchor)
 }
