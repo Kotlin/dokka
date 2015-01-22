@@ -134,7 +134,6 @@ public fun main(args: Array<String>) {
     val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
 
     val (formatter, outlineFormatter) = when (arguments.outputFormat) {
-        "text" -> TextFormatService(signatureGenerator) to null
         "html" -> {
             val htmlFormatService = HtmlFormatService(locationService, signatureGenerator, templateService)
             htmlFormatService to htmlFormatService
