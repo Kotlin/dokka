@@ -53,9 +53,13 @@ public fun verifyOutput(path: String, outputExtension: String, outputGenerator: 
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val expectedOutput = File(path.replace(".kt", outputExtension)).readText().replace("\r\n", "\n")
-        Assert.assertEquals(expectedOutput, output.toString().replace("\r\n", "\n"))
+        val expectedOutput = File(path.replace(".kt", outputExtension)).readText()
+        assertEqualsIgnoringSeparators(expectedOutput, output.toString())
     }
+}
+
+public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
+    Assert.assertEquals(expectedOutput.replace("\r\n", "\n"), output.replace("\r\n", "\n"))
 }
 
 fun StringBuilder.appendChildren(node: ContentNode): StringBuilder {
