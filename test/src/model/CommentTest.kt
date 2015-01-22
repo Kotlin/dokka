@@ -149,7 +149,7 @@ line two""", toTestString())
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(2, content.sections.count())
                 with (content.description) {
-                    assertEquals("""[code]
+                    assertEqualsIgnoringSeparators("""[code]
 if (true) {
     println(property)
 }
