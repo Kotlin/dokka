@@ -68,8 +68,8 @@ public class CommentTest {
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
-                with (content.findSectionByName("one")!!) {
-                    assertEquals("one", label)
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
                     assertEquals("", toTestString())
                 }
             }
@@ -81,8 +81,8 @@ public class CommentTest {
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
-                with (content.findSectionByName("one")!!) {
-                    assertEquals("one", label)
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
                     assertEquals("section one", toTestString())
                 }
             }
@@ -94,12 +94,12 @@ public class CommentTest {
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(2, content.sections.count())
-                with (content.findSectionByName("one")!!) {
-                    assertEquals("one", label)
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
                     assertEquals("section one", toTestString())
                 }
-                with (content.findSectionByName("two")!!) {
-                    assertEquals("two", label)
+                with (content.findSectionByTag("two")!!) {
+                    assertEquals("Two", tag)
                     assertEquals("section two", toTestString())
                 }
             }
@@ -111,8 +111,8 @@ public class CommentTest {
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
-                with (content.findSectionByName("one")!!) {
-                    assertEquals("one", label)
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
                     assertEquals("""line one
 line two""", toTestString())
                 }

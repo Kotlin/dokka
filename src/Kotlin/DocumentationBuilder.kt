@@ -41,13 +41,15 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = findKDoc(descriptor)
-        val docText = kdoc?.getContent() ?: ""
-        val tree = parseMarkdown(docText)
+        if (kdoc == null) {
+            return Content.Empty
+        }
+        val tree = parseMarkdown(kdoc.getContent())
         //println(tree.toTestString())
         val content = buildContent(tree)
         if (kdoc is KDocSection) {
-            val tags = PsiTreeUtil.getChildrenOfType(kdoc, javaClass<KDocTag>())
-            tags?.forEach {
+            val tags = kdoc.getTags()
+            tags.forEach {
                 if (it.getName() == "code") {
                     content.append(functionBody(descriptor, it.getContent()))
                 } else {
@@ -61,11 +63,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         return content
     }
 
+    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()
+
     fun displayName(sectionName: String?): String? =
             when(sectionName) {
                 "param" -> "Parameters"
                 "throws", "exception" -> "Exceptions"
-                else -> sectionName
+                else -> sectionName?.capitalize()
             }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {

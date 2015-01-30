@@ -98,23 +98,24 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                     appendSectionWithSubject(it.getKey(), location, it.getValue(), to)
                 }
 
-                for (section in node.content.sections) {
-                    if (section.subjectName != null) continue
-                    appendLine(to, formatStrong(formatText(section.label)))
+                for (section in node.content.sections.filter { it.subjectName == null }) {
+                    appendLine(to, formatStrong(formatText(section.tag)))
                     appendLine(to, formatText(location, section))
                 }
             }
         }
     }
 
-    fun appendSectionWithSubject(title: String, location: Location, parameterSections: List<ContentSection>, to: StringBuilder) {
+    fun Content.getSectionsWithSubjects(): Map<String, List<ContentSection>> =
+            sections.filter { it.subjectName != null }.groupBy { it.tag }
+
+    fun appendSectionWithSubject(title: String, location: Location, subjectSections: List<ContentSection>, to: StringBuilder) {
         appendHeader(to, title, 3)
-        parameterSections.forEach {
-            val parameterName = it.subjectName
-            if (parameterName != null) {
-                to.append(formatCode(parameterName)).append(" - ")
-                val formatted = formatText(location, it)
-                to.append(formatted)
+        subjectSections.forEach {
+            val subjectName = it.subjectName
+            if (subjectName != null) {
+                to.append(formatCode(subjectName)).append(" - ")
+                to.append(formatText(location, it))
                 appendLine(to)
             }
         }

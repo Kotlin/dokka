@@ -112,7 +112,7 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
 public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target: ContentNode) {
-    val inlineContent = tree.children.firstOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
+    val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
     inlineContent.forEach {
         buildContentTo(it, target)
     }

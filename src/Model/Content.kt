@@ -1,5 +1,7 @@
 package org.jetbrains.dokka
 
+import kotlin.properties.Delegates
+
 public abstract class ContentNode {
     val children = arrayListOf<ContentNode>()
 
@@ -32,7 +34,7 @@ public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
 public class ContentExternalLink(val href : String) : ContentBlock()
 public class ContentList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
-public class ContentSection(public val label: String, public val subjectName: String?) : ContentBlock()
+public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock()
 
 fun content(body: ContentNode.() -> Unit): ContentNode {
     val block = ContentBlock()
@@ -62,22 +64,20 @@ public class Content() : ContentNode() {
         return section
     }
 
-    fun findSectionByName(name: String): ContentSection? =
-        sections.firstOrNull { it.label == name }
-
-    fun getSectionsWithSubjects(): Map<String, List<ContentSection>> =
-        sections.filter { it.subjectName != null }.groupBy { it.label }
+    fun findSectionByTag(tag: String): ContentSection? =
+        sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
 
     public val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
 
-    public val description: ContentNode get() {
+    public val description: ContentNode by Delegates.lazy {
         val descriptionNodes = children.drop(1)
         if (descriptionNodes.isEmpty()) {
-            return ContentEmpty
+            ContentEmpty
+        } else {
+            val result = ContentSection("Description", null)
+            result.children.addAll(descriptionNodes)
+            result
         }
-        val result = ContentSection("\$description", null)
-        result.children.addAll(descriptionNodes)
-        return result
     }
 
     override fun equals(other: Any?): Boolean {
@@ -93,7 +93,7 @@ public class Content() : ContentNode() {
     override fun toString(): String {
         if (sections.isEmpty())
             return "<empty>"
-        return sections.joinToString()
+        return (listOf(summary, description) + sections).joinToString()
     }
 
     val isEmpty: Boolean
