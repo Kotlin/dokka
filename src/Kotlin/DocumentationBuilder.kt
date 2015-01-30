@@ -32,7 +32,7 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
     return package1 != null && package2 != null && package1.fqName == package2.fqName
 }
 
-class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions) {
+class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions, val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
@@ -246,7 +246,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
         for ((packageName, declarations) in descriptors) {
-            println("  package $packageName: ${declarations.count()} declarations")
+            logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->
