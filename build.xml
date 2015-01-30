@@ -1,0 +1,11 @@
+<project name="Dokka" default="document">
+    <!-- Demonstrates the usage of the Dokka Ant task. Assumes Dokka has already been compiled -->
+
+    <typedef resource="dokka-antlib.xml" classpath="out/artifacts/dokka.jar"/>
+
+    <target name="document">
+        <dokka src="src" outputdir="doc" modulename="dokka">
+            <sourcelink path="." url="https://github.com/orangy/dokka/blob/master" linesuffix="#L"/>
+        </dokka>
+    </target>
+</project>
