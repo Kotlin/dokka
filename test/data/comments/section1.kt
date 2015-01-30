@@ -1,5 +1,5 @@
 /**
  * Summary
- * $one: section one
+ * @one section one
  */
 val property = "test"

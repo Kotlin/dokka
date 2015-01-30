@@ -1,6 +1,6 @@
 
 /**
  * Summary
- * $one:
+ * @one
  */
 val property = "test"

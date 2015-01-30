@@ -8,13 +8,11 @@ public open class DocumentationNode(val name: String,
 
     private val references = LinkedHashSet<DocumentationReference>()
 
+
     public val summary: ContentNode get()  {
-        val contentSection = content.sections["\$summary"]
+        val contentSection = content.summary
         if (contentSection != null)
             return contentSection
-        val ownerSection = owner?.content?.sections?.get(name)
-        if (ownerSection != null)
-            return ownerSection
         return ContentNode.empty
     }
 

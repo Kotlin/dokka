@@ -9,10 +9,16 @@ import org.intellij.markdown.*
 import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.kotlin.psi.JetBlockExpression
 
-public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: DeclarationDescriptor): Content {
+public fun DocumentationBuilder.buildContent(tree: MarkdownNode): Content {
+    val result = Content()
+    buildContentTo(tree, result)
+    return result
+}
+
+public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: ContentNode) {
 //    println(tree.toTestString())
     val nodeStack = ArrayDeque<ContentNode>()
-    nodeStack.push(Content())
+    nodeStack.push(target)
 
     tree.visit {(node, processChildren) ->
         val parent = nodeStack.peek()!!
@@ -47,22 +53,6 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownTokenTypes.SECTION_ID -> {
-                if (parent !is ContentSection) {
-                    val text = node.text.trimLeading("$").trim("{", "}")
-                    val name = text.substringBefore(" ")
-                    val params = text.substringAfter(" ")
-                    when (name) {
-                        "code" -> parent.append(functionBody(descriptor, params))
-                    }
-                }
-            }
-            MarkdownElementTypes.SECTION -> {
-                val label = node.child(MarkdownTokenTypes.SECTION_ID)?.let { it.text.trimLeading("$").trim("{", "}") } ?: ""
-                nodeStack.push(ContentSection(label))
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
             MarkdownElementTypes.INLINE_LINK -> {
                 val label = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
                 val destination = node.child(MarkdownElementTypes.LINK_DESTINATION)
@@ -88,7 +78,7 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
             }
             MarkdownTokenTypes.WHITE_SPACE,
             MarkdownTokenTypes.EOL -> {
-                if (nodeStack.peek() is ContentParagraph && node.parent?.children?.last() != node) {
+                if (keepWhitespace(nodeStack.peek()) && node.parent?.children?.last() != node) {
                     nodeStack.push(ContentText(node.text))
                     processChildren()
                     parent.append(nodeStack.pop())
@@ -105,10 +95,7 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
                 parent.append(nodeStack.pop())
             }
             MarkdownTokenTypes.COLON -> {
-                // TODO fix markdown parser
-                if (!isColonAfterSectionLabel(node)) {
-                    parent.append(ContentText(node.text))
-                }
+                parent.append(ContentText(node.text))
             }
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,
@@ -120,9 +107,16 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode, descriptor: Dec
             }
         }
     }
-    return nodeStack.pop() as Content
 }
 
+private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
+
+public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target: ContentNode) {
+    val inlineContent = tree.children.firstOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
+    inlineContent.forEach {
+        buildContentTo(it, target)
+    }
+}
 
 fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String): ContentNode {
     val scope = getResolutionScope(descriptor)
@@ -175,10 +169,4 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
     }
 
     return symbol
-}
-
-private fun isColonAfterSectionLabel(node: MarkdownNode): Boolean {
-    val parent = node.parent
-    return parent != null && parent.type == MarkdownElementTypes.SECTION && parent.children.size() >= 2 &&
-            node == parent.children[1];
 }

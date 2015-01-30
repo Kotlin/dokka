@@ -67,21 +67,11 @@ public class CommentTest {
         verifyModel("test/data/comments/emptySection.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["one"]!!) {
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByName("one")!!) {
                     assertEquals("one", label)
                     assertEquals("", toTestString())
                 }
-            }
-        }
-    }
-
-    Test fun explicitSummary() {
-        verifyModel("test/data/comments/explicitSummary.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals("Summary", content.summary.toTestString())
-                assertEquals("Description", content.description.toTestString())
-                assertEquals(2, content.sections.count())
             }
         }
     }
@@ -90,8 +80,8 @@ public class CommentTest {
         verifyModel("test/data/comments/section1.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["one"]!!) {
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByName("one")!!) {
                     assertEquals("one", label)
                     assertEquals("section one", toTestString())
                 }
@@ -103,12 +93,12 @@ public class CommentTest {
         verifyModel("test/data/comments/section2.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
-                assertEquals(3, content.sections.count())
-                with (content.sections["one"]!!) {
+                assertEquals(2, content.sections.count())
+                with (content.findSectionByName("one")!!) {
                     assertEquals("one", label)
                     assertEquals("section one", toTestString())
                 }
-                with (content.sections["two"]!!) {
+                with (content.findSectionByName("two")!!) {
                     assertEquals("two", label)
                     assertEquals("section two", toTestString())
                 }
@@ -120,24 +110,11 @@ public class CommentTest {
         verifyModel("test/data/comments/multilineSection.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["one"]!!) {
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByName("one")!!) {
                     assertEquals("one", label)
                     assertEquals("""line one
 line two""", toTestString())
-                }
-            }
-        }
-    }
-
-    Test fun sectionWithBracedLabel() {
-        verifyModel("test/data/comments/sectionWithBracedLabel.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
-                with (content.sections["this.label.is.really.long"]!!) {
-                    assertEquals("this.label.is.really.long", label)
-                    assertEquals("section one", toTestString())
                 }
             }
         }
@@ -147,26 +124,22 @@ line two""", toTestString())
         verifyModel("test/data/comments/directive.kt") { model ->
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())
-                assertEquals(2, content.sections.count())
                 with (content.description) {
                     assertEqualsIgnoringSeparators("""[code]
 if (true) {
     println(property)
 }
 [/code]
-
 [code]
 if (true) {
     println(property)
 }
 [/code]
-
 [code]
 if (true) {
     println(property)
 }
 [/code]
-
 [code]
 if (true) {
     println(property)

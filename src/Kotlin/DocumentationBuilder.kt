@@ -18,6 +18,10 @@ import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.psi.JetParameter
+import org.jetbrains.kotlin.kdoc.findKDoc
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -36,12 +40,33 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     val packages = hashMapOf<FqName, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
-        val docText = descriptor.getDocumentationElements().map { it.extractText() }.join("\n")
+        val kdoc = findKDoc(descriptor)
+        val docText = kdoc?.getContent() ?: ""
         val tree = parseMarkdown(docText)
         //println(tree.toTestString())
-        val content = buildContent(tree, descriptor)
+        val content = buildContent(tree)
+        if (kdoc is KDocSection) {
+            val tags = PsiTreeUtil.getChildrenOfType(kdoc, javaClass<KDocTag>())
+            tags?.forEach {
+                if (it.getName() == "code") {
+                    content.append(functionBody(descriptor, it.getContent()))
+                } else {
+                    val section = content.addSection(displayName(it.getName()), it.getSubjectName())
+                    val sectionContent = it.getContent()
+                    val markdownNode = parseMarkdown(sectionContent)
+                    buildInlineContentTo(markdownNode, section)
+                }
+            }
+        }
         return content
     }
+
+    fun displayName(sectionName: String?): String? =
+            when(sectionName) {
+                "param" -> "Parameters"
+                "throws", "exception" -> "Exceptions"
+                else -> sectionName
+            }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
         links.put(node, descriptor)

@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import org.intellij.markdown.*
 import org.intellij.markdown.ast.*
 import org.intellij.markdown.parser.*
-import org.intellij.markdown.parser.dialects.KDocMarkerProcessor
+import org.intellij.markdown.parser.dialects.commonmark.CommonMarkMarkerProcessor
 
 class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: String) {
     val children: List<MarkdownNode> = node.children.map { MarkdownNode(it, this, markdown) }
@@ -134,12 +134,12 @@ public fun MarkdownNode.toHtml(): String {
 fun parseMarkdown(markdown: String): MarkdownNode {
     if (markdown.isEmpty())
         return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), null, markdown)
-    return MarkdownNode(MarkdownParser(KDocMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown), null, markdown)
+    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown), null, markdown)
 }
 
 fun markdownToHtml(markdown: String): String {
 
-    val tree = MarkdownParser(KDocMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown)
+    val tree = MarkdownParser(CommonMarkMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown)
     val markdownTree = MarkdownNode(tree, null, markdown)
     val ast = markdownTree.toTestString()
     return markdownTree.toHtml()
