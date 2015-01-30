@@ -192,7 +192,7 @@ class DokkaGenerator(val logger: DokkaLogger,
                     if (file.exists()) {
                         val text = file.readText()
                         val tree = parseMarkdown(text)
-                        val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
+                        val content = buildContent(tree)
                         moduleContent.children.addAll(content.children)
                     } else {
                         logger.warn("Include file $file was not found.")
