@@ -81,35 +81,48 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     }
 
     fun appendDescription(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val described = nodes.filter { it.hasDescription() }
+        val described = nodes.filter { it.hasDescriptionOrTags() }
         if (described.any()) {
             val single = described.size() == 1
-            appendHeader(to, "Description", 3)
+            if (described.any { it.content.description != ContentEmpty }) {
+                appendHeader(to, "Description", 3)
+            }
             for (node in described) {
                 if (!single) {
                     appendBlockCode(to, formatText(location, languageService.render(node)))
                 }
                 appendLine(to, formatText(location, node.content.description))
                 appendLine(to)
-                for ((label, section) in node.content.sections) {
-                    if (!isDescriptionSection(label, node)) continue
-                    appendLine(to, formatStrong(formatText(label)))
+
+                node.content.getSectionsWithSubjects().forEach {
+                    appendSectionWithSubject(it.getKey(), location, it.getValue(), to)
+                }
+
+                for (section in node.content.sections.filter { it.subjectName == null }) {
+                    appendLine(to, formatStrong(formatText(section.tag)))
                     appendLine(to, formatText(location, section))
                 }
             }
         }
     }
 
-    private fun DocumentationNode.hasDescription() =
-       content.description != ContentEmpty || content.sections.any { isDescriptionSection(it.key, this) }
+    fun Content.getSectionsWithSubjects(): Map<String, List<ContentSection>> =
+            sections.filter { it.subjectName != null }.groupBy { it.tag }
 
-    private fun isDescriptionSection(label: String, node: DocumentationNode): Boolean {
-        if (label.startsWith("$"))
-            return false
-        if (node.members.any { it.name == label })
-            return false
-        return true
+    fun appendSectionWithSubject(title: String, location: Location, subjectSections: List<ContentSection>, to: StringBuilder) {
+        appendHeader(to, title, 3)
+        subjectSections.forEach {
+            val subjectName = it.subjectName
+            if (subjectName != null) {
+                to.append(formatCode(subjectName)).append(" - ")
+                to.append(formatText(location, it))
+                appendLine(to)
+            }
+        }
     }
+
+    private fun DocumentationNode.hasDescriptionOrTags() =
+            content.description != ContentEmpty || !content.sections.isEmpty()
 
     fun appendSummary(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownBySummary = nodes.groupByTo(LinkedHashMap()) { node ->
