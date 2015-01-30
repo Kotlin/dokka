@@ -34,7 +34,7 @@ public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
 public class ContentExternalLink(val href : String) : ContentBlock()
 public class ContentList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
-public class ContentSection(public val label: String) : ContentBlock()
+public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock()
 
 fun content(body: ContentNode.() -> Unit): ContentNode {
     val block = ContentBlock()
@@ -54,53 +54,36 @@ fun ContentNode.link(to: DocumentationNode, body: ContentNode.() -> Unit) {
 }
 
 public class Content() : ContentNode() {
-    public val sections: Map<String, ContentSection> by Delegates.lazy {
-        val map = linkedMapOf<String, ContentSection>()
-        for (child in children) {
-            if (child is ContentSection)
-                map.put(child.label, child)
-        }
+    private val sectionList = arrayListOf<ContentSection>()
+    public val sections: List<ContentSection>
+        get() = sectionList
 
-        if ("\$summary" !in map && "\$description" !in map) {
-            // no explicit summary and description, convert anonymous section
-            val anonymous = map[""]
-            if (anonymous != null) {
-                map.remove("")
-                val summary = ContentSection("\$summary")
-                val description = ContentSection("\$description")
-
-                val summaryNodes = anonymous.children.take(1)
-                val descriptionNodes = anonymous.children.drop(1)
-
-                if (summaryNodes.any()) {
-                    summary.children.addAll(summaryNodes)
-                    map.put("\$summary", summary)
-                }
-
-                if (descriptionNodes.any()) {
-                    description.children.addAll(descriptionNodes)
-                    map.put("\$description", description)
-                }
-            }
-        }
-        map
+    fun addSection(name: String?, subjectName: String?): ContentSection {
+        val section = ContentSection(name ?: "", subjectName)
+        sectionList.add(section)
+        return section
     }
 
-    public val summary: ContentNode get()  {
-        return sections["\$summary"] ?: ContentNode.empty
+    fun findSectionByTag(tag: String): ContentSection? =
+        sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
+
+    public val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
+
+    public val description: ContentNode by Delegates.lazy {
+        val descriptionNodes = children.drop(1)
+        if (descriptionNodes.isEmpty()) {
+            ContentEmpty
+        } else {
+            val result = ContentSection("Description", null)
+            result.children.addAll(descriptionNodes)
+            result
+        }
     }
-    public val description: ContentNode get() = sections["\$description"] ?: ContentNode.empty
 
     override fun equals(other: Any?): Boolean {
         if (other !is Content)
             return false
-        if (sections.size != other.sections.size)
-            return false
-        for (keys in sections.keySet())
-            if (sections[keys] != other.sections[keys])
-                return false
-
-        return true
+        return sections == other.sections && children == other.children
     }
 
     override fun hashCode(): Int {
@@ -110,7 +93,7 @@ public class Content() : ContentNode() {
     override fun toString(): String {
         if (sections.isEmpty())
             return "<empty>"
-        return sections.values().joinToString()
+        return (listOf(summary, description) + sections).joinToString()
     }
 
     val isEmpty: Boolean

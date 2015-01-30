@@ -111,7 +111,7 @@ public fun main(args: Array<String>) {
                 if (file.exists()) {
                     val text = file.readText()
                     val tree = parseMarkdown(text)
-                    val content = buildContent(tree, session.getPackageFragment(FqName.ROOT))
+                    val content = buildContent(tree)
                     moduleContent.children.addAll(content.children)
                 } else {
                     println("WARN: Include file $file was not found.")

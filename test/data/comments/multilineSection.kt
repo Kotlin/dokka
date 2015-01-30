@@ -1,6 +1,6 @@
 /**
  * Summary
- * $one:
+ * @one
  *   line one
  *   line two
  */

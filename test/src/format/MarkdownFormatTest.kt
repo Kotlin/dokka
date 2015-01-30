@@ -92,4 +92,16 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, listOf(propertyNode.members[1]))
         }
     }
+
+    Test fun paramTag() {
+        verifyOutput("test/data/format/paramTag.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
+    Test fun throwsTag() {
+        verifyOutput("test/data/format/throwsTag.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
