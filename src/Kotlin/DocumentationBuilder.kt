@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.kdoc.findKDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -542,11 +543,11 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     private fun resolveContentLink(node: DocumentationNode, content: ContentNode): ContentNode {
         if (content is ContentExternalLink) {
             val referenceText = content.href
-            val symbol = resolveReference(getResolutionScope(node), referenceText)
+            val symbols = resolveKDocLink(session, getResolutionScope(node), null, referenceText.split('.').toList())
             // don't include unresolved links in generated doc
             // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
-            if (symbol != null || "/" !in referenceText) {
-                val targetNode = descriptorToNode[symbol]
+            if (symbols.isNotEmpty() || "/" !in referenceText) {
+                val targetNode = if (symbols.isEmpty()) null else descriptorToNode[symbols.first()]
                 val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
                 contentLink.children.addAll(content.children.map { resolveContentLink(node, it) })
                 return contentLink
@@ -554,27 +555,5 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         resolveContentLinks(node, content)
         return content
-    }
-
-    private fun resolveReference(context: DeclarationDescriptor, reference: String): DeclarationDescriptor? {
-        if (Name.isValidIdentifier(reference)) {
-            val scope = getResolutionScope(context)
-            val symbolName = Name.guess(reference)
-            return scope.getLocalVariable(symbolName) ?:
-                    scope.getProperties(symbolName).firstOrNull() ?:
-                    scope.getFunctions(symbolName).firstOrNull() ?:
-                    scope.getClassifier(symbolName)
-
-        }
-
-        if ("." !in reference)
-            return null
-
-        val names = reference.split('.')
-        val result = names.fold<String, DeclarationDescriptor?>(context) {(nextContext, name) ->
-            nextContext?.let { resolveReference(it, name) }
-        }
-
-        return result
     }
 }
