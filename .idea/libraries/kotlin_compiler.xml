@@ -2,6 +2,7 @@
   <library name="kotlin-compiler">
     <CLASSES>
       <root url="jar://$KOTLIN_BUNDLED$/lib/kotlin-compiler.jar!/" />
+      <root url="jar://$APPLICATION_PLUGINS_DIR$/Kotlin/lib/kotlin-plugin.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
