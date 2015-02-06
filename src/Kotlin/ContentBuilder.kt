@@ -105,7 +105,9 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
             }
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,
-            MarkdownTokenTypes.GT -> {
+            MarkdownTokenTypes.GT,
+            MarkdownTokenTypes.LPAREN,
+            MarkdownTokenTypes.RPAREN -> {
                 parent.append(ContentText(node.text))
             }
             else -> {
