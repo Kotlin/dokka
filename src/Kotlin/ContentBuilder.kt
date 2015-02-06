@@ -49,8 +49,13 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownTokenTypes.CODE -> {
+            MarkdownElementTypes.CODE_SPAN -> {
                 nodeStack.push(ContentCode())
+                processChildren()
+                parent.append(nodeStack.pop())
+            }
+            MarkdownElementTypes.CODE_BLOCK -> {
+                nodeStack.push(ContentBlockCode())
                 processChildren()
                 parent.append(nodeStack.pop())
             }

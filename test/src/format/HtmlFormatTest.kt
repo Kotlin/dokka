@@ -39,4 +39,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun codeSpan() {
+        verifyOutput("test/data/format/codeSpan.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
