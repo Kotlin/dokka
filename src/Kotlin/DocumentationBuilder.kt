@@ -51,7 +51,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
-                if (it.getName() == "code") {
+                if (it.getName() == "sample") {
                     content.append(functionBody(descriptor, it.getContent()))
                 } else {
                     val section = content.addSection(displayName(it.getName()), it.getSubjectName())
@@ -529,7 +529,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
     }
 
-    fun getResolutionScope(node: DocumentationNode): DeclarationDescriptor {
+    fun getDescriptorForNode(node: DocumentationNode): DeclarationDescriptor {
         val descriptor = nodeToDescriptor[node] ?: throw IllegalArgumentException("Node is not known to this context")
         return descriptor
     }
@@ -543,7 +543,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     private fun resolveContentLink(node: DocumentationNode, content: ContentNode): ContentNode {
         if (content is ContentExternalLink) {
             val referenceText = content.href
-            val symbols = resolveKDocLink(session, getResolutionScope(node), null, referenceText.split('.').toList())
+            val symbols = resolveKDocLink(session, getDescriptorForNode(node), null, referenceText.split('.').toList())
             // don't include unresolved links in generated doc
             // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
             if (symbols.isNotEmpty() || "/" !in referenceText) {

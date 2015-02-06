@@ -1,10 +1,10 @@
 /**
  * Summary
  *
- * @code example1
- * @code example2
- * @code X.example3
- * @code X.Y.example4
+ * @sample example1
+ * @sample example2
+ * @sample X.example3
+ * @sample X.Y.example4
  */
 val property = "test"
 

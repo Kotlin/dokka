@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.scopes.*
 import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
 import org.intellij.markdown.*
 import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.kotlin.psi.JetBlockExpression
@@ -119,7 +120,7 @@ public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target:
 }
 
 fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String): ContentNode {
-    val scope = getResolutionScope(descriptor)
+    val scope = getResolutionScope(session, descriptor)
     val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
     val rootScope = rootPackage.getMemberScope()
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
@@ -149,22 +150,19 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
 private fun DocumentationBuilder.resolveInScope(functionName: String, scope: JetScope): DeclarationDescriptor? {
     var currentScope = scope
     val parts = functionName.split('.')
+
     var symbol: DeclarationDescriptor? = null
 
     for (part in parts) {
         // short name
         val symbolName = Name.guess(part)
-        val partSymbol = currentScope.getLocalVariable(symbolName) ?:
-                currentScope.getProperties(symbolName).firstOrNull() ?:
-                currentScope.getFunctions(symbolName).firstOrNull() ?:
-                currentScope.getClassifier(symbolName) ?:
-                currentScope.getPackage(symbolName)
+        val partSymbol = currentScope.getAllDescriptors().filter { it.getName() == symbolName }.firstOrNull()
 
         if (partSymbol == null) {
             symbol = null
             break
         }
-        currentScope = getResolutionScope(partSymbol)
+        currentScope = getResolutionScope(session, partSymbol)
         symbol = partSymbol
     }
 
