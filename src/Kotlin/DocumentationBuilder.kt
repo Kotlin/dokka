@@ -52,7 +52,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             val tags = kdoc.getTags()
             tags.forEach {
                 if (it.getName() == "sample") {
-                    content.append(functionBody(descriptor, it.getContent()))
+                    content.append(functionBody(descriptor, it.getSubjectName()))
                 } else {
                     val section = content.addSection(displayName(it.getName()), it.getSubjectName())
                     val sectionContent = it.getContent()

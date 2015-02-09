@@ -126,7 +126,9 @@ public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target:
     }
 }
 
-fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String): ContentNode {
+fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
+    if (functionName == null)
+        return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
     val scope = getResolutionScope(session, descriptor)
     val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
     val rootScope = rootPackage.getMemberScope()
