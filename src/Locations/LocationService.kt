@@ -32,7 +32,11 @@ public trait LocationService {
 }
 
 
-public fun escapeUri(path: String): String = path.replace('<', '-').replace('>', '-')
+public fun identifierToFilename(path: String): String {
+    val escaped = path.replace('<', '-').replace('>', '-')
+    val lowercase = escaped.replaceAll("[A-Z]") { matchResult -> "-" + matchResult.group().toLowerCase() }
+    return if (lowercase == "index") "--index--" else lowercase
+}
 
 /**
  * Returns relative location between two nodes. Used for relative links in documentation.

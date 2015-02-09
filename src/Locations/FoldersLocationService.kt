@@ -5,7 +5,7 @@ import java.io.File
 public fun FoldersLocationService(root: String): FoldersLocationService = FoldersLocationService(File(root))
 public class FoldersLocationService(val root: File) : LocationService {
     override fun location(node: DocumentationNode): Location {
-        val parts = node.path.map { escapeUri(it.name) }
+        val parts = node.path.map { identifierToFilename(it.name) }
         val folder = if (node.members.none()) {
             // leaf node, use file in owner's folder
             parts.joinToString("/", limit = parts.size - 1, truncated = "") + "/" + parts.last()
