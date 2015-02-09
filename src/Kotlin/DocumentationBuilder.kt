@@ -18,11 +18,11 @@ import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.psi.JetParameter
-import org.jetbrains.kotlin.kdoc.findKDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -41,7 +41,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     val packages = hashMapOf<FqName, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
-        val kdoc = findKDoc(descriptor)
+        val kdoc = KDocFinder.findKDoc(descriptor)
         if (kdoc == null) {
             return Content.Empty
         }
