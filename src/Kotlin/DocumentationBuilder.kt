@@ -51,13 +51,17 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
-                if (it.getName() == "sample") {
-                    content.append(functionBody(descriptor, it.getSubjectName()))
-                } else {
-                    val section = content.addSection(displayName(it.getName()), it.getSubjectName())
-                    val sectionContent = it.getContent()
-                    val markdownNode = parseMarkdown(sectionContent)
-                    buildInlineContentTo(markdownNode, section)
+                when (it.getName()) {
+                    "sample" ->
+                        content.append(functionBody(descriptor, it.getSubjectName()))
+                    "see" ->
+                        content.addTagToSeeAlso(it)
+                    else -> {
+                        val section = content.addSection(displayName(it.getName()), it.getSubjectName())
+                        val sectionContent = it.getContent()
+                        val markdownNode = parseMarkdown(sectionContent)
+                        buildInlineContentTo(markdownNode, section)
+                    }
                 }
             }
         }
@@ -72,6 +76,18 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 "throws", "exception" -> "Exceptions"
                 else -> sectionName?.capitalize()
             }
+
+    private fun Content.addTagToSeeAlso(seeTag: KDocTag) {
+        val subjectName = seeTag.getSubjectName()
+        if (subjectName != null) {
+            val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
+            val link = ContentExternalLink(subjectName)
+            link.append(ContentText(subjectName))
+            val para = ContentParagraph()
+            para.append(link)
+            seeSection.append(para)
+        }
+    }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
         links.put(node, descriptor)
@@ -505,6 +521,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
 
         resolveContentLinks(node, node.content)
+        for (section in node.content.sections) {
+            resolveContentLinks(node, section)
+        }
 
         for (child in node.members) {
             resolveReferences(child)

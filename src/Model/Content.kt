@@ -58,8 +58,8 @@ public class Content() : ContentNode() {
     public val sections: List<ContentSection>
         get() = sectionList
 
-    fun addSection(name: String?, subjectName: String?): ContentSection {
-        val section = ContentSection(name ?: "", subjectName)
+    fun addSection(tag: String?, subjectName: String?): ContentSection {
+        val section = ContentSection(tag ?: "", subjectName)
         sectionList.add(section)
         return section
     }
