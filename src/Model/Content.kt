@@ -40,10 +40,10 @@ public class ContentBlockCode() : ContentBlock()
 
 public class ContentNodeLink(val node : DocumentationNode) : ContentBlock() {
     override fun equals(other: Any?): Boolean =
-        super.equals(other) && other is ContentNodeLink && node == other.node
+        super.equals(other) && other is ContentNodeLink && node.name == other.node.name
 
     override fun hashCode(): Int =
-        children.hashCode() * 31 + node.hashCode()
+        children.hashCode() * 31 + node.name.hashCode()
 }
 
 public class ContentExternalLink(val href : String) : ContentBlock() {
