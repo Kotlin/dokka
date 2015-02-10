@@ -3,11 +3,15 @@ package org.jetbrains.dokka
 import kotlin.properties.Delegates
 
 public abstract class ContentNode {
-    val children = arrayListOf<ContentNode>()
-
     class object {
         val empty = ContentEmpty
     }
+}
+
+public object ContentEmpty : ContentNode()
+
+public open class ContentBlock() : ContentNode() {
+    val children = arrayListOf<ContentNode>()
 
     fun append(node : ContentNode)  {
         children.add(node)
@@ -16,13 +20,10 @@ public abstract class ContentNode {
     fun isEmpty() = children.isEmpty()
 }
 
-public object ContentEmpty : ContentNode()
-public open class ContentBlock() : ContentNode()
-
-public class ContentText(val text: String) : ContentNode()
-public class ContentKeyword(val text: String) : ContentNode()
-public class ContentIdentifier(val text: String) : ContentNode()
-public class ContentSymbol(val text: String) : ContentNode()
+public data class ContentText(val text: String) : ContentNode()
+public data class ContentKeyword(val text: String) : ContentNode()
+public data class ContentIdentifier(val text: String) : ContentNode()
+public data class ContentSymbol(val text: String) : ContentNode()
 
 public class ContentParagraph() : ContentBlock()
 public class ContentEmphasis() : ContentBlock()
@@ -36,24 +37,24 @@ public class ContentList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
 public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock()
 
-fun content(body: ContentNode.() -> Unit): ContentNode {
+fun content(body: ContentBlock.() -> Unit): ContentBlock {
     val block = ContentBlock()
     block.body()
     return block
 }
 
-fun ContentNode.text(value: String) = append(ContentText(value))
-fun ContentNode.keyword(value: String) = append(ContentKeyword(value))
-fun ContentNode.symbol(value: String) = append(ContentSymbol(value))
-fun ContentNode.identifier(value: String) = append(ContentIdentifier(value))
+fun ContentBlock.text(value: String) = append(ContentText(value))
+fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
+fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
+fun ContentBlock.identifier(value: String) = append(ContentIdentifier(value))
 
-fun ContentNode.link(to: DocumentationNode, body: ContentNode.() -> Unit) {
+fun ContentBlock.link(to: DocumentationNode, body: ContentNode.() -> Unit) {
     val block = ContentNodeLink(to)
     block.body()
     append(block)
 }
 
-public class Content() : ContentNode() {
+public class Content() : ContentBlock() {
     private val sectionList = arrayListOf<ContentSection>()
     public val sections: List<ContentSection>
         get() = sectionList

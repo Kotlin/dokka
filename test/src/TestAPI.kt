@@ -62,7 +62,7 @@ public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String
     Assert.assertEquals(expectedOutput.replace("\r\n", "\n"), output.replace("\r\n", "\n"))
 }
 
-fun StringBuilder.appendChildren(node: ContentNode): StringBuilder {
+fun StringBuilder.appendChildren(node: ContentBlock): StringBuilder {
     for (child in node.children) {
         val childText = child.toTestString()
         append(childText)
@@ -89,9 +89,10 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
             append(node.node.toString())
             append("]")
         }
-        else -> {
+        is ContentBlock -> {
             appendChildren(node)
         }
+        else -> throw IllegalStateException("Don't know how to format node $node")
     }
     return this
 }

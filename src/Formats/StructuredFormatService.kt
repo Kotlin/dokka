@@ -69,7 +69,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentBlockCode -> {
                     appendBlockCode(this, formatText(location, content.children))
                 }
-                else -> append(formatText(location, content.children))
+                is ContentBlock -> append(formatText(location, content.children))
             }
         }.toString()
     }
