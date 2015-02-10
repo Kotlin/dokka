@@ -3,11 +3,7 @@
 
 # foo
 
-
-```
-package foo
-```
-
+`package foo`
 
 
 

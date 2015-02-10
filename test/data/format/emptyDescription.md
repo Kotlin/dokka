@@ -3,11 +3,7 @@
 
 # fn
 
-
-```
-fun fn(): Unit
-```
-
+`fun fn(): Unit`
 
 Function fn
 

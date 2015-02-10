@@ -3,11 +3,7 @@
 
 # InlineOption
 
-
-```
-public enum class InlineOption
-```
-
+`public enum class InlineOption`
 
 
 
