@@ -558,7 +558,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         return descriptor
     }
 
-    fun resolveContentLinks(node: DocumentationNode, content: ContentNode) {
+    fun resolveContentLinks(node: DocumentationNode, content: ContentBlock) {
         val resolvedContentChildren = content.children.map { resolveContentLink(node, it) }
         content.children.clear()
         content.children.addAll(resolvedContentChildren)
@@ -577,7 +577,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 return contentLink
             }
         }
-        resolveContentLinks(node, content)
+        if (content is ContentBlock) {
+            resolveContentLinks(node, content)
+        }
         return content
     }
 }

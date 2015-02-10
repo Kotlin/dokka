@@ -16,9 +16,9 @@ public fun DocumentationBuilder.buildContent(tree: MarkdownNode): Content {
     return result
 }
 
-public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: ContentNode) {
+public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: ContentBlock) {
 //    println(tree.toTestString())
-    val nodeStack = ArrayDeque<ContentNode>()
+    val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
 
     tree.visit {(node, processChildren) ->
@@ -85,16 +85,13 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
             MarkdownTokenTypes.WHITE_SPACE,
             MarkdownTokenTypes.EOL -> {
                 if (keepWhitespace(nodeStack.peek()) && node.parent?.children?.last() != node) {
-                    nodeStack.push(ContentText(node.text))
-                    processChildren()
-                    parent.append(nodeStack.pop())
+                    parent.append(ContentText(node.text))
                 }
             }
-            MarkdownTokenTypes.TEXT -> {
-                nodeStack.push(ContentText(node.text))
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
+
+            MarkdownTokenTypes.TEXT ->
+                parent.append(ContentText(node.text))
+
             MarkdownTokenTypes.CODE -> {
                 val block = ContentBlockCode()
                 block.append(ContentText(node.text))
@@ -124,7 +121,7 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
 
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
-public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target: ContentNode) {
+public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target: ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
     inlineContent.forEach {
         buildContentTo(it, target)
