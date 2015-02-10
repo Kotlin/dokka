@@ -92,8 +92,6 @@ public class FunctionTest {
                     assertEquals(Content.Empty, content)
                     with(details.single()) {
                         assertEquals("R", name)
-                        assertEquals("R", name)
-                        assertEquals("R", name)
                         assertEquals(DocumentationNode.Kind.UpperBound, kind)
                         assertEquals(Content.Empty, content)
                         assertTrue(details.none())
