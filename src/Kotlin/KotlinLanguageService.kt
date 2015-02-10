@@ -58,7 +58,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderLinked(node: DocumentationNode, body: ContentNode.(DocumentationNode)->Unit) {
+    private fun ContentBlock.renderLinked(node: DocumentationNode, body: ContentBlock.(DocumentationNode)->Unit) {
         val to = node.links.firstOrNull()
         if (to == null)
             body(node)

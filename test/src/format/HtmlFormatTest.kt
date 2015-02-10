@@ -75,4 +75,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun typeLink() {
+        verifyOutput("test/data/format/typeLink.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar"} )
+        }
+    }
 }
