@@ -3,10 +3,6 @@
 
 # set
 
-
-```
-set(value: String)
-```
-
+`set(value: String)`
 
 

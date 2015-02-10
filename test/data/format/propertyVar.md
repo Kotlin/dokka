@@ -3,10 +3,6 @@
 
 # x
 
-
-```
-var x: Int
-```
-
+`var x: Int`
 
 

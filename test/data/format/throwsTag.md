@@ -3,15 +3,11 @@
 
 # f
 
-
-```
-fun f(): Unit
-```
-
-
-
+`fun f(): Unit`
 
 ### Exceptions
 
 `IllegalArgumentException` - on Mondays
 `NullPointerException` - on Tuesdays
+
+

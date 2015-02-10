@@ -3,11 +3,7 @@
 
 # Foo
 
-
-```
-data class Foo
-```
-
+`data class Foo`
 
 
 

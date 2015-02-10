@@ -3,11 +3,7 @@
 
 # Klass
 
-
-```
-class Klass
-```
-
+`class Klass`
 
 
 

@@ -3,11 +3,7 @@
 
 # f
 
-
-```
-fun f(): Unit
-```
-
+`fun f(): Unit`
 Overrides [C.f](out.md)
 
 

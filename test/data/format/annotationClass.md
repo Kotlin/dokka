@@ -3,11 +3,7 @@
 
 # fancy
 
-
-```
-annotation class fancy
-```
-
+`annotation class fancy`
 
 
 

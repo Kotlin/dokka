@@ -3,10 +3,6 @@
 
 # f
 
-
-```
-inlineOptions([InlineOption.LOCAL_CONTINUE_AND_BREAK]) fun f(): Unit
-```
-
+`inlineOptions([InlineOption.LOCAL_CONTINUE_AND_BREAK]) fun f(): Unit`
 
 

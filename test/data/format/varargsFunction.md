@@ -3,10 +3,6 @@
 
 # f
 
-
-```
-fun f(vararg s: String): Unit
-```
-
+`fun f(vararg s: String): Unit`
 
 

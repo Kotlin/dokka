@@ -3,10 +3,6 @@
 
 # get
 
-
-```
-get(): String
-```
-
+`get(): String`
 
 

@@ -85,16 +85,17 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
-                appendBlockCode(to, formatText(location, languageService.render(it)))
+                to.append(formatCode(formatText(location, languageService.render(it))))
+                it.appendSourceLink(to)
                 it.appendOverrides(to)
                 it.appendDeprecation(to)
-                it.appendSourceLink(to)
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
-            appendLine(to, formatText(location, item.content.summary))
-            appendLine(to)
+            to.append(formatText(location, item.content.summary))
             appendDescription(location, to, item)
+            appendLine(to)
+            appendLine(to)
         }
     }
 
@@ -153,7 +154,10 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     private fun DocumentationNode.appendSourceLink(to: StringBuilder) {
         val sourceUrl = details(DocumentationNode.Kind.SourceUrl).firstOrNull()
         if (sourceUrl != null) {
-            appendLine(to, formatLink("Source", sourceUrl.name))
+            to.append(" ")
+            appendLine(to, formatLink("(source)", sourceUrl.name))
+        } else {
+            appendLine(to)
         }
     }
 
