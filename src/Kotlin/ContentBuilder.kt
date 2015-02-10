@@ -95,6 +95,11 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
                 processChildren()
                 parent.append(nodeStack.pop())
             }
+            MarkdownTokenTypes.CODE -> {
+                val block = ContentBlockCode()
+                block.append(ContentText(node.text))
+                parent.append(block)
+            }
             MarkdownElementTypes.PARAGRAPH -> {
                 nodeStack.push(ContentParagraph())
                 processChildren()

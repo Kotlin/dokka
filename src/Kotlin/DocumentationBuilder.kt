@@ -45,7 +45,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         if (kdoc == null) {
             return Content.Empty
         }
-        val tree = parseMarkdown(kdoc.getContent())
+        var kdocText = kdoc.getContent()
+        // workaround for code fence parsing problem in IJ markdown parser
+        if (kdocText.endsWith("```") || kdocText.endsWith("~~~")) {
+            kdocText += "\n"
+        }
+        val tree = parseMarkdown(kdocText)
         //println(tree.toTestString())
         val content = buildContent(tree)
         if (kdoc is KDocSection) {

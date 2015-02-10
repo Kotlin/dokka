@@ -57,4 +57,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun tripleBackticks() {
+        verifyOutput("test/data/format/tripleBackticks.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
