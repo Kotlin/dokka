@@ -11,8 +11,6 @@ fun f(): Unit
 
 
 
-
-
 ### Exceptions
 
 `IllegalArgumentException` - on Mondays

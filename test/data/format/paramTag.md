@@ -11,8 +11,6 @@ fun f(x: String, y: Int): Unit
 
 
 
-
-
 ### Parameters
 
 `x` - A string

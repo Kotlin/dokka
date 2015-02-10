@@ -18,6 +18,12 @@ public open class ContentBlock() : ContentNode() {
     }
 
     fun isEmpty() = children.isEmpty()
+
+    override fun equals(other: Any?): Boolean =
+        other is ContentBlock && javaClass == other.javaClass && children == other.children
+
+    override fun hashCode(): Int =
+        children.hashCode()
 }
 
 public data class ContentText(val text: String) : ContentNode()
@@ -31,11 +37,33 @@ public class ContentStrong() : ContentBlock()
 public class ContentStrikethrough() : ContentBlock()
 public class ContentCode() : ContentBlock()
 public class ContentBlockCode() : ContentBlock()
-public class ContentNodeLink(val node : DocumentationNode) : ContentBlock()
-public class ContentExternalLink(val href : String) : ContentBlock()
+
+public class ContentNodeLink(val node : DocumentationNode) : ContentBlock() {
+    override fun equals(other: Any?): Boolean =
+        super.equals(other) && other is ContentNodeLink && node == other.node
+
+    override fun hashCode(): Int =
+        children.hashCode() * 31 + node.hashCode()
+}
+
+public class ContentExternalLink(val href : String) : ContentBlock() {
+    override fun equals(other: Any?): Boolean =
+        super.equals(other) && other is ContentExternalLink && href == other.href
+
+    override fun hashCode(): Int =
+        children.hashCode() * 31 + href.hashCode()
+}
+
 public class ContentList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
-public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock()
+
+public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock() {
+    override fun equals(other: Any?): Boolean =
+        super.equals(other) && other is ContentSection && tag == other.tag && subjectName == other.subjectName
+
+    override fun hashCode(): Int =
+        children.hashCode() * 31 * 31 + tag.hashCode() * 31 + (subjectName?.hashCode() ?: 0)
+}
 
 fun content(body: ContentBlock.() -> Unit): ContentBlock {
     val block = ContentBlock()

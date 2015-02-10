@@ -80,29 +80,37 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         return FormatLink(to.name, locationService.relativeLocation(from, to, extension))
     }
 
-    fun appendDescription(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val described = nodes.filter { it.hasDescriptionOrTags() }
-        if (described.any()) {
-            val single = described.size() == 1
-            if (described.any { it.content.description != ContentEmpty }) {
-                appendHeader(to, "Description", 3)
-            }
-            for (node in described) {
-                if (!single) {
-                    appendBlockCode(to, formatText(location, languageService.render(node)))
-                }
-                appendLine(to, formatText(location, node.content.description))
-                appendLine(to)
+    fun appendDocumentation(location: Location, to: StringBuilder, overloads: Iterable<DocumentationNode>) {
+        val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
 
-                node.content.getSectionsWithSubjects().forEach {
-                    appendSectionWithSubject(it.getKey(), location, it.getValue(), to)
-                }
-
-                for (section in node.content.sections.filter { it.subjectName == null }) {
-                    appendLine(to, formatStrong(formatText(section.tag)))
-                    appendLine(to, formatText(location, section))
-                }
+        for ((summary, items) in breakdownBySummary) {
+            items.forEach {
+                appendBlockCode(to, formatText(location, languageService.render(it)))
+                it.appendOverrides(to)
+                it.appendDeprecation(to)
+                it.appendSourceLink(to)
             }
+            // All items have exactly the same documentation, so we can use any item to render it
+            val item = items.first()
+            appendLine(to, formatText(location, item.content.summary))
+            appendLine(to)
+            appendDescription(location, to, item)
+        }
+    }
+
+    fun appendDescription(location: Location, to: StringBuilder, node: DocumentationNode) {
+        if (node.content.description != ContentEmpty) {
+            appendHeader(to, "Description", 3)
+            appendLine(to, formatText(location, node.content.description))
+            appendLine(to)
+        }
+        node.content.getSectionsWithSubjects().forEach {
+            appendSectionWithSubject(it.getKey(), location, it.getValue(), to)
+        }
+
+        for (section in node.content.sections.filter { it.subjectName == null }) {
+            appendLine(to, formatStrong(formatText(section.tag)))
+            appendLine(to, formatText(location, section))
         }
     }
 
@@ -123,23 +131,6 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
     private fun DocumentationNode.hasDescriptionOrTags() =
             content.description != ContentEmpty || !content.sections.isEmpty()
-
-    fun appendSummary(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val breakdownBySummary = nodes.groupByTo(LinkedHashMap()) { node ->
-            formatText(location, node.summary)
-        }
-
-        for ((summary, items) in breakdownBySummary) {
-            items.forEach {
-                appendBlockCode(to, formatText(location, languageService.render(it)))
-                it.appendOverrides(to)
-                it.appendDeprecation(to)
-                it.appendSourceLink(to)
-            }
-            appendLine(to, summary)
-            appendLine(to)
-        }
-    }
 
     private fun DocumentationNode.appendOverrides(to: StringBuilder) {
         overrides.forEach {
@@ -173,8 +164,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         val breakdownByName = nodes.groupBy { node -> node.name }
         for ((name, items) in breakdownByName) {
             appendHeader(to, formatText(name))
-            appendSummary(location, to, items)
-            appendDescription(location, to, items)
+            appendDocumentation(location, to, items)
         }
     }
 

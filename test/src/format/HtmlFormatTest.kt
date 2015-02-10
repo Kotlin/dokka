@@ -25,6 +25,18 @@ public class HtmlFormatTest {
         }
     }
 
+    Test fun overloadsWithDescription() {
+        verifyOutput("test/data/format/overloadsWithDescription.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
+    Test fun overloadsWithDifferentDescriptions() {
+        verifyOutput("test/data/format/overloadsWithDifferentDescriptions.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
     Test fun deprecated() {
         verifyOutput("test/data/format/deprecated.kt", ".package.html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members)
