@@ -147,7 +147,7 @@ class KotlinLanguageService : LanguageService {
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
-                renderType(it)
+                renderTypeParameter(it)
             }
             symbol("> ")
         }
