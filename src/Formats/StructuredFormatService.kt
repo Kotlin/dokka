@@ -129,9 +129,6 @@ public abstract class StructuredFormatService(val locationService: LocationServi
         }
     }
 
-    private fun DocumentationNode.hasDescriptionOrTags() =
-            content.description != ContentEmpty || !content.sections.isEmpty()
-
     private fun DocumentationNode.appendOverrides(to: StringBuilder) {
         overrides.forEach {
             to.append("Overrides ")
