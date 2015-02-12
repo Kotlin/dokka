@@ -109,7 +109,9 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
             MarkdownTokenTypes.LT,
             MarkdownTokenTypes.GT,
             MarkdownTokenTypes.LPAREN,
-            MarkdownTokenTypes.RPAREN -> {
+            MarkdownTokenTypes.RPAREN,
+            MarkdownTokenTypes.LBRACKET,
+            MarkdownTokenTypes.RBRACKET -> {
                 parent.append(ContentText(node.text))
             }
             else -> {
