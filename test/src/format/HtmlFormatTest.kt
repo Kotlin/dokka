@@ -64,6 +64,12 @@ public class HtmlFormatTest {
         }
     }
 
+    Test fun bracket() {
+        verifyOutput("test/data/format/bracket.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
     Test fun see() {
         verifyOutput("test/data/format/see.kt", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
