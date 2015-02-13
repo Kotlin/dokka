@@ -7,6 +7,11 @@ import org.jetbrains.kotlin.cli.common.arguments.*
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import com.intellij.psi.PsiFile
+import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment
+import com.intellij.psi.PsiJavaFile
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
+import com.intellij.psi.PsiManager
+import com.intellij.openapi.vfs.VirtualFileManager
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -190,29 +195,52 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
     val documentation = environment.withContext { environment, session ->
         val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-        val documentationBuilder = DocumentationBuilder(session, options, logger)
 
-        with(documentationBuilder) {
-
-            val moduleContent = Content()
-            for (include in includes) {
-                val file = File(include)
-                if (file.exists()) {
-                    val text = file.readText()
-                    val tree = parseMarkdown(text)
-                    val content = buildContent(tree)
-                    moduleContent.children.addAll(content.children)
-                } else {
-                    logger.warn("Include file $file was not found.")
-                }
+        val moduleContent = Content()
+        for (include in includes) {
+            val file = File(include)
+            if (file.exists()) {
+                val text = file.readText()
+                val tree = parseMarkdown(text)
+                val content = buildContent(tree)
+                moduleContent.children.addAll(content.children)
+            } else {
+                logger.warn("Include file $file was not found.")
             }
+        }
+        val documentationModule = DocumentationModule(moduleName, moduleContent)
 
-            val documentationModule = DocumentationModule(moduleName, moduleContent)
+        val documentationBuilder = DocumentationBuilder(session, options, logger)
+        with(documentationBuilder) {
             documentationModule.appendFragments(fragments)
             documentationBuilder.resolveReferences(documentationModule)
-            documentationModule
         }
+
+        val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)
+        val javaDocumentationBuilder = JavaDocumentationBuilder()
+        javaFiles.map { javaDocumentationBuilder.appendFile(it, documentationModule) }
+
+        documentationModule
     }
 
     return documentation
+}
+
+
+fun JetCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
+    val sourceRoots = getConfiguration().getList(CommonConfigurationKeys.SOURCE_ROOTS_KEY).map { File(it) }
+    val result = arrayListOf<PsiJavaFile>()
+    val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
+    sourceRoots.forEach { sourceRoot ->
+        sourceRoot.getAbsoluteFile().recurse {
+            val vFile = localFileSystem.findFileByPath(it.path)
+            if (vFile != null) {
+                val psiFile = PsiManager.getInstance(getProject()).findFile(vFile)
+                if (psiFile is PsiJavaFile) {
+                    result.add(psiFile)
+                }
+            }
+        }
+    }
+    return result
 }
