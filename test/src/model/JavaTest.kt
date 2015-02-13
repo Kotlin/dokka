@@ -6,7 +6,7 @@ import org.junit.*
 
 public class JavaTest {
     Test fun function() {
-        verifyModel("test/data/java/") { model ->
+        verifyModel("test/data/java/member.java") { model ->
             val pkg = model.members.single()
             with(pkg.members.single()) {
                 assertEquals("Test", name)
@@ -26,6 +26,18 @@ public class JavaTest {
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
                         assertEquals("Int", detail(DocumentationNode.Kind.Type).name)
                     }
+                }
+            }
+        }
+    }
+
+    Test fun memberWithModifiers() {
+        verifyModel("test/data/java/memberWithModifiers.java") { model ->
+            val pkg = model.members.single()
+            with(pkg.members.single()) {
+                assertEquals("abstract", details[0].name)
+                with(members.single()) {
+                    assertEquals("protected", details[0].name)
                 }
             }
         }
