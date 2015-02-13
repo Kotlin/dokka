@@ -36,7 +36,9 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
     public fun withContext<T>(processor: (JetCoreEnvironment, ResolveSession) -> T): T {
         val environment = JetCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val resolveSession = environment.analyze()
-        resolveSession.forceResolveAll()
+        if (environment.getSourceFiles().isNotEmpty()) {
+            resolveSession.forceResolveAll()
+        }
         return processor(environment, resolveSession)
     }
 
