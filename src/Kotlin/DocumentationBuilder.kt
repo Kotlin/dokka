@@ -267,6 +267,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             else -> Kind.Class
         }
         val node = DocumentationNode(this, kind)
+        if (isInner()) {
+            node.append(DocumentationNode("inner", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+        }
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
