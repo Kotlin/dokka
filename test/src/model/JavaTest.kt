@@ -6,59 +6,49 @@ import org.junit.*
 
 public class JavaTest {
     Test fun function() {
-        verifyModel("test/data/java/member.java") { model ->
-            val pkg = model.members.single()
-            with(pkg.members.single()) {
-                assertEquals("Test", name)
-                assertEquals(DocumentationNode.Kind.Class, kind)
-                with(members.single()) {
-                    assertEquals("fn", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
-                    assertEquals("Summary for Function", content.summary.toTestString())
-                    assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
-                    assertTrue(members.none())
-                    assertTrue(links.none())
-                    with(details.first { it.name == "name" }) {
-                        assertEquals(DocumentationNode.Kind.Parameter, kind)
-                        assertEquals("String", detail(DocumentationNode.Kind.Type).name)
-                    }
-                    with(details.first { it.name == "value" }) {
-                        assertEquals(DocumentationNode.Kind.Parameter, kind)
-                        assertEquals("Int", detail(DocumentationNode.Kind.Type).name)
-                    }
+        verifyPackageMember("test/data/java/member.java") { cls ->
+            assertEquals("Test", cls.name)
+            assertEquals(DocumentationNode.Kind.Class, cls.kind)
+            with(cls.members.single()) {
+                assertEquals("fn", name)
+                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals("Summary for Function", content.summary.toTestString())
+                assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
+                assertTrue(members.none())
+                assertTrue(links.none())
+                with(details.first { it.name == "name" }) {
+                    assertEquals(DocumentationNode.Kind.Parameter, kind)
+                    assertEquals("String", detail(DocumentationNode.Kind.Type).name)
+                }
+                with(details.first { it.name == "value" }) {
+                    assertEquals(DocumentationNode.Kind.Parameter, kind)
+                    assertEquals("Int", detail(DocumentationNode.Kind.Type).name)
                 }
             }
         }
     }
 
     Test fun memberWithModifiers() {
-        verifyModel("test/data/java/memberWithModifiers.java") { model ->
-            val pkg = model.members.single()
-            with(pkg.members.single()) {
-                assertEquals("abstract", details[0].name)
-                with(members.single()) {
-                    assertEquals("protected", details[0].name)
-                }
+        verifyPackageMember("test/data/java/memberWithModifiers.java") { cls ->
+            assertEquals("abstract", cls.details[0].name)
+            with(cls.members.single()) {
+                assertEquals("protected", details[0].name)
             }
         }
     }
 
     Test fun superClass() {
-        verifyModel("test/data/java/superClass.java") { model ->
-            val pkg = model.members.single()
-            with(pkg.members.single()) {
-                val superTypes = details(DocumentationNode.Kind.Supertype)
-                assertEquals(2, superTypes.size())
-                assertEquals("Exception", superTypes[0].name)
-                assertEquals("Cloneable", superTypes[1].name)
-            }
+        verifyPackageMember("test/data/java/superClass.java") { cls ->
+            val superTypes = cls.details(DocumentationNode.Kind.Supertype)
+            assertEquals(2, superTypes.size())
+            assertEquals("Exception", superTypes[0].name)
+            assertEquals("Cloneable", superTypes[1].name)
         }
     }
 
     Test fun arrayType() {
-        verifyModel("test/data/java/arrayType.java") { model ->
-            val pkg = model.members.single()
-            with(pkg.members.single().members.single()) {
+        verifyPackageMember("test/data/java/arrayType.java") { cls ->
+            with(cls.members.single()) {
                 assertEquals("Array<String>", detail(DocumentationNode.Kind.Type).name)
                 with(details(DocumentationNode.Kind.Parameter).single()) {
                     assertEquals("Array<Int>", detail(DocumentationNode.Kind.Type).name)
@@ -67,4 +57,22 @@ public class JavaTest {
         }
     }
 
+    Test fun typeParameter() {
+        verifyPackageMember("test/data/java/typeParameter.java") { cls ->
+            val typeParameters = cls.details(DocumentationNode.Kind.TypeParameter)
+            with(typeParameters.single()) {
+                assertEquals("T", name)
+                with(detail(DocumentationNode.Kind.UpperBound)) {
+                    assertEquals("Comparable", name)
+                    assertEquals("T", detail(DocumentationNode.Kind.TypeParameter).name)
+                }
+            }
+            with(cls.members.single()) {
+                val methodTypeParameters = details(DocumentationNode.Kind.TypeParameter)
+                with(methodTypeParameters.single()) {
+                    assertEquals("E", name)
+                }
+            }
+        }
+    }
 }

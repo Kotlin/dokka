@@ -14,6 +14,7 @@ import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiArrayType
+import com.intellij.psi.PsiTypeParameter
 
 public class JavaDocumentationBuilder() {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -48,6 +49,12 @@ public class JavaDocumentationBuilder() {
         }
     }
 
+    fun DocumentationNode.appendMembers<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
+            appendChildren(elements, DocumentationReference.Kind.Member, buildFn)
+
+    fun DocumentationNode.appendDetails<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
+            appendChildren(elements, DocumentationReference.Kind.Detail, buildFn)
+
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
             isInterface() -> DocumentationNode.Kind.Interface
@@ -58,20 +65,29 @@ public class JavaDocumentationBuilder() {
         val node = DocumentationNode(this, kind)
         getExtendsListTypes().forEach { node.appendType(it, Kind.Supertype) }
         getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
-        node.appendChildren(getMethods()) { build() }
+        node.appendDetails(getTypeParameters()) { build() }
+        node.appendMembers(getMethods()) { build() }
         return node
     }
 
     fun PsiMethod.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Function)
         node.appendType(getReturnType())
-        node.appendChildren(getParameterList().getParameters(), DocumentationReference.Kind.Detail) { build() }
+        node.appendDetails(getParameterList().getParameters()) { build() }
+        node.appendDetails(getTypeParameters()) { build() }
         return node
     }
 
     fun PsiParameter.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
+        return node
+    }
+
+    fun PsiTypeParameter.build(): DocumentationNode {
+        val node = DocumentationNode(this, Kind.TypeParameter)
+        getExtendsListTypes().forEach { node.appendType(it, Kind.UpperBound) }
+        getImplementsListTypes().forEach { node.appendType(it, Kind.UpperBound) }
         return node
     }
 
@@ -92,9 +108,16 @@ public class JavaDocumentationBuilder() {
         if (psiType == null) {
             return
         }
-        val name = mapTypeName(psiType)
+        append(psiType.build(kind), DocumentationReference.Kind.Detail)
+    }
+
+    fun PsiType.build(kind: DocumentationNode.Kind = DocumentationNode.Kind.Type): DocumentationNode {
+        val name = mapTypeName(this)
         val node = DocumentationNode(name, Content.Empty, kind)
-        append(node, DocumentationReference.Kind.Detail)
+        if (this is PsiClassType) {
+            node.appendDetails(getParameters()) { build(Kind.TypeParameter) }
+        }
+        return node
     }
 
     private fun mapTypeName(psiType: PsiType): String = when (psiType) {

@@ -37,6 +37,13 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     Disposer.dispose(environment)
 }
 
+public fun verifyPackageMember(vararg files: String, verifier: (DocumentationNode) -> Unit) {
+    verifyModel(*files) { model ->
+        val pkg = model.members.single()
+        verifier(pkg.members.single())
+    }
+}
+
 public fun verifyOutput(path: String, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(path) {
         val output = StringBuilder()
