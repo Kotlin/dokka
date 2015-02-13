@@ -13,6 +13,7 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiModifier
+import com.intellij.psi.PsiArrayType
 
 public class JavaDocumentationBuilder() {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -100,6 +101,7 @@ public class JavaDocumentationBuilder() {
         PsiType.VOID -> "Unit"
         is PsiPrimitiveType -> psiType.getCanonicalText().capitalize()
         is PsiClassType -> psiType.getClassName()
+        is PsiArrayType -> "Array<${mapTypeName(psiType.getComponentType())}>"
         else -> psiType.getCanonicalText()
     }
 }

@@ -54,4 +54,17 @@ public class JavaTest {
             }
         }
     }
+
+    Test fun arrayType() {
+        verifyModel("test/data/java/arrayType.java") { model ->
+            val pkg = model.members.single()
+            with(pkg.members.single().members.single()) {
+                assertEquals("Array<String>", detail(DocumentationNode.Kind.Type).name)
+                with(details(DocumentationNode.Kind.Parameter).single()) {
+                    assertEquals("Array<Int>", detail(DocumentationNode.Kind.Type).name)
+                }
+            }
+        }
+    }
+
 }
