@@ -85,4 +85,11 @@ public class JavaTest {
             }
         }
     }
+
+    Test fun innerClass() {
+        verifyPackageMember("test/data/java/innerClass.java") { cls ->
+            val innerClass = cls.members(DocumentationNode.Kind.Class).single()
+            assertEquals("D", innerClass.name)
+        }
+    }
 }

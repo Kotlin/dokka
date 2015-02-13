@@ -69,6 +69,7 @@ public class JavaDocumentationBuilder() {
         getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
         node.appendDetails(getTypeParameters()) { build() }
         node.appendMembers(getMethods()) { build() }
+        node.appendMembers(getInnerClasses()) { build() }
         return node
     }
 
