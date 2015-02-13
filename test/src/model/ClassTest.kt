@@ -235,4 +235,13 @@ public class ClassTest {
             }
         }
     }
+
+    Test fun innerClass() {
+        verifyPackageMember("test/data/classes/innerClass.kt") { cls ->
+            val innerClass = cls.members.single { it.name == "D" }
+            val modifiers = innerClass.details(DocumentationNode.Kind.Modifier)
+            assertEquals(3, modifiers.size())
+            assertEquals("inner", modifiers[2].name)
+        }
+    }
 }
