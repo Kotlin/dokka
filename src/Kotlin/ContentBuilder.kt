@@ -10,13 +10,13 @@ import org.intellij.markdown.*
 import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.kotlin.psi.JetBlockExpression
 
-public fun DocumentationBuilder.buildContent(tree: MarkdownNode): Content {
+public fun buildContent(tree: MarkdownNode): Content {
     val result = Content()
     buildContentTo(tree, result)
     return result
 }
 
-public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: ContentBlock) {
+public fun buildContentTo(tree: MarkdownNode, target: ContentBlock) {
 //    println(tree.toTestString())
     val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
@@ -123,7 +123,7 @@ public fun DocumentationBuilder.buildContentTo(tree: MarkdownNode, target: Conte
 
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
-public fun DocumentationBuilder.buildInlineContentTo(tree: MarkdownNode, target: ContentBlock) {
+public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
     inlineContent.forEach {
         buildContentTo(it, target)
