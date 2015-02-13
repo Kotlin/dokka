@@ -42,4 +42,16 @@ public class JavaTest {
             }
         }
     }
+
+    Test fun superClass() {
+        verifyModel("test/data/java/superClass.java") { model ->
+            val pkg = model.members.single()
+            with(pkg.members.single()) {
+                val superTypes = details(DocumentationNode.Kind.Supertype)
+                assertEquals(2, superTypes.size())
+                assertEquals("Exception", superTypes[0].name)
+                assertEquals("Cloneable", superTypes[1].name)
+            }
+        }
+    }
 }

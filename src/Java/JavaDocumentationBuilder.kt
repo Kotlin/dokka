@@ -55,6 +55,8 @@ public class JavaDocumentationBuilder() {
             else -> DocumentationNode.Kind.Class
         }
         val node = DocumentationNode(this, kind)
+        getExtendsListTypes().forEach { node.appendType(it, Kind.Supertype) }
+        getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
         node.appendChildren(getMethods()) { build() }
         return node
     }
