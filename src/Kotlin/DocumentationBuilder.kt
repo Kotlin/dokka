@@ -191,34 +191,8 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun DocumentationNode.appendSourceLink(sourceElement: SourceElement) {
-        val psi = getTargetElement(sourceElement)
-        val path = psi?.getContainingFile()?.getVirtualFile()?.getPath()
-        if (path == null) {
-            return
-        }
-        val absPath = File(path).getAbsolutePath()
-        val linkDef = findSourceLinkDefinition(absPath)
-        if (linkDef != null) {
-            var url = linkDef.url + path.substring(linkDef.path.length())
-            if (linkDef.lineSuffix != null) {
-                val doc = PsiDocumentManager.getInstance(psi!!.getProject()).getDocument(psi.getContainingFile())
-                if (doc != null) {
-                    // IJ uses 0-based line-numbers; external source browsers use 1-based
-                    val line = doc.getLineNumber(psi.getTextRange().getStartOffset()) + 1
-                    url += linkDef.lineSuffix + line.toString()
-                }
-            }
-            append(DocumentationNode(url, Content.Empty, DocumentationNode.Kind.SourceUrl),
-                    DocumentationReference.Kind.Detail);
-        }
+        appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
     }
-
-    private fun getTargetElement(sourceElement: SourceElement): PsiElement? {
-        val psi = sourceElement.getPsi()
-        return if (psi is PsiNameIdentifierOwner) psi.getNameIdentifier() else psi
-    }
-
-    fun findSourceLinkDefinition(path: String) = options.sourceLinks.firstOrNull { path.startsWith(it.path) }
 
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         // do not include generated code
