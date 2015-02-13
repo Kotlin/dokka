@@ -31,20 +31,8 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         addClasspath(File(stringRoot))
         addSources(files.toList())
     }
-
     val options = DocumentationOptions(includeNonPublic = true, sourceLinks = listOf<SourceLinkDefinition>())
-
-    val documentation = environment.withContext { environment, session ->
-        val fragments = environment.getSourceFiles().map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-
-        val documentationModule = DocumentationModule("test")
-        val documentationBuilder = DocumentationBuilder(session, options, DokkaConsoleLogger)
-        with(documentationBuilder) {
-            documentationModule.appendFragments(fragments)
-        }
-        documentationBuilder.resolveReferences(documentationModule)
-        documentationModule
-    }
+    val documentation = buildDocumentationModule(environment, "test", options, logger = DokkaConsoleLogger)
     verifier(documentation)
     Disposer.dispose(environment)
 }

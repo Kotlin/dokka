@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.common.arguments.*
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import org.jetbrains.kotlin.name.FqName
+import com.intellij.psi.PsiFile
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -121,7 +121,8 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val documentation = buildDocumentationModule(environment)
+        val options = DocumentationOptions(false, sourceLinks)
+        val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) }, logger)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -170,42 +171,48 @@ class DokkaGenerator(val logger: DokkaLogger,
         return environment
     }
 
-    fun buildDocumentationModule(environment: AnalysisEnvironment): DocumentationModule {
-        val documentation = environment.withContext { environment, session ->
-            val fragmentFiles = environment.getSourceFiles().filter {
-                val sourceFile = File(it.getVirtualFile()!!.getPath())
-                samples.none { sample ->
-                    val canonicalSample = File(sample).canonicalPath
-                    val canonicalSource = sourceFile.canonicalPath
-                    canonicalSource.startsWith(canonicalSample)
-                }
-            }
-            val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
-            val options = DocumentationOptions(false, sourceLinks)
-            val documentationBuilder = DocumentationBuilder(session, options, logger)
-
-            with(documentationBuilder) {
-
-                val moduleContent = Content()
-                for (include in includes) {
-                    val file = File(include)
-                    if (file.exists()) {
-                        val text = file.readText()
-                        val tree = parseMarkdown(text)
-                        val content = buildContent(tree)
-                        moduleContent.children.addAll(content.children)
-                    } else {
-                        logger.warn("Include file $file was not found.")
-                    }
-                }
-
-                val documentationModule = DocumentationModule(moduleName, moduleContent)
-                documentationModule.appendFragments(fragments)
-                documentationBuilder.resolveReferences(documentationModule)
-                documentationModule
-            }
+    fun isSample(file: PsiFile): Boolean {
+        val sourceFile = File(file.getVirtualFile()!!.getPath())
+        return samples.none { sample ->
+            val canonicalSample = File(sample).canonicalPath
+            val canonicalSource = sourceFile.canonicalPath
+            canonicalSource.startsWith(canonicalSample)
         }
-
-        return documentation
     }
+}
+
+fun buildDocumentationModule(environment: AnalysisEnvironment,
+                             moduleName: String,
+                             options: DocumentationOptions,
+                             includes: List<String> = listOf(),
+                             filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
+                             logger: DokkaLogger): DocumentationModule {
+    val documentation = environment.withContext { environment, session ->
+        val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
+        val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
+        val documentationBuilder = DocumentationBuilder(session, options, logger)
+
+        with(documentationBuilder) {
+
+            val moduleContent = Content()
+            for (include in includes) {
+                val file = File(include)
+                if (file.exists()) {
+                    val text = file.readText()
+                    val tree = parseMarkdown(text)
+                    val content = buildContent(tree)
+                    moduleContent.children.addAll(content.children)
+                } else {
+                    logger.warn("Include file $file was not found.")
+                }
+            }
+
+            val documentationModule = DocumentationModule(moduleName, moduleContent)
+            documentationModule.appendFragments(fragments)
+            documentationBuilder.resolveReferences(documentationModule)
+            documentationModule
+        }
+    }
+
+    return documentation
 }
