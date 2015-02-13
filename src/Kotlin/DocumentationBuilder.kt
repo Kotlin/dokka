@@ -38,7 +38,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
     val links = hashMapOf<DocumentationNode, DeclarationDescriptor>()
-    val packages = hashMapOf<FqName, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -117,15 +116,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             }
         }
         return this
-    }
-
-    fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationReference.Kind) {
-        addReferenceTo(child, kind)
-        when (kind) {
-            DocumentationReference.Kind.Detail -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
-            DocumentationReference.Kind.Member -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
-            DocumentationReference.Kind.Owner -> child.addReferenceTo(this, DocumentationReference.Kind.Member)
-        }
     }
 
     fun DocumentationNode.appendModality(descriptor: MemberDescriptor) {
@@ -269,13 +259,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         for ((packageName, declarations) in descriptors) {
             logger.info("  package $packageName: ${declarations.count()} declarations")
-            val packageNode = DocumentationNode(packageName, Content.Empty, Kind.Package)
+            val packageNode = findOrCreatePackageNode(packageName)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->
                 val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
                 parent.appendChild(descriptor, DocumentationReference.Kind.Member)
             }
-            append(packageNode, DocumentationReference.Kind.Member)
         }
     }
 
