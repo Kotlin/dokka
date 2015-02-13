@@ -11,6 +11,8 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiPrimitiveType
+import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.PsiModifier
 
 public class JavaDocumentationBuilder() {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -31,6 +33,9 @@ public class JavaDocumentationBuilder() {
     fun DocumentationNode(element: PsiNamedElement, kind: Kind): DocumentationNode {
         val docComment = if (element is PsiDocCommentOwner) parseDocumentation(element.getDocComment()) else Content.Empty
         val node = DocumentationNode(element.getName() ?: "<anonymous>", docComment, kind)
+        if (element is PsiModifierListOwner) {
+            node.appendModifiers(element)
+        }
         return node
     }
 
@@ -65,6 +70,19 @@ public class JavaDocumentationBuilder() {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
         return node
+    }
+
+    fun DocumentationNode.appendModifiers(element: PsiModifierListOwner) {
+        val modifierList = element.getModifierList()
+        if (modifierList == null) {
+            return
+        }
+        PsiModifier.MODIFIERS.forEach {
+            if (modifierList.hasExplicitModifier(it)) {
+                val modifierNode = DocumentationNode(it, Content.Empty, Kind.Modifier)
+                append(modifierNode, DocumentationReference.Kind.Detail)
+            }
+        }
     }
 
     fun DocumentationNode.appendType(psiType: PsiType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
