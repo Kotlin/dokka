@@ -18,19 +18,6 @@ public class ClassTest {
         }
     }
 
-    Test fun gnClass() {
-        verifyModel("test/data/classes/emptyClass.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals(DocumentationNode.Kind.Class, kind)
-                assertEquals("Klass", name)
-                assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
-                assertEquals("<init>", members.single().name)
-                assertTrue(links.none())
-            }
-        }
-    }
-
     Test fun emptyObject() {
         verifyModel("test/data/classes/emptyObject.kt") { model ->
             with(model.members.single().members.single()) {
