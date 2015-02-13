@@ -13,18 +13,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
-private fun getAnnotationsPath(paths: KotlinPaths, arguments: K2JVMCompilerArguments): MutableList<File> {
-    val annotationsPath = arrayListOf<File>()
-    annotationsPath.add(paths.getJdkAnnotationsPath())
-    val annotationPaths = arguments.annotations
-    if (annotationPaths != null) {
-        for (element in annotationPaths.split(File.pathSeparatorChar)) {
-            annotationsPath.add(File(element))
-        }
-    }
-    return annotationsPath
-}
-
 fun JetCoreEnvironment.analyze(): ResolveSession {
     val globalContext = GlobalContext()
     val project = getProject()
@@ -43,12 +31,3 @@ fun JetCoreEnvironment.analyze(): ResolveSession {
     )
     return resolverForProject.resolverForModule(module).lazyResolveSession
 }
-
-fun DeclarationDescriptor.isUserCode() =
-        when (this) {
-            is PackageViewDescriptor -> false
-            is PackageFragmentDescriptor -> false
-            is PropertyAccessorDescriptor -> !isDefault()
-            is CallableMemberDescriptor -> getKind() == CallableMemberDescriptor.Kind.DECLARATION
-            else -> true
-        }
