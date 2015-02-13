@@ -32,9 +32,11 @@ public class JavaDocumentationBuilder() {
         return result
     }
 
-    fun DocumentationNode(element: PsiNamedElement, kind: Kind): DocumentationNode {
+    fun DocumentationNode(element: PsiNamedElement,
+                          kind: Kind,
+                          name: String = element.getName() ?: "<anonymous>"): DocumentationNode {
         val docComment = if (element is PsiDocCommentOwner) parseDocumentation(element.getDocComment()) else Content.Empty
-        val node = DocumentationNode(element.getName() ?: "<anonymous>", docComment, kind)
+        val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
         }
@@ -71,8 +73,13 @@ public class JavaDocumentationBuilder() {
     }
 
     fun PsiMethod.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Function)
-        node.appendType(getReturnType())
+        val node = DocumentationNode(this,
+                if (isConstructor()) Kind.Constructor else Kind.Function,
+                if (isConstructor()) "<init>" else getName())
+
+        if (!isConstructor()) {
+            node.appendType(getReturnType())
+        }
         node.appendDetails(getParameterList().getParameters()) { build() }
         node.appendDetails(getTypeParameters()) { build() }
         return node

@@ -75,4 +75,14 @@ public class JavaTest {
             }
         }
     }
+
+    Test fun constructors() {
+        verifyPackageMember("test/data/java/constructors.java") { cls ->
+            val constructors = cls.members(DocumentationNode.Kind.Constructor)
+            assertEquals(2, constructors.size())
+            with(constructors[0]) {
+                assertEquals("<init>", name)
+            }
+        }
+    }
 }
