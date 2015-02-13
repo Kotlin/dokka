@@ -102,3 +102,22 @@ val DocumentationNode.path: List<DocumentationNode>
             return listOf(this)
         return parent.path + this
     }
+
+fun DocumentationNode.findOrCreatePackageNode(packageName: String): DocumentationNode {
+    val existingNode = members(DocumentationNode.Kind.Package).firstOrNull { it.name  == packageName }
+    if (existingNode != null) {
+        return existingNode
+    }
+    val newNode = DocumentationNode(packageName, Content.Empty, DocumentationNode.Kind.Package)
+    append(newNode, DocumentationReference.Kind.Member)
+    return newNode
+}
+
+fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationReference.Kind) {
+    addReferenceTo(child, kind)
+    when (kind) {
+        DocumentationReference.Kind.Detail -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
+        DocumentationReference.Kind.Member -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
+        DocumentationReference.Kind.Owner -> child.addReferenceTo(this, DocumentationReference.Kind.Member)
+    }
+}
