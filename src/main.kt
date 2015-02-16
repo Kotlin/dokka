@@ -215,7 +215,7 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         }
 
         val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)
-        val javaDocumentationBuilder = JavaDocumentationBuilder()
+        val javaDocumentationBuilder = JavaDocumentationBuilder(options)
         javaFiles.map { javaDocumentationBuilder.appendFile(it, documentationModule) }
 
         documentationModule
