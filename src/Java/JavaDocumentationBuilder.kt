@@ -19,6 +19,7 @@ import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.PsiEllipsisType
 import com.intellij.psi.PsiField
+import com.intellij.psi.PsiAnnotation
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -59,6 +60,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
+            val modifierList = element.getModifierList()
+            if (modifierList != null) {
+                node.appendChildren(modifierList.getAnnotations(), DocumentationReference.Kind.Annotation) { build() }
+            }
         }
         return node
     }
@@ -185,5 +190,19 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         is PsiEllipsisType -> mapTypeName(psiType.getComponentType())
         is PsiArrayType -> "Array"
         else -> psiType.getCanonicalText()
+    }
+
+    fun PsiAnnotation.build(): DocumentationNode {
+        val node = DocumentationNode(getNameReferenceElement()?.getText() ?: "<?>", Content.Empty, DocumentationNode.Kind.Annotation)
+        getParameterList().getAttributes().forEach {
+            val parameter = DocumentationNode(it.getName() ?: "value", Content.Empty, DocumentationNode.Kind.Parameter)
+            val value = it.getValue()
+            if (value != null) {
+                val valueNode = DocumentationNode(value.getText(), Content.Empty, DocumentationNode.Kind.Value)
+                parameter.append(valueNode, DocumentationReference.Kind.Detail)
+            }
+            node.append(parameter, DocumentationReference.Kind.Detail)
+        }
+        return node
     }
 }

@@ -143,4 +143,21 @@ public class JavaTest {
             assertFalse("static" in m.details(DocumentationNode.Kind.Modifier).map { it.name })
         }
     }
+
+    Test fun annotatedAnnotation() {
+        verifyPackageMember("test/data/java/annotatedAnnotation.java") { cls ->
+            assertEquals(2, cls.annotations.size())
+            with(cls.annotations[0]) {
+                assertEquals(1, details.count())
+                with(details[0]) {
+                    assertEquals(DocumentationNode.Kind.Parameter, kind)
+                    assertEquals(1, details.count())
+                    with(details[0]) {
+                        assertEquals(DocumentationNode.Kind.Value, kind)
+                        assertEquals("RetentionPolicy.RUNTIME", name)
+                    }
+                }
+            }
+        }
+    }
 }
