@@ -123,7 +123,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
     fun PsiField.build(): DocumentationNode {
         val node = DocumentationNode(this, nodeKind())
         if (!hasModifierProperty(PsiModifier.FINAL)) {
-            node.append(DocumentationNode("var", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+            node.appendTextNode("var", Kind.Modifier)
         }
         node.appendType(getType())
         return node
@@ -157,7 +157,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
         if (getType() is PsiEllipsisType) {
-            node.append(DocumentationNode("vararg", Content.Empty, Kind.Annotation), DocumentationReference.Kind.Annotation)
+            node.appendTextNode("vararg", Kind.Annotation, DocumentationReference.Kind.Annotation)
         }
         return node
     }
@@ -176,12 +176,11 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         }
         PsiModifier.MODIFIERS.forEach {
             if (it != "static" && modifierList.hasExplicitModifier(it)) {
-                val modifierNode = DocumentationNode(it, Content.Empty, Kind.Modifier)
-                append(modifierNode, DocumentationReference.Kind.Detail)
+                appendTextNode(it, Kind.Modifier)
             }
         }
         if ((element is PsiClass || element is PsiMethod) && !element.hasModifierProperty(PsiModifier.FINAL)) {
-            append(DocumentationNode("open", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+            appendTextNode("open", Kind.Modifier)
         }
     }
 

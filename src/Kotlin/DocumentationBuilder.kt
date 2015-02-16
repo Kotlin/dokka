@@ -120,14 +120,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             }
         }
         val modifier = modality.name().toLowerCase()
-        val node = DocumentationNode(modifier, Content.Empty, DocumentationNode.Kind.Modifier)
-        append(node, DocumentationReference.Kind.Detail)
+        appendTextNode(modifier, DocumentationNode.Kind.Modifier)
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
         val modifier = descriptor.getVisibility().toString()
-        val node = DocumentationNode(modifier, Content.Empty, DocumentationNode.Kind.Modifier)
-        append(node, DocumentationReference.Kind.Detail)
+        appendTextNode(modifier, DocumentationNode.Kind.Modifier)
     }
 
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
@@ -261,7 +259,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         val node = DocumentationNode(this, kind)
         if (isInner()) {
-            node.append(DocumentationNode("inner", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+            node.appendTextNode("inner", Kind.Modifier)
         }
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
@@ -337,8 +335,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         node.appendAnnotations(this)
         node.appendSourceLink(getSource())
         if (isVar()) {
-            node.append(DocumentationNode("var", Content.Empty, DocumentationNode.Kind.Modifier),
-                    DocumentationReference.Kind.Detail)
+            node.appendTextNode("var", DocumentationNode.Kind.Modifier)
         }
         getGetter()?.let {
             if (!it.isDefault())
@@ -357,7 +354,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         val node = DocumentationNode(this, Kind.Parameter)
         val varargType = getVarargElementType()
         if (varargType != null) {
-            node.append(DocumentationNode("vararg", Content.Empty, Kind.Annotation), DocumentationReference.Kind.Annotation)
+            node.appendTextNode("vararg", Kind.Annotation, DocumentationReference.Kind.Annotation)
             node.appendType(varargType)
         } else {
             node.appendType(getType())
@@ -367,7 +364,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             if (psi != null) {
                 val defaultValueText = psi.getDefaultValue()?.getText()
                 if (defaultValueText != null) {
-                    node.append(DocumentationNode(defaultValueText, Content.Empty, Kind.Value), DocumentationReference.Kind.Detail)
+                    node.appendTextNode(defaultValueText, Kind.Value)
                 }
             }
         }
@@ -391,15 +388,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         for (constraint in getUpperBounds()) {
             if (constraint == builtIns.getDefaultBound())
                 continue
-            val constraintNode = DocumentationNode(constraint.toString(), Content.Empty, DocumentationNode.Kind.UpperBound)
-            node.append(constraintNode, DocumentationReference.Kind.Detail)
+            node.appendTextNode(constraint.toString(), DocumentationNode.Kind.UpperBound)
         }
 
         for (constraint in getLowerBounds()) {
             if (KotlinBuiltIns.isNothing(constraint))
                 continue
-            val constraintNode = DocumentationNode(constraint.toString(), Content.Empty, DocumentationNode.Kind.LowerBound)
-            node.append(constraintNode, DocumentationReference.Kind.Detail)
+            node.appendTextNode(constraint.toString(), DocumentationNode.Kind.LowerBound)
         }
         return node
     }
