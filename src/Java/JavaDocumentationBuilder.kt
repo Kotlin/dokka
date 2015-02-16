@@ -110,8 +110,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
     }
 
     fun PsiMethod.build(): DocumentationNode {
-        val node = DocumentationNode(this,
-                if (isConstructor()) Kind.Constructor else Kind.Function,
+        val node = DocumentationNode(this, nodeKind(),
                 if (isConstructor()) "<init>" else getName())
 
         if (!isConstructor()) {
@@ -120,6 +119,12 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         node.appendDetails(getParameterList().getParameters()) { build() }
         node.appendDetails(getTypeParameters()) { build() }
         return node
+    }
+
+    private fun PsiMethod.nodeKind(): Kind = when {
+        isConstructor() -> Kind.Constructor
+        hasModifierProperty(PsiModifier.STATIC) -> Kind.ClassObjectFunction
+        else -> Kind.Function
     }
 
     fun PsiParameter.build(): DocumentationNode {
@@ -144,7 +149,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             return
         }
         PsiModifier.MODIFIERS.forEach {
-            if (modifierList.hasExplicitModifier(it)) {
+            if (it != "static" && modifierList.hasExplicitModifier(it)) {
                 val modifierNode = DocumentationNode(it, Content.Empty, Kind.Modifier)
                 append(modifierNode, DocumentationReference.Kind.Detail)
             }
