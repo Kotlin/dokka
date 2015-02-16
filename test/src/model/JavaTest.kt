@@ -13,7 +13,7 @@ public class JavaTest {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("Summary for Function", content.summary.toTestString())
-                assertEquals(2, content.sections.size())
+                assertEquals(3, content.sections.size())
                 with(content.sections[0]) {
                     assertEquals("Parameters", tag)
                     assertEquals("name", subjectName)
@@ -22,7 +22,11 @@ public class JavaTest {
                 with(content.sections[1]) {
                     assertEquals("Parameters", tag)
                     assertEquals("value", subjectName)
-                    assertEquals("is int parameter", toTestString())
+                    assertEquals("is int parameter ", toTestString())
+                }
+                with(content.sections[2]) {
+                    assertEquals("Author", tag)
+                    assertEquals("yole", toTestString())
                 }
                 assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
                 assertTrue(members.none())

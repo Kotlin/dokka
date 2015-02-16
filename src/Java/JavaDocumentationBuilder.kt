@@ -31,11 +31,11 @@ public class JavaDocumentationBuilder() {
             val text = if (result.isEmpty()) it.getText().trimLeading() else it.getText()
             result.append(ContentText(text))
         }
-        docComment.getTags().forEach {
-            val subjectName = it.getSubjectName()
-            val section = result.addSection(javadocSectionDisplayName(it.getName()), subjectName)
-            it.getDataElements().forEach {
-                if (it !is PsiDocTagValue) {
+        docComment.getTags().forEach { tag ->
+            val subjectName = tag.getSubjectName()
+            val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
+            tag.getDataElements().forEach {
+                if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
                     section.append(ContentText(it.getText()))
                 }
             }
@@ -44,7 +44,7 @@ public class JavaDocumentationBuilder() {
     }
 
     fun PsiDocTag.getSubjectName(): String? {
-        if (getName() == "param") {
+        if (getName() == "param" || getName() == "throws" || getName() == "exception") {
             return getValueElement()?.getText()
         }
         return null
