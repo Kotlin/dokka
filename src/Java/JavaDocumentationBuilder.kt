@@ -15,6 +15,8 @@ import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiArrayType
 import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.javadoc.PsiDocTag
+import com.intellij.psi.javadoc.PsiDocTagValue
 
 public class JavaDocumentationBuilder() {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -29,7 +31,23 @@ public class JavaDocumentationBuilder() {
             val text = if (result.isEmpty()) it.getText().trimLeading() else it.getText()
             result.append(ContentText(text))
         }
+        docComment.getTags().forEach {
+            val subjectName = it.getSubjectName()
+            val section = result.addSection(javadocSectionDisplayName(it.getName()), subjectName)
+            it.getDataElements().forEach {
+                if (it !is PsiDocTagValue) {
+                    section.append(ContentText(it.getText()))
+                }
+            }
+        }
         return result
+    }
+
+    fun PsiDocTag.getSubjectName(): String? {
+        if (getName() == "param") {
+            return getValueElement()?.getText()
+        }
+        return null
     }
 
     fun DocumentationNode(element: PsiNamedElement,
