@@ -132,3 +132,10 @@ public class Content() : ContentBlock() {
         val Empty = Content()
     }
 }
+
+fun javadocSectionDisplayName(sectionName: String?): String? =
+        when(sectionName) {
+            "param" -> "Parameters"
+            "throws", "exception" -> "Exceptions"
+            else -> sectionName?.capitalize()
+        }

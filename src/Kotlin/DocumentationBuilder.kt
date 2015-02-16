@@ -61,7 +61,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                     "see" ->
                         content.addTagToSeeAlso(it)
                     else -> {
-                        val section = content.addSection(displayName(it.getName()), it.getSubjectName())
+                        val section = content.addSection(javadocSectionDisplayName(it.getName()), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
                         buildInlineContentTo(markdownNode, section)
@@ -73,13 +73,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()
-
-    fun displayName(sectionName: String?): String? =
-            when(sectionName) {
-                "param" -> "Parameters"
-                "throws", "exception" -> "Exceptions"
-                else -> sectionName?.capitalize()
-            }
 
     private fun Content.addTagToSeeAlso(seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
