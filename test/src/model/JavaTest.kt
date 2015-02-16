@@ -46,8 +46,11 @@ public class JavaTest {
     Test fun memberWithModifiers() {
         verifyPackageMember("test/data/java/memberWithModifiers.java") { cls ->
             assertEquals("abstract", cls.details[0].name)
-            with(cls.members.single()) {
+            with(cls.members.single { it.name == "fn" }) {
                 assertEquals("protected", details[0].name)
+            }
+            with(cls.members.single { it.name == "openFn" }) {
+                assertEquals("open", details[1].name)
             }
         }
     }

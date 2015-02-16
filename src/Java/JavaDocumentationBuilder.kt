@@ -154,6 +154,9 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
                 append(modifierNode, DocumentationReference.Kind.Detail)
             }
         }
+        if ((element is PsiClass || element is PsiMethod) && !element.hasModifierProperty(PsiModifier.FINAL)) {
+            append(DocumentationNode("open", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+        }
     }
 
     fun DocumentationNode.appendType(psiType: PsiType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
