@@ -121,3 +121,9 @@ fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationRefere
         DocumentationReference.Kind.Owner -> child.addReferenceTo(this, DocumentationReference.Kind.Member)
     }
 }
+
+fun DocumentationNode.appendTextNode(text: String,
+                                     kind: DocumentationNode.Kind,
+                                     refKind: DocumentationReference.Kind = DocumentationReference.Kind.Detail) {
+    append(DocumentationNode(text, Content.Empty, kind), refKind)
+}
