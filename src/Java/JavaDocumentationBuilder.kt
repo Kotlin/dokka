@@ -147,6 +147,9 @@ public class JavaDocumentationBuilder() {
         if (this is PsiClassType) {
             node.appendDetails(getParameters()) { build(Kind.TypeParameter) }
         }
+        if (this is PsiArrayType) {
+            node.append(getComponentType().build(Kind.TypeParameter), DocumentationReference.Kind.Detail)
+        }
         return node
     }
 
@@ -155,7 +158,7 @@ public class JavaDocumentationBuilder() {
         is PsiPrimitiveType -> psiType.getCanonicalText().capitalize()
         is PsiClassType -> psiType.getClassName()
         is PsiEllipsisType -> mapTypeName(psiType.getComponentType())
-        is PsiArrayType -> "Array<${mapTypeName(psiType.getComponentType())}>"
+        is PsiArrayType -> "Array"
         else -> psiType.getCanonicalText()
     }
 }

@@ -64,9 +64,13 @@ public class JavaTest {
     Test fun arrayType() {
         verifyPackageMember("test/data/java/arrayType.java") { cls ->
             with(cls.members.single()) {
-                assertEquals("Array<String>", detail(DocumentationNode.Kind.Type).name)
+                val type = detail(DocumentationNode.Kind.Type)
+                assertEquals("Array", type.name)
+                assertEquals("String", type.detail(DocumentationNode.Kind.TypeParameter).name)
                 with(details(DocumentationNode.Kind.Parameter).single()) {
-                    assertEquals("Array<Int>", detail(DocumentationNode.Kind.Type).name)
+                    val type = detail(DocumentationNode.Kind.Type)
+                    assertEquals("Array", type.name)
+                    assertEquals("Int", type.detail(DocumentationNode.Kind.TypeParameter).name)
                 }
             }
         }
