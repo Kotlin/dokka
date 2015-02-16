@@ -18,8 +18,9 @@ import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.PsiEllipsisType
+import com.intellij.psi.PsiElement
 
-public class JavaDocumentationBuilder() {
+public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
         val packageNode = module.findOrCreatePackageNode(file.getPackageName())
         packageNode.appendChildren(file.getClasses()) { build() }
@@ -66,9 +67,14 @@ public class JavaDocumentationBuilder() {
                                             kind: DocumentationReference.Kind = DocumentationReference.Kind.Member,
                                             buildFn: T.() -> DocumentationNode) {
         elements.forEach {
-            append(it.buildFn(), kind)
+            if (!skipElement(it)) {
+                append(it.buildFn(), kind)
+            }
         }
     }
+
+    private fun skipElement(element: Any): Boolean =
+        !options.includeNonPublic && element is PsiModifierListOwner && element.hasModifierProperty(PsiModifier.PRIVATE)
 
     fun DocumentationNode.appendMembers<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, DocumentationReference.Kind.Member, buildFn)
