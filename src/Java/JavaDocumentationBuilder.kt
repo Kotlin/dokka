@@ -145,10 +145,10 @@ public class JavaDocumentationBuilder() {
         val name = mapTypeName(this)
         val node = DocumentationNode(name, Content.Empty, kind)
         if (this is PsiClassType) {
-            node.appendDetails(getParameters()) { build(Kind.TypeParameter) }
+            node.appendDetails(getParameters()) { build(Kind.Type) }
         }
-        if (this is PsiArrayType) {
-            node.append(getComponentType().build(Kind.TypeParameter), DocumentationReference.Kind.Detail)
+        if (this is PsiArrayType && this !is PsiEllipsisType) {
+            node.append(getComponentType().build(Kind.Type), DocumentationReference.Kind.Detail)
         }
         return node
     }
