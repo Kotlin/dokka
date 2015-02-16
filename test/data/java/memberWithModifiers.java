@@ -9,4 +9,6 @@ abstract class Test {
     protected final void fn(String name, int value) {
 
     }
+
+    protected void openFn() {}
 }
