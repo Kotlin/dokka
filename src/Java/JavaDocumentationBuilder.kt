@@ -64,7 +64,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             node.appendModifiers(element)
             val modifierList = element.getModifierList()
             if (modifierList != null) {
-                modifierList.getAnnotations().forEach {
+                modifierList.getAnnotations().filter { !ignoreAnnotation(it) }.forEach {
                     val annotation = it.build()
                     node.append(annotation,
                             if (it.getQualifiedName() == "java.lang.Deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
@@ -72,6 +72,11 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             }
         }
         return node
+    }
+
+    fun ignoreAnnotation(annotation: PsiAnnotation) = when(annotation.getQualifiedName()) {
+        "java.lang.SuppressWarnings" -> true
+        else -> false
     }
 
     fun DocumentationNode.appendChildren<T>(elements: Array<T>,
