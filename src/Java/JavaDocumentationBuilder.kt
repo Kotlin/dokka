@@ -186,7 +186,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
     private fun mapTypeName(psiType: PsiType): String = when (psiType) {
         PsiType.VOID -> "Unit"
         is PsiPrimitiveType -> psiType.getCanonicalText().capitalize()
-        is PsiClassType -> psiType.getClassName()
+        is PsiClassType -> {
+            val psiClass = psiType.resolve()
+            if (psiClass?.getQualifiedName() == "java.lang.Object") "Any" else psiType.getClassName()
+        }
         is PsiEllipsisType -> mapTypeName(psiType.getComponentType())
         is PsiArrayType -> "Array"
         else -> psiType.getCanonicalText()
