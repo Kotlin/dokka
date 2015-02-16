@@ -66,11 +66,11 @@ public class JavaTest {
             with(cls.members.single()) {
                 val type = detail(DocumentationNode.Kind.Type)
                 assertEquals("Array", type.name)
-                assertEquals("String", type.detail(DocumentationNode.Kind.TypeParameter).name)
+                assertEquals("String", type.detail(DocumentationNode.Kind.Type).name)
                 with(details(DocumentationNode.Kind.Parameter).single()) {
                     val type = detail(DocumentationNode.Kind.Type)
                     assertEquals("Array", type.name)
-                    assertEquals("Int", type.detail(DocumentationNode.Kind.TypeParameter).name)
+                    assertEquals("Int", type.detail(DocumentationNode.Kind.Type).name)
                 }
             }
         }
@@ -83,7 +83,7 @@ public class JavaTest {
                 assertEquals("T", name)
                 with(detail(DocumentationNode.Kind.UpperBound)) {
                     assertEquals("Comparable", name)
-                    assertEquals("T", detail(DocumentationNode.Kind.TypeParameter).name)
+                    assertEquals("T", detail(DocumentationNode.Kind.Type).name)
                 }
             }
             with(cls.members.single()) {
@@ -119,6 +119,7 @@ public class JavaTest {
             assertEquals("vararg", param.annotations.first().name)
             val psiType = param.detail(DocumentationNode.Kind.Type)
             assertEquals("String", psiType.name)
+            assertTrue(psiType.details(DocumentationNode.Kind.Type).isEmpty())
         }
     }
 }
