@@ -184,4 +184,12 @@ public class JavaTest {
             assertEquals("Any", fn.detail(DocumentationNode.Kind.Type).name)
         }
     }
+
+    Test fun enumValues() {
+        verifyPackageMember("test/data/java/enumValues.java") { cls ->
+            val superTypes = cls.details(DocumentationNode.Kind.Supertype)
+            assertEquals(0, superTypes.size())
+            assertEquals(1, cls.members(DocumentationNode.Kind.EnumItem).size())
+        }
+    }
 }

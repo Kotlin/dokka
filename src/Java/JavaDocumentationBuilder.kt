@@ -21,6 +21,7 @@ import com.intellij.psi.PsiEllipsisType
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiLiteralExpression
+import com.intellij.psi.PsiEnumConstant
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -100,7 +101,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             else -> DocumentationNode.Kind.Class
         }
         val node = DocumentationNode(this, kind)
-        getExtendsListTypes().forEach { node.appendType(it, Kind.Supertype) }
+        getExtendsListTypes().filter { !ignoreSupertype(it) }.forEach { node.appendType(it, Kind.Supertype) }
         getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
         node.appendDetails(getTypeParameters()) { build() }
         node.appendMembers(getMethods()) { build() }
@@ -109,14 +110,29 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         return node
     }
 
+    fun ignoreSupertype(psiType: PsiClassType): Boolean {
+        if (psiType.getClassName() == "Enum") {
+            val psiClass = psiType.resolve()
+            if (psiClass?.getQualifiedName() == "java.lang.Enum") {
+                return true
+            }
+        }
+        return false
+    }
+
     fun PsiField.build(): DocumentationNode {
-        val node = DocumentationNode(this,
-                if (hasModifierProperty(PsiModifier.STATIC)) DocumentationNode.Kind.ClassObjectProperty else DocumentationNode.Kind.Property)
+        val node = DocumentationNode(this, nodeKind())
         if (!hasModifierProperty(PsiModifier.FINAL)) {
             node.append(DocumentationNode("var", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
         }
         node.appendType(getType())
         return node
+    }
+
+    private fun PsiField.nodeKind(): Kind = when {
+        this is PsiEnumConstant -> Kind.EnumItem
+        hasModifierProperty(PsiModifier.STATIC) -> Kind.ClassObjectProperty
+        else -> Kind.Property
     }
 
     fun PsiMethod.build(): DocumentationNode {
