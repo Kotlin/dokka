@@ -122,4 +122,15 @@ public class JavaTest {
             assertTrue(psiType.details(DocumentationNode.Kind.Type).isEmpty())
         }
     }
+
+    Test fun fields() {
+        verifyPackageMember("test/data/java/field.java") { cls ->
+            val i = cls.members(DocumentationNode.Kind.Property).single { it.name == "i" }
+            assertEquals("Int", i.detail(DocumentationNode.Kind.Type).name)
+            assertTrue("var" in i.details(DocumentationNode.Kind.Modifier).map { it.name })
+            val s = cls.members(DocumentationNode.Kind.ClassObjectProperty).single { it.name == "s" }
+            assertEquals("String", s.detail(DocumentationNode.Kind.Type).name)
+            assertFalse("var" in s.details(DocumentationNode.Kind.Modifier).map { it.name })
+        }
+    }
 }

@@ -18,7 +18,7 @@ import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.PsiEllipsisType
-import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiField
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -94,7 +94,18 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
         node.appendDetails(getTypeParameters()) { build() }
         node.appendMembers(getMethods()) { build() }
+        node.appendMembers(getFields()) { build() }
         node.appendMembers(getInnerClasses()) { build() }
+        return node
+    }
+
+    fun PsiField.build(): DocumentationNode {
+        val node = DocumentationNode(this,
+                if (hasModifierProperty(PsiModifier.STATIC)) DocumentationNode.Kind.ClassObjectProperty else DocumentationNode.Kind.Property)
+        if (!hasModifierProperty(PsiModifier.FINAL)) {
+            node.append(DocumentationNode("var", Content.Empty, Kind.Modifier), DocumentationReference.Kind.Detail)
+        }
+        node.appendType(getType())
         return node
     }
 
