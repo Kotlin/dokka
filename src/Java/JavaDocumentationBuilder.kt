@@ -17,6 +17,7 @@ import com.intellij.psi.PsiArrayType
 import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
+import com.intellij.psi.PsiEllipsisType
 
 public class JavaDocumentationBuilder() {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -107,6 +108,9 @@ public class JavaDocumentationBuilder() {
     fun PsiParameter.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(getType())
+        if (getType() is PsiEllipsisType) {
+            node.append(DocumentationNode("vararg", Content.Empty, Kind.Annotation), DocumentationReference.Kind.Annotation)
+        }
         return node
     }
 
@@ -150,6 +154,7 @@ public class JavaDocumentationBuilder() {
         PsiType.VOID -> "Unit"
         is PsiPrimitiveType -> psiType.getCanonicalText().capitalize()
         is PsiClassType -> psiType.getClassName()
+        is PsiEllipsisType -> mapTypeName(psiType.getComponentType())
         is PsiArrayType -> "Array<${mapTypeName(psiType.getComponentType())}>"
         else -> psiType.getCanonicalText()
     }

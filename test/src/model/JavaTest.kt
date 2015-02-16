@@ -107,4 +107,14 @@ public class JavaTest {
             assertEquals("D", innerClass.name)
         }
     }
+
+    Test fun varargs() {
+        verifyPackageMember("test/data/java/varargs.java") { cls ->
+            val fn = cls.members(DocumentationNode.Kind.Function).single()
+            val param = fn.detail(DocumentationNode.Kind.Parameter)
+            assertEquals("vararg", param.annotations.first().name)
+            val psiType = param.detail(DocumentationNode.Kind.Type)
+            assertEquals("String", psiType.name)
+        }
+    }
 }
