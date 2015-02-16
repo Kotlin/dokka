@@ -161,6 +161,23 @@ public class JavaTest {
         }
     }
 
+    Test fun deprecation() {
+        verifyPackageMember("test/data/java/deprecation.java") { cls ->
+            val fn = cls.members(DocumentationNode.Kind.Function).single()
+            with(fn.deprecation!!) {
+                assertEquals(1, details.count())
+                with(details[0]) {
+                    assertEquals(DocumentationNode.Kind.Parameter, kind)
+                    assertEquals(1, details.count())
+                    with(details[0]) {
+                        assertEquals(DocumentationNode.Kind.Value, kind)
+                        assertEquals("This should no longer be used", name)
+                    }
+                }
+            }
+        }
+    }
+
     Test fun javaLangObject() {
         verifyPackageMember("test/data/java/javaLangObject.java") { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()

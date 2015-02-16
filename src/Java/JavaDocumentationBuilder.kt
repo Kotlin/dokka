@@ -20,6 +20,7 @@ import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.PsiEllipsisType
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiLiteralExpression
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
@@ -62,7 +63,11 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             node.appendModifiers(element)
             val modifierList = element.getModifierList()
             if (modifierList != null) {
-                node.appendChildren(modifierList.getAnnotations(), DocumentationReference.Kind.Annotation) { build() }
+                modifierList.getAnnotations().forEach {
+                    val annotation = it.build()
+                    node.append(annotation,
+                            if (it.getQualifiedName() == "java.lang.Deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+                }
             }
         }
         return node
@@ -201,7 +206,8 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             val parameter = DocumentationNode(it.getName() ?: "value", Content.Empty, DocumentationNode.Kind.Parameter)
             val value = it.getValue()
             if (value != null) {
-                val valueNode = DocumentationNode(value.getText(), Content.Empty, DocumentationNode.Kind.Value)
+                val valueText = (value as? PsiLiteralExpression)?.getValue() as? String ?: value.getText()
+                val valueNode = DocumentationNode(valueText, Content.Empty, DocumentationNode.Kind.Value)
                 parameter.append(valueNode, DocumentationReference.Kind.Detail)
             }
             node.append(parameter, DocumentationReference.Kind.Detail)
