@@ -133,4 +133,11 @@ public class JavaTest {
             assertFalse("var" in s.details(DocumentationNode.Kind.Modifier).map { it.name })
         }
     }
+
+    Test fun staticMethod() {
+        verifyPackageMember("test/data/java/staticMethod.java") { cls ->
+            val m = cls.members(DocumentationNode.Kind.ClassObjectFunction).single { it.name == "foo" }
+            assertFalse("static" in m.details(DocumentationNode.Kind.Modifier).map { it.name })
+        }
+    }
 }
