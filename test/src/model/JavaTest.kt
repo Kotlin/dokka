@@ -160,4 +160,11 @@ public class JavaTest {
             }
         }
     }
+
+    Test fun javaLangObject() {
+        verifyPackageMember("test/data/java/javaLangObject.java") { cls ->
+            val fn = cls.members(DocumentationNode.Kind.Function).single()
+            assertEquals("Any", fn.detail(DocumentationNode.Kind.Type).name)
+        }
+    }
 }
