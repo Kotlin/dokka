@@ -270,8 +270,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 getConstructors()
             node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
         }
-        node.appendChildren(getDefaultType().getMemberScope().getAllDescriptors(), DocumentationReference.Kind.Member)
-        val classObjectDescriptor = getClassObjectDescriptor()
+        val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getDefaultObjectDescriptor() }
+        node.appendChildren(members, DocumentationReference.Kind.Member)
+        val classObjectDescriptor = getDefaultObjectDescriptor()
         if (classObjectDescriptor != null) {
             node.appendChildren(classObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
@@ -302,7 +303,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun FunctionDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectFunction else Kind.Function)
+        val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectFunction else Kind.Function)
 
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
@@ -328,7 +329,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inClassObject()) Kind.ClassObjectProperty else Kind.Property)
+        val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectProperty else Kind.Property)
         node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())

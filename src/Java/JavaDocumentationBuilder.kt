@@ -136,7 +136,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
 
     private fun PsiField.nodeKind(): Kind = when {
         this is PsiEnumConstant -> Kind.EnumItem
-        hasModifierProperty(PsiModifier.STATIC) -> Kind.ClassObjectProperty
+        hasModifierProperty(PsiModifier.STATIC) -> Kind.DefaultObjectProperty
         else -> Kind.Property
     }
 
@@ -154,7 +154,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
 
     private fun PsiMethod.nodeKind(): Kind = when {
         isConstructor() -> Kind.Constructor
-        hasModifierProperty(PsiModifier.STATIC) -> Kind.ClassObjectFunction
+        hasModifierProperty(PsiModifier.STATIC) -> Kind.DefaultObjectFunction
         else -> Kind.Function
     }
 
