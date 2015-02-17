@@ -131,7 +131,7 @@ public class JavaTest {
             val i = cls.members(DocumentationNode.Kind.Property).single { it.name == "i" }
             assertEquals("Int", i.detail(DocumentationNode.Kind.Type).name)
             assertTrue("var" in i.details(DocumentationNode.Kind.Modifier).map { it.name })
-            val s = cls.members(DocumentationNode.Kind.ClassObjectProperty).single { it.name == "s" }
+            val s = cls.members(DocumentationNode.Kind.DefaultObjectProperty).single { it.name == "s" }
             assertEquals("String", s.detail(DocumentationNode.Kind.Type).name)
             assertFalse("var" in s.details(DocumentationNode.Kind.Modifier).map { it.name })
         }
@@ -139,7 +139,7 @@ public class JavaTest {
 
     Test fun staticMethod() {
         verifyPackageMember("test/data/java/staticMethod.java") { cls ->
-            val m = cls.members(DocumentationNode.Kind.ClassObjectFunction).single { it.name == "foo" }
+            val m = cls.members(DocumentationNode.Kind.DefaultObjectFunction).single { it.name == "foo" }
             assertFalse("static" in m.details(DocumentationNode.Kind.Modifier).map { it.name })
         }
     }

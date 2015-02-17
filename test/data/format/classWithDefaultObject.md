@@ -13,13 +13,13 @@
 | [&lt;init&gt;](out.md) | `public Klass()` |
 
 
-### Class Object Properties
+### Default Object Properties
 
 
 | [x](out.md) | `val x: Int` |
 
 
-### Class Object Functions
+### Default Object Functions
 
 
 | [foo](out.md) | `fun foo(): Unit` |

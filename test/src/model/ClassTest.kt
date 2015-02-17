@@ -124,8 +124,8 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithClassObject() {
-        verifyModel("test/data/classes/classWithClassObject.kt") { model ->
+    Test fun classWithDefaultObject() {
+        verifyModel("test/data/classes/classWithDefaultObject.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
@@ -140,13 +140,13 @@ public class ClassTest {
                 }
                 with(members.elementAt(1)) {
                     assertEquals("x", name)
-                    assertEquals(DocumentationNode.Kind.ClassObjectProperty, kind)
+                    assertEquals(DocumentationNode.Kind.DefaultObjectProperty, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
                 with(members.elementAt(2)) {
                     assertEquals("foo", name)
-                    assertEquals(DocumentationNode.Kind.ClassObjectFunction, kind)
+                    assertEquals(DocumentationNode.Kind.DefaultObjectFunction, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }

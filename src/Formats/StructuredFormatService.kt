@@ -238,8 +238,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
             appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
-            appendSection(location, "Class Object Properties", node.members(DocumentationNode.Kind.ClassObjectProperty), node, to)
-            appendSection(location, "Class Object Functions", node.members(DocumentationNode.Kind.ClassObjectFunction), node, to)
+            appendSection(location, "Default Object Properties", node.members(DocumentationNode.Kind.DefaultObjectProperty), node, to)
+            appendSection(location, "Default Object Functions", node.members(DocumentationNode.Kind.DefaultObjectFunction), node, to)
             appendSection(location, "Accessors", node.members(DocumentationNode.Kind.PropertyAccessor), node, to)
             appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Other members", node.members.filter {
@@ -254,8 +254,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                         DocumentationNode.Kind.Package,
                         DocumentationNode.Kind.Function,
                         DocumentationNode.Kind.PropertyAccessor,
-                        DocumentationNode.Kind.ClassObjectProperty,
-                        DocumentationNode.Kind.ClassObjectFunction,
+                        DocumentationNode.Kind.DefaultObjectProperty,
+                        DocumentationNode.Kind.DefaultObjectFunction,
                         DocumentationNode.Kind.ExternalClass,
                         DocumentationNode.Kind.EnumItem
                         )
