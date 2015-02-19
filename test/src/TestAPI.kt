@@ -100,11 +100,11 @@ fun ContentNode.toTestString(): String {
 }
 
 class InMemoryLocation(override val path: String): Location {
-    override fun relativePathTo(other: Location, extension: String): String = other.path
+    override fun relativePathTo(other: Location): String = other.path
 }
 
 object InMemoryLocationService: LocationService {
-    override fun location(node: DocumentationNode) = InMemoryLocation(relativePathToNode(node));
+    override fun location(node: DocumentationNode) = InMemoryLocation(relativePathToNode(node))
 }
 
 val tempLocation = InMemoryLocation("")

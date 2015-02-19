@@ -5,8 +5,10 @@ import org.jetbrains.dokka.LanguageService.RenderMode
 
 public data class FormatLink(val text: String, val href: String)
 
-public abstract class StructuredFormatService(val locationService: LocationService,
-                                              val languageService: LanguageService) : FormatService {
+public abstract class StructuredFormatService(locationService: LocationService,
+                                              val languageService: LanguageService,
+                                              override val extension: String) : FormatService {
+    val locationService: LocationService = locationService.withExtension(extension)
 
     abstract public fun appendBlockCode(to: StringBuilder, line: String)
     abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>)
@@ -54,7 +56,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentListItem -> append(formatListItem(formatText(location, content.children)))
 
                 is ContentNodeLink -> {
-                    val linkTo = location.relativePathTo(locationService.location(content.node), extension)
+                    val linkTo = location.relativePathTo(locationService.location(content.node))
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, linkTo))
                 }
@@ -76,7 +78,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
 
     open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
-        return FormatLink(to.name, locationService.relativePathToLocation(from, to, extension))
+        return FormatLink(to.name, locationService.relativePathToLocation(from, to))
     }
 
     fun appendDocumentation(location: Location, to: StringBuilder, overloads: Iterable<DocumentationNode>) {
@@ -132,7 +134,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     private fun DocumentationNode.appendOverrides(to: StringBuilder) {
         overrides.forEach {
             to.append("Overrides ")
-            val location = locationService.relativePathToLocation(this, it, extension)
+            val location = locationService.relativePathToLocation(this, it)
             appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
         }
     }

@@ -18,4 +18,4 @@ fun File.getRelativePath(name: File): File {
     }
 }
 
-fun File.appendExtension(extension: String) = File(getPath() + "." + extension)
+fun File.appendExtension(extension: String) = if (extension.isEmpty()) this else File(getPath() + "." + extension)

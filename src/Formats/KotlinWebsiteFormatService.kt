@@ -3,8 +3,6 @@ package org.jetbrains.dokka
 public class KotlinWebsiteFormatService(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : JekyllFormatService(locationService, signatureGenerator) {
-    override val extension: String = "md"
-
     override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         super.appendFrontMatter(nodes, to)
         to.appendln("layout: api")
