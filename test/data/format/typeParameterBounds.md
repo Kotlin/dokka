@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [generic](out.md)
+[test](test/index) / [generic](test/generic)
 
 
 # generic

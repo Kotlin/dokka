@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [C](out.md) / [x](out.md) / [set](out.md)
+[test](test/index) / [C](test/-c/index) / [x](test/-c/x/index) / [set](test/-c/x/set)
 
 
 # set

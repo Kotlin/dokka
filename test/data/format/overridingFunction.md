@@ -1,9 +1,9 @@
-[test](out.md) / [](out.md) / [D](out.md) / [f](out.md)
+[test](test/index) / [D](test/-d/index) / [f](test/-d/f)
 
 
 # f
 
 `fun f(): Unit`
-Overrides [C.f](out.md)
+Overrides [C.f](test/-c/f)
 
 

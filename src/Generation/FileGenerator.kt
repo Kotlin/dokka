@@ -4,7 +4,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
 public class FileGenerator(val signatureGenerator: LanguageService,
-                           val locationService: LocationService,
+                           val locationService: FileLocationService,
                            val formatService: FormatService,
                            val outlineService: OutlineFormatService?) {
 

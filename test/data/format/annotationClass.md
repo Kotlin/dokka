@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [fancy](out.md)
+[test](test/index) / [fancy](test/fancy/index)
 
 
 # fancy
@@ -10,5 +10,5 @@
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public fancy()` |
+| [&lt;init&gt;](test/fancy/-init-) | `public fancy()` |
 

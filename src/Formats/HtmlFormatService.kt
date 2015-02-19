@@ -82,10 +82,6 @@ public open class HtmlFormatService(locationService: LocationService,
         to.appendln("</td>")
     }
 
-    override fun formatLink(text: String, location: Location): String {
-        return "<a href=\"${location.path}\">${text}</a>"
-    }
-
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
     }
@@ -139,7 +135,7 @@ public open class HtmlFormatService(locationService: LocationService,
         val link = ContentNodeLink(node)
         link.append(languageService.render(node, LanguageService.RenderMode.FULL))
         val signature = formatText(location, link)
-        to.appendln("${formatLink(signature, location)}<br/>")
+        to.appendln("<a href=\"${location.path}\">${signature}</a><br/>")
     }
 
     override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {

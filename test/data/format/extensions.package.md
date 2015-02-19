@@ -1,4 +1,4 @@
-[test](out.md) / [foo](out.md)
+[test](test/index) / [foo](test/foo/index)
 
 
 # foo
@@ -10,5 +10,5 @@
 ### Extensions for External Classes
 
 
-| [String](out.md) | `` |
+| [String](test/foo/-string/index) | `` |
 

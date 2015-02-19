@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [Klass](out.md)
+[test](test/index) / [Klass](test/-klass/index)
 
 
 # Klass
@@ -10,17 +10,17 @@
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public Klass()` |
+| [&lt;init&gt;](test/-klass/-init-) | `public Klass()` |
 
 
 ### Default Object Properties
 
 
-| [x](out.md) | `val x: Int` |
+| [x](test/-klass/x) | `val x: Int` |
 
 
 ### Default Object Functions
 
 
-| [foo](out.md) | `fun foo(): Unit` |
+| [foo](test/-klass/foo) | `fun foo(): Unit` |
 
