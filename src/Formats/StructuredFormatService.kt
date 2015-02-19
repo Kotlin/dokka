@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import java.util.LinkedHashMap
 import org.jetbrains.dokka.LanguageService.RenderMode
 
-public data class FormatLink(val text: String, val location: Location)
+public data class FormatLink(val text: String, val href: String)
 
 public abstract class StructuredFormatService(val locationService: LocationService,
                                               val languageService: LanguageService) : FormatService {
@@ -25,9 +25,8 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     public abstract fun formatSymbol(text: String): String
     public abstract fun formatKeyword(text: String): String
     public abstract fun formatIdentifier(text: String): String
-    public abstract fun formatLink(text: String, location: Location): String
     public abstract fun formatLink(text: String, href: String): String
-    public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.location)
+    public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
     public abstract fun formatStrong(text: String): String
     public abstract fun formatStrikethrough(text: String): String
     public abstract fun formatEmphasis(text: String): String
@@ -55,7 +54,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
                 is ContentListItem -> append(formatListItem(formatText(location, content.children)))
 
                 is ContentNodeLink -> {
-                    val linkTo = locationService.relativeLocation(location, content.node, extension)
+                    val linkTo = location.relativePathTo(locationService.location(content.node), extension)
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, linkTo))
                 }
@@ -77,7 +76,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
 
     open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
-        return FormatLink(to.name, locationService.relativeLocation(from, to, extension))
+        return FormatLink(to.name, locationService.relativePathToLocation(from, to, extension))
     }
 
     fun appendDocumentation(location: Location, to: StringBuilder, overloads: Iterable<DocumentationNode>) {
@@ -133,7 +132,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
     private fun DocumentationNode.appendOverrides(to: StringBuilder) {
         overrides.forEach {
             to.append("Overrides ")
-            val location = locationService.relativeLocation(this, it, extension)
+            val location = locationService.relativePathToLocation(this, it, extension)
             appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
         }
     }
@@ -210,7 +209,7 @@ public abstract class StructuredFormatService(val locationService: LocationServi
 
     override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val breakdownByLocation = nodes.groupBy { node ->
-            formatBreadcrumbs(node.path.map { link(node, it) })
+            formatBreadcrumbs(node.path.filterNot { it.name.isEmpty() }.map { link(node, it) })
         }
 
         for ((breadcrumbs, items) in breakdownByLocation) {

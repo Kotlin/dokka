@@ -2,6 +2,11 @@ package org.jetbrains.dokka
 
 import java.io.File
 
+public trait Location {
+    val path: String get
+    fun relativePathTo(other: Location, extension: String): String
+}
+
 /**
  * Represents locations in the documentation in the form of [path](File).
  *
@@ -10,9 +15,18 @@ import java.io.File
  * $file: [File] for this location
  * $path: [String] representing path of this location
  */
-public data class Location(val file: File) {
-    public val path : String
+public data class FileLocation(val file: File): Location {
+    override val path : String
         get() = file.path
+
+    override fun relativePathTo(other: Location, extension: String): String {
+        if (other !is FileLocation) {
+            throw IllegalArgumentException("$other is not a FileLocation")
+        }
+        val ownerFolder = file.getParentFile()!!
+        val memberPath = other.file.appendExtension(extension)
+        return ownerFolder.getRelativePath(memberPath).path
+    }
 }
 
 /**
@@ -32,6 +46,11 @@ public trait LocationService {
 }
 
 
+public trait FileLocationService: LocationService {
+    override fun location(node: DocumentationNode): FileLocation
+}
+
+
 public fun identifierToFilename(path: String): String {
     val escaped = path.replace('<', '-').replace('>', '-')
     val lowercase = escaped.replaceAll("[A-Z]") { matchResult -> "-" + matchResult.group().toLowerCase() }
@@ -41,15 +60,6 @@ public fun identifierToFilename(path: String): String {
 /**
  * Returns relative location between two nodes. Used for relative links in documentation.
  */
-fun LocationService.relativeLocation(owner: DocumentationNode, node: DocumentationNode, extension: String): Location {
-    return relativeLocation(location(owner), node, extension)
-}
-
-/**
- * Returns relative location between base location and a node. Used for relative links in documentation.
- */
-fun LocationService.relativeLocation(owner: Location, node: DocumentationNode, extension: String): Location {
-    val ownerFolder = owner.file.getParentFile()!!
-    val memberPath = location(node).file.appendExtension(extension)
-    return Location(ownerFolder.getRelativePath(memberPath))
+fun LocationService.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode, extension: String): String {
+    return location(owner).relativePathTo(location(node), extension)
 }

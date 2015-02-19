@@ -4,7 +4,7 @@ public class ConsoleGenerator(val signatureGenerator: LanguageService, val locat
     val IndentStep = "  "
 
     public fun generate(node: DocumentationNode, indent: String = "") {
-        println("@${locationService.location(node).file}")
+        println("@${locationService.location(node).path}")
         generateHeader(node, indent)
         //generateDetails(node, indent)
         generateMembers(node, indent)

@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [x](out.md)
+[test](test/index) / [x](test/x)
 
 
 # x

@@ -99,8 +99,12 @@ fun ContentNode.toTestString(): String {
     }.toString()
 }
 
-val tempLocation = Location(File("/tmp/out"))
+class InMemoryLocation(override val path: String): Location {
+    override fun relativePathTo(other: Location, extension: String): String = other.path
+}
 
 object InMemoryLocationService: LocationService {
-    override fun location(node: DocumentationNode) = tempLocation;
+    override fun location(node: DocumentationNode) = InMemoryLocation(relativePathToNode(node));
 }
+
+val tempLocation = InMemoryLocation("")

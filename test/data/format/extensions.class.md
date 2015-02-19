@@ -1,15 +1,15 @@
-[test](out.md) / [foo](out.md) / [String](out.md)
+[test](test/index) / [foo](test/foo/index) / [String](test/foo/-string/index)
 
 
 ### Extensions for String
 
 
-| [fn](out.md) | `fun String.fn(): Unit`
+| [fn](test/foo/-string/fn) | `fun String.fn(): Unit`
 `fun String.fn(x: Int): Unit`
 Function with receiver
 
  |
-| [foobar](out.md) | `val String.foobar: Int`
+| [foobar](test/foo/-string/foobar/index) | `val String.foobar: Int`
 Property with receiver.
 
  |

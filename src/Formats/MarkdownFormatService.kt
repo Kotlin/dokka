@@ -50,10 +50,6 @@ public open class MarkdownFormatService(locationService: LocationService,
         return "~~$text~~"
     }
 
-    override public fun formatLink(text: String, location: Location): String {
-        return "[$text](${location.path})"
-    }
-
     override fun formatLink(text: String, href: String): String {
         return "[$text]($href)"
     }

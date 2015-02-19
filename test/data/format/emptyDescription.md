@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [fn](out.md)
+[test](test/index) / [fn](test/fn)
 
 
 # fn

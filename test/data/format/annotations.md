@@ -1,4 +1,4 @@
-[test](out.md) / [](out.md) / [Foo](out.md)
+[test](test/index) / [Foo](test/-foo/index)
 
 
 # Foo
@@ -10,17 +10,17 @@
 ### Constructors
 
 
-| [&lt;init&gt;](out.md) | `public Foo()` |
+| [&lt;init&gt;](test/-foo/-init-) | `public Foo()` |
 
 
 ### Properties
 
 
-| [x](out.md) | `inline val x: Int` |
+| [x](test/-foo/x) | `inline val x: Int` |
 
 
 ### Functions
 
 
-| [bar](out.md) | `inline fun bar(noinline notInlined: () -&gt; Unit): Unit` |
+| [bar](test/-foo/bar) | `inline fun bar(noinline notInlined: () -&gt; Unit): Unit` |
 
