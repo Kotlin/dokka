@@ -3,10 +3,7 @@ package org.jetbrains.dokka
 
 public open class MarkdownFormatService(locationService: LocationService,
                                         signatureGenerator: LanguageService)
-: StructuredFormatService(locationService, signatureGenerator) {
-
-    override val extension: String = "md"
-
+: StructuredFormatService(locationService, signatureGenerator, "md") {
     override public fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString(" / ")
     }

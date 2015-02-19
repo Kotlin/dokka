@@ -4,7 +4,7 @@ import java.io.File
 
 public trait Location {
     val path: String get
-    fun relativePathTo(other: Location, extension: String): String
+    fun relativePathTo(other: Location): String
 }
 
 /**
@@ -19,13 +19,12 @@ public data class FileLocation(val file: File): Location {
     override val path : String
         get() = file.path
 
-    override fun relativePathTo(other: Location, extension: String): String {
+    override fun relativePathTo(other: Location): String {
         if (other !is FileLocation) {
             throw IllegalArgumentException("$other is not a FileLocation")
         }
         val ownerFolder = file.getParentFile()!!
-        val memberPath = other.file.appendExtension(extension)
-        return ownerFolder.getRelativePath(memberPath).path
+        return ownerFolder.getRelativePath(other.file).path
     }
 }
 
@@ -39,6 +38,8 @@ public data class FileLocation(val file: File): Location {
  * for file names.
  */
 public trait LocationService {
+    fun withExtension(newExtension: String) = this
+
     /**
      * Calculates location for particular node in output structure
      */
@@ -60,6 +61,6 @@ public fun identifierToFilename(path: String): String {
 /**
  * Returns relative location between two nodes. Used for relative links in documentation.
  */
-fun LocationService.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode, extension: String): String {
-    return location(owner).relativePathTo(location(node), extension)
+fun LocationService.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
+    return location(owner).relativePathTo(location(node))
 }

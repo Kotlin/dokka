@@ -5,9 +5,7 @@ import java.io.File
 public open class HtmlFormatService(locationService: LocationService,
                                     signatureGenerator: LanguageService,
                                     val templateService: HtmlTemplateService = HtmlTemplateService.default())
-: StructuredFormatService(locationService, signatureGenerator), OutlineFormatService {
-    override val extension: String = "html"
-
+: StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
     override public fun formatText(text: String): String {
         return text.htmlEscape()
     }
