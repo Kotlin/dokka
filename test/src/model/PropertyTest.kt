@@ -126,4 +126,15 @@ public class PropertyTest {
             }
         }
     }
+
+    Test fun propertyOverride() {
+        verifyModel("test/data/properties/propertyOverride.kt") { model ->
+            with(model.members.single().members.single { it.name == "Bar" }.members.single { it.name == "xyzzy"}) {
+                assertEquals("xyzzy", name)
+                val override = references(DocumentationReference.Kind.Override).single().to
+                assertEquals("xyzzy", override.name)
+                assertEquals("Foo", override.owner!!.name)
+            }
+        }
+    }
 }

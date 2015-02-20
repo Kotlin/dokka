@@ -360,7 +360,7 @@ class DocumentationBuilder(val session: ResolveSession,
         return node
     }
 
-    fun addOverrideLink(baseClassFunction: FunctionDescriptor, overridingFunction: FunctionDescriptor) {
+    fun addOverrideLink(baseClassFunction: CallableMemberDescriptor, overridingFunction: CallableMemberDescriptor) {
         val source = baseClassFunction.getOriginal().getSource().getPsi()
         if (source != null) {
             link(overridingFunction, baseClassFunction, DocumentationReference.Kind.Override)
@@ -399,6 +399,10 @@ class DocumentationBuilder(val session: ResolveSession,
         getSetter()?.let {
             if (!it.isDefault())
                 node.appendChild(it, DocumentationReference.Kind.Member)
+        }
+
+        getOverriddenDescriptors().forEach {
+            addOverrideLink(it, this)
         }
 
         register(this, node)
