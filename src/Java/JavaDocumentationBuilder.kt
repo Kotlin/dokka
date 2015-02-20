@@ -1,29 +1,15 @@
 package org.jetbrains.dokka
 
-import com.intellij.psi.PsiJavaFile
-import com.intellij.psi.PsiClass
-import org.jetbrains.dokka.DocumentationNode.Kind
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.*
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.PsiType
-import com.intellij.psi.PsiParameter
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.PsiDocCommentOwner
-import com.intellij.psi.PsiClassType
-import com.intellij.psi.PsiPrimitiveType
-import com.intellij.psi.PsiModifierListOwner
-import com.intellij.psi.PsiModifier
-import com.intellij.psi.PsiArrayType
-import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
-import com.intellij.psi.PsiEllipsisType
-import com.intellij.psi.PsiField
-import com.intellij.psi.PsiAnnotation
-import com.intellij.psi.PsiLiteralExpression
-import com.intellij.psi.PsiEnumConstant
+import org.jetbrains.dokka.DocumentationNode.Kind
 
-public class JavaDocumentationBuilder(private val options: DocumentationOptions) {
+public class JavaDocumentationBuilder(private val options: DocumentationOptions,
+                                      private val pendingReferences: MutableList<PendingDocumentationReference>) {
+    private val signatureToNode = hashMapOf<String, DocumentationNode>()
+
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
         val packageNode = module.findOrCreatePackageNode(file.getPackageName())
         packageNode.appendChildren(file.getClasses()) { build() }
@@ -53,6 +39,29 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             return getValueElement()?.getText()
         }
         return null
+    }
+
+    fun register(element: PsiElement, node: DocumentationNode) {
+        signatureToNode[getSignature(element)] = node
+    }
+
+    fun link(node: DocumentationNode, element: PsiElement?) {
+        val qualifiedName = getSignature(element)
+        if (qualifiedName != null) {
+            pendingReferences.add(PendingDocumentationReference(
+                    {() -> node},
+                    {() -> signatureToNode[qualifiedName]},
+                    DocumentationReference.Kind.Link))
+        }
+    }
+
+    private fun getSignature(element: PsiElement?) = when(element) {
+        is PsiClass -> element.getQualifiedName()
+        is PsiField -> element.getContainingClass().getQualifiedName() + "#" + element.getName()
+        is PsiMethod ->
+            element.getContainingClass().getQualifiedName() + "#" + element.getName() + "(" +
+            element.getParameterList().getParameters().map { it.getType().getCanonicalText() }.join(",") + ")"
+        else -> null
     }
 
     fun DocumentationNode(element: PsiNamedElement,
@@ -112,6 +121,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         node.appendMembers(getMethods()) { build() }
         node.appendMembers(getFields()) { build() }
         node.appendMembers(getInnerClasses()) { build() }
+        register(this, node)
         return node
     }
 
@@ -131,6 +141,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
             node.appendTextNode("var", Kind.Modifier)
         }
         node.appendType(getType())
+        register(this, node)
         return node
     }
 
@@ -149,6 +160,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         }
         node.appendDetails(getParameterList().getParameters()) { build() }
         node.appendDetails(getTypeParameters()) { build() }
+        register(this, node)
         return node
     }
 
@@ -201,6 +213,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions)
         val node = DocumentationNode(name, Content.Empty, kind)
         if (this is PsiClassType) {
             node.appendDetails(getParameters()) { build(Kind.Type) }
+            link(node, resolve())
         }
         if (this is PsiArrayType && this !is PsiEllipsisType) {
             node.append(getComponentType().build(Kind.Type), DocumentationReference.Kind.Detail)
