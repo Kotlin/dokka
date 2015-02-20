@@ -195,7 +195,8 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
 
         val moduleContent = Content()
-        val documentationBuilder = DocumentationBuilder(session, options, logger)
+        val pendingReferences = arrayListOf<PendingDocumentationReference>()
+        val documentationBuilder = DocumentationBuilder(session, options, pendingReferences, logger)
         for (include in includes) {
             val file = File(include)
             if (file.exists()) {
@@ -211,12 +212,13 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
 
         with(documentationBuilder) {
             documentationModule.appendFragments(fragments)
-            documentationBuilder.resolveReferences()
         }
 
         val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)
         val javaDocumentationBuilder = JavaDocumentationBuilder(options)
         javaFiles.map { javaDocumentationBuilder.appendFile(it, documentationModule) }
+
+        pendingReferences.forEach { it.resolve() }
 
         documentationModule
     }

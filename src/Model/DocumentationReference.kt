@@ -15,5 +15,14 @@ public data class DocumentationReference(val from: DocumentationNode, val to: Do
     }
 }
 
-
-
+class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
+                                    val lazyNodeTo: () -> DocumentationNode?,
+                                    val kind: DocumentationReference.Kind) {
+    fun resolve() {
+        val fromNode = lazyNodeFrom()
+        val toNode = lazyNodeTo()
+        if (fromNode != null && toNode != null) {
+            fromNode.addReferenceTo(toNode, kind)
+        }
+    }
+}
