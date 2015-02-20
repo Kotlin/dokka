@@ -99,4 +99,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C"}.members.filter { it.name == "Bar"} )
         }
     }
+
+    Test fun javaLinkTag() {
+        verifyOutput("test/data/format/javaLinkTag.java", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }

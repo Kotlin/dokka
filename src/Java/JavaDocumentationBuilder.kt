@@ -4,6 +4,7 @@ import com.intellij.psi.*
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
+import com.intellij.psi.javadoc.PsiInlineDocTag
 import org.jetbrains.dokka.DocumentationNode.Kind
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions,
@@ -18,9 +19,15 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     fun parseDocumentation(docComment: PsiDocComment?): Content {
         if (docComment == null) return Content.Empty
         val result = Content()
+        val para = ContentParagraph()
+        result.append(para)
         docComment.getDescriptionElements().dropWhile { it.getText().trim().isEmpty() }.forEach {
-            val text = if (result.isEmpty()) it.getText().trimLeading() else it.getText()
-            result.append(ContentText(text))
+            if (it is PsiInlineDocTag) {
+                para.append(convertInlineDocTag(it))
+            } else {
+                val text = if (para.isEmpty()) it.getText().trimLeading() else it.getText()
+                para.append(ContentText(text))
+            }
         }
         docComment.getTags().forEach { tag ->
             val subjectName = tag.getSubjectName()
@@ -32,6 +39,22 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             }
         }
         return result
+    }
+
+    private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.getName()) {
+        "link", "linkplain" -> resolveLink(tag.getValueElement()) ?: ContentText(tag.getText())
+        else -> ContentText(tag.getText())
+    }
+
+    private fun resolveLink(valueElement: PsiDocTagValue?): ContentNode? {
+        val target = valueElement?.getReference()?.resolve()
+        if (target != null) {
+            val signature = getSignature(target)
+            if (signature != null) {
+                return ContentNodeLazyLink(valueElement!!.getText(), {() -> signatureToNode[signature]})
+            }
+        }
+        return null
     }
 
     fun PsiDocTag.getSubjectName(): String? {
