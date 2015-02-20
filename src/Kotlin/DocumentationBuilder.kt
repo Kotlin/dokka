@@ -185,20 +185,32 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
     }
 
-    fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
+    fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind): DocumentationNode? {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
-            return
+            return null
 
         if (options.includeNonPublic
                 || descriptor !is MemberDescriptor
                 || descriptor.getVisibility() in visibleToDocumentation) {
-            append(descriptor.build(), kind)
+            val node = descriptor.build()
+            append(node, kind)
+            return node
         }
+        return null
     }
 
     fun DocumentationNode.appendChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
+    }
+
+    fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
+        descriptors.forEach { descriptor ->
+            val node = appendChild(descriptor, kind)
+            if (node != null) {
+                node.addReferenceTo(this, DocumentationReference.Kind.TopLevelPage)
+            }
+        }
     }
 
     fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
@@ -263,7 +275,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
-            node.appendChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
+            node.appendInPageChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
             val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
                 getConstructors().filter { it.getValueParameters().size() > 0 }
             else
@@ -285,7 +297,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Constructor)
-        node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         register(this, node)
         return node
     }
@@ -305,9 +317,9 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun FunctionDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectFunction else Kind.Function)
 
-        node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
-        node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
         node.appendAnnotations(this)
         node.appendSourceLink(getSource())
@@ -322,7 +334,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         val specialName = getName().asString().drop(1).takeWhile { it != '-' }
         val node = DocumentationNode(specialName, doc, Kind.PropertyAccessor).withModifiers(this)
 
-        node.appendChildren(getValueParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
         register(this, node)
         return node
@@ -330,7 +342,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun PropertyDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectProperty else Kind.Property)
-        node.appendChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
         node.appendAnnotations(this)

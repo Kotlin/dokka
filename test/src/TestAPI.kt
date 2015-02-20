@@ -100,7 +100,8 @@ fun ContentNode.toTestString(): String {
 }
 
 class InMemoryLocation(override val path: String): Location {
-    override fun relativePathTo(other: Location): String = other.path
+    override fun relativePathTo(other: Location, anchor: String?): String =
+            if (anchor != null) other.path + "#" + anchor else other.path
 }
 
 object InMemoryLocationService: LocationService {
