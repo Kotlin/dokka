@@ -12,7 +12,7 @@ public class JavaTest {
             with(cls.members.single()) {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
-                assertEquals("Summary for Function", content.summary.toTestString())
+                assertEquals("Summary for Function", content.summary.toTestString().trimTrailing())
                 assertEquals(3, content.sections.size())
                 with(content.sections[0]) {
                     assertEquals("Parameters", tag)
