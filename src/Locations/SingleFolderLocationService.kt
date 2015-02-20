@@ -7,8 +7,8 @@ public class SingleFolderLocationService(val root: File, val extension: String) 
     override fun withExtension(newExtension: String): LocationService =
         SingleFolderLocationService(root, newExtension)
 
-    override fun location(node: DocumentationNode): FileLocation {
-        val filename = node.path.map { identifierToFilename(it.name) }.joinToString("-")
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation {
+        val filename = qualifiedName.map { identifierToFilename(it) }.joinToString("-")
         return FileLocation(File(root, filename).appendExtension(extension))
     }
 }

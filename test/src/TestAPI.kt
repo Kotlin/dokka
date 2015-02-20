@@ -105,7 +105,8 @@ class InMemoryLocation(override val path: String): Location {
 }
 
 object InMemoryLocationService: LocationService {
-    override fun location(node: DocumentationNode) = InMemoryLocation(relativePathToNode(node))
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean) =
+            InMemoryLocation(relativePathToNode(qualifiedName, hasMembers))
 }
 
 val tempLocation = InMemoryLocation("")
