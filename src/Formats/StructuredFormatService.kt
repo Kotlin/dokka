@@ -16,6 +16,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
     abstract public fun appendParagraph(to: StringBuilder, text: String)
     abstract public fun appendLine(to: StringBuilder, text: String)
     public abstract fun appendLine(to: StringBuilder)
+    public abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
     public abstract fun appendTable(to: StringBuilder, body: () -> Unit)
     public abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
@@ -56,7 +57,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentListItem -> append(formatListItem(formatText(location, content.children)))
 
                 is ContentNodeLink -> {
-                    val linkTo = location.relativePathTo(locationService.location(content.node))
+                    val linkTo = locationHref(location, content.node)
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, linkTo))
                 }
@@ -79,6 +80,14 @@ public abstract class StructuredFormatService(locationService: LocationService,
 
     open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
         return FormatLink(to.name, locationService.relativePathToLocation(from, to))
+    }
+
+    fun locationHref(from: Location, to: DocumentationNode): String {
+        val topLevelPage = to.references(DocumentationReference.Kind.TopLevelPage).singleOrNull()?.to
+        if (topLevelPage != null) {
+            return from.relativePathTo(locationService.location(topLevelPage), to.name)
+        }
+        return from.relativePathTo(locationService.location(to))
     }
 
     fun appendDocumentation(location: Location, to: StringBuilder, overloads: Iterable<DocumentationNode>) {
@@ -124,6 +133,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
         subjectSections.forEach {
             val subjectName = it.subjectName
             if (subjectName != null) {
+                appendAnchor(to, subjectName)
                 to.append(formatCode(subjectName)).append(" - ")
                 to.append(formatText(location, it))
                 appendLine(to)

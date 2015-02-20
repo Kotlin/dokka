@@ -50,6 +50,10 @@ public open class HtmlFormatService(locationService: LocationService,
         to.appendln("<br/>")
     }
 
+    override fun appendAnchor(to: StringBuilder, anchor: String) {
+        to.appendln("<a name=\"${anchor.htmlEscape()}\"></a>")
+    }
+
     override fun appendTable(to: StringBuilder, body: () -> Unit) {
         to.appendln("<table>")
         body()

@@ -11,6 +11,7 @@ public data class DocumentationReference(val from: DocumentationNode, val to: Do
         Override
         Annotation
         Deprecation
+        TopLevelPage
     }
 }
 
