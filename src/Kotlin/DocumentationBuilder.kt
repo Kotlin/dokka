@@ -33,11 +33,15 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
     return package1 != null && package2 != null && package1.fqName == package2.fqName
 }
 
+class PendingLink(val lazyNodeFrom: () -> DocumentationNode?,
+                  val lazyNodeTo: () -> DocumentationNode?,
+                  val kind: DocumentationReference.Kind)
+
 class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions, val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
     val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
-    val links = hashMapOf<DocumentationNode, DeclarationDescriptor>()
+    val links = arrayListOf<PendingLink>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -87,7 +91,13 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
-        links.put(node, descriptor)
+        links.add(PendingLink({() -> node}, {() -> descriptorToNode[descriptor]}, DocumentationReference.Kind.Link))
+    }
+
+    fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
+        if (fromDescriptor != null && toDescriptor != null) {
+            links.add(PendingLink({() -> descriptorToNode[fromDescriptor]}, {() -> descriptorToNode[toDescriptor]}, kind))
+        }
     }
 
     fun register(descriptor: DeclarationDescriptor, node: DocumentationNode) {
@@ -131,8 +141,10 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
         val superTypes = descriptor.getTypeConstructor().getSupertypes()
         for (superType in superTypes) {
-            if (!ignoreSupertype(superType))
+            if (!ignoreSupertype(superType)) {
                 appendType(superType, DocumentationNode.Kind.Supertype)
+                link(superType?.getConstructor()?.getDeclarationDescriptor(), descriptor, DocumentationReference.Kind.Inheritor)
+            }
         }
     }
 
@@ -324,9 +336,23 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         node.appendAnnotations(this)
         node.appendSourceLink(getSource())
 
+        getOverriddenDescriptors().forEach {
+            addOverrideLink(it, this)
+        }
+
         register(this, node)
         return node
+    }
 
+    fun addOverrideLink(baseClassFunction: FunctionDescriptor, overridingFunction: FunctionDescriptor) {
+        val source = baseClassFunction.getOriginal().getSource().getPsi()
+        if (source != null) {
+            link(overridingFunction, baseClassFunction, DocumentationReference.Kind.Override)
+        } else {
+            baseClassFunction.getOverriddenDescriptors().forEach {
+                addOverrideLink(it, overridingFunction)
+            }
+        }
     }
 
     fun PropertyAccessorDescriptor.build(): DocumentationNode {
@@ -413,6 +439,10 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
+        link(getType().getConstructor().getDeclarationDescriptor(),
+                getContainingDeclaration(),
+                DocumentationReference.Kind.Extension)
+
         val node = DocumentationNode(getName().asString(), Content.Empty, Kind.Receiver)
         node.appendType(getType())
         return node
@@ -454,69 +484,28 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
      * $receiver: [DocumentationContext] for node/descriptor resolutions
      * $node: [DocumentationNode] to visit
      */
-    public fun resolveReferences(node: DocumentationNode) {
-        if (node.kind != Kind.PropertyAccessor) {
-            node.details(DocumentationNode.Kind.Receiver).forEach { receiver ->
-                val receiverType = receiver.detail(DocumentationNode.Kind.Type)
-                val descriptor = links[receiverType]
-                if (descriptor != null) {
-                    val typeNode = descriptorToNode[descriptor]
-                    // if typeNode is null, extension is to external type like in a library
-                    // should we create dummy node here?
-                    typeNode?.addReferenceTo(node, DocumentationReference.Kind.Extension)
-                }
+    public fun resolveReferences(node: DocumentationModule) {
+        for (link in links) {
+            val fromNode = link.lazyNodeFrom()
+            val toNode = link.lazyNodeTo()
+            if (fromNode != null && toNode != null) {
+                fromNode.addReferenceTo(toNode, link.kind)
             }
         }
-        node.details(DocumentationNode.Kind.Supertype).forEach { detail ->
-            val descriptor = links[detail]
-            if (descriptor != null) {
-                val typeNode = descriptorToNode[descriptor]
-                typeNode?.addReferenceTo(node, DocumentationReference.Kind.Inheritor)
-            }
-        }
-        node.details.forEach { detail ->
-            val descriptor = links[detail]
-            if (descriptor != null) {
-                val typeNode = descriptorToNode[descriptor]
-                if (typeNode != null) {
-                    detail.addReferenceTo(typeNode, DocumentationReference.Kind.Link)
-                }
-            }
-        }
+        resolveContentReferences(node)
+    }
 
-        val descriptor = nodeToDescriptor[node]
-        if (descriptor is FunctionDescriptor) {
-            val overrides = descriptor.getOverriddenDescriptors();
-            overrides?.forEach {
-                addOverrideLink(node, it)
-            }
-        }
-
+    private fun resolveContentReferences(node: DocumentationNode) {
         resolveContentLinks(node, node.content)
         for (section in node.content.sections) {
             resolveContentLinks(node, section)
         }
 
         for (child in node.members) {
-            resolveReferences(child)
+            resolveContentReferences(child)
         }
         for (child in node.details) {
-            resolveReferences(child)
-        }
-    }
-
-    /**
-     * Add an override link from a function node to the node corresponding to the specified descriptor.
-     * Note that this descriptor may be contained in a class where the function is not actually overridden
-     * (just inherited from the parent), so we need to go further up the override chain to find a function
-     * which exists in the code and for which we do have a documentation node.
-     */
-    private fun addOverrideLink(node: DocumentationNode, overriddenDescriptor: FunctionDescriptor) {
-        val overriddenNode = descriptorToNode[overriddenDescriptor.getOriginal()]
-        if (overriddenNode != null) {
-            node.addReferenceTo(overriddenNode, DocumentationReference.Kind.Override)
-        } else {
-            overriddenDescriptor.getOverriddenDescriptors().forEach { addOverrideLink(node, it) }
+            resolveContentReferences(child)
         }
     }
 
