@@ -93,4 +93,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun javaSupertypeLink() {
+        verifyOutput("test/data/format/javaSupertype.java", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C"}.members.filter { it.name == "Bar"} )
+        }
+    }
 }

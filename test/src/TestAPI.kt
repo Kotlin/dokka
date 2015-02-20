@@ -48,7 +48,7 @@ public fun verifyOutput(path: String, outputExtension: String, outputGenerator: 
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val expectedOutput = File(path.replace(".kt", outputExtension)).readText()
+        val expectedOutput = File(path.replace(".kt", outputExtension).replace(".java", outputExtension)).readText()
         assertEqualsIgnoringSeparators(expectedOutput, output.toString())
     }
 }
