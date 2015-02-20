@@ -30,15 +30,31 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             }
         }
         docComment.getTags().forEach { tag ->
-            val subjectName = tag.getSubjectName()
-            val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
-            tag.getDataElements().forEach {
-                if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
-                    section.append(ContentText(it.getText()))
+            if (tag.getName() == "see") {
+                result.convertSeeTag(tag)
+            } else {
+                val subjectName = tag.getSubjectName()
+                val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
+                tag.getDataElements().forEach {
+                    if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
+                        section.append(ContentText(it.getText()))
+                    }
                 }
             }
         }
         return result
+    }
+
+    private fun Content.convertSeeTag(tag: PsiDocTag) {
+        val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
+        val linkNode = resolveLink(tag.getValueElement())
+        val text = ContentText(tag.getValueElement()!!.getText())
+        if (linkNode != null) {
+            linkNode.append(text)
+            seeSection.append(linkNode)
+        } else {
+            seeSection.append(text)
+        }
     }
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.getName()) {
@@ -46,7 +62,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         else -> ContentText(tag.getText())
     }
 
-    private fun resolveLink(valueElement: PsiDocTagValue?): ContentNode? {
+    private fun resolveLink(valueElement: PsiDocTagValue?): ContentBlock? {
         val target = valueElement?.getReference()?.resolve()
         if (target != null) {
             val signature = getSignature(target)
