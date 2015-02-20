@@ -40,7 +40,6 @@ class PendingLink(val lazyNodeFrom: () -> DocumentationNode?,
 class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions, val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
-    val nodeToDescriptor = hashMapOf<DocumentationNode, DeclarationDescriptor>()
     val links = arrayListOf<PendingLink>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
@@ -55,7 +54,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         }
         val tree = parseMarkdown(kdocText)
         //println(tree.toTestString())
-        val content = buildContent(tree)
+        val content = buildContent(tree, { href -> resolveContentLink(descriptor, href) })
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
@@ -63,12 +62,12 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                     "sample" ->
                         content.append(functionBody(descriptor, it.getSubjectName()))
                     "see" ->
-                        content.addTagToSeeAlso(it)
+                        content.addTagToSeeAlso(descriptor, it)
                     else -> {
                         val section = content.addSection(javadocSectionDisplayName(it.getName()), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
-                        buildInlineContentTo(markdownNode, section)
+                        buildInlineContentTo(markdownNode, section, { href -> resolveContentLink(descriptor, href) })
                     }
                 }
             }
@@ -76,13 +75,27 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
         return content
     }
 
+    fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
+        val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
+        // don't include unresolved links in generated doc
+        // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
+        if (symbols.isNotEmpty()) {
+            val symbol = symbols.first()
+            return ContentNodeLazyLink(href, {() -> descriptorToNode[symbol] })
+        }
+        if ("/" in href) {
+            return ContentExternalLink(href)
+        }
+        return ContentExternalLink("#")
+    }
+
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()
 
-    private fun Content.addTagToSeeAlso(seeTag: KDocTag) {
+    private fun Content.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
         if (subjectName != null) {
             val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
-            val link = ContentExternalLink(subjectName)
+            val link = resolveContentLink(descriptor, subjectName)
             link.append(ContentText(subjectName))
             val para = ContentParagraph()
             para.append(link)
@@ -102,7 +115,6 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
 
     fun register(descriptor: DeclarationDescriptor, node: DocumentationNode) {
         descriptorToNode.put(descriptor, node)
-        nodeToDescriptor.put(node, descriptor)
     }
 
     fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
@@ -484,7 +496,7 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
      * $receiver: [DocumentationContext] for node/descriptor resolutions
      * $node: [DocumentationNode] to visit
      */
-    public fun resolveReferences(node: DocumentationModule) {
+    public fun resolveReferences() {
         for (link in links) {
             val fromNode = link.lazyNodeFrom()
             val toNode = link.lazyNodeTo()
@@ -492,50 +504,5 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
                 fromNode.addReferenceTo(toNode, link.kind)
             }
         }
-        resolveContentReferences(node)
-    }
-
-    private fun resolveContentReferences(node: DocumentationNode) {
-        resolveContentLinks(node, node.content)
-        for (section in node.content.sections) {
-            resolveContentLinks(node, section)
-        }
-
-        for (child in node.members) {
-            resolveContentReferences(child)
-        }
-        for (child in node.details) {
-            resolveContentReferences(child)
-        }
-    }
-
-    fun getDescriptorForNode(node: DocumentationNode): DeclarationDescriptor {
-        val descriptor = nodeToDescriptor[node] ?: throw IllegalArgumentException("Node is not known to this context")
-        return descriptor
-    }
-
-    fun resolveContentLinks(node: DocumentationNode, content: ContentBlock) {
-        val resolvedContentChildren = content.children.map { resolveContentLink(node, it) }
-        content.children.clear()
-        content.children.addAll(resolvedContentChildren)
-    }
-
-    private fun resolveContentLink(node: DocumentationNode, content: ContentNode): ContentNode {
-        if (content is ContentExternalLink) {
-            val referenceText = content.href
-            val symbols = resolveKDocLink(session, getDescriptorForNode(node), null, referenceText.split('.').toList())
-            // don't include unresolved links in generated doc
-            // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
-            if (symbols.isNotEmpty() || "/" !in referenceText) {
-                val targetNode = if (symbols.isEmpty()) null else descriptorToNode[symbols.first()]
-                val contentLink = if (targetNode != null) ContentNodeLink(targetNode) else ContentExternalLink("#")
-                contentLink.children.addAll(content.children.map { resolveContentLink(node, it) })
-                return contentLink
-            }
-        }
-        if (content is ContentBlock) {
-            resolveContentLinks(node, content)
-        }
-        return content
     }
 }

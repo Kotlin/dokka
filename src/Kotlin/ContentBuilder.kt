@@ -10,13 +10,13 @@ import org.intellij.markdown.*
 import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.kotlin.psi.JetBlockExpression
 
-public fun buildContent(tree: MarkdownNode): Content {
+public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): Content {
     val result = Content()
-    buildContentTo(tree, result)
+    buildContentTo(tree, result, linkResolver)
     return result
 }
 
-public fun buildContentTo(tree: MarkdownNode, target: ContentBlock) {
+public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
 //    println(tree.toTestString())
     val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
@@ -77,7 +77,7 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock) {
             MarkdownElementTypes.SHORT_REFERENCE_LINK -> {
                 val label = node.child(MarkdownElementTypes.LINK_LABEL)?.child(MarkdownTokenTypes.TEXT)
                 if (label != null) {
-                    val link = ContentExternalLink(label.text)
+                    val link = linkResolver(label.text)
                     link.append(ContentText(label.text))
                     parent.append(link)
                 }
@@ -123,10 +123,10 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock) {
 
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
-public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock) {
+public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
     inlineContent.forEach {
-        buildContentTo(it, target)
+        buildContentTo(it, target, linkResolver)
     }
 }
 
