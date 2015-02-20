@@ -41,15 +41,19 @@ public data class FileLocation(val file: File): Location {
 public trait LocationService {
     fun withExtension(newExtension: String) = this
 
+    fun location(node: DocumentationNode): Location = location(node.path.map { it.name }, node.members.any())
+
     /**
-     * Calculates location for particular node in output structure
+     * Calculates a location corresponding to the specified [qualifiedName].
+     * @param hasMembers if true, the node for which the location is calculated has member nodes.
      */
-    fun location(node: DocumentationNode): Location
+    fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
 }
 
 
 public trait FileLocationService: LocationService {
-    override fun location(node: DocumentationNode): FileLocation
+    override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation
 }
 
 
