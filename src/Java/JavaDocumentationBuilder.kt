@@ -55,6 +55,16 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         }
     }
 
+    fun link(element: PsiElement?, node: DocumentationNode, kind: DocumentationReference.Kind) {
+        val qualifiedName = getSignature(element)
+        if (qualifiedName != null) {
+            pendingReferences.add(PendingDocumentationReference(
+                    {() -> signatureToNode[qualifiedName]},
+                    {() -> node},
+                    kind))
+        }
+    }
+
     private fun getSignature(element: PsiElement?) = when(element) {
         is PsiClass -> element.getQualifiedName()
         is PsiField -> element.getContainingClass().getQualifiedName() + "#" + element.getName()
@@ -115,8 +125,13 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             else -> DocumentationNode.Kind.Class
         }
         val node = DocumentationNode(this, kind)
-        getExtendsListTypes().filter { !ignoreSupertype(it) }.forEach { node.appendType(it, Kind.Supertype) }
-        getImplementsListTypes().forEach { node.appendType(it, Kind.Supertype) }
+        getSuperTypes().filter { !ignoreSupertype(it) }.forEach {
+            node.appendType(it, Kind.Supertype)
+            val superClass = it.resolve()
+            if (superClass != null) {
+                link(superClass, node, DocumentationReference.Kind.Inheritor)
+            }
+        }
         node.appendDetails(getTypeParameters()) { build() }
         node.appendMembers(getMethods()) { build() }
         node.appendMembers(getFields()) { build() }

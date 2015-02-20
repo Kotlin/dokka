@@ -192,4 +192,12 @@ public class JavaTest {
             assertEquals(1, cls.members(DocumentationNode.Kind.EnumItem).size())
         }
     }
+
+    Test fun inheritorLinks() {
+        verifyPackageMember("test/data/java/inheritorLinks.java") { cls ->
+            val fooClass = cls.members.single { it.name == "Foo" }
+            val inheritors = fooClass.references(DocumentationReference.Kind.Inheritor)
+            assertEquals(1, inheritors.size())
+        }
+    }
 }
