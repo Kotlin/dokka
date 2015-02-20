@@ -33,14 +33,12 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
     return package1 != null && package2 != null && package1.fqName == package2.fqName
 }
 
-class PendingLink(val lazyNodeFrom: () -> DocumentationNode?,
-                  val lazyNodeTo: () -> DocumentationNode?,
-                  val kind: DocumentationReference.Kind)
-
-class DocumentationBuilder(val session: ResolveSession, val options: DocumentationOptions, val logger: DokkaLogger) {
+class DocumentationBuilder(val session: ResolveSession,
+                           val options: DocumentationOptions,
+                           val pendingReferences: MutableList<PendingDocumentationReference>,
+                           val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
     val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
-    val links = arrayListOf<PendingLink>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -104,12 +102,18 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
     }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
-        links.add(PendingLink({() -> node}, {() -> descriptorToNode[descriptor]}, DocumentationReference.Kind.Link))
+        pendingReferences.add(PendingDocumentationReference(
+                {() -> node},
+                {() -> descriptorToNode[descriptor]},
+                DocumentationReference.Kind.Link))
     }
 
     fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
         if (fromDescriptor != null && toDescriptor != null) {
-            links.add(PendingLink({() -> descriptorToNode[fromDescriptor]}, {() -> descriptorToNode[toDescriptor]}, kind))
+            pendingReferences.add(PendingDocumentationReference(
+                    {() -> descriptorToNode[fromDescriptor]},
+                    {() -> descriptorToNode[toDescriptor]},
+                    kind))
         }
     }
 
@@ -488,21 +492,5 @@ class DocumentationBuilder(val session: ResolveSession, val options: Documentati
             else -> value?.toString()
         }
         return if (valueString != null) DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value) else null
-    }
-
-    /**
-     * Generates cross-references for documentation such as extensions for a type, inheritors, etc
-     *
-     * $receiver: [DocumentationContext] for node/descriptor resolutions
-     * $node: [DocumentationNode] to visit
-     */
-    public fun resolveReferences() {
-        for (link in links) {
-            val fromNode = link.lazyNodeFrom()
-            val toNode = link.lazyNodeTo()
-            if (fromNode != null && toNode != null) {
-                fromNode.addReferenceTo(toNode, link.kind)
-            }
-        }
     }
 }
