@@ -38,12 +38,26 @@ public class ContentStrikethrough() : ContentBlock()
 public class ContentCode() : ContentBlock()
 public class ContentBlockCode() : ContentBlock()
 
-public class ContentNodeLink(val node : DocumentationNode) : ContentBlock() {
+public abstract class ContentNodeLink() : ContentBlock() {
+    abstract val node: DocumentationNode
+}
+
+public class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLink() {
     override fun equals(other: Any?): Boolean =
-        super.equals(other) && other is ContentNodeLink && node.name == other.node.name
+            super.equals(other) && other is ContentNodeDirectLink && node.name == other.node.name
 
     override fun hashCode(): Int =
-        children.hashCode() * 31 + node.name.hashCode()
+            children.hashCode() * 31 + node.name.hashCode()
+}
+
+public class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode): ContentNodeLink() {
+    override val node: DocumentationNode get() = lazyNode()
+
+    override fun equals(other: Any?): Boolean =
+            super.equals(other) && other is ContentNodeLazyLink && linkText == other.linkText
+
+    override fun hashCode(): Int =
+            children.hashCode() * 31 + linkText.hashCode()
 }
 
 public class ContentExternalLink(val href : String) : ContentBlock() {
@@ -77,7 +91,7 @@ fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
 fun ContentBlock.identifier(value: String) = append(ContentIdentifier(value))
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
-    val block = ContentNodeLink(to)
+    val block = ContentNodeDirectLink(to)
     block.body()
     append(block)
 }

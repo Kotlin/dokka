@@ -195,12 +195,13 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
 
         val moduleContent = Content()
+        val documentationBuilder = DocumentationBuilder(session, options, logger)
         for (include in includes) {
             val file = File(include)
             if (file.exists()) {
                 val text = file.readText()
                 val tree = parseMarkdown(text)
-                val content = buildContent(tree)
+                val content = buildContent(tree, {href -> documentationBuilder.resolveContentLink(fragments.first(), href)})
                 moduleContent.children.addAll(content.children)
             } else {
                 logger.warn("Include file $file was not found.")
@@ -208,10 +209,9 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         }
         val documentationModule = DocumentationModule(moduleName, moduleContent)
 
-        val documentationBuilder = DocumentationBuilder(session, options, logger)
         with(documentationBuilder) {
             documentationModule.appendFragments(fragments)
-            documentationBuilder.resolveReferences(documentationModule)
+            documentationBuilder.resolveReferences()
         }
 
         val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)

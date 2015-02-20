@@ -134,7 +134,7 @@ public open class HtmlFormatService(locationService: LocationService,
     }
 
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
-        val link = ContentNodeLink(node)
+        val link = ContentNodeDirectLink(node)
         link.append(languageService.render(node, LanguageService.RenderMode.FULL))
         val signature = formatText(location, link)
         to.appendln("<a href=\"${location.path}\">${signature}</a><br/>")
