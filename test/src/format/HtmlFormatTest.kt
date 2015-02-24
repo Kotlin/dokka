@@ -111,4 +111,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun javaDeprecated() {
+        verifyOutput("test/data/format/javaDeprecated.java", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" })
+        }
+    }
 }

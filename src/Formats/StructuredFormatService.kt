@@ -98,7 +98,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 to.append(formatCode(formatText(location, languageService.render(it))))
                 it.appendSourceLink(to)
                 it.appendOverrides(to)
-                it.appendDeprecation(to)
+                it.appendDeprecation(location, to)
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
@@ -149,13 +149,16 @@ public abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    private fun DocumentationNode.appendDeprecation(to: StringBuilder) {
+    private fun DocumentationNode.appendDeprecation(location: Location, to: StringBuilder) {
         if (deprecation != null) {
             val deprecationParameter = deprecation!!.details(DocumentationNode.Kind.Parameter).firstOrNull()
             val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
             if (deprecationValue != null) {
                 to.append(formatStrong("Deprecated: "))
                 appendLine(to, formatText(deprecationValue.name.trim("\"")))
+            } else if (deprecation?.content != Content.Empty) {
+                to.append(formatStrong("Deprecated: "))
+                to.append(formatText(location, deprecation!!.content))
             } else {
                 appendLine(to, formatStrong("Deprecated"))
             }
