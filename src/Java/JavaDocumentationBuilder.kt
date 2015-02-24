@@ -16,33 +16,46 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         packageNode.appendChildren(file.getClasses()) { build() }
     }
 
-    fun parseDocumentation(docComment: PsiDocComment?): Content {
-        if (docComment == null) return Content.Empty
+    data class JavadocParseResult(val content: Content, val deprecatedContent: Content?)
+
+    fun parseDocumentation(docComment: PsiDocComment?): JavadocParseResult {
+        if (docComment == null) return JavadocParseResult(Content.Empty, null)
         val result = Content()
+        var deprecatedContent: Content? = null
         val para = ContentParagraph()
         result.append(para)
-        docComment.getDescriptionElements().dropWhile { it.getText().trim().isEmpty() }.forEach {
-            if (it is PsiInlineDocTag) {
-                para.append(convertInlineDocTag(it))
-            } else {
-                val text = if (para.isEmpty()) it.getText().trimLeading() else it.getText()
-                para.append(ContentText(text))
-            }
-        }
+        para.convertJavadocElements(docComment.getDescriptionElements().dropWhile { it.getText().trim().isEmpty() })
         docComment.getTags().forEach { tag ->
-            if (tag.getName() == "see") {
-                result.convertSeeTag(tag)
-            } else {
-                val subjectName = tag.getSubjectName()
-                val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
-                tag.getDataElements().forEach {
-                    if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
-                        section.append(ContentText(it.getText()))
+            when(tag.getName()) {
+                "see" -> result.convertSeeTag(tag)
+                "deprecated" -> {
+                    deprecatedContent = Content()
+                    deprecatedContent!!.convertJavadocElements(tag.getDataElements().toArrayList())
+                }
+                else -> {
+                    val subjectName = tag.getSubjectName()
+                    val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
+
+                    tag.getDataElements().forEach {
+                        if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
+                            section.append(ContentText(it.getText()))
+                        }
                     }
                 }
             }
         }
-        return result
+        return JavadocParseResult(result, deprecatedContent)
+    }
+
+    private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>) {
+        elements.forEach {
+            if (it is PsiInlineDocTag) {
+                append(convertInlineDocTag(it))
+            } else {
+                val text = if (isEmpty()) it.getText().trimLeading() else it.getText()
+                append(ContentText(text))
+            }
+        }
     }
 
     private fun Content.convertSeeTag(tag: PsiDocTag) {
@@ -58,7 +71,14 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.getName()) {
-        "link", "linkplain" -> resolveLink(tag.getValueElement()) ?: ContentText(tag.getText())
+        "link", "linkplain" -> {
+            val link = resolveLink(tag.getValueElement())
+            if (link != null) {
+                link.append(ContentText(tag.getValueElement()!!.getText()))
+                link
+            }
+            else ContentText(tag.getValueElement()!!.getText())
+        }
         else -> ContentText(tag.getText())
     }
 
@@ -116,7 +136,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     fun DocumentationNode(element: PsiNamedElement,
                           kind: Kind,
                           name: String = element.getName() ?: "<anonymous>"): DocumentationNode {
-        val docComment = if (element is PsiDocCommentOwner) parseDocumentation(element.getDocComment()) else Content.Empty
+        val (docComment, deprecatedContent) = parseDocumentation((element as? PsiDocCommentOwner)?.getDocComment())
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
@@ -128,6 +148,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                             if (it.getQualifiedName() == "java.lang.Deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
                 }
             }
+        }
+        if (deprecatedContent != null) {
+            val deprecationNode = DocumentationNode("", deprecatedContent, Kind.Modifier)
+            node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
         }
         return node
     }
