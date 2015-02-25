@@ -39,7 +39,7 @@ public class ContentCode() : ContentBlock()
 public class ContentBlockCode() : ContentBlock()
 
 public abstract class ContentNodeLink() : ContentBlock() {
-    abstract val node: DocumentationNode
+    abstract val node: DocumentationNode?
 }
 
 public class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLink() {
@@ -50,8 +50,8 @@ public class ContentNodeDirectLink(override val node: DocumentationNode): Conten
             children.hashCode() * 31 + node.name.hashCode()
 }
 
-public class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode): ContentNodeLink() {
-    override val node: DocumentationNode get() = lazyNode()
+public class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode?): ContentNodeLink() {
+    override val node: DocumentationNode? get() = lazyNode()
 
     override fun equals(other: Any?): Boolean =
             super.equals(other) && other is ContentNodeLazyLink && linkText == other.linkText

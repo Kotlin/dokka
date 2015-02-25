@@ -35,10 +35,9 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
 
 class DocumentationBuilder(val session: ResolveSession,
                            val options: DocumentationOptions,
-                           val pendingReferences: MutableList<PendingDocumentationReference>,
+                           val refGraph: NodeReferenceGraph,
                            val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
-    val descriptorToNode = hashMapOf<String, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -106,7 +105,7 @@ class DocumentationBuilder(val session: ResolveSession,
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbols.isNotEmpty()) {
             val symbol = symbols.first()
-            return ContentNodeLazyLink(href, {() -> descriptorToNode[symbol.signature()] })
+            return ContentNodeLazyLink(href, {() -> refGraph.lookup(symbol.signature()) })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
@@ -129,23 +128,17 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
-        pendingReferences.add(PendingDocumentationReference(
-                {() -> node},
-                {() -> descriptorToNode[descriptor.signature()]},
-                DocumentationReference.Kind.Link))
+        refGraph.link(node, descriptor.signature(), DocumentationReference.Kind.Link)
     }
 
     fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
         if (fromDescriptor != null && toDescriptor != null) {
-            pendingReferences.add(PendingDocumentationReference(
-                    {() -> descriptorToNode[fromDescriptor.signature()]},
-                    {() -> descriptorToNode[toDescriptor.signature()]},
-                    kind))
+            refGraph.link(fromDescriptor.signature(), toDescriptor.signature(), kind)
         }
     }
 
     fun register(descriptor: DeclarationDescriptor, node: DocumentationNode) {
-        descriptorToNode.put(descriptor.signature(), node)
+        refGraph.register(descriptor.signature(), node)
     }
 
     fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
