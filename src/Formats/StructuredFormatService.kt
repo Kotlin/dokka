@@ -57,7 +57,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentListItem -> append(formatListItem(formatText(location, content.children)))
 
                 is ContentNodeLink -> {
-                    val linkTo = locationHref(location, content.node)
+                    val node = content.node
+                    val linkTo = if (node != null) locationHref(location, node) else "#"
                     val linkText = formatText(location, content.children)
                     append(formatLink(linkText, linkTo))
                 }

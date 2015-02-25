@@ -8,9 +8,7 @@ import com.intellij.psi.javadoc.PsiInlineDocTag
 import org.jetbrains.dokka.DocumentationNode.Kind
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions,
-                                      private val pendingReferences: MutableList<PendingDocumentationReference>) {
-    private val signatureToNode = hashMapOf<String, DocumentationNode>()
-
+                                      private val refGraph: NodeReferenceGraph) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
         val packageNode = module.findOrCreatePackageNode(file.getPackageName())
         packageNode.appendChildren(file.getClasses()) { build() }
@@ -87,7 +85,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         if (target != null) {
             val signature = getSignature(target)
             if (signature != null) {
-                return ContentNodeLazyLink(valueElement!!.getText(), {() -> signatureToNode[signature]})
+                return ContentNodeLazyLink(valueElement!!.getText(), {() -> refGraph.lookup(signature)})
             }
         }
         return null
@@ -101,26 +99,23 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     fun register(element: PsiElement, node: DocumentationNode) {
-        signatureToNode[getSignature(element)] = node
+        val signature = getSignature(element)
+        if (signature != null) {
+            refGraph.register(signature, node)
+        }
     }
 
     fun link(node: DocumentationNode, element: PsiElement?) {
         val qualifiedName = getSignature(element)
         if (qualifiedName != null) {
-            pendingReferences.add(PendingDocumentationReference(
-                    {() -> node},
-                    {() -> signatureToNode[qualifiedName]},
-                    DocumentationReference.Kind.Link))
+            refGraph.link(node, qualifiedName, DocumentationReference.Kind.Link)
         }
     }
 
     fun link(element: PsiElement?, node: DocumentationNode, kind: DocumentationReference.Kind) {
         val qualifiedName = getSignature(element)
         if (qualifiedName != null) {
-            pendingReferences.add(PendingDocumentationReference(
-                    {() -> signatureToNode[qualifiedName]},
-                    {() -> node},
-                    kind))
+            refGraph.link(qualifiedName, node, kind)
         }
     }
 
