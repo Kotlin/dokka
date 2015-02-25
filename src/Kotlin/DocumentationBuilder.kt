@@ -101,16 +101,27 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
+        val symbol = findTargetSymbol(symbols)
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
-        if (symbols.isNotEmpty()) {
-            val symbol = symbols.first()
+        if (symbol != null) {
             return ContentNodeLazyLink(href, {() -> refGraph.lookup(symbol.signature()) })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
         }
         return ContentExternalLink("#")
+    }
+
+    fun findTargetSymbol(symbols: Collection<DeclarationDescriptor>): DeclarationDescriptor? {
+        if (symbols.isEmpty()) {
+            return null
+        }
+        val symbol = symbols.first()
+        if (symbol is CallableMemberDescriptor && symbol.getKind() == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+            return symbol.getOverriddenDescriptors().firstOrNull()
+        }
+        return symbol
     }
 
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()

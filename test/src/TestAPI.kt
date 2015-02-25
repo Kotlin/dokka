@@ -30,6 +30,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         val stringRoot = PathManager.getResourceRoot(javaClass<String>(), "/java/lang/String.class")
         addClasspath(File(stringRoot))
         addSources(files.toList())
+        addClasspath(files.map { File(it)}.filter { it.isDirectory()} )
     }
     val options = DocumentationOptions(includeNonPublic = true, sourceLinks = listOf<SourceLinkDefinition>())
     val documentation = buildDocumentationModule(environment, "test", options, logger = DokkaConsoleLogger)
@@ -48,7 +49,8 @@ public fun verifyOutput(path: String, outputExtension: String, outputGenerator: 
     verifyModel(path) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val expectedOutput = File(path.replace(".kt", outputExtension).replace(".java", outputExtension)).readText()
+        val ext = outputExtension.trimLeading(".")
+        val expectedOutput = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
         assertEqualsIgnoringSeparators(expectedOutput, output.toString())
     }
 }
