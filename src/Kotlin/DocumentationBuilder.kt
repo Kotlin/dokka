@@ -1,28 +1,28 @@
 package org.jetbrains.dokka
 
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.dokka.DocumentationNode.Kind
+import org.jetbrains.eval4j.FieldDescription
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.dokka.DocumentationNode.*
-import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.builtins.*
-import org.jetbrains.kotlin.name.*
-import org.jetbrains.kotlin.resolve.lazy.*
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
-import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import java.io.File
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.PsiNameIdentifierOwner
-import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.resolve.source.getPsi
-import org.jetbrains.kotlin.psi.JetParameter
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.JetParameter
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.source.getPsi
+import org.jetbrains.kotlin.types.ErrorUtils
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.types.Variance
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -38,7 +38,7 @@ class DocumentationBuilder(val session: ResolveSession,
                            val pendingReferences: MutableList<PendingDocumentationReference>,
                            val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
-    val descriptorToNode = hashMapOf<DeclarationDescriptor, DocumentationNode>()
+    val descriptorToNode = hashMapOf<String, DocumentationNode>()
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -73,13 +73,40 @@ class DocumentationBuilder(val session: ResolveSession,
         return content
     }
 
+    fun DeclarationDescriptor.signature(): String = when(this) {
+        is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
+        is PropertyDescriptor -> getContainingDeclaration().signature() + "#" + getName()
+        is FunctionDescriptor -> getContainingDeclaration().signature() + "#" + getName() + parameterSignature()
+        is ValueParameterDescriptor -> getContainingDeclaration().signature() + ":" + getName()
+        is TypeParameterDescriptor -> getContainingDeclaration().signature() + "<" + getName()
+
+        else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+    }
+
+    fun FunctionDescriptor.parameterSignature(): String {
+        val params = getValueParameters().map { it.getType() }.toArrayList()
+        val extensionReceiver = getExtensionReceiverParameter()
+        if (extensionReceiver != null) {
+            params.add(0, extensionReceiver.getType())
+        }
+        return "(" + params.map { it.signature() }.join() + ")"
+    }
+
+    fun JetType.signature(): String {
+        val typeName = getConstructor().getDeclarationDescriptor()?.getName()?.asString()
+        if (typeName == "Array" && getArguments().size() == 1) {
+            return "Array<" + getArguments().first().getType().signature() + ">"
+        }
+        return typeName ?: "<null>"
+    }
+
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbols.isNotEmpty()) {
             val symbol = symbols.first()
-            return ContentNodeLazyLink(href, {() -> descriptorToNode[symbol] })
+            return ContentNodeLazyLink(href, {() -> descriptorToNode[symbol.signature()] })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
@@ -104,21 +131,21 @@ class DocumentationBuilder(val session: ResolveSession,
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
         pendingReferences.add(PendingDocumentationReference(
                 {() -> node},
-                {() -> descriptorToNode[descriptor]},
+                {() -> descriptorToNode[descriptor.signature()]},
                 DocumentationReference.Kind.Link))
     }
 
     fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
         if (fromDescriptor != null && toDescriptor != null) {
             pendingReferences.add(PendingDocumentationReference(
-                    {() -> descriptorToNode[fromDescriptor]},
-                    {() -> descriptorToNode[toDescriptor]},
+                    {() -> descriptorToNode[fromDescriptor.signature()]},
+                    {() -> descriptorToNode[toDescriptor.signature()]},
                     kind))
         }
     }
 
     fun register(descriptor: DeclarationDescriptor, node: DocumentationNode) {
-        descriptorToNode.put(descriptor, node)
+        descriptorToNode.put(descriptor.signature(), node)
     }
 
     fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
