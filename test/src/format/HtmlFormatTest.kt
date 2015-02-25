@@ -117,4 +117,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" })
         }
     }
+
+    Test fun crossLanguageKotlinExtendsJava() {
+        verifyOutput("test/data/format/crossLanguage/kotlinExtendsJava", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
 }
