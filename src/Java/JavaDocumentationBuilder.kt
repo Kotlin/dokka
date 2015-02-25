@@ -129,8 +129,13 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         is PsiField -> element.getContainingClass().getQualifiedName() + "#" + element.getName()
         is PsiMethod ->
             element.getContainingClass().getQualifiedName() + "#" + element.getName() + "(" +
-            element.getParameterList().getParameters().map { it.getType().getCanonicalText() }.join(",") + ")"
+            element.getParameterList().getParameters().map { it.getType().typeSignature() }.join(",") + ")"
         else -> null
+    }
+
+    private fun PsiType.typeSignature(): String = when(this) {
+        is PsiArrayType -> "Array<${getComponentType().typeSignature()}>"
+        else -> mapTypeName(this)
     }
 
     fun DocumentationNode(element: PsiNamedElement,
