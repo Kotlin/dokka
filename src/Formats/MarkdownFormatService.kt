@@ -117,4 +117,6 @@ public open class MarkdownFormatService(locationService: LocationService,
         body()
         to.append(" |")
     }
+
+    override fun formatNonBreakingSpace(): String = "&nbsp;"
 }

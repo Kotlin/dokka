@@ -3,6 +3,6 @@
 
 # f
 
-`fun f(x: String = ""): Unit`
+`fun f(x:&nbsp;String&nbsp;=&nbsp;""): Unit`
 
 

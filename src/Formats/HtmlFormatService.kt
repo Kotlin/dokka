@@ -145,6 +145,8 @@ public open class HtmlFormatService(locationService: LocationService,
         body()
         to.appendln("</ul>")
     }
+
+    override fun formatNonBreakingSpace(): String = "&nbsp;"
 }
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {

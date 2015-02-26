@@ -37,6 +37,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
     public abstract fun formatList(text: String): String
     public abstract fun formatListItem(text: String): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
+    public abstract fun formatNonBreakingSpace(): String
 
     open fun formatText(location: Location, nodes: Iterable<ContentNode>): String {
         return nodes.map { formatText(location, it) }.join("")
@@ -49,6 +50,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentSymbol -> append(formatSymbol(content.text))
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text))
+                is ContentNonBreakingSpace -> append(formatNonBreakingSpace())
                 is ContentStrong -> append(formatStrong(formatText(location, content.children)))
                 is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
                 is ContentCode -> append(formatCode(formatText(location, content.children)))

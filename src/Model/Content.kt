@@ -30,6 +30,7 @@ public data class ContentText(val text: String) : ContentNode()
 public data class ContentKeyword(val text: String) : ContentNode()
 public data class ContentIdentifier(val text: String) : ContentNode()
 public data class ContentSymbol(val text: String) : ContentNode()
+public object ContentNonBreakingSpace: ContentNode()
 
 public class ContentParagraph() : ContentBlock()
 public class ContentEmphasis() : ContentBlock()
@@ -89,6 +90,7 @@ fun ContentBlock.text(value: String) = append(ContentText(value))
 fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
 fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
 fun ContentBlock.identifier(value: String) = append(ContentIdentifier(value))
+fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
     val block = ContentNodeDirectLink(to)

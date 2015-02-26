@@ -5,7 +5,7 @@
 
 
 | [fn](test/foo/-string/fn) | `fun String.fn(): Unit`
-`fun String.fn(x: Int): Unit`
+`fun String.fn(x:&nbsp;Int): Unit`
 Function with receiver
 
  |
