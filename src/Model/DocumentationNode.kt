@@ -77,7 +77,6 @@ public open class DocumentationNode(val name: String,
         Constructor
         Function
         Property
-        PropertyAccessor
 
         DefaultObjectProperty
         DefaultObjectFunction
