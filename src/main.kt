@@ -141,8 +141,8 @@ class DokkaGenerator(val logger: DokkaLogger,
                 htmlFormatService to htmlFormatService
             }
             "markdown" -> MarkdownFormatService(locationService, signatureGenerator) to null
-            "jekyll" -> JekyllFormatService(locationService, signatureGenerator) to null
-            "kotlin-website" -> KotlinWebsiteFormatService(locationService, signatureGenerator) to
+            "jekyll" -> JekyllFormatService(locationService.withExtension("html"), signatureGenerator) to null
+            "kotlin-website" -> KotlinWebsiteFormatService(locationService.withExtension("html"), signatureGenerator) to
                     YamlOutlineService(locationService, signatureGenerator)
             else -> {
                 logger.error("Unrecognized output format ${outputFormat}")
