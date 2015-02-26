@@ -214,7 +214,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                         formatText(location, signatureAsCode)
                                     }
                                     signatureTexts.subList(0, signatureTexts.size()-1).forEach {
-                                        appendLine(to, it)
+                                        appendAsSignature(to) {
+                                            appendLine(to, it)
+                                        }
                                     }
                                     appendAsSignature(to) {
                                         to.append(signatureTexts.last())
