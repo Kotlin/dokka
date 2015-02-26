@@ -22,15 +22,9 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<span class=\"identifier\">${formatText(text)}</span>"
     }
 
-    override fun appendBlockCode(to: StringBuilder, line: String) {
+    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
         to.append("<pre><code>")
         to.append(line)
-        to.append("</code></pre>")
-    }
-
-    override fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
-        to.append("<pre><code>")
-        to.append(lines.join("\n"))
         to.append("</code></pre>")
     }
 

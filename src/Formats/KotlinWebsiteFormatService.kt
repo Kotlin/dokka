@@ -63,17 +63,14 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         to.appendln("\n</td>")
     }
 
-    override public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
-        to.append("<pre markdown=\"1\">")
-        for (line in lines)
-            to.appendln(line)
-        to.append(to, "</pre>")
-    }
-
-    override public fun appendBlockCode(to: StringBuilder, line: String) {
-        to.append("<pre markdown=\"1\">")
-        to.append(line.trimLeading())
-        to.append("</pre>")
+    override public fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+        if (language.isNotEmpty()) {
+            super.appendBlockCode(to, line, language)
+        } else {
+            to.append("<pre markdown=\"1\">")
+            to.append(line.trimLeading())
+            to.append("</pre>")
+        }
     }
 
     override fun formatSymbol(text: String): String {
