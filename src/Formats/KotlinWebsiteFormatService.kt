@@ -23,6 +23,8 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
 
     override public fun formatCode(code: String): String = "<code>$code</code>"
 
+    override fun formatStrikethrough(text: String): String = "<s>$text</s>"
+
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
     }
