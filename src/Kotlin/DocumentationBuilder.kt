@@ -38,6 +38,9 @@ class DocumentationBuilder(val session: ResolveSession,
                            val refGraph: NodeReferenceGraph,
                            val logger: DokkaLogger) {
     val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
+    val boringBuiltinClasses = setOf(
+            "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
+            "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
@@ -227,13 +230,17 @@ class DocumentationBuilder(val session: ResolveSession,
         if (prefix != "") {
             node.appendTextNode(prefix, Kind.Modifier)
         }
-        if (classifierDescriptor != null){}
+        if (classifierDescriptor != null && !classifierDescriptor.isBoringBuiltinClass()) {
             link(node, classifierDescriptor)
+        }
 
         append(node, DocumentationReference.Kind.Detail)
         for (typeArgument in jetType.getArguments())
             node.appendProjection(typeArgument)
     }
+
+    fun ClassifierDescriptor.isBoringBuiltinClass(): Boolean =
+        DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
         annotated.getAnnotations().forEach {
