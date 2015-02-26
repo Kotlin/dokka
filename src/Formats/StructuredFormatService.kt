@@ -267,7 +267,6 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
             appendSection(location, "Default Object Properties", node.members(DocumentationNode.Kind.DefaultObjectProperty), node, to)
             appendSection(location, "Default Object Functions", node.members(DocumentationNode.Kind.DefaultObjectFunction), node, to)
-            appendSection(location, "Accessors", node.members(DocumentationNode.Kind.PropertyAccessor), node, to)
             appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
@@ -280,7 +279,6 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         DocumentationNode.Kind.Property,
                         DocumentationNode.Kind.Package,
                         DocumentationNode.Kind.Function,
-                        DocumentationNode.Kind.PropertyAccessor,
                         DocumentationNode.Kind.DefaultObjectProperty,
                         DocumentationNode.Kind.DefaultObjectFunction,
                         DocumentationNode.Kind.ExternalClass,

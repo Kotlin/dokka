@@ -10,8 +10,8 @@ import org.intellij.markdown.*
 import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.kotlin.psi.JetBlockExpression
 
-public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): Content {
-    val result = Content()
+public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): MutableContent {
+    val result = MutableContent()
     buildContentTo(tree, result, linkResolver)
     return result
 }

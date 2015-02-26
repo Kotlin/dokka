@@ -18,7 +18,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
 
     fun parseDocumentation(docComment: PsiDocComment?): JavadocParseResult {
         if (docComment == null) return JavadocParseResult(Content.Empty, null)
-        val result = Content()
+        val result = MutableContent()
         var deprecatedContent: Content? = null
         val para = ContentParagraph()
         result.append(para)
@@ -56,7 +56,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         }
     }
 
-    private fun Content.convertSeeTag(tag: PsiDocTag) {
+    private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
         val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
         val linkNode = resolveLink(tag.getValueElement())
         val text = ContentText(tag.getValueElement()!!.getText())

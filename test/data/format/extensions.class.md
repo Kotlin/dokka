@@ -9,7 +9,7 @@
 Function with receiver
 
  |
-| [foobar](test/foo/-string/foobar/index) | `val String.foobar: Int`
+| [foobar](test/foo/-string/foobar) | `val String.foobar: Int`
 Property with receiver.
 
  |

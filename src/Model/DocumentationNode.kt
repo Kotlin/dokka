@@ -3,10 +3,13 @@ package org.jetbrains.dokka
 import java.util.LinkedHashSet
 
 public open class DocumentationNode(val name: String,
-                                    val content: Content,
+                                    content: Content,
                                     val kind: DocumentationNode.Kind) {
 
     private val references = LinkedHashSet<DocumentationReference>()
+
+    var content: Content = content
+        private set
 
     public val summary: ContentNode get() = content.summary
 
@@ -36,6 +39,13 @@ public open class DocumentationNode(val name: String,
 
     public fun addAllReferencesFrom(other: DocumentationNode) {
         references.addAll(other.references)
+    }
+
+    public fun updateContent(body: MutableContent.() -> Unit) {
+        if (content !is MutableContent) {
+            content = MutableContent()
+        }
+        (content as MutableContent).body()
     }
 
     public fun details(kind: DocumentationNode.Kind): List<DocumentationNode> = details.filter { it.kind == kind }

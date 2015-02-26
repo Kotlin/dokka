@@ -26,8 +26,7 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Modifier -> renderModifier(node)
                 DocumentationNode.Kind.Constructor,
                 DocumentationNode.Kind.Function,
-                DocumentationNode.Kind.DefaultObjectFunction,
-                DocumentationNode.Kind.PropertyAccessor -> renderFunction(node)
+                DocumentationNode.Kind.DefaultObjectFunction -> renderFunction(node)
                 DocumentationNode.Kind.Property,
                 DocumentationNode.Kind.DefaultObjectProperty -> renderProperty(node)
                 else -> identifier(node.name)
@@ -241,7 +240,6 @@ class KotlinLanguageService : LanguageService {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
             DocumentationNode.Kind.DefaultObjectFunction -> keyword("fun ")
-            DocumentationNode.Kind.PropertyAccessor -> {}
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
         renderTypeParametersForNode(node)
@@ -267,7 +265,6 @@ class KotlinLanguageService : LanguageService {
 
     private fun needReturnType(node: DocumentationNode) = when(node.kind) {
         DocumentationNode.Kind.Constructor -> false
-        DocumentationNode.Kind.PropertyAccessor -> node.name == "get"
         else -> true
     }
 

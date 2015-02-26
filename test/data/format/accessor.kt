@@ -1,5 +1,5 @@
 class C() {
     var x: String
-        get() = ""
-        set(value) { }
+        /** The getter returns an empty string. */ get() = ""
+        /** The setter does nothing. */ set(value) { }
 }

@@ -136,7 +136,7 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()
 
-    private fun Content.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
+    private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
         if (subjectName != null) {
             val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
@@ -321,7 +321,6 @@ class DocumentationBuilder(val session: ResolveSession,
         is ConstructorDescriptor -> build()
         is ScriptDescriptor -> build()
         is PropertyDescriptor -> build()
-        is PropertyAccessorDescriptor -> build()
         is FunctionDescriptor -> build()
         is TypeParameterDescriptor -> build()
         is ValueParameterDescriptor -> build()
@@ -414,17 +413,6 @@ class DocumentationBuilder(val session: ResolveSession,
         }
     }
 
-    fun PropertyAccessorDescriptor.build(): DocumentationNode {
-        val doc = parseDocumentation(this)
-        val specialName = getName().asString().drop(1).takeWhile { it != '-' }
-        val node = DocumentationNode(specialName, doc, Kind.PropertyAccessor).withModifiers(this)
-
-        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
-        node.appendType(getReturnType())
-        register(this, node)
-        return node
-    }
-
     fun PropertyDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectProperty else Kind.Property)
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
@@ -436,12 +424,14 @@ class DocumentationBuilder(val session: ResolveSession,
             node.appendTextNode("var", DocumentationNode.Kind.Modifier)
         }
         getGetter()?.let {
-            if (!it.isDefault())
-                node.appendChild(it, DocumentationReference.Kind.Member)
+            if (!it.isDefault()) {
+                node.addAccessorDocumentation(parseDocumentation(it), "Getter")
+            }
         }
         getSetter()?.let {
-            if (!it.isDefault())
-                node.appendChild(it, DocumentationReference.Kind.Member)
+            if (!it.isDefault()) {
+                node.addAccessorDocumentation(parseDocumentation(it), "Setter")
+            }
         }
 
         getOverriddenDescriptors().forEach {
@@ -450,6 +440,20 @@ class DocumentationBuilder(val session: ResolveSession,
 
         register(this, node)
         return node
+    }
+
+    fun DocumentationNode.addAccessorDocumentation(documentation: Content, prefix: String) {
+        if (documentation == Content.Empty) return
+        updateContent {
+            if (!documentation.children.isEmpty()) {
+                val section = addSection(prefix, null)
+                documentation.children.forEach { section.append(it) }
+            }
+            documentation.sections.forEach {
+                val section = addSection("$prefix ${it.tag}", it.subjectName)
+                it.children.forEach { section.append(it) }
+            }
+        }
     }
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
