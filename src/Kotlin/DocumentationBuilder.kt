@@ -474,12 +474,15 @@ class DocumentationBuilder(val session: ResolveSession,
         val doc = parseDocumentation(this)
         val name = getName().asString()
         val prefix = when (getVariance()) {
-            Variance.IN_VARIANCE -> "in "
-            Variance.OUT_VARIANCE -> "out "
+            Variance.IN_VARIANCE -> "in"
+            Variance.OUT_VARIANCE -> "out"
             else -> ""
         }
 
-        val node = DocumentationNode(prefix + name, doc, DocumentationNode.Kind.TypeParameter)
+        val node = DocumentationNode(name, doc, DocumentationNode.Kind.TypeParameter)
+        if (prefix != "") {
+            node.appendTextNode(prefix, Kind.Modifier)
+        }
 
         val builtIns = KotlinBuiltIns.getInstance()
         for (constraint in getUpperBounds()) {
