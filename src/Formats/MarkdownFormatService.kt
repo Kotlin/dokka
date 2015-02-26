@@ -75,18 +75,9 @@ public open class MarkdownFormatService(locationService: LocationService,
         appendLine(to)
     }
 
-    override public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>) {
+    override public fun appendBlockCode(to: StringBuilder, line: String, language: String) {
         appendLine(to)
-        appendLine(to, "```")
-        for (line in lines)
-            to.appendln(line)
-        appendLine(to, "```")
-        appendLine(to)
-    }
-
-    override public fun appendBlockCode(to: StringBuilder, line: String) {
-        appendLine(to)
-        to.appendln("```")
+        to.appendln("``` ${language}")
         to.appendln(line)
         to.appendln("```")
         appendLine(to)

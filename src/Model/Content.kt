@@ -37,7 +37,7 @@ public class ContentEmphasis() : ContentBlock()
 public class ContentStrong() : ContentBlock()
 public class ContentStrikethrough() : ContentBlock()
 public class ContentCode() : ContentBlock()
-public class ContentBlockCode() : ContentBlock()
+public class ContentBlockCode(val language: String = "") : ContentBlock()
 
 public abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?

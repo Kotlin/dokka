@@ -10,8 +10,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                               override val extension: String) : FormatService {
     val locationService: LocationService = locationService.withExtension(extension)
 
-    abstract public fun appendBlockCode(to: StringBuilder, line: String)
-    abstract public fun appendBlockCode(to: StringBuilder, lines: Iterable<String>)
+    abstract public fun appendBlockCode(to: StringBuilder, line: String, language: String)
     abstract public fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
     abstract public fun appendParagraph(to: StringBuilder, text: String)
     abstract public fun appendLine(to: StringBuilder, text: String)
@@ -72,7 +71,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                     appendParagraph(this, formatText(location, content.children))
                 }
                 is ContentBlockCode -> {
-                    appendBlockCode(this, formatText(location, content.children))
+                    appendBlockCode(this, formatText(location, content.children), content.language)
                 }
                 is ContentBlock -> append(formatText(location, content.children))
             }

@@ -157,7 +157,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
     val lines = text.trimTrailing().split("\n").filterNot { it.length() == 0 }
     val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
     val finalText = lines.map { it.drop(indent) }.join("\n")
-    return ContentBlockCode().let() { it.append(ContentText(finalText)); it }
+    return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
 }
 
 private fun DocumentationBuilder.resolveInScope(functionName: String, scope: JetScope): DeclarationDescriptor? {
