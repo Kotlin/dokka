@@ -6,6 +6,8 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
+    private val visibilityModifiers = setOf("public", "protected", "private")
+
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             when (node.kind) {
@@ -14,7 +16,7 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Interface,
                 DocumentationNode.Kind.Enum,
                 DocumentationNode.Kind.AnnotationClass,
-                DocumentationNode.Kind.Object -> renderClass(node)
+                DocumentationNode.Kind.Object -> renderClass(node, renderMode)
 
                 DocumentationNode.Kind.EnumItem,
                 DocumentationNode.Kind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
@@ -26,9 +28,9 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Modifier -> renderModifier(node)
                 DocumentationNode.Kind.Constructor,
                 DocumentationNode.Kind.Function,
-                DocumentationNode.Kind.DefaultObjectFunction -> renderFunction(node)
+                DocumentationNode.Kind.DefaultObjectFunction -> renderFunction(node, renderMode)
                 DocumentationNode.Kind.Property,
-                DocumentationNode.Kind.DefaultObjectProperty -> renderProperty(node)
+                DocumentationNode.Kind.DefaultObjectProperty -> renderProperty(node, renderMode)
                 else -> identifier(node.name)
             }
         }
@@ -187,11 +189,14 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderModifiersForNode(node: DocumentationNode) {
+    private fun ContentBlock.renderModifiersForNode(node: DocumentationNode, renderMode: RenderMode) {
         val modifiers = node.details(DocumentationNode.Kind.Modifier)
         for (it in modifiers) {
             if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
                 continue
+            if (renderMode == RenderMode.SUMMARY && it.name in visibilityModifiers) {
+                continue
+            }
             renderModifier(it)
         }
     }
@@ -215,8 +220,8 @@ class KotlinLanguageService : LanguageService {
         text(" ")
     }
 
-    private fun ContentBlock.renderClass(node: DocumentationNode) {
-        renderModifiersForNode(node)
+    private fun ContentBlock.renderClass(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Class -> keyword("class ")
@@ -233,8 +238,8 @@ class KotlinLanguageService : LanguageService {
         renderSupertypesForNode(node)
     }
 
-    private fun ContentBlock.renderFunction(node: DocumentationNode) {
-        renderModifiersForNode(node)
+    private fun ContentBlock.renderFunction(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
@@ -268,8 +273,8 @@ class KotlinLanguageService : LanguageService {
         else -> true
     }
 
-    private fun ContentBlock.renderProperty(node: DocumentationNode) {
-        renderModifiersForNode(node)
+    private fun ContentBlock.renderProperty(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Property,

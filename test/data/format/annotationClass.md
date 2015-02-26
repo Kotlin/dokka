@@ -10,5 +10,5 @@
 ### Constructors
 
 
-| [&lt;init&gt;](test/fancy/-init-) | `public fancy()` |
+| [&lt;init&gt;](test/fancy/-init-) | `fancy()` |
 

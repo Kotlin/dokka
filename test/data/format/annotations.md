@@ -10,7 +10,7 @@
 ### Constructors
 
 
-| [&lt;init&gt;](test/-foo/-init-) | `public Foo()` |
+| [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
 
 
 ### Properties
