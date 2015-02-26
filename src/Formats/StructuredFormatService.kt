@@ -164,11 +164,13 @@ public abstract class StructuredFormatService(locationService: LocationService,
             if (deprecationValue != null) {
                 to.append(formatStrong("Deprecated:")).append(" ")
                 appendLine(to, formatText(deprecationValue.name.trim("\"")))
+                appendLine(to)
             } else if (deprecation?.content != Content.Empty) {
                 to.append(formatStrong("Deprecated:")).append(" ")
                 to.append(formatText(location, deprecation!!.content))
             } else {
                 appendLine(to, formatStrong("Deprecated"))
+                appendLine(to)
             }
         }
     }
