@@ -20,16 +20,8 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         return ""
     }
 
-    /*
-    TODO this should be a LocationService
-    override fun formatLink(text: String, location: Location): String {
-        val href = location.path.replace("\\", "/")
-                                .replaceAfterLast(".", "html")
-                                .replace("/index.html", "/");
 
-        return "<a href=\"${href}\">${text}</a>"
-    }
-    */
+    override public fun formatCode(code: String): String = "<code>$code</code>"
 
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
