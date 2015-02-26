@@ -10,7 +10,7 @@
 ### Constructors
 
 
-| [&lt;init&gt;](test/-klass/-init-) | `public Klass()` |
+| [&lt;init&gt;](test/-klass/-init-) | `Klass()` |
 
 
 ### Default Object Properties
