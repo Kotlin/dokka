@@ -212,12 +212,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
-        val prefix = when (projection.getProjectionKind()) {
-            Variance.IN_VARIANCE -> "in "
-            Variance.OUT_VARIANCE -> "out "
-            else -> ""
-        }
-        appendType(projection.getType(), kind, prefix)
+        appendType(projection.getType(), kind, projection.getProjectionKind().label)
     }
 
     fun DocumentationNode.appendType(jetType: JetType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
@@ -225,11 +220,14 @@ class DocumentationBuilder(val session: ResolveSession,
             return
         val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
-            is Named -> prefix + classifierDescriptor.getName().asString() + if (jetType.isMarkedNullable()) "?" else ""
+            is Named -> classifierDescriptor.getName().asString() + if (jetType.isMarkedNullable()) "?" else ""
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, kind)
-        if (classifierDescriptor != null)
+        if (prefix != "") {
+            node.appendTextNode(prefix, Kind.Modifier)
+        }
+        if (classifierDescriptor != null){}
             link(node, classifierDescriptor)
 
         append(node, DocumentationReference.Kind.Detail)
@@ -473,11 +471,7 @@ class DocumentationBuilder(val session: ResolveSession,
     fun TypeParameterDescriptor.build(): DocumentationNode {
         val doc = parseDocumentation(this)
         val name = getName().asString()
-        val prefix = when (getVariance()) {
-            Variance.IN_VARIANCE -> "in"
-            Variance.OUT_VARIANCE -> "out"
-            else -> ""
-        }
+        val prefix = getVariance().label
 
         val node = DocumentationNode(name, doc, DocumentationNode.Kind.TypeParameter)
         if (prefix != "") {
