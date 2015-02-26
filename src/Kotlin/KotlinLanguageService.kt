@@ -125,8 +125,15 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderTypeParameter(node: DocumentationNode) {
-        val constraints = node.details(DocumentationNode.Kind.UpperBound)
+        val modifier = node.details(DocumentationNode.Kind.Modifier).singleOrNull()
+        if (modifier != null) {
+            keyword(modifier.name)
+            nbsp()
+        }
+
         identifier(node.name)
+
+        val constraints = node.details(DocumentationNode.Kind.UpperBound)
         if (constraints.any()) {
             nbsp()
             symbol(":")
