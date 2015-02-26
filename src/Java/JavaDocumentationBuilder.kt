@@ -203,12 +203,14 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         return node
     }
 
-    fun ignoreSupertype(psiType: PsiClassType): Boolean {
-        if (psiType.getClassName() == "Enum") {
-            val psiClass = psiType.resolve()
-            if (psiClass?.getQualifiedName() == "java.lang.Enum") {
-                return true
-            }
+    fun ignoreSupertype(psiType: PsiClassType): Boolean =
+            psiType.isClass("java.lang.Enum") || psiType.isClass("java.lang.Object")
+
+    fun PsiClassType.isClass(qName: String): Boolean {
+        val shortName = qName.substringAfterLast('.')
+        if (getClassName() == shortName) {
+            val psiClass = resolve()
+            return psiClass?.getQualifiedName() == qName
         }
         return false
     }
