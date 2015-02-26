@@ -4,7 +4,9 @@ import java.io.File
 
 public fun FoldersLocationService(root: String): FoldersLocationService = FoldersLocationService(File(root), "")
 public class FoldersLocationService(val root: File, val extension: String) : FileLocationService {
-    override fun withExtension(newExtension: String): LocationService = FoldersLocationService(root, newExtension)
+    override fun withExtension(newExtension: String): LocationService {
+        return if (extension.isEmpty()) FoldersLocationService(root, newExtension) else this
+    }
 
     override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation {
         return FileLocation(File(root, relativePathToNode(qualifiedName, hasMembers)).appendExtension(extension))
