@@ -175,7 +175,10 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
             symbol = null
             break
         }
-        currentScope = getResolutionScope(session, partSymbol)
+        currentScope = if (partSymbol is ClassDescriptor)
+            partSymbol.getDefaultType().getMemberScope()
+        else
+            getResolutionScope(session, partSymbol)
         symbol = partSymbol
     }
 
