@@ -155,10 +155,10 @@ public abstract class StructuredFormatService(locationService: LocationService,
             val deprecationParameter = deprecation!!.details(DocumentationNode.Kind.Parameter).firstOrNull()
             val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
             if (deprecationValue != null) {
-                to.append(formatStrong("Deprecated: "))
+                to.append(formatStrong("Deprecated:")).append(" ")
                 appendLine(to, formatText(deprecationValue.name.trim("\"")))
             } else if (deprecation?.content != Content.Empty) {
-                to.append(formatStrong("Deprecated: "))
+                to.append(formatStrong("Deprecated:")).append(" ")
                 to.append(formatText(location, deprecation!!.content))
             } else {
                 appendLine(to, formatStrong("Deprecated"))
