@@ -98,9 +98,22 @@ fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
     append(block)
 }
 
-public class Content() : ContentBlock() {
+public open class Content(): ContentBlock() {
+    public open val sections: List<ContentSection> get() = emptyList()
+    public open val summary: ContentNode get() = ContentEmpty
+    public open val description: ContentNode get() = ContentEmpty
+
+    fun findSectionByTag(tag: String): ContentSection? =
+            sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
+
+    class object {
+        val Empty = Content()
+    }
+}
+
+public open class MutableContent() : Content() {
     private val sectionList = arrayListOf<ContentSection>()
-    public val sections: List<ContentSection>
+    public override val sections: List<ContentSection>
         get() = sectionList
 
     fun addSection(tag: String?, subjectName: String?): ContentSection {
@@ -109,12 +122,9 @@ public class Content() : ContentBlock() {
         return section
     }
 
-    fun findSectionByTag(tag: String): ContentSection? =
-        sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
+    public override val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
 
-    public val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
-
-    public val description: ContentNode by Delegates.lazy {
+    public override val description: ContentNode by Delegates.lazy {
         val descriptionNodes = children.drop(1)
         if (descriptionNodes.isEmpty()) {
             ContentEmpty
@@ -143,10 +153,6 @@ public class Content() : ContentBlock() {
 
     val isEmpty: Boolean
         get() = sections.none()
-
-    class object {
-        val Empty = Content()
-    }
 }
 
 fun javadocSectionDisplayName(sectionName: String?): String? =
