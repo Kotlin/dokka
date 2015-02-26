@@ -104,6 +104,7 @@ class KotlinLanguageService : LanguageService {
             renderType(typeArguments.last())
             return
         }
+        renderSingleModifier(node)
         renderLinked(node) { identifier(it.name) }
         if (typeArguments.any()) {
             symbol("<")
@@ -125,11 +126,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderTypeParameter(node: DocumentationNode) {
-        val modifier = node.details(DocumentationNode.Kind.Modifier).singleOrNull()
-        if (modifier != null) {
-            keyword(modifier.name)
-            nbsp()
-        }
+        renderSingleModifier(node)
 
         identifier(node.name)
 
@@ -141,6 +138,14 @@ class KotlinLanguageService : LanguageService {
             renderList(constraints, noWrap=true) {
                 renderType(it)
             }
+        }
+    }
+
+    private fun ContentBlock.renderSingleModifier(node: DocumentationNode) {
+        val modifier = node.details(DocumentationNode.Kind.Modifier).singleOrNull()
+        if (modifier != null) {
+            keyword(modifier.name)
+            nbsp()
         }
     }
 
