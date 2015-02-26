@@ -96,8 +96,10 @@ public abstract class StructuredFormatService(locationService: LocationService,
 
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
-                to.append(formatCode(formatText(location, languageService.render(it))))
-                it.appendSourceLink(to)
+                appendAsSignature(to) {
+                    to.append(formatCode(formatText(location, languageService.render(it))))
+                    it.appendSourceLink(to)
+                }
                 it.appendOverrides(to)
                 it.appendDeprecation(location, to)
             }
@@ -108,6 +110,10 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendLine(to)
             appendLine(to)
         }
+    }
+
+    protected open fun appendAsSignature(to: StringBuilder, block: () -> Unit) {
+        block()
     }
 
     fun appendDescription(location: Location, to: StringBuilder, node: DocumentationNode) {
@@ -210,7 +216,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                     signatureTexts.subList(0, signatureTexts.size()-1).forEach {
                                         appendLine(to, it)
                                     }
-                                    to.append(signatureTexts.last())
+                                    appendAsSignature(to) {
+                                        to.append(signatureTexts.last())
+                                    }
                                     if (!summary.isEmpty()) {
                                         to.append(summary)
                                     }

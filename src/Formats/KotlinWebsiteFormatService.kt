@@ -20,10 +20,14 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         return ""
     }
 
-
     override public fun formatCode(code: String): String = "<code>$code</code>"
 
     override fun formatStrikethrough(text: String): String = "<s>$text</s>"
+
+    override fun appendAsSignature(to: StringBuilder, block: () -> Unit) {
+        block()
+        to.append("<br/>")  // since we've used HTML to format the signature, add an HTML line break following it
+    }
 
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
