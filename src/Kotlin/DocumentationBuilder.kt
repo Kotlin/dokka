@@ -74,7 +74,7 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun DeclarationDescriptor.signature(): String = when(this) {
         is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
-        is PropertyDescriptor -> getContainingDeclaration().signature() + "#" + getName()
+        is PropertyDescriptor -> getContainingDeclaration().signature() + "#" + getName() + receiverSignature()
         is FunctionDescriptor -> getContainingDeclaration().signature() + "#" + getName() + parameterSignature()
         is ValueParameterDescriptor -> getContainingDeclaration().signature() + ":" + getName()
         is TypeParameterDescriptor -> getContainingDeclaration().signature() + "<" + getName()
@@ -82,7 +82,14 @@ class DocumentationBuilder(val session: ResolveSession,
         else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
     }
 
-    fun FunctionDescriptor.parameterSignature(): String {
+    fun PropertyDescriptor.receiverSignature(): String {
+        if (getExtensionReceiverParameter() != null || getValueParameters().size() > 0) {
+            return "#" + parameterSignature()
+        }
+        return ""
+    }
+
+    fun CallableMemberDescriptor.parameterSignature(): String {
         val params = getValueParameters().map { it.getType() }.toArrayList()
         val extensionReceiver = getExtensionReceiverParameter()
         if (extensionReceiver != null) {
