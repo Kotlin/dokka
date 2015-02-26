@@ -151,7 +151,8 @@ class DokkaGenerator(val logger: DokkaLogger,
         }
         if (formatter == null) return
 
-        val generator = FileGenerator(signatureGenerator, locationService, formatter, outlineFormatter)
+        val generator = FileGenerator(signatureGenerator, locationService.withExtension(formatter.extension),
+                formatter, outlineFormatter)
         logger.info("Generating pages... ")
         generator.buildPage(documentation)
         generator.buildOutline(documentation)
