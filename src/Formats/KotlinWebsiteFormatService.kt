@@ -81,7 +81,12 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         return "<span class=\"keyword\">${formatText(text)}</span>"
     }
 
-    override fun formatIdentifier(text: String): String {
-        return "<span class=\"identifier\">${formatText(text)}</span>"
+    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
+        return "<span class=\"${identifierClassName(kind)}\">${formatText(text)}</span>"
+    }
+
+    private fun identifierClassName(kind: IdentifierKind) = when(kind) {
+        IdentifierKind.ParameterName -> "parameterName"
+        else -> "identifier"
     }
 }

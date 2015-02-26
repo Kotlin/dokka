@@ -18,7 +18,7 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<span class=\"keyword\">${formatText(text)}</span>"
     }
 
-    override fun formatIdentifier(text: String): String {
+    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
         return "<span class=\"identifier\">${formatText(text)}</span>"
     }
 

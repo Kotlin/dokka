@@ -26,9 +26,16 @@ public open class ContentBlock() : ContentNode() {
         children.hashCode()
 }
 
+enum class IdentifierKind {
+    TypeName
+    ParameterName
+    AnnotationName
+    Other
+}
+
 public data class ContentText(val text: String) : ContentNode()
 public data class ContentKeyword(val text: String) : ContentNode()
-public data class ContentIdentifier(val text: String) : ContentNode()
+public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode()
 public data class ContentSymbol(val text: String) : ContentNode()
 public object ContentNonBreakingSpace: ContentNode()
 
@@ -89,7 +96,7 @@ fun content(body: ContentBlock.() -> Unit): ContentBlock {
 fun ContentBlock.text(value: String) = append(ContentText(value))
 fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
 fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
-fun ContentBlock.identifier(value: String) = append(ContentIdentifier(value))
+fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind.Other) = append(ContentIdentifier(value, kind))
 fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {

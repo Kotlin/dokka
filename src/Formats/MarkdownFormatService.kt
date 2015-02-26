@@ -19,7 +19,7 @@ public open class MarkdownFormatService(locationService: LocationService,
     override fun formatKeyword(text: String): String {
         return text.htmlEscape()
     }
-    override fun formatIdentifier(text: String): String {
+    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
         return text.htmlEscape()
     }
 

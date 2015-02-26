@@ -106,7 +106,7 @@ class KotlinLanguageService : LanguageService {
             return
         }
         renderSingleModifier(node)
-        renderLinked(node) { identifier(it.name) }
+        renderLinked(node) { identifier(it.name, IdentifierKind.TypeName) }
         if (typeArguments.any()) {
             symbol("<")
             renderList(typeArguments, noWrap = true) {
@@ -152,7 +152,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentBlock.renderParameter(node: DocumentationNode) {
         renderAnnotationsForNode(node)
-        identifier(node.name)
+        identifier(node.name, IdentifierKind.ParameterName)
         symbol(":")
         nbsp()
         val parameterType = node.detail(DocumentationNode.Kind.Type)
@@ -208,7 +208,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderAnnotation(node: DocumentationNode) {
-        identifier(node.name)
+        identifier(node.name, IdentifierKind.AnnotationName)
         val parameters = node.details(DocumentationNode.Kind.Parameter)
         if (!parameters.isEmpty()) {
             symbol("(")
