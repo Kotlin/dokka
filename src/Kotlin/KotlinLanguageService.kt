@@ -48,12 +48,18 @@ class KotlinLanguageService : LanguageService {
         identifier(node.name)
     }
 
-    private fun ContentBlock.renderList(nodes: List<DocumentationNode>, separator: String = ", ", renderItem: (DocumentationNode) -> Unit) {
+    private fun ContentBlock.renderList(nodes: List<DocumentationNode>, separator: String = ", ",
+                                        noWrap: Boolean = false, renderItem: (DocumentationNode) -> Unit) {
         if (nodes.none())
             return
         renderItem(nodes.first())
         nodes.drop(1).forEach {
-            symbol(separator)
+            if (noWrap) {
+                symbol(separator.trimTrailing(" "))
+                nbsp()
+            } else {
+                symbol(separator)
+            }
             renderItem(it)
         }
     }
@@ -73,13 +79,13 @@ class KotlinLanguageService : LanguageService {
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
             symbol("(")
-            renderList(typeArguments.take(typeArguments.size - 1)) {
+            renderList(typeArguments.take(typeArguments.size() - 1), noWrap = true) {
                 renderType(it)
             }
             symbol(")")
-            text(" ")
+            nbsp()
             symbol("->")
-            text(" ")
+            nbsp()
             renderType(typeArguments.last())
             return
         }
@@ -88,20 +94,20 @@ class KotlinLanguageService : LanguageService {
             renderType(typeArguments.first())
             symbol(".")
             symbol("(")
-            renderList(typeArguments.drop(1).take(typeArguments.size - 2)) {
+            renderList(typeArguments.drop(1).take(typeArguments.size() - 2), noWrap = true) {
                 renderType(it)
             }
             symbol(")")
-            text(" ")
+            nbsp()
             symbol("->")
-            text(" ")
+            nbsp()
             renderType(typeArguments.last())
             return
         }
         renderLinked(node) { identifier(it.name) }
         if (typeArguments.any()) {
             symbol("<")
-            renderList(typeArguments) {
+            renderList(typeArguments, noWrap = true) {
                 renderType(it)
             }
             symbol(">")
@@ -122,8 +128,10 @@ class KotlinLanguageService : LanguageService {
         val constraints = node.details(DocumentationNode.Kind.UpperBound)
         identifier(node.name)
         if (constraints.any()) {
-            symbol(" : ")
-            renderList(constraints) {
+            nbsp()
+            symbol(":")
+            nbsp()
+            renderList(constraints, noWrap=true) {
                 renderType(it)
             }
         }
@@ -132,12 +140,15 @@ class KotlinLanguageService : LanguageService {
     private fun ContentBlock.renderParameter(node: DocumentationNode) {
         renderAnnotationsForNode(node)
         identifier(node.name)
-        symbol(": ")
+        symbol(":")
+        nbsp()
         val parameterType = node.detail(DocumentationNode.Kind.Type)
         renderType(parameterType)
         val valueNode = node.details(DocumentationNode.Kind.Value).firstOrNull()
         if (valueNode != null) {
-            symbol(" = ")
+            nbsp()
+            symbol("=")
+            nbsp()
             text(valueNode.name)
         }
     }
@@ -156,7 +167,9 @@ class KotlinLanguageService : LanguageService {
     private fun ContentBlock.renderSupertypesForNode(node: DocumentationNode) {
         val supertypes = node.details(DocumentationNode.Kind.Supertype)
         if (supertypes.any()) {
-            symbol(" : ")
+            nbsp()
+            symbol(":")
+            nbsp()
             renderList(supertypes) {
                 renderType(it)
             }

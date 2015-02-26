@@ -22,5 +22,5 @@
 ### Functions
 
 
-| [bar](test/-foo/bar) | `inline fun bar(noinline notInlined: () -&gt; Unit): Unit` |
+| [bar](test/-foo/bar) | `inline fun bar(noinline notInlined:&nbsp;()&nbsp;-&gt;&nbsp;Unit): Unit` |
 

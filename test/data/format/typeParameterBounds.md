@@ -3,7 +3,7 @@
 
 # generic
 
-`public fun &lt;T : R, R&gt; generic(): Unit`
+`public fun &lt;T&nbsp;:&nbsp;R, R&gt; generic(): Unit`
 
 generic function
 
