@@ -13,7 +13,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
 
     public fun buildPages(nodes: Iterable<DocumentationNode>) {
         for ((location, items) in nodes.groupBy { locationService.location(it) }) {
-            val file = location.file.appendExtension(formatService.extension)
+            val file = location.file
             file.getParentFile()?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {

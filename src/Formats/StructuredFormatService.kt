@@ -61,11 +61,19 @@ public abstract class StructuredFormatService(locationService: LocationService,
                     val node = content.node
                     val linkTo = if (node != null) locationHref(location, node) else "#"
                     val linkText = formatText(location, content.children)
-                    append(formatLink(linkText, linkTo))
+                    if (linkTo == ".") {
+                        append(linkText)
+                    } else {
+                        append(formatLink(linkText, linkTo))
+                    }
                 }
                 is ContentExternalLink -> {
                     val linkText = formatText(location, content.children)
-                    append(formatLink(linkText, content.href))
+                    if (content.href == ".") {
+                        append(linkText)
+                    } else {
+                        append(formatLink(linkText, content.href))
+                    }
                 }
                 is ContentParagraph -> {
                     appendParagraph(this, formatText(location, content.children))

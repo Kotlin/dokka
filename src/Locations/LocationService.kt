@@ -23,6 +23,9 @@ public data class FileLocation(val file: File): Location {
         if (other !is FileLocation) {
             throw IllegalArgumentException("$other is not a FileLocation")
         }
+        if (file.path.substringBeforeLast(".") == other.file.path.substringBeforeLast(".") && anchor == null) {
+            return "."
+        }
         val ownerFolder = file.getParentFile()!!
         val relativePath = ownerFolder.getRelativePath(other.file).path
         return if (anchor == null) relativePath else relativePath + "#" + anchor
