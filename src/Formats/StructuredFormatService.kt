@@ -285,7 +285,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         DocumentationNode.Kind.EnumItem
                         )
             }, node, to)
-            appendSection(location, "Extensions", node.extensions, node, to)
+            appendSection(location, "Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.Property }, node, to)
+            appendSection(location, "Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.Function }, node, to)
             appendSection(location, "Inheritors",
                     node.inheritors.filter { it.kind != DocumentationNode.Kind.EnumItem }, node, to)
             appendSection(location, "Links", node.links, node, to)
