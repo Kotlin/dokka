@@ -136,4 +136,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun javaSpaceInAuthor() {
+        verifyOutput("test/data/format/javaSpaceInAuthor.java", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
