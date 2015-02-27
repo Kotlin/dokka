@@ -1,10 +1,7 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
-import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.javadoc.PsiDocTag
-import com.intellij.psi.javadoc.PsiDocTagValue
-import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.javadoc.*
 import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -32,18 +29,25 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content()
-                    deprecatedContent!!.convertJavadocElements(tag.getDataElements().toArrayList())
+                    deprecatedContent!!.convertJavadocElements(tag.contentElements())
                 }
                 else -> {
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
 
-                    section.convertJavadocElements(
-                            tag.getDataElements().filter { it !is PsiDocTagValue || tag.getSubjectName() == null })
+                    section.convertJavadocElements(tag.contentElements())
                 }
             }
         }
         return JavadocParseResult(result, deprecatedContent)
+    }
+
+    private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
+        val tagValueElements = getChildren()
+                .dropWhile { it.getNode().getElementType() == JavaDocTokenType.DOC_TAG_NAME }
+                .dropWhile { it is PsiWhiteSpace }
+                .filterNot { it.getNode().getElementType() == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS }
+        return if (getSubjectName() != null) tagValueElements.dropWhile { it is PsiDocTagValue } else tagValueElements
     }
 
     private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>) {
