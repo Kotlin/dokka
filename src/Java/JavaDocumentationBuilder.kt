@@ -6,6 +6,10 @@ import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import org.jetbrains.dokka.DocumentationNode.Kind
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 
 public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                                       private val refGraph: NodeReferenceGraph) {
@@ -46,21 +50,65 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>) {
+        val htmlBuilder = StringBuilder()
         elements.forEach {
             if (it is PsiInlineDocTag) {
-                append(convertInlineDocTag(it))
+                htmlBuilder.append(convertInlineDocTag(it))
             } else {
-                val text = if (isEmpty()) it.getText().trimLeading() else it.getText()
-                append(ContentText(text))
+                htmlBuilder.append(it.getText())
             }
+        }
+        val doc = Jsoup.parse(htmlBuilder.toString().trimLeading())
+        doc.body().childNodes().forEach {
+            convertHtmlNode(it)
+        }
+    }
+
+    private fun ContentBlock.convertHtmlNode(node: Node) {
+        if (node is TextNode) {
+            append(ContentText(node.text()))
+        } else if (node is Element) {
+            val childBlock = createBlock(node)
+            node.childNodes().forEach {
+                childBlock.convertHtmlNode(it)
+            }
+            append(childBlock)
+        }
+    }
+
+    private fun createBlock(element: Element): ContentBlock = when(element.tagName()) {
+        "p" -> ContentParagraph()
+        "b", "strong" -> ContentStrong()
+        "i", "em" -> ContentEmphasis()
+        "s", "del" -> ContentStrikethrough()
+        "code" -> ContentCode()
+        "pre" -> ContentBlockCode()
+        "ul" -> ContentList()
+        "li" -> ContentListItem()
+        "a" -> createLink(element)
+        else -> ContentBlock()
+    }
+
+    private fun createLink(element: Element): ContentBlock {
+        val href = element.attr("href")
+        if (href != null) {
+            if (href.startsWith("##")) {
+                val signature = href.substring(2)
+                return ContentNodeLazyLink(signature, {() -> refGraph.lookup(signature)})
+            } else {
+                return ContentExternalLink(href)
+            }
+        } else {
+            return ContentBlock()
         }
     }
 
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
         val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
-        val linkNode = resolveLink(tag.getValueElement())
+        val linkSignature = resolveLink(tag.getValueElement())
         val text = ContentText(tag.getValueElement()!!.getText())
-        if (linkNode != null) {
+        if (linkSignature != null) {
+            val linkNode = ContentNodeLazyLink(tag.getValueElement()!!.getText(), {() -> refGraph.lookup(linkSignature)})
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {
@@ -70,23 +118,23 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.getName()) {
         "link", "linkplain" -> {
-            val link = resolveLink(tag.getValueElement())
-            if (link != null) {
-                link.append(ContentText(tag.getValueElement()!!.getText()))
-                link
+            val valueElement = tag.getValueElement()
+            val linkSignature = resolveLink(valueElement)
+            if (linkSignature != null) {
+                val link = "<a href=\"##$linkSignature\">${valueElement!!.getText().htmlEscape()}</a>"
+                if (tag.getName() == "link") "<code>$link</code>" else link
             }
-            else ContentText(tag.getValueElement()!!.getText())
+            else {
+                valueElement!!.getText()
+            }
         }
-        else -> ContentText(tag.getText())
+        else -> tag.getText()
     }
 
-    private fun resolveLink(valueElement: PsiDocTagValue?): ContentBlock? {
+    private fun resolveLink(valueElement: PsiDocTagValue?): String? {
         val target = valueElement?.getReference()?.resolve()
         if (target != null) {
-            val signature = getSignature(target)
-            if (signature != null) {
-                return ContentNodeLazyLink(valueElement!!.getText(), {() -> refGraph.lookup(signature)})
-            }
+            return getSignature(target)
         }
         return null
     }
