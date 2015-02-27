@@ -86,8 +86,9 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun PropertyDescriptor.receiverSignature(): String {
-        if (getExtensionReceiverParameter() != null || getValueParameters().size() > 0) {
-            return "#" + parameterSignature()
+        val receiver = getExtensionReceiverParameter()
+        if (receiver != null) {
+            return "#" + receiver.getType().signature()
         }
         return ""
     }
