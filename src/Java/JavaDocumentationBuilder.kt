@@ -339,7 +339,8 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                 appendTextNode(it, Kind.Modifier)
             }
         }
-        if ((element is PsiClass || element is PsiMethod) && !element.hasModifierProperty(PsiModifier.FINAL)) {
+        if ((element is PsiClass || (element is PsiMethod && !element.isConstructor())) &&
+                !element.hasModifierProperty(PsiModifier.FINAL)) {
             appendTextNode("open", Kind.Modifier)
         }
     }
