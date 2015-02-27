@@ -38,11 +38,8 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.getName()), subjectName)
 
-                    tag.getDataElements().forEach {
-                        if (it !is PsiDocTagValue || tag.getSubjectName() == null) {
-                            section.append(ContentText(it.getText()))
-                        }
-                    }
+                    section.convertJavadocElements(
+                            tag.getDataElements().filter { it !is PsiDocTagValue || tag.getSubjectName() == null })
                 }
             }
         }
