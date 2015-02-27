@@ -124,4 +124,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun javaCodeLiteralTags() {
+        verifyOutput("test/data/format/javaCodeLiteralTags.java", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
