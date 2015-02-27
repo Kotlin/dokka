@@ -128,6 +128,12 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                 valueElement!!.getText()
             }
         }
+        "code", "literal" -> {
+            val text = StringBuilder()
+            tag.getDataElements().forEach { text.append(it.getText()) }
+            val escaped = text.toString().trimLeading().htmlEscape()
+            if (tag.getName() == "code") "<code>$escaped</code>" else escaped
+        }
         else -> tag.getText()
     }
 
