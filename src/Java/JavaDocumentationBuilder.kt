@@ -104,9 +104,13 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
+        val linkElement = tag.linkElement()
+        if (linkElement == null) {
+            return
+        }
         val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
-        val linkSignature = resolveLink(tag.getValueElement())
-        val text = ContentText(tag.getValueElement()!!.getText())
+        val linkSignature = resolveLink(linkElement)
+        val text = ContentText(linkElement.getText())
         if (linkSignature != null) {
             val linkNode = ContentNodeLazyLink(tag.getValueElement()!!.getText(), {() -> refGraph.lookup(linkSignature)})
             linkNode.append(text)
@@ -118,14 +122,16 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.getName()) {
         "link", "linkplain" -> {
-            val valueElement = tag.getValueElement()
+            val valueElement = tag.linkElement()
             val linkSignature = resolveLink(valueElement)
             if (linkSignature != null) {
                 val link = "<a href=\"##$linkSignature\">${valueElement!!.getText().htmlEscape()}</a>"
                 if (tag.getName() == "link") "<code>$link</code>" else link
             }
-            else {
-                valueElement!!.getText()
+            else if (valueElement != null) {
+                valueElement.getText()
+            } else {
+                ""
             }
         }
         "code", "literal" -> {
@@ -137,7 +143,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         else -> tag.getText()
     }
 
-    private fun resolveLink(valueElement: PsiDocTagValue?): String? {
+    private fun PsiDocTag.linkElement(): PsiElement? =
+            getValueElement() ?: getDataElements().firstOrNull { it !is PsiWhiteSpace }
+
+    private fun resolveLink(valueElement: PsiElement?): String? {
         val target = valueElement?.getReference()?.resolve()
         if (target != null) {
             return getSignature(target)
