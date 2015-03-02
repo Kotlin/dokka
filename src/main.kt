@@ -88,6 +88,7 @@ public fun main(args: Array<String>) {
             arguments.nodeprecated)
 
     generator.generate()
+    DokkaConsoleLogger.report()
 }
 
 trait DokkaLogger {
@@ -97,9 +98,23 @@ trait DokkaLogger {
 }
 
 object DokkaConsoleLogger: DokkaLogger {
+    var warningCount: Int = 0
+
     override fun info(message: String) = println(message)
-    override fun warn(message: String) = println("WARN: $message")
+    override fun warn(message: String) {
+        println("WARN: $message")
+        warningCount++
+    }
+
     override fun error(message: String) = println("ERROR: $message")
+
+    fun report() {
+        if (warningCount > 0) {
+            println("Generation completed with $warningCount warnings")
+        } else {
+            println("Generation completed successfully")
+        }
+    }
 }
 
 class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
