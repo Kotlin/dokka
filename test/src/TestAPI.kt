@@ -32,7 +32,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
         addSources(files.toList())
         addClasspath(files.map { File(it)}.filter { it.isDirectory()} )
     }
-    val options = DocumentationOptions(includeNonPublic = true, sourceLinks = listOf<SourceLinkDefinition>())
+    val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
     val documentation = buildDocumentationModule(environment, "test", options, logger = DokkaConsoleLogger)
     verifier(documentation)
     Disposer.dispose(environment)
