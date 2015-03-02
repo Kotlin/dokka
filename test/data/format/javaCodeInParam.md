@@ -3,7 +3,7 @@
 
 # C
 
-`open class C&lt;T&gt; `
+`open class C&lt;T&gt;`
 
 
 

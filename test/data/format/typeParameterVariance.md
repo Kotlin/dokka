@@ -3,7 +3,7 @@
 
 # Foo
 
-`class Foo&lt;out&nbsp;T&gt; `
+`class Foo&lt;out&nbsp;T&gt;`
 
 
 
