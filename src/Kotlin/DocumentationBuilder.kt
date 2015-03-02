@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.DocumentationNode.Kind
-import org.jetbrains.eval4j.FieldDescription
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
@@ -207,7 +206,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     private fun ignoreSupertype(superType: JetType): Boolean {
-        val superClass = superType.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor
+        val superClass = superType.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
         if (superClass != null) {
             val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
             return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
@@ -282,9 +281,7 @@ class DocumentationBuilder(val session: ResolveSession,
     fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
         descriptors.forEach { descriptor ->
             val node = appendChild(descriptor, kind)
-            if (node != null) {
-                node.addReferenceTo(this, DocumentationReference.Kind.TopLevelPage)
-            }
+            node?.addReferenceTo(this, DocumentationReference.Kind.TopLevelPage)
         }
     }
 
@@ -520,7 +517,7 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun AnnotationDescriptor.build(): DocumentationNode? {
         val annotationClass = getType().getConstructor().getDeclarationDescriptor()
-        if (ErrorUtils.isError(annotationClass)) {
+        if (annotationClass == null || ErrorUtils.isError(annotationClass)) {
             return null
         }
         val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)

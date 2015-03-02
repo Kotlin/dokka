@@ -219,9 +219,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
                                     val signatureTexts = items map { signature ->
-                                        val signature = languageService.render(signature, RenderMode.SUMMARY)
+                                        val signatureText = languageService.render(signature, RenderMode.SUMMARY)
                                         val signatureAsCode = ContentCode()
-                                        signatureAsCode.append(signature)
+                                        signatureAsCode.append(signatureText)
                                         formatText(location, signatureAsCode)
                                     }
                                     signatureTexts.subList(0, signatureTexts.size()-1).forEach {
