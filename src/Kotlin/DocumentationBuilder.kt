@@ -494,13 +494,13 @@ class DocumentationBuilder(val session: ResolveSession,
         for (constraint in getUpperBounds()) {
             if (constraint == builtIns.getDefaultBound())
                 continue
-            node.appendTextNode(constraint.toString(), DocumentationNode.Kind.UpperBound)
+            node.appendType(constraint, Kind.UpperBound)
         }
 
         for (constraint in getLowerBounds()) {
             if (KotlinBuiltIns.isNothing(constraint))
                 continue
-            node.appendTextNode(constraint.toString(), DocumentationNode.Kind.LowerBound)
+            node.appendType(constraint, Kind.LowerBound)
         }
         return node
     }
