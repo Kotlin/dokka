@@ -83,9 +83,9 @@ class DocumentationBuilder(val session: ResolveSession,
         return content
     }
 
-    fun DeclarationDescriptor.isDeprecated() = getAnnotations().any {
+    fun DeclarationDescriptor.isDeprecated(): Boolean = getAnnotations().any {
         DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()).asString() == "kotlin.deprecated"
-    }
+    } || (this is ConstructorDescriptor && getContainingDeclaration().isDeprecated())
 
     fun DeclarationDescriptor.signature(): String = when(this) {
         is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
