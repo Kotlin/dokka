@@ -131,17 +131,23 @@ public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkRe
 }
 
 fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
-    if (functionName == null)
+    if (functionName == null) {
+        logger.warn("Missing function name in @sample in ${descriptor.signature()}")
         return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
+    }
     val scope = getResolutionScope(session, descriptor)
     val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
     val rootScope = rootPackage.getMemberScope()
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
-    if (symbol == null)
+    if (symbol == null) {
+        logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
         return ContentBlockCode().let() { it.append(ContentText("Unresolved: $functionName")); it }
+    }
     val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
-    if (psiElement == null)
+    if (psiElement == null) {
+        logger.warn("Can't find source for function $functionName in @sample in ${descriptor.signature()}")
         return ContentBlockCode().let() { it.append(ContentText("Source not found: $functionName")); it }
+    }
 
     val text = when (psiElement) {
         is JetDeclarationWithBody -> ContentBlockCode().let() {
