@@ -71,9 +71,9 @@ public class JavaTest {
                 assertEquals("Array", type.name)
                 assertEquals("String", type.detail(DocumentationNode.Kind.Type).name)
                 with(details(DocumentationNode.Kind.Parameter).single()) {
-                    val type = detail(DocumentationNode.Kind.Type)
-                    assertEquals("Array", type.name)
-                    assertEquals("Int", type.detail(DocumentationNode.Kind.Type).name)
+                    val parameterType = detail(DocumentationNode.Kind.Type)
+                    assertEquals("Array", parameterType.name)
+                    assertEquals("Int", parameterType.detail(DocumentationNode.Kind.Type).name)
                 }
             }
         }
