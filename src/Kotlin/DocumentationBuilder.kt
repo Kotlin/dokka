@@ -12,7 +12,9 @@ import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import org.jetbrains.kotlin.lexer.JetSingleValueToken
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
@@ -21,7 +23,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
@@ -394,6 +396,7 @@ class DocumentationBuilder(val session: ResolveSession,
         node.appendType(getReturnType())
         node.appendAnnotations(this)
         node.appendSourceLink(getSource())
+        node.appendOperatorOverloadNote(this)
 
         getOverriddenDescriptors().forEach {
             addOverrideLink(it, this)
@@ -412,6 +415,58 @@ class DocumentationBuilder(val session: ResolveSession,
                 addOverrideLink(it, overridingFunction)
             }
         }
+    }
+
+    fun DocumentationNode.appendOperatorOverloadNote(descriptor: FunctionDescriptor) {
+        val operatorName = descriptor.getImplementedOperator()
+        if (operatorName != null) {
+            val content = Content()
+            content.append(ContentText("Implements "))
+            content.strong {
+                text("operator ")
+                code {
+                    text(operatorName)
+                }
+            }
+            val noteNode = DocumentationNode("", content, DocumentationNode.Kind.OverloadGroupNote)
+            append(noteNode, DocumentationReference.Kind.Detail)
+        }
+    }
+
+    fun FunctionDescriptor.getImplementedOperator(): String? {
+        var arity = getValueParameters().size()
+        if (getContainingDeclaration() is ClassDescriptor) {
+            arity++
+        }
+        if (getExtensionReceiverParameter() != null) {
+            arity++
+        }
+
+        val token = if (arity == 2) {
+            OperatorConventions.BINARY_OPERATION_NAMES.inverse().get(getName()) ?:
+            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse().get(getName()) ?:
+            OperatorConventions.BOOLEAN_OPERATIONS.inverse().get(getName())
+        } else if (arity == 1) {
+            OperatorConventions.UNARY_OPERATION_NAMES.inverse().get(getName())
+        }
+        else null
+
+        if (token is JetSingleValueToken) {
+            return token.getValue()
+        }
+
+        val name = getName().asString()
+        if (arity == 2 && name == "contains") {
+            return "in"
+        }
+        if (arity >= 2 && (name == "get" || name == "set")) {
+            return "[]"
+        }
+        if (arity == 2 && name == "equals" && getValueParameters().size() == 1 &&
+            KotlinBuiltIns.isNullableAny(getValueParameters().first().getType())) {
+            return "=="
+        }
+        return null
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {

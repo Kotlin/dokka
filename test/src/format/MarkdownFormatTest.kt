@@ -148,4 +148,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    Test fun operatorOverloading() {
+        verifyOutput("test/data/format/operatorOverloading.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" })
+        }
+    }
 }

@@ -98,6 +98,17 @@ fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
 fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
 fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind.Other) = append(ContentIdentifier(value, kind))
 fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
+fun ContentBlock.strong(body: ContentBlock.() -> Unit) {
+    val strong = ContentStrong()
+    strong.body()
+    append(strong)
+}
+
+fun ContentBlock.code(body: ContentBlock.() -> Unit) {
+    val code = ContentCode()
+    code.body()
+    append(code)
+}
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
     val block = ContentNodeDirectLink(to)
