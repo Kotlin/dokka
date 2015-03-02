@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val reportUndocumented: Boolean = true,
+                                       val skipEmptyPackages: Boolean = true,
                                        val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
@@ -277,15 +278,25 @@ class DocumentationBuilder(val session: ResolveSession,
         if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
             return null
 
-        if (options.includeNonPublic
-                || descriptor !is MemberDescriptor
-                || descriptor.getVisibility() in visibleToDocumentation) {
+        if (descriptor.isDocumented()) {
             val node = descriptor.build()
             append(node, kind)
             return node
         }
         return null
     }
+
+    private fun DeclarationDescriptor.isDocumented(): Boolean {
+        return (options.includeNonPublic
+                || this !is MemberDescriptor
+                || this.getVisibility() in visibleToDocumentation) && !isDocumentationSuppressed()
+    }
+
+    fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
+        val doc = KDocFinder.findKDoc(this)
+        return doc is KDocSection && doc.findTagByName("suppress") != null
+    }
+
 
     fun DocumentationNode.appendChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
         descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
@@ -320,6 +331,7 @@ class DocumentationBuilder(val session: ResolveSession,
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
         }
         for ((packageName, declarations) in descriptors) {
+            if (options.skipEmptyPackages && declarations.none { it.isDocumented()}) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(packageName)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
