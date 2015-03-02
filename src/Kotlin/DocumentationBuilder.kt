@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.types.expressions.OperatorConventions
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val reportUndocumented: Boolean = true,
                                        val skipEmptyPackages: Boolean = true,
+                                       val skipDeprecated: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
@@ -289,7 +290,9 @@ class DocumentationBuilder(val session: ResolveSession,
     private fun DeclarationDescriptor.isDocumented(): Boolean {
         return (options.includeNonPublic
                 || this !is MemberDescriptor
-                || this.getVisibility() in visibleToDocumentation) && !isDocumentationSuppressed()
+                || this.getVisibility() in visibleToDocumentation) &&
+                !isDocumentationSuppressed() &&
+                (!options.skipDeprecated || !isDeprecated())
     }
 
     fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {

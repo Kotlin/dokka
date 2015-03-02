@@ -46,6 +46,9 @@ class DokkaArguments {
     ValueDescription("<path>")
     public var classpath: String = ""
 
+    Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
+    public var nodeprecated: Boolean = false
+
 }
 
 private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
@@ -81,7 +84,8 @@ public fun main(args: Array<String>) {
             arguments.moduleName,
             arguments.outputDir,
             arguments.outputFormat,
-            sourceLinks)
+            sourceLinks,
+            arguments.nodeprecated)
 
     generator.generate()
 }
@@ -112,7 +116,8 @@ class DokkaGenerator(val logger: DokkaLogger,
                      val moduleName: String,
                      val outputDir: String,
                      val outputFormat: String,
-                     val sourceLinks: List<SourceLinkDefinition>) {
+                     val sourceLinks: List<SourceLinkDefinition>,
+                     val skipDeprecated: Boolean = false) {
     fun generate() {
         val environment = createAnalysisEnvironment()
 
@@ -124,7 +129,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val options = DocumentationOptions(false, sourceLinks = sourceLinks)
+        val options = DocumentationOptions(false, sourceLinks = sourceLinks, skipDeprecated = skipDeprecated)
         val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) }, logger)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
