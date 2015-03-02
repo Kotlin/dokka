@@ -224,12 +224,15 @@ class DocumentationBuilder(val session: ResolveSession,
             return
         val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
-            is Named -> classifierDescriptor.getName().asString() + if (jetType.isMarkedNullable()) "?" else ""
+            is Named -> classifierDescriptor.getName().asString()
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, kind)
         if (prefix != "") {
             node.appendTextNode(prefix, Kind.Modifier)
+        }
+        if (jetType.isMarkedNullable()) {
+            node.appendTextNode("?", Kind.NullabilityModifier)
         }
         if (classifierDescriptor != null && !classifierDescriptor.isBoringBuiltinClass()) {
             link(node, classifierDescriptor)
