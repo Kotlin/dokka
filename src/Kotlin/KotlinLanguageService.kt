@@ -114,6 +114,10 @@ class KotlinLanguageService : LanguageService {
             }
             symbol(">")
         }
+        val nullabilityModifier = node.details(DocumentationNode.Kind.NullabilityModifier).singleOrNull()
+        if (nullabilityModifier != null) {
+            symbol(nullabilityModifier.name)
+        }
     }
 
     private fun ContentBlock.renderModifier(node: DocumentationNode) {

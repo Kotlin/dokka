@@ -91,6 +91,7 @@ public open class DocumentationNode(val name: String,
         Exception
 
         Modifier
+        NullabilityModifier
 
         Module
 
