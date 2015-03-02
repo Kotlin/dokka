@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
+                                       val reportUndocumented: Boolean = true,
                                        val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
@@ -46,6 +47,11 @@ class DocumentationBuilder(val session: ResolveSession,
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor)
         if (kdoc == null) {
+            if (options.reportUndocumented && !descriptor.isDeprecated() &&
+                    descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
+                    descriptor !is PropertyAccessorDescriptor) {
+                logger.warn("No documentation for ${descriptor.signature()}")
+            }
             return Content.Empty
         }
         var kdocText = kdoc.getContent()
@@ -74,6 +80,10 @@ class DocumentationBuilder(val session: ResolveSession,
             }
         }
         return content
+    }
+
+    fun DeclarationDescriptor.isDeprecated() = getAnnotations().any {
+        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()).asString() == "kotlin.deprecated"
     }
 
     fun DeclarationDescriptor.signature(): String = when(this) {
@@ -122,6 +132,7 @@ class DocumentationBuilder(val session: ResolveSession,
         if ("/" in href) {
             return ContentExternalLink(href)
         }
+        logger.warn("Unresolved link to $href in doc comment of ${descriptor.signature()}")
         return ContentExternalLink("#")
     }
 

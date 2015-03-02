@@ -124,7 +124,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val options = DocumentationOptions(false, sourceLinks)
+        val options = DocumentationOptions(false, sourceLinks = sourceLinks)
         val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) }, logger)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
