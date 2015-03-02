@@ -114,6 +114,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
+            item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
+                to.append(formatText(location, it.content))
+            }
             to.append(formatText(location, item.content.summary))
             appendDescription(location, to, item)
             appendLine(to)

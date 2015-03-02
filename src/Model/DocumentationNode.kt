@@ -101,6 +101,12 @@ public open class DocumentationNode(val name: String,
         Value
 
         SourceUrl
+
+        /**
+         * A note which is rendered once on a page documenting a group of overloaded functions.
+         * Needs to be generated equally on all overloads.
+         */
+        OverloadGroupNote
     }
 
 }
