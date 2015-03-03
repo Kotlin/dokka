@@ -27,10 +27,12 @@ public open class MarkdownFormatService(locationService: LocationService,
         return "`$code`"
     }
 
-    override public fun formatList(text: String): String = text + "\n"
+    override public fun formatUnorderedList(text: String): String = text + "\n"
+    override public fun formatOrderedList(text: String): String = text + "\n"
 
-    override fun formatListItem(text: String): String {
-        return "* $text"
+    override fun formatListItem(text: String, kind: ListKind): String {
+        val itemText = if (text.endsWith("\n")) text else text + "\n"
+        return if (kind == ListKind.Unordered) "* $itemText" else "1. $itemText"
     }
 
     override public fun formatStrong(text: String): String {

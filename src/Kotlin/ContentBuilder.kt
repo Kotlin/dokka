@@ -25,12 +25,12 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
         val parent = nodeStack.peek()!!
         when (node.type) {
             MarkdownElementTypes.UNORDERED_LIST -> {
-                nodeStack.push(ContentList())
+                nodeStack.push(ContentUnorderedList())
                 processChildren()
                 parent.append(nodeStack.pop())
             }
             MarkdownElementTypes.ORDERED_LIST -> {
-                nodeStack.push(ContentList()) // TODO: add list kind
+                nodeStack.push(ContentOrderedList())
                 processChildren()
                 parent.append(nodeStack.pop())
             }
