@@ -74,11 +74,13 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                     }
                 }
             }
-            MarkdownElementTypes.SHORT_REFERENCE_LINK -> {
+            MarkdownElementTypes.SHORT_REFERENCE_LINK,
+            MarkdownElementTypes.FULL_REFERENCE_LINK -> {
                 val label = node.child(MarkdownElementTypes.LINK_LABEL)?.child(MarkdownTokenTypes.TEXT)
                 if (label != null) {
                     val link = linkResolver(label.text)
-                    link.append(ContentText(label.text))
+                    val linkText = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
+                    link.append(ContentText(linkText?.text ?: label.text))
                     parent.append(link)
                 }
             }

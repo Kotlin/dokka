@@ -106,6 +106,12 @@ public class HtmlFormatTest {
         }
     }
 
+    Test fun javaLinkTagWithLabel() {
+        verifyOutput("test/data/format/javaLinkTagWithLabel.java", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
     Test fun javaSeeTag() {
         verifyOutput("test/data/format/javaSeeTag.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
@@ -126,6 +132,12 @@ public class HtmlFormatTest {
 
     Test fun orderedList() {
         verifyOutput("test/data/format/orderedList.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
+
+    Test fun linkWithLabel() {
+        verifyOutput("test/data/format/linkWithLabel.kt", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }
