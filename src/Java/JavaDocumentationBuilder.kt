@@ -91,14 +91,13 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     private fun createLink(element: Element): ContentBlock {
+        val docref = element.attr("docref")
+        if (docref != null) {
+            return ContentNodeLazyLink(docref, {() -> refGraph.lookup(docref)})
+        }
         val href = element.attr("href")
         if (href != null) {
-            if (href.startsWith("##")) {
-                val signature = href.substring(2)
-                return ContentNodeLazyLink(signature, {() -> refGraph.lookup(signature)})
-            } else {
-                return ContentExternalLink(href)
-            }
+            return ContentExternalLink(href)
         } else {
             return ContentBlock()
         }
@@ -126,7 +125,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             val valueElement = tag.linkElement()
             val linkSignature = resolveLink(valueElement)
             if (linkSignature != null) {
-                val link = "<a href=\"##$linkSignature\">${valueElement!!.getText().htmlEscape()}</a>"
+                val link = "<a docref=\"$linkSignature\">${valueElement!!.getText().htmlEscape()}</a>"
                 if (tag.getName() == "link") "<code>$link</code>" else link
             }
             else if (valueElement != null) {
