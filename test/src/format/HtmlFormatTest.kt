@@ -123,4 +123,10 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }
+
+    Test fun orderedList() {
+        verifyOutput("test/data/format/orderedList.kt", ".html") { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
 }

@@ -76,7 +76,8 @@ public class ContentExternalLink(val href : String) : ContentBlock() {
         children.hashCode() * 31 + href.hashCode()
 }
 
-public class ContentList() : ContentBlock()
+public class ContentUnorderedList() : ContentBlock()
+public class ContentOrderedList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
 
 public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock() {

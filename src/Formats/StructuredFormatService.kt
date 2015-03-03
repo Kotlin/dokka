@@ -5,6 +5,11 @@ import org.jetbrains.dokka.LanguageService.RenderMode
 
 public data class FormatLink(val text: String, val href: String)
 
+enum class ListKind {
+    Ordered
+    Unordered
+}
+
 public abstract class StructuredFormatService(locationService: LocationService,
                                               val languageService: LanguageService,
                                               override val extension: String) : FormatService {
@@ -33,16 +38,17 @@ public abstract class StructuredFormatService(locationService: LocationService,
     public abstract fun formatStrikethrough(text: String): String
     public abstract fun formatEmphasis(text: String): String
     public abstract fun formatCode(code: String): String
-    public abstract fun formatList(text: String): String
-    public abstract fun formatListItem(text: String): String
+    public abstract fun formatUnorderedList(text: String): String
+    public abstract fun formatOrderedList(text: String): String
+    public abstract fun formatListItem(text: String, kind: ListKind): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
     public abstract fun formatNonBreakingSpace(): String
 
-    open fun formatText(location: Location, nodes: Iterable<ContentNode>): String {
-        return nodes.map { formatText(location, it) }.join("")
+    open fun formatText(location: Location, nodes: Iterable<ContentNode>, listKind: ListKind = ListKind.Unordered): String {
+        return nodes.map { formatText(location, it, listKind) }.join("")
     }
 
-    open fun formatText(location: Location, content: ContentNode): String {
+    open fun formatText(location: Location, content: ContentNode, listKind: ListKind = ListKind.Unordered): String {
         return StringBuilder {
             when (content) {
                 is ContentText -> append(formatText(content.text))
@@ -54,8 +60,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
                 is ContentCode -> append(formatCode(formatText(location, content.children)))
                 is ContentEmphasis -> append(formatEmphasis(formatText(location, content.children)))
-                is ContentList -> append(formatList(formatText(location, content.children)))
-                is ContentListItem -> append(formatListItem(formatText(location, content.children)))
+                is ContentUnorderedList -> append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered)))
+                is ContentOrderedList -> append(formatOrderedList(formatText(location, content.children, ListKind.Ordered)))
+                is ContentListItem -> append(formatListItem(formatText(location, content.children), listKind))
 
                 is ContentNodeLink -> {
                     val node = content.node

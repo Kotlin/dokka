@@ -98,11 +98,10 @@ public open class HtmlFormatService(locationService: LocationService,
         return "<code>${code}</code>"
     }
 
-    override fun formatList(text: String): String {
-        return "<ul>${text}</ul>"
-    }
+    override fun formatUnorderedList(text: String): String = "<ul>${text}</ul>"
+    override fun formatOrderedList(text: String): String = "<ol>${text}</ol>"
 
-    override fun formatListItem(text: String): String {
+    override fun formatListItem(text: String, kind: ListKind): String {
         return "<li>${text}</li>"
     }
 

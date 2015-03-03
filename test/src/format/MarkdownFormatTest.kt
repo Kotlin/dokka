@@ -154,4 +154,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" })
         }
     }
+
+    Test fun javadocOrderedLIst() {
+        verifyOutput("test/data/format/javadocOrderedList.java", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
 }
