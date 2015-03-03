@@ -126,7 +126,8 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             val valueElement = tag.linkElement()
             val linkSignature = resolveLink(valueElement)
             if (linkSignature != null) {
-                val link = "<a docref=\"$linkSignature\">${valueElement!!.getText().htmlEscape()}</a>"
+                val labelText = tag.getDataElements().firstOrNull { it is PsiDocToken }?.getText() ?: valueElement!!.getText()
+                val link = "<a docref=\"$linkSignature\">${labelText.htmlEscape()}</a>"
                 if (tag.getName() == "link") "<code>$link</code>" else link
             }
             else if (valueElement != null) {
