@@ -134,12 +134,12 @@ public fun MarkdownNode.toHtml(): String {
 fun parseMarkdown(markdown: String): MarkdownNode {
     if (markdown.isEmpty())
         return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), null, markdown)
-    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown), null, markdown)
+    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor.Factory).buildMarkdownTreeFromString(markdown), null, markdown)
 }
 
 fun markdownToHtml(markdown: String): String {
 
-    val tree = MarkdownParser(CommonMarkMarkerProcessor.Factory()).buildMarkdownTreeFromString(markdown)
+    val tree = MarkdownParser(CommonMarkMarkerProcessor.Factory).buildMarkdownTreeFromString(markdown)
     val markdownTree = MarkdownNode(tree, null, markdown)
     val ast = markdownTree.toTestString()
     return markdownTree.toHtml()
