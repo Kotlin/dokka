@@ -47,7 +47,7 @@ class DocumentationBuilder(val session: ResolveSession,
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
-        val kdoc = KDocFinder.findKDoc(descriptor)
+        val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
         if (kdoc == null) {
             if (options.reportUndocumented && !descriptor.isDeprecated() &&
                     descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
@@ -82,6 +82,34 @@ class DocumentationBuilder(val session: ResolveSession,
             }
         }
         return content
+    }
+
+    /**
+     * Special case for generating stdlib documentation (the Any class to which the override chain will resolve
+     * is not the same one as the Any class included in the source scope).
+     */
+    fun findStdlibKDoc(descriptor: DeclarationDescriptor): KDocTag? {
+        if (descriptor !is CallableMemberDescriptor) {
+            return null
+        }
+        val name = descriptor.getName().asString()
+        if (name == "equals" || name == "hashCode" || name == "toString") {
+            var deepestDescriptor = descriptor: CallableMemberDescriptor
+            while (!deepestDescriptor.getOverriddenDescriptors().isEmpty()) {
+                deepestDescriptor = deepestDescriptor.getOverriddenDescriptors().first()
+            }
+            if (DescriptorUtils.getFqName(deepestDescriptor.getContainingDeclaration()).asString() == "kotlin.Any") {
+                val anyClassDescriptors = session.getTopLevelClassDescriptors(FqName.fromSegments(listOf("kotlin", "Any")))
+                anyClassDescriptors.forEach {
+                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.getName()).single()
+                    val kdoc = KDocFinder.findKDoc(anyMethod)
+                    if (kdoc != null) {
+                        return kdoc
+                    }
+                }
+            }
+        }
+        return null
     }
 
     fun DeclarationDescriptor.isDeprecated(): Boolean = getAnnotations().any {
