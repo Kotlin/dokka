@@ -389,7 +389,6 @@ class DocumentationBuilder(val session: ResolveSession,
     fun ClassDescriptor.build(): DocumentationNode {
         val kind = when (getKind()) {
             ClassKind.OBJECT -> Kind.Object
-            ClassKind.CLASS_OBJECT -> Kind.Object
             ClassKind.TRAIT -> Kind.Interface
             ClassKind.ENUM_CLASS -> Kind.Enum
             ClassKind.ANNOTATION_CLASS -> Kind.AnnotationClass
@@ -411,9 +410,9 @@ class DocumentationBuilder(val session: ResolveSession,
         }
         val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getDefaultObjectDescriptor() }
         node.appendChildren(members, DocumentationReference.Kind.Member)
-        val classObjectDescriptor = getDefaultObjectDescriptor()
-        if (classObjectDescriptor != null) {
-            node.appendChildren(classObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
+        val defaultObjectDescriptor = getDefaultObjectDescriptor()
+        if (defaultObjectDescriptor != null) {
+            node.appendChildren(defaultObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
         }
         node.appendAnnotations(this)
@@ -429,8 +428,8 @@ class DocumentationBuilder(val session: ResolveSession,
         return node
     }
 
-    private fun DeclarationDescriptor.inClassObject() =
-            getContainingDeclaration().let { it is ClassDescriptor && it.getKind() == ClassKind.CLASS_OBJECT }
+    private fun DeclarationDescriptor.inDefaultObject() =
+            getContainingDeclaration().let { it is ClassDescriptor && it.isDefaultObject() }
 
     fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
         val extensionReceiver = getExtensionReceiverParameter()
@@ -442,7 +441,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun FunctionDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectFunction else Kind.Function)
+        val node = DocumentationNode(this, if (inDefaultObject()) Kind.DefaultObjectFunction else Kind.Function)
 
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
@@ -524,7 +523,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inClassObject()) Kind.DefaultObjectProperty else Kind.Property)
+        val node = DocumentationNode(this, if (inDefaultObject()) Kind.DefaultObjectProperty else Kind.Property)
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
