@@ -144,11 +144,12 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun JetType.signature(): String {
-        val typeName = getConstructor().getDeclarationDescriptor()?.getName()?.asString()
+        val declarationDescriptor = getConstructor().getDeclarationDescriptor() ?: return "<null>"
+        val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
         if (typeName == "Array" && getArguments().size() == 1) {
             return "Array<" + getArguments().first().getType().signature() + ">"
         }
-        return typeName ?: "<null>"
+        return typeName
     }
 
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
@@ -266,6 +267,15 @@ class DocumentationBuilder(val session: ResolveSession,
             return
         val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
+            is ClassDescriptor -> {
+                if (classifierDescriptor.isDefaultObject()) {
+                    classifierDescriptor.getContainingDeclaration().getName().asString() +
+                            "." + classifierDescriptor.getName().asString()
+                }
+                else {
+                    classifierDescriptor.getName().asString()
+                }
+            }
             is Named -> classifierDescriptor.getName().asString()
             else -> "<anonymous>"
         }
@@ -428,8 +438,14 @@ class DocumentationBuilder(val session: ResolveSession,
         return node
     }
 
-    private fun DeclarationDescriptor.inDefaultObject() =
-            getContainingDeclaration().let { it is ClassDescriptor && it.isDefaultObject() }
+    private fun CallableMemberDescriptor.inDefaultObject(): Boolean {
+        val containingDeclaration = getContainingDeclaration()
+        if ((containingDeclaration as? ClassDescriptor)?.isDefaultObject() ?: false) {
+            return true
+        }
+        val receiver = getExtensionReceiverParameter()
+        return (receiver?.getType()?.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor)?.isDefaultObject() ?: false
+    }
 
     fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
         val extensionReceiver = getExtensionReceiverParameter()
@@ -614,7 +630,11 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
-        link(getType().getConstructor().getDeclarationDescriptor(),
+        var receiverClass: DeclarationDescriptor = getType().getConstructor().getDeclarationDescriptor()
+        if ((receiverClass as? ClassDescriptor)?.isDefaultObject() ?: false) {
+            receiverClass = receiverClass.getContainingDeclaration()!!
+        }
+        link(receiverClass,
                 getContainingDeclaration(),
                 DocumentationReference.Kind.Extension)
 
