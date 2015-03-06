@@ -244,4 +244,13 @@ public class ClassTest {
             assertEquals("inner", modifiers[2].name)
         }
     }
+
+    Test fun defaultObjectExtension() {
+        verifyModel("test/data/classes/defaultObjectExtension.kt") { model ->
+            val pkg = model.members.single()
+            val cls = pkg.members.single { it.name == "Foo" }
+            val extensions = cls.extensions.filter { it.kind == DocumentationNode.Kind.DefaultObjectProperty }
+            assertEquals(1, extensions.size())
+        }
+    }
 }

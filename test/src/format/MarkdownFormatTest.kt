@@ -155,9 +155,15 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun javadocOrderedLIst() {
+    Test fun javadocOrderedList() {
         verifyOutput("test/data/format/javadocOrderedList.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
+
+    Test fun defaultObjectExtension() {
+        verifyOutput("test/data/format/defaultObjectExtension.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Foo" })
         }
     }
 }
