@@ -91,9 +91,6 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 }
             }
 
-            MarkdownTokenTypes.TEXT ->
-                parent.append(ContentText(node.text))
-
             MarkdownTokenTypes.CODE -> {
                 val block = ContentBlockCode()
                 block.append(ContentText(node.text))
@@ -104,9 +101,9 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 processChildren()
                 parent.append(nodeStack.pop())
             }
-            MarkdownTokenTypes.COLON -> {
-                parent.append(ContentText(node.text))
-            }
+
+            MarkdownTokenTypes.TEXT,
+            MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,
             MarkdownTokenTypes.GT,
