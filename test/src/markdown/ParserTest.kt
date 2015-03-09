@@ -3,7 +3,6 @@ package org.jetbrains.dokka.tests
 import org.junit.Test
 import org.jetbrains.dokka
 import org.jetbrains.dokka.toTestString
-import org.jetbrains.dokka.toHtml
 import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
 
@@ -14,8 +13,6 @@ Ignore public class ParserTest {
         val markdownTree = parseMarkdown(text)
         println("AST: ---")
         println(markdownTree.toTestString())
-        println("HTML: ---")
-        println(markdownTree.toHtml())
         println()
     }
 
