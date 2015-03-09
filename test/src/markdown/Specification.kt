@@ -6,5 +6,6 @@ import org.jetbrains.dokka.*
 
 //[RunWith(javaClass<MarkdownTestRunner>())]
 class Specification : MarkdownSpecification("test/data/markdown/spec.txt", {
-    markdownToHtml(it.replace("→", "\t"))
+//    markdownToHtml(it.replace("→", "\t"))
+    ""
 })
