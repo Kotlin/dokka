@@ -32,6 +32,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
     public abstract fun formatSymbol(text: String): String
     public abstract fun formatKeyword(text: String): String
     public abstract fun formatIdentifier(text: String, kind: IdentifierKind): String
+    public fun formatEntity(text: String): String = text
     public abstract fun formatLink(text: String, href: String): String
     public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
     public abstract fun formatStrong(text: String): String
@@ -56,6 +57,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text, content.kind))
                 is ContentNonBreakingSpace -> append(formatNonBreakingSpace())
+                is ContentEntity -> append(formatEntity(content.text))
                 is ContentStrong -> append(formatStrong(formatText(location, content.children)))
                 is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
                 is ContentCode -> append(formatCode(formatText(location, content.children)))
