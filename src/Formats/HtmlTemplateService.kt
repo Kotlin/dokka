@@ -4,7 +4,7 @@ public trait HtmlTemplateService {
     fun appendHeader(to: StringBuilder, title: String?)
     fun appendFooter(to: StringBuilder)
 
-    class object {
+    default object {
         public fun default(css: String? = null): HtmlTemplateService {
             return object : HtmlTemplateService {
                 override fun appendFooter(to: StringBuilder) {

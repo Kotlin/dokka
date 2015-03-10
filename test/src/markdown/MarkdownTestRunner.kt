@@ -9,7 +9,7 @@ import kotlin.properties.Delegates
 import org.junit.ComparisonFailure
 
 data class MarkdownTestUniqueId(val id: Int) : Serializable {
-    class object {
+    default object {
         var id = 0
         fun next() = MarkdownTestUniqueId(id++)
     }

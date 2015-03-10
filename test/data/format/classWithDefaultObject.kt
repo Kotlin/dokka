@@ -1,5 +1,5 @@
 class Klass() {
-    class object {
+    default object {
         val x = 1
 
         fun foo() {}
