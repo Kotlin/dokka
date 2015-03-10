@@ -102,6 +102,10 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 parent.append(nodeStack.pop())
             }
 
+            MarkdownTokenTypes.HTML_ENTITY -> {
+                parent.append(ContentEntity(node.text))
+            }
+
             MarkdownTokenTypes.TEXT,
             MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.DOUBLE_QUOTE,

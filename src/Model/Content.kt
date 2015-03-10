@@ -37,6 +37,7 @@ public data class ContentText(val text: String) : ContentNode()
 public data class ContentKeyword(val text: String) : ContentNode()
 public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode()
 public data class ContentSymbol(val text: String) : ContentNode()
+public data class ContentEntity(val text: String) : ContentNode()
 public object ContentNonBreakingSpace: ContentNode()
 
 public class ContentParagraph() : ContentBlock()
