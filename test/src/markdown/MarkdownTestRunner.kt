@@ -76,7 +76,7 @@ public open class MarkdownTestSection(val spec: MarkdownSpecification, val title
 }
 
 public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>) : MarkdownTestSection(specificationClass.newInstance(), "Tests") {
-    {
+    init {
         val lines = File(spec.path).readLines()
         createSections(this, lines, 1)
     }
