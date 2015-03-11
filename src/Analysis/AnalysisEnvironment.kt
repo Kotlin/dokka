@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
     val configuration = CompilerConfiguration();
 
-    {
+    init {
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
         body()
     }
