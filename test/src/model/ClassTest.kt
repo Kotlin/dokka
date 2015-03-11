@@ -253,4 +253,15 @@ public class ClassTest {
             assertEquals(1, extensions.size())
         }
     }
+
+    Test fun secondaryConstructor() {
+        verifyPackageMember("test/data/classes/secondaryConstructor.kt") { cls ->
+            val constructors = cls.members(DocumentationNode.Kind.Constructor)
+            assertEquals(2, constructors.size())
+            with (constructors.first { it.details(DocumentationNode.Kind.Parameter).size()== 1}) {
+                assertEquals("<init>", name)
+                assertEquals("This is a secondary constructor.", summary.toTestString())
+            }
+        }
+    }
 }
