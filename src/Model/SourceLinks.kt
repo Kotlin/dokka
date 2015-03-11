@@ -18,14 +18,18 @@ fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<Sourc
     if (linkDef != null) {
         var url = linkDef.url + path.substring(linkDef.path.length())
         if (linkDef.lineSuffix != null) {
-            val doc = PsiDocumentManager.getInstance(psi!!.getProject()).getDocument(psi.getContainingFile())
-            if (doc != null) {
-                // IJ uses 0-based line-numbers; external source browsers use 1-based
-                val line = doc.getLineNumber(target!!.getTextRange().getStartOffset()) + 1
+            val line = target?.lineNumber()
+            if (line != null) {
                 url += linkDef.lineSuffix + line.toString()
             }
         }
         append(DocumentationNode(url, Content.Empty, DocumentationNode.Kind.SourceUrl),
                 DocumentationReference.Kind.Detail);
     }
+}
+
+fun PsiElement.lineNumber(): Int? {
+    val doc = PsiDocumentManager.getInstance(getProject()).getDocument(getContainingFile())
+    // IJ uses 0-based line-numbers; external source browsers use 1-based
+    return doc?.getLineNumber(getTextRange().getStartOffset())?.plus(1)
 }

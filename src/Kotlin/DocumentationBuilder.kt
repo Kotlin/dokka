@@ -14,11 +14,11 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.JetSingleValueToken
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.JetType
@@ -52,7 +52,7 @@ class DocumentationBuilder(val session: ResolveSession,
             if (options.reportUndocumented && !descriptor.isDeprecated() &&
                     descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
                     descriptor !is PropertyAccessorDescriptor) {
-                logger.warn("No documentation for ${descriptor.signature()}")
+                logger.warn("No documentation for ${descriptor.signatureWithSourceLocation()}")
             }
             return Content.Empty
         }
@@ -152,6 +152,24 @@ class DocumentationBuilder(val session: ResolveSession,
         return typeName
     }
 
+    fun DeclarationDescriptor.sourceLocation(): String? {
+        if (this is DeclarationDescriptorWithSource) {
+            val psi = (this.getSource() as? PsiSourceElement)?.getPsi()
+            if (psi != null) {
+                val fileName = psi.getContainingFile().getName()
+                val lineNumber = psi.lineNumber()
+                return if (lineNumber != null) "$fileName:$lineNumber" else fileName
+            }
+        }
+        return null
+    }
+
+    fun DeclarationDescriptor.signatureWithSourceLocation(): String {
+        val signature = signature()
+        val sourceLocation = sourceLocation()
+        return if (sourceLocation != null) "$signature ($sourceLocation)" else signature
+    }
+
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
         val symbol = findTargetSymbol(symbols)
@@ -163,7 +181,7 @@ class DocumentationBuilder(val session: ResolveSession,
         if ("/" in href) {
             return ContentExternalLink(href)
         }
-        logger.warn("Unresolved link to $href in doc comment of ${descriptor.signature()}")
+        logger.warn("Unresolved link to $href in doc comment of ${descriptor.signatureWithSourceLocation()}")
         return ContentExternalLink("#")
     }
 
