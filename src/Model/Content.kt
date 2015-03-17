@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import kotlin.properties.Delegates
 
 public abstract class ContentNode {
-    default object {
+    companion object {
         val empty = ContentEmpty
     }
 }
@@ -126,7 +126,7 @@ public open class Content(): ContentBlock() {
     fun findSectionByTag(tag: String): ContentSection? =
             sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
 
-    default object {
+    companion object {
         val Empty = Content()
     }
 }

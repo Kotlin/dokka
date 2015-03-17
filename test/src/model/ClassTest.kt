@@ -124,8 +124,8 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithDefaultObject() {
-        verifyModel("test/data/classes/classWithDefaultObject.kt") { model ->
+    Test fun classWithCompanionObject() {
+        verifyModel("test/data/classes/classWithCompanionObject.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
@@ -140,13 +140,13 @@ public class ClassTest {
                 }
                 with(members.elementAt(1)) {
                     assertEquals("x", name)
-                    assertEquals(DocumentationNode.Kind.DefaultObjectProperty, kind)
+                    assertEquals(DocumentationNode.Kind.CompanionObjectProperty, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
                 with(members.elementAt(2)) {
                     assertEquals("foo", name)
-                    assertEquals(DocumentationNode.Kind.DefaultObjectFunction, kind)
+                    assertEquals(DocumentationNode.Kind.CompanionObjectFunction, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
@@ -245,11 +245,11 @@ public class ClassTest {
         }
     }
 
-    Test fun defaultObjectExtension() {
-        verifyModel("test/data/classes/defaultObjectExtension.kt") { model ->
+    Test fun companionObjectExtension() {
+        verifyModel("test/data/classes/companionObjectExtension.kt") { model ->
             val pkg = model.members.single()
             val cls = pkg.members.single { it.name == "Foo" }
-            val extensions = cls.extensions.filter { it.kind == DocumentationNode.Kind.DefaultObjectProperty }
+            val extensions = cls.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }
             assertEquals(1, extensions.size())
         }
     }

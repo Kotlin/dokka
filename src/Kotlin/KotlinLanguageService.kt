@@ -28,9 +28,9 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.Modifier -> renderModifier(node)
                 DocumentationNode.Kind.Constructor,
                 DocumentationNode.Kind.Function,
-                DocumentationNode.Kind.DefaultObjectFunction -> renderFunction(node, renderMode)
+                DocumentationNode.Kind.CompanionObjectFunction -> renderFunction(node, renderMode)
                 DocumentationNode.Kind.Property,
-                DocumentationNode.Kind.DefaultObjectProperty -> renderProperty(node, renderMode)
+                DocumentationNode.Kind.CompanionObjectProperty -> renderProperty(node, renderMode)
                 else -> identifier(node.name)
             }
         }
@@ -248,7 +248,7 @@ class KotlinLanguageService : LanguageService {
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
-            DocumentationNode.Kind.DefaultObjectFunction -> keyword("fun ")
+            DocumentationNode.Kind.CompanionObjectFunction -> keyword("fun ")
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
         renderTypeParametersForNode(node)
@@ -285,7 +285,7 @@ class KotlinLanguageService : LanguageService {
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Property,
-            DocumentationNode.Kind.DefaultObjectProperty -> keyword("${node.getPropertyKeyword()} ")
+            DocumentationNode.Kind.CompanionObjectProperty -> keyword("${node.getPropertyKeyword()} ")
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
         renderTypeParametersForNode(node)

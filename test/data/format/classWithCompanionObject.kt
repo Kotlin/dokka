@@ -1,5 +1,5 @@
 class Klass() {
-    default object {
+    companion object {
         val x = 1
 
         fun foo() {}

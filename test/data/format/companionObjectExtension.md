@@ -13,7 +13,7 @@
 | [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
 
 
-### Default Object Extension Properties
+### Companion Object Extension Properties
 
 
 | [x](test/x) | `val Foo.Default.x: Int`

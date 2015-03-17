@@ -78,8 +78,8 @@ public open class DocumentationNode(val name: String,
         Function
         Property
 
-        DefaultObjectProperty
-        DefaultObjectFunction
+        CompanionObjectProperty
+        CompanionObjectFunction
 
         Parameter
         Receiver

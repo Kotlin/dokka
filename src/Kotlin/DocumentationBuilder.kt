@@ -286,7 +286,7 @@ class DocumentationBuilder(val session: ResolveSession,
         val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
         val name = when (classifierDescriptor) {
             is ClassDescriptor -> {
-                if (classifierDescriptor.isDefaultObject()) {
+                if (classifierDescriptor.isCompanionObject()) {
                     classifierDescriptor.getContainingDeclaration().getName().asString() +
                             "." + classifierDescriptor.getName().asString()
                 }
@@ -436,9 +436,9 @@ class DocumentationBuilder(val session: ResolveSession,
                 getConstructors()
             node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
         }
-        val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getDefaultObjectDescriptor() }
+        val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getCompanionObjectDescriptor() }
         node.appendChildren(members, DocumentationReference.Kind.Member)
-        val defaultObjectDescriptor = getDefaultObjectDescriptor()
+        val defaultObjectDescriptor = getCompanionObjectDescriptor()
         if (defaultObjectDescriptor != null) {
             node.appendChildren(defaultObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
@@ -456,13 +456,13 @@ class DocumentationBuilder(val session: ResolveSession,
         return node
     }
 
-    private fun CallableMemberDescriptor.inDefaultObject(): Boolean {
+    private fun CallableMemberDescriptor.inCompanionObject(): Boolean {
         val containingDeclaration = getContainingDeclaration()
-        if ((containingDeclaration as? ClassDescriptor)?.isDefaultObject() ?: false) {
+        if ((containingDeclaration as? ClassDescriptor)?.isCompanionObject() ?: false) {
             return true
         }
         val receiver = getExtensionReceiverParameter()
-        return (receiver?.getType()?.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor)?.isDefaultObject() ?: false
+        return (receiver?.getType()?.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor)?.isCompanionObject() ?: false
     }
 
     fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
@@ -475,7 +475,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun FunctionDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inDefaultObject()) Kind.DefaultObjectFunction else Kind.Function)
+        val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
 
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
@@ -557,7 +557,7 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inDefaultObject()) Kind.DefaultObjectProperty else Kind.Property)
+        val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectProperty else Kind.Property)
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
@@ -649,7 +649,7 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
         var receiverClass: DeclarationDescriptor = getType().getConstructor().getDeclarationDescriptor()
-        if ((receiverClass as? ClassDescriptor)?.isDefaultObject() ?: false) {
+        if ((receiverClass as? ClassDescriptor)?.isCompanionObject() ?: false) {
             receiverClass = receiverClass.getContainingDeclaration()!!
         }
         link(receiverClass,
