@@ -12,8 +12,8 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun classWithDefaultObject() {
-        verifyOutput("test/data/format/classWithDefaultObject.kt", ".md") { model, output ->
+    Test fun classWithCompanionObject() {
+        verifyOutput("test/data/format/classWithCompanionObject.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
@@ -161,8 +161,8 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun defaultObjectExtension() {
-        verifyOutput("test/data/format/defaultObjectExtension.kt", ".md") { model, output ->
+    Test fun companionObjectExtension() {
+        verifyOutput("test/data/format/companionObjectExtension.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Foo" })
         }
     }

@@ -286,8 +286,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
             appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
-            appendSection(location, "Default Object Properties", node.members(DocumentationNode.Kind.DefaultObjectProperty), node, to)
-            appendSection(location, "Default Object Functions", node.members(DocumentationNode.Kind.DefaultObjectFunction), node, to)
+            appendSection(location, "Companion Object Properties", node.members(DocumentationNode.Kind.CompanionObjectProperty), node, to)
+            appendSection(location, "Companion Object Functions", node.members(DocumentationNode.Kind.CompanionObjectFunction), node, to)
             appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
@@ -300,16 +300,16 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         DocumentationNode.Kind.Property,
                         DocumentationNode.Kind.Package,
                         DocumentationNode.Kind.Function,
-                        DocumentationNode.Kind.DefaultObjectProperty,
-                        DocumentationNode.Kind.DefaultObjectFunction,
+                        DocumentationNode.Kind.CompanionObjectProperty,
+                        DocumentationNode.Kind.CompanionObjectFunction,
                         DocumentationNode.Kind.ExternalClass,
                         DocumentationNode.Kind.EnumItem
                         )
             }, node, to)
             appendSection(location, "Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.Property }, node, to)
             appendSection(location, "Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.Function }, node, to)
-            appendSection(location, "Default Object Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.DefaultObjectProperty }, node, to)
-            appendSection(location, "Default Object Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.DefaultObjectFunction }, node, to)
+            appendSection(location, "Companion Object Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }, node, to)
+            appendSection(location, "Companion Object Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectFunction }, node, to)
             appendSection(location, "Inheritors",
                     node.inheritors.filter { it.kind != DocumentationNode.Kind.EnumItem }, node, to)
             appendSection(location, "Links", node.links, node, to)
