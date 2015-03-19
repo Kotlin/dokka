@@ -176,7 +176,7 @@ class DocumentationBuilder(val session: ResolveSession,
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbol != null) {
-            return ContentNodeLazyLink(href, {() -> refGraph.lookup(symbol.signature()) })
+            return ContentNodeLazyLink(href, { -> refGraph.lookup(symbol.signature()) })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
