@@ -289,6 +289,9 @@ class KotlinLanguageService : LanguageService {
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
         renderTypeParametersForNode(node)
+        if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
+            text(" ")
+        }
         val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
         if (receiver != null) {
             renderType(receiver.detail(DocumentationNode.Kind.Type))
