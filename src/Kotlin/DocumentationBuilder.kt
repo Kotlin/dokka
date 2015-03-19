@@ -171,8 +171,13 @@ class DocumentationBuilder(val session: ResolveSession,
     }
 
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
-        val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
-        val symbol = findTargetSymbol(symbols)
+        val symbol = try {
+            val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
+            findTargetSymbol(symbols)
+        } catch(e: Exception) {
+            null
+        }
+
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbol != null) {
