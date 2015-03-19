@@ -23,6 +23,8 @@ class DokkaAntTask(): Task() {
     public var outputDir: String? = null
     public var outputFormat: String = "html"
 
+    public var skipDeprecated: Boolean = false
+
     public val compileClasspath: Path = Path(getProject())
     public val sourcePath: Path = Path(getProject())
     public val samplesPath: Path = Path(getProject())
@@ -98,7 +100,8 @@ class DokkaAntTask(): Task() {
                 moduleName!!,
                 outputDir!!,
                 outputFormat,
-                sourceLinks
+                sourceLinks,
+                skipDeprecated
         )
         generator.generate()
     }
