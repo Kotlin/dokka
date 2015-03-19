@@ -15,5 +15,6 @@
     <orderEntry type="library" name="junit:junit:4.11" level="project" />
     <orderEntry type="library" name="markdown" level="project" />
     <orderEntry type="library" name="jsoup" level="project" />
+    <orderEntry type="library" name="kotlin-plugin" level="project" />
   </component>
 </module>
