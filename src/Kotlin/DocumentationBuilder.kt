@@ -41,7 +41,7 @@ class DocumentationBuilder(val session: ResolveSession,
                            val options: DocumentationOptions,
                            val refGraph: NodeReferenceGraph,
                            val logger: DokkaLogger) {
-    val visibleToDocumentation = setOf(Visibilities.INTERNAL, Visibilities.PROTECTED, Visibilities.PUBLIC)
+    val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -395,8 +395,10 @@ class DocumentationBuilder(val session: ResolveSession,
             val packageNode = findOrCreatePackageNode(packageName)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->
-                val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
-                parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+                if (descriptor.isDocumented()) {
+                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
+                    parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+               }
             }
         }
     }

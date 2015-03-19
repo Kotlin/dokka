@@ -11,6 +11,9 @@ import org.jsoup.nodes.TextNode
 public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                                       private val refGraph: NodeReferenceGraph) {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
+        if (file.getClasses().all { skipElement(it) }) {
+            return
+        }
         val packageNode = module.findOrCreatePackageNode(file.getPackageName())
         packageNode.appendChildren(file.getClasses()) { build() }
     }
@@ -236,8 +239,14 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         }
     }
 
-    private fun skipElement(element: Any): Boolean =
-        !options.includeNonPublic && element is PsiModifierListOwner && element.hasModifierProperty(PsiModifier.PRIVATE)
+    private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressTag(element)
+
+    private fun skipElementByVisibility(element: Any): Boolean =
+        !options.includeNonPublic && element is PsiModifierListOwner &&
+                (element.hasModifierProperty(PsiModifier.PRIVATE) || element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL))
+
+    private fun hasSuppressTag(element: Any) =
+        element is PsiDocCommentOwner && element.getDocComment()?.let { it.findTagByName("suppress") != null } ?: false
 
     fun DocumentationNode.appendMembers<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, DocumentationReference.Kind.Member, buildFn)
