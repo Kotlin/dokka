@@ -27,7 +27,7 @@ fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {
 public fun MarkdownNode.toTestString(): String {
     val sb = StringBuilder()
     var level = 0
-    visit {(node, visitChildren) ->
+    visit { node, visitChildren ->
         sb.append(" ".repeat(level * 2))
         node.presentTo(sb)
         level++

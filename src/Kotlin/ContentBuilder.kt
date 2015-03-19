@@ -21,7 +21,7 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
     val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
 
-    tree.visit {(node, processChildren) ->
+    tree.visit {node, processChildren ->
         val parent = nodeStack.peek()!!
         when (node.type) {
             MarkdownElementTypes.UNORDERED_LIST -> {

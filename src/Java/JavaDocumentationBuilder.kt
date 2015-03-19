@@ -94,7 +94,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     private fun createLink(element: Element): ContentBlock {
         val docref = element.attr("docref")
         if (docref != null) {
-            return ContentNodeLazyLink(docref, {() -> refGraph.lookup(docref)})
+            return ContentNodeLazyLink(docref, { -> refGraph.lookup(docref)})
         }
         val href = element.attr("href")
         if (href != null) {
@@ -113,7 +113,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.getText())
         if (linkSignature != null) {
-            val linkNode = ContentNodeLazyLink(tag.getValueElement()!!.getText(), {() -> refGraph.lookup(linkSignature)})
+            val linkNode = ContentNodeLazyLink(tag.getValueElement()!!.getText(), { -> refGraph.lookup(linkSignature)})
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {
