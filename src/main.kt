@@ -137,7 +137,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val environment = createAnalysisEnvironment()
 
         logger.info("Module: ${moduleName}")
-        logger.info("Output: ${outputDir}")
+        logger.info("Output: ${File(outputDir).getAbsolutePath()}")
         logger.info("Sources: ${environment.sources.join()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
