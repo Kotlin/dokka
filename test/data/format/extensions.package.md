@@ -10,5 +10,5 @@
 ### Extensions for External Classes
 
 
-| [String](test/foo/-string/index) | `` |
+| [String](test/foo/-string/index) |  |
 

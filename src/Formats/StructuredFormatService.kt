@@ -232,9 +232,13 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                 for ((summary, items) in breakdownBySummary) {
                                     val signatureTexts = items map { signature ->
                                         val signatureText = languageService.render(signature, RenderMode.SUMMARY)
-                                        val signatureAsCode = ContentCode()
-                                        signatureAsCode.append(signatureText)
-                                        formatText(location, signatureAsCode)
+                                        if (signatureText is ContentBlock && signatureText.isEmpty()) {
+                                            ""
+                                        } else {
+                                            val signatureAsCode = ContentCode()
+                                            signatureAsCode.append(signatureText)
+                                            formatText(location, signatureAsCode)
+                                        }
                                     }
                                     signatureTexts.subList(0, signatureTexts.size()-1).forEach {
                                         appendAsSignature(to) {
