@@ -11,7 +11,7 @@ class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             when (node.kind) {
-                DocumentationNode.Kind.Package -> renderPackage(node)
+                DocumentationNode.Kind.Package -> if (renderMode == RenderMode.FULL) renderPackage(node)
                 DocumentationNode.Kind.Class,
                 DocumentationNode.Kind.Interface,
                 DocumentationNode.Kind.Enum,
