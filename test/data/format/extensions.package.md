@@ -1,10 +1,7 @@
 [test](test/index) / [foo](test/foo/index)
 
 
-# foo
-
-`package foo`
-
+## Package foo
 
 
 ### Extensions for External Classes
