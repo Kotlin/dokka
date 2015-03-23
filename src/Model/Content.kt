@@ -81,6 +81,8 @@ public class ContentUnorderedList() : ContentBlock()
 public class ContentOrderedList() : ContentBlock()
 public class ContentListItem() : ContentBlock()
 
+public class ContentHeading(val level: Int) : ContentBlock()
+
 public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock() {
     override fun equals(other: Any?): Boolean =
         super.equals(other) && other is ContentSection && tag == other.tag && subjectName == other.subjectName

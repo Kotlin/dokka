@@ -119,12 +119,14 @@ val DocumentationNode.path: List<DocumentationNode>
         return parent.path + this
     }
 
-fun DocumentationNode.findOrCreatePackageNode(packageName: String): DocumentationNode {
+fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>): DocumentationNode {
     val existingNode = members(DocumentationNode.Kind.Package).firstOrNull { it.name  == packageName }
     if (existingNode != null) {
         return existingNode
     }
-    val newNode = DocumentationNode(packageName, Content.Empty, DocumentationNode.Kind.Package)
+    val newNode = DocumentationNode(packageName,
+            packageContent.getOrElse(packageName) { Content.Empty },
+            DocumentationNode.Kind.Package)
     append(newNode, DocumentationReference.Kind.Member)
     return newNode
 }
