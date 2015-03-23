@@ -23,42 +23,23 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
 
     tree.visit {node, processChildren ->
         val parent = nodeStack.peek()!!
+
+        fun appendNodeWithChildren(content: ContentBlock) {
+            nodeStack.push(content)
+            processChildren()
+            parent.append(nodeStack.pop())
+        }
+
         when (node.type) {
-            MarkdownElementTypes.UNORDERED_LIST -> {
-                nodeStack.push(ContentUnorderedList())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.ORDERED_LIST -> {
-                nodeStack.push(ContentOrderedList())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.LIST_ITEM -> {
-                nodeStack.push(ContentListItem())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.EMPH -> {
-                nodeStack.push(ContentEmphasis())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.STRONG -> {
-                nodeStack.push(ContentStrong())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.CODE_SPAN -> {
-                nodeStack.push(ContentCode())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
-            MarkdownElementTypes.CODE_BLOCK -> {
-                nodeStack.push(ContentBlockCode())
-                processChildren()
-                parent.append(nodeStack.pop())
-            }
+            MarkdownElementTypes.UNORDERED_LIST -> appendNodeWithChildren(ContentUnorderedList())
+            MarkdownElementTypes.ORDERED_LIST -> appendNodeWithChildren(ContentOrderedList())
+            MarkdownElementTypes.LIST_ITEM ->  appendNodeWithChildren(ContentListItem())
+            MarkdownElementTypes.EMPH -> appendNodeWithChildren(ContentEmphasis())
+            MarkdownElementTypes.STRONG -> appendNodeWithChildren(ContentStrong())
+            MarkdownElementTypes.CODE_SPAN -> appendNodeWithChildren(ContentCode())
+            MarkdownElementTypes.CODE_BLOCK -> appendNodeWithChildren(ContentBlockCode())
+            MarkdownElementTypes.PARAGRAPH -> appendNodeWithChildren(ContentParagraph())
+
             MarkdownElementTypes.INLINE_LINK -> {
                 val label = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
                 val destination = node.child(MarkdownElementTypes.LINK_DESTINATION)
@@ -95,11 +76,6 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 val block = ContentBlockCode()
                 block.append(ContentText(node.text))
                 parent.append(block)
-            }
-            MarkdownElementTypes.PARAGRAPH -> {
-                nodeStack.push(ContentParagraph())
-                processChildren()
-                parent.append(nodeStack.pop())
             }
 
             MarkdownTokenTypes.HTML_ENTITY -> {
