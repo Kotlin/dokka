@@ -7,13 +7,11 @@ import org.intellij.markdown.parser.dialects.commonmark.CommonMarkMarkerProcesso
 
 class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: String) {
     val children: List<MarkdownNode> = node.children.map { MarkdownNode(it, this, markdown) }
-    val endOffset: Int get() = node.endOffset
-    val startOffset: Int get() = node.startOffset
     val type: IElementType get() = node.type
-    val text: String get() = markdown.substring(startOffset, endOffset)
+    val text: String get() = markdown.substring(node.startOffset, node.endOffset)
     fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
 
-    override fun toString(): String = present()
+    override fun toString(): String = StringBuilder { presentTo(this) }.toString()
 }
 
 fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {
@@ -37,7 +35,6 @@ public fun MarkdownNode.toTestString(): String {
     return sb.toString()
 }
 
-private fun MarkdownNode.present() = StringBuilder { presentTo(this) }.toString()
 private fun MarkdownNode.presentTo(sb: StringBuilder) {
     sb.append(type.toString())
     sb.append(":" + text.replace("\n", "\u23CE"))
