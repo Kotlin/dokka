@@ -84,12 +84,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         append(formatLink(linkText, content.href))
                     }
                 }
-                is ContentParagraph -> {
-                    appendParagraph(this, formatText(location, content.children))
-                }
-                is ContentBlockCode -> {
-                    appendBlockCode(this, formatText(location, content.children), content.language)
-                }
+                is ContentParagraph -> appendParagraph(this, formatText(location, content.children))
+                is ContentBlockCode -> appendBlockCode(this, formatText(location, content.children), content.language)
+                is ContentHeading -> appendHeader(this, formatText(location, content.children), content.level)
                 is ContentBlock -> append(formatText(location, content.children))
             }
         }.toString()
@@ -132,6 +129,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendLine(to)
         }
     }
+
+    private fun DocumentationNode.isModuleOrPackage(): Boolean =
+        kind == DocumentationNode.Kind.Module || kind == DocumentationNode.Kind.Package
 
     protected open fun appendAsSignature(to: StringBuilder, block: () -> Unit) {
         block()
@@ -206,10 +206,18 @@ public abstract class StructuredFormatService(locationService: LocationService,
     }
 
     fun appendLocation(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        val breakdownByName = nodes.groupBy { node -> node.name }
-        for ((name, items) in breakdownByName) {
-            appendHeader(to, formatText(name))
-            appendDocumentation(location, to, items)
+        val singleNode = nodes.singleOrNull()
+        if (singleNode != null && singleNode.isModuleOrPackage()) {
+            if (singleNode.kind == DocumentationNode.Kind.Package) {
+                appendHeader(to, "Package " + formatText(singleNode.name), 2)
+            }
+            to.append(formatText(location, singleNode.content))
+        } else {
+            val breakdownByName = nodes.groupBy { node -> node.name }
+            for ((name, items) in breakdownByName) {
+                appendHeader(to, formatText(name))
+                appendDocumentation(location, to, items)
+            }
         }
     }
 

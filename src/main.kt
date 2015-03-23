@@ -1,17 +1,21 @@
 package org.jetbrains.dokka
 
-import com.sampullara.cli.*
-import com.intellij.openapi.util.*
-import org.jetbrains.kotlin.cli.common.messages.*
-import org.jetbrains.kotlin.cli.common.arguments.*
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiManager
+import com.sampullara.cli.Args
+import com.sampullara.cli.Argument
+import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
+import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import com.intellij.psi.PsiFile
-import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment
-import com.intellij.psi.PsiJavaFile
-import org.jetbrains.kotlin.config.CommonConfigurationKeys
-import com.intellij.psi.PsiManager
-import com.intellij.openapi.vfs.VirtualFileManager
 
 class DokkaArguments {
     Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -215,24 +219,16 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
 
-        val moduleContent = Content()
         val refGraph = NodeReferenceGraph()
         val documentationBuilder = DocumentationBuilder(session, options, refGraph, logger)
+        val packageDocs = PackageDocs(documentationBuilder, fragments.firstOrNull(), logger)
         for (include in includes) {
-            val file = File(include)
-            if (file.exists()) {
-                val text = file.readText()
-                val tree = parseMarkdown(text)
-                val content = buildContent(tree, {href -> documentationBuilder.resolveContentLink(fragments.first(), href)})
-                moduleContent.children.addAll(content.children)
-            } else {
-                logger.warn("Include file $file was not found.")
-            }
+            packageDocs.parse(include)
         }
-        val documentationModule = DocumentationModule(moduleName, moduleContent)
+        val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
 
         with(documentationBuilder) {
-            documentationModule.appendFragments(fragments)
+            documentationModule.appendFragments(fragments, packageDocs.packageContent)
         }
 
         val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)

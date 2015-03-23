@@ -31,6 +31,12 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
         }
 
         when (node.type) {
+            MarkdownElementTypes.ATX_1 -> appendNodeWithChildren(ContentHeading(1))
+            MarkdownElementTypes.ATX_2 -> appendNodeWithChildren(ContentHeading(2))
+            MarkdownElementTypes.ATX_3 -> appendNodeWithChildren(ContentHeading(3))
+            MarkdownElementTypes.ATX_4 -> appendNodeWithChildren(ContentHeading(4))
+            MarkdownElementTypes.ATX_5 -> appendNodeWithChildren(ContentHeading(5))
+            MarkdownElementTypes.ATX_6 -> appendNodeWithChildren(ContentHeading(6))
             MarkdownElementTypes.UNORDERED_LIST -> appendNodeWithChildren(ContentUnorderedList())
             MarkdownElementTypes.ORDERED_LIST -> appendNodeWithChildren(ContentOrderedList())
             MarkdownElementTypes.LIST_ITEM ->  appendNodeWithChildren(ContentListItem())

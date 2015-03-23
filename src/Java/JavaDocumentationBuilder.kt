@@ -14,7 +14,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         if (file.getClasses().all { skipElement(it) }) {
             return
         }
-        val packageNode = module.findOrCreatePackageNode(file.getPackageName())
+        val packageNode = module.findOrCreatePackageNode(file.getPackageName(), emptyMap())
         packageNode.appendChildren(file.getClasses()) { build() }
     }
 

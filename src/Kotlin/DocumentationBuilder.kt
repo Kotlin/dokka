@@ -389,7 +389,8 @@ class DocumentationBuilder(val session: ResolveSession,
         return this
     }
 
-    fun DocumentationNode.appendFragments(fragments: Collection<PackageFragmentDescriptor>) {
+    fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
+                                            packageContent: Map<String, Content>) {
         val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
         for ((name, parts) in fragments.groupBy { it.fqName }) {
             descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
@@ -397,7 +398,7 @@ class DocumentationBuilder(val session: ResolveSession,
         for ((packageName, declarations) in descriptors) {
             if (options.skipEmptyPackages && declarations.none { it.isDocumented()}) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
-            val packageNode = findOrCreatePackageNode(packageName)
+            val packageNode = findOrCreatePackageNode(packageName, packageContent)
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->
                 if (descriptor.isDocumented()) {
