@@ -229,7 +229,7 @@ class KotlinLanguageService : LanguageService {
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Class -> keyword("class ")
-            DocumentationNode.Kind.Interface -> keyword("trait ")
+            DocumentationNode.Kind.Interface -> keyword("interface ")
             DocumentationNode.Kind.Enum -> keyword("enum class ")
             DocumentationNode.Kind.AnnotationClass -> keyword("annotation class ")
             DocumentationNode.Kind.EnumItem -> keyword("enum val ")
