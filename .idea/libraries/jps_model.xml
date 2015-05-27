@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jps-model">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jps-model.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
