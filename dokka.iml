@@ -22,5 +22,6 @@
     <orderEntry type="library" name="jdom" level="project" />
     <orderEntry type="library" name="protobuf" level="project" />
     <orderEntry type="library" name="asm" level="project" />
+    <orderEntry type="library" name="jps-model" level="project" />
   </component>
 </module>
