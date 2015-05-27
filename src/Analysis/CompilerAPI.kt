@@ -10,12 +10,12 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.scopes.*
 import org.jetbrains.kotlin.context.GlobalContext
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
-fun JetCoreEnvironment.analyze(): ResolveSession {
-    val globalContext = GlobalContext()
-    val project = getProject()
+fun KotlinCoreEnvironment.analyze(): ResolveSession {
+    val projectContext = ProjectContext(project)
     val sourceFiles = getSourceFiles()
 
     val module = object : ModuleInfo {
@@ -23,8 +23,7 @@ fun JetCoreEnvironment.analyze(): ResolveSession {
         override fun dependencies(): List<ModuleInfo> = listOf(this)
     }
     val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
-            globalContext,
-            project,
+            projectContext,
             listOf(module),
             { ModuleContent(sourceFiles, GlobalSearchScope.allScope(project)) },
             JvmPlatformParameters { module }

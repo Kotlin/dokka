@@ -1,17 +1,31 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.kotlin.cli.common.messages.*
-import com.intellij.openapi.*
-import org.jetbrains.kotlin.cli.jvm.compiler.*
-import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.psi.*
-import java.io.File
+import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.core.CoreModuleManager
+import com.intellij.mock.MockComponentManager
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.roots.ContentIterator
+import com.intellij.openapi.roots.OrderEntry
+import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoot
+import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
+import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
 import org.jetbrains.kotlin.config.*
-import org.jetbrains.kotlin.cli.common.*
-import org.jetbrains.kotlin.cli.jvm.*
-import com.intellij.openapi.util.*
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
+import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import java.io.File
 
 /**
  * Kotlin as a service entry point
@@ -33,65 +47,41 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * Executes [processor] when analysis is complete.
      * $processor: function to receive compiler environment, module and context for symbol resolution
      */
-    public fun withContext<T>(processor: (JetCoreEnvironment, ResolveSession) -> T): T {
-        val environment = JetCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
+    public fun withContext<T>(processor: (KotlinCoreEnvironment, ResolutionFacade, ResolveSession) -> T): T {
+        val environment = KotlinCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
+        val projectComponentManager = environment.project as MockComponentManager
+
+        val moduleManager = CoreModuleManager(environment.project, this)
+        CoreApplicationEnvironment.registerComponentInstance(projectComponentManager.getPicoContainer(),
+                javaClass<ModuleManager>(), moduleManager)
+
+        projectComponentManager.registerService(javaClass<ProjectFileIndex>(),
+                CoreProjectFileIndex())
+        projectComponentManager.registerService(javaClass<LibraryModificationTracker>(),
+                LibraryModificationTracker(environment.project))
+        projectComponentManager.registerService(javaClass<KotlinCacheService>(),
+                KotlinCacheService(environment.project))
+
+
+        val sourceFiles = environment.getSourceFiles()
+        val facade =  KotlinCacheService.getInstance(environment.project).getResolutionFacade(sourceFiles)
+        // TODO get rid of resolveSession once we have all necessary APIs in ResolutionFacade
         val resolveSession = environment.analyze()
-        if (environment.getSourceFiles().isNotEmpty()) {
-            resolveSession.forceResolveAll()
-        }
-        return processor(environment, resolveSession)
-    }
-
-    /**
-     * Executes [processor] when analysis is complete.
-     * $processor: function to receive compiler module and context for symbol resolution
-     */
-    public fun withContext<T>(processor: (ResolveSession) -> T): T {
-        return withContext { environment, session -> processor(session) }
-    }
-
-    /**
-     * Streams files into [processor] and returns a stream of its results
-     * $processor: function to receive context for symbol resolution and file for processing
-     */
-    public fun streamFiles<T>(processor: (ResolveSession, JetFile) -> T): Stream<T> {
-        return withContext { environment, session ->
-            environment.getSourceFiles().stream().map { file -> processor(session, file) }
-        }
-    }
-
-    /**
-     * Runs [processor] for each file and collects its results into single list
-     * $processor: function to receive context for symbol resolution and file for processing
-     */
-    public fun processFiles<T>(processor: (ResolveSession, JetFile) -> T): List<T> {
-        return withContext { environment, session ->
-            environment.getSourceFiles().map { file -> processor(session, file) }
-        }
-    }
-
-    /**
-     * Runs [processor] for each file and collects its results into single list
-     * $processor: is a function to receive context for symbol resolution and file for processing
-     */
-    public fun processFilesFlat<T>(processor: (ResolveSession, JetFile) -> List<T>): List<T> {
-        return withContext { environment, session ->
-            environment.getSourceFiles().flatMap { file -> processor(session, file) }
-        }
+        return processor(environment, facade, resolveSession)
     }
 
     /**
      * Classpath for this environment.
      */
     public val classpath: List<File>
-        get() = configuration.get(JVMConfigurationKeys.CLASSPATH_KEY) ?: listOf()
+        get() = configuration.jvmClasspathRoots
 
     /**
      * Adds list of paths to classpath.
      * $paths: collection of files to add
      */
     public fun addClasspath(paths: List<File>) {
-        configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, paths)
+        configuration.addJvmClasspathRoots(paths)
     }
 
     /**
@@ -99,21 +89,30 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * $path: path to add
      */
     public fun addClasspath(path: File) {
-        configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, path)
+        configuration.addJvmClasspathRoot(path)
     }
 
     /**
      * List of source roots for this environment.
      */
     public val sources: List<String>
-        get() = configuration.get(CommonConfigurationKeys.SOURCE_ROOTS_KEY) ?: listOf()
+        get() = configuration.get(CommonConfigurationKeys.CONTENT_ROOTS)
+                ?.filterIsInstance<KotlinSourceRoot>()
+                ?.map { it.path } ?: emptyList()
 
     /**
      * Adds list of paths to source roots.
      * $list: collection of files to add
      */
     public fun addSources(list: List<String>) {
-        configuration.addAll(CommonConfigurationKeys.SOURCE_ROOTS_KEY, list)
+        list.forEach {
+            val file = File(it)
+            if (file.extension == "java") {
+                configuration.addJavaSourceRoot(file)
+            } else {
+                configuration.addKotlinSourceRoot(it)
+            }
+        }
     }
 
     /**
