@@ -1,0 +1,47 @@
+<component name="libraryTable">
+  <library name="kotlin-for-upsource">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/kotlin-for-upsource.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../kotlin/ant/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/backend-common/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/backend/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/cli/cli-common/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/cli/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/frontend.java/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/frontend/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/light-classes/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/preloader/instrumentation/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/preloader/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/serialization/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/compiler/util/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/descriptor.loader.java/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/descriptors.runtime/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/descriptors/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/deserialization/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/reflection.jvm/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/runtime.jvm/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/core/util.runtime/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/generators/injector-generator/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/generators/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/ide-common/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/idea-analysis/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/idea-completion/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/idea-core/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/idea-jps-common/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/idea-test-framework/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/kotlin-android-plugin/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/idea/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/jps-plugin/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.dart-ast/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.frontend/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.inliner/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.parser/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.serializer/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/js/js.translator/src" />
+      <root url="file://$PROJECT_DIR$/../kotlin/plugins/android-idea-plugin/src" />
+    </SOURCES>
+  </library>
+</component>

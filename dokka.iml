@@ -10,11 +10,17 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="kotlin" level="project" />
-    <orderEntry type="library" name="kotlin-compiler" level="project" />
+    <orderEntry type="library" name="intellij-core-analysis" level="project" />
     <orderEntry type="library" name="junit:junit:4.11" level="project" />
     <orderEntry type="library" name="markdown" level="project" />
     <orderEntry type="library" name="jsoup" level="project" />
-    <orderEntry type="library" name="kotlin-plugin" level="project" />
+    <orderEntry type="library" name="kotlin-for-upsource" level="project" />
+    <orderEntry type="library" name="cli-parser" level="project" />
+    <orderEntry type="library" name="guava" level="project" />
+    <orderEntry type="library" name="picocontainer" level="project" />
+    <orderEntry type="library" name="trove4j" level="project" />
+    <orderEntry type="library" name="jdom" level="project" />
+    <orderEntry type="library" name="protobuf" level="project" />
+    <orderEntry type="library" name="asm" level="project" />
   </component>
 </module>

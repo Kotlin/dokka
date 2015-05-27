@@ -120,7 +120,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
         logger.warn("Missing function name in @sample in ${descriptor.signature()}")
         return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
     }
-    val scope = getResolutionScope(session, descriptor)
+    val scope = getResolutionScope(resolutionFacade, descriptor)
     val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
     val rootScope = rootPackage.getMemberScope()
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
@@ -169,7 +169,7 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
         currentScope = if (partSymbol is ClassDescriptor)
             partSymbol.getDefaultType().getMemberScope()
         else
-            getResolutionScope(session, partSymbol)
+            getResolutionScope(resolutionFacade, partSymbol)
         symbol = partSymbol
     }
 

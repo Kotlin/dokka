@@ -12,7 +12,8 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
-import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
@@ -215,12 +216,12 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
                              includes: List<String> = listOf(),
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
                              logger: DokkaLogger): DocumentationModule {
-    val documentation = environment.withContext { environment, session ->
+    val documentation = environment.withContext { environment, resolutionFacade, session ->
         val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
         val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
 
         val refGraph = NodeReferenceGraph()
-        val documentationBuilder = DocumentationBuilder(session, options, refGraph, logger)
+        val documentationBuilder = DocumentationBuilder(resolutionFacade, session, options, refGraph, logger)
         val packageDocs = PackageDocs(documentationBuilder, fragments.firstOrNull(), logger)
         for (include in includes) {
             packageDocs.parse(include)
@@ -244,15 +245,19 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
 }
 
 
-fun JetCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
-    val sourceRoots = getConfiguration().getList(CommonConfigurationKeys.SOURCE_ROOTS_KEY).map { File(it) }
+fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
+    val sourceRoots = configuration.get(CommonConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.map { it.file }
+            ?: listOf()
+
     val result = arrayListOf<PsiJavaFile>()
     val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
     sourceRoots.forEach { sourceRoot ->
         sourceRoot.getAbsoluteFile().recurse {
             val vFile = localFileSystem.findFileByPath(it.path)
             if (vFile != null) {
-                val psiFile = PsiManager.getInstance(getProject()).findFile(vFile)
+                val psiFile = PsiManager.getInstance(project).findFile(vFile)
                 if (psiFile is PsiJavaFile) {
                     result.add(psiFile)
                 }

@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -37,7 +38,8 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
     return package1 != null && package2 != null && package1.fqName == package2.fqName
 }
 
-class DocumentationBuilder(val session: ResolveSession,
+class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
+                           val session: ResolveSession,
                            val options: DocumentationOptions,
                            val refGraph: NodeReferenceGraph,
                            val logger: DokkaLogger) {
@@ -172,7 +174,7 @@ class DocumentationBuilder(val session: ResolveSession,
 
     fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbol = try {
-            val symbols = resolveKDocLink(session, descriptor, null, href.split('.').toList())
+            val symbols = resolveKDocLink(resolutionFacade, descriptor, null, href.split('.').toList())
             findTargetSymbol(symbols)
         } catch(e: Exception) {
             null
@@ -425,7 +427,7 @@ class DocumentationBuilder(val session: ResolveSession,
     fun ClassDescriptor.build(): DocumentationNode {
         val kind = when (getKind()) {
             ClassKind.OBJECT -> Kind.Object
-            ClassKind.TRAIT -> Kind.Interface
+            ClassKind.INTERFACE -> Kind.Interface
             ClassKind.ENUM_CLASS -> Kind.Enum
             ClassKind.ANNOTATION_CLASS -> Kind.AnnotationClass
             ClassKind.ENUM_ENTRY -> Kind.EnumItem
