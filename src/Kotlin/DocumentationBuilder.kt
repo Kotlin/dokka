@@ -379,7 +379,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                                                     externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
         if (descriptor is CallableMemberDescriptor) {
             val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
-            if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor)) {
+            if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor) &&
+                !ErrorUtils.isError(extensionClassDescriptor)) {
                 val fqName = DescriptorUtils.getFqNameFromTopLevelClass(extensionClassDescriptor)
                 return externalClassNodes.getOrPut(fqName, {
                     val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
