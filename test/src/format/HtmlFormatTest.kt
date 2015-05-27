@@ -1,8 +1,12 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.dokka.KotlinLanguageService
-import org.junit.Test
 import org.jetbrains.dokka.HtmlFormatService
+import org.jetbrains.dokka.KotlinLanguageService
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
+import org.jetbrains.kotlin.config.ContentRoot
+import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.junit.Test
+import java.io.File
 
 public class HtmlFormatTest {
     private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService())
@@ -125,7 +129,9 @@ public class HtmlFormatTest {
     }
 
     Test fun crossLanguageKotlinExtendsJava() {
-        verifyOutput("test/data/format/crossLanguage/kotlinExtendsJava", ".html") { model, output ->
+        verifyOutput(arrayOf(KotlinSourceRoot("test/data/format/crossLanguage/kotlinExtendsJava/Bar.kt"),
+                            JavaSourceRoot(File("test/data/format/crossLanguage/kotlinExtendsJava"))),
+                ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }
