@@ -16,10 +16,7 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
-import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
@@ -106,13 +103,12 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      */
     public fun addSources(list: List<String>) {
         list.forEach {
-            val file = File(it)
-            if (file.extension == "java") {
-                configuration.addJavaSourceRoot(file)
-            } else {
-                configuration.addKotlinSourceRoot(it)
-            }
+            configuration.add(CommonConfigurationKeys.CONTENT_ROOTS, contentRootFromPath(it))
         }
+    }
+
+    public fun addRoots(list: List<ContentRoot>) {
+        configuration.addAll(CommonConfigurationKeys.CONTENT_ROOTS, list)
     }
 
     /**
@@ -121,4 +117,9 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
     public override fun dispose() {
         Disposer.dispose(this)
     }
+}
+
+public fun contentRootFromPath(path: String): ContentRoot {
+    val file = File(path)
+    return if (file.extension == "java") JavaSourceRoot(file) else KotlinSourceRoot(path)
 }

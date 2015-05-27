@@ -1,14 +1,20 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.kotlin.cli.common.messages.*
-import com.intellij.openapi.util.*
-import kotlin.test.fail
-import org.jetbrains.dokka.*
-import java.io.File
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.util.Disposer
+import org.jetbrains.dokka.*
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
+import org.jetbrains.kotlin.config.ContentRoot
+import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.junit.Assert
+import java.io.File
+import kotlin.test.fail
 
-public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> Unit) {
+public fun verifyModel(vararg roots: ContentRoot, verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {
@@ -29,8 +35,7 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     val environment = AnalysisEnvironment(messageCollector) {
         val stringRoot = PathManager.getResourceRoot(javaClass<String>(), "/java/lang/String.class")
         addClasspath(File(stringRoot))
-        addSources(files.toList())
-        addClasspath(files.map { File(it)}.filter { it.isDirectory()} )
+        addRoots(roots.toList())
     }
     val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
     val documentation = buildDocumentationModule(environment, "test", options, logger = DokkaConsoleLogger)
@@ -38,21 +43,30 @@ public fun verifyModel(vararg files: String, verifier: (DocumentationModule) -> 
     Disposer.dispose(environment)
 }
 
-public fun verifyPackageMember(vararg files: String, verifier: (DocumentationNode) -> Unit) {
-    verifyModel(*files) { model ->
+public fun verifyModel(source: String, verifier: (DocumentationModule) -> Unit) {
+    verifyModel(contentRootFromPath(source), verifier = verifier)
+}
+
+public fun verifyPackageMember(kotlinSource: String, verifier: (DocumentationNode) -> Unit) {
+    verifyModel(kotlinSource) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
     }
 }
 
-public fun verifyOutput(path: String, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyModel(path) {
+public fun verifyOutput(roots: Array<ContentRoot>, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyModel(*roots) {
         val output = StringBuilder()
         outputGenerator(it, output)
         val ext = outputExtension.trimLeading(".")
+        val path = roots.first().path
         val expectedOutput = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
         assertEqualsIgnoringSeparators(expectedOutput, output.toString())
     }
+}
+
+public fun verifyOutput(path: String, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, outputGenerator)
 }
 
 public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
@@ -112,3 +126,10 @@ object InMemoryLocationService: LocationService {
 }
 
 val tempLocation = InMemoryLocation("")
+
+val ContentRoot.path: String
+    get() = when(this) {
+        is KotlinSourceRoot -> path
+        is JavaSourceRoot -> file.path
+        else -> throw UnsupportedOperationException()
+    }
