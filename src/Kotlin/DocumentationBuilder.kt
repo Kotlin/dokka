@@ -486,6 +486,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun FunctionDescriptor.build(): DocumentationNode {
+        if (ErrorUtils.containsErrorType(this)) {
+            logger.warn("Found an unresolved type in ${signatureWithSourceLocation()}")
+        }
+
         val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
 
         node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
