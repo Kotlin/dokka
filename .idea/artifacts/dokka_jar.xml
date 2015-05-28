@@ -3,11 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/</output-path>
     <root id="archive" name="dokka.jar">
       <element id="module-output" name="dokka" />
-      <element id="extracted-dir" path="$KOTLIN_BUNDLED$/lib/kotlin-runtime.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$KOTLIN_BUNDLED$/lib/kotlin-compiler.jar" path-in-jar="/" />
       <element id="module-output" name="ant" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/markdown.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsoup-1.8.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
