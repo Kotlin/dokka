@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public trait HtmlTemplateService {
+public interface HtmlTemplateService {
     fun appendHeader(to: StringBuilder, title: String?)
     fun appendFooter(to: StringBuilder)
 

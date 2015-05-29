@@ -3,10 +3,10 @@ package org.jetbrains.dokka
 /**
  * Provides facility for rendering [DocumentationNode] as a language-dependent declaration
  */
-trait LanguageService {
+interface LanguageService {
     enum class RenderMode {
         /** Brief signature (used in a list of all members of the class). */
-        SUMMARY
+        SUMMARY,
         /** Full signature (used in the page describing the member itself */
         FULL
     }

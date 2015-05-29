@@ -27,9 +27,9 @@ public open class ContentBlock() : ContentNode() {
 }
 
 enum class IdentifierKind {
-    TypeName
-    ParameterName
-    AnnotationName
+    TypeName,
+    ParameterName,
+    AnnotationName,
     Other
 }
 
@@ -126,7 +126,7 @@ public open class Content(): ContentBlock() {
     public open val description: ContentNode get() = ContentEmpty
 
     fun findSectionByTag(tag: String): ContentSection? =
-            sections.firstOrNull { tag.equalsIgnoreCase(it.tag) }
+            sections.firstOrNull { tag.equals(it.tag, ignoreCase = true) }
 
     companion object {
         val Empty = Content()

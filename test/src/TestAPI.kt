@@ -58,7 +58,7 @@ public fun verifyOutput(roots: Array<ContentRoot>, outputExtension: String, outp
     verifyModel(*roots) {
         val output = StringBuilder()
         outputGenerator(it, output)
-        val ext = outputExtension.trimLeading(".")
+        val ext = outputExtension.removePrefix(".")
         val path = roots.first().path
         val expectedOutput = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
         assertEqualsIgnoringSeparators(expectedOutput, output.toString())

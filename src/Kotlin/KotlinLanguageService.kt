@@ -56,7 +56,7 @@ class KotlinLanguageService : LanguageService {
         renderItem(nodes.first())
         nodes.drop(1).forEach {
             if (noWrap) {
-                symbol(separator.trimTrailing(" "))
+                symbol(separator.removeSuffix(" "))
                 nbsp()
             } else {
                 symbol(separator)

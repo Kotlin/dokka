@@ -8,7 +8,7 @@ package org.jetbrains.dokka
  * * [MarkdownFormatService] – outputs documentation in Markdown format
  * * [TextFormatService] – outputs documentation in Text format
  */
-public trait FormatService {
+public interface FormatService {
     /** Returns extension for output files */
     val extension: String
 

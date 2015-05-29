@@ -64,43 +64,43 @@ public open class DocumentationNode(val name: String,
     }
 
     public enum class Kind {
-        Unknown
+        Unknown,
 
-        Package
-        Class
-        Interface
-        Enum
-        AnnotationClass
-        EnumItem
-        Object
+        Package,
+        Class,
+        Interface,
+        Enum,
+        AnnotationClass,
+        EnumItem,
+        Object,
 
-        Constructor
-        Function
-        Property
+        Constructor,
+        Function,
+        Property,
 
-        CompanionObjectProperty
-        CompanionObjectFunction
+        CompanionObjectProperty,
+        CompanionObjectFunction,
 
-        Parameter
-        Receiver
-        TypeParameter
-        Type
-        Supertype
-        UpperBound
-        LowerBound
-        Exception
+        Parameter,
+        Receiver,
+        TypeParameter,
+        Type,
+        Supertype,
+        UpperBound,
+        LowerBound,
+        Exception,
 
-        Modifier
-        NullabilityModifier
+        Modifier,
+        NullabilityModifier,
 
-        Module
+        Module,
 
-        ExternalClass
-        Annotation
+        ExternalClass,
+        Annotation,
 
-        Value
+        Value,
 
-        SourceUrl
+        SourceUrl,
 
         /**
          * A note which is rendered once on a page documenting a group of overloaded functions.

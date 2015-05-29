@@ -89,7 +89,7 @@ class DokkaAntTask(): Task() {
         }
 
         val url = javaClass<DokkaAntTask>().getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
-        val jarRoot = url.getPath().substringBefore("!/").trimLeading("file:")
+        val jarRoot = url.getPath().substringBefore("!/").removePrefix("file:")
 
         val generator = DokkaGenerator(
                 AntLogger(this),
