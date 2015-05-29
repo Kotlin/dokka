@@ -96,7 +96,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         val name = descriptor.getName().asString()
         if (name == "equals" || name == "hashCode" || name == "toString") {
-            var deepestDescriptor = descriptor: CallableMemberDescriptor
+            var deepestDescriptor: CallableMemberDescriptor = descriptor
             while (!deepestDescriptor.getOverriddenDescriptors().isEmpty()) {
                 deepestDescriptor = deepestDescriptor.getOverriddenDescriptors().first()
             }
@@ -203,7 +203,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return symbol
     }
 
-    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: array()
+    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: arrayOf()
 
     private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()

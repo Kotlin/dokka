@@ -62,7 +62,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
                 htmlBuilder.append(it.getText())
             }
         }
-        val doc = Jsoup.parse(htmlBuilder.toString().trimLeading())
+        val doc = Jsoup.parse(htmlBuilder.toString().trimStart())
         doc.body().childNodes().forEach {
             convertHtmlNode(it)
         }
@@ -142,7 +142,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         "code", "literal" -> {
             val text = StringBuilder()
             tag.getDataElements().forEach { text.append(it.getText()) }
-            val escaped = text.toString().trimLeading().htmlEscape()
+            val escaped = text.toString().trimStart().htmlEscape()
             if (tag.getName() == "code") "<code>$escaped</code>" else escaped
         }
         else -> tag.getText()

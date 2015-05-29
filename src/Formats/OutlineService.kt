@@ -5,7 +5,7 @@ import java.io.File
 /**
  * Service for building the outline of the package contents.
  */
-public trait OutlineFormatService {
+public interface OutlineFormatService {
     fun getOutlineFileName(location: Location): File
 
     public fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder)

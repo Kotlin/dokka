@@ -6,7 +6,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode
 public data class FormatLink(val text: String, val href: String)
 
 enum class ListKind {
-    Ordered
+    Ordered,
     Unordered
 }
 
@@ -183,7 +183,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
             val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
             if (deprecationValue != null) {
                 to.append(formatStrong("Deprecated:")).append(" ")
-                appendLine(to, formatText(deprecationValue.name.trim("\"")))
+                appendLine(to, formatText(deprecationValue.name.removeSurrounding("\"")))
                 appendLine(to)
             } else if (deprecation?.content != Content.Empty) {
                 to.append(formatStrong("Deprecated:")).append(" ")

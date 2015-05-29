@@ -96,7 +96,7 @@ public fun main(args: Array<String>) {
     DokkaConsoleLogger.report()
 }
 
-trait DokkaLogger {
+interface DokkaLogger {
     fun info(message: String)
     fun warn(message: String)
     fun error(message: String)
@@ -254,7 +254,7 @@ fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
     val result = arrayListOf<PsiJavaFile>()
     val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
     sourceRoots.forEach { sourceRoot ->
-        sourceRoot.getAbsoluteFile().recurse {
+        sourceRoot.getAbsoluteFile().walkTopDown().forEach {
             val vFile = localFileSystem.findFileByPath(it.path)
             if (vFile != null) {
                 val psiFile = PsiManager.getInstance(project).findFile(vFile)

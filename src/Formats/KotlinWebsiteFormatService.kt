@@ -71,7 +71,7 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
             super.appendBlockCode(to, line, language)
         } else {
             to.append("<pre markdown=\"1\">")
-            to.append(line.trimLeading())
+            to.append(line.trimStart())
             to.append("</pre>")
         }
     }

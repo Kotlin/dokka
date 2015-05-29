@@ -138,14 +138,14 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
         is JetDeclarationWithBody -> ContentBlockCode().let() {
             val bodyExpression = psiElement.getBodyExpression()
             when (bodyExpression) {
-                is JetBlockExpression -> bodyExpression.getText().trim("{", "}")
+                is JetBlockExpression -> bodyExpression.getText().removeSurrounding("{", "}")
                 else -> bodyExpression.getText()
             }
         }
         else -> psiElement.getText()
     }
 
-    val lines = text.trimTrailing().split("\n").filterNot { it.length() == 0 }
+    val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length() == 0 }
     val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
     val finalText = lines.map { it.drop(indent) }.join("\n")
     return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }

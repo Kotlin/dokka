@@ -18,7 +18,7 @@ data class MarkdownTestUniqueId(val id: Int) : Serializable {
 public open class MarkdownSpecification(val path: String, val processor: (String) -> String)
 
 
-trait MarkdownTest {
+interface MarkdownTest {
     fun description(): Description
 }
 
@@ -64,7 +64,7 @@ public open class MarkdownTestSection(val spec: MarkdownSpecification, val title
         when (child) {
             is MarkdownTestCase -> child.run(notifier)
             is MarkdownTestSection -> {
-                if (child.children.size == 0) {
+                if (child.children.size() == 0) {
                     notifier.fireTestStarted(child.description())
                     notifier.fireTestFinished(child.description())
                 } else {
@@ -83,18 +83,18 @@ public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>
 
     private fun createTests(parent: MarkdownTestSection, lines: List<String>): Int {
         val testMark = lines.takeWhile { it.trim() != "." }
-        val testHtml = lines.drop(testMark.size).drop(1).takeWhile { it.trim() != "." }
+        val testHtml = lines.drop(testMark.size()).drop(1).takeWhile { it.trim() != "." }
         val markdown = testMark.join("\n", postfix = "\n", prefix = "\n")
         val html = testHtml.join("\n", postfix = "\n")
         val markdownTestCase = MarkdownTestCase(spec, markdown, html)
         parent.children.add(markdownTestCase)
-        return testMark.size + testHtml.size + 3
+        return testMark.size() + testHtml.size() + 3
     }
 
     private fun createSections(parent: MarkdownTestSection, lines: List<String>, level: Int): Int {
         var sectionNumber = 1
         var index = 0
-        while (index < lines.size) {
+        while (index < lines.size()) {
             val line = lines[index]
 
             if (line.trim() == ".") {
@@ -102,7 +102,7 @@ public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>
                 continue
             }
 
-            val head = line.takeWhile { it == '#' }.length
+            val head = line.takeWhile { it == '#' }.length()
             if (head == 0) {
                 index++
                 continue
@@ -117,9 +117,9 @@ public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>
                 sectionNumber++
                 val section = MarkdownTestSection(spec, title)
                 val lastIndex = createSections(section, lines.subList(index + 1, lines.lastIndex), level + 1) + index + 1
-                if (section.children.size > 0)
+                if (section.children.size() > 0)
                     parent.children.add(section)
-                val nextHead = lines[lastIndex].takeWhile { it == '#' }.length
+                val nextHead = lines[lastIndex].takeWhile { it == '#' }.length()
                 if (nextHead < level) {
                     return lastIndex
                 }
@@ -128,6 +128,6 @@ public class MarkdownTestRunner(specificationClass: Class<MarkdownSpecification>
             }
             index++
         }
-        return lines.size
+        return lines.size()
     }
 }
