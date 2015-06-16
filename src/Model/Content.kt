@@ -2,11 +2,7 @@ package org.jetbrains.dokka
 
 import kotlin.properties.Delegates
 
-public abstract class ContentNode {
-    companion object {
-        val empty = ContentEmpty
-    }
-}
+public abstract class ContentNode
 
 public object ContentEmpty : ContentNode()
 

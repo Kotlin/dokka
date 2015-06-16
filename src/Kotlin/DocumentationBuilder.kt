@@ -425,6 +425,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun ScriptDescriptor.build(): DocumentationNode = getClassDescriptor().build()
+
     fun ClassDescriptor.build(): DocumentationNode {
         val kind = when (getKind()) {
             ClassKind.OBJECT -> Kind.Object
@@ -449,9 +450,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getCompanionObjectDescriptor() }
         node.appendChildren(members, DocumentationReference.Kind.Member)
-        val defaultObjectDescriptor = getCompanionObjectDescriptor()
-        if (defaultObjectDescriptor != null) {
-            node.appendChildren(defaultObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
+        val companionObjectDescriptor = getCompanionObjectDescriptor()
+        if (companionObjectDescriptor != null) {
+            node.appendChildren(companionObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
                     DocumentationReference.Kind.Member)
         }
         node.appendAnnotations(this)
@@ -545,11 +546,11 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
 
         val token = if (arity == 2) {
-            OperatorConventions.BINARY_OPERATION_NAMES.inverse().get(getName()) ?:
-            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse().get(getName()) ?:
-            OperatorConventions.BOOLEAN_OPERATIONS.inverse().get(getName())
+            OperatorConventions.BINARY_OPERATION_NAMES.inverse()[getName()] ?:
+            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse()[getName()] ?:
+            OperatorConventions.BOOLEAN_OPERATIONS.inverse()[getName()]
         } else if (arity == 1) {
-            OperatorConventions.UNARY_OPERATION_NAMES.inverse().get(getName())
+            OperatorConventions.UNARY_OPERATION_NAMES.inverse()[getName()]
         }
         else null
 
