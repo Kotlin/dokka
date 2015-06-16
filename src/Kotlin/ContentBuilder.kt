@@ -22,7 +22,7 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
     nodeStack.push(target)
 
     tree.visit {node, processChildren ->
-        val parent = nodeStack.peek()!!
+        val parent = nodeStack.peek()
 
         fun appendNodeWithChildren(content: ContentBlock) {
             nodeStack.push(content)
