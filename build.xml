@@ -1,10 +1,13 @@
 <project name="Dokka" default="build">
     <typedef resource="org/jetbrains/kotlin/ant/antlib.xml" classpath="${kotlin.compiler}/lib/kotlin-ant.jar"/>
+    <property name="kotlinc.repeat" value="1"/>
 
     <target name="build">
         <mkdir dir="out"/>
 
         <kotlinc src="src" output="out/dokka.jar">
+            <compilerArg value="-Xrepeat"/>
+            <compilerArg value="${kotlinc.repeat}"/>
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
             </classpath>
