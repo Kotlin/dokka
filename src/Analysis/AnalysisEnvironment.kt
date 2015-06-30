@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinOutOfBlockCompletionModificationTracker
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
 import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
@@ -58,7 +59,8 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
                 LibraryModificationTracker(environment.project))
         projectComponentManager.registerService(javaClass<KotlinCacheService>(),
                 KotlinCacheService(environment.project))
-
+        projectComponentManager.registerService(javaClass<KotlinOutOfBlockCompletionModificationTracker>(),
+                KotlinOutOfBlockCompletionModificationTracker())
 
         val sourceFiles = environment.getSourceFiles()
         val facade =  KotlinCacheService.getInstance(environment.project).getResolutionFacade(sourceFiles)
