@@ -1,2 +1,2 @@
-fun function([noinline] notInlined: () -> Unit) {
+fun function(noinline notInlined: () -> Unit) {
 }
