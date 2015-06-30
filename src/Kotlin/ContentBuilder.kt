@@ -122,7 +122,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
     }
     val scope = getResolutionScope(resolutionFacade, descriptor)
     val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
-    val rootScope = rootPackage.getMemberScope()
+    val rootScope = rootPackage.memberScope
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
     if (symbol == null) {
         logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
