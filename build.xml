@@ -13,4 +13,20 @@
             </classpath>
         </kotlinc>
     </target>
+
+    <target name="fatjar" depends="build">
+        <jar jarfile="out/dokka-fat.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.jetbrains.dokka.DokkaPackage" />
+            </manifest>
+
+            <zipgroupfileset dir="lib">
+                <include name="**/*.jar" />
+                <include name="*.jar" />
+            </zipgroupfileset>
+            <zipfileset src="out/dokka.jar">
+                <include name="**/*" />
+            </zipfileset>
+        </jar>
+    </target>
 </project>
