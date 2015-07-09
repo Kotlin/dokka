@@ -139,7 +139,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
             val bodyExpression = psiElement.getBodyExpression()
             when (bodyExpression) {
                 is JetBlockExpression -> bodyExpression.getText().removeSurrounding("{", "}")
-                else -> bodyExpression.getText()
+                else -> bodyExpression!!.getText()
             }
         }
         else -> psiElement.getText()
