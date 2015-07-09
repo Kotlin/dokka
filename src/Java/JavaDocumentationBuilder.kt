@@ -189,9 +189,9 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
 
     private fun getSignature(element: PsiElement?) = when(element) {
         is PsiClass -> element.getQualifiedName()
-        is PsiField -> element.getContainingClass().getQualifiedName() + "#" + element.getName()
+        is PsiField -> element.getContainingClass()!!.getQualifiedName() + "#" + element.getName()
         is PsiMethod ->
-            element.getContainingClass().getQualifiedName() + "#" + element.getName() + "(" +
+            element.getContainingClass()!!.getQualifiedName() + "#" + element.getName() + "(" +
             element.getParameterList().getParameters().map { it.getType().typeSignature() }.join(",") + ")"
         else -> null
     }
