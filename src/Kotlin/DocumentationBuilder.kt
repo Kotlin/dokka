@@ -115,7 +115,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DeclarationDescriptor.isDeprecated(): Boolean = getAnnotations().any {
-        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()).asString() == "kotlin.deprecated"
+        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()!!).asString() == "kotlin.deprecated"
     } || (this is ConstructorDescriptor && getContainingDeclaration().isDeprecated())
 
     fun DeclarationDescriptor.signature(): String = when(this) {
@@ -664,7 +664,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
-        var receiverClass: DeclarationDescriptor = getType().getConstructor().getDeclarationDescriptor()
+        var receiverClass: DeclarationDescriptor = getType().getConstructor().getDeclarationDescriptor()!!
         if ((receiverClass as? ClassDescriptor)?.isCompanionObject() ?: false) {
             receiverClass = receiverClass.getContainingDeclaration()!!
         }
