@@ -1,5 +1,7 @@
 <project name="Dokka" default="build">
     <typedef resource="org/jetbrains/kotlin/ant/antlib.xml" classpath="${kotlin.compiler}/lib/kotlin-ant.jar"/>
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" classpath="${basedir}/lib/maven-ant-tasks-2.1.3.jar"/>
+
     <property name="kotlinc.repeat" value="1"/>
 
     <target name="build">
@@ -28,5 +30,20 @@
                 <include name="**/*" />
             </zipfileset>
         </jar>
+    </target>
+
+    <target name="install-fj" depends="fatjar">
+        <pom id="stupidpom"
+             groupid="org.jetbrains.dokka" artifactid="dokka-fatjar" version="1.0"
+             name="Dokka fatjar"
+             packaging="jar"
+        />
+
+        <writepom pomrefid="stupidpom" file="out/dokka-fat.pom" />
+        <pom id="mypom" file="out/dokka-fat.pom" />
+
+        <install file="out/dokka-fat.jar" pomrefid="mypom">
+            <localrepository path="out/repo" />
+        </install>
     </target>
 </project>
