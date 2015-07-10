@@ -4,7 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ant/ant.iml" filepath="$PROJECT_DIR$/ant/ant.iml" />
       <module fileurl="file://$PROJECT_DIR$/dokka.iml" filepath="$PROJECT_DIR$/dokka.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven-plugin/maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/maven-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gradle-plugin/dokka-gradle-plugin.iml" filepath="$PROJECT_DIR$/gradle-plugin/dokka-gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" />
     </modules>
   </component>
 </project>
