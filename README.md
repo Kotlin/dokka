@@ -85,3 +85,24 @@ KDoc is a flavour of markdown with symbol processing extensions.
 * $name - link to `name` (Kotlin string interpolation style), or ${java.lang.String} for longer references
 * $name: - named section, optionally bound to symbol `name`, e.g. param doc
 * ${code reference} -- include content of a symbol denoted by reference, e.g. code example
+
+### Building
+
+Build only dokka
+
+```bash
+ant fatjar
+```
+
+Build dokka and maven plugin
+
+```bash
+ant install-fj
+cd maven-plugin
+mvn install
+```
+
+Build dokka and install maven plugin (do not require maven installed)
+```bash
+ant build-and-install
+```

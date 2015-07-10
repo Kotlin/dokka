@@ -4,6 +4,11 @@
 
     <property name="kotlinc.repeat" value="1"/>
 
+    <target name="clean">
+        <delete dir="out" />
+        <delete dir="maven-plugin/target" />
+    </target>
+
     <target name="build">
         <mkdir dir="out"/>
 
@@ -45,5 +50,11 @@
         <install file="out/dokka-fat.jar" pomrefid="mypom">
             <localrepository path="out/repo" />
         </install>
+    </target>
+
+    <target name="build-and-install" depends="install-fj">
+        <mvn mavenversion="3.0.5" dir="maven-plugin" pom="maven-plugin/pom.xml">
+            <arg value="install" />
+        </mvn>
     </target>
 </project>
