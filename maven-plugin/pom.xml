@@ -44,6 +44,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.11</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains.dokka</groupId>
             <artifactId>dokka-fatjar</artifactId>
             <version>1.0</version>
