@@ -85,3 +85,72 @@ KDoc is a flavour of markdown with symbol processing extensions.
 * $name - link to `name` (Kotlin string interpolation style), or ${java.lang.String} for longer references
 * $name: - named section, optionally bound to symbol `name`, e.g. param doc
 * ${code reference} -- include content of a symbol denoted by reference, e.g. code example
+
+### Building
+
+Build only dokka
+
+```bash
+ant fatjar
+```
+
+Build dokka and maven plugin
+
+```bash
+ant install-fj
+cd maven-plugin
+mvn install
+```
+
+Build dokka and install maven plugin (do not require maven installed)
+```bash
+ant build-and-install
+```
+
+### Using Maven plugin
+
+Minimal maven configuration is
+
+```xml
+<plugin>
+    <groupId>org.jetbrains.dokka</groupId>
+    <artifactId>dokka-maven-plugin</artifactId>
+    <version>${dokka.version}</version>
+    <executions>
+        <execution>
+            <phase>pre-site</phase>
+            <goals>
+                <goal>dokka</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+by default files will be generated in `target/dokka`
+
+Configuring source links mapping
+
+```xml
+<plugin>
+    <groupId>org.jetbrains.dokka</groupId>
+    <artifactId>dokka-maven-plugin</artifactId>
+    <version>${dokka.version}</version>
+    <executions>
+        <execution>
+            <phase>pre-site</phase>
+            <goals>
+                <goal>dokka</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <sourceLinks>
+            <link>
+                <dir>${project.basedir}/src/main/kotlin</dir>
+                <url>http://github.com/me/myrepo</url>
+            </link>
+        </sourceLinks>
+    </configuration>
+</plugin>
+```
