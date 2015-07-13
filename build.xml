@@ -7,6 +7,8 @@
     <target name="clean">
         <delete dir="out" />
         <delete dir="maven-plugin/target" />
+        <delete dir="gradle-plugin/build" />
+        <delete dir="gradle-plugin/.gradle" />
     </target>
 
     <target name="build">
@@ -52,7 +54,17 @@
         </install>
     </target>
 
-    <target name="build-and-install" depends="install-fj">
+    <target name="gradle-install" depends="install-fj">
+        <exec executable="${basedir}/gradle-plugin/gradlew" dir="gradle-plugin" osfamily="unix" failonerror="true">
+            <arg value="assemble" />
+            <arg value="publishToMavenLocal" />
+        </exec>
+        <exec executable="cmd.exe" dir="gradle-plugin" osfamily="windows" failonerror="true">
+            <arg line="/c ${basedir}\gradle-plugin\gradlew.bat assemble publishToMavenLocal" />
+        </exec>
+    </target>
+
+    <target name="build-and-install" depends="install-fj,gradle-install">
         <mvn mavenversion="3.0.5" dir="maven-plugin" pom="maven-plugin/pom.xml">
             <arg value="install" />
         </mvn>

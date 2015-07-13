@@ -22,10 +22,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="maven-plugin" />
+        <module name="dokka-maven-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="dokka-maven-plugin" target="1.5" />
       <module name="maven-plugin" target="1.5" />
     </bytecodeTargetLevel>
   </component>

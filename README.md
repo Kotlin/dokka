@@ -154,3 +154,37 @@ Configuring source links mapping
     </configuration>
 </plugin>
 ```
+
+### Using Gradle plugin
+
+```groovy
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.1-SNAPSHOT"
+    }
+}
+
+apply plugin: 'org.jetbrains.dokka'
+```
+
+To configure plugin use dokka lambda in the root scope. For example:
+
+```groovy
+dokka {
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
+        suffix = "#L"
+    }
+}
+```
+
+To get it generated use gradle `dokka` task
+
+```bash
+./gradlew dokka
+```
