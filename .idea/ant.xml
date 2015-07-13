@@ -2,13 +2,11 @@
 <project version="4">
   <component name="AntConfiguration">
     <buildFile url="file://$PROJECT_DIR$/build-docs.xml">
-      <customJdkName value="1.8" />
       <properties>
         <property name="kotlin.compiler" value="$PROJECT_DIR$/../kotlin/dist/kotlinc" />
       </properties>
     </buildFile>
     <buildFile url="file://$PROJECT_DIR$/build.xml">
-      <customJdkName value="1.8" />
       <properties>
         <property name="kotlin.compiler" value="$PROJECT_DIR$/../kotlin/dist/kotlinc" />
       </properties>
