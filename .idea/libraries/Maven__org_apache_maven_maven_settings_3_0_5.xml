@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="libraryTable">
+  <library name="Maven: org.apache.maven:maven-settings:3.0.5">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/maven-settings/3.0.5/maven-settings-3.0.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/maven-settings/3.0.5/maven-settings-3.0.5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/maven-settings/3.0.5/maven-settings-3.0.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
