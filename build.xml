@@ -21,37 +21,38 @@
                 <fileset dir="lib" includes="*.jar"/>
             </classpath>
         </kotlinc>
-    </target>
 
-    <target name="fatjar" depends="build">
-        <jar jarfile="out/dokka-fat.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.jetbrains.dokka.DokkaPackage" />
-            </manifest>
+        <kotlinc src="ant/src" output="out/dokka-ant.jar" includeRuntime="false">
+            <compilerArg value="-Xrepeat"/>
+            <compilerArg value="${kotlinc.repeat}"/>
+            <classpath>
+                <fileset dir="lib" includes="*.jar"/>
+                <fileset dir="out" includes="dokka.jar" />
+            </classpath>
+        </kotlinc>
 
-            <zipgroupfileset dir="lib">
-                <include name="**/*.jar" />
-                <include name="*.jar" />
-            </zipgroupfileset>
-            <zipfileset src="out/dokka.jar">
-                <include name="**/*" />
-            </zipfileset>
+        <jar jarfile="out/dokka-ant.jar" update="true" >
+            <zipfileset dir="ant/src" includes="*.xml" prefix="org/jetbrains/dokka/ant" />
         </jar>
     </target>
 
+    <target name="fatjar" depends="build">
+        <exec executable="${basedir}/dokka-fatjar/gradlew" dir="dokka-fatjar" osfamily="unix" failonerror="true">
+            <arg value="assemble" />
+        </exec>
+        <exec executable="cmd.exe" dir="dokka-fatjar" osfamily="windows" failonerror="true">
+            <arg line="/c ${basedir}\dokka-fatjar\gradlew.bat assemble" />
+        </exec>
+    </target>
+
     <target name="install-fj" depends="fatjar">
-        <pom id="stupidpom"
-             groupid="org.jetbrains.dokka" artifactid="dokka-fatjar" version="1.0"
-             name="Dokka fatjar"
-             packaging="jar"
-        />
-
-        <writepom pomrefid="stupidpom" file="out/dokka-fat.pom" />
-        <pom id="mypom" file="out/dokka-fat.pom" />
-
-        <install file="out/dokka-fat.jar" pomrefid="mypom">
-            <localrepository path="out/repo" />
-        </install>
+        <exec executable="${basedir}/dokka-fatjar/gradlew" dir="dokka-fatjar" osfamily="unix" failonerror="true">
+            <arg value="assemble" />
+            <arg value="publishToMavenLocal" />
+        </exec>
+        <exec executable="cmd.exe" dir="dokka-fatjar" osfamily="windows" failonerror="true">
+            <arg line="/c ${basedir}\dokka-fatjar\gradlew.bat assemble publishToMavenLocal" />
+        </exec>
     </target>
 
     <target name="gradle-install" depends="install-fj">
@@ -64,9 +65,13 @@
         </exec>
     </target>
 
-    <target name="build-and-install" depends="install-fj,gradle-install">
+    <target name="maven-install" depends="install-fj">
         <mvn mavenversion="3.0.5" dir="maven-plugin" pom="maven-plugin/pom.xml">
             <arg value="install" />
         </mvn>
+    </target>
+
+    <target name="build-and-install" depends="gradle-install,maven-install">
+        <echo message="Done" />
     </target>
 </project>

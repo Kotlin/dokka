@@ -4,6 +4,17 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/dokka-fatjar" />
+        <option name="gradleJvm" value="1.6" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/dokka-fatjar" />
+          </set>
+        </option>
+        <option name="useAutoImport" value="true" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/gradle-plugin" />
         <option name="modules">
           <set>
