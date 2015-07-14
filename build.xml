@@ -7,6 +7,8 @@
     <target name="clean">
         <delete dir="out" />
         <delete dir="maven-plugin/target" />
+        <delete dir="dokka-fatjar/build" />
+        <delete dir="dokka-fatjar/.gradle" />
         <delete dir="gradle-plugin/build" />
         <delete dir="gradle-plugin/.gradle" />
     </target>
