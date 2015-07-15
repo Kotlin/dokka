@@ -44,26 +44,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>1.11</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.jetbrains.dokka</groupId>
             <artifactId>dokka-fatjar</artifactId>
-            <version>1.0</version>
+            <version>(,0.2)</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>my-local-repo</id>
-            <url>file://${basedir}/../out/repo</url>
-        </repository>
-    </repositories>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -116,38 +103,24 @@
                     <goalPrefix>dokka</goalPrefix>
                 </configuration>
             </plugin>
-
-            <!-- disable default jar building: we use assembly-plugin instead -->
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+
                 <executions>
                     <execution>
-                        <id>default-jar</id>
-                        <phase>none</phase>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
             </plugin>
         </plugins>
     </build>

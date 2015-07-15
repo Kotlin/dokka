@@ -12,6 +12,7 @@
       <excludeFolder url="file://$MODULE_DIR$/target/lib" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-status" />
+      <excludeFolder url="file://$MODULE_DIR$/target/myrepo" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -40,7 +41,7 @@
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:3.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.0.22" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.plugin-tools:maven-plugin-annotations:3.4" level="project" />
-    <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:1.11" level="project" />
-    <orderEntry type="library" name="Maven: org.jetbrains.dokka:dokka-fatjar:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.dokka:dokka-fatjar:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.fusesource.jansi:jansi:1.11" level="project" />
   </component>
 </module>
