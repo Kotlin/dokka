@@ -1,0 +1,53 @@
+group 'org.jetbrains.dokka'
+version '0.0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+dependencies {
+    compile 'org.fusesource.jansi:jansi:[1.11,2.0)'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+task sourceJar(type: Jar) {
+    from fileTree('../src')
+}
+
+jar {
+    manifest {
+        attributes "Implementation-Title": "Dokka Kotlin Documentation tool"
+        attributes "Implementation-Version": version
+        attributes "Main-Class" : "org.jetbrains.dokka.DokkaPackage"
+    }
+
+    fileTree(project.file('../lib')).filter { it.name.endsWith('.jar') && !it.name.contains("-sources") }.each {
+        from (zipTree(it)) {
+            exclude 'META-INF/MANIFEST.MF'
+            exclude 'META-INF/*.SF'
+            exclude 'META-INF/*.DSA'
+            exclude 'META-INF/*.RSA'
+        }
+    }
+    from (zipTree(project.file('../out/dokka.jar'))) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}

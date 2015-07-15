@@ -1464,13 +1464,9 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-gradle-plugin:0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.dokka:dokka-fatjar:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.fusesource.jansi:jansi:1.11" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-gradle-plugin-api:0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.dokka:dokka-fatjar:0.0.1-SNAPSHOT" level="project" />
   </component>
 </module>

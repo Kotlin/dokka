@@ -8,6 +8,7 @@
     </list>
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/dokka-fatjar" />
     <file type="web" url="file://$PROJECT_DIR$/gradle-plugin" />
   </component>
   <component name="MavenProjectsManager">
