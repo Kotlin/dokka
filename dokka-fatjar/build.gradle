@@ -30,6 +30,7 @@ jar {
             exclude 'META-INF/*.SF'
             exclude 'META-INF/*.DSA'
             exclude 'META-INF/*.RSA'
+            exclude '**/*.kt'
         }
     }
     from (zipTree(project.file('../out/dokka.jar'))) {
@@ -37,6 +38,7 @@ jar {
         exclude 'META-INF/*.SF'
         exclude 'META-INF/*.DSA'
         exclude 'META-INF/*.RSA'
+        exclude '**/*.kt'
     }
 }
 
