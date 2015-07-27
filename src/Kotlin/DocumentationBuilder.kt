@@ -18,6 +18,8 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
+import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -685,7 +687,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
         val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
         arguments.forEach {
-            val valueNode = it.second.build()
+            val valueNode = it.second.toDocumentationNode()
             if (valueNode != null) {
                 val paramNode = DocumentationNode(it.first.getName().asString(), Content.Empty, DocumentationNode.Kind.Parameter)
                 paramNode.append(valueNode, DocumentationReference.Kind.Detail)
@@ -695,15 +697,20 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return node
     }
 
-    fun CompileTimeConstant<out Any?>.build(): DocumentationNode? {
-        val value = getValue()
-        val valueString = when(value) {
+    fun CompileTimeConstant<Any?>.build(): DocumentationNode? = when (this) {
+        is TypedCompileTimeConstant -> constantValue.toDocumentationNode()
+        else -> null
+    }
+
+    fun ConstantValue<*>.toDocumentationNode(): DocumentationNode? = value?.let { value ->
+        when (value) {
             is String ->
                 "\"" + StringUtil.escapeStringCharacters(value) + "\""
             is EnumEntrySyntheticClassDescriptor ->
-                value.getContainingDeclaration().getName().asString() + "." + value.getName()
-            else -> value?.toString()
+                value.containingDeclaration.name.asString() + "." + value.name.asString()
+            else -> value.toString()
+        }.let { valueString ->
+            DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value)
         }
-        return if (valueString != null) DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value) else null
     }
 }
