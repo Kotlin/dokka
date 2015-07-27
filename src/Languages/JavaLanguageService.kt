@@ -123,9 +123,9 @@ public class JavaLanguageService : LanguageService {
             val receiver = node.details(Kind.Receiver).singleOrNull()
             append("(")
             if (receiver != null)
-                append((listOf(receiver) + node.details(Kind.Parameter)).map { renderParameter(it) }.join())
+                (listOf(receiver) + node.details(Kind.Parameter)).map { renderParameter(it) }.joinTo(this)
             else
-                append(node.details(Kind.Parameter).map { renderParameter(it) }.join())
+                node.details(Kind.Parameter).map { renderParameter(it) }.joinTo(this)
 
             append(")")
         }.toString()
