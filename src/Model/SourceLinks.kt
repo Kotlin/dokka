@@ -26,7 +26,21 @@ fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<Sourc
                 DocumentationReference.Kind.Detail);
     }
 
-    append(DocumentationNode("$path:${target?.lineNumber()}:${target?.columnNumber()}", Content.Empty, DocumentationNode.Kind.SourcePosition), DocumentationReference.Kind.Detail)
+    if (target != null) {
+        append(DocumentationNode(target.sourcePosition(), Content.Empty, DocumentationNode.Kind.SourcePosition), DocumentationReference.Kind.Detail)
+    }
+}
+
+private fun PsiElement.sourcePosition(): String {
+    val path = containingFile.virtualFile.path
+    val lineNumber = lineNumber()
+    val columnNumber = columnNumber()
+
+    return when {
+        lineNumber == null -> path
+        columnNumber == null -> "$path:$lineNumber"
+        else -> "$path:$lineNumber:$columnNumber"
+    }
 }
 
 fun PsiElement.lineNumber(): Int? {
