@@ -23,7 +23,7 @@ interface MarkdownTest {
 }
 
 public open class MarkdownTestCase(val spec: MarkdownSpecification, val input: String, val expected: String) : MarkdownTest, Runner() {
-    val _description by Delegates.lazy {
+    val _description by lazy {
         Description.createSuiteDescription(input, MarkdownTestUniqueId.next())!!
     }
 
@@ -45,7 +45,7 @@ public open class MarkdownTestCase(val spec: MarkdownSpecification, val input: S
 public open class MarkdownTestSection(val spec: MarkdownSpecification, val title: String) : MarkdownTest, ParentRunner<MarkdownTest>(spec.javaClass) {
     val children = arrayListOf<MarkdownTest>();
 
-    val _description by Delegates.lazy {
+    val _description by lazy {
         val desc = Description.createSuiteDescription(title, MarkdownTestUniqueId.next())!!
         for (item in getChildren()!!) {
             desc.addChild(describeChild(item))

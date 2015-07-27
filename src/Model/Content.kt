@@ -142,7 +142,7 @@ public open class MutableContent() : Content() {
 
     public override val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
 
-    public override val description: ContentNode by Delegates.lazy {
+    public override val description: ContentNode by lazy {
         val descriptionNodes = children.drop(1)
         if (descriptionNodes.isEmpty()) {
             ContentEmpty

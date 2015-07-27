@@ -121,7 +121,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
         return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
     }
     val scope = getResolutionScope(resolutionFacade, descriptor)
-    val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
+    val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)
     val rootScope = rootPackage.memberScope
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
     if (symbol == null) {
