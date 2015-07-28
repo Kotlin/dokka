@@ -46,7 +46,7 @@ public class JavaLanguageService : LanguageService {
         }
     }
 
-    private fun renderType(node: DocumentationNode): String {
+    public fun renderType(node: DocumentationNode): String {
         return when (node.name) {
             "Unit" -> "void"
             "Int" -> "int"
