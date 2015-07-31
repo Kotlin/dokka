@@ -1,8 +1,9 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
 import java.io.File
 
-class YamlOutlineService(val locationService: LocationService,
+class YamlOutlineService @Inject constructor(val locationService: LocationService,
                          val languageService: LanguageService) : OutlineFormatService {
     override fun getOutlineFileName(location: Location): File = File("${location.path}.yml")
 

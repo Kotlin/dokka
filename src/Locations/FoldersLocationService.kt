@@ -1,9 +1,12 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import java.io.File
 
 public fun FoldersLocationService(root: String): FoldersLocationService = FoldersLocationService(File(root), "")
-public class FoldersLocationService(val root: File, val extension: String) : FileLocationService {
+public class FoldersLocationService @Inject constructor(@Named("outputDir") val root: File, val extension: String) : FileLocationService {
+
     override fun withExtension(newExtension: String): FileLocationService {
         return if (extension.isEmpty()) FoldersLocationService(root, newExtension) else this
     }

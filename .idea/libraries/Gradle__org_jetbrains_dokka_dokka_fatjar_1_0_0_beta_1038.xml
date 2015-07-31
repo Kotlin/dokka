@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.jetbrains.dokka:dokka-fatjar:1.0.0-beta-1038">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/dokka/dokka-fatjar/1.0.0-beta-1038/dokka-fatjar-1.0.0-beta-1038.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/dokka/dokka-fatjar/1.0.0-beta-1038/dokka-fatjar-1.0.0-beta-1038-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
