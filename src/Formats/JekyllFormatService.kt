@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
-public open class JekyllFormatService(locationService: LocationService,
+import com.google.inject.Inject
+
+public open class JekyllFormatService @Inject constructor(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : MarkdownFormatService(locationService, signatureGenerator) {
 

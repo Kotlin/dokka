@@ -1,10 +1,12 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import java.io.File
 
-public open class HtmlFormatService(locationService: LocationService,
+public open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
                                     signatureGenerator: LanguageService,
-                                    val templateService: HtmlTemplateService = HtmlTemplateService.default())
+                                    val templateService: HtmlTemplateService)
 : StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
     override public fun formatText(text: String): String {
         return text.htmlEscape()

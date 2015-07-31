@@ -472,7 +472,7 @@ fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
                 .map { module.allTypes[it?.qualifiedName] }
                 .filterNotNull()
 
-class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
+class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
     val allPackages = module.members(DocumentationNode.Kind.Package).toMap { it.name }
     val allTypes = module.members(DocumentationNode.Kind.Package)
             .flatMap { it.members(DocumentationNode.Kind.Class) + it.members(DocumentationNode.Kind.Interface) + it.members(DocumentationNode.Kind.Enum) }
@@ -486,8 +486,10 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
                     .toTypedArray()
 
     override fun options(): Array<out Array<String>> = arrayOf(
-            arrayOf("-d", "out/javadoc"),
-            arrayOf("-docencoding", "UTF-8")
+            arrayOf("-d", outputPath),
+            arrayOf("-docencoding", "UTF-8"),
+            arrayOf("-charset", "UTF-8"),
+            arrayOf("-keywords")
     )
 
     override fun specifiedPackages(): Array<out PackageDoc>? = module.members(DocumentationNode.Kind.Package).map { PackageAdapter(this, it) }.toTypedArray()

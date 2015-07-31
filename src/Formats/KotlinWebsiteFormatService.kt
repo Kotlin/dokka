@@ -1,8 +1,11 @@
 package org.jetbrains.dokka
 
-public class KotlinWebsiteFormatService(locationService: LocationService,
+import com.google.inject.Inject
+
+public class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : JekyllFormatService(locationService, signatureGenerator) {
+
     override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         super.appendFrontMatter(nodes, to)
         to.appendln("layout: api")
