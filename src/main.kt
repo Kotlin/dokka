@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Guice
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
@@ -7,6 +8,7 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import com.sampullara.cli.Args
 import com.sampullara.cli.Argument
+import org.jetbrains.dokka.Utilities.GuiceModule
 import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -17,6 +19,7 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
+import kotlin.util.measureTimeMillis
 
 class DokkaArguments {
     @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -141,9 +144,9 @@ class DokkaGenerator(val logger: DokkaLogger,
     fun generate() {
         val environment = createAnalysisEnvironment()
 
-        logger.info("Module: ${moduleName}")
+        logger.info("Module: $moduleName")
         logger.info("Output: ${File(outputDir).absolutePath}")
-        logger.info("Sources: ${environment.sources.joinToString()}")
+        logger.info("Sources: ${environment.sources.join()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
         logger.info("Analysing sources and libraries... ")
@@ -155,34 +158,12 @@ class DokkaGenerator(val logger: DokkaLogger,
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
 
-        val startBuild = System.currentTimeMillis()
-        val signatureGenerator = KotlinLanguageService()
-        val locationService = FoldersLocationService(outputDir)
-        val templateService = HtmlTemplateService.default("/dokka/styles/style.css")
-
-        val (formatter, outlineFormatter) = when (outputFormat) {
-            "html" -> {
-                val htmlFormatService = HtmlFormatService(locationService, signatureGenerator, templateService)
-                htmlFormatService to htmlFormatService
-            }
-            "markdown" -> MarkdownFormatService(locationService, signatureGenerator) to null
-            "jekyll" -> JekyllFormatService(locationService.withExtension("html"), signatureGenerator) to null
-            "kotlin-website" -> KotlinWebsiteFormatService(locationService.withExtension("html"), signatureGenerator) to
-                    YamlOutlineService(locationService, signatureGenerator)
-            else -> {
-                logger.error("Unrecognized output format ${outputFormat}")
-                null to null
-            }
+        val timeBuild = measureTimeMillis {
+            logger.info("Generating pages... ")
+            Guice.createInjector(GuiceModule(this)).getInstance(javaClass<Generator>()).buildAll(documentation)
         }
-        if (formatter == null) return
-
-        val generator = FileGenerator(signatureGenerator, locationService.withExtension(formatter.extension),
-                formatter, outlineFormatter)
-        logger.info("Generating pages... ")
-        generator.buildPage(documentation)
-        generator.buildOutline(documentation)
-        val timeBuild = System.currentTimeMillis() - startBuild
         logger.info("done in ${timeBuild / 1000} secs")
+
         Disposer.dispose(environment)
     }
 

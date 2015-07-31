@@ -33,7 +33,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.dokka:dokka-fatjar:(,0.2)"
+    compile "org.jetbrains.dokka:dokka-fatjar:(1.0,1.1)"
     compile files("${System.properties['java.home']}/../lib/tools.jar")
 
     compile gradleApi()

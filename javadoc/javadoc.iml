@@ -16,8 +16,6 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.dokka:dokka-fatjar:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: org.fusesource.jansi:jansi:1.11" level="project" />
     <orderEntry type="module-library">
       <library name="Gradle: gradle-core-2.5">
         <CLASSES>
@@ -1473,11 +1471,12 @@
     <orderEntry type="module-library">
       <library name="Gradle: tools">
         <CLASSES>
-          <root url="jar:///usr/java/jdk1.8.0_51/lib/tools.jar!/" />
+          <root url="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/lib/tools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Gradle: org.jetbrains.dokka:dokka-fatjar:1.0.0-beta-1038" level="project" />
   </component>
 </module>

@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.HtmlFormatService
+import org.jetbrains.dokka.HtmlTemplateService
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
@@ -8,7 +9,7 @@ import org.junit.Test
 import java.io.File
 
 public class HtmlFormatTest {
-    private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService())
+    private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService.default())
 
     @Test fun classWithCompanionObject() {
         verifyOutput("test/data/format/classWithCompanionObject.kt", ".html") { model, output ->

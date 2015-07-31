@@ -55,6 +55,8 @@ public interface LocationService {
 
 
 public interface FileLocationService: LocationService {
+    override fun withExtension(newExtension: String): FileLocationService = this
+
     override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
     override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation
 }
