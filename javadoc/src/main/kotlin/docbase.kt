@@ -57,7 +57,7 @@ open class DocumentationNodeAdapter(val module: ModuleNodeAdapter, docNode: Docu
     override fun firstSentenceTags(): Array<out Tag> = buildInlineTags(module, this, docNode.summary).toTypedArray()
     override fun tags(): Array<out Tag> = (buildInlineTags(module, this, docNode.content) + docNode.content.sections.flatMap {
         when (it.tag) {
-            "See Also" -> buildInlineTags(module, this, it)
+            ContentTags.SeeAlso -> buildInlineTags(module, this, it)
             else -> emptyList<Tag>()
         }
     }).toTypedArray()

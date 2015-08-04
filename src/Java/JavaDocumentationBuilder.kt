@@ -112,7 +112,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         if (linkElement == null) {
             return
         }
-        val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
+        val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.getText())
         if (linkSignature != null) {

@@ -210,7 +210,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
         if (subjectName != null) {
-            val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
+            val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
             val link = resolveContentLink(descriptor, subjectName)
             link.append(ContentText(subjectName))
             val para = ContentParagraph()
