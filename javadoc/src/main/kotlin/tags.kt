@@ -103,6 +103,39 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter)
 fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().let { buildInlineTags(module, holder, root, it); it }
 
 private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: ContentNode, result: MutableList<Tag>) {
+    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
+        if (node.children.isNotEmpty()) {
+            val open = TextTag(holder, ContentText(prefix))
+            val close = TextTag(holder, ContentText(postfix))
+
+            result.add(open)
+            node.children.forEach {
+                buildInlineTags(module, holder, it, result)
+            }
+
+            if (result.last() === open) {
+                result.remove(result.lastIndex)
+            } else {
+                result.add(close)
+            }
+        }
+    }
+
+    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>) {
+        if (node !is ContentEmpty) {
+            val open = TextTag(holder, ContentText(prefix))
+            val close = TextTag(holder, ContentText(postfix))
+
+            result.add(open)
+            buildInlineTags(module, holder, node, result)
+            if (result.last() === open) {
+                result.remove(result.lastIndex)
+            } else {
+                result.add(close)
+            }
+        }
+    }
+
     when (node) {
         is ContentText -> result.add(TextTag(holder, node))
         is ContentNodeLink -> {
@@ -143,38 +176,5 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         }
 
         else -> result.add(TextTag(holder, ContentText("$node")))
-    }
-}
-
-fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
-    if (node.children.isNotEmpty()) {
-        val open = TextTag(holder, ContentText(prefix))
-        val close = TextTag(holder, ContentText(postfix))
-
-        result.add(open)
-        node.children.forEach {
-            buildInlineTags(module, holder, it, result)
-        }
-
-        if (result.last() === open) {
-            result.remove(result.lastIndex)
-        } else {
-            result.add(close)
-        }
-    }
-}
-
-fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>) {
-    if (node !is ContentEmpty) {
-        val open = TextTag(holder, ContentText(prefix))
-        val close = TextTag(holder, ContentText(postfix))
-
-        result.add(open)
-        buildInlineTags(module, holder, node, result)
-        if (result.last() === open) {
-            result.remove(result.lastIndex)
-        } else {
-            result.add(close)
-        }
     }
 }
