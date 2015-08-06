@@ -139,7 +139,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
 
     fun appendDescription(location: Location, to: StringBuilder, node: DocumentationNode) {
         if (node.content.description != ContentEmpty) {
-            appendHeader(to, "Description", 3)
+            appendHeader(to, ContentTags.Description, 3)
             appendLine(to, formatText(location, node.content.description))
             appendLine(to)
         }

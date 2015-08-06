@@ -150,7 +150,7 @@ public open class MutableContent() : Content() {
         if (descriptionNodes.isEmpty()) {
             ContentEmpty
         } else {
-            val result = ContentSection("Description", null)
+            val result = ContentSection(ContentTags.Description, null)
             result.children.addAll(descriptionNodes)
             result
         }
