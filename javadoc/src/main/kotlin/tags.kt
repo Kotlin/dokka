@@ -48,7 +48,7 @@ class SeeMethodTagAdapter(holder: Doc, val method: MethodAdapter, content: Conte
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc = method.containingClass()
     override fun referencedClassName(): String = method.containingClass().name()
-    override fun label(): String = "fun ${method.containingClass().name()}.${method.name()}"
+    override fun label(): String = "${method.containingClass().name()}.${method.name()}"
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
@@ -60,7 +60,7 @@ class SeeClassTagAdapter(holder: Doc, val clazz: ClassDocumentationNodeAdapter, 
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc = clazz
     override fun referencedClassName(): String = clazz.name()
-    override fun label(): String = "${clazz.classNode.kind.name().toLowerCase()} ${clazz.name()}" // TODO
+    override fun label(): String = "${clazz.classNode.kind.name().toLowerCase()} ${clazz.name()}"
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
