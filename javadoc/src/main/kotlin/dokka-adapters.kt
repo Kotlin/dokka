@@ -9,7 +9,7 @@ class JavadocGenerator(val conf: DokkaGenerator) : Generator {
         val module = nodes.single() as DocumentationModule
 
         DokkaConsoleLogger.report()
-        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter, conf.outputDir))
+        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(conf.logger), conf.outputDir))
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
