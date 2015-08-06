@@ -69,13 +69,13 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
-                when (it.getName()) {
+                when (it.name) {
                     "sample" ->
                         content.append(functionBody(descriptor, it.getSubjectName()))
                     "see" ->
                         content.addTagToSeeAlso(descriptor, it)
                     else -> {
-                        val section = content.addSection(javadocSectionDisplayName(it.getName()), it.getSubjectName())
+                        val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
                         buildInlineContentTo(markdownNode, section, { href -> resolveContentLink(descriptor, href) })
@@ -94,16 +94,16 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (descriptor !is CallableMemberDescriptor) {
             return null
         }
-        val name = descriptor.getName().asString()
+        val name = descriptor.name.asString()
         if (name == "equals" || name == "hashCode" || name == "toString") {
             var deepestDescriptor: CallableMemberDescriptor = descriptor
-            while (!deepestDescriptor.getOverriddenDescriptors().isEmpty()) {
-                deepestDescriptor = deepestDescriptor.getOverriddenDescriptors().first()
+            while (!deepestDescriptor.overriddenDescriptors.isEmpty()) {
+                deepestDescriptor = deepestDescriptor.overriddenDescriptors.first()
             }
-            if (DescriptorUtils.getFqName(deepestDescriptor.getContainingDeclaration()).asString() == "kotlin.Any") {
+            if (DescriptorUtils.getFqName(deepestDescriptor.containingDeclaration).asString() == "kotlin.Any") {
                 val anyClassDescriptors = session.getTopLevelClassDescriptors(FqName.fromSegments(listOf("kotlin", "Any")))
                 anyClassDescriptors.forEach {
-                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.getName()).single()
+                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.name).single()
                     val kdoc = KDocFinder.findKDoc(anyMethod)
                     if (kdoc != null) {
                         return kdoc
@@ -114,51 +114,51 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return null
     }
 
-    fun DeclarationDescriptor.isDeprecated(): Boolean = getAnnotations().any {
-        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()!!).asString() == "kotlin.deprecated"
-    } || (this is ConstructorDescriptor && getContainingDeclaration().isDeprecated())
+    fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
+        DescriptorUtils.getFqName(it.type.constructor.declarationDescriptor!!).asString() == "kotlin.deprecated"
+    } || (this is ConstructorDescriptor && containingDeclaration.isDeprecated())
 
     fun DeclarationDescriptor.signature(): String = when(this) {
         is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
-        is PropertyDescriptor -> getContainingDeclaration().signature() + "#" + getName() + receiverSignature()
-        is FunctionDescriptor -> getContainingDeclaration().signature() + "#" + getName() + parameterSignature()
-        is ValueParameterDescriptor -> getContainingDeclaration().signature() + ":" + getName()
-        is TypeParameterDescriptor -> getContainingDeclaration().signature() + "<" + getName()
+        is PropertyDescriptor -> containingDeclaration.signature() + "#" + name + receiverSignature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "#" + name + parameterSignature()
+        is ValueParameterDescriptor -> containingDeclaration.signature() + ":" + name
+        is TypeParameterDescriptor -> containingDeclaration.signature() + "<" + name
 
         else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
     }
 
     fun PropertyDescriptor.receiverSignature(): String {
-        val receiver = getExtensionReceiverParameter()
+        val receiver = extensionReceiverParameter
         if (receiver != null) {
-            return "#" + receiver.getType().signature()
+            return "#" + receiver.type.signature()
         }
         return ""
     }
 
     fun CallableMemberDescriptor.parameterSignature(): String {
-        val params = getValueParameters().map { it.getType() }.toArrayList()
-        val extensionReceiver = getExtensionReceiverParameter()
+        val params = valueParameters.map { it.type }.toArrayList()
+        val extensionReceiver = extensionReceiverParameter
         if (extensionReceiver != null) {
-            params.add(0, extensionReceiver.getType())
+            params.add(0, extensionReceiver.type)
         }
         return "(" + params.map { it.signature() }.join() + ")"
     }
 
     fun JetType.signature(): String {
-        val declarationDescriptor = getConstructor().getDeclarationDescriptor() ?: return "<null>"
+        val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
         val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-        if (typeName == "Array" && getArguments().size() == 1) {
-            return "Array<" + getArguments().first().getType().signature() + ">"
+        if (typeName == "Array" && arguments.size() == 1) {
+            return "Array<" + arguments.first().type.signature() + ">"
         }
         return typeName
     }
 
     fun DeclarationDescriptor.sourceLocation(): String? {
         if (this is DeclarationDescriptorWithSource) {
-            val psi = (this.getSource() as? PsiSourceElement)?.getPsi()
+            val psi = (this.source as? PsiSourceElement)?.getPsi()
             if (psi != null) {
-                val fileName = psi.getContainingFile().getName()
+                val fileName = psi.containingFile.name
                 val lineNumber = psi.lineNumber()
                 return if (lineNumber != null) "$fileName:$lineNumber" else fileName
             }
@@ -197,8 +197,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             return null
         }
         val symbol = symbols.first()
-        if (symbol is CallableMemberDescriptor && symbol.getKind() == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
-            return symbol.getOverriddenDescriptors().firstOrNull()
+        if (symbol is CallableMemberDescriptor && symbol.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+            return symbol.overriddenDescriptors.firstOrNull()
         }
         return symbol
     }
@@ -233,7 +233,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
         val doc = parseDocumentation(descriptor)
-        val node = DocumentationNode(descriptor.getName().asString(), doc, kind).withModifiers(descriptor)
+        val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         return node
     }
 
@@ -248,10 +248,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendModality(descriptor: MemberDescriptor) {
-        var modality = descriptor.getModality()
+        var modality = descriptor.modality
         if (modality == Modality.OPEN) {
-            val containingClass = descriptor.getContainingDeclaration() as? ClassDescriptor
-            if (containingClass?.getModality() == Modality.FINAL) {
+            val containingClass = descriptor.containingDeclaration as? ClassDescriptor
+            if (containingClass?.modality == Modality.FINAL) {
                 modality = Modality.FINAL
             }
         }
@@ -260,22 +260,22 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
-        val modifier = descriptor.getVisibility().toString()
+        val modifier = descriptor.visibility.toString()
         appendTextNode(modifier, DocumentationNode.Kind.Modifier)
     }
 
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
-        val superTypes = descriptor.getTypeConstructor().getSupertypes()
+        val superTypes = descriptor.typeConstructor.supertypes
         for (superType in superTypes) {
             if (!ignoreSupertype(superType)) {
                 appendType(superType, DocumentationNode.Kind.Supertype)
-                link(superType?.getConstructor()?.getDeclarationDescriptor(), descriptor, DocumentationReference.Kind.Inheritor)
+                link(superType?.constructor?.declarationDescriptor, descriptor, DocumentationReference.Kind.Inheritor)
             }
         }
     }
 
     private fun ignoreSupertype(superType: JetType): Boolean {
-        val superClass = superType.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
+        val superClass = superType.constructor.declarationDescriptor as? ClassDescriptor
         if (superClass != null) {
             val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
             return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
@@ -284,31 +284,31 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
-        appendType(projection.getType(), kind, projection.getProjectionKind().label)
+        appendType(projection.type, kind, projection.projectionKind.label)
     }
 
     fun DocumentationNode.appendType(jetType: JetType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
         if (jetType == null)
             return
-        val classifierDescriptor = jetType.getConstructor().getDeclarationDescriptor()
+        val classifierDescriptor = jetType.constructor.declarationDescriptor
         val name = when (classifierDescriptor) {
             is ClassDescriptor -> {
-                if (classifierDescriptor.isCompanionObject()) {
-                    classifierDescriptor.getContainingDeclaration().getName().asString() +
-                            "." + classifierDescriptor.getName().asString()
+                if (classifierDescriptor.isCompanionObject) {
+                    classifierDescriptor.containingDeclaration.name.asString() +
+                            "." + classifierDescriptor.name.asString()
                 }
                 else {
-                    classifierDescriptor.getName().asString()
+                    classifierDescriptor.name.asString()
                 }
             }
-            is Named -> classifierDescriptor.getName().asString()
+            is Named -> classifierDescriptor.name.asString()
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, kind)
         if (prefix != "") {
             node.appendTextNode(prefix, Kind.Modifier)
         }
-        if (jetType.isMarkedNullable()) {
+        if (jetType.isMarkedNullable) {
             node.appendTextNode("?", Kind.NullabilityModifier)
         }
         if (classifierDescriptor != null && !classifierDescriptor.isBoringBuiltinClass()) {
@@ -316,7 +316,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
 
         append(node, DocumentationReference.Kind.Detail)
-        for (typeArgument in jetType.getArguments())
+        for (typeArgument in jetType.arguments)
             node.appendProjection(typeArgument)
     }
 
@@ -324,7 +324,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
-        annotated.getAnnotations().forEach {
+        annotated.annotations.forEach {
             val annotationNode = it.build()
             if (annotationNode != null) {
                 append(annotationNode,
@@ -339,7 +339,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind): DocumentationNode? {
         // do not include generated code
-        if (descriptor is CallableMemberDescriptor && descriptor.getKind() != CallableMemberDescriptor.Kind.DECLARATION)
+        if (descriptor is CallableMemberDescriptor && descriptor.kind != CallableMemberDescriptor.Kind.DECLARATION)
             return null
 
         if (descriptor.isDocumented()) {
@@ -353,7 +353,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     private fun DeclarationDescriptor.isDocumented(): Boolean {
         return (options.includeNonPublic
                 || this !is MemberDescriptor
-                || this.getVisibility() in visibleToDocumentation) &&
+                || this.visibility in visibleToDocumentation) &&
                 !isDocumentationSuppressed() &&
                 (!options.skipDeprecated || !isDeprecated())
     }
@@ -424,10 +424,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         else -> throw IllegalStateException("Descriptor $this is not known")
     }
 
-    fun ScriptDescriptor.build(): DocumentationNode = getClassDescriptor().build()
+    fun ScriptDescriptor.build(): DocumentationNode = classDescriptor.build()
 
     fun ClassDescriptor.build(): DocumentationNode {
-        val kind = when (getKind()) {
+        val kind = when (kind) {
             ClassKind.OBJECT -> Kind.Object
             ClassKind.INTERFACE -> Kind.Interface
             ClassKind.ENUM_CLASS -> Kind.Enum
@@ -436,52 +436,52 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             else -> Kind.Class
         }
         val node = DocumentationNode(this, kind)
-        if (isInner()) {
+        if (isInner) {
             node.appendTextNode("inner", Kind.Modifier)
         }
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
-            node.appendInPageChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
+            node.appendInPageChildren(typeConstructor.parameters, DocumentationReference.Kind.Detail)
             val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
-                getConstructors().filter { it.getValueParameters().size() > 0 }
+                constructors.filter { it.valueParameters.size() > 0 }
             else
-                getConstructors()
+                constructors
             node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
         }
-        val members = getDefaultType().getMemberScope().getAllDescriptors().filter { it != getCompanionObjectDescriptor() }
+        val members = defaultType.memberScope.getAllDescriptors().filter { it != companionObjectDescriptor }
         node.appendChildren(members, DocumentationReference.Kind.Member)
-        val companionObjectDescriptor = getCompanionObjectDescriptor()
+        val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
-            node.appendChildren(companionObjectDescriptor.getDefaultType().getMemberScope().getAllDescriptors(),
+            node.appendChildren(companionObjectDescriptor.defaultType.memberScope.getAllDescriptors(),
                     DocumentationReference.Kind.Member)
         }
         node.appendAnnotations(this)
-        node.appendSourceLink(getSource())
+        node.appendSourceLink(source)
         register(this, node)
         return node
     }
 
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Constructor)
-        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(valueParameters, DocumentationReference.Kind.Detail)
         register(this, node)
         return node
     }
 
     private fun CallableMemberDescriptor.inCompanionObject(): Boolean {
-        val containingDeclaration = getContainingDeclaration()
-        if ((containingDeclaration as? ClassDescriptor)?.isCompanionObject() ?: false) {
+        val containingDeclaration = containingDeclaration
+        if ((containingDeclaration as? ClassDescriptor)?.isCompanionObject ?: false) {
             return true
         }
-        val receiver = getExtensionReceiverParameter()
-        return (receiver?.getType()?.getConstructor()?.getDeclarationDescriptor() as? ClassDescriptor)?.isCompanionObject() ?: false
+        val receiver = extensionReceiverParameter
+        return (receiver?.type?.constructor?.declarationDescriptor as? ClassDescriptor)?.isCompanionObject ?: false
     }
 
     fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
-        val extensionReceiver = getExtensionReceiverParameter()
+        val extensionReceiver = extensionReceiverParameter
         if (extensionReceiver != null) {
-            val type = extensionReceiver.getType()
-            return type.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
+            val type = extensionReceiver.type
+            return type.constructor.declarationDescriptor as? ClassDescriptor
         }
         return null
     }
@@ -493,15 +493,15 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
         val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
 
-        node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
-        getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
-        node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
-        node.appendType(getReturnType())
+        node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
+        extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
+        node.appendInPageChildren(valueParameters, DocumentationReference.Kind.Detail)
+        node.appendType(returnType)
         node.appendAnnotations(this)
-        node.appendSourceLink(getSource())
+        node.appendSourceLink(source)
         node.appendOperatorOverloadNote(this)
 
-        getOverriddenDescriptors().forEach {
+        overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
 
@@ -510,11 +510,11 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun addOverrideLink(baseClassFunction: CallableMemberDescriptor, overridingFunction: CallableMemberDescriptor) {
-        val source = baseClassFunction.getOriginal().getSource().getPsi()
+        val source = baseClassFunction.original.source.getPsi()
         if (source != null) {
             link(overridingFunction, baseClassFunction, DocumentationReference.Kind.Override)
         } else {
-            baseClassFunction.getOverriddenDescriptors().forEach {
+            baseClassFunction.overriddenDescriptors.forEach {
                 addOverrideLink(it, overridingFunction)
             }
         }
@@ -537,36 +537,36 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun FunctionDescriptor.getImplementedOperator(): String? {
-        var arity = getValueParameters().size()
-        if (getContainingDeclaration() is ClassDescriptor) {
+        var arity = valueParameters.size()
+        if (containingDeclaration is ClassDescriptor) {
             arity++
         }
-        if (getExtensionReceiverParameter() != null) {
+        if (extensionReceiverParameter != null) {
             arity++
         }
 
         val token = if (arity == 2) {
-            OperatorConventions.BINARY_OPERATION_NAMES.inverse()[getName()] ?:
-            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse()[getName()] ?:
-            OperatorConventions.BOOLEAN_OPERATIONS.inverse()[getName()]
+            OperatorConventions.BINARY_OPERATION_NAMES.inverse()[name] ?:
+            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse()[name] ?:
+            OperatorConventions.BOOLEAN_OPERATIONS.inverse()[name]
         } else if (arity == 1) {
-            OperatorConventions.UNARY_OPERATION_NAMES.inverse()[getName()]
+            OperatorConventions.UNARY_OPERATION_NAMES.inverse()[name]
         }
         else null
 
         if (token is JetSingleValueToken) {
-            return token.getValue()
+            return token.value
         }
 
-        val name = getName().asString()
+        val name = name.asString()
         if (arity == 2 && name == "contains") {
             return "in"
         }
         if (arity >= 2 && (name == "get" || name == "set")) {
             return "[]"
         }
-        if (arity == 2 && name == "equals" && getValueParameters().size() == 1 &&
-            KotlinBuiltIns.isNullableAny(getValueParameters().first().getType())) {
+        if (arity == 2 && name == "equals" && valueParameters.size() == 1 &&
+            KotlinBuiltIns.isNullableAny(valueParameters.first().type)) {
             return "=="
         }
         return null
@@ -574,26 +574,26 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun PropertyDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectProperty else Kind.Property)
-        node.appendInPageChildren(getTypeParameters(), DocumentationReference.Kind.Detail)
-        getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
-        node.appendType(getReturnType())
+        node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
+        extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
+        node.appendType(returnType)
         node.appendAnnotations(this)
-        node.appendSourceLink(getSource())
-        if (isVar()) {
+        node.appendSourceLink(source)
+        if (isVar) {
             node.appendTextNode("var", DocumentationNode.Kind.Modifier)
         }
-        getGetter()?.let {
-            if (!it.isDefault()) {
+        getter?.let {
+            if (!it.isDefault) {
                 node.addAccessorDocumentation(parseDocumentation(it), "Getter")
             }
         }
-        getSetter()?.let {
-            if (!it.isDefault()) {
+        setter?.let {
+            if (!it.isDefault) {
                 node.addAccessorDocumentation(parseDocumentation(it), "Setter")
             }
         }
 
-        getOverriddenDescriptors().forEach {
+        overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
 
@@ -617,17 +617,17 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
-        val varargType = getVarargElementType()
+        val varargType = varargElementType
         if (varargType != null) {
             node.appendTextNode("vararg", Kind.Annotation, DocumentationReference.Kind.Annotation)
             node.appendType(varargType)
         } else {
-            node.appendType(getType())
+            node.appendType(type)
         }
         if (hasDefaultValue()) {
-            val psi = getSource().getPsi() as? JetParameter
+            val psi = source.getPsi() as? JetParameter
             if (psi != null) {
-                val defaultValueText = psi.getDefaultValue()?.getText()
+                val defaultValueText = psi.defaultValue?.text
                 if (defaultValueText != null) {
                     node.appendTextNode(defaultValueText, Kind.Value)
                 }
@@ -640,8 +640,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun TypeParameterDescriptor.build(): DocumentationNode {
         val doc = parseDocumentation(this)
-        val name = getName().asString()
-        val prefix = getVariance().label
+        val name = name.asString()
+        val prefix = variance.label
 
         val node = DocumentationNode(name, doc, DocumentationNode.Kind.TypeParameter)
         if (prefix != "") {
@@ -649,13 +649,13 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
 
         val builtIns = KotlinBuiltIns.getInstance()
-        for (constraint in getUpperBounds()) {
-            if (constraint == builtIns.getDefaultBound())
+        for (constraint in upperBounds) {
+            if (constraint == builtIns.defaultBound)
                 continue
             node.appendType(constraint, Kind.UpperBound)
         }
 
-        for (constraint in getLowerBounds()) {
+        for (constraint in lowerBounds) {
             if (KotlinBuiltIns.isNothing(constraint))
                 continue
             node.appendType(constraint, Kind.LowerBound)
@@ -664,30 +664,30 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun ReceiverParameterDescriptor.build(): DocumentationNode {
-        var receiverClass: DeclarationDescriptor = getType().getConstructor().getDeclarationDescriptor()!!
-        if ((receiverClass as? ClassDescriptor)?.isCompanionObject() ?: false) {
-            receiverClass = receiverClass.getContainingDeclaration()!!
+        var receiverClass: DeclarationDescriptor = type.constructor.declarationDescriptor!!
+        if ((receiverClass as? ClassDescriptor)?.isCompanionObject ?: false) {
+            receiverClass = receiverClass.containingDeclaration!!
         }
         link(receiverClass,
-                getContainingDeclaration(),
+                containingDeclaration,
                 DocumentationReference.Kind.Extension)
 
-        val node = DocumentationNode(getName().asString(), Content.Empty, Kind.Receiver)
-        node.appendType(getType())
+        val node = DocumentationNode(name.asString(), Content.Empty, Kind.Receiver)
+        node.appendType(type)
         return node
     }
 
     fun AnnotationDescriptor.build(): DocumentationNode? {
-        val annotationClass = getType().getConstructor().getDeclarationDescriptor()
+        val annotationClass = type.constructor.declarationDescriptor
         if (annotationClass == null || ErrorUtils.isError(annotationClass)) {
             return null
         }
-        val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
-        val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
+        val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, DocumentationNode.Kind.Annotation)
+        val arguments = allValueArguments.toList().sortBy { it.first.index }
         arguments.forEach {
             val valueNode = it.second.toDocumentationNode()
             if (valueNode != null) {
-                val paramNode = DocumentationNode(it.first.getName().asString(), Content.Empty, DocumentationNode.Kind.Parameter)
+                val paramNode = DocumentationNode(it.first.name.asString(), Content.Empty, DocumentationNode.Kind.Parameter)
                 paramNode.append(valueNode, DocumentationReference.Kind.Detail)
                 node.append(paramNode, DocumentationReference.Kind.Detail)
             }
