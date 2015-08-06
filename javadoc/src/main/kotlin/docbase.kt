@@ -5,6 +5,7 @@ import org.jetbrains.dokka.*
 import java.lang.reflect.Modifier
 import java.util.Collections
 import java.util.HashSet
+import kotlin.platform.platformStatic
 
 open class DocumentationNodeBareAdapter(val docNode: DocumentationNode) : Doc {
     private var rawCommentText_ = rawCommentText
@@ -100,6 +101,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, val node: DocumentationNo
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.owner?.kind in listOf(DocumentationNode.Kind.Package, DocumentationNode.Kind.ExternalClass)
+                                                || platformStatic::class.qualifiedName in node.annotations.map { it.qualifiedName }
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
     override fun qualifiedName(): String? = node.qualifiedName
     override fun annotations(): Array<out AnnotationDesc>? = node.annotations.map { AnnotationDescAdapter(module, it) }.toTypedArray()
