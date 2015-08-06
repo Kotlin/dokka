@@ -139,29 +139,14 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, val node: DocumentationNo
     override fun isIncluded(): Boolean = containingPackage()?.isIncluded ?: false && containingClass()?.let { it.isIncluded } ?: true
 }
 
-public fun DocumentationNode.getArrayElementType(): DocumentationNode? = when (name) {
-    "Array" -> details(DocumentationNode.Kind.Type).singleOrNull()?.let { et -> et.getArrayElementType() ?: et } ?: DocumentationNode("Object", content, DocumentationNode.Kind.ExternalClass)
-    "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(name.removeSuffix("Array").toLowerCase(), content, DocumentationNode.Kind.Type)
-    else -> null
-}
-
-fun DocumentationNode.getArrayDimension(): Int = when (name) {
-    "Array" -> 1 + (details(DocumentationNode.Kind.Type).singleOrNull()?.getArrayDimension() ?: 0)
-    "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> 1
-    else -> 0
-}
-
-//fun DocumentationNode.convertNativeType(): DocumentationNode = when (name) {
-//    "Unit" -> DocumentationNode("void", content, kind)
-//    "Int" -> DocumentationNode("int", content, kind)
-//}
-
 open class TypeAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode) : Type {
-    override fun qualifiedTypeName(): String = node.getArrayElementType()?.qualifiedName ?: node.qualifiedName
-    override fun typeName(): String = node.getArrayElementType()?.name ?: node.name
+    private val javaLanguageService = JavaLanguageService()
+
+    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedName ?: node.qualifiedName
+    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.name ?: node.name
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
-    override fun dimension(): String = Collections.nCopies(node.getArrayDimension(), "[]").joinToString("")
+    override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
     override fun isPrimitive(): Boolean = node.name in setOf("Int", "Long", "Short", "Byte", "Char", "Double", "Float", "Boolean", "Unit")
     override fun asClassDoc(): ClassDoc? = if (isPrimitive) null else
             elementType?.asClassDoc() ?:
@@ -186,7 +171,7 @@ open class TypeAdapter(val module: ModuleNodeAdapter, val node: DocumentationNod
 
     override fun asAnnotationTypeDoc(): AnnotationTypeDoc? = if (node.kind == DocumentationNode.Kind.AnnotationClass) AnnotationTypeDocAdapter(module, node) else null
     override fun asAnnotatedType(): AnnotatedType? = if (node.annotations.isNotEmpty()) AnnotatedTypeAdapter(module, node) else null
-    override fun getElementType(): Type? = node.getArrayElementType()?.let { et -> TypeAdapter(module, et) }
+    override fun getElementType(): Type? = javaLanguageService.getArrayElementType(node)?.let { et -> TypeAdapter(module, et) }
     override fun asWildcardType(): WildcardType? = null
 
     override fun toString(): String = qualifiedTypeName() + dimension()
