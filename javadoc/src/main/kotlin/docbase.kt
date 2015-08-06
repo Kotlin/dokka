@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier
 import java.util.Collections
 import java.util.HashSet
 import kotlin.platform.platformStatic
+import kotlin.reflect.KClass
 
 private interface HasModule {
     val module: ModuleNodeAdapter
@@ -76,6 +77,8 @@ open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node
 private fun <T> nodeAnnotations(self: T): List<AnnotationDescAdapter> where T : HasModule, T : HasDocumentationNode
     = self.node.annotations.map { AnnotationDescAdapter(self.module, it) }
 
+private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName }
+
 private val allClassKinds = setOf(DocumentationNode.Kind.Class, DocumentationNode.Kind.Enum, DocumentationNode.Kind.Interface, DocumentationNode.Kind.Object, DocumentationNode.Kind.Exception)
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
@@ -113,7 +116,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.owner?.kind in listOf(DocumentationNode.Kind.Package, DocumentationNode.Kind.ExternalClass)
-                                                || platformStatic::class.qualifiedName in node.annotations.map { it.qualifiedName }
+                                                || node.hasAnnotation(platformStatic::class)
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
     override fun qualifiedName(): String? = node.qualifiedName
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
@@ -347,14 +350,14 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docume
 class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), FieldDoc {
     override fun isSynthetic(): Boolean = false
 
-    override fun constantValueExpression(): String? = null // TODO
-    override fun constantValue(): Any? = null
+    override fun constantValueExpression(): String? = node.details(DocumentationNode.Kind.Value).firstOrNull()?.let { it.name }
+    override fun constantValue(): Any? = constantValueExpression()
 
     override fun type(): Type = TypeAdapter(module, node.detail(DocumentationNode.Kind.Type))
-    override fun isTransient(): Boolean = false // TODO
+    override fun isTransient(): Boolean = node.hasAnnotation(transient::class)
     override fun serialFieldTags(): Array<out SerialFieldTag> = emptyArray()
 
-    override fun isVolatile(): Boolean = false // TODO
+    override fun isVolatile(): Boolean = node.hasAnnotation(volatile::class)
 }
 
 open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode) : DocumentationNodeAdapter(module, classNode), Type by TypeAdapter(module, classNode), ProgramElementDoc by ProgramElementAdapter(module, classNode), ClassDoc {
