@@ -247,11 +247,17 @@ class ParameterAdapter(module: ModuleNodeAdapter, val node: DocumentationNode) :
     override fun annotations(): Array<out AnnotationDesc>? = node.details(DocumentationNode.Kind.Annotation).map { AnnotationDescAdapter(module, it) }.toTypedArray()
 }
 
-class ReceiverParameterAdapter(module: ModuleNodeAdapter, val receiverType: DocumentationNode) : DocumentationNodeAdapter(module, receiverType), Parameter {
+class ReceiverParameterAdapter(module: ModuleNodeAdapter, val receiverType: DocumentationNode, val parent: ExecutableMemberAdapter) : DocumentationNodeAdapter(module, receiverType), Parameter {
     override fun typeName(): String? = receiverType.name
     override fun type(): Type? = TypeAdapter(module, receiverType)
     override fun annotations(): Array<out AnnotationDesc> = emptyArray()
-    override fun name(): String = "receiver"
+    override fun name(): String = tryName("receiver")
+
+    tailRecursive
+    private fun tryName(name: String): String = when (name) {
+        in parent.parameters().drop(1).map { it.name() } -> tryName("$$name")
+        else -> name
+    }
 }
 
 fun classOf(fqName: String, kind: DocumentationNode.Kind = DocumentationNode.Kind.Class) = DocumentationNode(fqName.substringAfterLast(".", fqName), Content.Empty, kind).let { node ->
@@ -290,7 +296,7 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, val node: Document
     override fun signature(): String = node.details(DocumentationNode.Kind.Parameter).map { JavaLanguageService().renderType(it) }.joinToString(", ", "(", ")") // TODO it should be FQ types
 
     override fun parameters(): Array<out Parameter> =
-            ((receiverNode()?.let { receiver -> listOf<Parameter>(ReceiverParameterAdapter(module, receiver)) } ?: emptyList())
+            ((receiverNode()?.let { receiver -> listOf<Parameter>(ReceiverParameterAdapter(module, receiver, this)) } ?: emptyList())
                     + node.details(DocumentationNode.Kind.Parameter).map { ParameterAdapter(module, it) }
                     ).toTypedArray()
 
