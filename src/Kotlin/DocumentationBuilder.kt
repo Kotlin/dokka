@@ -17,9 +17,7 @@ import org.jetbrains.kotlin.lexer.JetSingleValueToken
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -695,11 +693,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             }
         }
         return node
-    }
-
-    fun CompileTimeConstant<Any?>.build(): DocumentationNode? = when (this) {
-        is TypedCompileTimeConstant -> constantValue.toDocumentationNode()
-        else -> null
     }
 
     fun ConstantValue<*>.toDocumentationNode(): DocumentationNode? = value?.let { value ->
