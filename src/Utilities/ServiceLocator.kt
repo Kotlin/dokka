@@ -89,12 +89,6 @@ public inline fun <reified T : Any> ServiceLocator.lookupOrNull(category: String
     null
 }
 
-fun main(args: Array<String>) {
-    ServiceLocator.allServices("format").forEach {
-        println(it)
-    }
-}
-
 private val ZipEntry.fileName: String
     get() = name.substringAfterLast("/", name)
 

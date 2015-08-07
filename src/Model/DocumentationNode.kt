@@ -114,9 +114,7 @@ public open class DocumentationNode(val name: String,
 
 val DocumentationNode.path: List<DocumentationNode>
     get() {
-        val parent = owner
-        if (parent == null)
-            return listOf(this)
+        val parent = owner ?: return listOf(this)
         return parent.path + this
     }
 
