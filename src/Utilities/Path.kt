@@ -3,10 +3,7 @@ package org.jetbrains.dokka
 import java.io.*
 
 fun File.getRelativePath(name: File): File {
-    val parent = getParentFile()
-
-    if (parent == null)
-        throw IOException("No common directory");
+    val parent = parentFile ?: throw IOException("No common directory")
 
     val basePath = getCanonicalPath() + File.separator;
     val targetPath = name.getCanonicalPath();
