@@ -229,9 +229,9 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         else -> false
     }
 
-    fun DocumentationNode.appendChildren<T>(elements: Array<T>,
-                                            kind: DocumentationReference.Kind = DocumentationReference.Kind.Member,
-                                            buildFn: T.() -> DocumentationNode) {
+    fun DocumentationNode.appendChildren<T : Any>(elements: Array<T>,
+                                                  kind: DocumentationReference.Kind = DocumentationReference.Kind.Member,
+                                                  buildFn: T.() -> DocumentationNode) {
         elements.forEach {
             if (!skipElement(it)) {
                 append(it.buildFn(), kind)
@@ -248,10 +248,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     private fun hasSuppressTag(element: Any) =
         element is PsiDocCommentOwner && element.getDocComment()?.let { it.findTagByName("suppress") != null } ?: false
 
-    fun DocumentationNode.appendMembers<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
+    fun DocumentationNode.appendMembers<T : Any>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, DocumentationReference.Kind.Member, buildFn)
 
-    fun DocumentationNode.appendDetails<T>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
+    fun DocumentationNode.appendDetails<T : Any>(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, DocumentationReference.Kind.Detail, buildFn)
 
     fun PsiClass.build(): DocumentationNode {
