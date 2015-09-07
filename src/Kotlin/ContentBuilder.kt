@@ -1,14 +1,18 @@
 package org.jetbrains.dokka
 
-import java.util.ArrayDeque
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.scopes.*
-import org.jetbrains.kotlin.name.*
+import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.MarkdownTokenTypes
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
-import org.intellij.markdown.*
-import org.jetbrains.kotlin.psi.JetDeclarationWithBody
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetBlockExpression
+import org.jetbrains.kotlin.psi.JetDeclarationWithBody
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.resolve.scopes.JetScope
+import org.jetbrains.kotlin.resolve.scopes.utils.asJetScope
+import java.util.*
 
 public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): MutableContent {
     val result = MutableContent()
@@ -84,10 +88,6 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 parent.append(block)
             }
 
-            MarkdownTokenTypes.HTML_ENTITY -> {
-                parent.append(ContentEntity(node.text))
-            }
-
             MarkdownTokenTypes.TEXT,
             MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.DOUBLE_QUOTE,
@@ -120,8 +120,8 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
         logger.warn("Missing function name in @sample in ${descriptor.signature()}")
         return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
     }
-    val scope = getResolutionScope(resolutionFacade, descriptor)
-    val rootPackage = session.getModuleDescriptor().getPackage(FqName.ROOT)!!
+    val scope = getResolutionScope(resolutionFacade, descriptor).asJetScope()
+    val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
     val rootScope = rootPackage.memberScope
     val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
     if (symbol == null) {
@@ -169,7 +169,7 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
         currentScope = if (partSymbol is ClassDescriptor)
             partSymbol.getDefaultType().getMemberScope()
         else
-            getResolutionScope(resolutionFacade, partSymbol)
+            getResolutionScope(resolutionFacade, partSymbol).asJetScope()
         symbol = partSymbol
     }
 

@@ -13,8 +13,8 @@ public class PackageDocs(val documentationBuilder: DocumentationBuilder,
     public val packageContent: Map<String, Content>
         get() = _packageContent
 
-    fun parse(file: String) {
-        val file = File(file)
+    fun parse(fileName: String) {
+        val file = File(fileName)
         if (file.exists()) {
             val text = file.readText()
             val tree = parseMarkdown(text)

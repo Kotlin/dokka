@@ -11,7 +11,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertEquals("<init>", members.single().name)
                 assertTrue(links.none())
             }
@@ -24,7 +23,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Object, kind)
                 assertEquals("Obj", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -37,7 +35,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(1, members.count())
@@ -68,7 +65,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
@@ -99,7 +95,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(2, members.count())
@@ -130,7 +125,6 @@ public class ClassTest {
                 assertEquals(DocumentationNode.Kind.Class, kind)
                 assertEquals("Klass", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(2, details.count())
                 assertTrue(links.none())
 
                 assertEquals(3, members.count())
@@ -171,7 +165,7 @@ public class ClassTest {
         verifyModel("test/data/classes/annotatedClassWithAnnotationParameters.kt") { model ->
             with(model.members.single().members.single()) {
                 with(deprecation!!) {
-                    assertEquals("deprecated", name)
+                    assertEquals("Deprecated", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(DocumentationNode.Kind.Annotation, kind)
                     assertEquals(1, details.count())
@@ -196,7 +190,6 @@ public class ClassTest {
                     assertEquals("Retention", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(DocumentationNode.Kind.Annotation, kind)
-                    assertEquals(1, details.count())
                     with(details[0]) {
                         assertEquals(DocumentationNode.Kind.Parameter, kind)
                         assertEquals(1, details.count())

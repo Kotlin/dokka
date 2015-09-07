@@ -4,24 +4,25 @@ import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.roots.ContentIterator
-import com.intellij.openapi.roots.OrderEntry
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.config.*
-import org.jetbrains.kotlin.config.*
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
+import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
+import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
+import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.ContentRoot
+import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinOutOfBlockCompletionModificationTracker
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
-import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import java.io.File
 
@@ -51,15 +52,15 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 
         val moduleManager = CoreModuleManager(environment.project, this)
         CoreApplicationEnvironment.registerComponentInstance(projectComponentManager.getPicoContainer(),
-                javaClass<ModuleManager>(), moduleManager)
+                ModuleManager::class.java, moduleManager)
 
-        projectComponentManager.registerService(javaClass<ProjectFileIndex>(),
+        projectComponentManager.registerService(ProjectFileIndex::class.java,
                 CoreProjectFileIndex())
-        projectComponentManager.registerService(javaClass<LibraryModificationTracker>(),
+        projectComponentManager.registerService(LibraryModificationTracker::class.java,
                 LibraryModificationTracker(environment.project))
-        projectComponentManager.registerService(javaClass<KotlinCacheService>(),
+        projectComponentManager.registerService(KotlinCacheService::class.java,
                 KotlinCacheService(environment.project))
-        projectComponentManager.registerService(javaClass<KotlinOutOfBlockCompletionModificationTracker>(),
+        projectComponentManager.registerService(KotlinOutOfBlockCompletionModificationTracker::class.java,
                 KotlinOutOfBlockCompletionModificationTracker())
 
         val sourceFiles = environment.getSourceFiles()

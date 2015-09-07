@@ -8,9 +8,10 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.JetSingleValueToken
@@ -35,8 +36,8 @@ public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
-    val package1 = DescriptorUtils.getParentOfType(descriptor1, javaClass<PackageFragmentDescriptor>())
-    val package2 = DescriptorUtils.getParentOfType(descriptor2, javaClass<PackageFragmentDescriptor>())
+    val package1 = DescriptorUtils.getParentOfType(descriptor1, PackageFragmentDescriptor::class.java)
+    val package2 = DescriptorUtils.getParentOfType(descriptor2, PackageFragmentDescriptor::class.java)
     return package1 != null && package2 != null && package1.fqName == package2.fqName
 }
 
@@ -103,9 +104,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 deepestDescriptor = deepestDescriptor.getOverriddenDescriptors().first()
             }
             if (DescriptorUtils.getFqName(deepestDescriptor.getContainingDeclaration()).asString() == "kotlin.Any") {
-                val anyClassDescriptors = session.getTopLevelClassDescriptors(FqName.fromSegments(listOf("kotlin", "Any")))
+                val anyClassDescriptors = session.getTopLevelClassDescriptors(FqName.fromSegments(listOf("kotlin", "Any")),
+                        NoLookupLocation.UNSORTED)
                 anyClassDescriptors.forEach {
-                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.getName()).single()
+                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.getName(), NoLookupLocation.UNSORTED).single()
                     val kdoc = KDocFinder.findKDoc(anyMethod)
                     if (kdoc != null) {
                         return kdoc
@@ -205,7 +207,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return symbol
     }
 
-    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, javaClass<KDocTag>()) ?: arrayOf()
+    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java) ?: arrayOf()
 
     private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
@@ -330,10 +332,12 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             val annotationNode = it.build()
             if (annotationNode != null) {
                 append(annotationNode,
-                        if (annotationNode.name == "deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+                        if (annotationNode.isDeprecation()) DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
             }
         }
     }
+
+    fun DocumentationNode.isDeprecation() = name == "Deprecated" || name == "deprecated"
 
     fun DocumentationNode.appendSourceLink(sourceElement: SourceElement) {
         appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
@@ -626,7 +630,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         } else {
             node.appendType(getType())
         }
-        if (hasDefaultValue()) {
+        if (declaresDefaultValue()) {
             val psi = getSource().getPsi() as? JetParameter
             if (psi != null) {
                 val defaultValueText = psi.getDefaultValue()?.getText()
@@ -685,7 +689,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             return null
         }
         val node = DocumentationNode(annotationClass.getName().asString(), Content.Empty, DocumentationNode.Kind.Annotation)
-        val arguments = getAllValueArguments().toList().sortBy { it.first.getIndex() }
+        val arguments = getAllValueArguments().toList().sortedBy { it.first.getIndex() }
         arguments.forEach {
             val valueNode = it.second.toDocumentationNode()
             if (valueNode != null) {

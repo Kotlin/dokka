@@ -50,8 +50,7 @@ fun PsiElement.lineNumber(): Int? {
 }
 
 fun PsiElement.columnNumber(): Int? {
-    val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile)
-    // IJ uses 0-based line-numbers; external source browsers use 1-based
-    val lineNumber = doc?.getLineNumber(textRange.startOffset)?.plus(1) ?: return null
-    return startOffset - doc!!.getLineStartOffset(lineNumber)
+    val doc = PsiDocumentManager.getInstance(project).getDocument(containingFile) ?: return null
+    val lineNumber = doc.getLineNumber(textRange.startOffset)
+    return startOffset - doc.getLineStartOffset(lineNumber)
 }
