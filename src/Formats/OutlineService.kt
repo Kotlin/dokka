@@ -16,7 +16,7 @@ public interface OutlineFormatService {
         for (node in nodes) {
             appendOutlineHeader(location, node, to)
             if (node.members.any()) {
-                val sortedMembers = node.members.sortBy { it.name }
+                val sortedMembers = node.members.sortedBy { it.name }
                 appendOutlineLevel(to) {
                     appendOutline(location, to, sortedMembers)
                 }

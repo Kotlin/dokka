@@ -225,7 +225,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
         if (nodes.any()) {
             appendHeader(to, caption, 3)
 
-            val children = nodes.sortBy { it.name }
+            val children = nodes.sortedBy { it.name }
             val membersMap = children.groupBy { link(node, it) }
 
             appendTable(to) {

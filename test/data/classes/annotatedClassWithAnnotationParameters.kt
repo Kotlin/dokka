@@ -1,1 +1,1 @@
-deprecated("should no longer be used") class Foo() {}
+@Deprecated("should no longer be used") class Foo() {}
