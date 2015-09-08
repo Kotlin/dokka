@@ -55,7 +55,7 @@
                 <pathelement path="out/test"/>
             </classpath>
             <batchtest>
-                <fileset dir="out/test"/>
+                <fileset dir="out/test" includes="**/*Test.class"/>
             </batchtest>
         </junit>
     </target>
