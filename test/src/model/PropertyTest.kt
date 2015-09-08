@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.Content
+import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.DocumentationReference
 import org.junit.Test
-import kotlin.test.*
-import org.jetbrains.dokka.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 public class PropertyTest {
     Test fun valueProperty() {
@@ -50,7 +53,6 @@ public class PropertyTest {
                 assertEquals("property", name)
                 assertEquals(DocumentationNode.Kind.Property, kind)
                 assertEquals(Content.Empty, content)
-                assertEquals(4, details.count())
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
                 assertTrue("final" in modifiers)

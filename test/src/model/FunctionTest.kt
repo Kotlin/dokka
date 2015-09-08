@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.Content
+import org.jetbrains.dokka.DocumentationNode
 import org.junit.Test
-import kotlin.test.*
-import org.jetbrains.dokka.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 public class FunctionTest {
     Test fun function() {
@@ -28,7 +30,6 @@ public class FunctionTest {
                     assertEquals("fn", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals("Function with receiver", content.summary.toTestString())
-                    assertEquals(4, details.count())
                     assertEquals("internal", details.elementAt(0).name)
                     assertEquals("final", details.elementAt(1).name)
                     with(details.elementAt(2)) {
@@ -58,7 +59,6 @@ public class FunctionTest {
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("generic function", content.summary.toTestString())
 
-                assertEquals(4, details.count())
                 assertEquals("private", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
@@ -83,7 +83,6 @@ public class FunctionTest {
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("generic function", content.summary.toTestString())
 
-                assertEquals(5, details.count())
                 assertEquals("public", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
@@ -125,7 +124,6 @@ public class FunctionTest {
                 assertEquals("""Function
 Documentation""", content.description.toTestString())
 
-                assertEquals(4, details.count())
                 assertEquals("internal", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
