@@ -5,8 +5,15 @@ import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.Disposer
+import com.intellij.psi.PsiElement
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.analyzer.AnalysisResult
+import org.jetbrains.kotlin.analyzer.ModuleContent
+import org.jetbrains.kotlin.analyzer.ModuleInfo
+import org.jetbrains.kotlin.analyzer.ResolverForModule
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -19,10 +26,23 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.container.get
+import org.jetbrains.kotlin.container.getService
+import org.jetbrains.kotlin.context.ProjectContext
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinOutOfBlockCompletionModificationTracker
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.JetDeclaration
+import org.jetbrains.kotlin.psi.JetElement
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.CompilerEnvironment
+import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
+import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import java.io.File
 
@@ -63,10 +83,24 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         projectComponentManager.registerService(KotlinOutOfBlockCompletionModificationTracker::class.java,
                 KotlinOutOfBlockCompletionModificationTracker())
 
+        val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
-        val facade =  KotlinCacheService.getInstance(environment.project).getResolutionFacade(sourceFiles)
-        // TODO get rid of resolveSession once we have all necessary APIs in ResolutionFacade
-        val resolveSession = environment.analyze()
+
+        val module = object : ModuleInfo {
+            override val name: Name = Name.special("<module>")
+            override fun dependencies(): List<ModuleInfo> = listOf(this)
+        }
+        val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
+                projectContext,
+                listOf(module),
+                { ModuleContent(sourceFiles, GlobalSearchScope.allScope(environment.project)) },
+                JvmPlatformParameters { module },
+                CompilerEnvironment
+        )
+
+        val resolverForModule = resolverForProject.resolverForModule(module)
+        val resolveSession = resolverForModule.componentProvider.get<ResolveSession>()
+        val facade = DokkaResolutionFacade(environment.project, resolverForProject.descriptorForModule(module), resolverForModule)
         return processor(environment, facade, resolveSession)
     }
 
@@ -125,4 +159,38 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
 public fun contentRootFromPath(path: String): ContentRoot {
     val file = File(path)
     return if (file.extension == "java") JavaSourceRoot(file) else KotlinSourceRoot(path)
+}
+
+
+class DokkaResolutionFacade(override val project: Project,
+                            override val moduleDescriptor: ModuleDescriptor,
+                            val resolverForModule: ResolverForModule) : ResolutionFacade {
+
+    override fun analyze(element: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
+        throw UnsupportedOperationException()
+    }
+
+    override fun analyzeFullyAndGetResult(elements: Collection<JetElement>): AnalysisResult {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <T : Any> getFrontendService(element: PsiElement, serviceClass: Class<T>): T {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <T : Any> getFrontendService(serviceClass: Class<T>): T {
+        return resolverForModule.componentProvider.getService(serviceClass)
+    }
+
+    override fun <T : Any> getFrontendService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <T : Any> getIdeService(serviceClass: Class<T>): T {
+        throw UnsupportedOperationException()
+    }
+
+    override fun resolveToDescriptor(declaration: JetDeclaration): DeclarationDescriptor {
+        throw UnsupportedOperationException()
+    }
 }
