@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.html.entities.EntityConverter
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
@@ -88,7 +89,24 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 parent.append(block)
             }
 
-            MarkdownTokenTypes.TEXT,
+            MarkdownTokenTypes.TEXT -> {
+                fun createEntityOrText(text: String): ContentNode {
+                    if (text == "&amp;" || text == "&quot;" || text == "&lt;" || text == "&gt;") {
+                        return ContentEntity(text)
+                    }
+                    if (text == "&") {
+                        return ContentEntity("&amp;")
+                    }
+                    val decodedText = EntityConverter.replaceEntities(text, true, true)
+                    if (decodedText != text) {
+                        return ContentEntity(text)
+                    }
+                    return ContentText(text)
+                }
+
+                parent.append(createEntityOrText(node.text))
+            }
+
             MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,
