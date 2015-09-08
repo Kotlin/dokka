@@ -38,6 +38,28 @@
         </jar>
     </target>
 
+    <target name="test" depends="build">
+        <mkdir dir="out/test"/>
+
+        <kotlinc src="test/src" output="out/test">
+            <classpath>
+                <fileset dir="lib" includes="*.jar"/>
+                <fileset dir="out" includes="dokka.jar" />
+            </classpath>
+        </kotlinc>
+
+        <junit fork="true">
+            <classpath>
+                <fileset dir="lib" includes="*.jar"/>
+                <fileset dir="out" includes="dokka.jar" />
+                <pathelement path="out/test"/>
+            </classpath>
+            <batchtest>
+                <fileset dir="out/test"/>
+            </batchtest>
+        </junit>
+    </target>
+
     <target name="fatjar" depends="build">
         <exec executable="${basedir}/dokka-fatjar/gradlew" dir="dokka-fatjar" osfamily="unix" failonerror="true">
             <arg value="assemble" />
