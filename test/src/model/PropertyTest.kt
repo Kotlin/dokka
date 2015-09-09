@@ -56,7 +56,7 @@ public class PropertyTest {
                 assertEquals("String", detail(DocumentationNode.Kind.Type).name)
                 val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
                 assertTrue("final" in modifiers)
-                assertTrue("internal" in modifiers)
+                assertTrue("public" in modifiers)
                 assertTrue("var" in modifiers)
                 assertTrue(links.none())
                 assertTrue(members.none())
