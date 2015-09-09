@@ -3,7 +3,7 @@
 
 # InlineOption
 
-`public enum class InlineOption`
+`enum class InlineOption`
 
 
 
