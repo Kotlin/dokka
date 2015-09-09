@@ -1,2 +1,2 @@
-inline fun f() {
+@Strictfp fun f() {
 }

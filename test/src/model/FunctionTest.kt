@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 public class FunctionTest {
-    Test fun function() {
+    @Test fun function() {
         verifyModel("test/data/functions/function.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
@@ -20,7 +20,7 @@ public class FunctionTest {
         }
     }
 
-    Test fun functionWithReceiver() {
+    @Test fun functionWithReceiver() {
         verifyModel("test/data/functions/functionWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("String", name)
@@ -52,7 +52,7 @@ public class FunctionTest {
         }
     }
 
-    Test fun genericFunction() {
+    @Test fun genericFunction() {
         verifyModel("test/data/functions/genericFunction.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
@@ -76,7 +76,7 @@ public class FunctionTest {
             }
         }
     }
-    Test fun genericFunctionWithConstraints() {
+    @Test fun genericFunctionWithConstraints() {
         verifyModel("test/data/functions/genericFunctionWithConstraints.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
@@ -115,7 +115,7 @@ public class FunctionTest {
         }
     }
 
-    Test fun functionWithParams() {
+    @Test fun functionWithParams() {
         verifyModel("test/data/functions/functionWithParams.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
@@ -141,30 +141,50 @@ Documentation""", content.description.toTestString())
         }
     }
 
-    Test fun annotatedFunction() {
-        verifyModel("test/data/functions/annotatedFunction.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals(1, annotations.count())
-                with(annotations[0]) {
-                    assertEquals("inline", name)
-                    assertEquals(Content.Empty, content)
-                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+    @Test fun annotatedFunction() {
+        verifyPackageMember("test/data/functions/annotatedFunction.kt") { func ->
+            assertEquals(1, func.annotations.count())
+            with(func.annotations[0]) {
+                assertEquals("Strictfp", name)
+                assertEquals(Content.Empty, content)
+                assertEquals(DocumentationNode.Kind.Annotation, kind)
+            }
+        }
+    }
+
+    @Test fun functionWithNotDocumentedAnnotation() {
+        verifyPackageMember("test/data/functions/functionWithNotDocumentedAnnotation.kt") { func ->
+            assertEquals(0, func.annotations.count())
+        }
+    }
+
+    @Test fun inlineFunction() {
+        verifyPackageMember("test/data/functions/inlineFunction.kt") { func ->
+            val modifiers = func.details(DocumentationNode.Kind.Modifier).map { it.name }
+            assertTrue("inline" in modifiers)
+        }
+    }
+
+    @Test fun functionWithAnnotatedParam() {
+        verifyModel("test/data/functions/functionWithAnnotatedParam.kt") { model ->
+            with(model.members.single().members.single { it.name == "function"} ) {
+                with(details.elementAt(2)) {
+                    assertEquals(1, annotations.count())
+                    with(annotations[0]) {
+                        assertEquals("Fancy", name)
+                        assertEquals(Content.Empty, content)
+                        assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    }
                 }
             }
         }
     }
 
-    Test fun functionWithAnnotatedParam() {
-        verifyModel("test/data/functions/functionWithAnnotatedParam.kt") { model ->
-            with(model.members.single().members.single()) {
-                with(details.elementAt(2)) {
-                    assertEquals(1, annotations.count())
-                    with(annotations[0]) {
-                        assertEquals("noinline", name)
-                        assertEquals(Content.Empty, content)
-                        assertEquals(DocumentationNode.Kind.Annotation, kind)
-                    }
-                }
+    @Test fun functionWithNoinlineParam() {
+        verifyPackageMember("test/data/functions/functionWithNoinlineParam.kt") { func ->
+            with(func.details.elementAt(2)) {
+                val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                assertTrue("noinline" in modifiers)
             }
         }
     }

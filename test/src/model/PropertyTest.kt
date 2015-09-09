@@ -69,7 +69,7 @@ public class PropertyTest {
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {
-                    assertEquals("inline", name)
+                    assertEquals("Volatile", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(DocumentationNode.Kind.Annotation, kind)
                 }

@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.Content
+import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.DocumentationReference
 import org.junit.Test
-import kotlin.test.*
-import org.jetbrains.dokka.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 public class ClassTest {
     Test fun emptyClass() {
@@ -148,16 +151,21 @@ public class ClassTest {
         }
     }
 
-    Test fun annotatedClass() {
-        verifyModel("test/data/classes/annotatedClass.kt") { model ->
-            with(model.members.single().members.single()) {
-                assertEquals(1, annotations.count())
-                with(annotations[0]) {
-                    assertEquals("data", name)
-                    assertEquals(Content.Empty, content)
-                    assertEquals(DocumentationNode.Kind.Annotation, kind)
-                }
+    @Test fun annotatedClass() {
+        verifyPackageMember("test/data/classes/annotatedClass.kt") { cls ->
+            assertEquals(1, cls.annotations.count())
+            with(cls.annotations[0]) {
+                assertEquals("Strictfp", name)
+                assertEquals(Content.Empty, content)
+                assertEquals(DocumentationNode.Kind.Annotation, kind)
             }
+        }
+    }
+
+    @Test fun dataClass() {
+        verifyPackageMember("test/data/classes/dataClass.kt") { cls ->
+            val modifiers = cls.details(DocumentationNode.Kind.Modifier).map { it.name }
+            assertTrue("data" in modifiers)
         }
     }
 

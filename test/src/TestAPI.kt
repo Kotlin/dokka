@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.junit.Assert
 import java.io.File
 import kotlin.test.fail
@@ -33,8 +32,10 @@ public fun verifyModel(vararg roots: ContentRoot, verifier: (DocumentationModule
     }
 
     val environment = AnalysisEnvironment(messageCollector) {
-        val stringRoot = PathManager.getResourceRoot(javaClass<String>(), "/java/lang/String.class")
+        val stringRoot = PathManager.getResourceRoot(String::class.java, "/java/lang/String.class")
         addClasspath(File(stringRoot))
+        val kotlinPairRoot = PathManager.getResourceRoot(Pair::class.java, "/kotlin/Pair.class")
+        addClasspath(File(kotlinPairRoot))
         addRoots(roots.toList())
     }
     val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())

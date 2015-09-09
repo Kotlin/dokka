@@ -1,1 +1,1 @@
-data class Foo() {}
+@Strictfp class Foo() {}

@@ -154,8 +154,9 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderParameter(node: DocumentationNode) {
+    private fun ContentBlock.renderParameter(node: DocumentationNode, renderMode: RenderMode) {
         renderAnnotationsForNode(node)
+        renderModifiersForNode(node, renderMode)
         identifier(node.name, IdentifierKind.ParameterName)
         symbol(":")
         nbsp()
@@ -212,7 +213,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderAnnotation(node: DocumentationNode) {
-        identifier(node.name, IdentifierKind.AnnotationName)
+        identifier("@" + node.name, IdentifierKind.AnnotationName)
         val parameters = node.details(DocumentationNode.Kind.Parameter)
         if (!parameters.isEmpty()) {
             symbol("(")
@@ -229,9 +230,9 @@ class KotlinLanguageService : LanguageService {
         renderAnnotationsForNode(node)
         when (node.kind) {
             DocumentationNode.Kind.Class,
-            DocumentationNode.Kind.AnnotationClass -> keyword("class ")
+            DocumentationNode.Kind.AnnotationClass,
+            DocumentationNode.Kind.Enum -> keyword("class ")
             DocumentationNode.Kind.Interface -> keyword("interface ")
-            DocumentationNode.Kind.Enum -> keyword("enum class ")
             DocumentationNode.Kind.EnumItem -> keyword("enum val ")
             DocumentationNode.Kind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
@@ -266,7 +267,7 @@ class KotlinLanguageService : LanguageService {
 
         symbol("(")
         renderList(node.details(DocumentationNode.Kind.Parameter)) {
-            renderParameter(it)
+            renderParameter(it, renderMode)
         }
         symbol(")")
         if (needReturnType(node)) {

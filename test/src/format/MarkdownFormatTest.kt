@@ -1,7 +1,8 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.KotlinLanguageService
+import org.jetbrains.dokka.MarkdownFormatService
 import org.junit.Test
-import org.jetbrains.dokka.*
 
 public class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
@@ -30,7 +31,7 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun annotationParams() {
+    @Test fun annotationParams() {
         verifyOutput("test/data/format/annotationParams.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
