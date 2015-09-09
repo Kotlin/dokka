@@ -228,10 +228,10 @@ class KotlinLanguageService : LanguageService {
         renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
         when (node.kind) {
-            DocumentationNode.Kind.Class -> keyword("class ")
+            DocumentationNode.Kind.Class,
+            DocumentationNode.Kind.AnnotationClass -> keyword("class ")
             DocumentationNode.Kind.Interface -> keyword("interface ")
             DocumentationNode.Kind.Enum -> keyword("enum class ")
-            DocumentationNode.Kind.AnnotationClass -> keyword("annotation class ")
             DocumentationNode.Kind.EnumItem -> keyword("enum val ")
             DocumentationNode.Kind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
