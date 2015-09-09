@@ -169,6 +169,13 @@ public class ClassTest {
         }
     }
 
+    @Test fun sealedClass() {
+        verifyPackageMember("test/data/classes/sealedClass.kt") { cls ->
+            val modifiers = cls.details(DocumentationNode.Kind.Modifier).map { it.name }
+            assertEquals(1, modifiers.count { it == "sealed" })
+        }
+    }
+
     Test fun annotatedClassWithAnnotationParameters() {
         verifyModel("test/data/classes/annotatedClassWithAnnotationParameters.kt") { model ->
             with(model.members.single().members.single()) {

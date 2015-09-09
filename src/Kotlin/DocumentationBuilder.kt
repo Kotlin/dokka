@@ -55,7 +55,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
     val knownModifiers = setOf(
             JetTokens.PUBLIC_KEYWORD, JetTokens.PROTECTED_KEYWORD, JetTokens.INTERNAL_KEYWORD, JetTokens.PRIVATE_KEYWORD,
-            JetTokens.OPEN_KEYWORD, JetTokens.FINAL_KEYWORD,
+            JetTokens.OPEN_KEYWORD, JetTokens.FINAL_KEYWORD, JetTokens.ABSTRACT_KEYWORD, JetTokens.SEALED_KEYWORD,
             JetTokens.OVERRIDE_KEYWORD)
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
