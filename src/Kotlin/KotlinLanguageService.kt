@@ -226,8 +226,8 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderClass(node: DocumentationNode, renderMode: RenderMode) {
-        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
+        renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Class,
             DocumentationNode.Kind.AnnotationClass,
@@ -244,8 +244,8 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderFunction(node: DocumentationNode, renderMode: RenderMode) {
-        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
+        renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
             DocumentationNode.Kind.Function,
@@ -282,8 +282,8 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderProperty(node: DocumentationNode, renderMode: RenderMode) {
-        renderModifiersForNode(node, renderMode)
         renderAnnotationsForNode(node)
+        renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Property,
             DocumentationNode.Kind.CompanionObjectProperty -> keyword("${node.getPropertyKeyword()} ")
