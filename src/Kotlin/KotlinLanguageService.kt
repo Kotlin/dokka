@@ -122,7 +122,7 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentBlock.renderModifier(node: DocumentationNode) {
         when (node.name) {
-            "final", "internal", "var" -> {}
+            "final", "public", "var" -> {}
             else -> {
                 keyword(node.name)
                 text(" ")

@@ -3,7 +3,7 @@
 
 # Bar
 
-`public open class Bar`
+`open class Bar`
 
  1. Rinse
  1. Repeat

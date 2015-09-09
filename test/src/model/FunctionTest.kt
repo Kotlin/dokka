@@ -30,7 +30,7 @@ public class FunctionTest {
                     assertEquals("fn", name)
                     assertEquals(DocumentationNode.Kind.Function, kind)
                     assertEquals("Function with receiver", content.summary.toTestString())
-                    assertEquals("internal", details.elementAt(0).name)
+                    assertEquals("public", details.elementAt(0).name)
                     assertEquals("final", details.elementAt(1).name)
                     with(details.elementAt(2)) {
                         assertEquals("<this>", name)
@@ -124,7 +124,7 @@ public class FunctionTest {
                 assertEquals("""Function
 Documentation""", content.description.toTestString())
 
-                assertEquals("internal", details.elementAt(0).name)
+                assertEquals("public", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
                     assertEquals("x", name)

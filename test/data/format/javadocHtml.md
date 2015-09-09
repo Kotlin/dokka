@@ -3,7 +3,7 @@
 
 # C
 
-`public open class C`
+`open class C`
 
 **Bold** **Strong** *Italic* *Emphasized* 
 Paragraph
