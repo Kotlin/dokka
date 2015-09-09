@@ -48,7 +48,8 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
             MarkdownElementTypes.EMPH -> appendNodeWithChildren(ContentEmphasis())
             MarkdownElementTypes.STRONG -> appendNodeWithChildren(ContentStrong())
             MarkdownElementTypes.CODE_SPAN -> appendNodeWithChildren(ContentCode())
-            MarkdownElementTypes.CODE_BLOCK -> appendNodeWithChildren(ContentBlockCode())
+            MarkdownElementTypes.CODE_BLOCK,
+            MarkdownElementTypes.CODE_FENCE -> appendNodeWithChildren(ContentBlockCode())
             MarkdownElementTypes.PARAGRAPH -> appendNodeWithChildren(ContentParagraph())
 
             MarkdownElementTypes.INLINE_LINK -> {
@@ -114,7 +115,8 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
             MarkdownTokenTypes.LPAREN,
             MarkdownTokenTypes.RPAREN,
             MarkdownTokenTypes.LBRACKET,
-            MarkdownTokenTypes.RBRACKET -> {
+            MarkdownTokenTypes.RBRACKET,
+            MarkdownTokenTypes.CODE_FENCE_CONTENT -> {
                 parent.append(ContentText(node.text))
             }
             else -> {
