@@ -38,6 +38,21 @@
         </jar>
     </target>
 
+    <target name="zip" depends="build">
+        <zip zipfile="out/dokka.zip">
+            <zipfileset dir="lib" prefix="lib">
+                <include name="*.jar"/>
+                <exclude name="junit*.jar"/>
+                <exclude name="hamcrest*.jar"/>
+                <exclude name="maven-ant-tasks*.jar"/>
+            </zipfileset>
+            <zipfileset dir="out" prefix="lib">
+                <include name="dokka.jar"/>
+                <include name="dokka-ant.jar"/>
+            </zipfileset>
+        </zip>
+    </target>
+
     <target name="test" depends="build">
         <mkdir dir="out/test"/>
 
