@@ -1,1 +1,1 @@
-inline val property = "test"
+@Volatile var property = "test"

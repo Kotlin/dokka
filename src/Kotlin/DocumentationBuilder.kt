@@ -15,12 +15,15 @@ import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.JetSingleValueToken
+import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.JetModifierListOwner
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
+import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -50,6 +53,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
+    val knownModifiers = setOf(
+            JetTokens.PUBLIC_KEYWORD, JetTokens.PROTECTED_KEYWORD, JetTokens.INTERNAL_KEYWORD, JetTokens.PRIVATE_KEYWORD,
+            JetTokens.OPEN_KEYWORD, JetTokens.FINAL_KEYWORD,
+            JetTokens.OVERRIDE_KEYWORD)
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
@@ -328,11 +335,25 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
-        annotated.getAnnotations().forEach {
+        annotated.annotations.filter { it.source.getPsi() != null && it.mustBeDocumented() }.forEach {
             val annotationNode = it.build()
             if (annotationNode != null) {
                 append(annotationNode,
                         if (annotationNode.isDeprecation()) DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+            }
+        }
+    }
+
+    fun AnnotationDescriptor.mustBeDocumented(): Boolean {
+        val annotationClass = type.constructor.declarationDescriptor as? Annotated ?: return false
+        return annotationClass.isDocumentedAnnotation()
+    }
+
+    fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
+        val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? JetModifierListOwner ?: return
+        JetTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
+            if (psi.hasModifier(it)) {
+                appendTextNode(it.value, Kind.Modifier)
             }
         }
     }
@@ -442,9 +463,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             else -> Kind.Class
         }
         val node = DocumentationNode(this, kind)
-        if (isInner()) {
-            node.appendTextNode("inner", Kind.Modifier)
-        }
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(getTypeConstructor().getParameters(), DocumentationReference.Kind.Detail)
@@ -462,6 +480,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                     DocumentationReference.Kind.Member)
         }
         node.appendAnnotations(this)
+        node.appendModifiers(this)
         node.appendSourceLink(getSource())
         register(this, node)
         return node
@@ -504,6 +523,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         node.appendInPageChildren(getValueParameters(), DocumentationReference.Kind.Detail)
         node.appendType(getReturnType())
         node.appendAnnotations(this)
+        node.appendModifiers(this)
         node.appendSourceLink(getSource())
         node.appendOperatorOverloadNote(this)
 
@@ -584,6 +604,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         getExtensionReceiverParameter()?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(getReturnType())
         node.appendAnnotations(this)
+        node.appendModifiers(this)
         node.appendSourceLink(getSource())
         if (isVar()) {
             node.appendTextNode("var", DocumentationNode.Kind.Modifier)
@@ -623,13 +644,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = DocumentationNode(this, Kind.Parameter)
-        val varargType = getVarargElementType()
-        if (varargType != null) {
-            node.appendTextNode("vararg", Kind.Annotation, DocumentationReference.Kind.Annotation)
-            node.appendType(varargType)
-        } else {
-            node.appendType(getType())
-        }
+        node.appendType(varargElementType ?: type)
         if (declaresDefaultValue()) {
             val psi = getSource().getPsi() as? JetParameter
             if (psi != null) {
@@ -640,6 +655,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             }
         }
         node.appendAnnotations(this)
+        node.appendModifiers(this)
         register(this, node)
         return node
     }
