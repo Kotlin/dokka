@@ -155,7 +155,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderParameter(node: DocumentationNode, renderMode: RenderMode) {
-        renderAnnotationsForNode(node)
+        if (renderMode == RenderMode.FULL) {
+            renderAnnotationsForNode(node)
+        }
         renderModifiersForNode(node, renderMode)
         identifier(node.name, IdentifierKind.ParameterName)
         symbol(":")
@@ -226,7 +228,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderClass(node: DocumentationNode, renderMode: RenderMode) {
-        renderAnnotationsForNode(node)
+        if (renderMode == RenderMode.FULL) {
+            renderAnnotationsForNode(node)
+        }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Class,
@@ -244,7 +248,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderFunction(node: DocumentationNode, renderMode: RenderMode) {
-        renderAnnotationsForNode(node)
+        if (renderMode == RenderMode.FULL) {
+            renderAnnotationsForNode(node)
+        }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
@@ -282,7 +288,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderProperty(node: DocumentationNode, renderMode: RenderMode) {
-        renderAnnotationsForNode(node)
+        if (renderMode == RenderMode.FULL) {
+            renderAnnotationsForNode(node)
+        }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
             DocumentationNode.Kind.Property,
