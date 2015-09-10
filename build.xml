@@ -34,7 +34,7 @@
         </kotlinc>
 
         <jar jarfile="out/dokka-ant.jar" update="true" >
-            <zipfileset dir="ant/src" includes="*.xml" prefix="org/jetbrains/dokka/ant" />
+            <zipfileset dir="ant/src" includes="*.xml"/>
         </jar>
     </target>
 
