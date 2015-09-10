@@ -126,7 +126,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DeclarationDescriptor.isDeprecated(): Boolean = getAnnotations().any {
-        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()!!).asString() == "kotlin.deprecated"
+        DescriptorUtils.getFqName(it.getType().getConstructor().getDeclarationDescriptor()!!).asString() == "kotlin.Deprecated"
     } || (this is ConstructorDescriptor && getContainingDeclaration().isDeprecated())
 
     fun DeclarationDescriptor.signature(): String = when(this) {
