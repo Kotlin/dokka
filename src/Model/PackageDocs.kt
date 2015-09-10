@@ -5,7 +5,7 @@ import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import java.io.File
 
-public class PackageDocs(val documentationBuilder: DocumentationBuilder,
+public class PackageDocs(val documentationBuilder: DocumentationBuilder?,
                          val linkResolveContext: DeclarationDescriptor?,
                          val logger: DokkaLogger) {
     public val moduleContent: MutableContent = MutableContent()
@@ -21,9 +21,9 @@ public class PackageDocs(val documentationBuilder: DocumentationBuilder,
             var targetContent: MutableContent = moduleContent
             tree.children.forEach {
                 if (it.type == MarkdownElementTypes.ATX_1) {
-                    val headingText = it.child(MarkdownTokenTypes.TEXT)?.text
+                    val headingText = it.child(MarkdownTokenTypes.ATX_CONTENT)?.text
                     if (headingText != null) {
-                        targetContent = findTargetContent(headingText)
+                        targetContent = findTargetContent(headingText.trimStart())
                     }
                 } else {
                     buildContentTo(it, targetContent, { resolveContentLink(it) })
@@ -48,7 +48,7 @@ public class PackageDocs(val documentationBuilder: DocumentationBuilder,
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
     private fun resolveContentLink(href: String): ContentBlock {
-        if (linkResolveContext != null) {
+        if (linkResolveContext != null && documentationBuilder != null) {
             return documentationBuilder.resolveContentLink(linkResolveContext, href)
         }
         return ContentExternalLink("#")
