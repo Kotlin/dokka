@@ -7,25 +7,25 @@ import org.junit.Test
 public class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
 
-    Test fun emptyDescription() {
+    @Test fun emptyDescription() {
         verifyOutput("test/data/format/emptyDescription.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun classWithCompanionObject() {
+    @Test fun classWithCompanionObject() {
         verifyOutput("test/data/format/classWithCompanionObject.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun annotations() {
+    @Test fun annotations() {
         verifyOutput("test/data/format/annotations.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun annotationClass() {
+    @Test fun annotationClass() {
         verifyOutput("test/data/format/annotationClass.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
@@ -37,7 +37,7 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun extensions() {
+    @Test fun extensions() {
         verifyOutput("test/data/format/extensions.kt", ".package.md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members)
         }
@@ -46,7 +46,7 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun enumClass() {
+    @Test fun enumClass() {
         verifyOutput("test/data/format/enumClass.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
@@ -57,13 +57,13 @@ public class MarkdownFormatTest {
         }
     }
 
-    Test fun varargsFunction() {
+    @Test fun varargsFunction() {
         verifyOutput("test/data/format/varargsFunction.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun overridingFunction() {
+    @Test fun overridingFunction() {
         verifyOutput("test/data/format/overridingFunction.kt", ".md") { model, output ->
             val classMembers = model.members.single().members.first { it.name == "D" }.members
             markdownService.appendNodes(tempLocation, output, classMembers.filter { it.name == "f" })
@@ -71,98 +71,98 @@ public class MarkdownFormatTest {
 
     }
 
-    Test fun propertyVar() {
+    @Test fun propertyVar() {
         verifyOutput("test/data/format/propertyVar.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun functionWithDefaultParameter() {
+    @Test fun functionWithDefaultParameter() {
         verifyOutput("test/data/format/functionWithDefaultParameter.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun accessor() {
+    @Test fun accessor() {
         verifyOutput("test/data/format/accessor.kt", ".md") { model, output ->
             val propertyNode = model.members.single().members.first { it.name == "C" }.members.filter { it.name == "x" }
             markdownService.appendNodes(tempLocation, output, propertyNode)
         }
     }
 
-    Test fun paramTag() {
+    @Test fun paramTag() {
         verifyOutput("test/data/format/paramTag.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun throwsTag() {
+    @Test fun throwsTag() {
         verifyOutput("test/data/format/throwsTag.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun typeParameterBounds() {
+    @Test fun typeParameterBounds() {
         verifyOutput("test/data/format/typeParameterBounds.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun typeParameterVariance() {
+    @Test fun typeParameterVariance() {
         verifyOutput("test/data/format/typeParameterVariance.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun typeProjectionVariance() {
+    @Test fun typeProjectionVariance() {
         verifyOutput("test/data/format/typeProjectionVariance.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun javadocHtml() {
+    @Test fun javadocHtml() {
         verifyOutput("test/data/format/javadocHtml.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun javaCodeLiteralTags() {
+    @Test fun javaCodeLiteralTags() {
         verifyOutput("test/data/format/javaCodeLiteralTags.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun javaCodeInParam() {
+    @Test fun javaCodeInParam() {
         verifyOutput("test/data/format/javaCodeInParam.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun javaSpaceInAuthor() {
+    @Test fun javaSpaceInAuthor() {
         verifyOutput("test/data/format/javaSpaceInAuthor.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun nullability() {
+    @Test fun nullability() {
         verifyOutput("test/data/format/nullability.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
-    Test fun operatorOverloading() {
+    @Test fun operatorOverloading() {
         verifyOutput("test/data/format/operatorOverloading.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" })
         }
     }
 
-    Test fun javadocOrderedList() {
+    @Test fun javadocOrderedList() {
         verifyOutput("test/data/format/javadocOrderedList.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }
 
-    Test fun companionObjectExtension() {
+    @Test fun companionObjectExtension() {
         verifyOutput("test/data/format/companionObjectExtension.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Foo" })
         }

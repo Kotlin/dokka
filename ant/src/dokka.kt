@@ -37,7 +37,7 @@ class DokkaAntTask(): Task() {
     }
 
     public fun setClasspathRef(ref: Reference) {
-        compileClasspath.createPath().setRefid(ref)
+        compileClasspath.createPath().refid = ref
     }
 
     public fun setSrc(src: Path) {
@@ -45,7 +45,7 @@ class DokkaAntTask(): Task() {
     }
 
     public fun setSrcRef(ref: Reference) {
-        sourcePath.createPath().setRefid(ref)
+        sourcePath.createPath().refid = ref
     }
 
     public fun setSamples(samples: Path) {
@@ -53,7 +53,7 @@ class DokkaAntTask(): Task() {
     }
 
     public fun setSamplesRef(ref: Reference) {
-        samplesPath.createPath().setRefid(ref)
+        samplesPath.createPath().refid = ref
     }
 
     public fun setInclude(include: Path) {
@@ -85,11 +85,11 @@ class DokkaAntTask(): Task() {
             if (url == null) {
                 throw BuildException("Path attribute of a <sourceLink> element is required")
             }
-            SourceLinkDefinition(File(path).getCanonicalFile().getAbsolutePath(), url, it.lineSuffix)
+            SourceLinkDefinition(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
 
-        val url = javaClass<DokkaAntTask>().getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
-        val jarRoot = url.getPath().substringBefore("!/").removePrefix("file:")
+        val url = DokkaAntTask::class.java.getResource("/org/jetbrains/dokka/ant/DokkaAntTask.class")
+        val jarRoot = url.path.substringBefore("!/").removePrefix("file:")
 
         val generator = DokkaGenerator(
                 AntLogger(this),

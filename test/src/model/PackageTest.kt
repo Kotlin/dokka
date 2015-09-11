@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 public class PackageTest {
-    Test fun rootPackage() {
+    @Test fun rootPackage() {
         verifyModel("test/data/packages/rootPackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
@@ -21,7 +21,7 @@ public class PackageTest {
         }
     }
 
-    Test fun simpleNamePackage() {
+    @Test fun simpleNamePackage() {
         verifyModel("test/data/packages/simpleNamePackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
@@ -34,7 +34,7 @@ public class PackageTest {
         }
     }
 
-    Test fun dottedNamePackage() {
+    @Test fun dottedNamePackage() {
         verifyModel("test/data/packages/dottedNamePackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(DocumentationNode.Kind.Package, kind)
@@ -47,7 +47,7 @@ public class PackageTest {
         }
     }
 
-    Test fun multipleFiles() {
+    @Test fun multipleFiles() {
         verifyModel(KotlinSourceRoot("test/data/packages/dottedNamePackage.kt"),
                     KotlinSourceRoot("test/data/packages/simpleNamePackage.kt")) { model ->
             assertEquals(2, model.members.count())
@@ -69,7 +69,7 @@ public class PackageTest {
         }
     }
 
-    Test fun multipleFilesSamePackage() {
+    @Test fun multipleFilesSamePackage() {
         verifyModel(KotlinSourceRoot("test/data/packages/simpleNamePackage.kt"),
                     KotlinSourceRoot("test/data/packages/simpleNamePackage2.kt")) { model ->
             assertEquals(1, model.members.count())

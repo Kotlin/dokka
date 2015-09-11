@@ -5,7 +5,7 @@ import kotlin.test.*
 import org.jetbrains.dokka.*
 
 public class CommentTest {
-    Test fun emptyDoc() {
+    @Test fun emptyDoc() {
         verifyModel("test/data/comments/emptyDoc.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(Content.Empty, content)
@@ -13,7 +13,7 @@ public class CommentTest {
         }
     }
 
-    Test fun emptyDocButComment() {
+    @Test fun emptyDocButComment() {
         verifyModel("test/data/comments/emptyDocButComment.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(Content.Empty, content)
@@ -21,7 +21,7 @@ public class CommentTest {
         }
     }
 
-    Test fun multilineDoc() {
+    @Test fun multilineDoc() {
         verifyModel("test/data/comments/multilineDoc.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc1", content.summary.toTestString())
@@ -30,7 +30,7 @@ public class CommentTest {
         }
     }
 
-    Test fun multilineDocWithComment() {
+    @Test fun multilineDocWithComment() {
         verifyModel("test/data/comments/multilineDocWithComment.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc1", content.summary.toTestString())
@@ -39,7 +39,7 @@ public class CommentTest {
         }
     }
 
-    Test fun oneLineDoc() {
+    @Test fun oneLineDoc() {
         verifyModel("test/data/comments/oneLineDoc.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
@@ -47,7 +47,7 @@ public class CommentTest {
         }
     }
 
-    Test fun oneLineDocWithComment() {
+    @Test fun oneLineDocWithComment() {
         verifyModel("test/data/comments/oneLineDocWithComment.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
@@ -55,7 +55,7 @@ public class CommentTest {
         }
     }
 
-    Test fun oneLineDocWithEmptyLine() {
+    @Test fun oneLineDocWithEmptyLine() {
         verifyModel("test/data/comments/oneLineDocWithEmptyLine.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
@@ -63,7 +63,7 @@ public class CommentTest {
         }
     }
 
-    Test fun emptySection() {
+    @Test fun emptySection() {
         verifyModel("test/data/comments/emptySection.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
@@ -76,7 +76,7 @@ public class CommentTest {
         }
     }
 
-    Test fun section1() {
+    @Test fun section1() {
         verifyModel("test/data/comments/section1.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
@@ -89,7 +89,7 @@ public class CommentTest {
         }
     }
 
-    Test fun section2() {
+    @Test fun section2() {
         verifyModel("test/data/comments/section2.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
@@ -106,7 +106,7 @@ public class CommentTest {
         }
     }
 
-    Test fun multilineSection() {
+    @Test fun multilineSection() {
         verifyModel("test/data/comments/multilineSection.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
@@ -120,7 +120,7 @@ line two""", toTestString())
         }
     }
 
-    Test fun directive() {
+    @Test fun directive() {
         verifyModel("test/data/comments/directive.kt") { model ->
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())

@@ -14,7 +14,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
     public fun buildPages(nodes: Iterable<DocumentationNode>) {
         for ((location, items) in nodes.groupBy { locationService.location(it) }) {
             val file = location.file
-            file.getParentFile()?.mkdirs()
+            file.parentFile?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
                     it.write(formatService.format(location, items))
@@ -30,7 +30,7 @@ public class FileGenerator(val signatureGenerator: LanguageService,
         }
         for ((location, items) in nodes.groupBy { locationService.location(it) }) {
             val file = outlineService.getOutlineFileName(location)
-            file.getParentFile()?.mkdirs()
+            file.parentFile?.mkdirs()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
                     it.write(outlineService.formatOutline(location, items))

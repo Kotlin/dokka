@@ -6,7 +6,7 @@ import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
 
-Ignore public class ParserTest {
+@Ignore public class ParserTest {
     fun runTestFor(text : String) {
         println("MD: ---")
         println(text)
@@ -16,27 +16,27 @@ Ignore public class ParserTest {
         println()
     }
 
-    Test fun text() {
+    @Test fun text() {
         runTestFor("text")
     }
 
-    Test fun textWithSpaces() {
+    @Test fun textWithSpaces() {
         runTestFor("text and string")
     }
 
-    Test fun textWithColon() {
+    @Test fun textWithColon() {
         runTestFor("text and string: cool!")
     }
 
-    Test fun link() {
+    @Test fun link() {
         runTestFor("text [links]")
     }
 
-    Test fun linkWithHref() {
+    @Test fun linkWithHref() {
         runTestFor("text [links](http://google.com)")
     }
 
-    Test fun multiline() {
+    @Test fun multiline() {
         runTestFor(
                 """
 text
@@ -45,7 +45,7 @@ string
 """)
     }
 
-    Test fun para() {
+    @Test fun para() {
         runTestFor(
                 """
 paragraph number
@@ -56,14 +56,14 @@ number two
 """)
     }
 
-    Test fun bulletList() {
+    @Test fun bulletList() {
         runTestFor(
                 """* list item 1
 * list item 2
 """)
     }
 
-    Test fun bulletListWithLines() {
+    @Test fun bulletListWithLines() {
         runTestFor(
                 """
 * list item 1
@@ -73,7 +73,7 @@ number two
  """)
     }
 
-    Test fun bulletListStrong() {
+    @Test fun bulletListStrong() {
         runTestFor(
                 """
 * list *item* 1
@@ -83,47 +83,47 @@ number two
  """)
     }
 
-    Test fun emph() {
+    @Test fun emph() {
         runTestFor("*text*")
     }
 
-    Test fun directive() {
+    @Test fun directive() {
         runTestFor("A text \${code with.another.value} with directive")
     }
 
-    Test fun emphAndEmptySection() {
+    @Test fun emphAndEmptySection() {
         runTestFor("*text*\n\$sec:\n")
     }
 
-    Test fun emphAndSection() {
+    @Test fun emphAndSection() {
         runTestFor("*text*\n\$sec: some text\n")
     }
 
-    Test fun emphAndBracedSection() {
+    @Test fun emphAndBracedSection() {
         runTestFor("Text *bold* text \n\${sec}: some text")
     }
 
-    Test fun section() {
+    @Test fun section() {
         runTestFor(
                 "Plain text \n\$one: Summary \n\${two}: Description with *emphasis* \n\${An example of a section}: Example")
     }
 
-    Test fun anonymousSection() {
+    @Test fun anonymousSection() {
         runTestFor("Summary\n\nDescription\n")
     }
 
-    Test fun specialSection() {
+    @Test fun specialSection() {
         runTestFor(
                 "Plain text \n\$\$summary: Summary \n\${\$description}: Description \n\${\$An example of a section}: Example")
     }
 
-    Test fun emptySection() {
+    @Test fun emptySection() {
         runTestFor(
                 "Plain text \n\$summary:")
     }
 
     val b = "$"
-    Test fun pair() {
+    @Test fun pair() {
         runTestFor(
                 """Represents a generic pair of two values.
 

@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 public class PropertyTest {
-    Test fun valueProperty() {
+    @Test fun valueProperty() {
         verifyModel("test/data/properties/valueProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
@@ -21,7 +21,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun variableProperty() {
+    @Test fun variableProperty() {
         verifyModel("test/data/properties/variableProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
@@ -34,7 +34,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun valuePropertyWithGetter() {
+    @Test fun valuePropertyWithGetter() {
         verifyModel("test/data/properties/valuePropertyWithGetter.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
@@ -47,7 +47,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun variablePropertyWithAccessors() {
+    @Test fun variablePropertyWithAccessors() {
         verifyModel("test/data/properties/variablePropertyWithAccessors.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
@@ -64,7 +64,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun annotatedProperty() {
+    @Test fun annotatedProperty() {
         verifyModel("test/data/properties/annotatedProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
@@ -77,7 +77,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun propertyWithReceiver() {
+    @Test fun propertyWithReceiver() {
         verifyModel("test/data/properties/propertyWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("String", name)
@@ -90,7 +90,7 @@ public class PropertyTest {
         }
     }
 
-    Test fun propertyOverride() {
+    @Test fun propertyOverride() {
         verifyModel("test/data/properties/propertyOverride.kt") { model ->
             with(model.members.single().members.single { it.name == "Bar" }.members.single { it.name == "xyzzy"}) {
                 assertEquals("xyzzy", name)

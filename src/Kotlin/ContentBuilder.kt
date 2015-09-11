@@ -156,13 +156,13 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
 
     val text = when (psiElement) {
         is JetDeclarationWithBody -> ContentBlockCode().let() {
-            val bodyExpression = psiElement.getBodyExpression()
+            val bodyExpression = psiElement.bodyExpression
             when (bodyExpression) {
-                is JetBlockExpression -> bodyExpression.getText().removeSurrounding("{", "}")
-                else -> bodyExpression!!.getText()
+                is JetBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
+                else -> bodyExpression!!.text
             }
         }
-        else -> psiElement.getText()
+        else -> psiElement.text
     }
 
     val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length() == 0 }
@@ -180,14 +180,14 @@ private fun DocumentationBuilder.resolveInScope(functionName: String, scope: Jet
     for (part in parts) {
         // short name
         val symbolName = Name.guess(part)
-        val partSymbol = currentScope.getAllDescriptors().filter { it.getName() == symbolName }.firstOrNull()
+        val partSymbol = currentScope.getAllDescriptors().filter { it.name == symbolName }.firstOrNull()
 
         if (partSymbol == null) {
             symbol = null
             break
         }
         currentScope = if (partSymbol is ClassDescriptor)
-            partSymbol.getDefaultType().getMemberScope()
+            partSymbol.defaultType.memberScope
         else
             getResolutionScope(resolutionFacade, partSymbol).asJetScope()
         symbol = partSymbol
