@@ -15,29 +15,29 @@ import java.util.ArrayList
 
 public open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val ext = project.getExtensions().create("dokka", javaClass<DokkaExtension>())
-        project.getTasks().create("dokka", javaClass<DokkaTask>())
+        val ext = project.extensions.create("dokka", DokkaExtension::class.java)
+        project.tasks.create("dokka", DokkaTask::class.java)
 
-        ext.moduleName = project.getName()
-        ext.outputDirectory = File(project.getBuildDir(), "dokka").getAbsolutePath()
+        ext.moduleName = project.name
+        ext.outputDirectory = File(project.buildDir, "dokka").absolutePath
     }
 }
 
 public open class DokkaTask : DefaultTask() {
     init {
-        setGroup(JavaBasePlugin.DOCUMENTATION_GROUP)
-        setDescription("Generates dokka documentation for Kotlin")
+        group = JavaBasePlugin.DOCUMENTATION_GROUP
+        description = "Generates dokka documentation for Kotlin"
     }
 
-    TaskAction
+    @TaskAction
     fun generate() {
-        val project = getProject()
-        val conf = getProject().getExtensions().getByType(javaClass<DokkaExtension>())
-        val javaPluginConvention = getProject().getConvention().getPlugin(javaClass<JavaPluginConvention>())
+        val project = project
+        val conf = project.extensions.getByType(DokkaExtension::class.java)
+        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
 
-        val sourceSets = javaPluginConvention.getSourceSets()?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        val sourceDirectories = sourceSets?.getAllSource()?.getSrcDirs()?.filter { it.exists() } ?: emptyList()
-        val allConfigurations = getProject().getConfigurations()
+        val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        val sourceDirectories = sourceSets?.allSource?.srcDirs?.filter { it.exists() } ?: emptyList()
+        val allConfigurations = project.configurations
 
         val classpath =
                 conf.processConfigurations
@@ -45,20 +45,20 @@ public open class DokkaTask : DefaultTask() {
                 .flatMap { it }
 
         if (sourceDirectories.isEmpty()) {
-            getLogger().warn("No source directories found: skipping dokka generation")
+            logger.warn("No source directories found: skipping dokka generation")
             return
         }
 
         DokkaGenerator(
-                DokkaGradleLogger(getLogger()),
-                classpath.map { it.getAbsolutePath() },
-                sourceDirectories.map { it.getAbsolutePath() },
+                DokkaGradleLogger(logger),
+                classpath.map { it.absolutePath },
+                sourceDirectories.map { it.absolutePath },
                 conf.samples,
                 conf.includes,
                 conf.moduleName,
                 conf.outputDirectory,
                 conf.outputFormat,
-                conf.linkMappings.map { SourceLinkDefinition(project.file(it.dir).getAbsolutePath(), it.url, it.suffix) },
+                conf.linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
                 false
         ).generate()
     }
@@ -76,7 +76,7 @@ public open class DokkaExtension {
 
     fun linkMapping(closure: Closure<Any?>) {
         val mapping = LinkMapping()
-        closure.setDelegate(mapping)
+        closure.delegate = mapping
         closure.call()
 
         if (mapping.dir.isEmpty()) {

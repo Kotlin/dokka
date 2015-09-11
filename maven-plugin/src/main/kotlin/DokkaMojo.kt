@@ -9,53 +9,53 @@ import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 
 public class SourceLinkMapItem {
-    Parameter(name = "dir", required = true)
+    @Parameter(name = "dir", required = true)
     var dir: String = ""
 
-    Parameter(name = "url", required = true)
+    @Parameter(name = "url", required = true)
     var url: String = ""
 
-    Parameter(name = "urlSuffix")
+    @Parameter(name = "urlSuffix")
     var urlSuffix: String? = null
 }
 
-Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+@Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class DokkaMojo : AbstractMojo() {
-    Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
+    @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
 
-    Parameter
+    @Parameter
     var samplesDirs: List<String> = emptyList()
 
-    Parameter
+    @Parameter
     var includeDirs: List<String> = emptyList()
 
-    Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
+    @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
     var classpath: List<String> = emptyList()
 
-    Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
+    @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
     var outputDir: String = ""
 
-    Parameter(required = true, defaultValue = "html")
+    @Parameter(required = true, defaultValue = "html")
     var outputFormat: String = "html"
 
-    Parameter
+    @Parameter
     var sourceLinks: Array<SourceLinkMapItem> = emptyArray()
 
-    Parameter(required = true, defaultValue = "\${project.artifactId}")
+    @Parameter(required = true, defaultValue = "\${project.artifactId}")
     var moduleName: String = ""
 
-    Parameter(required = false, defaultValue = "false")
+    @Parameter(required = false, defaultValue = "false")
     var skip: Boolean = false
 
     override fun execute() {
         if (skip) {
-            getLog().info("Dokka skip parameter is true so no dokka output will be produced")
+            log.info("Dokka skip parameter is true so no dokka output will be produced")
             return
         }
 
         val gen = DokkaGenerator(
-                MavenDokkaLogger(getLog()),
+                MavenDokkaLogger(log),
                 classpath,
                 sourceDirectories,
                 samplesDirs,

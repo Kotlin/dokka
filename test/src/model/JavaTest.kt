@@ -5,7 +5,7 @@ import org.jetbrains.dokka.*
 import org.junit.*
 
 public class JavaTest {
-    Test fun function() {
+    @Test fun function() {
         verifyPackageMember("test/data/java/member.java") { cls ->
             assertEquals("Test", cls.name)
             assertEquals(DocumentationNode.Kind.Class, cls.kind)
@@ -43,7 +43,7 @@ public class JavaTest {
         }
     }
 
-    Test fun memberWithModifiers() {
+    @Test fun memberWithModifiers() {
         verifyPackageMember("test/data/java/memberWithModifiers.java") { cls ->
             assertEquals("abstract", cls.details[0].name)
             with(cls.members.single { it.name == "fn" }) {
@@ -55,7 +55,7 @@ public class JavaTest {
         }
     }
 
-    Test fun superClass() {
+    @Test fun superClass() {
         verifyPackageMember("test/data/java/superClass.java") { cls ->
             val superTypes = cls.details(DocumentationNode.Kind.Supertype)
             assertEquals(2, superTypes.size())
@@ -64,7 +64,7 @@ public class JavaTest {
         }
     }
 
-    Test fun arrayType() {
+    @Test fun arrayType() {
         verifyPackageMember("test/data/java/arrayType.java") { cls ->
             with(cls.members.single()) {
                 val type = detail(DocumentationNode.Kind.Type)
@@ -79,7 +79,7 @@ public class JavaTest {
         }
     }
 
-    Test fun typeParameter() {
+    @Test fun typeParameter() {
         verifyPackageMember("test/data/java/typeParameter.java") { cls ->
             val typeParameters = cls.details(DocumentationNode.Kind.TypeParameter)
             with(typeParameters.single()) {
@@ -98,7 +98,7 @@ public class JavaTest {
         }
     }
 
-    Test fun constructors() {
+    @Test fun constructors() {
         verifyPackageMember("test/data/java/constructors.java") { cls ->
             val constructors = cls.members(DocumentationNode.Kind.Constructor)
             assertEquals(2, constructors.size())
@@ -108,14 +108,14 @@ public class JavaTest {
         }
     }
 
-    Test fun innerClass() {
+    @Test fun innerClass() {
         verifyPackageMember("test/data/java/innerClass.java") { cls ->
             val innerClass = cls.members(DocumentationNode.Kind.Class).single()
             assertEquals("D", innerClass.name)
         }
     }
 
-    Test fun varargs() {
+    @Test fun varargs() {
         verifyPackageMember("test/data/java/varargs.java") { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()
             val param = fn.detail(DocumentationNode.Kind.Parameter)
@@ -126,7 +126,7 @@ public class JavaTest {
         }
     }
 
-    Test fun fields() {
+    @Test fun fields() {
         verifyPackageMember("test/data/java/field.java") { cls ->
             val i = cls.members(DocumentationNode.Kind.Property).single { it.name == "i" }
             assertEquals("Int", i.detail(DocumentationNode.Kind.Type).name)
@@ -137,14 +137,14 @@ public class JavaTest {
         }
     }
 
-    Test fun staticMethod() {
+    @Test fun staticMethod() {
         verifyPackageMember("test/data/java/staticMethod.java") { cls ->
             val m = cls.members(DocumentationNode.Kind.CompanionObjectFunction).single { it.name == "foo" }
             assertFalse("static" in m.details(DocumentationNode.Kind.Modifier).map { it.name })
         }
     }
 
-    Test fun annotatedAnnotation() {
+    @Test fun annotatedAnnotation() {
         verifyPackageMember("test/data/java/annotatedAnnotation.java") { cls ->
             assertEquals(2, cls.annotations.size())
             with(cls.annotations[0]) {
@@ -161,7 +161,7 @@ public class JavaTest {
         }
     }
 
-    Test fun deprecation() {
+    @Test fun deprecation() {
         verifyPackageMember("test/data/java/deprecation.java") { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()
             with(fn.deprecation!!) {
@@ -178,14 +178,14 @@ public class JavaTest {
         }
     }
 
-    Test fun javaLangObject() {
+    @Test fun javaLangObject() {
         verifyPackageMember("test/data/java/javaLangObject.java") { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()
             assertEquals("Any", fn.detail(DocumentationNode.Kind.Type).name)
         }
     }
 
-    Test fun enumValues() {
+    @Test fun enumValues() {
         verifyPackageMember("test/data/java/enumValues.java") { cls ->
             val superTypes = cls.details(DocumentationNode.Kind.Supertype)
             assertEquals(0, superTypes.size())
@@ -193,7 +193,7 @@ public class JavaTest {
         }
     }
 
-    Test fun inheritorLinks() {
+    @Test fun inheritorLinks() {
         verifyPackageMember("test/data/java/inheritorLinks.java") { cls ->
             val fooClass = cls.members.single { it.name == "Foo" }
             val inheritors = fooClass.references(DocumentationReference.Kind.Inheritor)

@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 public class ClassTest {
-    Test fun emptyClass() {
+    @Test fun emptyClass() {
         verifyModel("test/data/classes/emptyClass.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
@@ -20,7 +20,7 @@ public class ClassTest {
         }
     }
 
-    Test fun emptyObject() {
+    @Test fun emptyObject() {
         verifyModel("test/data/classes/emptyObject.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Object, kind)
@@ -32,7 +32,7 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithConstructor() {
+    @Test fun classWithConstructor() {
         verifyModel("test/data/classes/classWithConstructor.kt") { model ->
             with (model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
@@ -62,7 +62,7 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithFunction() {
+    @Test fun classWithFunction() {
         verifyModel("test/data/classes/classWithFunction.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
@@ -92,7 +92,7 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithProperty() {
+    @Test fun classWithProperty() {
         verifyModel("test/data/classes/classWithProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
@@ -122,7 +122,7 @@ public class ClassTest {
         }
     }
 
-    Test fun classWithCompanionObject() {
+    @Test fun classWithCompanionObject() {
         verifyModel("test/data/classes/classWithCompanionObject.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(DocumentationNode.Kind.Class, kind)
@@ -176,7 +176,7 @@ public class ClassTest {
         }
     }
 
-    Test fun annotatedClassWithAnnotationParameters() {
+    @Test fun annotatedClassWithAnnotationParameters() {
         verifyModel("test/data/classes/annotatedClassWithAnnotationParameters.kt") { model ->
             with(model.members.single().members.single()) {
                 with(deprecation!!) {
@@ -197,7 +197,7 @@ public class ClassTest {
         }
     }
 
-    Test fun javaAnnotationClass() {
+    @Test fun javaAnnotationClass() {
         verifyModel("test/data/classes/javaAnnotationClass.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
@@ -218,7 +218,7 @@ public class ClassTest {
         }
     }
 
-    Test fun notOpenClass() {
+    @Test fun notOpenClass() {
         verifyModel("test/data/classes/notOpenClass.kt") { model ->
             with(model.members.single().members.first { it.name == "D"}.members.first { it.name == "f" }) {
                 val modifiers = details(DocumentationNode.Kind.Modifier)
@@ -231,7 +231,7 @@ public class ClassTest {
         }
     }
 
-    Test fun indirectOverride() {
+    @Test fun indirectOverride() {
         verifyModel("test/data/classes/indirectOverride.kt") { model ->
             with(model.members.single().members.first { it.name == "E"}.members.first { it.name == "foo" }) {
                 val modifiers = details(DocumentationNode.Kind.Modifier)
@@ -244,7 +244,7 @@ public class ClassTest {
         }
     }
 
-    Test fun innerClass() {
+    @Test fun innerClass() {
         verifyPackageMember("test/data/classes/innerClass.kt") { cls ->
             val innerClass = cls.members.single { it.name == "D" }
             val modifiers = innerClass.details(DocumentationNode.Kind.Modifier)
@@ -253,7 +253,7 @@ public class ClassTest {
         }
     }
 
-    Test fun companionObjectExtension() {
+    @Test fun companionObjectExtension() {
         verifyModel("test/data/classes/companionObjectExtension.kt") { model ->
             val pkg = model.members.single()
             val cls = pkg.members.single { it.name == "Foo" }
@@ -262,7 +262,7 @@ public class ClassTest {
         }
     }
 
-    Test fun secondaryConstructor() {
+    @Test fun secondaryConstructor() {
         verifyPackageMember("test/data/classes/secondaryConstructor.kt") { cls ->
             val constructors = cls.members(DocumentationNode.Kind.Constructor)
             assertEquals(2, constructors.size())

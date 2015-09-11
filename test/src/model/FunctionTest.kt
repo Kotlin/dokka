@@ -189,7 +189,7 @@ Documentation""", content.description.toTestString())
         }
     }
 
-    Test fun annotatedFunctionWithAnnotationParameters() {
+    @Test fun annotatedFunctionWithAnnotationParameters() {
         verifyModel("test/data/functions/annotatedFunctionWithAnnotationParameters.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
@@ -211,7 +211,7 @@ Documentation""", content.description.toTestString())
         }
     }
 
-    Test fun functionWithDefaultParameter() {
+    @Test fun functionWithDefaultParameter() {
         verifyModel("test/data/functions/functionWithDefaultParameter.kt") { model ->
             with(model.members.single().members.single()) {
                 with(details.elementAt(2)) {

@@ -5,7 +5,7 @@ import kotlin.test.*
 import org.jetbrains.dokka.*
 
 public class LinkTest {
-    Test fun linkToSelf() {
+    @Test fun linkToSelf() {
         verifyModel("test/data/links/linkToSelf.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
@@ -15,7 +15,7 @@ public class LinkTest {
         }
     }
 
-    Test fun linkToMember() {
+    @Test fun linkToMember() {
         verifyModel("test/data/links/linkToMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
@@ -25,7 +25,7 @@ public class LinkTest {
         }
     }
 
-    Test fun linkToQualifiedMember() {
+    @Test fun linkToQualifiedMember() {
         verifyModel("test/data/links/linkToQualifiedMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
@@ -35,7 +35,7 @@ public class LinkTest {
         }
     }
 
-    Test fun linkToParam() {
+    @Test fun linkToParam() {
         verifyModel("test/data/links/linkToParam.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)

@@ -71,7 +71,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         val projectComponentManager = environment.project as MockComponentManager
 
         val moduleManager = CoreModuleManager(environment.project, this)
-        CoreApplicationEnvironment.registerComponentInstance(projectComponentManager.getPicoContainer(),
+        CoreApplicationEnvironment.registerComponentInstance(projectComponentManager.picoContainer,
                 ModuleManager::class.java, moduleManager)
 
         projectComponentManager.registerService(ProjectFileIndex::class.java,

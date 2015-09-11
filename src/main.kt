@@ -19,46 +19,46 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
 class DokkaArguments {
-    Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
-    ValueDescription("<path>")
+    @Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
+    @ValueDescription("<path>")
     public var src: String = ""
 
-    Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
-    ValueDescription("<path>=<url>[#lineSuffix]")
+    @Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
+    @ValueDescription("<path>=<url>[#lineSuffix]")
     public var srcLink: String = ""
 
-    Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
-    ValueDescription("<path>")
+    @Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
+    @ValueDescription("<path>")
     public var include: String = ""
 
-    Argument(value = "samples", description = "Source root for samples")
-    ValueDescription("<path>")
+    @Argument(value = "samples", description = "Source root for samples")
+    @ValueDescription("<path>")
     public var samples: String = ""
 
-    Argument(value = "output", description = "Output directory path")
-    ValueDescription("<path>")
+    @Argument(value = "output", description = "Output directory path")
+    @ValueDescription("<path>")
     public var outputDir: String = "out/doc/"
 
-    Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
-    ValueDescription("<name>")
+    @Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
+    @ValueDescription("<name>")
     public var outputFormat: String = "html"
 
-    Argument(value = "module", description = "Name of the documentation module")
-    ValueDescription("<name>")
+    @Argument(value = "module", description = "Name of the documentation module")
+    @ValueDescription("<name>")
     public var moduleName: String = ""
 
-    Argument(value = "classpath", description = "Classpath for symbol resolution")
-    ValueDescription("<path>")
+    @Argument(value = "classpath", description = "Classpath for symbol resolution")
+    @ValueDescription("<path>")
     public var classpath: String = ""
 
-    Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
+    @Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
     public var nodeprecated: Boolean = false
 
 }
 
 private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
     val (path, urlAndLine) = srcLink.split('=')
-    return SourceLinkDefinition(File(path).getAbsolutePath(),
+    return SourceLinkDefinition(File(path).absolutePath,
             urlAndLine.substringBefore("#"),
             urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
 }
@@ -142,7 +142,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val environment = createAnalysisEnvironment()
 
         logger.info("Module: ${moduleName}")
-        logger.info("Output: ${File(outputDir).getAbsolutePath()}")
+        logger.info("Output: ${File(outputDir).absolutePath}")
         logger.info("Sources: ${environment.sources.join()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
@@ -201,7 +201,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     }
 
     fun isSample(file: PsiFile): Boolean {
-        val sourceFile = File(file.getVirtualFile()!!.getPath())
+        val sourceFile = File(file.virtualFile!!.path)
         return samples.none { sample ->
             val canonicalSample = File(sample).canonicalPath
             val canonicalSource = sourceFile.canonicalPath
@@ -218,7 +218,7 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
                              logger: DokkaLogger): DocumentationModule {
     val documentation = environment.withContext { environment, resolutionFacade, session ->
         val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
-        val fragments = fragmentFiles.map { session.getPackageFragment(it.getPackageFqName()) }.filterNotNull().distinct()
+        val fragments = fragmentFiles.map { session.getPackageFragment(it.packageFqName) }.filterNotNull().distinct()
 
         val refGraph = NodeReferenceGraph()
         val documentationBuilder = DocumentationBuilder(resolutionFacade, session, options, refGraph, logger)
@@ -254,7 +254,7 @@ fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
     val result = arrayListOf<PsiJavaFile>()
     val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
     sourceRoots.forEach { sourceRoot ->
-        sourceRoot.getAbsoluteFile().walkTopDown().forEach {
+        sourceRoot.absoluteFile.walkTopDown().forEach {
             val vFile = localFileSystem.findFileByPath(it.path)
             if (vFile != null) {
                 val psiFile = PsiManager.getInstance(project).findFile(vFile)
