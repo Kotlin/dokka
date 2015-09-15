@@ -1,9 +1,11 @@
 package org.jetbrains.dokka
 
-import org.intellij.markdown.*
-import org.intellij.markdown.ast.*
-import org.intellij.markdown.parser.*
-import org.intellij.markdown.parser.dialects.commonmark.CommonMarkMarkerProcessor
+import org.intellij.markdown.IElementType
+import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.LeafASTNode
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.parser.MarkdownParser
 
 class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: String) {
     val children: List<MarkdownNode> = node.children.map { MarkdownNode(it, this, markdown) }
@@ -44,5 +46,5 @@ private fun MarkdownNode.presentTo(sb: StringBuilder) {
 fun parseMarkdown(markdown: String): MarkdownNode {
     if (markdown.isEmpty())
         return MarkdownNode(LeafASTNode(MarkdownElementTypes.MARKDOWN_FILE, 0, 0), null, markdown)
-    return MarkdownNode(MarkdownParser(CommonMarkMarkerProcessor.Factory).buildMarkdownTreeFromString(markdown), null, markdown)
+    return MarkdownNode(MarkdownParser(CommonMarkFlavourDescriptor()).buildMarkdownTreeFromString(markdown), null, markdown)
 }
