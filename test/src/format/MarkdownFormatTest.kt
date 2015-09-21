@@ -167,4 +167,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Foo" })
         }
     }
+
+    @Test fun extensionFunctionParameter() {
+        verifyOutput("test/data/format/extensionFunctionParameter.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }
