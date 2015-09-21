@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -327,6 +328,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
 
         append(node, DocumentationReference.Kind.Detail)
+        node.appendAnnotations(jetType)
         for (typeArgument in jetType.arguments)
             node.appendProjection(typeArgument)
     }
@@ -335,13 +337,19 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
-        annotated.annotations.filter { it.source.getPsi() != null && it.mustBeDocumented() }.forEach {
+        annotated.annotations.filter { it.isDocumented() }.forEach {
             val annotationNode = it.build()
             if (annotationNode != null) {
                 append(annotationNode,
                         if (annotationNode.isDeprecation()) DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
             }
         }
+    }
+
+    private fun AnnotationDescriptor.isDocumented(): Boolean {
+        if (source.getPsi() != null && mustBeDocumented()) return true
+        val annotationClassName = type.constructor.declarationDescriptor?.fqNameSafe?.asString()
+        return annotationClassName == "kotlin.Extension"
     }
 
     fun AnnotationDescriptor.mustBeDocumented(): Boolean {

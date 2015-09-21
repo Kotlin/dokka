@@ -76,26 +76,17 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderType(node: DocumentationNode) {
-        val typeArguments = node.details(DocumentationNode.Kind.Type)
+        var typeArguments = node.details(DocumentationNode.Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
+            val isExtension = node.annotations.any { it.name == "Extension" }
+            if (isExtension) {
+                renderType(typeArguments.first())
+                symbol(".")
+                typeArguments = typeArguments.drop(1)
+            }
             symbol("(")
             renderList(typeArguments.take(typeArguments.size() - 1), noWrap = true) {
-                renderType(it)
-            }
-            symbol(")")
-            nbsp()
-            symbol("->")
-            nbsp()
-            renderType(typeArguments.last())
-            return
-        }
-        if (node.name == "ExtensionFunction${typeArguments.count() - 2}") {
-            // extension lambda
-            renderType(typeArguments.first())
-            symbol(".")
-            symbol("(")
-            renderList(typeArguments.drop(1).take(typeArguments.size() - 2), noWrap = true) {
                 renderType(it)
             }
             symbol(")")
