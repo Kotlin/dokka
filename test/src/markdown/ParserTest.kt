@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.tests
 
 import org.junit.Test
-import org.jetbrains.dokka
 import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
