@@ -191,10 +191,10 @@ Documentation""", content.description.toTestString())
 
     @Test fun annotatedFunctionWithAnnotationParameters() {
         verifyModel("test/data/functions/annotatedFunctionWithAnnotationParameters.kt") { model ->
-            with(model.members.single().members.single()) {
+            with(model.members.single().members.single { it.name == "f"}) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {
-                    assertEquals("inlineOptions", name)
+                    assertEquals("Fancy", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(DocumentationNode.Kind.Annotation, kind)
                     assertEquals(1, details.count())
@@ -203,7 +203,7 @@ Documentation""", content.description.toTestString())
                         assertEquals(1, details.count())
                         with(details[0]) {
                             assertEquals(DocumentationNode.Kind.Value, kind)
-                            assertEquals("[InlineOption.LOCAL_CONTINUE_AND_BREAK]", name)
+                            assertEquals("1", name)
                         }
                     }
                 }

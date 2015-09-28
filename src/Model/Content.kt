@@ -1,12 +1,10 @@
 package org.jetbrains.dokka
 
-import kotlin.properties.Delegates
+public interface ContentNode
 
-public abstract class ContentNode
+public object ContentEmpty : ContentNode
 
-public object ContentEmpty : ContentNode()
-
-public open class ContentBlock() : ContentNode() {
+public open class ContentBlock() : ContentNode {
     val children = arrayListOf<ContentNode>()
 
     fun append(node : ContentNode)  {
@@ -29,12 +27,12 @@ enum class IdentifierKind {
     Other
 }
 
-public data class ContentText(val text: String) : ContentNode()
-public data class ContentKeyword(val text: String) : ContentNode()
-public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode()
-public data class ContentSymbol(val text: String) : ContentNode()
-public data class ContentEntity(val text: String) : ContentNode()
-public object ContentNonBreakingSpace: ContentNode()
+public data class ContentText(val text: String) : ContentNode
+public data class ContentKeyword(val text: String) : ContentNode
+public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode
+public data class ContentSymbol(val text: String) : ContentNode
+public data class ContentEntity(val text: String) : ContentNode
+public object ContentNonBreakingSpace: ContentNode
 
 public class ContentParagraph() : ContentBlock()
 public class ContentEmphasis() : ContentBlock()
