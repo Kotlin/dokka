@@ -1,1 +1,7 @@
-inlineOptions(InlineOption.LOCAL_CONTINUE_AND_BREAK) fun f() {}
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.SOURCE)
+@MustBeDocumented
+public annotation class Fancy(val size: Int)
+
+
+Fancy(1) fun f() {}
