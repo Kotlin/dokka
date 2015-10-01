@@ -678,9 +678,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             node.appendTextNode(prefix, Kind.Modifier)
         }
 
-        val builtIns = KotlinBuiltIns.getInstance()
         for (constraint in upperBounds) {
-            if (constraint == builtIns.defaultBound)
+            if (KotlinBuiltIns.isDefaultBound(constraint))
                 continue
             node.appendType(constraint, Kind.UpperBound)
         }
