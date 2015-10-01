@@ -166,9 +166,6 @@ public open class MutableContent() : Content() {
             return "<empty>"
         return (listOf(summary, description) + sections).joinToString()
     }
-
-    val isEmpty: Boolean
-        get() = sections.none()
 }
 
 fun javadocSectionDisplayName(sectionName: String?): String? =
