@@ -66,7 +66,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
      * Executes [processor] when analysis is complete.
      * $processor: function to receive compiler environment, module and context for symbol resolution
      */
-    public fun withContext<T>(processor: (KotlinCoreEnvironment, ResolutionFacade, ResolveSession) -> T): T {
+    public fun <T> withContext(processor: (KotlinCoreEnvironment, ResolutionFacade, ResolveSession) -> T): T {
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val projectComponentManager = environment.project as MockComponentManager
 
