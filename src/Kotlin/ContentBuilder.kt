@@ -8,10 +8,10 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.JetBlockExpression
-import org.jetbrains.kotlin.psi.JetDeclarationWithBody
+import org.jetbrains.kotlin.psi.KtBlockExpression
+import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.resolve.scopes.JetScope
+import org.jetbrains.kotlin.resolve.scopes.KtScope
 import org.jetbrains.kotlin.resolve.scopes.utils.asJetScope
 import java.util.*
 
@@ -155,10 +155,10 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
     }
 
     val text = when (psiElement) {
-        is JetDeclarationWithBody -> ContentBlockCode().let() {
+        is KtDeclarationWithBody -> ContentBlockCode().let() {
             val bodyExpression = psiElement.bodyExpression
             when (bodyExpression) {
-                is JetBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
+                is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
                 else -> bodyExpression!!.text
             }
         }
@@ -171,7 +171,7 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
     return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
 }
 
-private fun DocumentationBuilder.resolveInScope(functionName: String, scope: JetScope): DeclarationDescriptor? {
+private fun DocumentationBuilder.resolveInScope(functionName: String, scope: KtScope): DeclarationDescriptor? {
     var currentScope = scope
     val parts = functionName.split('.')
 

@@ -14,11 +14,11 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
-import org.jetbrains.kotlin.lexer.JetSingleValueToken
-import org.jetbrains.kotlin.lexer.JetTokens
+import org.jetbrains.kotlin.lexer.KtSingleValueToken
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.JetModifierListOwner
-import org.jetbrains.kotlin.psi.JetParameter
+import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
-import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.types.KtType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
@@ -55,9 +55,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
     val knownModifiers = setOf(
-            JetTokens.PUBLIC_KEYWORD, JetTokens.PROTECTED_KEYWORD, JetTokens.INTERNAL_KEYWORD, JetTokens.PRIVATE_KEYWORD,
-            JetTokens.OPEN_KEYWORD, JetTokens.FINAL_KEYWORD, JetTokens.ABSTRACT_KEYWORD, JetTokens.SEALED_KEYWORD,
-            JetTokens.OVERRIDE_KEYWORD)
+            KtTokens.PUBLIC_KEYWORD, KtTokens.PROTECTED_KEYWORD, KtTokens.INTERNAL_KEYWORD, KtTokens.PRIVATE_KEYWORD,
+            KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
+            KtTokens.OVERRIDE_KEYWORD)
 
     fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
         val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
@@ -157,7 +157,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return "(" + params.map { it.signature() }.join() + ")"
     }
 
-    fun JetType.signature(): String {
+    fun KtType.signature(): String {
         val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
         val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
         if (typeName == "Array" && arguments.size() == 1) {
@@ -286,7 +286,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
     }
 
-    private fun ignoreSupertype(superType: JetType): Boolean {
+    private fun ignoreSupertype(superType: KtType): Boolean {
         val superClass = superType.constructor.declarationDescriptor as? ClassDescriptor
         if (superClass != null) {
             val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
@@ -299,7 +299,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         appendType(projection.type, kind, projection.projectionKind.label)
     }
 
-    fun DocumentationNode.appendType(jetType: JetType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
+    fun DocumentationNode.appendType(jetType: KtType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
         if (jetType == null)
             return
         val classifierDescriptor = jetType.constructor.declarationDescriptor
@@ -358,8 +358,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
-        val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? JetModifierListOwner ?: return
-        JetTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
+        val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
+        KtTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
             if (psi.hasModifier(it)) {
                 appendTextNode(it.value, Kind.Modifier)
             }
@@ -588,8 +588,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         else null
 
-        if (token is JetSingleValueToken) {
-            return token.value
+        if (token is KtSingleValueToken) {
+            return token.getValue()
         }
 
         val name = name.asString()
@@ -654,7 +654,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(varargElementType ?: type)
         if (declaresDefaultValue()) {
-            val psi = source.getPsi() as? JetParameter
+            val psi = source.getPsi() as? KtParameter
             if (psi != null) {
                 val defaultValueText = psi.defaultValue?.text
                 if (defaultValueText != null) {
