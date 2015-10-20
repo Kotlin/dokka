@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
-import java.util.LinkedHashMap
 import org.jetbrains.dokka.LanguageService.RenderMode
+import java.util.*
 
 public data class FormatLink(val text: String, val href: String)
 

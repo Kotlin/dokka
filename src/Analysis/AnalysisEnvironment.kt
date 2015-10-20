@@ -36,8 +36,8 @@ import org.jetbrains.kotlin.idea.caches.resolve.KotlinOutOfBlockCompletionModifi
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.JetDeclaration
-import org.jetbrains.kotlin.psi.JetElement
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
@@ -91,6 +91,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
             override fun dependencies(): List<ModuleInfo> = listOf(this)
         }
         val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
+                "Dokka",
                 projectContext,
                 listOf(module),
                 { ModuleContent(sourceFiles, GlobalSearchScope.allScope(environment.project)) },
@@ -166,11 +167,11 @@ class DokkaResolutionFacade(override val project: Project,
                             override val moduleDescriptor: ModuleDescriptor,
                             val resolverForModule: ResolverForModule) : ResolutionFacade {
 
-    override fun analyze(element: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
+    override fun analyze(element: KtElement, bodyResolveMode: BodyResolveMode): BindingContext {
         throw UnsupportedOperationException()
     }
 
-    override fun analyzeFullyAndGetResult(elements: Collection<JetElement>): AnalysisResult {
+    override fun analyzeFullyAndGetResult(elements: Collection<KtElement>): AnalysisResult {
         throw UnsupportedOperationException()
     }
 
@@ -190,7 +191,7 @@ class DokkaResolutionFacade(override val project: Project,
         throw UnsupportedOperationException()
     }
 
-    override fun resolveToDescriptor(declaration: JetDeclaration): DeclarationDescriptor {
+    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
         throw UnsupportedOperationException()
     }
 }
