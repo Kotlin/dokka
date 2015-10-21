@@ -13,7 +13,7 @@ public class JavaTest {
                 assertEquals("fn", name)
                 assertEquals(DocumentationNode.Kind.Function, kind)
                 assertEquals("Summary for Function", content.summary.toTestString().trimEnd())
-                assertEquals(3, content.sections.size())
+                assertEquals(3, content.sections.size)
                 with(content.sections[0]) {
                     assertEquals("Parameters", tag)
                     assertEquals("name", subjectName)
@@ -58,7 +58,7 @@ public class JavaTest {
     @Test fun superClass() {
         verifyPackageMember("test/data/java/superClass.java") { cls ->
             val superTypes = cls.details(DocumentationNode.Kind.Supertype)
-            assertEquals(2, superTypes.size())
+            assertEquals(2, superTypes.size)
             assertEquals("Exception", superTypes[0].name)
             assertEquals("Cloneable", superTypes[1].name)
         }
@@ -101,7 +101,7 @@ public class JavaTest {
     @Test fun constructors() {
         verifyPackageMember("test/data/java/constructors.java") { cls ->
             val constructors = cls.members(DocumentationNode.Kind.Constructor)
-            assertEquals(2, constructors.size())
+            assertEquals(2, constructors.size)
             with(constructors[0]) {
                 assertEquals("<init>", name)
             }
@@ -146,7 +146,7 @@ public class JavaTest {
 
     @Test fun annotatedAnnotation() {
         verifyPackageMember("test/data/java/annotatedAnnotation.java") { cls ->
-            assertEquals(2, cls.annotations.size())
+            assertEquals(2, cls.annotations.size)
             with(cls.annotations[0]) {
                 assertEquals(1, details.count())
                 with(details[0]) {
@@ -188,8 +188,8 @@ public class JavaTest {
     @Test fun enumValues() {
         verifyPackageMember("test/data/java/enumValues.java") { cls ->
             val superTypes = cls.details(DocumentationNode.Kind.Supertype)
-            assertEquals(0, superTypes.size())
-            assertEquals(1, cls.members(DocumentationNode.Kind.EnumItem).size())
+            assertEquals(0, superTypes.size)
+            assertEquals(1, cls.members(DocumentationNode.Kind.EnumItem).size)
         }
     }
 
@@ -197,7 +197,7 @@ public class JavaTest {
         verifyPackageMember("test/data/java/inheritorLinks.java") { cls ->
             val fooClass = cls.members.single { it.name == "Foo" }
             val inheritors = fooClass.references(DocumentationReference.Kind.Inheritor)
-            assertEquals(1, inheritors.size())
+            assertEquals(1, inheritors.size)
         }
     }
 }

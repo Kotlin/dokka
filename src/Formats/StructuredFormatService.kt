@@ -46,11 +46,11 @@ public abstract class StructuredFormatService(locationService: LocationService,
     public abstract fun formatNonBreakingSpace(): String
 
     open fun formatText(location: Location, nodes: Iterable<ContentNode>, listKind: ListKind = ListKind.Unordered): String {
-        return nodes.map { formatText(location, it, listKind) }.join("")
+        return nodes.map { formatText(location, it, listKind) }.joinToString("")
     }
 
     open fun formatText(location: Location, content: ContentNode, listKind: ListKind = ListKind.Unordered): String {
-        return StringBuilder {
+        return StringBuilder().apply {
             when (content) {
                 is ContentText -> append(formatText(content.text))
                 is ContentSymbol -> append(formatSymbol(content.text))
@@ -144,7 +144,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendLine(to)
         }
         node.content.getSectionsWithSubjects().forEach {
-            appendSectionWithSubject(it.getKey(), location, it.getValue(), to)
+            appendSectionWithSubject(it.key, location, it.value, to)
         }
 
         for (section in node.content.sections.filter { it.subjectName == null }) {
@@ -238,7 +238,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
-                                    val signatureTexts = items map { signature ->
+                                    val signatureTexts = items.map { signature ->
                                         val signatureText = languageService.render(signature, RenderMode.SUMMARY)
                                         if (signatureText is ContentBlock && signatureText.isEmpty()) {
                                             ""
@@ -248,7 +248,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                                             formatText(location, signatureAsCode)
                                         }
                                     }
-                                    signatureTexts.subList(0, signatureTexts.size()-1).forEach {
+                                    signatureTexts.subList(0, signatureTexts.size -1).forEach {
                                         appendAsSignature(to) {
                                             appendLine(to, it)
                                         }

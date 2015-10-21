@@ -13,7 +13,7 @@ class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: S
     val text: String get() = markdown.substring(node.startOffset, node.endOffset)
     fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
 
-    override fun toString(): String = StringBuilder { presentTo(this) }.toString()
+    override fun toString(): String = StringBuilder().apply { presentTo(this) }.toString()
 }
 
 fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {

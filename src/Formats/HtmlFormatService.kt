@@ -112,13 +112,13 @@ public open class HtmlFormatService(locationService: LocationService,
 
     override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         templateService.appendHeader(to, getPageTitle(nodes))
-        super<StructuredFormatService>.appendNodes(location, to, nodes)
+        super.appendNodes(location, to, nodes)
         templateService.appendFooter(to)
     }
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         templateService.appendHeader(to, "Module Contents")
-        super<OutlineFormatService>.appendOutline(location, to, nodes)
+        super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }
 
@@ -144,16 +144,16 @@ public open class HtmlFormatService(locationService: LocationService,
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
     val breakdownByLocation = nodes.groupBy { node -> formatPageTitle(node) }
-    return breakdownByLocation.keySet().singleOrNull()
+    return breakdownByLocation.keys.singleOrNull()
 }
 
 fun formatPageTitle(node: DocumentationNode): String {
     val path = node.path
-    if (path.size() == 1) {
+    if (path.size == 1) {
         return path.first().name
     }
-    val qualifiedName = path.drop(1).map { it.name }.filter { it.length() > 0 }.join(".")
-    if (qualifiedName.length() == 0 && path.size() == 2) {
+    val qualifiedName = path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
+    if (qualifiedName.length == 0 && path.size == 2) {
         return path.first().name + " / root package"
     }
     return path.first().name + " / " + qualifiedName

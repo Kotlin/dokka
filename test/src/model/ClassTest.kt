@@ -222,11 +222,11 @@ public class ClassTest {
         verifyModel("test/data/classes/notOpenClass.kt") { model ->
             with(model.members.single().members.first { it.name == "D"}.members.first { it.name == "f" }) {
                 val modifiers = details(DocumentationNode.Kind.Modifier)
-                assertEquals(2, modifiers.size())
+                assertEquals(2, modifiers.size)
                 assertEquals("final", modifiers[1].name)
 
                 val overrideReferences = references(DocumentationReference.Kind.Override)
-                assertEquals(1, overrideReferences.size())
+                assertEquals(1, overrideReferences.size)
             }
         }
     }
@@ -235,11 +235,11 @@ public class ClassTest {
         verifyModel("test/data/classes/indirectOverride.kt") { model ->
             with(model.members.single().members.first { it.name == "E"}.members.first { it.name == "foo" }) {
                 val modifiers = details(DocumentationNode.Kind.Modifier)
-                assertEquals(2, modifiers.size())
+                assertEquals(2, modifiers.size)
                 assertEquals("final", modifiers[1].name)
 
                 val overrideReferences = references(DocumentationReference.Kind.Override)
-                assertEquals(1, overrideReferences.size())
+                assertEquals(1, overrideReferences.size)
             }
         }
     }
@@ -248,7 +248,7 @@ public class ClassTest {
         verifyPackageMember("test/data/classes/innerClass.kt") { cls ->
             val innerClass = cls.members.single { it.name == "D" }
             val modifiers = innerClass.details(DocumentationNode.Kind.Modifier)
-            assertEquals(3, modifiers.size())
+            assertEquals(3, modifiers.size)
             assertEquals("inner", modifiers[2].name)
         }
     }
@@ -258,15 +258,15 @@ public class ClassTest {
             val pkg = model.members.single()
             val cls = pkg.members.single { it.name == "Foo" }
             val extensions = cls.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }
-            assertEquals(1, extensions.size())
+            assertEquals(1, extensions.size)
         }
     }
 
     @Test fun secondaryConstructor() {
         verifyPackageMember("test/data/classes/secondaryConstructor.kt") { cls ->
             val constructors = cls.members(DocumentationNode.Kind.Constructor)
-            assertEquals(2, constructors.size())
-            with (constructors.first { it.details(DocumentationNode.Kind.Parameter).size()== 1}) {
+            assertEquals(2, constructors.size)
+            with (constructors.first { it.details(DocumentationNode.Kind.Parameter).size == 1}) {
                 assertEquals("<init>", name)
                 assertEquals("This is a secondary constructor.", summary.toTestString())
             }

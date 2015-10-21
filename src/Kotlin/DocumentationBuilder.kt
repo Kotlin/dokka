@@ -154,13 +154,13 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (extensionReceiver != null) {
             params.add(0, extensionReceiver.type)
         }
-        return "(" + params.map { it.signature() }.join() + ")"
+        return "(" + params.map { it.signature() }.joinToString() + ")"
     }
 
     fun KtType.signature(): String {
         val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
         val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-        if (typeName == "Array" && arguments.size() == 1) {
+        if (typeName == "Array" && arguments.size == 1) {
             return "Array<" + arguments.first().type.signature() + ">"
         }
         return typeName
@@ -243,7 +243,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         refGraph.register(descriptor.signature(), node)
     }
 
-    fun DocumentationNode<T>(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
+    fun <T> DocumentationNode(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
         val doc = parseDocumentation(descriptor)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         return node
@@ -267,7 +267,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 modality = Modality.FINAL
             }
         }
-        val modifier = modality.name().toLowerCase()
+        val modifier = modality.name.toLowerCase()
         appendTextNode(modifier, DocumentationNode.Kind.Modifier)
     }
 
@@ -475,7 +475,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, DocumentationReference.Kind.Detail)
             val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
-                constructors.filter { it.valueParameters.size() > 0 }
+                constructors.filter { it.valueParameters.size > 0 }
             else
                 constructors
             node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
@@ -571,7 +571,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun FunctionDescriptor.getImplementedOperator(): String? {
-        var arity = valueParameters.size()
+        var arity = valueParameters.size
         if (containingDeclaration is ClassDescriptor) {
             arity++
         }
@@ -589,7 +589,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         else null
 
         if (token is KtSingleValueToken) {
-            return token.getValue()
+            return token.value
         }
 
         val name = name.asString()
@@ -599,7 +599,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (arity >= 2 && (name == "get" || name == "set")) {
             return "[]"
         }
-        if (arity == 2 && name == "equals" && valueParameters.size() == 1 &&
+        if (arity == 2 && name == "equals" && valueParameters.size == 1 &&
             KotlinBuiltIns.isNullableAny(valueParameters.first().type)) {
             return "=="
         }

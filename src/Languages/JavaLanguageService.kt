@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.DocumentationNode.*
+import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
@@ -65,7 +65,7 @@ public class JavaLanguageService : LanguageService {
         return if (constraints.none())
             node.name
         else {
-            node.name + " extends " + constraints.map { renderType(node) }.join()
+            node.name + " extends " + constraints.map { renderType(node) }.joinToString()
         }
     }
 
@@ -74,11 +74,11 @@ public class JavaLanguageService : LanguageService {
     }
 
     private fun renderTypeParametersForNode(node: DocumentationNode): String {
-        return StringBuilder {
+        return StringBuilder().apply {
             val typeParameters = node.details(Kind.TypeParameter)
             if (typeParameters.any()) {
                 append("<")
-                append(typeParameters.map { renderTypeParameter(it) }.join())
+                append(typeParameters.map { renderTypeParameter(it) }.joinToString())
                 append("> ")
             }
         }.toString()
@@ -88,11 +88,11 @@ public class JavaLanguageService : LanguageService {
         val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != "" }
         if (modifiers.none())
             return ""
-        return modifiers.join(" ", postfix = " ")
+        return modifiers.joinToString(" ", postfix = " ")
     }
 
     private fun renderClass(node: DocumentationNode): String {
-        return StringBuilder {
+        return StringBuilder().apply {
             when (node.kind) {
                 Kind.Class -> append("class ")
                 Kind.Interface -> append("interface ")
@@ -108,7 +108,7 @@ public class JavaLanguageService : LanguageService {
     }
 
     private fun renderFunction(node: DocumentationNode): String {
-        return StringBuilder {
+        return StringBuilder().apply {
             when (node.kind) {
                 Kind.Constructor -> append(node.owner?.name)
                 Kind.Function -> {
@@ -132,7 +132,7 @@ public class JavaLanguageService : LanguageService {
     }
 
     private fun renderProperty(node: DocumentationNode): String {
-        return StringBuilder {
+        return StringBuilder().apply {
             when (node.kind) {
                 Kind.Property -> append("val ")
                 else -> throw IllegalArgumentException("Node $node is not a property")

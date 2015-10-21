@@ -39,7 +39,7 @@ public class PackageDocs(val documentationBuilder: DocumentationBuilder?,
             return moduleContent
         }
         if (heading.startsWith("Package") || heading.startsWith("package")) {
-            return findOrCreatePackageContent(heading.substring("package".length()).trim())
+            return findOrCreatePackageContent(heading.substring("package".length).trim())
         }
         return findOrCreatePackageContent(heading)
     }

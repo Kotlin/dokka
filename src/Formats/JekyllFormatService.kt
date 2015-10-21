@@ -9,7 +9,7 @@ public open class JekyllFormatService(locationService: LocationService,
         appendFrontMatter(nodes, to)
         to.appendln("---")
         to.appendln("")
-        super<MarkdownFormatService>.appendNodes(location, to, nodes)
+        super.appendNodes(location, to, nodes)
     }
 
     protected open fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {

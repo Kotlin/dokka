@@ -15,7 +15,7 @@ fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<Sourc
     val absPath = File(path).absolutePath
     val linkDef = sourceLinks.firstOrNull { absPath.startsWith(it.path) }
     if (linkDef != null) {
-        var url = linkDef.url + path.substring(linkDef.path.length())
+        var url = linkDef.url + path.substring(linkDef.path.length)
         if (linkDef.lineSuffix != null) {
             val line = target?.lineNumber()
             if (line != null) {
