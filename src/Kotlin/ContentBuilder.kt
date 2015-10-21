@@ -165,9 +165,9 @@ fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functio
         else -> psiElement.text
     }
 
-    val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length() == 0 }
+    val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length == 0 }
     val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
-    val finalText = lines.map { it.drop(indent) }.join("\n")
+    val finalText = lines.map { it.drop(indent) }.joinToString("\n")
     return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
 }
 

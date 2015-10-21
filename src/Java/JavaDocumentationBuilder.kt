@@ -108,10 +108,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
-        val linkElement = tag.linkElement()
-        if (linkElement == null) {
-            return
-        }
+        val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.text)
@@ -192,7 +189,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         is PsiField -> element.containingClass!!.qualifiedName + "#" + element.name
         is PsiMethod ->
             element.containingClass!!.qualifiedName + "#" + element.name + "(" +
-            element.parameterList.parameters.map { it.type.typeSignature() }.join(",") + ")"
+                    element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
         else -> null
     }
 
@@ -341,10 +338,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
     }
 
     fun DocumentationNode.appendModifiers(element: PsiModifierListOwner) {
-        val modifierList = element.modifierList
-        if (modifierList == null) {
-            return
-        }
+        val modifierList = element.modifierList ?: return
         PsiModifier.MODIFIERS.forEach {
             if (it != "static" && modifierList.hasExplicitModifier(it)) {
                 appendTextNode(it, Kind.Modifier)

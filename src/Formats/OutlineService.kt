@@ -25,5 +25,5 @@ public interface OutlineFormatService {
     }
 
     fun formatOutline(location: Location, nodes: Iterable<DocumentationNode>): String =
-            StringBuilder { appendOutline(location, this, nodes) }.toString()
+            StringBuilder().apply { appendOutline(location, this, nodes) }.toString()
 }

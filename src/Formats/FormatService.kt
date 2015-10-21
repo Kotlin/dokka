@@ -17,4 +17,4 @@ public interface FormatService {
 }
 
 /** Format content to [String] using specified [location] */
-fun FormatService.format(location: Location, nodes: Iterable<DocumentationNode>): String = kotlin.StringBuilder { appendNodes(location, this, nodes) }.toString()
+fun FormatService.format(location: Location, nodes: Iterable<DocumentationNode>): String = StringBuilder().apply { appendNodes(location, this, nodes) }.toString()

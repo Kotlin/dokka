@@ -86,7 +86,7 @@ class KotlinLanguageService : LanguageService {
                 typeArguments = typeArguments.drop(1)
             }
             symbol("(")
-            renderList(typeArguments.take(typeArguments.size() - 1), noWrap = true) {
+            renderList(typeArguments.take(typeArguments.size - 1), noWrap = true) {
                 renderType(it)
             }
             symbol(")")

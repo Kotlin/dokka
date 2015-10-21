@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
-import java.io.*
+import java.io.File
+import java.io.IOException
 
 fun File.getRelativePath(name: File): File {
     val parent = parentFile
@@ -12,7 +13,7 @@ fun File.getRelativePath(name: File): File {
     val targetPath = name.canonicalPath;
 
     if (targetPath.startsWith(basePath)) {
-        return File(targetPath.substring(basePath.length()))
+        return File(targetPath.substring(basePath.length))
     } else {
         return File(".." + File.separator + parent.getRelativePath(name))
     }
