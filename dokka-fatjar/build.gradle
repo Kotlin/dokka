@@ -1,5 +1,5 @@
 group 'org.jetbrains.dokka'
-version '0.0.1-SNAPSHOT'
+version '1.0.0-beta-1038'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
