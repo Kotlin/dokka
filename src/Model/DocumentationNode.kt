@@ -138,6 +138,7 @@ fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationRefere
         DocumentationReference.Kind.Detail -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
         DocumentationReference.Kind.Member -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
         DocumentationReference.Kind.Owner -> child.addReferenceTo(this, DocumentationReference.Kind.Member)
+        else -> { /* Do not add any links back for other types */ }
     }
 }
 
