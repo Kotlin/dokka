@@ -111,7 +111,7 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
 
 fun ContentNode.toTestString(): String {
     val node = this
-    return StringBuilder {
+    return StringBuilder().apply {
         appendNode(node)
     }.toString()
 }

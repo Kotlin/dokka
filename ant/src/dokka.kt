@@ -67,7 +67,7 @@ class DokkaAntTask(): Task() {
     }
 
     override fun execute() {
-        if (sourcePath.list().size() == 0) {
+        if (sourcePath.list().size == 0) {
             throw BuildException("At least one source path needs to be specified")
         }
         if (moduleName == null) {
