@@ -1,12 +1,18 @@
 group 'org.jetbrains.dokka'
 version '1.0.0-beta-1038'
+import proguard.gradle.ProGuardTask
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:5.2.1'
+    }
+}
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-
-dependencies {
-    compile 'org.fusesource.jansi:jansi:[1.11,2.0)'
-}
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
@@ -17,20 +23,34 @@ task sourceJar(type: Jar) {
     from fileTree('../src')
 }
 
+task proguard(type: ProGuardTask) {
+    configuration 'dokka.pro'
+
+    injars  'build/libs/dokka-fatjar-1.0.0-beta-1038.jar'
+    outjars 'build/libs/dokka-fatjar-1.0.0-beta-1038.out.jar'
+}
+
 jar {
     manifest {
         attributes "Implementation-Title": "Dokka Kotlin Documentation tool"
         attributes "Implementation-Version": version
-        attributes "Main-Class" : "org.jetbrains.dokka.DokkaPackage"
+        attributes "Main-Class" : "org.jetbrains.dokka.MainKt"
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    fileTree(project.file('../lib')).filter { it.name.endsWith('.jar') && !it.name.contains("-sources") }.each {
+    fileTree(project.file('../lib')).filter {
+        it.name.endsWith('.jar') &&
+                !it.name.contains("-sources") &&
+                !it.name.contains("-javadoc")
+    }.each {
         from (zipTree(it)) {
             exclude 'META-INF/MANIFEST.MF'
             exclude 'META-INF/*.SF'
             exclude 'META-INF/*.DSA'
             exclude 'META-INF/*.RSA'
             exclude '**/*.kt'
+            exclude '**/*.java'
+            exclude '**/*.md'
         }
     }
     from (zipTree(project.file('../out/dokka.jar'))) {
@@ -39,6 +59,8 @@ jar {
         exclude 'META-INF/*.DSA'
         exclude 'META-INF/*.RSA'
         exclude '**/*.kt'
+        exclude '**/*.java'
+        exclude '**/*.md'
     }
 }
 
