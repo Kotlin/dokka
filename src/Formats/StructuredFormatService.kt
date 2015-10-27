@@ -44,6 +44,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
     public abstract fun formatListItem(text: String, kind: ListKind): String
     public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
     public abstract fun formatNonBreakingSpace(): String
+    public open fun formatSoftLineBreak(): String = ""
+    public open fun formatIndentedSoftLineBreak(): String = ""
 
     open fun formatText(location: Location, nodes: Iterable<ContentNode>, listKind: ListKind = ListKind.Unordered): String {
         return nodes.map { formatText(location, it, listKind) }.joinToString("")
@@ -57,6 +59,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
                 is ContentKeyword -> append(formatKeyword(content.text))
                 is ContentIdentifier -> append(formatIdentifier(content.text, content.kind))
                 is ContentNonBreakingSpace -> append(formatNonBreakingSpace())
+                is ContentSoftLineBreak -> append(formatSoftLineBreak())
+                is ContentIndentedSoftLineBreak -> append(formatIndentedSoftLineBreak())
                 is ContentEntity -> append(formatEntity(content.text))
                 is ContentStrong -> append(formatStrong(formatText(location, content.children)))
                 is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
@@ -111,8 +115,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
 
         for ((summary, items) in breakdownBySummary) {
             items.forEach {
-                appendAsSignature(to) {
-                    to.append(formatCode(formatText(location, languageService.render(it))))
+                val rendered = languageService.render(it)
+                appendAsSignature(to, rendered) {
+                    to.append(formatCode(formatText(location, rendered)))
                     it.appendSourceLink(to)
                 }
                 it.appendOverrides(to)
@@ -133,7 +138,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
         kind == DocumentationNode.Kind.Module || kind == DocumentationNode.Kind.Package
 
-    protected open fun appendAsSignature(to: StringBuilder, block: () -> Unit) {
+    protected open fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
         block()
     }
 
@@ -254,30 +259,32 @@ public abstract class StructuredFormatService(locationService: LocationService,
     private fun appendSummarySignatures(items: List<DocumentationNode>, location: Location, to: StringBuilder) {
         val summarySignature = languageService.summarizeSignatures(items)
         if (summarySignature != null) {
-            appendAsSignature(to) {
-                val signatureAsCode = ContentCode()
-                signatureAsCode.append(summarySignature)
-                to.append(formatText(location, signatureAsCode))
+            val signatureAsCode = ContentCode()
+            signatureAsCode.append(summarySignature)
+            appendAsSignature(to, signatureAsCode) {
+                appendLine(to, signatureAsCode.signatureToText(location))
             }
             return
         }
-        val signatureTexts = items.map { signature ->
-            val signatureText = languageService.render(signature, RenderMode.SUMMARY)
-            if (signatureText is ContentBlock && signatureText.isEmpty()) {
-                ""
-            } else {
-                val signatureAsCode = ContentCode()
-                signatureAsCode.append(signatureText)
-                formatText(location, signatureAsCode)
+        val renderedSignatures = items.map { languageService.render(it, RenderMode.SUMMARY) }
+        renderedSignatures.subList(0, renderedSignatures.size - 1).forEach {
+            appendAsSignature(to, it) {
+                appendLine(to, it.signatureToText(location))
             }
+            appendLine(to)
         }
-        signatureTexts.subList(0, signatureTexts.size - 1).forEach {
-            appendAsSignature(to) {
-                appendLine(to, it)
-            }
+        appendAsSignature(to, renderedSignatures.last()) {
+            to.append(renderedSignatures.last().signatureToText(location))
         }
-        appendAsSignature(to) {
-            to.append(signatureTexts.last())
+    }
+
+    private fun ContentNode.signatureToText(location: Location): String {
+        return if (this is ContentBlock && this.isEmpty()) {
+            ""
+        } else {
+            val signatureAsCode = ContentCode()
+            signatureAsCode.append(this)
+            formatText(location, signatureAsCode)
         }
     }
 

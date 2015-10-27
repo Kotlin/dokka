@@ -1,8 +1,12 @@
 package org.jetbrains.dokka
 
-public interface ContentNode
+public interface ContentNode {
+    val textLength: Int
+}
 
-public object ContentEmpty : ContentNode
+public object ContentEmpty : ContentNode {
+    override val textLength: Int get() = 0
+}
 
 public open class ContentBlock() : ContentNode {
     val children = arrayListOf<ContentNode>()
@@ -18,6 +22,9 @@ public open class ContentBlock() : ContentNode {
 
     override fun hashCode(): Int =
         children.hashCode()
+
+    override val textLength: Int
+        get() = children.sumBy { it.textLength }
 }
 
 enum class IdentifierKind {
@@ -28,12 +35,45 @@ enum class IdentifierKind {
     Other
 }
 
-public data class ContentText(val text: String) : ContentNode
-public data class ContentKeyword(val text: String) : ContentNode
-public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode
-public data class ContentSymbol(val text: String) : ContentNode
-public data class ContentEntity(val text: String) : ContentNode
-public object ContentNonBreakingSpace: ContentNode
+public data class ContentText(val text: String) : ContentNode {
+    override val textLength: Int
+        get() = text.length
+}
+
+public data class ContentKeyword(val text: String) : ContentNode {
+    override val textLength: Int
+        get() = text.length
+}
+
+public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode {
+    override val textLength: Int
+        get() = text.length
+}
+
+public data class ContentSymbol(val text: String) : ContentNode {
+    override val textLength: Int
+        get() = text.length
+}
+
+public data class ContentEntity(val text: String) : ContentNode {
+    override val textLength: Int
+        get() = text.length
+}
+
+public object ContentNonBreakingSpace: ContentNode {
+    override val textLength: Int
+        get() = 1
+}
+
+public object ContentSoftLineBreak: ContentNode {
+    override val textLength: Int
+        get() = 0
+}
+
+public object ContentIndentedSoftLineBreak: ContentNode {
+    override val textLength: Int
+        get() = 0
+}
 
 public class ContentParagraph() : ContentBlock()
 public class ContentEmphasis() : ContentBlock()
@@ -97,6 +137,9 @@ fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
 fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
 fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind.Other) = append(ContentIdentifier(value, kind))
 fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
+fun ContentBlock.softLineBreak() = append(ContentSoftLineBreak)
+fun ContentBlock.indentedSoftLineBreak() = append(ContentIndentedSoftLineBreak)
+
 fun ContentBlock.strong(body: ContentBlock.() -> Unit) {
     val strong = ContentStrong()
     strong.body()

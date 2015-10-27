@@ -104,9 +104,7 @@ class KotlinLanguageService : LanguageService {
 
     private class SummarizingMapper(val kind: ReceiverKind, val typeParameterName: String): SignatureMapper {
         override fun renderReceiver(receiver: DocumentationNode, to: ContentBlock) {
-            val newReceiver = ContentEmphasis()
-            newReceiver.append(ContentIdentifier(kind.receiverName, IdentifierKind.SummarizedTypeName))
-            to.append(newReceiver)
+            to.append(ContentIdentifier(kind.receiverName, IdentifierKind.SummarizedTypeName))
             to.text("<$typeParameterName>")
         }
     }
@@ -340,8 +338,10 @@ class KotlinLanguageService : LanguageService {
 
         symbol("(")
         renderList(node.details(DocumentationNode.Kind.Parameter)) {
+            indentedSoftLineBreak()
             renderParameter(it, renderMode)
         }
+        softLineBreak()
         symbol(")")
         if (needReturnType(node)) {
             symbol(": ")
