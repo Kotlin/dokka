@@ -296,7 +296,12 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
-        appendType(projection.type, kind, projection.projectionKind.label)
+        if (projection.isStarProjection) {
+            appendTextNode("*", Kind.Type)
+        }
+        else {
+            appendType(projection.type, kind, projection.projectionKind.label)
+        }
     }
 
     fun DocumentationNode.appendType(jetType: KtType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
@@ -329,8 +334,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
 
         append(node, DocumentationReference.Kind.Detail)
         node.appendAnnotations(jetType)
-        for (typeArgument in jetType.arguments)
+        for (typeArgument in jetType.arguments) {
             node.appendProjection(typeArgument)
+        }
     }
 
     fun ClassifierDescriptor.isBoringBuiltinClass(): Boolean =

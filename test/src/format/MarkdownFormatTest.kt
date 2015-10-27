@@ -168,6 +168,12 @@ public class MarkdownFormatTest {
         }
     }
 
+    @Test fun starProjection() {
+        verifyOutput("test/data/format/starProjection.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
     @Test fun extensionFunctionParameter() {
         verifyOutput("test/data/format/extensionFunctionParameter.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
