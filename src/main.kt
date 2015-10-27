@@ -19,39 +19,39 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
 class DokkaArguments {
-    @Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
+    @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
     @ValueDescription("<path>")
     public var src: String = ""
 
-    @Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
+    @set:Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
     @ValueDescription("<path>=<url>[#lineSuffix]")
     public var srcLink: String = ""
 
-    @Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
+    @set:Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
     @ValueDescription("<path>")
     public var include: String = ""
 
-    @Argument(value = "samples", description = "Source root for samples")
+    @set:Argument(value = "samples", description = "Source root for samples")
     @ValueDescription("<path>")
     public var samples: String = ""
 
-    @Argument(value = "output", description = "Output directory path")
+    @set:Argument(value = "output", description = "Output directory path")
     @ValueDescription("<path>")
     public var outputDir: String = "out/doc/"
 
-    @Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
+    @set:Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
     @ValueDescription("<name>")
     public var outputFormat: String = "html"
 
-    @Argument(value = "module", description = "Name of the documentation module")
+    @set:Argument(value = "module", description = "Name of the documentation module")
     @ValueDescription("<name>")
     public var moduleName: String = ""
 
-    @Argument(value = "classpath", description = "Classpath for symbol resolution")
+    @set:Argument(value = "classpath", description = "Classpath for symbol resolution")
     @ValueDescription("<path>")
     public var classpath: String = ""
 
-    @Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
+    @set:Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
     public var nodeprecated: Boolean = false
 
 }
