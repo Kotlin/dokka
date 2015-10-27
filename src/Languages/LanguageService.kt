@@ -12,11 +12,17 @@ interface LanguageService {
     }
 
     /**
-     * Renders a [node](DocumentationNode) as a class, function, property or other signature in a target language.
-     * $node: A [DocumentationNode] to render
-     * $returns: [ContentNode] which is a root for a rich content tree suitable for formatting with [FormatService]
+     * Renders a [node] as a class, function, property or other signature in a target language.
+     * @param node A [DocumentationNode] to render
+     * @return [ContentNode] which is a root for a rich content tree suitable for formatting with [FormatService]
      */
     fun render(node: DocumentationNode, renderMode: RenderMode = RenderMode.FULL): ContentNode
+
+    /**
+     * Tries to summarize the signatures of the specified documentation nodes in a compact representation.
+     * Returns the representation if successful, or null if the signatures could not be summarized.
+     */
+    fun summarizeSignatures(nodes: List<DocumentationNode>): ContentNode?
 
     /**
      * Renders [node] as a named representation in the target language

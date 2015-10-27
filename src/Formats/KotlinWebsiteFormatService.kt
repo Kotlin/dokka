@@ -90,6 +90,7 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
 
     private fun identifierClassName(kind: IdentifierKind) = when(kind) {
         IdentifierKind.ParameterName -> "parameterName"
+        IdentifierKind.SummarizedTypeName -> "summarizedTypeName"
         else -> "identifier"
     }
 }

@@ -34,6 +34,8 @@ public class JavaLanguageService : LanguageService {
         }
     }
 
+    override fun summarizeSignatures(nodes: List<DocumentationNode>): ContentNode? = null
+
     private fun renderPackage(node: DocumentationNode): String {
         return "package ${node.name}"
     }

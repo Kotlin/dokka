@@ -229,8 +229,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
     }
 
-    fun link(node: DocumentationNode, descriptor: DeclarationDescriptor) {
-        refGraph.link(node, descriptor.signature(), DocumentationReference.Kind.Link)
+    fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
+        refGraph.link(node, descriptor.signature(), kind)
     }
 
     fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
@@ -328,8 +328,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (jetType.isMarkedNullable) {
             node.appendTextNode("?", Kind.NullabilityModifier)
         }
-        if (classifierDescriptor != null && !classifierDescriptor.isBoringBuiltinClass()) {
-            link(node, classifierDescriptor)
+        if (classifierDescriptor != null) {
+            link(node, classifierDescriptor,
+                    if (classifierDescriptor.isBoringBuiltinClass()) DocumentationReference.Kind.HiddenLink else DocumentationReference.Kind.Link)
         }
 
         append(node, DocumentationReference.Kind.Detail)
