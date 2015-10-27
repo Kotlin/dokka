@@ -3,6 +3,8 @@ package org.jetbrains.dokka
 public class KotlinWebsiteFormatService(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : JekyllFormatService(locationService, signatureGenerator) {
+    private var needHardLineBreaks = false
+
     override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         super.appendFrontMatter(nodes, to)
         to.appendln("layout: api")
@@ -24,12 +26,17 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
 
     override fun formatStrikethrough(text: String): String = "<s>$text</s>"
 
-    override fun appendAsSignature(to: StringBuilder, block: () -> Unit) {
-        val oldLength = to.length
-        block()
-        if (to.length > oldLength) {
-            to.append("<br/>")  // since we've used HTML to format the signature, add an HTML line break following it
+    override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
+        val contentLength = node.textLength
+        if (contentLength == 0) return
+        to.append("<div class=\"signature\">")
+        needHardLineBreaks = contentLength >= 62
+        try {
+            block()
+        } finally {
+            needHardLineBreaks = false
         }
+        to.append("</div>")
     }
 
     override fun formatLink(text: String, href: String): String {
@@ -87,6 +94,16 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
     override fun formatIdentifier(text: String, kind: IdentifierKind): String {
         return "<span class=\"${identifierClassName(kind)}\">${formatText(text)}</span>"
     }
+
+    override fun formatSoftLineBreak(): String = if (needHardLineBreaks)
+        "<br/>"
+    else
+        ""
+
+    override fun formatIndentedSoftLineBreak(): String = if (needHardLineBreaks)
+        "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
+    else
+        ""
 
     private fun identifierClassName(kind: IdentifierKind) = when(kind) {
         IdentifierKind.ParameterName -> "parameterName"
