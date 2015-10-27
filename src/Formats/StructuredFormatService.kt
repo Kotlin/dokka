@@ -221,7 +221,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    private fun StructuredFormatService.appendSection(location: Location, caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
+    private fun appendSection(location: Location, caption: String, nodes: List<DocumentationNode>, node: DocumentationNode, to: StringBuilder) {
         if (nodes.any()) {
             appendHeader(to, caption, 3)
 
@@ -238,24 +238,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                             appendTableCell(to) {
                                 val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
                                 for ((summary, items) in breakdownBySummary) {
-                                    val signatureTexts = items.map { signature ->
-                                        val signatureText = languageService.render(signature, RenderMode.SUMMARY)
-                                        if (signatureText is ContentBlock && signatureText.isEmpty()) {
-                                            ""
-                                        } else {
-                                            val signatureAsCode = ContentCode()
-                                            signatureAsCode.append(signatureText)
-                                            formatText(location, signatureAsCode)
-                                        }
-                                    }
-                                    signatureTexts.subList(0, signatureTexts.size -1).forEach {
-                                        appendAsSignature(to) {
-                                            appendLine(to, it)
-                                        }
-                                    }
-                                    appendAsSignature(to) {
-                                        to.append(signatureTexts.last())
-                                    }
+                                    appendSummarySignatures(items, location, to)
                                     if (!summary.isEmpty()) {
                                         to.append(summary)
                                     }
@@ -265,6 +248,36 @@ public abstract class StructuredFormatService(locationService: LocationService,
                     }
                 }
             }
+        }
+    }
+
+    private fun appendSummarySignatures(items: List<DocumentationNode>, location: Location, to: StringBuilder) {
+        val summarySignature = languageService.summarizeSignatures(items)
+        if (summarySignature != null) {
+            appendAsSignature(to) {
+                val signatureAsCode = ContentCode()
+                signatureAsCode.append(summarySignature)
+                to.append(formatText(location, signatureAsCode))
+            }
+            return
+        }
+        val signatureTexts = items.map { signature ->
+            val signatureText = languageService.render(signature, RenderMode.SUMMARY)
+            if (signatureText is ContentBlock && signatureText.isEmpty()) {
+                ""
+            } else {
+                val signatureAsCode = ContentCode()
+                signatureAsCode.append(signatureText)
+                formatText(location, signatureAsCode)
+            }
+        }
+        signatureTexts.subList(0, signatureTexts.size - 1).forEach {
+            appendAsSignature(to) {
+                appendLine(to, it)
+            }
+        }
+        appendAsSignature(to) {
+            to.append(signatureTexts.last())
         }
     }
 

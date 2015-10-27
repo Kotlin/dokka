@@ -43,6 +43,74 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
+    override fun summarizeSignatures(nodes: List<DocumentationNode>): ContentNode? {
+        if (nodes.size < 2) return null
+        val receiverKind = nodes.getReceiverKind() ?: return null
+        val functionWithTypeParameter = nodes.firstOrNull { it.details(DocumentationNode.Kind.TypeParameter).any() } ?: return null
+        return content {
+            val typeParameter = functionWithTypeParameter.details(DocumentationNode.Kind.TypeParameter).first()
+            renderFunction(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
+        }
+    }
+
+    private fun List<DocumentationNode>.getReceiverKind(): ReceiverKind? {
+        val qNames = map { it.getReceiverQName() }.filterNotNull()
+        if (qNames.size != size)
+            return null
+
+        return ReceiverKind.values.firstOrNull { kind -> qNames.all { it in kind.classes } }
+    }
+
+    private fun DocumentationNode.getReceiverQName(): String? {
+        if (kind != DocumentationNode.Kind.Function) return null
+        val receiver = details(DocumentationNode.Kind.Receiver).singleOrNull() ?: return null
+        val receiverType = receiver.detail(DocumentationNode.Kind.Type)
+        return (receiverType.links.firstOrNull() ?: receiverType.hiddenLinks.firstOrNull())?.qualifiedName()
+    }
+
+    companion object {
+        private val arrayClasses = setOf(
+                "kotlin.Array",
+                "kotlin.BooleanArray",
+                "kotlin.ByteArray",
+                "kotlin.CharArray",
+                "kotlin.ShortArray",
+                "kotlin.IntArray",
+                "kotlin.LongArray",
+                "kotlin.FloatArray",
+                "kotlin.DoubleArray"
+        )
+
+        private val arrayOrListClasses = setOf("kotlin.List") + arrayClasses
+
+        private val iterableClasses = setOf(
+                "kotlin.Collection",
+                "kotlin.Sequence",
+                "kotlin.Iterable",
+                "kotlin.Map",
+                "kotlin.String",
+                "kotlin.CharSequence") + arrayOrListClasses
+    }
+
+    private enum class ReceiverKind(val receiverName: String, val classes: Collection<String>) {
+        ARRAY("any_array", arrayClasses),
+        ARRAY_OR_LIST("any_array_or_list", arrayOrListClasses),
+        ITERABLE("any_iterable", iterableClasses),
+    }
+
+    interface SignatureMapper {
+        fun renderReceiver(receiver: DocumentationNode, to: ContentBlock)
+    }
+
+    private class SummarizingMapper(val kind: ReceiverKind, val typeParameterName: String): SignatureMapper {
+        override fun renderReceiver(receiver: DocumentationNode, to: ContentBlock) {
+            val newReceiver = ContentEmphasis()
+            newReceiver.append(ContentIdentifier(kind.receiverName, IdentifierKind.SummarizedTypeName))
+            to.append(newReceiver)
+            to.text("<$typeParameterName>")
+        }
+    }
+
     private fun ContentBlock.renderPackage(node: DocumentationNode) {
         keyword("package")
         text(" ")
@@ -238,7 +306,9 @@ class KotlinLanguageService : LanguageService {
         renderSupertypesForNode(node)
     }
 
-    private fun ContentBlock.renderFunction(node: DocumentationNode, renderMode: RenderMode) {
+    private fun ContentBlock.renderFunction(node: DocumentationNode,
+                                            renderMode: RenderMode,
+                                            signatureMapper: SignatureMapper? = null) {
         if (renderMode == RenderMode.FULL) {
             renderAnnotationsForNode(node)
         }
@@ -253,9 +323,15 @@ class KotlinLanguageService : LanguageService {
         if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
             text(" ")
         }
+
         val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
         if (receiver != null) {
-            renderType(receiver.detail(DocumentationNode.Kind.Type))
+            if (signatureMapper != null) {
+                signatureMapper.renderReceiver(receiver, this)
+            }
+            else {
+                renderType(receiver.detail(DocumentationNode.Kind.Type))
+            }
             symbol(".")
         }
 

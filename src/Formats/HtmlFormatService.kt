@@ -152,7 +152,7 @@ fun formatPageTitle(node: DocumentationNode): String {
     if (path.size == 1) {
         return path.first().name
     }
-    val qualifiedName = path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
+    val qualifiedName = node.qualifiedName()
     if (qualifiedName.length == 0 && path.size == 2) {
         return path.first().name + " / root package"
     }

@@ -24,6 +24,7 @@ enum class IdentifierKind {
     TypeName,
     ParameterName,
     AnnotationName,
+    SummarizedTypeName,
     Other
 }
 

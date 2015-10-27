@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import java.util.LinkedHashSet
+import java.util.*
 
 public open class DocumentationNode(val name: String,
                                     content: Content,
@@ -27,6 +27,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Override).map { it.to }
     public val links: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Link).map { it.to }
+    public val hiddenLinks: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.HiddenLink).map { it.to }
     public val annotations: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Annotation).map { it.to }
     public val deprecation: DocumentationNode?
@@ -147,3 +149,5 @@ fun DocumentationNode.appendTextNode(text: String,
                                      refKind: DocumentationReference.Kind = DocumentationReference.Kind.Detail) {
     append(DocumentationNode(text, Content.Empty, kind), refKind)
 }
+
+fun DocumentationNode.qualifiedName() = path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
