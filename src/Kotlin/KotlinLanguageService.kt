@@ -341,18 +341,24 @@ class KotlinLanguageService : LanguageService {
             indentedSoftLineBreak()
             renderParameter(it, renderMode)
         }
-        softLineBreak()
-        symbol(")")
         if (needReturnType(node)) {
+            softLineBreak()
+            symbol(")")
             symbol(": ")
             renderType(node.detail(DocumentationNode.Kind.Type))
+        }
+        else {
+            symbol(")")
         }
     }
 
     private fun needReturnType(node: DocumentationNode) = when(node.kind) {
         DocumentationNode.Kind.Constructor -> false
-        else -> true
+        else -> !node.isUnitReturnType()
     }
+
+    fun DocumentationNode.isUnitReturnType(): Boolean =
+            detail(DocumentationNode.Kind.Type).hiddenLinks.firstOrNull()?.qualifiedName() == "kotlin.Unit"
 
     private fun ContentBlock.renderProperty(node: DocumentationNode, renderMode: RenderMode) {
         if (renderMode == RenderMode.FULL) {
