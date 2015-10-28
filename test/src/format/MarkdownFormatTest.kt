@@ -185,4 +185,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members)
         }
     }
+
+    @Test fun summarizeSignaturesProperty() {
+        verifyOutput("test/data/format/summarizeSignaturesProperty.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members)
+        }
+    }
 }
