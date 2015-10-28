@@ -404,8 +404,18 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
 
-    fun DocumentationNode.appendChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
-        descriptors.forEach { descriptor -> appendChild(descriptor, kind) }
+    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>) {
+        descriptors.forEach { descriptor ->
+            if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+                val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
+                if (baseDescriptor != null) {
+                    link(this, baseDescriptor, DocumentationReference.Kind.InheritedMember)
+                }
+            }
+            else {
+                appendChild(descriptor, DocumentationReference.Kind.Member)
+            }
+        }
     }
 
     fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
@@ -483,14 +493,13 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 constructors.filter { it.valueParameters.size > 0 }
             else
                 constructors
-            node.appendChildren(constructorsToDocument, DocumentationReference.Kind.Member)
+            node.appendMembers(constructorsToDocument)
         }
         val members = defaultType.memberScope.getAllDescriptors().filter { it != companionObjectDescriptor }
-        node.appendChildren(members, DocumentationReference.Kind.Member)
+        node.appendMembers(members)
         val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
-            node.appendChildren(companionObjectDescriptor.defaultType.memberScope.getAllDescriptors(),
-                    DocumentationReference.Kind.Member)
+            node.appendMembers(companionObjectDescriptor.defaultType.memberScope.getAllDescriptors())
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
