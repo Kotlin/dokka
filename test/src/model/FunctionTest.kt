@@ -23,7 +23,7 @@ public class FunctionTest {
     @Test fun functionWithReceiver() {
         verifyModel("test/data/functions/functionWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("String", name)
+                assertEquals("kotlin.String", name)
                 assertEquals(DocumentationNode.Kind.ExternalClass, kind)
                 assertEquals(2, members.count())
                 with(members[0]) {

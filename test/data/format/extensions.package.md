@@ -7,5 +7,5 @@
 ### Extensions for External Classes
 
 
-| [String](test/foo/-string/index) |  |
+| [kotlin.String](test/foo/kotlin.-string/index) |  |
 
