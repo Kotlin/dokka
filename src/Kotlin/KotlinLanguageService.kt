@@ -6,7 +6,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
-    private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline")
+    private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reifiedß")
 
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {

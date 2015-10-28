@@ -191,4 +191,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members)
         }
     }
+
+    @Test fun reifiedTypeParameter() {
+        verifyOutput("test/data/format/reifiedTypeParameter.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
 }

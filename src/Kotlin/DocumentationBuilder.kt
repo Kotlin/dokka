@@ -629,10 +629,14 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         if (prefix != "") {
             node.appendTextNode(prefix, Kind.Modifier)
         }
+        if (isReified) {
+            node.appendTextNode("reified", Kind.Modifier)
+        }
 
         for (constraint in upperBounds) {
-            if (KotlinBuiltIns.isDefaultBound(constraint))
+            if (KotlinBuiltIns.isDefaultBound(constraint)) {
                 continue
+            }
             node.appendType(constraint, Kind.UpperBound)
         }
 
