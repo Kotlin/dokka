@@ -312,6 +312,7 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         DocumentationNode.Kind.AnnotationClass)
             }, node, to)
             appendSection(location, "Extensions for External Classes", node.members(DocumentationNode.Kind.ExternalClass), node, to)
+            appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
             appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
             appendSection(location, "Inherited Properties", node.inheritedMembers(DocumentationNode.Kind.Property), node, to)
@@ -319,7 +320,6 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendSection(location, "Inherited Functions", node.inheritedMembers(DocumentationNode.Kind.Function), node, to)
             appendSection(location, "Companion Object Properties", node.members(DocumentationNode.Kind.CompanionObjectProperty), node, to)
             appendSection(location, "Companion Object Functions", node.members(DocumentationNode.Kind.CompanionObjectFunction), node, to)
-            appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
                         DocumentationNode.Kind.Class,
