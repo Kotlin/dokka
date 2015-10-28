@@ -6,7 +6,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
-    private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reifiedß")
+    private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reified")
 
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
@@ -21,9 +21,9 @@ class KotlinLanguageService : LanguageService {
                 DocumentationNode.Kind.EnumItem,
                 DocumentationNode.Kind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
 
-                DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node)
+                DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node, renderMode)
                 DocumentationNode.Kind.Type,
-                DocumentationNode.Kind.UpperBound -> renderType(node)
+                DocumentationNode.Kind.UpperBound -> renderType(node, renderMode)
 
                 DocumentationNode.Kind.Modifier -> renderModifier(node)
                 DocumentationNode.Kind.Constructor,
@@ -146,34 +146,34 @@ class KotlinLanguageService : LanguageService {
             }
     }
 
-    private fun ContentBlock.renderType(node: DocumentationNode) {
+    private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
         var typeArguments = node.details(DocumentationNode.Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
             val isExtension = node.annotations.any { it.name == "Extension" }
             if (isExtension) {
-                renderType(typeArguments.first())
+                renderType(typeArguments.first(), renderMode)
                 symbol(".")
                 typeArguments = typeArguments.drop(1)
             }
             symbol("(")
             renderList(typeArguments.take(typeArguments.size - 1), noWrap = true) {
-                renderType(it)
+                renderType(it, renderMode)
             }
             symbol(")")
             nbsp()
             symbol("->")
             nbsp()
-            renderType(typeArguments.last())
+            renderType(typeArguments.last(), renderMode)
             return
         }
         renderAnnotationsForNode(node)
-        renderSingleModifier(node)
+        renderModifiersForNode(node, renderMode, true)
         renderLinked(node) { identifier(it.name, IdentifierKind.TypeName) }
         if (typeArguments.any()) {
             symbol("<")
             renderList(typeArguments, noWrap = true) {
-                renderType(it)
+                renderType(it, renderMode)
             }
             symbol(">")
         }
@@ -183,18 +183,23 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderModifier(node: DocumentationNode) {
+    private fun ContentBlock.renderModifier(node: DocumentationNode, nowrap: Boolean = false) {
         when (node.name) {
             "final", "public", "var" -> {}
             else -> {
                 keyword(node.name)
-                text(" ")
+                if (nowrap) {
+                    nbsp()
+                }
+                else {
+                    text(" ")
+                }
             }
         }
     }
 
-    private fun ContentBlock.renderTypeParameter(node: DocumentationNode) {
-        renderSingleModifier(node)
+    private fun ContentBlock.renderTypeParameter(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode, true)
 
         identifier(node.name)
 
@@ -204,19 +209,10 @@ class KotlinLanguageService : LanguageService {
             symbol(":")
             nbsp()
             renderList(constraints, noWrap=true) {
-                renderType(it)
+                renderType(it, renderMode)
             }
         }
     }
-
-    private fun ContentBlock.renderSingleModifier(node: DocumentationNode) {
-        val modifier = node.details(DocumentationNode.Kind.Modifier).singleOrNull()
-        if (modifier != null) {
-            keyword(modifier.name)
-            nbsp()
-        }
-    }
-
     private fun ContentBlock.renderParameter(node: DocumentationNode, renderMode: RenderMode) {
         if (renderMode == RenderMode.FULL) {
             renderAnnotationsForNode(node)
@@ -226,7 +222,7 @@ class KotlinLanguageService : LanguageService {
         symbol(":")
         nbsp()
         val parameterType = node.detail(DocumentationNode.Kind.Type)
-        renderType(parameterType)
+        renderType(parameterType, renderMode)
         val valueNode = node.details(DocumentationNode.Kind.Value).firstOrNull()
         if (valueNode != null) {
             nbsp()
@@ -236,18 +232,18 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderTypeParametersForNode(node: DocumentationNode) {
+    private fun ContentBlock.renderTypeParametersForNode(node: DocumentationNode, renderMode: RenderMode) {
         val typeParameters = node.details(DocumentationNode.Kind.TypeParameter)
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
-                renderTypeParameter(it)
+                renderTypeParameter(it, renderMode)
             }
             symbol(">")
         }
     }
 
-    private fun ContentBlock.renderSupertypesForNode(node: DocumentationNode) {
+    private fun ContentBlock.renderSupertypesForNode(node: DocumentationNode, renderMode: RenderMode) {
         val supertypes = node.details(DocumentationNode.Kind.Supertype)
         if (supertypes.any()) {
             nbsp()
@@ -255,12 +251,14 @@ class KotlinLanguageService : LanguageService {
             nbsp()
             renderList(supertypes) {
                 indentedSoftLineBreak()
-                renderType(it)
+                renderType(it, renderMode)
             }
         }
     }
 
-    private fun ContentBlock.renderModifiersForNode(node: DocumentationNode, renderMode: RenderMode) {
+    private fun ContentBlock.renderModifiersForNode(node: DocumentationNode,
+                                                    renderMode: RenderMode,
+                                                    nowrap: Boolean = false) {
         val modifiers = node.details(DocumentationNode.Kind.Modifier)
         for (it in modifiers) {
             if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
@@ -268,7 +266,7 @@ class KotlinLanguageService : LanguageService {
             if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
                 continue
             }
-            renderModifier(it)
+            renderModifier(it, nowrap)
         }
     }
 
@@ -307,8 +305,8 @@ class KotlinLanguageService : LanguageService {
         }
 
         identifierOrDeprecated(node)
-        renderTypeParametersForNode(node)
-        renderSupertypesForNode(node)
+        renderTypeParametersForNode(node, renderMode)
+        renderSupertypesForNode(node, renderMode)
     }
 
     private fun ContentBlock.renderFunction(node: DocumentationNode,
@@ -324,12 +322,12 @@ class KotlinLanguageService : LanguageService {
             DocumentationNode.Kind.CompanionObjectFunction -> keyword("fun ")
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
-        renderTypeParametersForNode(node)
+        renderTypeParametersForNode(node, renderMode)
         if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
             text(" ")
         }
 
-        renderReceiver(node, signatureMapper)
+        renderReceiver(node, renderMode, signatureMapper)
 
         if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
             identifierOrDeprecated(node)
@@ -343,20 +341,20 @@ class KotlinLanguageService : LanguageService {
             softLineBreak()
             symbol(")")
             symbol(": ")
-            renderType(node.detail(DocumentationNode.Kind.Type))
+            renderType(node.detail(DocumentationNode.Kind.Type), renderMode)
         }
         else {
             symbol(")")
         }
     }
 
-    private fun ContentBlock.renderReceiver(node: DocumentationNode, signatureMapper: SignatureMapper?) {
+    private fun ContentBlock.renderReceiver(node: DocumentationNode, renderMode: RenderMode, signatureMapper: SignatureMapper?) {
         val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
         if (receiver != null) {
             if (signatureMapper != null) {
                 signatureMapper.renderReceiver(receiver, this)
             } else {
-                renderType(receiver.detail(DocumentationNode.Kind.Type))
+                renderType(receiver.detail(DocumentationNode.Kind.Type), renderMode)
             }
             symbol(".")
         }
@@ -382,16 +380,16 @@ class KotlinLanguageService : LanguageService {
             DocumentationNode.Kind.CompanionObjectProperty -> keyword("${node.getPropertyKeyword()} ")
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
-        renderTypeParametersForNode(node)
+        renderTypeParametersForNode(node, renderMode)
         if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
             text(" ")
         }
 
-        renderReceiver(node, signatureMapper)
+        renderReceiver(node, renderMode, signatureMapper)
 
         identifierOrDeprecated(node)
         symbol(": ")
-        renderType(node.detail(DocumentationNode.Kind.Type))
+        renderType(node.detail(DocumentationNode.Kind.Type), renderMode)
     }
 
     fun DocumentationNode.getPropertyKeyword() =
