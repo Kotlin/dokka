@@ -209,4 +209,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }
+
+    @Test fun inheritedExtensions() {
+        verifyOutput("test/data/format/inheritedExtensions.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
 }
