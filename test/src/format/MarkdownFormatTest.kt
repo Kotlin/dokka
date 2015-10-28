@@ -203,4 +203,10 @@ public class MarkdownFormatTest {
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    @Test fun inheritedMembers() {
+        verifyOutput("test/data/format/inheritedMembers.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
 }

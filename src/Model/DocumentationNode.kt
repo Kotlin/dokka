@@ -19,6 +19,8 @@ public open class DocumentationNode(val name: String,
         get() = references(DocumentationReference.Kind.Detail).map { it.to }
     public val members: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Member).map { it.to }
+    public val inheritedMembers: List<DocumentationNode>
+        get() = references(DocumentationReference.Kind.InheritedMember).map { it.to }
     public val extensions: List<DocumentationNode>
         get() = references(DocumentationReference.Kind.Extension).map { it.to }
     public val inheritors: List<DocumentationNode>
@@ -52,6 +54,7 @@ public open class DocumentationNode(val name: String,
 
     public fun details(kind: DocumentationNode.Kind): List<DocumentationNode> = details.filter { it.kind == kind }
     public fun members(kind: DocumentationNode.Kind): List<DocumentationNode> = members.filter { it.kind == kind }
+    public fun inheritedMembers(kind: DocumentationNode.Kind): List<DocumentationNode> = inheritedMembers.filter { it.kind == kind }
     public fun links(kind: DocumentationNode.Kind): List<DocumentationNode> = links.filter { it.kind == kind }
 
     public fun detail(kind: DocumentationNode.Kind): DocumentationNode = details.filter { it.kind == kind }.single()

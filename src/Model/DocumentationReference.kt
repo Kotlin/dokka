@@ -4,6 +4,7 @@ public data class DocumentationReference(val from: DocumentationNode, val to: Do
     public enum class Kind {
         Owner,
         Member,
+        InheritedMember,
         Detail,
         Link,
         HiddenLink,
