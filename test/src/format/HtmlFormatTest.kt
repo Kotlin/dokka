@@ -3,7 +3,6 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.HtmlFormatService
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.junit.Test
 import java.io.File
@@ -105,19 +104,19 @@ public class HtmlFormatTest {
     }
 
     @Test fun javaLinkTag() {
-        verifyOutput("test/data/format/javaLinkTag.java", ".html") { model, output ->
+        verifyOutput("test/data/format/javaLinkTag.java", ".html", withJdk = true) { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaLinkTagWithLabel() {
-        verifyOutput("test/data/format/javaLinkTagWithLabel.java", ".html") { model, output ->
+        verifyOutput("test/data/format/javaLinkTagWithLabel.java", ".html", withJdk = true) { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaSeeTag() {
-        verifyOutput("test/data/format/javaSeeTag.java", ".html") { model, output ->
+        verifyOutput("test/data/format/javaSeeTag.java", ".html", withJdk = true) { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }

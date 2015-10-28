@@ -142,7 +142,7 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun annotatedFunction() {
-        verifyPackageMember("test/data/functions/annotatedFunction.kt") { func ->
+        verifyPackageMember("test/data/functions/annotatedFunction.kt", withKotlinRuntime = true) { func ->
             assertEquals(1, func.annotations.count())
             with(func.annotations[0]) {
                 assertEquals("Strictfp", name)

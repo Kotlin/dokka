@@ -65,7 +65,7 @@ public class PropertyTest {
     }
 
     @Test fun annotatedProperty() {
-        verifyModel("test/data/properties/annotatedProperty.kt") { model ->
+        verifyModel("test/data/properties/annotatedProperty.kt", withKotlinRuntime = true) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {

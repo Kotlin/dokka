@@ -1,8 +1,11 @@
 package org.jetbrains.dokka.tests
 
-import kotlin.test.*
-import org.jetbrains.dokka.*
-import org.junit.*
+import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.DocumentationReference
+import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 public class JavaTest {
     @Test fun function() {
@@ -162,7 +165,7 @@ public class JavaTest {
     }
 
     @Test fun deprecation() {
-        verifyPackageMember("test/data/java/deprecation.java") { cls ->
+        verifyPackageMember("test/data/java/deprecation.java", withJdk = true) { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()
             with(fn.deprecation!!) {
                 assertEquals(1, details.count())
@@ -179,14 +182,14 @@ public class JavaTest {
     }
 
     @Test fun javaLangObject() {
-        verifyPackageMember("test/data/java/javaLangObject.java") { cls ->
+        verifyPackageMember("test/data/java/javaLangObject.java", withJdk = true) { cls ->
             val fn = cls.members(DocumentationNode.Kind.Function).single()
             assertEquals("Any", fn.detail(DocumentationNode.Kind.Type).name)
         }
     }
 
     @Test fun enumValues() {
-        verifyPackageMember("test/data/java/enumValues.java") { cls ->
+        verifyPackageMember("test/data/java/enumValues.java", withJdk = true) { cls ->
             val superTypes = cls.details(DocumentationNode.Kind.Supertype)
             assertEquals(0, superTypes.size)
             assertEquals(1, cls.members(DocumentationNode.Kind.EnumItem).size)
