@@ -152,7 +152,7 @@ public class ClassTest {
     }
 
     @Test fun annotatedClass() {
-        verifyPackageMember("test/data/classes/annotatedClass.kt") { cls ->
+        verifyPackageMember("test/data/classes/annotatedClass.kt", withKotlinRuntime = true) { cls ->
             assertEquals(1, cls.annotations.count())
             with(cls.annotations[0]) {
                 assertEquals("Strictfp", name)
@@ -198,7 +198,7 @@ public class ClassTest {
     }
 
     @Test fun javaAnnotationClass() {
-        verifyModel("test/data/classes/javaAnnotationClass.kt") { model ->
+        verifyModel("test/data/classes/javaAnnotationClass.kt", withJdk = true) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {

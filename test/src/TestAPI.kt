@@ -13,7 +13,10 @@ import org.junit.Assert
 import java.io.File
 import kotlin.test.fail
 
-public fun verifyModel(vararg roots: ContentRoot, verifier: (DocumentationModule) -> Unit) {
+public fun verifyModel(vararg roots: ContentRoot,
+                       withJdk: Boolean = false,
+                       withKotlinRuntime: Boolean = false,
+                       verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {
@@ -32,10 +35,14 @@ public fun verifyModel(vararg roots: ContentRoot, verifier: (DocumentationModule
     }
 
     val environment = AnalysisEnvironment(messageCollector) {
-        val stringRoot = PathManager.getResourceRoot(String::class.java, "/java/lang/String.class")
-        addClasspath(File(stringRoot))
-        val kotlinPairRoot = PathManager.getResourceRoot(Pair::class.java, "/kotlin/Pair.class")
-        addClasspath(File(kotlinPairRoot))
+        if (withJdk || withKotlinRuntime) {
+            val stringRoot = PathManager.getResourceRoot(String::class.java, "/java/lang/String.class")
+            addClasspath(File(stringRoot))
+        }
+        if (withKotlinRuntime) {
+            val kotlinPairRoot = PathManager.getResourceRoot(Pair::class.java, "/kotlin/Pair.class")
+            addClasspath(File(kotlinPairRoot))
+        }
         addRoots(roots.toList())
     }
     val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
@@ -44,19 +51,29 @@ public fun verifyModel(vararg roots: ContentRoot, verifier: (DocumentationModule
     Disposer.dispose(environment)
 }
 
-public fun verifyModel(source: String, verifier: (DocumentationModule) -> Unit) {
-    verifyModel(contentRootFromPath(source), verifier = verifier)
+public fun verifyModel(source: String,
+                       withJdk: Boolean = false,
+                       withKotlinRuntime: Boolean = false,
+                       verifier: (DocumentationModule) -> Unit) {
+    verifyModel(contentRootFromPath(source), withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, verifier = verifier)
 }
 
-public fun verifyPackageMember(kotlinSource: String, verifier: (DocumentationNode) -> Unit) {
-    verifyModel(kotlinSource) { model ->
+public fun verifyPackageMember(kotlinSource: String,
+                               withJdk: Boolean = false,
+                               withKotlinRuntime: Boolean = false,
+                               verifier: (DocumentationNode) -> Unit) {
+    verifyModel(kotlinSource, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
     }
 }
 
-public fun verifyOutput(roots: Array<ContentRoot>, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyModel(*roots) {
+public fun verifyOutput(roots: Array<ContentRoot>,
+                        outputExtension: String,
+                        withJdk: Boolean = false,
+                        withKotlinRuntime: Boolean = false,
+                        outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) {
         val output = StringBuilder()
         outputGenerator(it, output)
         val ext = outputExtension.removePrefix(".")
@@ -66,8 +83,12 @@ public fun verifyOutput(roots: Array<ContentRoot>, outputExtension: String, outp
     }
 }
 
-public fun verifyOutput(path: String, outputExtension: String, outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, outputGenerator)
+public fun verifyOutput(path: String,
+                        outputExtension: String,
+                        withJdk: Boolean = false,
+                        withKotlinRuntime: Boolean = false,
+                        outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, outputGenerator)
 }
 
 public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
