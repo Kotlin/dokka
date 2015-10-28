@@ -1,8 +1,8 @@
-[test](test/index) / [Iterable](test/-iterable/index)
+[test](test/index) / [kotlin.Iterable](test/kotlin.-iterable/index)
 
 
-### Extensions for Iterable
+### Extensions for kotlin.Iterable
 
 
-| [containsFoo](test/-iterable/contains-foo) | `fun Iterable&lt;*&gt;.containsFoo(element:&nbsp;Any?): Boolean` |
+| [containsFoo](test/kotlin.-iterable/contains-foo) | `fun Iterable&lt;*&gt;.containsFoo(element:&nbsp;Any?): Boolean` |
 

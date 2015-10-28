@@ -1,8 +1,8 @@
-[test](test/index) / [Array](test/-array/index)
+[test](test/index) / [kotlin.Array](test/kotlin.-array/index)
 
 
-### Extensions for Array
+### Extensions for kotlin.Array
 
 
-| [foo](test/-array/foo) | `fun &lt;T&gt; Array&lt;out&nbsp;T&gt;.foo(): Unit` |
+| [foo](test/kotlin.-array/foo) | `fun &lt;T&gt; Array&lt;out&nbsp;T&gt;.foo(): Unit` |
 

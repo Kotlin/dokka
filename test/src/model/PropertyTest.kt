@@ -80,7 +80,7 @@ public class PropertyTest {
     @Test fun propertyWithReceiver() {
         verifyModel("test/data/properties/propertyWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals("String", name)
+                assertEquals("kotlin.String", name)
                 assertEquals(DocumentationNode.Kind.ExternalClass, kind)
                 with(members.single()) {
                     assertEquals("foobar", name)

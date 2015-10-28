@@ -1,15 +1,15 @@
-[test](test/index) / [foo](test/foo/index) / [String](test/foo/-string/index)
+[test](test/index) / [foo](test/foo/index) / [kotlin.String](test/foo/kotlin.-string/index)
 
 
-### Extensions for String
+### Extensions for kotlin.String
 
 
-| [fn](test/foo/-string/fn) | `fun String.fn(): Unit`
+| [fn](test/foo/kotlin.-string/fn) | `fun String.fn(): Unit`
 `fun String.fn(x:&nbsp;Int): Unit`
 Function with receiver
 
  |
-| [foobar](test/foo/-string/foobar) | `val String.foobar: Int`
+| [foobar](test/foo/kotlin.-string/foobar) | `val String.foobar: Int`
 Property with receiver.
 
  |

@@ -421,7 +421,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
             if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
-                val fqName = DescriptorUtils.getFqNameFromTopLevelClass(extensionClassDescriptor)
+                val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
                 return externalClassNodes.getOrPut(fqName, {
                     val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
                     append(newNode, DocumentationReference.Kind.Member)
