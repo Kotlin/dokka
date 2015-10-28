@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
-import org.jetbrains.kotlin.lexer.KtSingleValueToken
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
@@ -31,7 +30,6 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KtType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 public data class DocumentationOptions(val includeNonPublic: Boolean = false,
                                        val reportUndocumented: Boolean = true,
@@ -540,7 +538,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
-        node.appendOperatorOverloadNote(this)
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -559,58 +556,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 addOverrideLink(it, overridingFunction)
             }
         }
-    }
-
-    fun DocumentationNode.appendOperatorOverloadNote(descriptor: FunctionDescriptor) {
-        val operatorName = descriptor.getImplementedOperator()
-        if (operatorName != null) {
-            val content = Content()
-            content.append(ContentText("Implements "))
-            content.strong {
-                text("operator ")
-                code {
-                    text(operatorName)
-                }
-            }
-            val noteNode = DocumentationNode("", content, DocumentationNode.Kind.OverloadGroupNote)
-            append(noteNode, DocumentationReference.Kind.Detail)
-        }
-    }
-
-    fun FunctionDescriptor.getImplementedOperator(): String? {
-        var arity = valueParameters.size
-        if (containingDeclaration is ClassDescriptor) {
-            arity++
-        }
-        if (extensionReceiverParameter != null) {
-            arity++
-        }
-
-        val token = if (arity == 2) {
-            OperatorConventions.BINARY_OPERATION_NAMES.inverse()[name] ?:
-            OperatorConventions.ASSIGNMENT_OPERATIONS.inverse()[name] ?:
-            OperatorConventions.BOOLEAN_OPERATIONS.inverse()[name]
-        } else if (arity == 1) {
-            OperatorConventions.UNARY_OPERATION_NAMES.inverse()[name]
-        }
-        else null
-
-        if (token is KtSingleValueToken) {
-            return token.value
-        }
-
-        val name = name.asString()
-        if (arity == 2 && name == "contains") {
-            return "in"
-        }
-        if (arity >= 2 && (name == "get" || name == "set")) {
-            return "[]"
-        }
-        if (arity == 2 && name == "equals" && valueParameters.size == 1 &&
-            KotlinBuiltIns.isNullableAny(valueParameters.first().type)) {
-            return "=="
-        }
-        return null
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {

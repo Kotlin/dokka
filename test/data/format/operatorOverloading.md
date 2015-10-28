@@ -4,5 +4,5 @@
 # plus
 
 `fun plus(other:&nbsp;[C](test/-c/index)): [C](test/-c/index)`
-Implements **operator `+`**
+
 
