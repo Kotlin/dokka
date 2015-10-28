@@ -167,7 +167,9 @@ class KotlinLanguageService : LanguageService {
             renderType(typeArguments.last(), renderMode)
             return
         }
-        renderAnnotationsForNode(node)
+        if (renderMode == RenderMode.FULL) {
+            renderAnnotationsForNode(node)
+        }
         renderModifiersForNode(node, renderMode, true)
         renderLinked(node) { identifier(it.name, IdentifierKind.TypeName) }
         if (typeArguments.any()) {
