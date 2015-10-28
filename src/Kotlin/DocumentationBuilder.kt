@@ -279,7 +279,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         for (superType in superTypes) {
             if (!ignoreSupertype(superType)) {
                 appendType(superType, DocumentationNode.Kind.Supertype)
-                link(superType?.constructor?.declarationDescriptor, descriptor, DocumentationReference.Kind.Inheritor)
+                val superclass = superType?.constructor?.declarationDescriptor
+                link(superclass, descriptor, DocumentationReference.Kind.Inheritor)
+                link(descriptor, superclass, DocumentationReference.Kind.Superclass)
             }
         }
     }

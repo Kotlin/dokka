@@ -337,14 +337,32 @@ public abstract class StructuredFormatService(locationService: LocationService,
                         DocumentationNode.Kind.EnumItem
                         )
             }, node, to)
-            appendSection(location, "Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.Property }, node, to)
-            appendSection(location, "Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.Function }, node, to)
-            appendSection(location, "Companion Object Extension Properties", node.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }, node, to)
-            appendSection(location, "Companion Object Extension Functions", node.extensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectFunction }, node, to)
+
+            val allExtensions = collectAllExtensions(node)
+            appendSection(location, "Extension Properties", allExtensions.filter { it.kind == DocumentationNode.Kind.Property }, node, to)
+            appendSection(location, "Extension Functions", allExtensions.filter { it.kind == DocumentationNode.Kind.Function }, node, to)
+            appendSection(location, "Companion Object Extension Properties", allExtensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }, node, to)
+            appendSection(location, "Companion Object Extension Functions", allExtensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectFunction }, node, to)
             appendSection(location, "Inheritors",
                     node.inheritors.filter { it.kind != DocumentationNode.Kind.EnumItem }, node, to)
             appendSection(location, "Links", node.links, node, to)
 
         }
+    }
+
+    private fun collectAllExtensions(node: DocumentationNode): Collection<DocumentationNode> {
+        val result = LinkedHashSet<DocumentationNode>()
+        val visited = hashSetOf<DocumentationNode>()
+
+        fun collect(node: DocumentationNode) {
+            if (!visited.add(node)) return
+            result.addAll(node.extensions)
+            node.references(DocumentationReference.Kind.Superclass).forEach { collect(it.to) }
+        }
+
+        collect(node)
+
+        return result
+
     }
 }
