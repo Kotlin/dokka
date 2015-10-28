@@ -117,6 +117,10 @@ public open class DocumentationNode(val name: String,
 
 }
 
+public class DocumentationModule(name: String, content: Content = Content.Empty)
+    : DocumentationNode(name, content, DocumentationNode.Kind.Module) {
+}
+
 val DocumentationNode.path: List<DocumentationNode>
     get() {
         val parent = owner
