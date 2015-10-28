@@ -333,12 +333,15 @@ class KotlinLanguageService : LanguageService {
             identifierOrDeprecated(node)
 
         symbol("(")
-        renderList(node.details(DocumentationNode.Kind.Parameter)) {
+        val parameters = node.details(DocumentationNode.Kind.Parameter)
+        renderList(parameters) {
             indentedSoftLineBreak()
             renderParameter(it, renderMode)
         }
         if (needReturnType(node)) {
-            softLineBreak()
+            if (parameters.isNotEmpty()) {
+                softLineBreak()
+            }
             symbol(")")
             symbol(": ")
             renderType(node.detail(DocumentationNode.Kind.Type), renderMode)
