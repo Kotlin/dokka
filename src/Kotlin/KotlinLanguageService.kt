@@ -6,7 +6,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
-    private val visibilityModifiers = setOf("public", "protected", "private")
+    private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline")
 
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
@@ -258,7 +258,7 @@ class KotlinLanguageService : LanguageService {
         for (it in modifiers) {
             if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
                 continue
-            if (renderMode == RenderMode.SUMMARY && it.name in visibilityModifiers) {
+            if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
                 continue
             }
             renderModifier(it)

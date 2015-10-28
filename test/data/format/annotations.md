@@ -16,11 +16,11 @@
 ### Properties
 
 
-| [x](test/-foo/x) | `inline val x: Int` |
+| [x](test/-foo/x) | `val x: Int` |
 
 
 ### Functions
 
 
-| [bar](test/-foo/bar) | `inline fun bar(noinline notInlined:&nbsp;()&nbsp;-&gt;&nbsp;Unit): Unit` |
+| [bar](test/-foo/bar) | `fun bar(notInlined:&nbsp;()&nbsp;-&gt;&nbsp;Unit): Unit` |
 

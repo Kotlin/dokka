@@ -1,3 +1,3 @@
-public inline fun Iterable<*>.containsFoo(element: Any?): Boolean {
+public fun Iterable<*>.containsFoo(element: Any?): Boolean {
     return false
 }
