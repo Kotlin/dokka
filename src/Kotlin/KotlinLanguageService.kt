@@ -49,7 +49,12 @@ class KotlinLanguageService : LanguageService {
         val functionWithTypeParameter = nodes.firstOrNull { it.details(DocumentationNode.Kind.TypeParameter).any() } ?: return null
         return content {
             val typeParameter = functionWithTypeParameter.details(DocumentationNode.Kind.TypeParameter).first()
-            renderFunction(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
+            if (functionWithTypeParameter.kind == DocumentationNode.Kind.Function) {
+                renderFunction(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
+            }
+            else {
+                renderProperty(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
+            }
         }
     }
 
@@ -62,7 +67,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun DocumentationNode.getReceiverQName(): String? {
-        if (kind != DocumentationNode.Kind.Function) return null
+        if (kind != DocumentationNode.Kind.Function && kind != DocumentationNode.Kind.Property) return null
         val receiver = details(DocumentationNode.Kind.Receiver).singleOrNull() ?: return null
         val receiverType = receiver.detail(DocumentationNode.Kind.Type)
         return (receiverType.links.firstOrNull() ?: receiverType.hiddenLinks.firstOrNull())?.qualifiedName()
@@ -322,16 +327,7 @@ class KotlinLanguageService : LanguageService {
             text(" ")
         }
 
-        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
-        if (receiver != null) {
-            if (signatureMapper != null) {
-                signatureMapper.renderReceiver(receiver, this)
-            }
-            else {
-                renderType(receiver.detail(DocumentationNode.Kind.Type))
-            }
-            symbol(".")
-        }
+        renderReceiver(node, signatureMapper)
 
         if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
             identifierOrDeprecated(node)
@@ -352,6 +348,18 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
+    private fun ContentBlock.renderReceiver(node: DocumentationNode, signatureMapper: SignatureMapper?) {
+        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
+        if (receiver != null) {
+            if (signatureMapper != null) {
+                signatureMapper.renderReceiver(receiver, this)
+            } else {
+                renderType(receiver.detail(DocumentationNode.Kind.Type))
+            }
+            symbol(".")
+        }
+    }
+
     private fun needReturnType(node: DocumentationNode) = when(node.kind) {
         DocumentationNode.Kind.Constructor -> false
         else -> !node.isUnitReturnType()
@@ -360,7 +368,9 @@ class KotlinLanguageService : LanguageService {
     fun DocumentationNode.isUnitReturnType(): Boolean =
             detail(DocumentationNode.Kind.Type).hiddenLinks.firstOrNull()?.qualifiedName() == "kotlin.Unit"
 
-    private fun ContentBlock.renderProperty(node: DocumentationNode, renderMode: RenderMode) {
+    private fun ContentBlock.renderProperty(node: DocumentationNode,
+                                            renderMode: RenderMode,
+                                            signatureMapper: SignatureMapper? = null) {
         if (renderMode == RenderMode.FULL) {
             renderAnnotationsForNode(node)
         }
@@ -374,11 +384,8 @@ class KotlinLanguageService : LanguageService {
         if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
             text(" ")
         }
-        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
-        if (receiver != null) {
-            renderType(receiver.detail(DocumentationNode.Kind.Type))
-            symbol(".")
-        }
+
+        renderReceiver(node, signatureMapper)
 
         identifierOrDeprecated(node)
         symbol(": ")
