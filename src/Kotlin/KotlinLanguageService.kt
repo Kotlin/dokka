@@ -254,6 +254,7 @@ class KotlinLanguageService : LanguageService {
             symbol(":")
             nbsp()
             renderList(supertypes) {
+                indentedSoftLineBreak()
                 renderType(it)
             }
         }
