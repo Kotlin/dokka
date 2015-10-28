@@ -259,10 +259,8 @@ public abstract class StructuredFormatService(locationService: LocationService,
     private fun appendSummarySignatures(items: List<DocumentationNode>, location: Location, to: StringBuilder) {
         val summarySignature = languageService.summarizeSignatures(items)
         if (summarySignature != null) {
-            val signatureAsCode = ContentCode()
-            signatureAsCode.append(summarySignature)
-            appendAsSignature(to, signatureAsCode) {
-                appendLine(to, signatureAsCode.signatureToText(location))
+            appendAsSignature(to, summarySignature) {
+                appendLine(to, summarySignature.signatureToText(location))
             }
             return
         }
@@ -271,7 +269,6 @@ public abstract class StructuredFormatService(locationService: LocationService,
             appendAsSignature(to, it) {
                 appendLine(to, it.signatureToText(location))
             }
-            appendLine(to)
         }
         appendAsSignature(to, renderedSignatures.last()) {
             to.append(renderedSignatures.last().signatureToText(location))

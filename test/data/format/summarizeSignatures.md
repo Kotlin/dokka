@@ -15,7 +15,8 @@
 ### Functions
 
 
-| [foo](test/kotlin/foo) | `fun &lt;T&gt; *any_array*&lt;T&gt;.foo(predicate:&nbsp;(T)&nbsp;-&gt;&nbsp;Boolean): Boolean`
+| [foo](test/kotlin/foo) | `fun &lt;T&gt; any_array&lt;T&gt;.foo(predicate:&nbsp;(T)&nbsp;-&gt;&nbsp;Boolean): Boolean`
+
 Returns true if foo.
 
  |
