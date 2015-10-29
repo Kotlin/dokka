@@ -141,7 +141,6 @@ fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageConten
 
 fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationReference.Kind) {
     addReferenceTo(child, kind)
-    @suppress("NON_EXHAUSTIVE_WHEN")
     when (kind) {
         DocumentationReference.Kind.Detail -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
         DocumentationReference.Kind.Member -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
