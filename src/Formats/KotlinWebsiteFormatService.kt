@@ -39,6 +39,12 @@ public class KotlinWebsiteFormatService(locationService: LocationService,
         to.append("</div>")
     }
 
+    override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
+        to.append("<div class=\"overload-group\">\n")
+        block()
+        to.append("</div>\n")
+    }
+
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
     }
