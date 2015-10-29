@@ -126,6 +126,11 @@ public class ContentSection(public val tag: String, public val subjectName: Stri
         children.hashCode() * 31 * 31 + tag.hashCode() * 31 + (subjectName?.hashCode() ?: 0)
 }
 
+public object ContentTags {
+    val Description = "Description"
+    val SeeAlso = "See Also"
+}
+
 fun content(body: ContentBlock.() -> Unit): ContentBlock {
     val block = ContentBlock()
     block.body()
@@ -189,7 +194,7 @@ public open class MutableContent() : Content() {
         if (descriptionNodes.isEmpty()) {
             ContentEmpty
         } else {
-            val result = ContentSection("Description", null)
+            val result = ContentSection(ContentTags.Description, null)
             result.children.addAll(descriptionNodes)
             result
         }

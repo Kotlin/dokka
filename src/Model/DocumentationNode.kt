@@ -123,9 +123,7 @@ public class DocumentationModule(name: String, content: Content = Content.Empty)
 
 val DocumentationNode.path: List<DocumentationNode>
     get() {
-        val parent = owner
-        if (parent == null)
-            return listOf(this)
+        val parent = owner ?: return listOf(this)
         return parent.path + this
     }
 
@@ -143,6 +141,7 @@ fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageConten
 
 fun DocumentationNode.append(child: DocumentationNode, kind: DocumentationReference.Kind) {
     addReferenceTo(child, kind)
+    @suppress("NON_EXHAUSTIVE_WHEN")
     when (kind) {
         DocumentationReference.Kind.Detail -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)
         DocumentationReference.Kind.Member -> child.addReferenceTo(this, DocumentationReference.Kind.Owner)

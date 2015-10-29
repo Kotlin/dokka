@@ -2,7 +2,7 @@ package org.jetbrains.dokka.javadoc
 
 import com.sun.javadoc.*
 import org.jetbrains.dokka.*
-import java.util.*
+import java.util.ArrayList
 
 class TextTag(val holder: Doc, val content: ContentText) : Tag {
     val plainText: String
@@ -48,7 +48,7 @@ class SeeMethodTagAdapter(holder: Doc, val method: MethodAdapter, content: Conte
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc = method.containingClass()
     override fun referencedClassName(): String = method.containingClass().name()
-    override fun label(): String = "fun ${method.containingClass().name()}.${method.name()}"
+    override fun label(): String = "${method.containingClass().name()}.${method.name()}"
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
@@ -60,13 +60,13 @@ class SeeClassTagAdapter(holder: Doc, val clazz: ClassDocumentationNodeAdapter, 
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc = clazz
     override fun referencedClassName(): String = clazz.name()
-    override fun label(): String = "${clazz.classNode.kind.name().toLowerCase()} ${clazz.name()}" // TODO
+    override fun label(): String = "${clazz.classNode.kind.name().toLowerCase()} ${clazz.name()}"
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
 }
 
-class ParamTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val parameterName: String, val typeParameter: Boolean, val content: List<ContentNode>) : ParamTag {
+class ParamTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val parameterName: String, val isTypeParameter: Boolean, val content: List<ContentNode>) : ParamTag {
     constructor(module: ModuleNodeAdapter, holder: Doc, parameterName: String, isTypeParameter: Boolean, content: ContentNode) : this(module, holder, parameterName, isTypeParameter, listOf(content))
 
     override fun name(): String = "@param"
@@ -78,7 +78,7 @@ class ParamTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val parame
     override fun inlineTags(): Array<out Tag> = content.flatMap { buildInlineTags(module, holder, it) }.toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = arrayOf(TextTag(holder, ContentText(text())))
 
-    override fun isTypeParameter(): Boolean = typeParameter
+    override fun isTypeParameter(): Boolean = isTypeParameter
     override fun parameterComment(): String = content.toString() // TODO
     override fun parameterName(): String = parameterName
 }
@@ -103,6 +103,39 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter)
 fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().let { buildInlineTags(module, holder, root, it); it }
 
 private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: ContentNode, result: MutableList<Tag>) {
+    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
+        if (node.children.isNotEmpty()) {
+            val open = TextTag(holder, ContentText(prefix))
+            val close = TextTag(holder, ContentText(postfix))
+
+            result.add(open)
+            node.children.forEach {
+                buildInlineTags(module, holder, it, result)
+            }
+
+            if (result.last() === open) {
+                result.remove(result.lastIndex)
+            } else {
+                result.add(close)
+            }
+        }
+    }
+
+    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>) {
+        if (node !is ContentEmpty) {
+            val open = TextTag(holder, ContentText(prefix))
+            val close = TextTag(holder, ContentText(postfix))
+
+            result.add(open)
+            buildInlineTags(module, holder, node, result)
+            if (result.last() === open) {
+                result.remove(result.lastIndex)
+            } else {
+                result.add(close)
+            }
+        }
+    }
+
     when (node) {
         is ContentText -> result.add(TextTag(holder, node))
         is ContentNodeLink -> {
@@ -143,38 +176,5 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         }
 
         else -> result.add(TextTag(holder, ContentText("$node")))
-    }
-}
-
-fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
-    if (node.children.isNotEmpty()) {
-        val open = TextTag(holder, ContentText(prefix))
-        val close = TextTag(holder, ContentText(postfix))
-
-        result.add(open)
-        node.children.forEach {
-            buildInlineTags(module, holder, it, result)
-        }
-
-        if (result.last() === open) {
-            result.remove(result.lastIndex)
-        } else {
-            result.add(close)
-        }
-    }
-}
-
-fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>) {
-    if (node !is ContentEmpty) {
-        val open = TextTag(holder, ContentText(prefix))
-        val close = TextTag(holder, ContentText(postfix))
-
-        result.add(open)
-        buildInlineTags(module, holder, node, result)
-        if (result.last() === open) {
-            result.remove(result.lastIndex)
-        } else {
-            result.add(close)
-        }
     }
 }

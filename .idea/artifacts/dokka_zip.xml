@@ -18,6 +18,8 @@
           <element id="library" level="project" name="ant-1.9.4" />
           <element id="library" level="project" name="cli-parser" />
           <element id="library" level="project" name="guava" />
+          <element id="library" level="project" name="com.google.inject:guice:4.0" />
+          <element id="artifact" artifact-name="javadoc:jar" />
         </element>
       </element>
     </root>

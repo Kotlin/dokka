@@ -4,10 +4,7 @@ import java.io.File
 import java.io.IOException
 
 fun File.getRelativePath(name: File): File {
-    val parent = parentFile
-
-    if (parent == null)
-        throw IOException("No common directory");
+    val parent = parentFile ?: throw IOException("No common directory")
 
     val basePath = canonicalPath + File.separator;
     val targetPath = name.canonicalPath;
