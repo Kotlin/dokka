@@ -3,49 +3,49 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.LanguageService.RenderMode
 import java.util.*
 
-public data class FormatLink(val text: String, val href: String)
+data class FormatLink(val text: String, val href: String)
 
 enum class ListKind {
     Ordered,
     Unordered
 }
 
-public abstract class StructuredFormatService(locationService: LocationService,
+abstract class StructuredFormatService(locationService: LocationService,
                                               val languageService: LanguageService,
                                               override val extension: String) : FormatService {
     val locationService: LocationService = locationService.withExtension(extension)
 
-    abstract public fun appendBlockCode(to: StringBuilder, line: String, language: String)
-    abstract public fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
-    abstract public fun appendParagraph(to: StringBuilder, text: String)
-    abstract public fun appendLine(to: StringBuilder, text: String)
-    public abstract fun appendLine(to: StringBuilder)
-    public abstract fun appendAnchor(to: StringBuilder, anchor: String)
+    abstract fun appendBlockCode(to: StringBuilder, line: String, language: String)
+    abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
+    abstract fun appendParagraph(to: StringBuilder, text: String)
+    abstract fun appendLine(to: StringBuilder, text: String)
+    abstract fun appendLine(to: StringBuilder)
+    abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
-    public abstract fun appendTable(to: StringBuilder, body: () -> Unit)
-    public abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
-    public abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
-    public abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
-    public abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTable(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
 
-    public abstract fun formatText(text: String): String
-    public abstract fun formatSymbol(text: String): String
-    public abstract fun formatKeyword(text: String): String
-    public abstract fun formatIdentifier(text: String, kind: IdentifierKind): String
-    public fun formatEntity(text: String): String = text
-    public abstract fun formatLink(text: String, href: String): String
-    public open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
-    public abstract fun formatStrong(text: String): String
-    public abstract fun formatStrikethrough(text: String): String
-    public abstract fun formatEmphasis(text: String): String
-    public abstract fun formatCode(code: String): String
-    public abstract fun formatUnorderedList(text: String): String
-    public abstract fun formatOrderedList(text: String): String
-    public abstract fun formatListItem(text: String, kind: ListKind): String
-    public abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
-    public abstract fun formatNonBreakingSpace(): String
-    public open fun formatSoftLineBreak(): String = ""
-    public open fun formatIndentedSoftLineBreak(): String = ""
+    abstract fun formatText(text: String): String
+    abstract fun formatSymbol(text: String): String
+    abstract fun formatKeyword(text: String): String
+    abstract fun formatIdentifier(text: String, kind: IdentifierKind): String
+    fun formatEntity(text: String): String = text
+    abstract fun formatLink(text: String, href: String): String
+    open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
+    abstract fun formatStrong(text: String): String
+    abstract fun formatStrikethrough(text: String): String
+    abstract fun formatEmphasis(text: String): String
+    abstract fun formatCode(code: String): String
+    abstract fun formatUnorderedList(text: String): String
+    abstract fun formatOrderedList(text: String): String
+    abstract fun formatListItem(text: String, kind: ListKind): String
+    abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
+    abstract fun formatNonBreakingSpace(): String
+    open fun formatSoftLineBreak(): String = ""
+    open fun formatIndentedSoftLineBreak(): String = ""
 
     open fun formatText(location: Location, nodes: Iterable<ContentNode>, listKind: ListKind = ListKind.Unordered): String {
         return nodes.map { formatText(location, it, listKind) }.joinToString("")
@@ -96,9 +96,9 @@ public abstract class StructuredFormatService(locationService: LocationService,
         }.toString()
     }
 
-    open public fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
+    open fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
 
-    open public fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
+    open fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
         return FormatLink(to.name, locationService.relativePathToLocation(from, to))
     }
 
@@ -114,24 +114,26 @@ public abstract class StructuredFormatService(locationService: LocationService,
         val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
 
         for ((summary, items) in breakdownBySummary) {
-            items.forEach {
-                val rendered = languageService.render(it)
-                appendAsSignature(to, rendered) {
-                    to.append(formatCode(formatText(location, rendered)))
-                    it.appendSourceLink(to)
+            appendAsOverloadGroup(to) {
+                items.forEach {
+                    val rendered = languageService.render(it)
+                    appendAsSignature(to, rendered) {
+                        to.append(formatCode(formatText(location, rendered)))
+                        it.appendSourceLink(to)
+                    }
+                    it.appendOverrides(to)
+                    it.appendDeprecation(location, to)
                 }
-                it.appendOverrides(to)
-                it.appendDeprecation(location, to)
+                // All items have exactly the same documentation, so we can use any item to render it
+                val item = items.first()
+                item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
+                    to.append(formatText(location, it.content))
+                }
+                to.append(formatText(location, item.content.summary))
+                appendDescription(location, to, item)
+                appendLine(to)
+                appendLine(to)
             }
-            // All items have exactly the same documentation, so we can use any item to render it
-            val item = items.first()
-            item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
-                to.append(formatText(location, it.content))
-            }
-            to.append(formatText(location, item.content.summary))
-            appendDescription(location, to, item)
-            appendLine(to)
-            appendLine(to)
         }
     }
 
@@ -139,6 +141,10 @@ public abstract class StructuredFormatService(locationService: LocationService,
         kind == DocumentationNode.Kind.Module || kind == DocumentationNode.Kind.Package
 
     protected open fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
+        block()
+    }
+
+    protected open fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
         block()
     }
 
