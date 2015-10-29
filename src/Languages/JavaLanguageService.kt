@@ -48,6 +48,18 @@ public class JavaLanguageService : LanguageService {
         }
     }
 
+    public fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.name) {
+        "Array" -> node.details(Kind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, DocumentationNode.Kind.ExternalClass)
+        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, DocumentationNode.Kind.Type)
+        else -> null
+    }
+
+    public fun getArrayDimension(node: DocumentationNode): Int = when (node.name) {
+        "Array" -> 1 + (node.details(DocumentationNode.Kind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
+        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> 1
+        else -> 0
+    }
+
     public fun renderType(node: DocumentationNode): String {
         return when (node.name) {
             "Unit" -> "void"
