@@ -3,9 +3,7 @@ package org.jetbrains.dokka.javadoc
 import com.sun.javadoc.*
 import org.jetbrains.dokka.*
 import java.lang.reflect.Modifier
-import java.util.Collections
-import java.util.HashSet
-import kotlin.platform.platformStatic
+import java.util.*
 import kotlin.reflect.KClass
 
 private interface HasModule {
@@ -79,7 +77,7 @@ private fun <T> nodeAnnotations(self: T): List<AnnotationDescAdapter> where T : 
 
 private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName }
 
-private val allClassKinds = setOf(DocumentationNode.Kind.Class, DocumentationNode.Kind.Enum, DocumentationNode.Kind.Interface, DocumentationNode.Kind.Object, DocumentationNode.Kind.Exception)
+val allClassKinds = setOf(DocumentationNode.Kind.Class, DocumentationNode.Kind.Enum, DocumentationNode.Kind.Interface, DocumentationNode.Kind.Object, DocumentationNode.Kind.Exception)
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
     private val allClasses = node.members.filter { it.kind in allClassKinds }.toMap { it.name }
@@ -96,7 +94,7 @@ class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docum
     override fun interfaces(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Interface).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
     override fun errors(): Array<out ClassDoc> = emptyArray()
     override fun enums(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Enum).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
-    override fun allClasses(filter: Boolean): Array<out ClassDoc> = (allClasses.values().map { ClassDocumentationNodeAdapter(module, it) } + packageFacade).toTypedArray()
+    override fun allClasses(filter: Boolean): Array<out ClassDoc> = (allClasses.values.map { ClassDocumentationNodeAdapter(module, it) } + packageFacade).toTypedArray()
     override fun allClasses(): Array<out ClassDoc> = allClasses(true)
 
     override fun isIncluded(): Boolean = node.name in module.allPackages
@@ -116,7 +114,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.owner?.kind in listOf(DocumentationNode.Kind.Package, DocumentationNode.Kind.ExternalClass)
-                                                || node.hasAnnotation(platformStatic::class)
+                                                || node.hasAnnotation(JvmStatic::class)
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
     override fun qualifiedName(): String? = node.qualifiedName
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
@@ -267,8 +265,7 @@ class ReceiverParameterAdapter(module: ModuleNodeAdapter, val receiverType: Docu
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this).toTypedArray()
     override fun name(): String = tryName("receiver")
 
-    tailRecursive
-    private fun tryName(name: String): String = when (name) {
+    private tailrec fun tryName(name: String): String = when (name) {
         in parent.parameters().drop(1).map { it.name() } -> tryName("$$name")
         else -> name
     }
@@ -354,10 +351,10 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Documen
     override fun constantValue(): Any? = constantValueExpression()
 
     override fun type(): Type = TypeAdapter(module, node.detail(DocumentationNode.Kind.Type))
-    override fun isTransient(): Boolean = node.hasAnnotation(transient::class)
+    override fun isTransient(): Boolean = node.hasAnnotation(Transient::class)
     override fun serialFieldTags(): Array<out SerialFieldTag> = emptyArray()
 
-    override fun isVolatile(): Boolean = node.hasAnnotation(volatile::class)
+    override fun isVolatile(): Boolean = node.hasAnnotation(Volatile::class)
 }
 
 open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode) : DocumentationNodeAdapter(module, classNode), Type by TypeAdapter(module, classNode), ProgramElementDoc by ProgramElementAdapter(module, classNode), ClassDoc {
@@ -408,7 +405,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         val visitedTypes = HashSet<String>()
 
         while (types.isNotEmpty()) {
-            val type = types.remove(types.lastIndex)
+            val type = types.removeAt(types.lastIndex)
             val fqName = type.qualifiedName
 
             if (expectedFQName == fqName) {
@@ -429,7 +426,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
 class PackageFacadeAdapter(val module: ModuleNodeAdapter, val packageNode: DocumentationNode) : ProgramElementDoc by ProgramElementAdapter(module, packageNode), ClassDoc {
     override fun simpleTypeName(): String = packageNode.name.substringAfterLast(".", packageNode.name).capitalize() + "Package"
     override fun typeName(): String = simpleTypeName()
-    override fun qualifiedTypeName(): String = packageNode.name.split(".").let { parts -> parts.take(parts.size() - 1) + parts.takeLast(1).map { it.capitalize() + "Package" } }.joinToString(".")
+    override fun qualifiedTypeName(): String = packageNode.name.split(".").let { parts -> parts.take(parts.size - 1) + parts.takeLast(1).map { it.capitalize() + "Package" } }.joinToString(".")
     override fun qualifiedName(): String = qualifiedTypeName()
     override fun name(): String = simpleTypeName()
 
@@ -480,16 +477,16 @@ fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
                 .filterNotNull()
 
 class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
-    val allPackages = module.members(DocumentationNode.Kind.Package).toMap { it.name }
+    val allPackages = module.members(DocumentationNode.Kind.Package).toMapBy { it.name }
     val allTypes = module.members(DocumentationNode.Kind.Package)
             .flatMap { it.members(DocumentationNode.Kind.Class) + it.members(DocumentationNode.Kind.Interface) + it.members(DocumentationNode.Kind.Enum) }
-            .toMap { it.qualifiedName }
+            .toMapBy { it.qualifiedName }
     val packageFacades = module.members(DocumentationNode.Kind.Package).map { PackageFacadeAdapter(this, it) }.toMap { it.qualifiedName() }
 
     override fun packageNamed(name: String?): PackageDoc? = allPackages[name]?.let { PackageAdapter(this, it) }
 
     override fun classes(): Array<out ClassDoc> =
-            (allTypes.values().map { ClassDocumentationNodeAdapter(this, it) } + packageFacades.values())
+            (allTypes.values.map { ClassDocumentationNodeAdapter(this, it) } + packageFacades.values)
                     .toTypedArray()
 
     override fun options(): Array<out Array<String>> = arrayOf(
