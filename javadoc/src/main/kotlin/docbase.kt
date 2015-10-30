@@ -81,20 +81,18 @@ val allClassKinds = setOf(DocumentationNode.Kind.Class, DocumentationNode.Kind.E
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
     private val allClasses = node.members.filter { it.kind in allClassKinds }.toMap { it.name }
-    private val packageFacade = PackageFacadeAdapter(module, node)
 
     override fun findClass(className: String?): ClassDoc? =
             allClasses.get(className)?.let { ClassDocumentationNodeAdapter(module, it) }
-                    ?: if (packageFacade.name() == className) packageFacade else null
 
     override fun annotationTypes(): Array<out AnnotationTypeDoc> = emptyArray()
     override fun annotations(): Array<out AnnotationDesc> = node.members(DocumentationNode.Kind.AnnotationClass).map { AnnotationDescAdapter(module, it) }.toTypedArray()
     override fun exceptions(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Exception).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
-    override fun ordinaryClasses(): Array<out ClassDoc> = (node.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it) } + packageFacade).toTypedArray()
+    override fun ordinaryClasses(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
     override fun interfaces(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Interface).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
     override fun errors(): Array<out ClassDoc> = emptyArray()
     override fun enums(): Array<out ClassDoc> = node.members(DocumentationNode.Kind.Enum).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
-    override fun allClasses(filter: Boolean): Array<out ClassDoc> = (allClasses.values.map { ClassDocumentationNodeAdapter(module, it) } + packageFacade).toTypedArray()
+    override fun allClasses(filter: Boolean): Array<out ClassDoc> = allClasses.values.map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
     override fun allClasses(): Array<out ClassDoc> = allClasses(true)
 
     override fun isIncluded(): Boolean = node.name in module.allPackages
@@ -139,8 +137,9 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
         var owner = node.owner
         while (owner != null) {
             when (owner.kind) {
-                DocumentationNode.Kind.Class -> return ClassDocumentationNodeAdapter(module, owner)
-                DocumentationNode.Kind.Package -> return PackageFacadeAdapter(module, owner)
+                DocumentationNode.Kind.Class,
+                DocumentationNode.Kind.Interface,
+                DocumentationNode.Kind.Enum -> return ClassDocumentationNodeAdapter(module, owner)
                 else -> owner = owner.owner
             }
         }
@@ -430,53 +429,6 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
     override fun innerClasses(filter: Boolean): Array<out ClassDoc> = innerClasses()
 }
 
-class PackageFacadeAdapter(val module: ModuleNodeAdapter, val packageNode: DocumentationNode) : ProgramElementDoc by ProgramElementAdapter(module, packageNode), ClassDoc {
-    override fun simpleTypeName(): String = packageNode.name.substringAfterLast(".", packageNode.name).capitalize() + "Package"
-    override fun typeName(): String = simpleTypeName()
-    override fun qualifiedTypeName(): String = packageNode.name.split(".").let { parts -> parts.take(parts.size - 1) + parts.takeLast(1).map { it.capitalize() + "Package" } }.joinToString(".")
-    override fun qualifiedName(): String = qualifiedTypeName()
-    override fun name(): String = simpleTypeName()
-
-    override fun isPrimitive(): Boolean = false
-    override fun dimension(): String = ""
-    override fun getElementType(): Type? = null
-    override fun asParameterizedType(): ParameterizedType? = null
-    override fun asClassDoc(): ClassDoc = this
-    override fun asAnnotationTypeDoc(): AnnotationTypeDoc? = null
-    override fun asAnnotatedType(): AnnotatedType? = null
-    override fun asWildcardType(): WildcardType? = null
-    override fun asTypeVariable(): TypeVariable? = null
-    override fun importedPackages(): Array<out PackageDoc> = emptyArray()
-    override fun typeParameters(): Array<out TypeVariable> = emptyArray()
-    override fun importedClasses(): Array<out ClassDoc> = emptyArray()
-    override fun isExternalizable(): Boolean = false
-    override fun definesSerializableFields(): Boolean = false
-    override fun methods(): Array<out MethodDoc> = members(DocumentationNode.Kind.Function).map { MethodAdapter(module, it) }.toTypedArray()
-    override fun fields(): Array<out FieldDoc> = members(DocumentationNode.Kind.Property).map { FieldAdapter(module, it) }.toTypedArray()
-    override fun methods(filter: Boolean): Array<out MethodDoc> = methods()
-    override fun fields(filter: Boolean): Array<out FieldDoc> = fields()
-    override fun constructors(): Array<out ConstructorDoc> = emptyArray()
-    override fun constructors(filter: Boolean): Array<out ConstructorDoc> = constructors()
-    override fun enumConstants(): Array<out FieldDoc> = emptyArray()
-    override fun isAbstract(): Boolean = false
-    override fun interfaceTypes(): Array<out Type> = emptyArray()
-    override fun interfaces(): Array<out ClassDoc> = emptyArray()
-    override fun typeParamTags(): Array<out ParamTag> = emptyArray()
-    override fun findClass(className: String?): ClassDoc? = null // TODO ???
-    override fun serializableFields(): Array<out FieldDoc> = emptyArray()
-    override fun superclassType(): Type? = null
-    override fun serializationMethods(): Array<out MethodDoc> = emptyArray()
-    override fun superclass(): ClassDoc? = null
-    override fun isSerializable(): Boolean = false
-    override fun subclassOf(cd: ClassDoc?): Boolean = false
-    override fun innerClasses(): Array<out ClassDoc> = emptyArray()
-    override fun innerClasses(filter: Boolean): Array<out ClassDoc> = innerClasses()
-    override fun isOrdinaryClass(): Boolean = true
-    override fun isClass(): Boolean = true
-
-    private fun members(kind: DocumentationNode.Kind) = packageNode.members(kind) + packageNode.members(DocumentationNode.Kind.ExternalClass).flatMap { it.members(kind) }
-}
-
 fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
         details(DocumentationNode.Kind.Supertype)
                 .map { it.links.firstOrNull() }
@@ -488,13 +440,11 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
     val allTypes = module.members(DocumentationNode.Kind.Package)
             .flatMap { it.members(DocumentationNode.Kind.Class) + it.members(DocumentationNode.Kind.Interface) + it.members(DocumentationNode.Kind.Enum) }
             .toMapBy { it.qualifiedName }
-    val packageFacades = module.members(DocumentationNode.Kind.Package).map { PackageFacadeAdapter(this, it) }.toMap { it.qualifiedName() }
 
     override fun packageNamed(name: String?): PackageDoc? = allPackages[name]?.let { PackageAdapter(this, it) }
 
     override fun classes(): Array<out ClassDoc> =
-            (allTypes.values.map { ClassDocumentationNodeAdapter(this, it) } + packageFacades.values)
-                    .toTypedArray()
+            allTypes.values.map { ClassDocumentationNodeAdapter(this, it) }.toTypedArray()
 
     override fun options(): Array<out Array<String>> = arrayOf(
             arrayOf("-d", outputPath),
@@ -507,7 +457,6 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
 
     override fun classNamed(qualifiedName: String?): ClassDoc? =
             allTypes[qualifiedName]?.let { ClassDocumentationNodeAdapter(this, it) }
-                    ?: packageFacades[qualifiedName]
 
     override fun specifiedClasses(): Array<out ClassDoc> = classes()
 }
