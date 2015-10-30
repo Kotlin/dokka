@@ -11,6 +11,9 @@ class HtmlFormatDescriptor : FormatDescriptor {
 
     override val generatorServiceClass: Class<out Generator>
         get() = FileGenerator::class.java
+
+    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+        get() = null
 }
 
 class KotlinWebsiteFormatDescriptor : FormatDescriptor {
@@ -22,6 +25,9 @@ class KotlinWebsiteFormatDescriptor : FormatDescriptor {
 
     override val generatorServiceClass: Class<out Generator>
         get() = FileGenerator::class.java
+
+    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+        get() = null
 }
 
 class JekyllFormatDescriptor : FormatDescriptor {
@@ -33,6 +39,9 @@ class JekyllFormatDescriptor : FormatDescriptor {
 
     override val generatorServiceClass: Class<out Generator>
         get() = FileGenerator::class.java
+
+    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+        get() = null
 }
 
 class MarkdownFormatDescriptor : FormatDescriptor {
@@ -44,4 +53,7 @@ class MarkdownFormatDescriptor : FormatDescriptor {
 
     override val generatorServiceClass: Class<out Generator>
         get() = FileGenerator::class.java
+
+    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+        get() = null
 }

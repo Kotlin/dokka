@@ -16,6 +16,7 @@ import kotlin.test.fail
 public fun verifyModel(vararg roots: ContentRoot,
                        withJdk: Boolean = false,
                        withKotlinRuntime: Boolean = false,
+                       packageDocumentationBuilder: PackageDocumentationBuilder? = null,
                        verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
@@ -46,7 +47,9 @@ public fun verifyModel(vararg roots: ContentRoot,
         addRoots(roots.toList())
     }
     val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
-    val documentation = buildDocumentationModule(environment, "test", options, logger = DokkaConsoleLogger)
+    val documentation = buildDocumentationModule(environment, "test", options,
+            packageDocumentationBuilder = packageDocumentationBuilder,
+            logger = DokkaConsoleLogger)
     verifier(documentation)
     Disposer.dispose(environment)
 }
@@ -54,8 +57,13 @@ public fun verifyModel(vararg roots: ContentRoot,
 public fun verifyModel(source: String,
                        withJdk: Boolean = false,
                        withKotlinRuntime: Boolean = false,
+                       packageDocumentationBuilder: PackageDocumentationBuilder? = null,
                        verifier: (DocumentationModule) -> Unit) {
-    verifyModel(contentRootFromPath(source), withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, verifier = verifier)
+    verifyModel(contentRootFromPath(source),
+            withJdk = withJdk,
+            withKotlinRuntime = withKotlinRuntime,
+            packageDocumentationBuilder = packageDocumentationBuilder,
+            verifier = verifier)
 }
 
 public fun verifyPackageMember(kotlinSource: String,

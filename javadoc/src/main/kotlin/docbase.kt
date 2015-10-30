@@ -15,7 +15,7 @@ private interface HasDocumentationNode {
 }
 
 open class DocumentationNodeBareAdapter(override val node: DocumentationNode) : Doc, HasDocumentationNode {
-    private var rawCommentText_ = rawCommentText
+    private var rawCommentText_: String? = null
 
     override fun name(): String = node.name
     override fun position(): SourcePosition? = SourcePositionAdapter(node)
@@ -31,7 +31,7 @@ open class DocumentationNodeBareAdapter(override val node: DocumentationNode) : 
         rawCommentText_ = rawDocumentation ?: ""
     }
 
-    override fun getRawCommentText(): String = rawCommentText_
+    override fun getRawCommentText(): String = rawCommentText_ ?: ""
 
     override fun isError(): Boolean = false
     override fun isException(): Boolean = node.kind == DocumentationNode.Kind.Exception
@@ -357,7 +357,14 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Documen
     override fun isVolatile(): Boolean = node.hasAnnotation(Volatile::class)
 }
 
-open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode) : DocumentationNodeAdapter(module, classNode), Type by TypeAdapter(module, classNode), ProgramElementDoc by ProgramElementAdapter(module, classNode), ClassDoc {
+open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode, val name: String = classNode.name)
+    : DocumentationNodeAdapter(module, classNode),
+      Type by TypeAdapter(module, classNode),
+      ProgramElementDoc by ProgramElementAdapter(module, classNode),
+      ClassDoc {
+
+    override fun name(): String = name
+
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(DocumentationNode.Kind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()
     override fun constructors(): Array<out ConstructorDoc> = constructors(true)
     override fun importedPackages(): Array<out PackageDoc> = emptyArray()
@@ -419,7 +426,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         return false
     }
 
-    override fun innerClasses(): Array<out ClassDoc> = classNode.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
+    override fun innerClasses(): Array<out ClassDoc> = classNode.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it, name + "." + it.name) }.toTypedArray()
     override fun innerClasses(filter: Boolean): Array<out ClassDoc> = innerClasses()
 }
 

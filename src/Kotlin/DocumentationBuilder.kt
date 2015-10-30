@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.DocumentationNode.Kind
@@ -41,6 +42,14 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
     val package1 = DescriptorUtils.getParentOfType(descriptor1, PackageFragmentDescriptor::class.java)
     val package2 = DescriptorUtils.getParentOfType(descriptor2, PackageFragmentDescriptor::class.java)
     return package1 != null && package2 != null && package1.fqName == package2.fqName
+}
+
+interface PackageDocumentationBuilder {
+    fun buildPackageDocumentation(project: Project,
+                                  packageName: FqName,
+                                  packageNode: DocumentationNode,
+                                  declarations: List<DeclarationDescriptor>,
+                                  options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger)
 }
 
 class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
@@ -123,10 +132,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         return null
     }
-
-    fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
-        DescriptorUtils.getFqName(it.type.constructor.declarationDescriptor!!).asString() == "kotlin.Deprecated"
-    } || (this is ConstructorDescriptor && containingDeclaration.isDeprecated())
 
     fun DeclarationDescriptor.signature(): String = when(this) {
         is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
@@ -353,17 +358,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
     }
 
-    private fun AnnotationDescriptor.isDocumented(): Boolean {
-        if (source.getPsi() != null && mustBeDocumented()) return true
-        val annotationClassName = type.constructor.declarationDescriptor?.fqNameSafe?.asString()
-        return annotationClassName == "kotlin.Extension"
-    }
-
-    fun AnnotationDescriptor.mustBeDocumented(): Boolean {
-        val annotationClass = type.constructor.declarationDescriptor as? Annotated ?: return false
-        return annotationClass.isDocumentedAnnotation()
-    }
-
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
@@ -400,12 +394,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 (!options.skipDeprecated || !isDeprecated())
     }
 
-    fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
-        val doc = KDocFinder.findKDoc(this)
-        return doc is KDocSection && doc.findTagByName("suppress") != null
-    }
-
-
     fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>) {
         descriptors.forEach { descriptor ->
             if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
@@ -427,40 +415,18 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
     }
 
-    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
-                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
-        if (descriptor is CallableMemberDescriptor) {
-            val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
-            if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor) &&
-                !ErrorUtils.isError(extensionClassDescriptor)) {
-                val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-                return externalClassNodes.getOrPut(fqName, {
-                    val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
-                    append(newNode, DocumentationReference.Kind.Member)
-                    newNode
-                })
-            }
-        }
-        return this
-    }
-
     fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
-                                            packageContent: Map<String, Content>) {
-        val descriptors = hashMapOf<String, List<DeclarationDescriptor>>()
-        for ((name, parts) in fragments.groupBy { it.fqName }) {
-            descriptors.put(name.asString(), parts.flatMap { it.getMemberScope().getAllDescriptors() })
-        }
-        for ((packageName, declarations) in descriptors) {
-            if (options.skipEmptyPackages && declarations.none { it.isDocumented()}) continue
+                                            packageContent: Map<String, Content>,
+                                            packageDocumentationBuilder: PackageDocumentationBuilder = KotlinPackageDocumentationBuilder()) {
+        val allFqNames = fragments.map { it.fqName }.distinct()
+
+        for (packageName in allFqNames) {
+            val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getAllDescriptors() }
+
+            if (options.skipEmptyPackages && declarations.none { it.isDocumented() }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
-            val packageNode = findOrCreatePackageNode(packageName, packageContent)
-            val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
-            declarations.forEach { descriptor ->
-                if (descriptor.isDocumented()) {
-                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
-                    parent.appendChild(descriptor, DocumentationReference.Kind.Member)
-               }
-            }
+            val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
+            packageDocumentationBuilder.buildPackageDocumentation(resolutionFacade.project, packageName, packageNode, declarations, options, refGraph, logger)
         }
     }
 
@@ -524,15 +490,6 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         val receiver = extensionReceiverParameter
         return (receiver?.type?.constructor?.declarationDescriptor as? ClassDescriptor)?.isCompanionObject ?: false
-    }
-
-    fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
-        val extensionReceiver = extensionReceiverParameter
-        if (extensionReceiver != null) {
-            val type = extensionReceiver.type
-            return type.constructor.declarationDescriptor as? ClassDescriptor
-        }
-        return null
     }
 
     fun FunctionDescriptor.build(): DocumentationNode {
@@ -707,4 +664,68 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value)
         }
     }
+
+    inner class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
+        override fun buildPackageDocumentation(project: Project,
+                                               packageName: FqName,
+                                               packageNode: DocumentationNode,
+                                               declarations: List<DeclarationDescriptor>,
+                                               options: DocumentationOptions,
+                                               refGraph: NodeReferenceGraph, logger: DokkaLogger) {
+            val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
+            declarations.forEach { descriptor ->
+                if (descriptor.isDocumented()) {
+                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
+                    parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+                }
+            }
+        }
+    }
 }
+
+private fun AnnotationDescriptor.isDocumented(): Boolean {
+    if (source.getPsi() != null && mustBeDocumented()) return true
+    val annotationClassName = type.constructor.declarationDescriptor?.fqNameSafe?.asString()
+    return annotationClassName == "kotlin.Extension"
+}
+
+fun AnnotationDescriptor.mustBeDocumented(): Boolean {
+    val annotationClass = type.constructor.declarationDescriptor as? Annotated ?: return false
+    return annotationClass.isDocumentedAnnotation()
+}
+
+fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
+    val doc = KDocFinder.findKDoc(this)
+    return doc is KDocSection && doc.findTagByName("suppress") != null
+}
+
+fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
+    DescriptorUtils.getFqName(it.type.constructor.declarationDescriptor!!).asString() == "kotlin.Deprecated"
+} || (this is ConstructorDescriptor && containingDeclaration.isDeprecated())
+
+fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
+                                                externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
+    if (descriptor is CallableMemberDescriptor) {
+        val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
+        if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor) &&
+                !ErrorUtils.isError(extensionClassDescriptor)) {
+            val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
+            return externalClassNodes.getOrPut(fqName, {
+                val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
+                append(newNode, DocumentationReference.Kind.Member)
+                newNode
+            })
+        }
+    }
+    return this
+}
+
+fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
+    val extensionReceiver = extensionReceiverParameter
+    if (extensionReceiver != null) {
+        val type = extensionReceiver.type
+        return type.constructor.declarationDescriptor as? ClassDescriptor
+    }
+    return null
+}
+
