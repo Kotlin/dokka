@@ -192,7 +192,7 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         is PsiField -> element.containingClass!!.qualifiedName + "#" + element.name
         is PsiMethod ->
             element.containingClass!!.qualifiedName + "#" + element.name + "(" +
-            element.parameterList.parameters.map { it.type.typeSignature() }.join(",") + ")"
+                    element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
         else -> null
     }
 
