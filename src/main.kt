@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
+import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
+import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.util.measureTimeMillis
@@ -153,14 +155,21 @@ class DokkaGenerator(val logger: DokkaLogger,
         val startAnalyse = System.currentTimeMillis()
 
         val options = DocumentationOptions(false, sourceLinks = sourceLinks, skipDeprecated = skipDeprecated)
-        val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) }, logger)
+
+        val injector = Guice.createInjector(GuiceModule(this))
+        val generator = injector.getInstance(Generator::class.java)
+
+        val packageDocumentationBuilder = injector.getInstance(PackageDocumentationBuilder::class.java)
+
+        val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) },
+                packageDocumentationBuilder, logger)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
-            Guice.createInjector(GuiceModule(this)).getInstance(Generator::class.java).buildAll(documentation)
+            generator.buildAll(documentation)
         }
         logger.info("done in ${timeBuild / 1000} secs")
 
@@ -196,9 +205,13 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
                              options: DocumentationOptions,
                              includes: List<String> = listOf(),
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
+                             packageDocumentationBuilder: PackageDocumentationBuilder? = null,
                              logger: DokkaLogger): DocumentationModule {
     val documentation = environment.withContext { environment, resolutionFacade, session ->
         val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
+        val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
+        analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
+
         val fragments = fragmentFiles.map { session.getPackageFragment(it.packageFqName) }.filterNotNull().distinct()
 
         val refGraph = NodeReferenceGraph()
@@ -210,7 +223,12 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
 
         with(documentationBuilder) {
-            documentationModule.appendFragments(fragments, packageDocs.packageContent)
+            if (packageDocumentationBuilder != null) {
+                documentationModule.appendFragments(fragments, packageDocs.packageContent, packageDocumentationBuilder)
+            }
+            else {
+                documentationModule.appendFragments(fragments, packageDocs.packageContent)
+            }
         }
 
         val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)

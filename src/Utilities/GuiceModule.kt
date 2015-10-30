@@ -4,6 +4,7 @@ import com.google.inject.Binder
 import com.google.inject.Module
 import com.google.inject.Provider
 import com.google.inject.name.Names
+import com.google.inject.util.Providers
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
 import java.io.File
@@ -40,6 +41,12 @@ class GuiceModule(val config: DokkaGenerator) : Module {
         descriptor.formatServiceClass?.let { clazz ->
             binder.bind(FormatService::class.java).to(clazz)
         }
+        if (descriptor.packageDocumentationBuilderServiceClass != null) {
+            binder.bind(PackageDocumentationBuilder::class.java).to(descriptor.packageDocumentationBuilderServiceClass)
+        } else {
+            binder.bind(PackageDocumentationBuilder::class.java).toProvider(Providers.of(null))
+        }
+
         binder.bind(Generator::class.java).to(descriptor.generatorServiceClass)
     }
 

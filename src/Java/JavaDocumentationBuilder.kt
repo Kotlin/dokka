@@ -15,7 +15,11 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             return
         }
         val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap())
-        packageNode.appendChildren(file.classes) { build() }
+        appendClasses(packageNode, file.classes)
+    }
+
+    fun appendClasses(packageNode: DocumentationNode, classes: Array<PsiClass>) {
+        packageNode.appendChildren(classes) { build() }
     }
 
     data class JavadocParseResult(val content: Content, val deprecatedContent: Content?)
@@ -47,9 +51,9 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children
-                .dropWhile { it.node.elementType == JavaDocTokenType.DOC_TAG_NAME }
+                .dropWhile { it.node?.elementType == JavaDocTokenType.DOC_TAG_NAME }
                 .dropWhile { it is PsiWhiteSpace }
-                .filterNot { it.node.elementType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS }
+                .filterNot { it.node?.elementType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS }
         return if (getSubjectName() != null) tagValueElements.dropWhile { it is PsiDocTagValue } else tagValueElements
     }
 

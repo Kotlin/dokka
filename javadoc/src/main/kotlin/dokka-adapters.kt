@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.javadoc
 
+import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
 
-class JavadocGenerator(val conf: DokkaGenerator) : Generator {
+class JavadocGenerator @Inject constructor (val conf: DokkaGenerator) : Generator {
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single() as DocumentationModule
 
@@ -24,6 +25,8 @@ class JavadocFormatDescriptor : FormatDescriptor {
         get() = null
 
     override val generatorServiceClass: Class<out Generator>
-        get() = javaClass<JavadocGenerator>()
-}
+        get() = JavadocGenerator::class.java
 
+    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+        get() = KotlinAsJavaDocumentationBuilder::class.java
+}
