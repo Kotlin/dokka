@@ -7,8 +7,9 @@ import java.io.IOException
 import java.io.OutputStreamWriter
 
 public class FileGenerator @Inject constructor(val locationService: FileLocationService,
-                           val formatService: FormatService,
-                           @Inject(optional = true) val outlineService: OutlineFormatService?) : Generator {
+                           val formatService: FormatService) : Generator {
+
+    @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val specificLocationService = locationService.withExtension(formatService.extension)
@@ -30,9 +31,7 @@ public class FileGenerator @Inject constructor(val locationService: FileLocation
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
-        if (outlineService == null) {
-            return
-        }
+        val outlineService = this.outlineService ?: return
         for ((location, items) in nodes.groupBy { locationService.location(it) }) {
             val file = outlineService.getOutlineFileName(location)
             file.parentFile?.mkdirsOrFail()
