@@ -4,44 +4,44 @@ import org.jetbrains.dokka.*
 
 class HtmlFormatDescriptor : FormatDescriptor {
     override val formatServiceClass: Class<out FormatService>
-        get() = javaClass<HtmlFormatService>()
+        get() = HtmlFormatService::class.java
 
     override val outlineServiceClass: Class<out OutlineFormatService>
-        get() = javaClass<HtmlFormatService>()
+        get() = HtmlFormatService::class.java
 
     override val generatorServiceClass: Class<out Generator>
-        get() = javaClass<FileGenerator>()
+        get() = FileGenerator::class.java
 }
 
 class KotlinWebsiteFormatDescriptor : FormatDescriptor {
     override val formatServiceClass: Class<out FormatService>
-        get() = javaClass<KotlinWebsiteFormatService>()
+        get() = KotlinWebsiteFormatService::class.java
 
     override val outlineServiceClass: Class<out OutlineFormatService>
-        get() = javaClass<YamlOutlineService>()
+        get() = YamlOutlineService::class.java
 
     override val generatorServiceClass: Class<out Generator>
-        get() = javaClass<FileGenerator>()
+        get() = FileGenerator::class.java
 }
 
 class JekyllFormatDescriptor : FormatDescriptor {
     override val formatServiceClass: Class<out FormatService>
-        get() = javaClass<JekyllFormatService>()
+        get() = JekyllFormatService::class.java
 
     override val outlineServiceClass: Class<out OutlineFormatService>?
         get() = null
 
     override val generatorServiceClass: Class<out Generator>
-        get() = javaClass<FileGenerator>()
+        get() = FileGenerator::class.java
 }
 
 class MarkdownFormatDescriptor : FormatDescriptor {
     override val formatServiceClass: Class<out FormatService>
-        get() = javaClass<MarkdownFormatService>()
+        get() = MarkdownFormatService::class.java
 
     override val outlineServiceClass: Class<out OutlineFormatService>?
         get() = null
 
     override val generatorServiceClass: Class<out Generator>
-        get() = javaClass<FileGenerator>()
+        get() = FileGenerator::class.java
 }

@@ -10,8 +10,8 @@ import java.io.File
 
 class GuiceModule(val config: DokkaGenerator) : Module {
     override fun configure(binder: Binder) {
-        binder.bind(javaClass<DokkaGenerator>()).toInstance(config)
-        binder.bind(javaClass<File>()).annotatedWith(Names.named("outputDir")).toInstance(File(config.outputDir))
+        binder.bind(DokkaGenerator::class.java).toInstance(config)
+        binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(config.outputDir))
 
         binder.bindNameAnnotated<LocationService, SingleFolderLocationService>("singleFolder")
         binder.bindNameAnnotated<FileLocationService, SingleFolderLocationService>("singleFolder")
@@ -19,11 +19,11 @@ class GuiceModule(val config: DokkaGenerator) : Module {
         binder.bindNameAnnotated<FileLocationService, FoldersLocationService>("folders")
 
         // defaults
-        binder.bind(javaClass<LocationService>()).to(javaClass<FoldersLocationService>())
-        binder.bind(javaClass<FileLocationService>()).to(javaClass<FoldersLocationService>())
-        binder.bind(javaClass<LanguageService>()).to(javaClass<KotlinLanguageService>())
+        binder.bind(LocationService::class.java).to(FoldersLocationService::class.java)
+        binder.bind(FileLocationService::class.java).to(FoldersLocationService::class.java)
+        binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
 
-        binder.bind(javaClass<HtmlTemplateService>()).toProvider(object : Provider<HtmlTemplateService> {
+        binder.bind(HtmlTemplateService::class.java).toProvider(object : Provider<HtmlTemplateService> {
             override fun get(): HtmlTemplateService = HtmlTemplateService.default("/dokka/styles/style.css")
         })
 
@@ -35,12 +35,12 @@ class GuiceModule(val config: DokkaGenerator) : Module {
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", config.outputFormat, config)
 
         descriptor.outlineServiceClass?.let { clazz ->
-            binder.bind(javaClass<OutlineFormatService>()).to(clazz)
+            binder.bind(OutlineFormatService::class.java).to(clazz)
         }
         descriptor.formatServiceClass?.let { clazz ->
-            binder.bind(javaClass<FormatService>()).to(clazz)
+            binder.bind(FormatService::class.java).to(clazz)
         }
-        binder.bind(javaClass<Generator>()).to(descriptor.generatorServiceClass)
+        binder.bind(Generator::class.java).to(descriptor.generatorServiceClass)
     }
 
 }
@@ -48,11 +48,11 @@ class GuiceModule(val config: DokkaGenerator) : Module {
 private inline fun <reified T: Any> Binder.registerCategory(category: String) {
     ServiceLocator.allServices(category).forEach {
         @Suppress("UNCHECKED_CAST")
-        bind(javaClass<T>()).annotatedWith(Names.named(it.name)).to(javaClass<T>().classLoader.loadClass(it.className) as Class<T>)
+        bind(T::class.java).annotatedWith(Names.named(it.name)).to(T::class.java.classLoader.loadClass(it.className) as Class<T>)
     }
 }
 
 private inline fun <reified Base : Any, reified T : Base> Binder.bindNameAnnotated(name: String) {
-    bind(javaClass<Base>()).annotatedWith(Names.named(name)).to(javaClass<T>())
+    bind(Base::class.java).annotatedWith(Names.named(name)).to(T::class.java)
 }
 

@@ -146,7 +146,7 @@ class DokkaGenerator(val logger: DokkaLogger,
 
         logger.info("Module: $moduleName")
         logger.info("Output: ${File(outputDir).absolutePath}")
-        logger.info("Sources: ${environment.sources.join()}")
+        logger.info("Sources: ${environment.sources.joinToString()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
         logger.info("Analysing sources and libraries... ")
@@ -160,7 +160,7 @@ class DokkaGenerator(val logger: DokkaLogger,
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
-            Guice.createInjector(GuiceModule(this)).getInstance(javaClass<Generator>()).buildAll(documentation)
+            Guice.createInjector(GuiceModule(this)).getInstance(Generator::class.java).buildAll(documentation)
         }
         logger.info("done in ${timeBuild / 1000} secs")
 
