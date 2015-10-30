@@ -19,6 +19,15 @@ class KotlinAsJavaTest {
             assertEquals(DocumentationNode.Kind.CompanionObjectFunction, fn.kind)
         }
     }
+
+    @Test fun propertyWithComment() {
+        verifyModelAsJava("test/data/comments/oneLineDoc.kt") { model ->
+            val facadeClass = model.members.single().members.single { it.name == "OneLineDocKt" }
+            val getter = facadeClass.members.single { it.name == "getProperty" }
+            assertEquals(DocumentationNode.Kind.CompanionObjectFunction, getter.kind)
+            assertEquals("doc", getter.content.summary.toTestString())
+        }
+    }
 }
 
 fun verifyModelAsJava(source: String,

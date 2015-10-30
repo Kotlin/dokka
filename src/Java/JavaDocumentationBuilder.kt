@@ -1,31 +1,30 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
-import com.intellij.psi.javadoc.*
+import com.intellij.psi.javadoc.PsiDocTag
+import com.intellij.psi.javadoc.PsiDocTagValue
+import com.intellij.psi.javadoc.PsiDocToken
+import com.intellij.psi.javadoc.PsiInlineDocTag
 import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 
-public class JavaDocumentationBuilder(private val options: DocumentationOptions,
-                                      private val refGraph: NodeReferenceGraph) {
-    fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
-        if (file.classes.all { skipElement(it) }) {
-            return
-        }
-        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap())
-        appendClasses(packageNode, file.classes)
+data class JavadocParseResult(val content: Content, val deprecatedContent: Content?) {
+    companion object {
+        val Empty = JavadocParseResult(Content.Empty, null)
     }
+}
 
-    fun appendClasses(packageNode: DocumentationNode, classes: Array<PsiClass>) {
-        packageNode.appendChildren(classes) { build() }
-    }
+interface JavaDocumentationParser {
+    fun parseDocumentation(element: PsiNamedElement): JavadocParseResult
+}
 
-    data class JavadocParseResult(val content: Content, val deprecatedContent: Content?)
-
-    fun parseDocumentation(docComment: PsiDocComment?): JavadocParseResult {
-        if (docComment == null) return JavadocParseResult(Content.Empty, null)
+class JavadocParser(private val refGraph: NodeReferenceGraph) : JavaDocumentationParser {
+    override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
+        val docComment = (element as? PsiDocCommentOwner)?.docComment
+        if (docComment == null) return JavadocParseResult.Empty
         val result = MutableContent()
         var deprecatedContent: Content? = null
         val para = ContentParagraph()
@@ -169,6 +168,49 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
         }
         return null
     }
+}
+
+
+private fun getSignature(element: PsiElement?) = when(element) {
+    is PsiClass -> element.qualifiedName
+    is PsiField -> element.containingClass!!.qualifiedName + "#" + element.name
+    is PsiMethod ->
+        element.containingClass!!.qualifiedName + "#" + element.name + "(" +
+                element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
+    else -> null
+}
+
+private fun PsiType.typeSignature(): String = when(this) {
+    is PsiArrayType -> "Array<${componentType.typeSignature()}>"
+    else -> mapTypeName(this)
+}
+
+private fun mapTypeName(psiType: PsiType): String = when (psiType) {
+    PsiType.VOID -> "Unit"
+    is PsiPrimitiveType -> psiType.canonicalText.capitalize()
+    is PsiClassType -> {
+        val psiClass = psiType.resolve()
+        if (psiClass?.qualifiedName == "java.lang.Object") "Any" else psiType.className
+    }
+    is PsiEllipsisType -> mapTypeName(psiType.componentType)
+    is PsiArrayType -> "Array"
+    else -> psiType.canonicalText
+}
+
+class JavaDocumentationBuilder(private val options: DocumentationOptions,
+                               private val refGraph: NodeReferenceGraph,
+                               private val docParser: JavaDocumentationParser = JavadocParser(refGraph)) {
+    fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
+        if (file.classes.all { skipElement(it) }) {
+            return
+        }
+        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap())
+        appendClasses(packageNode, file.classes)
+    }
+
+    fun appendClasses(packageNode: DocumentationNode, classes: Array<PsiClass>) {
+        packageNode.appendChildren(classes) { build() }
+    }
 
     fun register(element: PsiElement, node: DocumentationNode) {
         val signature = getSignature(element)
@@ -190,25 +232,10 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             refGraph.link(qualifiedName, node, kind)
         }
     }
-
-    private fun getSignature(element: PsiElement?) = when(element) {
-        is PsiClass -> element.qualifiedName
-        is PsiField -> element.containingClass!!.qualifiedName + "#" + element.name
-        is PsiMethod ->
-            element.containingClass!!.qualifiedName + "#" + element.name + "(" +
-                    element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
-        else -> null
-    }
-
-    private fun PsiType.typeSignature(): String = when(this) {
-        is PsiArrayType -> "Array<${componentType.typeSignature()}>"
-        else -> mapTypeName(this)
-    }
-
     fun DocumentationNode(element: PsiNamedElement,
                           kind: Kind,
                           name: String = element.name ?: "<anonymous>"): DocumentationNode {
-        val (docComment, deprecatedContent) = parseDocumentation((element as? PsiDocCommentOwner)?.docComment)
+        val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
@@ -376,18 +403,6 @@ public class JavaDocumentationBuilder(private val options: DocumentationOptions,
             node.append(componentType.build(Kind.Type), DocumentationReference.Kind.Detail)
         }
         return node
-    }
-
-    private fun mapTypeName(psiType: PsiType): String = when (psiType) {
-        PsiType.VOID -> "Unit"
-        is PsiPrimitiveType -> psiType.canonicalText.capitalize()
-        is PsiClassType -> {
-            val psiClass = psiType.resolve()
-            if (psiClass?.qualifiedName == "java.lang.Object") "Any" else psiType.className
-        }
-        is PsiEllipsisType -> mapTypeName(psiType.componentType)
-        is PsiArrayType -> "Array"
-        else -> psiType.canonicalText
     }
 
     fun PsiAnnotation.build(): DocumentationNode {

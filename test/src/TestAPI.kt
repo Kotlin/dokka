@@ -133,6 +133,7 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
         is ContentBlock -> {
             appendChildren(node)
         }
+        is ContentEmpty -> { /* nothing */ }
         else -> throw IllegalStateException("Don't know how to format node $node")
     }
     return this

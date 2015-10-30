@@ -45,11 +45,10 @@ private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: Decla
 }
 
 interface PackageDocumentationBuilder {
-    fun buildPackageDocumentation(project: Project,
+    fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                   packageName: FqName,
                                   packageNode: DocumentationNode,
-                                  declarations: List<DeclarationDescriptor>,
-                                  options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger)
+                                  declarations: List<DeclarationDescriptor>)
 }
 
 class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
@@ -426,7 +425,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             if (options.skipEmptyPackages && declarations.none { it.isDocumented() }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
-            packageDocumentationBuilder.buildPackageDocumentation(resolutionFacade.project, packageName, packageNode, declarations, options, refGraph, logger)
+            packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode, declarations)
         }
     }
 
@@ -666,12 +665,10 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     inner class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
-        override fun buildPackageDocumentation(project: Project,
+        override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                                packageName: FqName,
                                                packageNode: DocumentationNode,
-                                               declarations: List<DeclarationDescriptor>,
-                                               options: DocumentationOptions,
-                                               refGraph: NodeReferenceGraph, logger: DokkaLogger) {
+                                               declarations: List<DeclarationDescriptor>) {
             val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
             declarations.forEach { descriptor ->
                 if (descriptor.isDocumented()) {
