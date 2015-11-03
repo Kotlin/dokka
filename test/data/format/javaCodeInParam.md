@@ -1,9 +1,9 @@
-[test](test/index) / [test](test/test/index) / [C](test/test/-c)
+[test](test/index) / [C](test/-c/index)
 
 
 # C
 
-`open class C&lt;T&gt;`
+`protected open class C&lt;T&nbsp;:&nbsp;Any&gt;`
 
 
 
@@ -12,4 +12,10 @@
 
 `T` - this is `some code` and other text
 
+
+
+### Constructors
+
+
+| [&lt;init&gt;](test/-c/-init-) | `C()` |
 

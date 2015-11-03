@@ -1,5 +1,3 @@
-package test;
-
 /**
  * Call {@link #bar()} to do the job.
  */

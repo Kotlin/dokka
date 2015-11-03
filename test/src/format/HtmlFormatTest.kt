@@ -99,31 +99,31 @@ public class HtmlFormatTest {
     }
 
     @Test fun javaSupertypeLink() {
-        verifyOutput("test/data/format/javaSupertype.java", ".html") { model, output ->
+        verifyJavaOutput("test/data/format/javaSupertype.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C"}.members.filter { it.name == "Bar"} )
         }
     }
 
     @Test fun javaLinkTag() {
-        verifyOutput("test/data/format/javaLinkTag.java", ".html", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaLinkTag.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaLinkTagWithLabel() {
-        verifyOutput("test/data/format/javaLinkTagWithLabel.java", ".html", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaLinkTagWithLabel.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaSeeTag() {
-        verifyOutput("test/data/format/javaSeeTag.java", ".html", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaSeeTag.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaDeprecated() {
-        verifyOutput("test/data/format/javaDeprecated.java", ".html") { model, output ->
+        verifyJavaOutput("test/data/format/javaDeprecated.java", ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" })
         }
     }

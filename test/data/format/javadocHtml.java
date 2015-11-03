@@ -1,5 +1,3 @@
-package test;
-
 /**
  * <b>Bold</b>
  * <strong>Strong</strong>

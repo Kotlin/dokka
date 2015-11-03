@@ -2,6 +2,7 @@ package org.jetbrains.dokka.tests
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -66,11 +67,34 @@ public fun verifyModel(source: String,
             verifier = verifier)
 }
 
-public fun verifyPackageMember(kotlinSource: String,
+public fun verifyPackageMember(source: String,
                                withJdk: Boolean = false,
                                withKotlinRuntime: Boolean = false,
                                verifier: (DocumentationNode) -> Unit) {
-    verifyModel(kotlinSource, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
+    verifyModel(source, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
+        val pkg = model.members.single()
+        verifier(pkg.members.single())
+    }
+}
+
+public fun verifyJavaModel(source: String,
+                           withKotlinRuntime: Boolean = false,
+                           verifier: (DocumentationModule) -> Unit) {
+    val tempDir = FileUtil.createTempDirectory("dokka", "")
+    try {
+        val sourceFile = File(source)
+        FileUtil.copy(sourceFile, File(tempDir, sourceFile.name))
+        verifyModel(JavaSourceRoot(tempDir), withJdk = true, withKotlinRuntime = withKotlinRuntime, verifier = verifier)
+    }
+    finally {
+        FileUtil.delete(tempDir)
+    }
+}
+
+public fun verifyJavaPackageMember(source: String,
+                                   withKotlinRuntime: Boolean = false,
+                                   verifier: (DocumentationNode) -> Unit) {
+    verifyJavaModel(source, withKotlinRuntime) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
     }
@@ -82,13 +106,20 @@ public fun verifyOutput(roots: Array<ContentRoot>,
                         withKotlinRuntime: Boolean = false,
                         outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) {
-        val output = StringBuilder()
-        outputGenerator(it, output)
-        val ext = outputExtension.removePrefix(".")
-        val path = roots.first().path
-        val expectedOutput = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
-        assertEqualsIgnoringSeparators(expectedOutput, output.toString())
+        verifyModelOutput(it, outputExtension, outputGenerator, roots.first().path)
     }
+}
+
+private fun verifyModelOutput(it: DocumentationModule,
+                              outputExtension: String,
+                              outputGenerator: (DocumentationModule, StringBuilder) -> Unit,
+                              sourcePath: String) {
+    val output = StringBuilder()
+    outputGenerator(it, output)
+    val ext = outputExtension.removePrefix(".")
+    val path = sourcePath
+    val expectedOutput = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
+    assertEqualsIgnoringSeparators(expectedOutput, output.toString())
 }
 
 public fun verifyOutput(path: String,
@@ -97,6 +128,15 @@ public fun verifyOutput(path: String,
                         withKotlinRuntime: Boolean = false,
                         outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, outputGenerator)
+}
+
+public fun verifyJavaOutput(path: String,
+                            outputExtension: String,
+                            withKotlinRuntime: Boolean = false,
+                            outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+    verifyJavaModel(path, withKotlinRuntime) { model ->
+        verifyModelOutput(model, outputExtension, outputGenerator, path)
+    }
 }
 
 public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {

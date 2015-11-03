@@ -1,6 +1,4 @@
-package test
-
-abstract class Test {
+public abstract class Test {
     /**
      * Summary for Function
      * @param name is String parameter

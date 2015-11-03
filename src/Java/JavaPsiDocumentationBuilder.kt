@@ -197,10 +197,14 @@ private fun mapTypeName(psiType: PsiType): String = when (psiType) {
     else -> psiType.canonicalText
 }
 
-class JavaDocumentationBuilder(private val options: DocumentationOptions,
-                               private val refGraph: NodeReferenceGraph,
-                               private val docParser: JavaDocumentationParser = JavadocParser(refGraph)) {
-    fun appendFile(file: PsiJavaFile, module: DocumentationModule) {
+interface JavaDocumentationBuilder {
+    fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>)
+}
+
+class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
+                                  private val refGraph: NodeReferenceGraph,
+                                  private val docParser: JavaDocumentationParser = JavadocParser(refGraph)) : JavaDocumentationBuilder {
+    override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         if (file.classes.all { skipElement(it) }) {
             return
         }

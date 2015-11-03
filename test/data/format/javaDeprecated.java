@@ -1,5 +1,3 @@
-package test;
-
 class Foo {
   /** @deprecated  use {@link #bar} instead */
   public void foo() {}

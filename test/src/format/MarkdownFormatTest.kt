@@ -121,25 +121,25 @@ public class MarkdownFormatTest {
     }
 
     @Test fun javadocHtml() {
-        verifyOutput("test/data/format/javadocHtml.java", ".md", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javadocHtml.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaCodeLiteralTags() {
-        verifyOutput("test/data/format/javaCodeLiteralTags.java", ".md", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaCodeLiteralTags.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaCodeInParam() {
-        verifyOutput("test/data/format/javaCodeInParam.java", ".md", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaCodeInParam.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 
     @Test fun javaSpaceInAuthor() {
-        verifyOutput("test/data/format/javaSpaceInAuthor.java", ".md", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javaSpaceInAuthor.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
@@ -157,7 +157,7 @@ public class MarkdownFormatTest {
     }
 
     @Test fun javadocOrderedList() {
-        verifyOutput("test/data/format/javadocOrderedList.java", ".md", withJdk = true) { model, output ->
+        verifyJavaOutput("test/data/format/javadocOrderedList.java", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }
     }

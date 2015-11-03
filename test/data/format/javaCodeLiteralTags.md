@@ -1,9 +1,9 @@
-[test](test/index) / [test](test/test/index) / [C](test/test/-c)
+[test](test/index) / [C](test/-c/index)
 
 
 # C
 
-`open class C`
+`protected open class C`
 
 
 `A&lt;B&gt;C`
@@ -14,4 +14,10 @@ A&lt;B&gt;C
  
 
 
+
+
+### Constructors
+
+
+| [&lt;init&gt;](test/-c/-init-) | `C()` |
 
