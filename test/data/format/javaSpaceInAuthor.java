@@ -1,5 +1,3 @@
-package test;
-
 /**
  * @author Dmitry Jemerov
  */

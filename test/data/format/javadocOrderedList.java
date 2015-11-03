@@ -1,5 +1,3 @@
-package test;
-
 /**
  * <ol>
  *   <li>Rinse</li>

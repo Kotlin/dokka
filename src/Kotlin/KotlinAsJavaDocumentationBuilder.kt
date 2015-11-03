@@ -20,7 +20,7 @@ class KotlinAsJavaDocumentationBuilder() : PackageDocumentationBuilder {
             return
         }
 
-        val javaDocumentationBuilder = JavaDocumentationBuilder(documentationBuilder.options,
+        val javaDocumentationBuilder = JavaPsiDocumentationBuilder(documentationBuilder.options,
                 documentationBuilder.refGraph,
                 KotlinAsJavaDocumentationParser(documentationBuilder))
 

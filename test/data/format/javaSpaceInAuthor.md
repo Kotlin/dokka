@@ -1,13 +1,19 @@
-[test](test/index) / [test](test/test/index) / [C](test/test/-c)
+[test](test/index) / [C](test/-c/index)
 
 
 # C
 
-`open class C`
+`protected open class C`
 
 
 
 **Author**
 Dmitry Jemerov
 
+
+
+### Constructors
+
+
+| [&lt;init&gt;](test/-c/-init-) | `C()` |
 

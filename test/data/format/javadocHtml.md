@@ -1,4 +1,4 @@
-[test](test/index) / [test](test/test/index) / [C](test/test/-c)
+[test](test/index) / [C](test/-c/index)
 
 
 # C
@@ -18,4 +18,10 @@ Block code
  
 
 
+
+
+### Constructors
+
+
+| [&lt;init&gt;](test/-c/-init-) | `C()` |
 

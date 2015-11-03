@@ -1,4 +1,4 @@
-[test](test/index) / [test](test/test/index) / [Bar](test/test/-bar)
+[test](test/index) / [Bar](test/-bar/index)
 
 
 # Bar
@@ -11,4 +11,10 @@
  
 
 
+
+
+### Constructors
+
+
+| [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
 

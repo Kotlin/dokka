@@ -1,7 +1,9 @@
 package org.jetbrains.dokka
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiDocCommentOwner
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
@@ -9,6 +11,8 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
@@ -16,6 +20,9 @@ import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
+import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
@@ -25,6 +32,8 @@ import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
+import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -55,7 +64,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                            val session: ResolveSession,
                            val options: DocumentationOptions,
                            val refGraph: NodeReferenceGraph,
-                           val logger: DokkaLogger) {
+                           val logger: DokkaLogger) : JavaDocumentationBuilder {
     val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
@@ -65,7 +74,14 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
             KtTokens.OVERRIDE_KEYWORD)
 
-    fun parseDocumentation(descriptor: DeclarationDescriptor): Content {
+
+    fun parseDocumentation(descriptor: DeclarationDescriptor): Content = parseDocumentationAndDetails(descriptor).first
+
+    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
+        if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
+            return parseJavadoc(descriptor)
+        }
+
         val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
         if (kdoc == null) {
             if (options.reportUndocumented && !descriptor.isDeprecated() &&
@@ -73,7 +89,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                     descriptor !is PropertyAccessorDescriptor) {
                 logger.warn("No documentation for ${descriptor.signatureWithSourceLocation()}")
             }
-            return Content.Empty
+            return Content.Empty to { node -> }
         }
         var kdocText = kdoc.getContent()
         // workaround for code fence parsing problem in IJ markdown parser
@@ -100,7 +116,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 }
             }
         }
-        return content
+        return content to { node -> }
     }
 
     /**
@@ -130,6 +146,20 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
             }
         }
         return null
+    }
+
+    fun parseJavadoc(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
+        val psi = ((descriptor as? DeclarationDescriptorWithSource)?.source as? PsiSourceElement)?.psi
+        if (psi is PsiDocCommentOwner) {
+            val parseResult = JavadocParser(refGraph).parseDocumentation(psi as PsiNamedElement)
+            return parseResult.content to { node ->
+                parseResult.deprecatedContent?.let {
+                    val deprecationNode = DocumentationNode("", it, DocumentationNode.Kind.Modifier)
+                    node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
+                }
+            }
+        }
+        return Content.Empty to { node -> }
     }
 
     fun DeclarationDescriptor.signature(): String = when(this) {
@@ -246,8 +276,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun <T> DocumentationNode(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
-        val doc = parseDocumentation(descriptor)
+        val (doc, callback) = parseDocumentationAndDetails(descriptor)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
+        callback(node)
         return node
     }
 
@@ -274,7 +305,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
-        val modifier = descriptor.visibility.toString()
+        val modifier = descriptor.visibility.normalize().displayName
         appendTextNode(modifier, DocumentationNode.Kind.Modifier)
     }
 
@@ -393,18 +424,20 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 (!options.skipDeprecated || !isDeprecated())
     }
 
-    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>) {
-        descriptors.forEach { descriptor ->
+    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>): List<DocumentationNode> {
+        val nodes = descriptors.map { descriptor ->
             if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
                 val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
                 if (baseDescriptor != null) {
                     link(this, baseDescriptor, DocumentationReference.Kind.InheritedMember)
                 }
+                null
             }
             else {
                 appendChild(descriptor, DocumentationReference.Kind.Member)
             }
         }
+        return nodes.filterNotNull()
     }
 
     fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
@@ -464,6 +497,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         val members = defaultType.memberScope.getAllDescriptors().filter { it != companionObjectDescriptor }
         node.appendMembers(members)
+        node.appendMembers(staticScope.getDescriptors()).forEach {
+            it.appendTextNode("static", Kind.Modifier)
+        }
         val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
             node.appendMembers(companionObjectDescriptor.defaultType.memberScope.getAllDescriptors())
@@ -583,6 +619,9 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
+        if (varargElementType != null && node.details(Kind.Modifier).none { it.name == "vararg" }) {
+            node.appendTextNode("vararg", Kind.Modifier)
+        }
         register(this, node)
         return node
     }
@@ -675,6 +714,23 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                     val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
                     parent.appendChild(descriptor, DocumentationReference.Kind.Member)
                 }
+            }
+        }
+    }
+
+    override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
+        val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
+
+        file.classes.forEach {
+            val javaDescriptorResolver = KotlinCacheService.getInstance(file.project).getProjectService(JvmPlatform,
+                    it.getModuleInfo(), javaClass<JavaDescriptorResolver>())
+
+            val descriptor = javaDescriptorResolver.resolveClass(JavaClassImpl(it))
+            if (descriptor == null) {
+                logger.warn("Cannot find descriptor for Java class ${it.qualifiedName}")
+            }
+            else {
+                packageNode.appendChild(descriptor, DocumentationReference.Kind.Member)
             }
         }
     }

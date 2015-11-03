@@ -1,5 +1,3 @@
-package test
-
 class Test {
     /**
      * Summary for Function

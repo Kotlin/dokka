@@ -1,5 +1,3 @@
-package test;
-
 class C {
   public static class Foo {
   }

@@ -4,9 +4,13 @@ import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.OrderEnumerationHandler
 import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
@@ -70,12 +74,24 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val projectComponentManager = environment.project as MockComponentManager
 
-        val moduleManager = CoreModuleManager(environment.project, this)
+        val projectFileIndex = CoreProjectFileIndex(environment.project,
+                environment.configuration.getList(CommonConfigurationKeys.CONTENT_ROOTS))
+
+        val moduleManager = object : CoreModuleManager(environment.project, this) {
+            override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
+        }
+
         CoreApplicationEnvironment.registerComponentInstance(projectComponentManager.picoContainer,
                 ModuleManager::class.java, moduleManager)
 
+        Extensions.registerAreaClass("IDEA_MODULE", null)
+        CoreApplicationEnvironment.registerExtensionPoint(Extensions.getRootArea(),
+                OrderEnumerationHandler.EP_NAME, OrderEnumerationHandler.Factory::class.java)
+
         projectComponentManager.registerService(ProjectFileIndex::class.java,
-                CoreProjectFileIndex())
+                projectFileIndex)
+        projectComponentManager.registerService(ProjectRootManager::class.java,
+                CoreProjectRootManager(projectFileIndex))
         projectComponentManager.registerService(LibraryModificationTracker::class.java,
                 LibraryModificationTracker(environment.project))
         projectComponentManager.registerService(KotlinCacheService::class.java,

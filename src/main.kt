@@ -162,7 +162,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val packageDocumentationBuilder = injector.getInstance(PackageDocumentationBuilder::class.java)
 
         val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) },
-                packageDocumentationBuilder, logger)
+                packageDocumentationBuilder, null, logger)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -206,9 +206,10 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
                              includes: List<String> = listOf(),
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
                              packageDocumentationBuilder: PackageDocumentationBuilder? = null,
+                             javaDocumentationBuilder: JavaDocumentationBuilder? = null,
                              logger: DokkaLogger): DocumentationModule {
-    val documentation = environment.withContext { environment, resolutionFacade, session ->
-        val fragmentFiles = environment.getSourceFiles().filter(filesToDocumentFilter)
+    val documentation = environment.withContext { coreEnvironment, resolutionFacade, session ->
+        val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
         val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
         analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
@@ -231,9 +232,10 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
             }
         }
 
-        val javaFiles = environment.getJavaSourceFiles().filter(filesToDocumentFilter)
-        val javaDocumentationBuilder = JavaDocumentationBuilder(options, refGraph)
-        javaFiles.map { javaDocumentationBuilder.appendFile(it, documentationModule) }
+        val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
+        with(javaDocumentationBuilder ?: documentationBuilder) {
+            javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
+        }
 
         refGraph.resolveReferences()
 
