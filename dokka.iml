@@ -24,7 +24,7 @@
     <orderEntry type="library" name="protobuf" level="project" />
     <orderEntry type="library" name="asm" level="project" />
     <orderEntry type="library" name="jps-model" level="project" />
-    <orderEntry type="library" name="com.google.inject:guice:4.0" level="project" />
+    <orderEntry type="library" exported="" name="com.google.inject:guice:4.0" level="project" />
     <orderEntry type="library" name="jansi" level="project" />
   </component>
 </module>

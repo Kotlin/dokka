@@ -186,14 +186,10 @@ private fun PsiType.typeSignature(): String = when(this) {
 }
 
 private fun mapTypeName(psiType: PsiType): String = when (psiType) {
-    PsiType.VOID -> "Unit"
-    is PsiPrimitiveType -> psiType.canonicalText.capitalize()
-    is PsiClassType -> {
-        val psiClass = psiType.resolve()
-        if (psiClass?.qualifiedName == "java.lang.Object") "Any" else psiType.className
-    }
+    is PsiPrimitiveType -> psiType.canonicalText
+    is PsiClassType -> psiType.className
     is PsiEllipsisType -> mapTypeName(psiType.componentType)
-    is PsiArrayType -> "Array"
+    is PsiArrayType -> mapTypeName(psiType.componentType) + "[]"
     else -> psiType.canonicalText
 }
 
@@ -236,6 +232,7 @@ class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
             refGraph.link(qualifiedName, node, kind)
         }
     }
+
     fun DocumentationNode(element: PsiNamedElement,
                           kind: Kind,
                           name: String = element.name ?: "<anonymous>"): DocumentationNode {
@@ -326,18 +323,15 @@ class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
 
     fun PsiField.build(): DocumentationNode {
         val node = DocumentationNode(this, nodeKind())
-        if (!hasModifierProperty(PsiModifier.FINAL)) {
-            node.appendTextNode("var", Kind.Modifier)
-        }
         node.appendType(type)
+        node.appendModifiers(this)
         register(this, node)
         return node
     }
 
     private fun PsiField.nodeKind(): Kind = when {
         this is PsiEnumConstant -> Kind.EnumItem
-        hasModifierProperty(PsiModifier.STATIC) -> Kind.CompanionObjectProperty
-        else -> Kind.Property
+        else -> Kind.Field
     }
 
     fun PsiMethod.build(): DocumentationNode {
@@ -355,7 +349,6 @@ class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
 
     private fun PsiMethod.nodeKind(): Kind = when {
         isConstructor -> Kind.Constructor
-        hasModifierProperty(PsiModifier.STATIC) -> Kind.CompanionObjectFunction
         else -> Kind.Function
     }
 
@@ -363,7 +356,7 @@ class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
         val node = DocumentationNode(this, Kind.Parameter)
         node.appendType(type)
         if (type is PsiEllipsisType) {
-            node.appendTextNode("vararg", Kind.Annotation, DocumentationReference.Kind.Annotation)
+            node.appendTextNode("vararg", Kind.Modifier, DocumentationReference.Kind.Detail)
         }
         return node
     }
@@ -379,13 +372,9 @@ class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
         val modifierList = element.modifierList ?: return
 
         PsiModifier.MODIFIERS.forEach {
-            if (it != "static" && modifierList.hasExplicitModifier(it)) {
+            if (modifierList.hasExplicitModifier(it)) {
                 appendTextNode(it, Kind.Modifier)
             }
-        }
-        if ((element is PsiClass || (element is PsiMethod && !element.isConstructor)) &&
-                !element.hasModifierProperty(PsiModifier.FINAL)) {
-            appendTextNode("open", Kind.Modifier)
         }
     }
 

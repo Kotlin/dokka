@@ -308,14 +308,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             }
 
             appendSection(location, "Packages", node.members(DocumentationNode.Kind.Package), node, to)
-            appendSection(location, "Types", node.members.filter {
-                it.kind in setOf(
-                        DocumentationNode.Kind.Class,
-                        DocumentationNode.Kind.Interface,
-                        DocumentationNode.Kind.Enum,
-                        DocumentationNode.Kind.Object,
-                        DocumentationNode.Kind.AnnotationClass)
-            }, node, to)
+            appendSection(location, "Types", node.members.filter { it.kind in DocumentationNode.Kind.classLike }, node, to)
             appendSection(location, "Extensions for External Classes", node.members(DocumentationNode.Kind.ExternalClass), node, to)
             appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
             appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)

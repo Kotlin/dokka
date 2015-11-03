@@ -82,6 +82,7 @@ public open class DocumentationNode(val name: String,
         Constructor,
         Function,
         Property,
+        Field,
 
         CompanionObjectProperty,
         CompanionObjectFunction,
@@ -112,9 +113,12 @@ public open class DocumentationNode(val name: String,
          * A note which is rendered once on a page documenting a group of overloaded functions.
          * Needs to be generated equally on all overloads.
          */
-        OverloadGroupNote
-    }
+        OverloadGroupNote;
 
+        companion object {
+            val classLike = setOf(Class, Interface, Enum, AnnotationClass, Object)
+        }
+    }
 }
 
 public class DocumentationModule(name: String, content: Content = Content.Empty)
