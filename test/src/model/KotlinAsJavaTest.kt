@@ -16,7 +16,7 @@ class KotlinAsJavaTest {
 
             val fn = facadeClass.members.single()
             assertEquals("fn", fn.name)
-            assertEquals(DocumentationNode.Kind.CompanionObjectFunction, fn.kind)
+            assertEquals(DocumentationNode.Kind.Function, fn.kind)
         }
     }
 
@@ -24,7 +24,7 @@ class KotlinAsJavaTest {
         verifyModelAsJava("test/data/comments/oneLineDoc.kt") { model ->
             val facadeClass = model.members.single().members.single { it.name == "OneLineDocKt" }
             val getter = facadeClass.members.single { it.name == "getProperty" }
-            assertEquals(DocumentationNode.Kind.CompanionObjectFunction, getter.kind)
+            assertEquals(DocumentationNode.Kind.Function, getter.kind)
             assertEquals("doc", getter.content.summary.toTestString())
         }
     }

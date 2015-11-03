@@ -12,11 +12,7 @@ class KotlinLanguageService : LanguageService {
         return content {
             when (node.kind) {
                 DocumentationNode.Kind.Package -> if (renderMode == RenderMode.FULL) renderPackage(node)
-                DocumentationNode.Kind.Class,
-                DocumentationNode.Kind.Interface,
-                DocumentationNode.Kind.Enum,
-                DocumentationNode.Kind.AnnotationClass,
-                DocumentationNode.Kind.Object -> renderClass(node, renderMode)
+                in DocumentationNode.Kind.classLike -> renderClass(node, renderMode)
 
                 DocumentationNode.Kind.EnumItem,
                 DocumentationNode.Kind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)

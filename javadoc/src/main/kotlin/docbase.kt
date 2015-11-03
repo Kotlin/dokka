@@ -39,7 +39,7 @@ open class DocumentationNodeBareAdapter(override val node: DocumentationNode) : 
     override fun isEnum(): Boolean = node.kind == DocumentationNode.Kind.Enum
     override fun isMethod(): Boolean = node.kind == DocumentationNode.Kind.Function
     override fun isInterface(): Boolean = node.kind == DocumentationNode.Kind.Interface
-    override fun isField(): Boolean = node.kind == DocumentationNode.Kind.Property
+    override fun isField(): Boolean = node.kind == DocumentationNode.Kind.Field
     override fun isClass(): Boolean = node.kind == DocumentationNode.Kind.Class
     override fun isAnnotationType(): Boolean = node.kind == DocumentationNode.Kind.AnnotationClass
     override fun isConstructor(): Boolean = node.kind == DocumentationNode.Kind.Constructor
@@ -76,11 +76,11 @@ private fun <T> nodeAnnotations(self: T): List<AnnotationDescAdapter> where T : 
     = self.node.annotations.map { AnnotationDescAdapter(self.module, it) }
 
 private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName }
+private fun DocumentationNode.hasModifier(name: String) = details(DocumentationNode.Kind.Modifier).any { it.name == name }
 
-val allClassKinds = setOf(DocumentationNode.Kind.Class, DocumentationNode.Kind.Enum, DocumentationNode.Kind.Interface, DocumentationNode.Kind.Object, DocumentationNode.Kind.Exception)
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
-    private val allClasses = node.members.filter { it.kind in allClassKinds }.toMap { it.name }
+    private val allClasses = node.members.filter { it.kind in DocumentationNode.Kind.classLike }.toMap { it.name }
 
     override fun findClass(className: String?): ClassDoc? =
             allClasses.get(className)?.let { ClassDocumentationNodeAdapter(module, it) }
@@ -111,15 +111,14 @@ class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: Documentati
 class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
-    override fun isStatic(): Boolean = node.owner?.kind in listOf(DocumentationNode.Kind.Package, DocumentationNode.Kind.ExternalClass)
-                                                || node.hasAnnotation(JvmStatic::class)
+    override fun isStatic(): Boolean = node.hasModifier("static")
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
     override fun qualifiedName(): String? = node.qualifiedName
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
     override fun isProtected(): Boolean = false
 
-    override fun isFinal(): Boolean = node.details(DocumentationNode.Kind.Modifier).any { it.name == "final" }
+    override fun isFinal(): Boolean = node.hasModifier("final")
 
     override fun containingPackage(): PackageDoc? {
         var owner: DocumentationNode? = node
@@ -356,13 +355,19 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Documen
     override fun isVolatile(): Boolean = node.hasAnnotation(Volatile::class)
 }
 
-open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode, val name: String = classNode.name)
+open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode)
     : DocumentationNodeAdapter(module, classNode),
       Type by TypeAdapter(module, classNode),
       ProgramElementDoc by ProgramElementAdapter(module, classNode),
       ClassDoc {
 
-    override fun name(): String = name
+    override fun name(): String {
+        val parent = classNode.owner
+        if (parent?.kind in DocumentationNode.Kind.classLike) {
+            return parent!!.name + "." + classNode.name
+        }
+        return classNode.name
+    }
 
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(DocumentationNode.Kind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()
     override fun constructors(): Array<out ConstructorDoc> = constructors(true)
@@ -392,8 +397,8 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children)
     }).toTypedArray()
 
-    override fun fields(): Array<out FieldDoc> = emptyArray()
-    override fun fields(filter: Boolean): Array<out FieldDoc> = emptyArray()
+    override fun fields(): Array<out FieldDoc> = fields(true)
+    override fun fields(filter: Boolean): Array<out FieldDoc> = classNode.members(DocumentationNode.Kind.Field).map { FieldAdapter(module, it) }.toTypedArray()
 
     override fun findClass(className: String?): ClassDoc? = null // TODO !!!
     override fun serializableFields(): Array<out FieldDoc> = emptyArray()
@@ -425,7 +430,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         return false
     }
 
-    override fun innerClasses(): Array<out ClassDoc> = classNode.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it, name + "." + it.name) }.toTypedArray()
+    override fun innerClasses(): Array<out ClassDoc> = classNode.members(DocumentationNode.Kind.Class).map { ClassDocumentationNodeAdapter(module, it) }.toTypedArray()
     override fun innerClasses(filter: Boolean): Array<out ClassDoc> = innerClasses()
 }
 
