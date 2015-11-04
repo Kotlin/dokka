@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiJavaFile
@@ -38,7 +39,9 @@ import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KtType
 import org.jetbrains.kotlin.types.TypeProjection
 
-public data class DocumentationOptions(val includeNonPublic: Boolean = false,
+public data class DocumentationOptions(val outputDir: String,
+                                       val outputFormat: String,
+                                       val includeNonPublic: Boolean = false,
                                        val reportUndocumented: Boolean = true,
                                        val skipEmptyPackages: Boolean = true,
                                        val skipDeprecated: Boolean = false,
@@ -57,11 +60,13 @@ interface PackageDocumentationBuilder {
                                   declarations: List<DeclarationDescriptor>)
 }
 
-class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
-                           val linkResolver: DeclarationLinkResolver,
-                           val options: DocumentationOptions,
-                           val refGraph: NodeReferenceGraph,
-                           val logger: DokkaLogger) : JavaDocumentationBuilder {
+class DocumentationBuilder
+        @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
+                            val linkResolver: DeclarationLinkResolver,
+                            val options: DocumentationOptions,
+                            val refGraph: NodeReferenceGraph,
+                            val logger: DokkaLogger)
+{
     val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
@@ -328,7 +333,7 @@ class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
         return null
     }
 
-    private fun DeclarationDescriptor.isDocumented(): Boolean {
+    fun DeclarationDescriptor.isDocumented(): Boolean {
         return (options.includeNonPublic
                 || this !is MemberDescriptor
                 || this.visibility in visibleToDocumentation) &&
@@ -361,7 +366,7 @@ class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
 
     fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
                                             packageContent: Map<String, Content>,
-                                            packageDocumentationBuilder: PackageDocumentationBuilder = KotlinPackageDocumentationBuilder()) {
+                                            packageDocumentationBuilder: PackageDocumentationBuilder) {
         val allFqNames = fragments.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
@@ -614,14 +619,16 @@ class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
             DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value)
         }
     }
+}
 
-    inner class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
-        override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
-                                               packageName: FqName,
-                                               packageNode: DocumentationNode,
-                                               declarations: List<DeclarationDescriptor>) {
-            val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
-            declarations.forEach { descriptor ->
+class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
+    override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
+                                           packageName: FqName,
+                                           packageNode: DocumentationNode,
+                                           declarations: List<DeclarationDescriptor>) {
+        val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
+        declarations.forEach { descriptor ->
+            with(documentationBuilder) {
                 if (descriptor.isDocumented()) {
                     val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
                     parent.appendChild(descriptor, DocumentationReference.Kind.Member)
@@ -629,7 +636,12 @@ class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
             }
         }
     }
+}
 
+class KotlinJavaDocumentationBuilder
+        @Inject constructor(val documentationBuilder: DocumentationBuilder,
+                            val logger: DokkaLogger) : JavaDocumentationBuilder
+{
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
 
@@ -642,7 +654,9 @@ class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
                 logger.warn("Cannot find descriptor for Java class ${it.qualifiedName}")
             }
             else {
-                packageNode.appendChild(descriptor, DocumentationReference.Kind.Member)
+                with(documentationBuilder) {
+                    packageNode.appendChild(descriptor, DocumentationReference.Kind.Member)
+                }
             }
         }
     }

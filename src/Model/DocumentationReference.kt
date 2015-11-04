@@ -1,5 +1,7 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Singleton
+
 public data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReference.Kind) {
     public enum class Kind {
         Owner,
@@ -30,6 +32,7 @@ class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
     }
 }
 
+@Singleton
 class NodeReferenceGraph() {
     private val nodeMap = hashMapOf<String, DocumentationNode>()
     val references = arrayListOf<PendingDocumentationReference>()

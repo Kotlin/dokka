@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Guice
+import com.google.inject.Injector
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
@@ -8,7 +9,7 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import com.sampullara.cli.Args
 import com.sampullara.cli.Argument
-import org.jetbrains.dokka.Utilities.GuiceModule
+import org.jetbrains.dokka.Utilities.DokkaModule
 import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -154,22 +155,18 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val options = DocumentationOptions(false, sourceLinks = sourceLinks, skipDeprecated = skipDeprecated)
+        val options = DocumentationOptions(outputDir, outputFormat, false, sourceLinks = sourceLinks, skipDeprecated = skipDeprecated)
 
-        val injector = Guice.createInjector(GuiceModule(this))
-        val generator = injector.getInstance(Generator::class.java)
+        val injector = Guice.createInjector(DokkaModule(environment, options, logger))
 
-        val packageDocumentationBuilder = injector.getInstance(PackageDocumentationBuilder::class.java)
-
-        val documentation = buildDocumentationModule(environment, moduleName, options, includes, { isSample(it) },
-                packageDocumentationBuilder, null, logger)
+        val documentation = buildDocumentationModule(injector, moduleName, { isSample(it) }, includes)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
-            generator.buildAll(documentation)
+            injector.getInstance(Generator::class.java).buildAll(documentation)
         }
         logger.info("done in ${timeBuild / 1000} secs")
 
@@ -203,19 +200,15 @@ class DokkaGenerator(val logger: DokkaLogger,
     }
 }
 
-fun buildDocumentationModule(environment: AnalysisEnvironment,
+fun buildDocumentationModule(injector: Injector,
                              moduleName: String,
-                             options: DocumentationOptions,
-                             includes: List<String> = listOf(),
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
-                             packageDocumentationBuilder: PackageDocumentationBuilder? = null,
-                             javaDocumentationBuilder: JavaDocumentationBuilder? = null,
-                             logger: DokkaLogger): DocumentationModule {
+                             includes: List<String> = listOf()): DocumentationModule {
 
-    val coreEnvironment = environment.createCoreEnvironment()
-    val resolutionFacade = environment.createResolutionFacade(coreEnvironment)
-
+    val coreEnvironment = injector.getInstance(KotlinCoreEnvironment::class.java)
     val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
+
+    val resolutionFacade = injector.getInstance(DokkaResolutionFacade::class.java)
     val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
@@ -224,30 +217,23 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
             .filterNotNull()
             .distinct()
 
-    val refGraph = NodeReferenceGraph()
-    val linkResolver = DeclarationLinkResolver(resolutionFacade, refGraph, logger)
-    val documentationBuilder = DocumentationBuilder(resolutionFacade, linkResolver, options, refGraph, logger)
-    val packageDocs = PackageDocs(linkResolver, fragments.firstOrNull(), logger)
+    val packageDocs = injector.getInstance(PackageDocs::class.java)
     for (include in includes) {
-        packageDocs.parse(include)
+        packageDocs.parse(include, fragments.firstOrNull())
     }
     val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
 
-    with(documentationBuilder) {
-        if (packageDocumentationBuilder != null) {
-            documentationModule.appendFragments(fragments, packageDocs.packageContent, packageDocumentationBuilder)
-        }
-        else {
-            documentationModule.appendFragments(fragments, packageDocs.packageContent)
-        }
+    with(injector.getInstance(DocumentationBuilder::class.java)) {
+        documentationModule.appendFragments(fragments, packageDocs.packageContent,
+                injector.getInstance(PackageDocumentationBuilder::class.java))
     }
 
     val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
-    with(javaDocumentationBuilder ?: documentationBuilder) {
+    with(injector.getInstance(JavaDocumentationBuilder::class.java)) {
         javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
     }
 
-    refGraph.resolveReferences()
+    injector.getInstance(NodeReferenceGraph::class.java).resolveReferences()
 
     return documentationModule
 }

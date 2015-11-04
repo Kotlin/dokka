@@ -1,9 +1,11 @@
 package org.jetbrains.dokka.tests
 
+import com.google.inject.Guice
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Utilities.DokkaModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -17,7 +19,7 @@ import kotlin.test.fail
 public fun verifyModel(vararg roots: ContentRoot,
                        withJdk: Boolean = false,
                        withKotlinRuntime: Boolean = false,
-                       packageDocumentationBuilder: PackageDocumentationBuilder? = null,
+                       format: String = "html",
                        verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
@@ -48,10 +50,9 @@ public fun verifyModel(vararg roots: ContentRoot,
         }
         addRoots(roots.toList())
     }
-    val options = DocumentationOptions(includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
-    val documentation = buildDocumentationModule(environment, "test", options,
-            packageDocumentationBuilder = packageDocumentationBuilder,
-            logger = DokkaConsoleLogger)
+    val options = DocumentationOptions("", format, includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
+    val injector = Guice.createInjector(DokkaModule(environment, options, DokkaConsoleLogger))
+    val documentation = buildDocumentationModule(injector, "test")
     verifier(documentation)
     Disposer.dispose(environment)
 }
@@ -59,12 +60,12 @@ public fun verifyModel(vararg roots: ContentRoot,
 public fun verifyModel(source: String,
                        withJdk: Boolean = false,
                        withKotlinRuntime: Boolean = false,
-                       packageDocumentationBuilder: PackageDocumentationBuilder? = null,
+                       format: String = "html",
                        verifier: (DocumentationModule) -> Unit) {
     verifyModel(contentRootFromPath(source),
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,
-            packageDocumentationBuilder = packageDocumentationBuilder,
+            format = format,
             verifier = verifier)
 }
 
