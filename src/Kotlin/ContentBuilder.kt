@@ -3,16 +3,6 @@ package org.jetbrains.dokka
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.html.entities.EntityConverter
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtDeclarationWithBody
-import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.resolve.scopes.KtScope
-import org.jetbrains.kotlin.resolve.scopes.utils.asJetScope
 import java.util.*
 
 public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): MutableContent {
@@ -135,63 +125,3 @@ public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkRe
     }
 }
 
-fun DocumentationBuilder.functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
-    if (functionName == null) {
-        logger.warn("Missing function name in @sample in ${descriptor.signature()}")
-        return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
-    }
-    val scope = getResolutionScope(resolutionFacade, descriptor).asJetScope()
-    val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
-    val rootScope = rootPackage.memberScope
-    val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
-    if (symbol == null) {
-        logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
-        return ContentBlockCode().let() { it.append(ContentText("Unresolved: $functionName")); it }
-    }
-    val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
-    if (psiElement == null) {
-        logger.warn("Can't find source for function $functionName in @sample in ${descriptor.signature()}")
-        return ContentBlockCode().let() { it.append(ContentText("Source not found: $functionName")); it }
-    }
-
-    val text = when (psiElement) {
-        is KtDeclarationWithBody -> ContentBlockCode().let() {
-            val bodyExpression = psiElement.bodyExpression
-            when (bodyExpression) {
-                is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
-                else -> bodyExpression!!.text
-            }
-        }
-        else -> psiElement.text
-    }
-
-    val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length == 0 }
-    val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
-    val finalText = lines.map { it.drop(indent) }.joinToString("\n")
-    return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
-}
-
-private fun DocumentationBuilder.resolveInScope(functionName: String, scope: KtScope): DeclarationDescriptor? {
-    var currentScope = scope
-    val parts = functionName.split('.')
-
-    var symbol: DeclarationDescriptor? = null
-
-    for (part in parts) {
-        // short name
-        val symbolName = Name.guess(part)
-        val partSymbol = currentScope.getAllDescriptors().filter { it.name == symbolName }.firstOrNull()
-
-        if (partSymbol == null) {
-            symbol = null
-            break
-        }
-        currentScope = if (partSymbol is ClassDescriptor)
-            partSymbol.defaultType.memberScope
-        else
-            getResolutionScope(resolutionFacade, partSymbol).asJetScope()
-        symbol = partSymbol
-    }
-
-    return symbol
-}
