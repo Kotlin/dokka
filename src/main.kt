@@ -177,7 +177,9 @@ class DokkaGenerator(val logger: DokkaLogger,
     }
 
     fun createAnalysisEnvironment(): AnalysisEnvironment {
-        val environment = AnalysisEnvironment(DokkaMessageCollector(logger)) {
+        val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
+
+        environment.apply {
             addClasspath(PathUtil.getJdkClassesRoots())
             //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
             for (element in this@DokkaGenerator.classpath) {
@@ -187,6 +189,7 @@ class DokkaGenerator(val logger: DokkaLogger,
             addSources(this@DokkaGenerator.sources)
             addSources(this@DokkaGenerator.samples)
         }
+
         return environment
     }
 
@@ -208,42 +211,45 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
                              packageDocumentationBuilder: PackageDocumentationBuilder? = null,
                              javaDocumentationBuilder: JavaDocumentationBuilder? = null,
                              logger: DokkaLogger): DocumentationModule {
-    val documentation = environment.withContext { coreEnvironment, resolutionFacade, session ->
-        val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
-        val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
-        analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
-        val fragments = fragmentFiles.map { session.getPackageFragment(it.packageFqName) }.filterNotNull().distinct()
+    val coreEnvironment = environment.createCoreEnvironment()
+    val resolutionFacade = environment.createResolutionFacade(coreEnvironment)
 
-        val refGraph = NodeReferenceGraph()
-        val linkResolver = DeclarationLinkResolver(resolutionFacade, refGraph, logger)
-        val documentationBuilder = DocumentationBuilder(resolutionFacade, session, linkResolver, options, refGraph, logger)
-        val packageDocs = PackageDocs(linkResolver, fragments.firstOrNull(), logger)
-        for (include in includes) {
-            packageDocs.parse(include)
+    val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
+    val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
+    analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
+
+    val fragments = fragmentFiles
+            .map { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
+            .filterNotNull()
+            .distinct()
+
+    val refGraph = NodeReferenceGraph()
+    val linkResolver = DeclarationLinkResolver(resolutionFacade, refGraph, logger)
+    val documentationBuilder = DocumentationBuilder(resolutionFacade, linkResolver, options, refGraph, logger)
+    val packageDocs = PackageDocs(linkResolver, fragments.firstOrNull(), logger)
+    for (include in includes) {
+        packageDocs.parse(include)
+    }
+    val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
+
+    with(documentationBuilder) {
+        if (packageDocumentationBuilder != null) {
+            documentationModule.appendFragments(fragments, packageDocs.packageContent, packageDocumentationBuilder)
         }
-        val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
-
-        with(documentationBuilder) {
-            if (packageDocumentationBuilder != null) {
-                documentationModule.appendFragments(fragments, packageDocs.packageContent, packageDocumentationBuilder)
-            }
-            else {
-                documentationModule.appendFragments(fragments, packageDocs.packageContent)
-            }
+        else {
+            documentationModule.appendFragments(fragments, packageDocs.packageContent)
         }
-
-        val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
-        with(javaDocumentationBuilder ?: documentationBuilder) {
-            javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
-        }
-
-        refGraph.resolveReferences()
-
-        documentationModule
     }
 
-    return documentation
+    val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
+    with(javaDocumentationBuilder ?: documentationBuilder) {
+        javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
+    }
+
+    refGraph.resolveReferences()
+
+    return documentationModule
 }
 
 

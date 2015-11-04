@@ -41,7 +41,7 @@ class KotlinAsJavaDocumentationParser(val documentationBuilder: DocumentationBui
                 return JavadocParseResult.Empty
             }
         }
-        val descriptor = documentationBuilder.session.resolveToDescriptor(origin)
+        val descriptor = documentationBuilder.resolutionFacade.resolveToDescriptor(origin)
         val content = documentationBuilder.parseDocumentation(descriptor)
         return JavadocParseResult(content, null)
     }

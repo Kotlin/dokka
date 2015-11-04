@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
@@ -33,7 +32,6 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
@@ -59,8 +57,7 @@ interface PackageDocumentationBuilder {
                                   declarations: List<DeclarationDescriptor>)
 }
 
-class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
-                           val session: ResolveSession,
+class DocumentationBuilder(val resolutionFacade: DokkaResolutionFacade,
                            val linkResolver: DeclarationLinkResolver,
                            val options: DocumentationOptions,
                            val refGraph: NodeReferenceGraph,
@@ -134,8 +131,8 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                 deepestDescriptor = deepestDescriptor.overriddenDescriptors.first()
             }
             if (DescriptorUtils.getFqName(deepestDescriptor.containingDeclaration).asString() == "kotlin.Any") {
-                val anyClassDescriptors = session.getTopLevelClassDescriptors(FqName.fromSegments(listOf("kotlin", "Any")),
-                        NoLookupLocation.UNSORTED)
+                val anyClassDescriptors = resolutionFacade.resolveSession.getTopLevelClassDescriptors(
+                        FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.UNSORTED)
                 anyClassDescriptors.forEach {
                     val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.name, NoLookupLocation.UNSORTED).single()
                     val kdoc = KDocFinder.findKDoc(anyMethod)
