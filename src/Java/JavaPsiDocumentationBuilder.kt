@@ -239,9 +239,6 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             node.appendDetails(parameters) { build(Kind.Type) }
             link(node, resolve())
         }
-        if (this is PsiArrayType && this !is PsiEllipsisType) {
-            node.append(componentType.build(Kind.Type), DocumentationReference.Kind.Detail)
-        }
         return node
     }
 
