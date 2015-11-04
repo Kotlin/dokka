@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
-import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -58,19 +57,14 @@ import java.io.File
  * $messageCollector: required by compiler infrastructure and will receive all compiler messages
  * $body: optional and can be used to configure environment without creating local variable
  */
-public class AnalysisEnvironment(val messageCollector: MessageCollector, body: AnalysisEnvironment.() -> Unit = {}) : Disposable {
+public class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
     val configuration = CompilerConfiguration();
 
     init {
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
-        body()
     }
 
-    /**
-     * Executes [processor] when analysis is complete.
-     * $processor: function to receive compiler environment, module and context for symbol resolution
-     */
-    public fun <T> withContext(processor: (KotlinCoreEnvironment, ResolutionFacade, ResolveSession) -> T): T {
+    fun createCoreEnvironment(): KotlinCoreEnvironment {
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val projectComponentManager = environment.project as MockComponentManager
 
@@ -98,7 +92,10 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
                 KotlinCacheService(environment.project))
         projectComponentManager.registerService(KotlinOutOfBlockCompletionModificationTracker::class.java,
                 KotlinOutOfBlockCompletionModificationTracker())
+        return environment
+    }
 
+    fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
         val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
 
@@ -116,9 +113,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector, body: A
         )
 
         val resolverForModule = resolverForProject.resolverForModule(module)
-        val resolveSession = resolverForModule.componentProvider.get<ResolveSession>()
-        val facade = DokkaResolutionFacade(environment.project, resolverForProject.descriptorForModule(module), resolverForModule)
-        return processor(environment, facade, resolveSession)
+        return DokkaResolutionFacade(environment.project, resolverForProject.descriptorForModule(module), resolverForModule)
     }
 
     /**
@@ -183,6 +178,8 @@ class DokkaResolutionFacade(override val project: Project,
                             override val moduleDescriptor: ModuleDescriptor,
                             val resolverForModule: ResolverForModule) : ResolutionFacade {
 
+    val resolveSession: ResolveSession get() = getFrontendService(ResolveSession::class.java)
+
     override fun analyze(element: KtElement, bodyResolveMode: BodyResolveMode): BindingContext {
         throw UnsupportedOperationException()
     }
@@ -208,6 +205,6 @@ class DokkaResolutionFacade(override val project: Project,
     }
 
     override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        throw UnsupportedOperationException()
+        return resolveSession.resolveToDescriptor(declaration)
     }
 }
