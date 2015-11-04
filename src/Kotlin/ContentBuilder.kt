@@ -5,9 +5,14 @@ import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.html.entities.EntityConverter
 import java.util.*
 
-public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock): MutableContent {
+public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock, inline: Boolean = false): MutableContent {
     val result = MutableContent()
-    buildContentTo(tree, result, linkResolver)
+    if (inline) {
+        buildInlineContentTo(tree, result, linkResolver)
+    }
+    else {
+        buildContentTo(tree, result, linkResolver)
+    }
     return result
 }
 

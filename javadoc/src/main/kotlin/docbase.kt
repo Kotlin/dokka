@@ -308,9 +308,11 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
     override fun isVarArgs(): Boolean = node.details(DocumentationNode.Kind.Parameter).any { false } // TODO
 
     override fun isSynchronized(): Boolean = node.annotations.any { it.name == "synchronized" }
-    override fun paramTags(): Array<out ParamTag> = node.details(DocumentationNode.Kind.Parameter).filter { it.content.summary !is ContentEmpty || it.content.description !is ContentEmpty || it.content.sections.isNotEmpty() }.map {
-        ParamTagAdapter(module, this, it.name, false, it.content.children)
-    }.toTypedArray()
+
+    override fun paramTags(): Array<out ParamTag> = node.details(DocumentationNode.Kind.Parameter)
+            .filter { it.content.summary !is ContentEmpty || it.content.description !is ContentEmpty || it.content.sections.isNotEmpty() }
+            .map { ParamTagAdapter(module, this, it.name, false, it.content.children) }
+            .toTypedArray()
 
     override fun thrownExceptionTypes(): Array<out Type> = emptyArray()
     override fun receiverType(): Type? = receiverNode()?.let { receiver -> TypeAdapter(module, receiver) }

@@ -89,8 +89,15 @@ class SeeClassTagAdapter(holder: Doc, val clazz: ClassDocumentationNodeAdapter, 
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
 }
 
-class ParamTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val parameterName: String, val typeParameter: Boolean, val content: List<ContentNode>) : ParamTag {
-    constructor(module: ModuleNodeAdapter, holder: Doc, parameterName: String, isTypeParameter: Boolean, content: ContentNode) : this(module, holder, parameterName, isTypeParameter, listOf(content))
+class ParamTagAdapter(val module: ModuleNodeAdapter,
+                      val holder: Doc,
+                      val parameterName: String,
+                      val typeParameter: Boolean,
+                      val content: List<ContentNode>) : ParamTag {
+
+    constructor(module: ModuleNodeAdapter, holder: Doc, parameterName: String, isTypeParameter: Boolean, content: ContentNode)
+        : this(module, holder, parameterName, isTypeParameter, listOf(content)) {
+    }
 
     override fun name(): String = "@param"
     override fun kind(): String = name()
@@ -125,6 +132,13 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter)
 
 fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().let { buildInlineTags(module, holder, root, it); it }
 
+private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, nodes: List<ContentNode>, result: MutableList<Tag>) {
+    nodes.forEach {
+        buildInlineTags(module, holder, it, result)
+    }
+}
+
+
 private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: ContentNode, result: MutableList<Tag>) {
     fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
         if (node.children.isNotEmpty()) {
@@ -132,9 +146,7 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
             val close = TextTag(holder, ContentText(postfix))
 
             result.add(open)
-            node.children.forEach {
-                buildInlineTags(module, holder, it, result)
-            }
+            buildInlineTags(module, holder, node.children, result)
 
             if (result.last() === open) {
                 result.removeAt(result.lastIndex)
@@ -168,7 +180,7 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
 
                 in DocumentationNode.Kind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
 
-                else -> node.children.forEach { buildInlineTags(module, holder, it, result) }
+                else -> buildInlineTags(module, holder, node.children, result)
             }
         }
         is ContentExternalLink -> result.add(SeeExternalLinkTagAdapter(holder, node))

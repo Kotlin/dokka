@@ -84,8 +84,8 @@ class DocumentationBuilder
         refGraph.register(descriptor.signature(), node)
     }
 
-    fun <T> DocumentationNode(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
-        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor)
+    fun <T> nodeForDescriptor(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
+        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor, kind == Kind.Parameter)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         callback(node)
         return node
@@ -294,7 +294,7 @@ class DocumentationBuilder
             ClassKind.ENUM_ENTRY -> Kind.EnumItem
             else -> Kind.Class
         }
-        val node = DocumentationNode(this, kind)
+        val node = nodeForDescriptor(this, kind)
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, DocumentationReference.Kind.Detail)
@@ -321,7 +321,7 @@ class DocumentationBuilder
     }
 
     fun ConstructorDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Constructor)
+        val node = nodeForDescriptor(this, Kind.Constructor)
         node.appendInPageChildren(valueParameters, DocumentationReference.Kind.Detail)
         register(this, node)
         return node
@@ -341,7 +341,7 @@ class DocumentationBuilder
             logger.warn("Found an unresolved type in ${signatureWithSourceLocation()}")
         }
 
-        val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
+        val node = nodeForDescriptor(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
 
         node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
@@ -371,7 +371,7 @@ class DocumentationBuilder
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, if (inCompanionObject()) Kind.CompanionObjectProperty else Kind.Property)
+        val node = nodeForDescriptor(this, if (inCompanionObject()) Kind.CompanionObjectProperty else Kind.Property)
         node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
         node.appendType(returnType)
@@ -415,7 +415,7 @@ class DocumentationBuilder
     }
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Parameter)
+        val node = nodeForDescriptor(this, Kind.Parameter)
         node.appendType(varargElementType ?: type)
         if (declaresDefaultValue()) {
             val psi = source.getPsi() as? KtParameter
