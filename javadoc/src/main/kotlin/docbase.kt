@@ -93,7 +93,7 @@ private fun DocumentationNode.hasModifier(name: String) = details(DocumentationN
 
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
-    private val allClasses = node.members.filter { it.kind in DocumentationNode.Kind.classLike }.toMap { it.name }
+    private val allClasses = node.members.collectAllTypesRecursively()
 
     override fun findClass(className: String?): ClassDoc? =
             allClasses.get(className)?.let { ClassDocumentationNodeAdapter(module, it) }
@@ -455,11 +455,24 @@ fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
                 .map { module.allTypes[it?.qualifiedName] }
                 .filterNotNull()
 
+fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, DocumentationNode> {
+    val result = hashMapOf<String, DocumentationNode>()
+
+    fun DocumentationNode.collectTypesRecursively() {
+        val classLikeMembers = DocumentationNode.Kind.classLike.flatMap { members(it) }
+        classLikeMembers.forEach {
+            result.put(it.qualifiedName, it)
+            it.collectTypesRecursively()
+        }
+    }
+
+    forEach { it.collectTypesRecursively() }
+    return result
+}
+
 class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
     val allPackages = module.members(DocumentationNode.Kind.Package).toMapBy { it.name }
-    val allTypes = module.members(DocumentationNode.Kind.Package)
-            .flatMap { it.members(DocumentationNode.Kind.Class) + it.members(DocumentationNode.Kind.Interface) + it.members(DocumentationNode.Kind.Enum) }
-            .toMapBy { it.qualifiedName }
+    val allTypes = module.members(DocumentationNode.Kind.Package).collectAllTypesRecursively()
 
     override fun packageNamed(name: String?): PackageDoc? = allPackages[name]?.let { PackageAdapter(this, it) }
 
