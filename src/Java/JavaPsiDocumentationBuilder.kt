@@ -80,9 +80,9 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
     }
 
-    fun DocumentationNode(element: PsiNamedElement,
-                          kind: Kind,
-                          name: String = element.name ?: "<anonymous>"): DocumentationNode {
+    fun nodeForElement(element: PsiNamedElement,
+                       kind: Kind,
+                       name: String = element.name ?: "<anonymous>"): DocumentationNode {
         val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
@@ -98,6 +98,10 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
         if (deprecatedContent != null) {
             val deprecationNode = DocumentationNode("", deprecatedContent, Kind.Modifier)
+            node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
+        }
+        if (element is PsiDocCommentOwner && element.isDeprecated && node.deprecation == null) {
+            val deprecationNode = DocumentationNode("", Content.of(ContentText("Deprecated")), Kind.Modifier)
             node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
         }
         return node
@@ -140,7 +144,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             isAnnotationType -> DocumentationNode.Kind.AnnotationClass
             else -> DocumentationNode.Kind.Class
         }
-        val node = DocumentationNode(this, kind)
+        val node = nodeForElement(this, kind)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
             node.appendType(it, Kind.Supertype)
             val superClass = it.resolve()
@@ -169,7 +173,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun PsiField.build(): DocumentationNode {
-        val node = DocumentationNode(this, nodeKind())
+        val node = nodeForElement(this, nodeKind())
         node.appendType(type)
         node.appendModifiers(this)
         register(this, node)
@@ -182,7 +186,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun PsiMethod.build(): DocumentationNode {
-        val node = DocumentationNode(this, nodeKind(),
+        val node = nodeForElement(this, nodeKind(),
                 if (isConstructor) "<init>" else name)
 
         if (!isConstructor) {
@@ -200,7 +204,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun PsiParameter.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.Parameter)
+        val node = nodeForElement(this, Kind.Parameter)
         node.appendType(type)
         if (type is PsiEllipsisType) {
             node.appendTextNode("vararg", Kind.Modifier, DocumentationReference.Kind.Detail)
@@ -209,7 +213,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun PsiTypeParameter.build(): DocumentationNode {
-        val node = DocumentationNode(this, Kind.TypeParameter)
+        val node = nodeForElement(this, Kind.TypeParameter)
         extendsListTypes.forEach { node.appendType(it, Kind.UpperBound) }
         implementsListTypes.forEach { node.appendType(it, Kind.UpperBound) }
         return node

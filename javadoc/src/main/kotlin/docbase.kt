@@ -63,12 +63,25 @@ open class DocumentationNodeBareAdapter(override val node: DocumentationNode) : 
 open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeBareAdapter(node), HasModule {
     override fun inlineTags(): Array<out Tag> = buildInlineTags(module, this, node.content).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = buildInlineTags(module, this, node.summary).toTypedArray()
-    override fun tags(): Array<out Tag> = (buildInlineTags(module, this, node.content) + node.content.sections.flatMap {
-        when (it.tag) {
-            ContentTags.SeeAlso -> buildInlineTags(module, this, it)
-            else -> emptyList<Tag>()
+
+    override fun tags(): Array<out Tag> {
+        val result = ArrayList<Tag>(buildInlineTags(module, this, node.content))
+        node.content.sections.flatMapTo(result) {
+            when (it.tag) {
+                ContentTags.SeeAlso -> buildInlineTags(module, this, it)
+                else -> emptyList<Tag>()
+            }
         }
-    }).toTypedArray()
+
+        node.deprecation?.let {
+            val content = it.content.asText()
+            if (content != null) {
+                result.add(TagImpl(this, "deprecated", content))
+            }
+        }
+
+        return result.toTypedArray()
+    }
 }
 
 // should be extension property but can't because of KT-8745

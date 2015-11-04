@@ -11,7 +11,7 @@ public object ContentEmpty : ContentNode {
 public open class ContentBlock() : ContentNode {
     val children = arrayListOf<ContentNode>()
 
-    fun append(node : ContentNode)  {
+    fun append(node: ContentNode)  {
         children.add(node)
     }
 
@@ -173,6 +173,12 @@ public open class Content(): ContentBlock() {
 
     companion object {
         val Empty = Content()
+
+        fun of(vararg child: ContentNode): Content {
+            val result = MutableContent()
+            child.forEach { result.append(it) }
+            return result
+        }
     }
 }
 
