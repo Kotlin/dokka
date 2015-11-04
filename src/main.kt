@@ -216,8 +216,9 @@ fun buildDocumentationModule(environment: AnalysisEnvironment,
         val fragments = fragmentFiles.map { session.getPackageFragment(it.packageFqName) }.filterNotNull().distinct()
 
         val refGraph = NodeReferenceGraph()
-        val documentationBuilder = DocumentationBuilder(resolutionFacade, session, options, refGraph, logger)
-        val packageDocs = PackageDocs(documentationBuilder, fragments.firstOrNull(), logger)
+        val linkResolver = DeclarationLinkResolver(resolutionFacade, refGraph, logger)
+        val documentationBuilder = DocumentationBuilder(resolutionFacade, session, linkResolver, options, refGraph, logger)
+        val packageDocs = PackageDocs(linkResolver, fragments.firstOrNull(), logger)
         for (include in includes) {
             packageDocs.parse(include)
         }
