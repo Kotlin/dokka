@@ -30,9 +30,10 @@ class DescriptorDocumentationParser
                              val resolutionFacade: DokkaResolutionFacade,
                              val refGraph: NodeReferenceGraph)
 {
-    fun parseDocumentation(descriptor: DeclarationDescriptor): Content = parseDocumentationAndDetails(descriptor).first
+    fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
+            parseDocumentationAndDetails(descriptor, inline).first
 
-    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
+    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor, inline: Boolean = false): Pair<Content, (DocumentationNode) -> Unit> {
         if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
             return parseJavadoc(descriptor)
         }
@@ -52,8 +53,7 @@ class DescriptorDocumentationParser
             kdocText += "\n"
         }
         val tree = parseMarkdown(kdocText)
-        //println(tree.toTestString())
-        val content = buildContent(tree, { href -> linkResolver.resolveContentLink(descriptor, href) })
+        val content = buildContent(tree, { href -> linkResolver.resolveContentLink(descriptor, href) }, inline)
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
