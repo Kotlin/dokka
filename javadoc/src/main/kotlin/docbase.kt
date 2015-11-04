@@ -171,16 +171,14 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
     override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
-    override fun isPrimitive(): Boolean = node.name in setOf("Int", "Long", "Short", "Byte", "Char", "Double", "Float", "Boolean", "Unit")
+    override fun isPrimitive(): Boolean = simpleTypeName() in setOf("int", "long", "short", "byte", "char", "double", "float", "boolean", "void")
+
     override fun asClassDoc(): ClassDoc? = if (isPrimitive) null else
             elementType?.asClassDoc() ?:
             when (node.kind) {
-                DocumentationNode.Kind.Class,
+                in DocumentationNode.Kind.classLike,
                 DocumentationNode.Kind.ExternalClass,
-                DocumentationNode.Kind.Interface,
-                DocumentationNode.Kind.Object,
-                DocumentationNode.Kind.Exception,
-                DocumentationNode.Kind.Enum -> ClassDocumentationNodeAdapter(module, node)
+                DocumentationNode.Kind.Exception -> ClassDocumentationNodeAdapter(module, node)
 
                 else -> when {
                     node.links.isNotEmpty() -> TypeAdapter(module, node.links.first()).asClassDoc()

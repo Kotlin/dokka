@@ -20,9 +20,9 @@ private fun PsiType.typeSignature(): String = when(this) {
 
 private fun mapTypeName(psiType: PsiType): String = when (psiType) {
     is PsiPrimitiveType -> psiType.canonicalText
-    is PsiClassType -> psiType.className
+    is PsiClassType -> psiType.resolve()?.qualifiedName ?: psiType.className
     is PsiEllipsisType -> mapTypeName(psiType.componentType)
-    is PsiArrayType -> mapTypeName(psiType.componentType) + "[]"
+    is PsiArrayType -> "Array"
     else -> psiType.canonicalText
 }
 
@@ -242,6 +242,9 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (this is PsiClassType) {
             node.appendDetails(parameters) { build(Kind.Type) }
             link(node, resolve())
+        }
+        if (this is PsiArrayType && this !is PsiEllipsisType) {
+            node.append(componentType.build(Kind.Type), DocumentationReference.Kind.Detail)
         }
         return node
     }
