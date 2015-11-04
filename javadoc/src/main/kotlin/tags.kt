@@ -4,6 +4,19 @@ import com.sun.javadoc.*
 import org.jetbrains.dokka.*
 import java.util.*
 
+class TagImpl(val holder: Doc, val name: String, val text: String): Tag {
+    override fun text(): String? = text
+
+    override fun holder(): Doc = holder
+    override fun firstSentenceTags(): Array<out Tag>? = arrayOf()
+    override fun inlineTags(): Array<out Tag>?  = arrayOf()
+
+    override fun name(): String = name
+    override fun kind(): String = name
+
+    override fun position(): SourcePosition = holder.position()
+}
+
 class TextTag(val holder: Doc, val content: ContentText) : Tag {
     val plainText: String
         get() = content.text
@@ -32,8 +45,7 @@ class SeeExternalLinkTagAdapter(val holder: Doc, val link: ContentExternalLink) 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
 
     override fun label(): String {
-        val contentText = link.children.singleOrNull() as? ContentText
-        val label = contentText?.text ?: link.href
+        val label = link.asText() ?: link.href
         return "<a href=\"${link.href}\">$label</a>"
     }
 
@@ -46,6 +58,11 @@ class SeeExternalLinkTagAdapter(val holder: Doc, val link: ContentExternalLink) 
     override fun firstSentenceTags(): Array<out Tag> = inlineTags()
     override fun name(): String = "@link"
     override fun kind(): String = "@see"
+}
+
+fun ContentBlock.asText(): String? {
+    val contentText = children.singleOrNull() as? ContentText
+    return contentText?.text
 }
 
 class SeeMethodTagAdapter(holder: Doc, val method: MethodAdapter, content: ContentNodeLink) : SeeTagAdapter(holder, content) {
