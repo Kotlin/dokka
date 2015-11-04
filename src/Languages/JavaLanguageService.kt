@@ -10,11 +10,7 @@ public class JavaLanguageService : LanguageService {
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return ContentText(when (node.kind) {
             Kind.Package -> renderPackage(node)
-            Kind.Class,
-            Kind.Interface,
-            Kind.Enum,
-            Kind.EnumItem,
-            Kind.Object -> renderClass(node)
+            in Kind.classLike -> renderClass(node)
 
             Kind.TypeParameter -> renderTypeParameter(node)
             Kind.Type,

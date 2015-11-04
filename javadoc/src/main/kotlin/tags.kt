@@ -30,7 +30,13 @@ class SeeExternalLinkTagAdapter(val holder: Doc, val link: ContentExternalLink) 
     override fun position(): SourcePosition = holder.position()
     override fun text(): String = label()
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
-    override fun label(): String = "<a href=\"${link.href}\">${link.href}</a>"
+
+    override fun label(): String {
+        val contentText = link.children.singleOrNull() as? ContentText
+        val label = contentText?.text ?: link.href
+        return "<a href=\"${link.href}\">$label</a>"
+    }
+
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc? = null
     override fun referencedMemberName(): String? = null
@@ -139,14 +145,13 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
     when (node) {
         is ContentText -> result.add(TextTag(holder, node))
         is ContentNodeLink -> {
-            when (node.node?.kind) {
+            val target = node.node
+            when (target?.kind) {
                 DocumentationNode.Kind.Function -> result.add(SeeMethodTagAdapter(holder, MethodAdapter(module, node.node!!), node))
 
-                DocumentationNode.Kind.Class,
-                DocumentationNode.Kind.ExternalClass,
-                DocumentationNode.Kind.Enum -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
+                in DocumentationNode.Kind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
 
-                else -> result.add(TextTag(holder, ContentText("other link: ${node.node}"))) // TODO
+                else -> node.children.forEach { buildInlineTags(module, holder, it, result) }
             }
         }
         is ContentExternalLink -> result.add(SeeExternalLinkTagAdapter(holder, node))
