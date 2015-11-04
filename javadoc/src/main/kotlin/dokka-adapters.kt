@@ -5,12 +5,12 @@ import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
 
-class JavadocGenerator @Inject constructor (val conf: DokkaGenerator) : Generator {
+class JavadocGenerator @Inject constructor (val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single() as DocumentationModule
 
         DokkaConsoleLogger.report()
-        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(conf.logger), conf.outputDir))
+        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir))
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
@@ -19,14 +19,9 @@ class JavadocGenerator @Inject constructor (val conf: DokkaGenerator) : Generato
 }
 
 class JavadocFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass: Class<out FormatService>?
-        get() = null
-    override val outlineServiceClass: Class<out OutlineFormatService>?
-        get() = null
-
-    override val generatorServiceClass: Class<out Generator>
-        get() = JavadocGenerator::class.java
-
-    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
-        get() = KotlinAsJavaDocumentationBuilder::class.java
+    override val formatServiceClass = null
+    override val outlineServiceClass = null
+    override val generatorServiceClass = JavadocGenerator::class
+    override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
+    override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
 }

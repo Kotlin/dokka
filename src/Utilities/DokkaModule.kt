@@ -4,15 +4,16 @@ import com.google.inject.Binder
 import com.google.inject.Module
 import com.google.inject.Provider
 import com.google.inject.name.Names
-import com.google.inject.util.Providers
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 
-class GuiceModule(val config: DokkaGenerator) : Module {
+class DokkaModule(val environment: AnalysisEnvironment,
+                  val options: DocumentationOptions,
+                  val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
-        binder.bind(DokkaGenerator::class.java).toInstance(config)
-        binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(config.outputDir))
+        binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(options.outputDir))
 
         binder.bindNameAnnotated<LocationService, SingleFolderLocationService>("singleFolder")
         binder.bindNameAnnotated<FileLocationService, SingleFolderLocationService>("singleFolder")
@@ -33,23 +34,28 @@ class GuiceModule(val config: DokkaGenerator) : Module {
         binder.registerCategory<FormatService>("format")
         binder.registerCategory<Generator>("generator")
 
-        val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", config.outputFormat, config)
+        val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
 
         descriptor.outlineServiceClass?.let { clazz ->
-            binder.bind(OutlineFormatService::class.java).to(clazz)
+            binder.bind(OutlineFormatService::class.java).to(clazz.java)
         }
         descriptor.formatServiceClass?.let { clazz ->
-            binder.bind(FormatService::class.java).to(clazz)
+            binder.bind(FormatService::class.java).to(clazz.java)
         }
-        if (descriptor.packageDocumentationBuilderServiceClass != null) {
-            binder.bind(PackageDocumentationBuilder::class.java).to(descriptor.packageDocumentationBuilderServiceClass)
-        } else {
-            binder.bind(PackageDocumentationBuilder::class.java).toProvider(Providers.of(null))
-        }
+        binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
+        binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)
 
-        binder.bind(Generator::class.java).to(descriptor.generatorServiceClass)
+        binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
+
+        val coreEnvironment = environment.createCoreEnvironment()
+        binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
+
+        val dokkaResolutionFacade = environment.createResolutionFacade(coreEnvironment)
+        binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
+
+        binder.bind<DocumentationOptions>().toInstance(options)
+        binder.bind<DokkaLogger>().toInstance(logger)
     }
-
 }
 
 private inline fun <reified T: Any> Binder.registerCategory(category: String) {
@@ -63,3 +69,5 @@ private inline fun <reified Base : Any, reified T : Base> Binder.bindNameAnnotat
     bind(Base::class.java).annotatedWith(Names.named(name)).to(T::class.java)
 }
 
+
+inline fun <reified T: Any> Binder.bind() = bind(T::class.java)

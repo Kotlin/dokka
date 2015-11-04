@@ -2,58 +2,37 @@ package org.jetbrains.dokka.Formats
 
 import org.jetbrains.dokka.*
 
-class HtmlFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass: Class<out FormatService>
-        get() = HtmlFormatService::class.java
+abstract class KotlinFormatDescriptorBase : FormatDescriptor {
+    override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
+    override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
 
-    override val outlineServiceClass: Class<out OutlineFormatService>
-        get() = HtmlFormatService::class.java
-
-    override val generatorServiceClass: Class<out Generator>
-        get() = FileGenerator::class.java
-
-    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
-        get() = null
+    override val generatorServiceClass = FileGenerator::class
 }
 
-class KotlinWebsiteFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass: Class<out FormatService>
-        get() = KotlinWebsiteFormatService::class.java
-
-    override val outlineServiceClass: Class<out OutlineFormatService>
-        get() = YamlOutlineService::class.java
-
-    override val generatorServiceClass: Class<out Generator>
-        get() = FileGenerator::class.java
-
-    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
-        get() = null
+class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = HtmlFormatService::class
+    override val outlineServiceClass = HtmlFormatService::class
 }
 
-class JekyllFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass: Class<out FormatService>
-        get() = JekyllFormatService::class.java
-
-    override val outlineServiceClass: Class<out OutlineFormatService>?
-        get() = null
-
-    override val generatorServiceClass: Class<out Generator>
-        get() = FileGenerator::class.java
-
-    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
-        get() = null
+class HtmlAsJavaFormatDescriptor : FormatDescriptor {
+    override val formatServiceClass = HtmlFormatService::class
+    override val outlineServiceClass = HtmlFormatService::class
+    override val generatorServiceClass = FileGenerator::class
+    override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
+    override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
 }
 
-class MarkdownFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass: Class<out FormatService>
-        get() = MarkdownFormatService::class.java
+class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = KotlinWebsiteFormatService::class
+    override val outlineServiceClass = YamlOutlineService::class
+}
 
-    override val outlineServiceClass: Class<out OutlineFormatService>?
-        get() = null
+class JekyllFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = JekyllFormatService::class
+    override val outlineServiceClass = null
+}
 
-    override val generatorServiceClass: Class<out Generator>
-        get() = FileGenerator::class.java
-
-    override val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
-        get() = null
+class MarkdownFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = MarkdownFormatService::class
+    override val outlineServiceClass = null
 }

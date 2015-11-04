@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
 import com.intellij.psi.*
 import org.jetbrains.dokka.DocumentationNode.Kind
 
@@ -29,9 +30,23 @@ interface JavaDocumentationBuilder {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>)
 }
 
-class JavaPsiDocumentationBuilder(private val options: DocumentationOptions,
-                                  private val refGraph: NodeReferenceGraph,
-                                  private val docParser: JavaDocumentationParser = JavadocParser(refGraph)) : JavaDocumentationBuilder {
+class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
+    private val options: DocumentationOptions
+    private val refGraph: NodeReferenceGraph
+    private val docParser: JavaDocumentationParser
+
+    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph) {
+        this.options = options
+        this.refGraph = refGraph
+        this.docParser = JavadocParser(refGraph)
+    }
+
+    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
+        this.options = options
+        this.refGraph = refGraph
+        this.docParser = docParser
+    }
+
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         if (file.classes.all { skipElement(it) }) {
             return

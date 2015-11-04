@@ -1,13 +1,12 @@
 package org.jetbrains.dokka.Formats
 
-import org.jetbrains.dokka.FormatService
-import org.jetbrains.dokka.Generator
-import org.jetbrains.dokka.OutlineFormatService
-import org.jetbrains.dokka.PackageDocumentationBuilder
+import org.jetbrains.dokka.*
+import kotlin.reflect.KClass
 
 public interface FormatDescriptor {
-    val formatServiceClass: Class<out FormatService>?
-    val outlineServiceClass: Class<out OutlineFormatService>?
-    val generatorServiceClass: Class<out Generator>
-    val packageDocumentationBuilderServiceClass: Class<out PackageDocumentationBuilder>?
+    val formatServiceClass: KClass<out FormatService>?
+    val outlineServiceClass: KClass<out OutlineFormatService>?
+    val generatorServiceClass: KClass<out Generator>
+    val packageDocumentationBuilderClass: KClass<out PackageDocumentationBuilder>
+    val javaDocumentationBuilderClass: KClass<out JavaDocumentationBuilder>
 }

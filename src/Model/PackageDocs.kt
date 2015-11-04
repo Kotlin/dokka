@@ -1,19 +1,23 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import java.io.File
 
-public class PackageDocs(val linkResolver: DeclarationLinkResolver?,
-                         val linkResolveContext: DeclarationDescriptor?,
-                         val logger: DokkaLogger) {
+@Singleton
+public class PackageDocs
+        @Inject constructor(val linkResolver: DeclarationLinkResolver?,
+                            val logger: DokkaLogger)
+{
     public val moduleContent: MutableContent = MutableContent()
     private val _packageContent: MutableMap<String, MutableContent> = hashMapOf()
     public val packageContent: Map<String, Content>
         get() = _packageContent
 
-    fun parse(fileName: String) {
+    fun parse(fileName: String, linkResolveContext: LazyPackageDescriptor?) {
         val file = File(fileName)
         if (file.exists()) {
             val text = file.readText()
@@ -26,7 +30,7 @@ public class PackageDocs(val linkResolver: DeclarationLinkResolver?,
                         targetContent = findTargetContent(headingText.trimStart())
                     }
                 } else {
-                    buildContentTo(it, targetContent, { resolveContentLink(it) })
+                    buildContentTo(it, targetContent, { resolveContentLink(it, linkResolveContext) })
                 }
             }
         } else {
@@ -47,7 +51,7 @@ public class PackageDocs(val linkResolver: DeclarationLinkResolver?,
     private fun findOrCreatePackageContent(packageName: String) =
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
-    private fun resolveContentLink(href: String): ContentBlock {
+    private fun resolveContentLink(href: String, linkResolveContext: LazyPackageDescriptor?): ContentBlock {
         if (linkResolveContext != null && linkResolver != null) {
             return linkResolver.resolveContentLink(linkResolveContext, href)
         }

@@ -4,10 +4,9 @@ import com.google.inject.Inject
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 
 class DeclarationLinkResolver
-        @Inject constructor(val resolutionFacade: ResolutionFacade,
+        @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                             val refGraph: NodeReferenceGraph,
                             val logger: DokkaLogger) {
     fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock {

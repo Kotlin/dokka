@@ -2,7 +2,6 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.DocumentationModule
 import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.KotlinAsJavaDocumentationBuilder
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -36,6 +35,6 @@ fun verifyModelAsJava(source: String,
                       verifier: (DocumentationModule) -> Unit) {
     verifyModel(source,
             withJdk = withJdk, withKotlinRuntime = withKotlinRuntime,
-            packageDocumentationBuilder = KotlinAsJavaDocumentationBuilder(),
+            format = "html-as-java",
             verifier = verifier)
 }
