@@ -5,7 +5,7 @@ import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import java.io.File
 
-public class PackageDocs(val documentationBuilder: DocumentationBuilder?,
+public class PackageDocs(val linkResolver: DeclarationLinkResolver?,
                          val linkResolveContext: DeclarationDescriptor?,
                          val logger: DokkaLogger) {
     public val moduleContent: MutableContent = MutableContent()
@@ -48,8 +48,8 @@ public class PackageDocs(val documentationBuilder: DocumentationBuilder?,
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
     private fun resolveContentLink(href: String): ContentBlock {
-        if (linkResolveContext != null && documentationBuilder != null) {
-            return documentationBuilder.resolveContentLink(linkResolveContext, href)
+        if (linkResolveContext != null && linkResolver != null) {
+            return linkResolver.resolveContentLink(linkResolveContext, href)
         }
         return ContentExternalLink("#")
     }

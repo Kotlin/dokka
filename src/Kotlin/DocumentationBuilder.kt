@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -62,6 +61,7 @@ interface PackageDocumentationBuilder {
 
 class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                            val session: ResolveSession,
+                           val linkResolver: DeclarationLinkResolver,
                            val options: DocumentationOptions,
                            val refGraph: NodeReferenceGraph,
                            val logger: DokkaLogger) : JavaDocumentationBuilder {
@@ -98,7 +98,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         }
         val tree = parseMarkdown(kdocText)
         //println(tree.toTestString())
-        val content = buildContent(tree, { href -> resolveContentLink(descriptor, href) })
+        val content = buildContent(tree, { href -> linkResolver.resolveContentLink(descriptor, href) })
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
@@ -111,7 +111,7 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
                         val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
-                        buildInlineContentTo(markdownNode, section, { href -> resolveContentLink(descriptor, href) })
+                        buildInlineContentTo(markdownNode, section, { href -> linkResolver.resolveContentLink(descriptor, href) })
                     }
                 }
             }
@@ -162,98 +162,13 @@ class DocumentationBuilder(val resolutionFacade: ResolutionFacade,
         return Content.Empty to { node -> }
     }
 
-    fun DeclarationDescriptor.signature(): String = when(this) {
-        is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
-        is PropertyDescriptor -> containingDeclaration.signature() + "#" + name + receiverSignature()
-        is FunctionDescriptor -> containingDeclaration.signature() + "#" + name + parameterSignature()
-        is ValueParameterDescriptor -> containingDeclaration.signature() + ":" + name
-        is TypeParameterDescriptor -> containingDeclaration.signature() + "<" + name
-
-        else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
-    }
-
-    fun PropertyDescriptor.receiverSignature(): String {
-        val receiver = extensionReceiverParameter
-        if (receiver != null) {
-            return "#" + receiver.type.signature()
-        }
-        return ""
-    }
-
-    fun CallableMemberDescriptor.parameterSignature(): String {
-        val params = valueParameters.map { it.type }.toArrayList()
-        val extensionReceiver = extensionReceiverParameter
-        if (extensionReceiver != null) {
-            params.add(0, extensionReceiver.type)
-        }
-        return "(" + params.map { it.signature() }.joinToString() + ")"
-    }
-
-    fun KtType.signature(): String {
-        val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
-        val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-        if (typeName == "Array" && arguments.size == 1) {
-            return "Array<" + arguments.first().type.signature() + ">"
-        }
-        return typeName
-    }
-
-    fun DeclarationDescriptor.sourceLocation(): String? {
-        if (this is DeclarationDescriptorWithSource) {
-            val psi = (this.source as? PsiSourceElement)?.getPsi()
-            if (psi != null) {
-                val fileName = psi.containingFile.name
-                val lineNumber = psi.lineNumber()
-                return if (lineNumber != null) "$fileName:$lineNumber" else fileName
-            }
-        }
-        return null
-    }
-
-    fun DeclarationDescriptor.signatureWithSourceLocation(): String {
-        val signature = signature()
-        val sourceLocation = sourceLocation()
-        return if (sourceLocation != null) "$signature ($sourceLocation)" else signature
-    }
-
-    fun resolveContentLink(descriptor: DeclarationDescriptor, href: String): ContentBlock {
-        val symbol = try {
-            val symbols = resolveKDocLink(resolutionFacade, descriptor, null, href.split('.').toList())
-            findTargetSymbol(symbols)
-        } catch(e: Exception) {
-            null
-        }
-
-        // don't include unresolved links in generated doc
-        // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
-        if (symbol != null) {
-            return ContentNodeLazyLink(href, { -> refGraph.lookup(symbol.signature()) })
-        }
-        if ("/" in href) {
-            return ContentExternalLink(href)
-        }
-        logger.warn("Unresolved link to $href in doc comment of ${descriptor.signatureWithSourceLocation()}")
-        return ContentExternalLink("#")
-    }
-
-    fun findTargetSymbol(symbols: Collection<DeclarationDescriptor>): DeclarationDescriptor? {
-        if (symbols.isEmpty()) {
-            return null
-        }
-        val symbol = symbols.first()
-        if (symbol is CallableMemberDescriptor && symbol.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
-            return symbol.overriddenDescriptors.firstOrNull()
-        }
-        return symbol
-    }
-
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java) ?: arrayOf()
 
     private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
         val subjectName = seeTag.getSubjectName()
         if (subjectName != null) {
             val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
-            val link = resolveContentLink(descriptor, subjectName)
+            val link = linkResolver.resolveContentLink(descriptor, subjectName)
             link.append(ContentText(subjectName))
             val para = ContentParagraph()
             para.append(link)
@@ -782,3 +697,56 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     return null
 }
 
+fun DeclarationDescriptor.signature(): String = when(this) {
+    is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
+    is PropertyDescriptor -> containingDeclaration.signature() + "#" + name + receiverSignature()
+    is FunctionDescriptor -> containingDeclaration.signature() + "#" + name + parameterSignature()
+    is ValueParameterDescriptor -> containingDeclaration.signature() + ":" + name
+    is TypeParameterDescriptor -> containingDeclaration.signature() + "<" + name
+
+    else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+}
+
+fun PropertyDescriptor.receiverSignature(): String {
+    val receiver = extensionReceiverParameter
+    if (receiver != null) {
+        return "#" + receiver.type.signature()
+    }
+    return ""
+}
+
+fun CallableMemberDescriptor.parameterSignature(): String {
+    val params = valueParameters.map { it.type }.toArrayList()
+    val extensionReceiver = extensionReceiverParameter
+    if (extensionReceiver != null) {
+        params.add(0, extensionReceiver.type)
+    }
+    return "(" + params.map { it.signature() }.joinToString() + ")"
+}
+
+fun KtType.signature(): String {
+    val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
+    val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
+    if (typeName == "Array" && arguments.size == 1) {
+        return "Array<" + arguments.first().type.signature() + ">"
+    }
+    return typeName
+}
+
+fun DeclarationDescriptor.signatureWithSourceLocation(): String {
+    val signature = signature()
+    val sourceLocation = sourceLocation()
+    return if (sourceLocation != null) "$signature ($sourceLocation)" else signature
+}
+
+fun DeclarationDescriptor.sourceLocation(): String? {
+    if (this is DeclarationDescriptorWithSource) {
+        val psi = (this.source as? PsiSourceElement)?.getPsi()
+        if (psi != null) {
+            val fileName = psi.containingFile.name
+            val lineNumber = psi.lineNumber()
+            return if (lineNumber != null) "$fileName:$lineNumber" else fileName
+        }
+    }
+    return null
+}
