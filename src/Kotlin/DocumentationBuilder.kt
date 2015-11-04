@@ -2,11 +2,9 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiJavaFile
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.DocumentationNode.Kind
+import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
@@ -15,12 +13,8 @@ import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
-import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
-import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
@@ -62,7 +56,7 @@ interface PackageDocumentationBuilder {
 
 class DocumentationBuilder
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
-                            val linkResolver: DeclarationLinkResolver,
+                            val descriptorDocumentationParser: DescriptorDocumentationParser,
                             val options: DocumentationOptions,
                             val refGraph: NodeReferenceGraph,
                             val logger: DokkaLogger)
@@ -75,108 +69,6 @@ class DocumentationBuilder
             KtTokens.PUBLIC_KEYWORD, KtTokens.PROTECTED_KEYWORD, KtTokens.INTERNAL_KEYWORD, KtTokens.PRIVATE_KEYWORD,
             KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
             KtTokens.OVERRIDE_KEYWORD)
-
-
-    fun parseDocumentation(descriptor: DeclarationDescriptor): Content = parseDocumentationAndDetails(descriptor).first
-
-    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
-        if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
-            return parseJavadoc(descriptor)
-        }
-
-        val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
-        if (kdoc == null) {
-            if (options.reportUndocumented && !descriptor.isDeprecated() &&
-                    descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
-                    descriptor !is PropertyAccessorDescriptor) {
-                logger.warn("No documentation for ${descriptor.signatureWithSourceLocation()}")
-            }
-            return Content.Empty to { node -> }
-        }
-        var kdocText = kdoc.getContent()
-        // workaround for code fence parsing problem in IJ markdown parser
-        if (kdocText.endsWith("```") || kdocText.endsWith("~~~")) {
-            kdocText += "\n"
-        }
-        val tree = parseMarkdown(kdocText)
-        //println(tree.toTestString())
-        val content = buildContent(tree, { href -> linkResolver.resolveContentLink(descriptor, href) })
-        if (kdoc is KDocSection) {
-            val tags = kdoc.getTags()
-            tags.forEach {
-                when (it.name) {
-                    "sample" ->
-                        content.append(functionBody(descriptor, it.getSubjectName()))
-                    "see" ->
-                        content.addTagToSeeAlso(descriptor, it)
-                    else -> {
-                        val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
-                        val sectionContent = it.getContent()
-                        val markdownNode = parseMarkdown(sectionContent)
-                        buildInlineContentTo(markdownNode, section, { href -> linkResolver.resolveContentLink(descriptor, href) })
-                    }
-                }
-            }
-        }
-        return content to { node -> }
-    }
-
-    /**
-     * Special case for generating stdlib documentation (the Any class to which the override chain will resolve
-     * is not the same one as the Any class included in the source scope).
-     */
-    fun findStdlibKDoc(descriptor: DeclarationDescriptor): KDocTag? {
-        if (descriptor !is CallableMemberDescriptor) {
-            return null
-        }
-        val name = descriptor.name.asString()
-        if (name == "equals" || name == "hashCode" || name == "toString") {
-            var deepestDescriptor: CallableMemberDescriptor = descriptor
-            while (!deepestDescriptor.overriddenDescriptors.isEmpty()) {
-                deepestDescriptor = deepestDescriptor.overriddenDescriptors.first()
-            }
-            if (DescriptorUtils.getFqName(deepestDescriptor.containingDeclaration).asString() == "kotlin.Any") {
-                val anyClassDescriptors = resolutionFacade.resolveSession.getTopLevelClassDescriptors(
-                        FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.UNSORTED)
-                anyClassDescriptors.forEach {
-                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.name, NoLookupLocation.UNSORTED).single()
-                    val kdoc = KDocFinder.findKDoc(anyMethod)
-                    if (kdoc != null) {
-                        return kdoc
-                    }
-                }
-            }
-        }
-        return null
-    }
-
-    fun parseJavadoc(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
-        val psi = ((descriptor as? DeclarationDescriptorWithSource)?.source as? PsiSourceElement)?.psi
-        if (psi is PsiDocCommentOwner) {
-            val parseResult = JavadocParser(refGraph).parseDocumentation(psi as PsiNamedElement)
-            return parseResult.content to { node ->
-                parseResult.deprecatedContent?.let {
-                    val deprecationNode = DocumentationNode("", it, DocumentationNode.Kind.Modifier)
-                    node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
-                }
-            }
-        }
-        return Content.Empty to { node -> }
-    }
-
-    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java) ?: arrayOf()
-
-    private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
-        val subjectName = seeTag.getSubjectName()
-        if (subjectName != null) {
-            val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
-            val link = linkResolver.resolveContentLink(descriptor, subjectName)
-            link.append(ContentText(subjectName))
-            val para = ContentParagraph()
-            para.append(link)
-            seeSection.append(para)
-        }
-    }
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
         refGraph.link(node, descriptor.signature(), kind)
@@ -193,7 +85,7 @@ class DocumentationBuilder
     }
 
     fun <T> DocumentationNode(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
-        val (doc, callback) = parseDocumentationAndDetails(descriptor)
+        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         callback(node)
         return node
@@ -491,12 +383,12 @@ class DocumentationBuilder
         }
         getter?.let {
             if (!it.isDefault) {
-                node.addAccessorDocumentation(parseDocumentation(it), "Getter")
+                node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Getter")
             }
         }
         setter?.let {
             if (!it.isDefault) {
-                node.addAccessorDocumentation(parseDocumentation(it), "Setter")
+                node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Setter")
             }
         }
 
@@ -544,7 +436,7 @@ class DocumentationBuilder
     }
 
     fun TypeParameterDescriptor.build(): DocumentationNode {
-        val doc = parseDocumentation(this)
+        val doc = descriptorDocumentationParser.parseDocumentation(this)
         val name = name.asString()
         val prefix = variance.label
 
