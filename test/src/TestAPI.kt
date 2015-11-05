@@ -62,6 +62,9 @@ public fun verifyModel(source: String,
                        withKotlinRuntime: Boolean = false,
                        format: String = "html",
                        verifier: (DocumentationModule) -> Unit) {
+    if (!File(source).exists()) {
+        throw IllegalArgumentException("Can't find test data file $source")
+    }
     verifyModel(contentRootFromPath(source),
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,

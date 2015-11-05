@@ -65,8 +65,7 @@ class KotlinLanguageService : LanguageService {
     private fun DocumentationNode.getReceiverQName(): String? {
         if (kind != DocumentationNode.Kind.Function && kind != DocumentationNode.Kind.Property) return null
         val receiver = details(DocumentationNode.Kind.Receiver).singleOrNull() ?: return null
-        val receiverType = receiver.detail(DocumentationNode.Kind.Type)
-        return (receiverType.links.firstOrNull() ?: receiverType.hiddenLinks.firstOrNull())?.qualifiedName()
+        return receiver.detail(DocumentationNode.Kind.Type).qualifiedNameFromType()
     }
 
     companion object {
@@ -406,3 +405,5 @@ class KotlinLanguageService : LanguageService {
         }
     }
 }
+
+fun DocumentationNode.qualifiedNameFromType() = (links.firstOrNull() ?: hiddenLinks.firstOrNull())?.qualifiedName() ?: name
