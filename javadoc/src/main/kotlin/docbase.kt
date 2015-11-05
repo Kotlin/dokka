@@ -51,7 +51,7 @@ open class DocumentationNodeBareAdapter(override val node: DocumentationNode) : 
         else -> node.name.compareTo(other.node.name)
     }
 
-    override fun equals(other: Any?): Boolean = node.qualifiedName == (other as? DocumentationNodeAdapter)?.node?.qualifiedName
+    override fun equals(other: Any?): Boolean = node.qualifiedName() == (other as? DocumentationNodeAdapter)?.node?.qualifiedName()
     override fun hashCode(): Int = node.name.hashCode()
 
     override fun isIncluded(): Boolean = node.kind != DocumentationNode.Kind.ExternalClass
@@ -88,7 +88,7 @@ open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node
 private fun <T> nodeAnnotations(self: T): List<AnnotationDescAdapter> where T : HasModule, T : HasDocumentationNode
     = self.node.annotations.map { AnnotationDescAdapter(self.module, it) }
 
-private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName }
+private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName() }
 private fun DocumentationNode.hasModifier(name: String) = details(DocumentationNode.Kind.Modifier).any { it.name == name }
 
 
@@ -126,7 +126,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
-    override fun qualifiedName(): String? = node.qualifiedName
+    override fun qualifiedName(): String? = node.qualifiedName()
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
     override fun isProtected(): Boolean = false
@@ -166,7 +166,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
 open class TypeAdapter(override val module: ModuleNodeAdapter, override val node: DocumentationNode) : Type, HasDocumentationNode, HasModule {
     private val javaLanguageService = JavaLanguageService()
 
-    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedName ?: node.qualifiedName
+    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedName() ?: node.qualifiedName()
     override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.name ?: node.name
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
@@ -430,14 +430,14 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
 
         while (types.isNotEmpty()) {
             val type = types.removeAt(types.lastIndex)
-            val fqName = type.qualifiedName
+            val fqName = type.qualifiedName()
 
             if (expectedFQName == fqName) {
                 return true
             }
 
             visitedTypes.add(fqName)
-            types.addAll(type.details(DocumentationNode.Kind.Supertype).filter { it.qualifiedName !in visitedTypes })
+            types.addAll(type.details(DocumentationNode.Kind.Supertype).filter { it.qualifiedName() !in visitedTypes })
         }
 
         return false
@@ -450,7 +450,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
 fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
         details(DocumentationNode.Kind.Supertype)
                 .map { it.links.firstOrNull() }
-                .map { module.allTypes[it?.qualifiedName] }
+                .map { module.allTypes[it?.qualifiedName()] }
                 .filterNotNull()
 
 fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, DocumentationNode> {
@@ -459,7 +459,7 @@ fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, Documentat
     fun DocumentationNode.collectTypesRecursively() {
         val classLikeMembers = DocumentationNode.Kind.classLike.flatMap { members(it) }
         classLikeMembers.forEach {
-            result.put(it.qualifiedName, it)
+            result.put(it.qualifiedName(), it)
             it.collectTypesRecursively()
         }
     }
