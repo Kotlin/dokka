@@ -93,7 +93,7 @@ private fun DocumentationNode.hasModifier(name: String) = details(DocumentationN
 
 
 class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), PackageDoc {
-    private val allClasses = node.members.collectAllTypesRecursively()
+    private val allClasses = listOf(node).collectAllTypesRecursively()
 
     override fun findClass(className: String?): ClassDoc? =
             allClasses.get(className)?.let { ClassDocumentationNodeAdapter(module, it) }
@@ -126,7 +126,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
-    override fun qualifiedName(): String? = node.qualifiedName()
+    override fun qualifiedName(): String? = if (node.kind == DocumentationNode.Kind.Type) node.qualifiedNameFromType() else node.qualifiedName()
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
     override fun isProtected(): Boolean = false
@@ -134,6 +134,10 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isFinal(): Boolean = node.hasModifier("final")
 
     override fun containingPackage(): PackageDoc? {
+        if (node.kind == DocumentationNode.Kind.Type) {
+            return null
+        }
+
         var owner: DocumentationNode? = node
         while (owner != null) {
             if (owner.kind == DocumentationNode.Kind.Package) {
@@ -146,6 +150,10 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     }
 
     override fun containingClass(): ClassDoc? {
+        if (node.kind == DocumentationNode.Kind.Type) {
+            return null
+        }
+
         var owner = node.owner
         while (owner != null) {
             when (owner.kind) {
@@ -166,7 +174,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
 open class TypeAdapter(override val module: ModuleNodeAdapter, override val node: DocumentationNode) : Type, HasDocumentationNode, HasModule {
     private val javaLanguageService = JavaLanguageService()
 
-    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedName() ?: node.qualifiedName()
+    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
     override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.name ?: node.name
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
@@ -178,7 +186,7 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
             when (node.kind) {
                 in DocumentationNode.Kind.classLike,
                 DocumentationNode.Kind.ExternalClass,
-                DocumentationNode.Kind.Exception -> ClassDocumentationNodeAdapter(module, node)
+                DocumentationNode.Kind.Exception -> module.classNamed(qualifiedTypeName()) ?: ClassDocumentationNodeAdapter(module, node)
 
                 else -> when {
                     node.links.isNotEmpty() -> TypeAdapter(module, node.links.first()).asClassDoc()
