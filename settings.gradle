@@ -1,0 +1,1 @@
+include 'dokka-fatjar', 'dokka-gradle-plugin'

@@ -1,8 +1,7 @@
 group 'org.jetbrains.dokka'
-version '1.0.0-beta-1038'
+version dokka_version
 
 buildscript {
-    ext.kotlin_version = '1.0.0-beta-1038'
     repositories {
         mavenCentral()
         maven {
@@ -30,7 +29,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile "org.jetbrains.dokka:dokka-fatjar:1.0.0-beta-1038"
+    compile project(':dokka-fatjar')
 
     compile gradleApi()
     compile localGroovy()
