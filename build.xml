@@ -16,7 +16,9 @@
     <target name="build">
         <mkdir dir="out"/>
 
-        <kotlinc src="src" output="out/dokka.jar">
+        <kotlinc output="out/dokka.jar">
+            <src path="src"/>
+            <src path="javadoc/src/main/kotlin"/>
             <compilerArg value="-Xrepeat"/>
             <compilerArg value="${kotlinc.repeat}"/>
             <classpath>
@@ -26,6 +28,7 @@
 
         <jar jarfile="out/dokka.jar" update="true" >
             <zipfileset dir="resources" includes="**/*.properties"/>
+            <zipfileset dir="javadoc/src/main/resources" includes="**/*.properties"/>
         </jar>
 
         <kotlinc src="ant/src" output="out/dokka-ant.jar" includeRuntime="false">
