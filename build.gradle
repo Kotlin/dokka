@@ -1,0 +1,8 @@
+task updatePom << {
+    def parser = new XmlParser()
+    def pomFile = new File("maven-plugin/pom.xml")
+    def pom = parser.parse(pomFile)
+    pom.version[0].setValue(dokka_version)
+    pom.properties.kotlinVersion[0].setValue(kotlin_version)
+    pomFile.setText(groovy.xml.XmlUtil.serialize(pom))
+}
