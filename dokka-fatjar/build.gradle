@@ -1,5 +1,5 @@
 group 'org.jetbrains.dokka'
-version '1.0.0-beta-1038'
+version dokka_version
 import proguard.gradle.ProGuardTask
 
 buildscript {
@@ -26,8 +26,8 @@ task sourceJar(type: Jar) {
 task proguard(type: ProGuardTask) {
     configuration 'dokka.pro'
 
-    injars  'build/libs/dokka-fatjar-1.0.0-beta-1038.jar'
-    outjars 'build/libs/dokka-fatjar-1.0.0-beta-1038.out.jar'
+    injars  'build/libs/dokka-fatjar-${dokka_version}.jar'
+    outjars 'build/libs/dokka-fatjar-${dokka_version}.out.jar'
 }
 
 jar {
