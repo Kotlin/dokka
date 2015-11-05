@@ -81,6 +81,8 @@
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
                 <fileset dir="out" includes="dokka.jar" />
+                <file name="${java.home}/lib/tools.jar"/>
+                <file name="${java.home}/../lib/tools.jar"/>
                 <pathelement path="out/test"/>
             </classpath>
             <batchtest>
