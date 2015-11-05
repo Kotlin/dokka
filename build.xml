@@ -24,6 +24,10 @@
             </classpath>
         </kotlinc>
 
+        <jar jarfile="out/dokka.jar" update="true" >
+            <zipfileset dir="resources" includes="**/*.properties"/>
+        </jar>
+
         <kotlinc src="ant/src" output="out/dokka-ant.jar" includeRuntime="false">
             <compilerArg value="-Xrepeat"/>
             <compilerArg value="${kotlinc.repeat}"/>
