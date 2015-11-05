@@ -66,10 +66,14 @@
     <target name="test" depends="build">
         <mkdir dir="out/test"/>
 
-        <kotlinc src="test/src" output="out/test">
+        <kotlinc output="out/test">
+            <src path="test/src"/>
+            <src path="javadoc/src/test/kotlin"/>
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
                 <fileset dir="out" includes="dokka.jar" />
+                <file name="${java.home}/lib/tools.jar"/>
+                <file name="${java.home}/../lib/tools.jar"/>
             </classpath>
         </kotlinc>
 
