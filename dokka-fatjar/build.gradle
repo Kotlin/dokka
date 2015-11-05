@@ -13,6 +13,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
@@ -28,6 +29,10 @@ task proguard(type: ProGuardTask) {
 
     injars  'build/libs/dokka-fatjar-${dokka_version}.jar'
     outjars 'build/libs/dokka-fatjar-${dokka_version}.out.jar'
+}
+proguard.doLast {
+    new File('build/libs/dokka-fatjar-${dokka_version}.jar').renameTo('build/libs/dokka-fatjar-${dokka_version}.in.jar')
+    new File('build/libs/dokka-fatjar-${dokka_version}.out.jar').renameTo('build/libs/dokka-fatjar-${dokka_version}.jar')
 }
 
 jar {
@@ -74,4 +79,23 @@ publishing {
             }
         }
     }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'dokka'
+        name = 'dokka'
+        userOrg = 'jetbrains'
+        desc = 'Dokka, the Kotlin documentation tool'
+        vcsUrl = 'https://github.com/kotlin/dokka.git'
+        licenses = ['Apache-2.0']
+        version {
+            name = dokka_version
+        }
+    }
+
+    publications = ['maven']
 }

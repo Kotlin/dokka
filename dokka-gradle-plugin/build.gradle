@@ -16,6 +16,7 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
 
@@ -58,4 +59,23 @@ publishing {
             }
         }
     }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'dokka'
+        name = 'dokka'
+        userOrg = 'jetbrains'
+        desc = 'Dokka, the Kotlin documentation tool'
+        vcsUrl = 'https://github.com/kotlin/dokka.git'
+        licenses = ['Apache-2.0']
+        version {
+            name = dokka_version
+        }
+    }
+
+    publications = ['mavenJava']
 }
