@@ -1,3 +1,9 @@
+plugins {
+    id "com.jfrog.bintray" version "1.4"
+}
+
+apply plugin: 'maven-publish'
+
 task updatePom << {
     def parser = new XmlParser()
     def pomFile = new File("maven-plugin/pom.xml")
@@ -5,4 +11,26 @@ task updatePom << {
     pom.version[0].setValue(dokka_version)
     pom.properties.kotlinVersion[0].setValue(kotlin_version)
     pomFile.setText(groovy.xml.XmlUtil.serialize(pom))
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'dokka'
+        name = 'dokka'
+        userOrg = 'jetbrains'
+        desc = 'Dokka, the Kotlin documentation tool'
+        vcsUrl = 'https://github.com/kotlin/dokka.git'
+        licenses = ['Apache-2.0']
+        version {
+            name = dokka_version
+        }
+    }
+
+    filesSpec {
+        from 'maven-plugin/target/dokka-maven-plugin-*.jar'
+        into ''
+    }
 }
