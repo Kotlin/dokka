@@ -7,6 +7,7 @@
       </properties>
     </buildFile>
     <buildFile url="file://$PROJECT_DIR$/build.xml">
+      <maximumHeapSize value="256" />
       <properties>
         <property name="kotlin.compiler" value="$PROJECT_DIR$/../kotlin/dist/kotlinc" />
       </properties>

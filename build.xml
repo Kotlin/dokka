@@ -15,6 +15,7 @@
 
     <target name="build">
         <mkdir dir="out"/>
+        <echo message="${java.home}"/>
 
         <kotlinc output="out/dokka.jar">
             <src path="src"/>
@@ -23,6 +24,8 @@
             <compilerArg value="${kotlinc.repeat}"/>
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
+                <file name="${java.home}/lib/tools.jar"/>
+                <file name="${java.home}/../lib/tools.jar"/>
             </classpath>
         </kotlinc>
 
