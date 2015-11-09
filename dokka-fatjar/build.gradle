@@ -88,7 +88,7 @@ bintray {
     pkg {
         repo = 'dokka'
         name = 'dokka'
-        userOrg = 'jetbrains'
+        userOrg = 'kotlin'
         desc = 'Dokka, the Kotlin documentation tool'
         vcsUrl = 'https://github.com/kotlin/dokka.git'
         licenses = ['Apache-2.0']
