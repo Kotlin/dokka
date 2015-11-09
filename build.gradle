@@ -13,6 +13,24 @@ task updatePom << {
     pomFile.setText(groovy.xml.XmlUtil.serialize(pom))
 }
 
+task buildMavenPlugin << {
+    def process = "mvn clean package".execute(null, new File("maven-plugin"))
+    process.waitFor()
+    def mvnOutput = process.text
+    def exitValue = process.exitValue()
+    if (exitValue != 0) {
+        throw new IOException("Failed to run Maven command: exit value $exitValue, output $mvnOutput")
+    }
+
+    def uploadDir = new File("maven-plugin/upload")
+    uploadDir.mkdirs()
+    def releaseFileName = "dokka-maven-plugin-${dokka_version}"
+    new File("maven-plugin/target/${releaseFileName}.jar").renameTo(new File(uploadDir, "${releaseFileName}.jar"))
+    new File(uploadDir, "${releaseFileName}.pom").bytes = new File("maven-plugin/pom.xml").bytes
+}
+
+buildMavenPlugin.dependsOn(updatePom)
+
 bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
@@ -20,7 +38,7 @@ bintray {
     pkg {
         repo = 'dokka'
         name = 'dokka'
-        userOrg = 'jetbrains'
+        userOrg = 'kotlin'
         desc = 'Dokka, the Kotlin documentation tool'
         vcsUrl = 'https://github.com/kotlin/dokka.git'
         licenses = ['Apache-2.0']
@@ -30,7 +48,7 @@ bintray {
     }
 
     filesSpec {
-        from 'maven-plugin/target/dokka-maven-plugin-*.jar'
-        into ''
+        from 'maven-plugin/upload'
+        into "/kotlin/dokka/dokka/${dokka_version}/org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
     }
 }
