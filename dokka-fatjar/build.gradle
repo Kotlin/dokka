@@ -31,8 +31,12 @@ task proguard(type: ProGuardTask) {
     outjars "build/libs/dokka-fatjar-${dokka_version}.out.jar"
 }
 proguard.doLast {
-    new File("build/libs/dokka-fatjar-${dokka_version}.jar").renameTo("build/libs/dokka-fatjar-${dokka_version}.in.jar")
-    new File("build/libs/dokka-fatjar-${dokka_version}.out.jar").renameTo("build/libs/dokka-fatjar-${dokka_version}.jar")
+    def inFile = new File("$projectDir/build/libs/dokka-fatjar-${dokka_version}.jar")
+    if (!inFile.exists()) {
+        throw new IOException("Could not find Proguard input file ${inFile.absolutePath}")
+    }
+    inFile.renameTo("$projectDir/build/libs/dokka-fatjar-${dokka_version}.in.jar")
+    new File("$projectDir/build/libs/dokka-fatjar-${dokka_version}.out.jar").renameTo(inFile)
 }
 
 jar {
