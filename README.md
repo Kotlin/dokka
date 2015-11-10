@@ -114,6 +114,8 @@ Configuring source links mapping:
 </plugin>
 ```
 
+Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
+
 ### Using the Gradle plugin
 
 ```groovy
@@ -148,6 +150,7 @@ To get it generated use gradle `dokka` task
 ./gradlew dokka
 ```
 
+Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
 ## Dokka Internals
 
