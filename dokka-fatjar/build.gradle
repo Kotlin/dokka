@@ -27,12 +27,12 @@ task sourceJar(type: Jar) {
 task proguard(type: ProGuardTask) {
     configuration 'dokka.pro'
 
-    injars  'build/libs/dokka-fatjar-${dokka_version}.jar'
-    outjars 'build/libs/dokka-fatjar-${dokka_version}.out.jar'
+    injars "build/libs/dokka-fatjar-${dokka_version}.jar"
+    outjars "build/libs/dokka-fatjar-${dokka_version}.out.jar"
 }
 proguard.doLast {
-    new File('build/libs/dokka-fatjar-${dokka_version}.jar').renameTo('build/libs/dokka-fatjar-${dokka_version}.in.jar')
-    new File('build/libs/dokka-fatjar-${dokka_version}.out.jar').renameTo('build/libs/dokka-fatjar-${dokka_version}.jar')
+    new File("build/libs/dokka-fatjar-${dokka_version}.jar").renameTo("build/libs/dokka-fatjar-${dokka_version}.in.jar")
+    new File("build/libs/dokka-fatjar-${dokka_version}.out.jar").renameTo("build/libs/dokka-fatjar-${dokka_version}.jar")
 }
 
 jar {
