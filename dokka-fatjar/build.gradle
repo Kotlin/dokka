@@ -58,14 +58,16 @@ jar {
             exclude '**/*.md'
         }
     }
-    from (zipTree(project.file('../out/dokka.jar'))) {
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/*.SF'
-        exclude 'META-INF/*.DSA'
-        exclude 'META-INF/*.RSA'
-        exclude '**/*.kt'
-        exclude '**/*.java'
-        exclude '**/*.md'
+    ['dokka.jar', 'dokka-ant.jar'].each {
+        from (zipTree(project.file("../out/$it"))) {
+            exclude 'META-INF/MANIFEST.MF'
+            exclude 'META-INF/*.SF'
+            exclude 'META-INF/*.DSA'
+            exclude 'META-INF/*.RSA'
+            exclude '**/*.kt'
+            exclude '**/*.java'
+            exclude '**/*.md'
+        }
     }
 }
 
