@@ -3,7 +3,7 @@ dokka
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
-standard Javadoc comments in Java files and [KDoc comments]|https://kotlinlang.org/docs/reference/kotlin-doc.html] in Kotlin files,
+standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
 and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
 ## Using Dokka
