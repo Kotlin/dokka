@@ -1,113 +1,74 @@
 dokka
 =====
 
-Dokka is documentation engine for Kotlin, performing the same function as javadoc for Java.
+Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
+Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
+standard Javadoc comments in Java files and [KDoc comments|https://kotlinlang.org/docs/reference/kotlin-doc.html] in Kotlin files,
+and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
-**NOTE**: It is work in progress both on compiler side and this tool. Do not base your business on it. Yet.  
+## Using Dokka
 
-Documentation Model
-=====
+### Using the Command Line
 
-Dokka uses Kotlin-as-a-service technology to build `code model`, then processes it into `documentation model`.
-`Documentation model` is graph of items describing code elements such as classes, packages, functions, etc.
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.1/dokka-fatjar.jar).
+To generate documentation, run the following command:
 
-Each node has semantic attached, e.g. Value:name -> Type:String means that some value `name` is of type `String`.
+   java -jar dokka-fatjar.jar <source directories> <arguments>
 
-Each reference between nodes also has semantic attached, and there are three of them:
+Dokka supports the following command line arguments:
 
-1. Member - reference means that target is member of the source, form tree.
-2. Detail - reference means that target describes source in more details, form tree.
-3. Link - any link to any other node, free form.
+  * `output` - the output directory where the documentation is generated
+  * `format` - the output format:
+    * `html` - HTML (default)
+    * `markdown` - Markdown
+    * `jekyll` - Markdown adapted for Jekyll sites
+    * `javadoc` - Javadoc (showing how the project can be accessed from Java)
+  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
+  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+  * `module` - the name of the module being documented (used as the root directory of the generated documentation)
+  * `include` - names of files containing the documentation for the module and individual packages
+  * `nodeprecated` - if set, deprecated elements are not included in the generated documentation
 
-Member & Detail has reverse Owner reference, while Link's back reference is also Link. 
 
-Nodes that are Details of other nodes cannot have Members. 
+### Using the Ant task
 
-Rendering Docs
-====
-When we have documentation model, we can render docs in various formats, languages and layouts. We have some core services:
+The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example of using it:
 
-* FormatService -- represents output format
-* LocationService -- represents folder and file layout 
-* SignatureGenerator -- represents target language by generating class/function/package signatures from model
+```xml
+<project name="Dokka" default="document">
+    <!-- Demonstrates the usage of the Dokka Ant task. Assumes Dokka has already been compiled -->
 
-Basically, given the `documentation` as a model, we do this:
+    <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
 
-```kotlin
-    val signatureGenerator = KotlinSignatureGenerator() 
-    val locationService = FoldersLocationService(arguments.outputDir)
-    val markdown = JekyllFormatService(locationService, signatureGenerator)
-    val generator = FileGenerator(signatureGenerator, locationService, markdown)
-    generator.generate(documentation) 
+    <target name="document">
+        <dokka src="src" outputdir="doc" modulename="myproject"/>
+    </target>
+</project>
 ```
 
-Samples
-====
-[Dokka docs](http://orangy.github.io/dokka/doc/dokka/index.html) are built with Dokka. Yes, we bootstrap and dogfood :)
+The Ant task supports the following attributes:
 
-Roadmap
-=====
+  * `outputdir` - the output directory where the documentation is generated
+  * `outputformat` - the output format (see the list of supported formats above)
+  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
+  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+  * `modulename` - the name of the module being documented (used as the root directory of the generated documentation)
+  * `include` - names of files containing the documentation for the module and individual packages
+  * `skipdeprecated` - if set, deprecated elements are not included in the generated documentation
 
-#### Formats
+### Using the Maven plugin
 
-Documentation can be generated in various mark-up formats.
+The Maven plugin is available in JCenter. You need to add the JCenter repository to the list of plugin repositories if it's not there:
 
-* Text -- plain text format
-* HTML -- html format, suitable for local browsing
-* MD   -- markdown format, and optional Jekyll extension for your GitHub pages
-
-#### Locations
-
-Place documentation in different file structure. All links are relative regardless of structure.
-
-* Single File   -- all documentation is placed in the single file
-* Single Folder -- all documentation is in same folder, files are generated per entity
-* Folder Tree   -- folders are mirroring package/class/method structure, files are leaf elements
-  
-#### Languages
-
-Output symbol declarations in different languages.
-
-* Kotlin
-* Java  
-* JavaScript
-
-#### Features
-
-* Support JavaDoc in Java and Kotlin files
-* Support KDoc in Kotlin files
-
-#### KDoc
-
-KDoc is a flavour of markdown with symbol processing extensions.
-
-* \[name\] - link to `name` (markdown style)
-* $name - link to `name` (Kotlin string interpolation style), or ${java.lang.String} for longer references
-* $name: - named section, optionally bound to symbol `name`, e.g. param doc
-* ${code reference} -- include content of a symbol denoted by reference, e.g. code example
-
-### Building
-
-Build only dokka
-
-```bash
-ant fatjar
+```xml
+<pluginRepositories>
+    <pluginRepository>
+        <id>jcenter</id>
+        <name>JCenter</name>
+        <url>https://jcenter.bintray.com/</url>
+    </pluginRepository>
+</pluginRepositories>
 ```
-
-Build dokka and maven plugin
-
-```bash
-ant install-fj
-cd maven-plugin
-mvn install
-```
-
-Build dokka and install maven plugin (do not require maven installed)
-```bash
-ant build-and-install
-```
-
-### Using Maven plugin
 
 Minimal maven configuration is
 
@@ -129,7 +90,7 @@ Minimal maven configuration is
 
 by default files will be generated in `target/dokka`
 
-Configuring source links mapping
+Configuring source links mapping:
 
 ```xml
 <plugin>
@@ -188,3 +149,62 @@ To get it generated use gradle `dokka` task
 ```bash
 ./gradlew dokka
 ```
+
+
+Dokka Internals: Documentation Model
+=====
+
+Dokka uses Kotlin-as-a-service technology to build `code model`, then processes it into `documentation model`.
+`Documentation model` is graph of items describing code elements such as classes, packages, functions, etc.
+
+Each node has semantic attached, e.g. Value:name -> Type:String means that some value `name` is of type `String`.
+
+Each reference between nodes also has semantic attached, and there are three of them:
+
+1. Member - reference means that target is member of the source, form tree.
+2. Detail - reference means that target describes source in more details, form tree.
+3. Link - any link to any other node, free form.
+
+Member & Detail has reverse Owner reference, while Link's back reference is also Link. 
+
+Nodes that are Details of other nodes cannot have Members. 
+
+Rendering Docs
+====
+When we have documentation model, we can render docs in various formats, languages and layouts. We have some core services:
+
+* FormatService -- represents output format
+* LocationService -- represents folder and file layout 
+* SignatureGenerator -- represents target language by generating class/function/package signatures from model
+
+Basically, given the `documentation` as a model, we do this:
+
+```kotlin
+    val signatureGenerator = KotlinSignatureGenerator() 
+    val locationService = FoldersLocationService(arguments.outputDir)
+    val markdown = JekyllFormatService(locationService, signatureGenerator)
+    val generator = FileGenerator(signatureGenerator, locationService, markdown)
+    generator.generate(documentation) 
+```
+
+### Building
+
+Build only dokka
+
+```bash
+ant fatjar
+```
+
+Build dokka and maven plugin
+
+```bash
+ant install-fj
+cd maven-plugin
+mvn install
+```
+
+Build dokka and install maven plugin (do not require maven installed)
+```bash
+ant build-and-install
+```
+
