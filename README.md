@@ -3,7 +3,7 @@ dokka
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
-standard Javadoc comments in Java files and [KDoc comments|https://kotlinlang.org/docs/reference/kotlin-doc.html] in Kotlin files,
+standard Javadoc comments in Java files and [KDoc comments]|https://kotlinlang.org/docs/reference/kotlin-doc.html] in Kotlin files,
 and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
 ## Using Dokka
@@ -13,7 +13,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.1/dokka-fatjar.jar).
 To generate documentation, run the following command:
 
-   java -jar dokka-fatjar.jar <source directories> <arguments>
+    java -jar dokka-fatjar.jar <source directories> <arguments>
 
 Dokka supports the following command line arguments:
 
@@ -36,8 +36,6 @@ The Ant task definition is also contained in the dokka-fatjar.jar referenced abo
 
 ```xml
 <project name="Dokka" default="document">
-    <!-- Demonstrates the usage of the Dokka Ant task. Assumes Dokka has already been compiled -->
-
     <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
 
     <target name="document">
@@ -116,7 +114,7 @@ Configuring source links mapping:
 </plugin>
 ```
 
-### Using Gradle plugin
+### Using the Gradle plugin
 
 ```groovy
 buildscript {
@@ -125,7 +123,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.1-SNAPSHOT"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
 }
 
@@ -151,8 +149,9 @@ To get it generated use gradle `dokka` task
 ```
 
 
-Dokka Internals: Documentation Model
-=====
+## Dokka Internals
+
+### Documentation Model
 
 Dokka uses Kotlin-as-a-service technology to build `code model`, then processes it into `documentation model`.
 `Documentation model` is graph of items describing code elements such as classes, packages, functions, etc.
@@ -169,8 +168,8 @@ Member & Detail has reverse Owner reference, while Link's back reference is also
 
 Nodes that are Details of other nodes cannot have Members. 
 
-Rendering Docs
-====
+### Rendering Docs
+
 When we have documentation model, we can render docs in various formats, languages and layouts. We have some core services:
 
 * FormatService -- represents output format
@@ -187,7 +186,7 @@ Basically, given the `documentation` as a model, we do this:
     generator.generate(documentation) 
 ```
 
-### Building
+## Building Dokka
 
 Build only dokka
 
