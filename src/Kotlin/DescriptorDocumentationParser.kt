@@ -19,8 +19,9 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.scopes.KtScope
-import org.jetbrains.kotlin.resolve.scopes.utils.asJetScope
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
+import org.jetbrains.kotlin.resolve.scopes.ResolutionScope
+import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 
 class DescriptorDocumentationParser
@@ -90,9 +91,11 @@ class DescriptorDocumentationParser
             }
             if (DescriptorUtils.getFqName(deepestDescriptor.containingDeclaration).asString() == "kotlin.Any") {
                 val anyClassDescriptors = resolutionFacade.resolveSession.getTopLevelClassDescriptors(
-                        FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.UNSORTED)
+                        FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.FROM_IDE)
                 anyClassDescriptors.forEach {
-                    val anyMethod = it.getMemberScope(listOf()).getFunctions(descriptor.name, NoLookupLocation.UNSORTED).single()
+                    val anyMethod = it.getMemberScope(listOf())
+                            .getDescriptorsFiltered(DescriptorKindFilter.FUNCTIONS, { it == descriptor.name })
+                            .single()
                     val kdoc = KDocFinder.findKDoc(anyMethod)
                     if (kdoc != null) {
                         return kdoc
@@ -136,7 +139,7 @@ class DescriptorDocumentationParser
             logger.warn("Missing function name in @sample in ${descriptor.signature()}")
             return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
         }
-        val scope = getResolutionScope(resolutionFacade, descriptor).asJetScope()
+        val scope = getResolutionScope(resolutionFacade, descriptor)
         val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
         val rootScope = rootPackage.memberScope
         val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
@@ -167,7 +170,7 @@ class DescriptorDocumentationParser
         return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
     }
 
-    private fun resolveInScope(functionName: String, scope: KtScope): DeclarationDescriptor? {
+    private fun resolveInScope(functionName: String, scope: ResolutionScope): DeclarationDescriptor? {
         var currentScope = scope
         val parts = functionName.split('.')
 
@@ -176,7 +179,9 @@ class DescriptorDocumentationParser
         for (part in parts) {
             // short name
             val symbolName = Name.guess(part)
-            val partSymbol = currentScope.getAllDescriptors().filter { it.name == symbolName }.firstOrNull()
+            val partSymbol = currentScope.getContributedDescriptors(DescriptorKindFilter.ALL, { it == symbolName })
+                    .filter { it.name == symbolName }
+                    .firstOrNull()
 
             if (partSymbol == null) {
                 symbol = null
@@ -185,7 +190,7 @@ class DescriptorDocumentationParser
             currentScope = if (partSymbol is ClassDescriptor)
                 partSymbol.defaultType.memberScope
             else
-                getResolutionScope(resolutionFacade, partSymbol).asJetScope()
+                getResolutionScope(resolutionFacade, partSymbol)
             symbol = partSymbol
         }
 

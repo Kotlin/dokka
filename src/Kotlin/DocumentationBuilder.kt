@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
-import org.jetbrains.kotlin.types.KtType
+import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 
 public data class DocumentationOptions(val outputDir: String,
@@ -130,7 +130,7 @@ class DocumentationBuilder
         }
     }
 
-    private fun ignoreSupertype(superType: KtType): Boolean {
+    private fun ignoreSupertype(superType: KotlinType): Boolean {
         val superClass = superType.constructor.declarationDescriptor as? ClassDescriptor
         if (superClass != null) {
             val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
@@ -148,10 +148,10 @@ class DocumentationBuilder
         }
     }
 
-    fun DocumentationNode.appendType(jetType: KtType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
-        if (jetType == null)
+    fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
+        if (kotlinType == null)
             return
-        val classifierDescriptor = jetType.constructor.declarationDescriptor
+        val classifierDescriptor = kotlinType.constructor.declarationDescriptor
         val name = when (classifierDescriptor) {
             is ClassDescriptor -> {
                 if (classifierDescriptor.isCompanionObject) {
@@ -169,7 +169,7 @@ class DocumentationBuilder
         if (prefix != "") {
             node.appendTextNode(prefix, Kind.Modifier)
         }
-        if (jetType.isMarkedNullable) {
+        if (kotlinType.isMarkedNullable) {
             node.appendTextNode("?", Kind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
@@ -178,8 +178,8 @@ class DocumentationBuilder
         }
 
         append(node, DocumentationReference.Kind.Detail)
-        node.appendAnnotations(jetType)
-        for (typeArgument in jetType.arguments) {
+        node.appendAnnotations(kotlinType)
+        for (typeArgument in kotlinType.arguments) {
             node.appendProjection(typeArgument)
         }
     }
@@ -243,7 +243,8 @@ class DocumentationBuilder
                 null
             }
             else {
-                appendChild(descriptor, DocumentationReference.Kind.Member)
+                val descriptorToUse = if (descriptor is ConstructorDescriptor) descriptor else descriptor.original
+                appendChild(descriptorToUse, DocumentationReference.Kind.Member)
             }
         }
         return nodes.filterNotNull()
@@ -262,7 +263,7 @@ class DocumentationBuilder
         val allFqNames = fragments.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
-            val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getAllDescriptors() }
+            val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getContributedDescriptors() }
 
             if (options.skipEmptyPackages && declarations.none { it.isDocumented() }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
@@ -304,14 +305,14 @@ class DocumentationBuilder
                 constructors
             node.appendMembers(constructorsToDocument)
         }
-        val members = defaultType.memberScope.getAllDescriptors().filter { it != companionObjectDescriptor }
+        val members = defaultType.memberScope.getContributedDescriptors().filter { it != companionObjectDescriptor }
         node.appendMembers(members)
-        node.appendMembers(staticScope.getDescriptors()).forEach {
+        node.appendMembers(staticScope.getContributedDescriptors()).forEach {
             it.appendTextNode("static", Kind.Modifier)
         }
         val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
-            node.appendMembers(companionObjectDescriptor.defaultType.memberScope.getAllDescriptors())
+            node.appendMembers(companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors())
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
@@ -539,7 +540,7 @@ class KotlinJavaDocumentationBuilder
 
         file.classes.forEach {
             val javaDescriptorResolver = KotlinCacheService.getInstance(file.project).getProjectService(JvmPlatform,
-                    it.getModuleInfo(), javaClass<JavaDescriptorResolver>())
+                    it.getModuleInfo(), JavaDescriptorResolver::class.java)
 
             val descriptor = javaDescriptorResolver.resolveClass(JavaClassImpl(it))
             if (descriptor == null) {
@@ -627,7 +628,7 @@ fun CallableMemberDescriptor.parameterSignature(): String {
     return "(" + params.map { it.signature() }.joinToString() + ")"
 }
 
-fun KtType.signature(): String {
+fun KotlinType.signature(): String {
     val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
     val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
     if (typeName == "Array" && arguments.size == 1) {
