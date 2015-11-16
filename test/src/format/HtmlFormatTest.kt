@@ -130,7 +130,7 @@ public class HtmlFormatTest {
 
     @Test fun crossLanguageKotlinExtendsJava() {
         verifyOutput(arrayOf(KotlinSourceRoot("test/data/format/crossLanguage/kotlinExtendsJava/Bar.kt"),
-                            JavaSourceRoot(File("test/data/format/crossLanguage/kotlinExtendsJava"))),
+                            JavaSourceRoot(File("test/data/format/crossLanguage/kotlinExtendsJava"), null)),
                 ".html") { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
         }

@@ -89,7 +89,7 @@ public fun verifyJavaModel(source: String,
     try {
         val sourceFile = File(source)
         FileUtil.copy(sourceFile, File(tempDir, sourceFile.name))
-        verifyModel(JavaSourceRoot(tempDir), withJdk = true, withKotlinRuntime = withKotlinRuntime, verifier = verifier)
+        verifyModel(JavaSourceRoot(tempDir, null), withJdk = true, withKotlinRuntime = withKotlinRuntime, verifier = verifier)
     }
     finally {
         FileUtil.delete(tempDir)

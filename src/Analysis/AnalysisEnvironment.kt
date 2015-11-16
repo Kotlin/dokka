@@ -170,7 +170,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector) : Dispo
 
 public fun contentRootFromPath(path: String): ContentRoot {
     val file = File(path)
-    return if (file.extension == "java") JavaSourceRoot(file) else KotlinSourceRoot(path)
+    return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path)
 }
 
 

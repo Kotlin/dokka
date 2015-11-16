@@ -5,7 +5,7 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
-import org.jetbrains.kotlin.asJava.KotlinLightElement
+import org.jetbrains.kotlin.asJava.KtLightElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
@@ -31,13 +31,13 @@ class KotlinAsJavaDocumentationBuilder
                 documentationBuilder.refGraph,
                 kotlinAsJavaDocumentationParser)
 
-        psiPackage.classes.filter { it is KotlinLightElement<*, *> }.filter { it.isVisibleInDocumentation() }.forEach {
+        psiPackage.classes.filter { it is KtLightElement<*, *> }.filter { it.isVisibleInDocumentation() }.forEach {
             javaDocumentationBuilder.appendClasses(packageNode, arrayOf(it))
         }
     }
 
     fun PsiClass.isVisibleInDocumentation() : Boolean {
-        val origin: KtDeclaration? = (this as KotlinLightElement<*, *>).getOrigin()
+        val origin: KtDeclaration? = (this as KtLightElement<*, *>).getOrigin()
         return origin?.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
                origin?.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
     }
@@ -48,7 +48,7 @@ class KotlinAsJavaDocumentationParser
                             val descriptorDocumentationParser: DescriptorDocumentationParser) : JavaDocumentationParser
 {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
-        val kotlinLightElement = element as? KotlinLightElement<*, *> ?: return JavadocParseResult.Empty
+        val kotlinLightElement = element as? KtLightElement<*, *> ?: return JavadocParseResult.Empty
         val origin = kotlinLightElement.getOrigin() ?: return JavadocParseResult.Empty
         if (origin is KtParameter) {
             // LazyDeclarationResolver does not support setter parameters
