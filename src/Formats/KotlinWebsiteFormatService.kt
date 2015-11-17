@@ -4,7 +4,7 @@ import com.google.inject.Inject
 
 public class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
                                  signatureGenerator: LanguageService)
-: JekyllFormatService(locationService, signatureGenerator) {
+: JekyllFormatService(locationService, signatureGenerator, "html") {
     private var needHardLineBreaks = false
 
     override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {

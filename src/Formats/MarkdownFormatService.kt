@@ -3,9 +3,11 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 
 
-public open class MarkdownFormatService @Inject constructor(locationService: LocationService,
-                                        signatureGenerator: LanguageService)
-: StructuredFormatService(locationService, signatureGenerator, "md") {
+public open class MarkdownFormatService
+    @Inject constructor(locationService: LocationService,
+                        signatureGenerator: LanguageService,
+                        linkExtension: String = "md")
+: StructuredFormatService(locationService, signatureGenerator, "md", linkExtension) {
     override public fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString(" / ")
     }

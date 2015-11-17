@@ -12,8 +12,9 @@ enum class ListKind {
 
 abstract class StructuredFormatService(locationService: LocationService,
                                               val languageService: LanguageService,
-                                              override val extension: String) : FormatService {
-    val locationService: LocationService = locationService.withExtension(extension)
+                                              override val extension: String,
+                                              val linkExtension: String = extension) : FormatService {
+    val locationService: LocationService = locationService.withExtension(linkExtension)
 
     abstract fun appendBlockCode(to: StringBuilder, line: String, language: String)
     abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
