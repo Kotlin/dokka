@@ -51,6 +51,8 @@ public interface LocationService {
      * @param hasMembers if true, the node for which the location is calculated has member nodes.
      */
     fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
+
+    val root: Location
 }
 
 
