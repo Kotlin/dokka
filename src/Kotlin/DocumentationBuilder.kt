@@ -275,7 +275,6 @@ class DocumentationBuilder
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
         is ClassDescriptor -> build()
         is ConstructorDescriptor -> build()
-        is ScriptDescriptor -> build()
         is PropertyDescriptor -> build()
         is FunctionDescriptor -> build()
         is TypeParameterDescriptor -> build()
@@ -283,8 +282,6 @@ class DocumentationBuilder
         is ReceiverParameterDescriptor -> build()
         else -> throw IllegalStateException("Descriptor $this is not known")
     }
-
-    fun ScriptDescriptor.build(): DocumentationNode = classDescriptor.build()
 
     fun ClassDescriptor.build(): DocumentationNode {
         val kind = when (kind) {
