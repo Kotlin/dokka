@@ -1,11 +1,15 @@
 <project name="Dokka" default="document">
     <!-- Demonstrates the usage of the Dokka Ant task. Assumes Dokka has already been compiled -->
 
-    <typedef resource="dokka-antlib.xml" classpath="out/artifacts/dokka.jar"/>
+    <typedef resource="dokka-antlib.xml">
+        <classpath>
+            <fileset dir="core/build/libs" includes="dokka-fatjar-*.jar"/>
+        </classpath>
+    </typedef>
 
     <target name="document">
-        <dokka src="src" outputdir="doc" modulename="dokka">
-            <sourcelink path="." url="https://github.com/orangy/dokka/blob/master" linesuffix="#L"/>
+        <dokka src="core/src/main/kotlin" outputdir="doc" modulename="dokka">
+            <sourcelink path="." url="https://github.com/kotlin/dokka/blob/master" linesuffix="#L"/>
         </dokka>
     </target>
 </project>

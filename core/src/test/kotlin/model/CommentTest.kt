@@ -1,0 +1,153 @@
+package org.jetbrains.dokka.tests
+
+import org.junit.Test
+import kotlin.test.*
+import org.jetbrains.dokka.*
+
+public class CommentTest {
+    @Test fun emptyDoc() {
+        verifyModel("testdata/comments/emptyDoc.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(Content.Empty, content)
+            }
+        }
+    }
+
+    @Test fun emptyDocButComment() {
+        verifyModel("testdata/comments/emptyDocButComment.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(Content.Empty, content)
+            }
+        }
+    }
+
+    @Test fun multilineDoc() {
+        verifyModel("testdata/comments/multilineDoc.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("doc1", content.summary.toTestString())
+                assertEquals("doc2\ndoc3", content.description.toTestString())
+            }
+        }
+    }
+
+    @Test fun multilineDocWithComment() {
+        verifyModel("testdata/comments/multilineDocWithComment.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("doc1", content.summary.toTestString())
+                assertEquals("doc2\ndoc3", content.description.toTestString())
+            }
+        }
+    }
+
+    @Test fun oneLineDoc() {
+        verifyModel("testdata/comments/oneLineDoc.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("doc", content.summary.toTestString())
+            }
+        }
+    }
+
+    @Test fun oneLineDocWithComment() {
+        verifyModel("testdata/comments/oneLineDocWithComment.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("doc", content.summary.toTestString())
+            }
+        }
+    }
+
+    @Test fun oneLineDocWithEmptyLine() {
+        verifyModel("testdata/comments/oneLineDocWithEmptyLine.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("doc", content.summary.toTestString())
+            }
+        }
+    }
+
+    @Test fun emptySection() {
+        verifyModel("testdata/comments/emptySection.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
+                    assertEquals("", toTestString())
+                }
+            }
+        }
+    }
+
+    @Test fun section1() {
+        verifyModel("testdata/comments/section1.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
+                    assertEquals("section one", toTestString())
+                }
+            }
+        }
+    }
+
+    @Test fun section2() {
+        verifyModel("testdata/comments/section2.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(2, content.sections.count())
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
+                    assertEquals("section one", toTestString())
+                }
+                with (content.findSectionByTag("two")!!) {
+                    assertEquals("Two", tag)
+                    assertEquals("section two", toTestString())
+                }
+            }
+        }
+    }
+
+    @Test fun multilineSection() {
+        verifyModel("testdata/comments/multilineSection.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Summary", content.summary.toTestString())
+                assertEquals(1, content.sections.count())
+                with (content.findSectionByTag("one")!!) {
+                    assertEquals("One", tag)
+                    assertEquals("""line one
+line two""", toTestString())
+                }
+            }
+        }
+    }
+
+    @Test fun directive() {
+        verifyModel("testdata/comments/directive.kt") { model ->
+            with(model.members.single().members.first()) {
+                assertEquals("Summary", content.summary.toTestString())
+                with (content.description) {
+                    assertEqualsIgnoringSeparators("""[code]
+if (true) {
+    println(property)
+}
+[/code]
+[code]
+if (true) {
+    println(property)
+}
+[/code]
+[code]
+if (true) {
+    println(property)
+}
+[/code]
+[code]
+if (true) {
+    println(property)
+}
+[/code]
+""", toTestString())
+                }
+            }
+        }
+    }
+}

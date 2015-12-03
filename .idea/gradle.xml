@@ -9,7 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/dokka-fatjar" />
+            <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/dokka-gradle-plugin" />
           </set>
         </option>
@@ -17,7 +17,7 @@
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/dokka-fatjar" />
+            <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/dokka-gradle-plugin" />
           </set>
         </option>

@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ant/ant.iml" filepath="$PROJECT_DIR$/ant/ant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/dokka.iml" filepath="$PROJECT_DIR$/dokka.iml" />
-      <module fileurl="file://$PROJECT_DIR$/dokka-fatjar/dokka-fatjar.iml" filepath="$PROJECT_DIR$/dokka-fatjar/dokka-fatjar.iml" />
       <module fileurl="file://$PROJECT_DIR$/dokka-gradle-plugin/dokka-gradle-plugin.iml" filepath="$PROJECT_DIR$/dokka-gradle-plugin/dokka-gradle-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/javadoc/javadoc.iml" filepath="$PROJECT_DIR$/javadoc/javadoc.iml" />
     </modules>
   </component>
 </project>

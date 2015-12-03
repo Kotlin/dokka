@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile project(':dokka-fatjar')
+    compile project(':core')
 
     compile gradleApi()
     compile localGroovy()
