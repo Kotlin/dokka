@@ -6,6 +6,7 @@ public class KotlinWebsiteFormatService @Inject constructor(locationService: Loc
                                  signatureGenerator: LanguageService)
 : JekyllFormatService(locationService, signatureGenerator, "html") {
     private var needHardLineBreaks = false
+    private var insideDiv = 0
 
     override fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         super.appendFrontMatter(nodes, to)
@@ -28,27 +29,51 @@ public class KotlinWebsiteFormatService @Inject constructor(locationService: Loc
 
     override fun formatStrikethrough(text: String): String = "<s>$text</s>"
 
+    private fun div(to: StringBuilder, cssClass: String, block: () -> Unit) {
+        to.append("<div class=\"$cssClass\">")
+        insideDiv++
+        block()
+        insideDiv--
+        to.append("</div>\n")
+    }
+
     override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
         val contentLength = node.textLength
         if (contentLength == 0) return
-        to.append("<div class=\"signature\">")
-        needHardLineBreaks = contentLength >= 62
-        try {
-            block()
-        } finally {
-            needHardLineBreaks = false
+        div(to, "signature") {
+            needHardLineBreaks = contentLength >= 62
+            try {
+                block()
+            } finally {
+                needHardLineBreaks = false
+            }
         }
-        to.append("</div>")
     }
 
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        to.append("<div class=\"overload-group\">\n")
-        block()
-        to.append("</div>\n")
+        div(to, "overload-group", block)
     }
 
     override fun formatLink(text: String, href: String): String {
         return "<a href=\"${href}\">${text}</a>"
+    }
+
+    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
+        if (insideDiv > 0) {
+            to.appendln("<h$level>${text}</h$level>")
+        }
+        else {
+            super.appendHeader(to, text, level)
+        }
+    }
+
+    override fun appendLine(to: StringBuilder, text: String) {
+        if (insideDiv > 0) {
+            to.appendln("$text<br/>")
+        }
+        else {
+            super.appendLine(to, text)
+        }
     }
 
     override fun appendTable(to: StringBuilder, body: () -> Unit) {

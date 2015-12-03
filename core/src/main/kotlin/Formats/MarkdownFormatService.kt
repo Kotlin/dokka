@@ -55,10 +55,6 @@ public open class MarkdownFormatService
         return "[$text]($href)"
     }
 
-    override public fun appendLine(to: StringBuilder) {
-        to.appendln()
-    }
-
     override public fun appendLine(to: StringBuilder, text: String) {
         to.appendln(text)
     }
