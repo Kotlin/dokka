@@ -19,8 +19,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun appendBlockCode(to: StringBuilder, line: String, language: String)
     abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
     abstract fun appendParagraph(to: StringBuilder, text: String)
-    abstract fun appendLine(to: StringBuilder, text: String)
-    abstract fun appendLine(to: StringBuilder)
+    abstract fun appendLine(to: StringBuilder, text: String = "")
     abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
     abstract fun appendTable(to: StringBuilder, body: () -> Unit)
@@ -114,28 +113,37 @@ abstract class StructuredFormatService(locationService: LocationService,
     fun appendDocumentation(location: Location, to: StringBuilder, overloads: Iterable<DocumentationNode>) {
         val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
 
-        for ((summary, items) in breakdownBySummary) {
-            appendAsOverloadGroup(to) {
-                items.forEach {
-                    val rendered = languageService.render(it)
-                    appendAsSignature(to, rendered) {
-                        to.append(formatCode(formatText(location, rendered)))
-                        it.appendSourceLink(to)
-                    }
-                    it.appendOverrides(to)
-                    it.appendDeprecation(location, to)
+        if (breakdownBySummary.size == 1) {
+            formatOverloadGroup(breakdownBySummary.values.single(), location, to)
+        }
+        else {
+            for ((summary, items) in breakdownBySummary) {
+                appendAsOverloadGroup(to) {
+                    formatOverloadGroup(items, location, to)
                 }
-                // All items have exactly the same documentation, so we can use any item to render it
-                val item = items.first()
-                item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
-                    to.append(formatText(location, it.content))
-                }
-                to.append(formatText(location, item.content.summary))
-                appendDescription(location, to, item)
-                appendLine(to)
-                appendLine(to)
             }
         }
+    }
+
+    private fun formatOverloadGroup(items: MutableList<DocumentationNode>, location: Location, to: StringBuilder) {
+        items.forEach {
+            val rendered = languageService.render(it)
+            appendAsSignature(to, rendered) {
+                to.append(formatCode(formatText(location, rendered)))
+                it.appendSourceLink(to)
+            }
+            it.appendOverrides(to)
+            it.appendDeprecation(location, to)
+        }
+        // All items have exactly the same documentation, so we can use any item to render it
+        val item = items.first()
+        item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
+            to.append(formatText(location, it.content))
+        }
+        to.append(formatText(location, item.content.summary))
+        appendDescription(location, to, item)
+        appendLine(to)
+        appendLine(to)
     }
 
     private fun DocumentationNode.isModuleOrPackage(): Boolean =

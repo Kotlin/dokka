@@ -41,11 +41,7 @@ public open class HtmlFormatService @Inject constructor(@Named("folders") locati
     }
 
     override fun appendLine(to: StringBuilder, text: String) {
-        to.appendln("${text}<br/>")
-    }
-
-    override fun appendLine(to: StringBuilder) {
-        to.appendln("<br/>")
+        to.appendln("$text<br/>")
     }
 
     override fun appendAnchor(to: StringBuilder, anchor: String) {
