@@ -33,6 +33,7 @@ dependencies {
     compile "com.google.inject:guice:4.0"
     compile "com.github.spullara.cli-parser:cli-parser:1.1.1"
     compile "org.jsoup:jsoup:1.8.3"
+    compile "org.apache.ant:ant:1.9.6"
 
     compile files("../lib/intellij-core-analysis.jar")
     compile files("../lib/kotlin-for-upsource.jar")
@@ -40,7 +41,6 @@ dependencies {
     compile files("../lib/picocontainer.jar")
 
     provided files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
-    provided "org.apache.ant:ant:1.9.6"
 
     runtime "org.fusesource.jansi:jansi:1.11"
 
@@ -72,6 +72,10 @@ jar {
 shadowJar {
     baseName = 'dokka-fatjar'
     classifier = ''
+
+    dependencies {
+        exclude(dependency('org.apache.ant:ant:1.9.6'))
+    }
 }
 
 publishing {
