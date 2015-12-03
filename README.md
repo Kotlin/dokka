@@ -191,22 +191,5 @@ Basically, given the `documentation` as a model, we do this:
 
 ## Building Dokka
 
-Build only dokka
-
-```bash
-ant fatjar
-```
-
-Build dokka and maven plugin
-
-```bash
-ant install-fj
-cd maven-plugin
-mvn install
-```
-
-Build dokka and install maven plugin (do not require maven installed)
-```bash
-ant build-and-install
-```
-
+Dokka is built with Gradle. To build it, use `./gradlew build`.
+Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.
