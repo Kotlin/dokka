@@ -30,7 +30,7 @@
         </kotlinc>
 
         <jar jarfile="out/dokka.jar" update="true" >
-            <zipfileset dir="resources" includes="**/*.properties"/>
+            <zipfileset dir="core/src/main/resources" includes="**/*.properties"/>
             <zipfileset dir="javadoc/src/main/resources" includes="**/*.properties"/>
         </jar>
 
