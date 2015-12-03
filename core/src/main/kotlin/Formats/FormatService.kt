@@ -6,7 +6,6 @@ package org.jetbrains.dokka
  * Bundled Formatters:
  * * [HtmlFormatService] – outputs documentation to HTML format
  * * [MarkdownFormatService] – outputs documentation in Markdown format
- * * [TextFormatService] – outputs documentation in Text format
  */
 public interface FormatService {
     /** Returns extension for output files */
@@ -14,6 +13,9 @@ public interface FormatService {
 
     /** Appends formatted content to [StringBuilder](to) using specified [location] */
     fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>)
+
+    fun enumerateSupportFiles(callback: (resource: String, targetPath: String) -> Unit) {
+    }
 }
 
 /** Format content to [String] using specified [location] */

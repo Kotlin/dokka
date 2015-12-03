@@ -149,6 +149,10 @@ public open class HtmlFormatService @Inject constructor(@Named("folders") locati
     }
 
     override fun formatNonBreakingSpace(): String = "&nbsp;"
+
+    override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
+        callback("/dokka/styles/style.css", "style.css")
+    }
 }
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
