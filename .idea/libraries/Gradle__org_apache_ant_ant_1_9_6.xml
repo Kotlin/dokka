@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.ant:ant:1.9.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.9.6/80e2063b01bab3c79c2d84e4ed5e73868394c85a/ant-1.9.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.9.6/a09556e6512056c6741b6ffbf4de7a52282fd4ff/ant-1.9.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

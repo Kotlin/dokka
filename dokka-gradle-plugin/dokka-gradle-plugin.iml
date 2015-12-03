@@ -1447,5 +1447,17 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Gradle: org.apache.ant:ant:1.9.6" level="project" />
+    <orderEntry type="library" name="Gradle: org.fusesource.jansi:jansi:1.11" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.ant:ant-launcher:1.9.6" level="project" />
+    <orderEntry type="module-library">
+      <library name="Gradle: jps-model">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/jps-model.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
