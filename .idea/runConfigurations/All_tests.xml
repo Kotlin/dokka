@@ -1,16 +1,16 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All tests" type="JUnit" factoryName="JUnit" singleton="true">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <module name="dokka" />
+    <module name="core" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" value="" />
-    <option name="PACKAGE_NAME" value="org.jetbrains.dokka.tests" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
     <option name="VM_PARAMETERS" value="-ea -Xmx256m" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="" />
+    <option name="WORKING_DIRECTORY" value="file://core" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="TEST_SEARCH_SCOPE">
