@@ -42,6 +42,12 @@ public class FileGenerator @Inject constructor(val locationService: FileLocation
             }
         }
     }
+
+    override fun buildSupportFiles() {
+        FileOutputStream(locationService.location(listOf("style.css"), false).file).use {
+            javaClass.getResourceAsStream("/dokka/styles/style.css").copyTo(it)
+        }
+    }
 }
 
 private fun File.mkdirsOrFail() {
