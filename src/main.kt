@@ -93,7 +93,7 @@ public fun main(args: Array<String>) {
             samples,
             includes,
             arguments.moduleName,
-            arguments.outputDir,
+            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
             arguments.outputFormat,
             sourceLinks,
             arguments.nodeprecated)
@@ -148,7 +148,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val environment = createAnalysisEnvironment()
 
         logger.info("Module: $moduleName")
-        logger.info("Output: ${File(outputDir).absolutePath}")
+        logger.info("Output: ${File(outputDir)}")
         logger.info("Sources: ${environment.sources.joinToString()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 

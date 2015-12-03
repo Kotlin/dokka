@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import java.io.File
+import java.nio.file.Paths
 
 public open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
                                     signatureGenerator: LanguageService,
@@ -113,16 +114,18 @@ public open class HtmlFormatService @Inject constructor(@Named("folders") locati
 
 
     override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, getPageTitle(nodes))
+        templateService.appendHeader(to, getPageTitle(nodes), calcPathToRoot(location))
         super.appendNodes(location, to, nodes)
         templateService.appendFooter(to)
     }
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, "Module Contents")
+        templateService.appendHeader(to, "Module Contents", calcPathToRoot(location))
         super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }
+
+    private fun calcPathToRoot(location: Location) = Paths.get(location.path).parent.relativize(Paths.get(locationService.root.path + '/'))
 
     override fun getOutlineFileName(location: Location): File {
         return File("${location.path}-outline.html")

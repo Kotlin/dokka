@@ -27,7 +27,7 @@ public data class FileLocation(val file: File): Location {
             return "."
         }
         val ownerFolder = file.parentFile!!
-        val relativePath = ownerFolder.getRelativePath(other.file).path
+        val relativePath = ownerFolder.toPath().relativize(other.file.toPath()).toString()
         return if (anchor == null) relativePath else relativePath + "#" + anchor
     }
 }
@@ -51,6 +51,8 @@ public interface LocationService {
      * @param hasMembers if true, the node for which the location is calculated has member nodes.
      */
     fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
+
+    val root: Location
 }
 
 

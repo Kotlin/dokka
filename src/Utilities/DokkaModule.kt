@@ -26,7 +26,7 @@ class DokkaModule(val environment: AnalysisEnvironment,
         binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
 
         binder.bind(HtmlTemplateService::class.java).toProvider(object : Provider<HtmlTemplateService> {
-            override fun get(): HtmlTemplateService = HtmlTemplateService.default("/dokka/styles/style.css")
+            override fun get(): HtmlTemplateService = HtmlTemplateService.default("style.css")
         })
 
         binder.registerCategory<LanguageService>("language")
