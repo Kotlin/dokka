@@ -4,12 +4,14 @@ version dokka_version
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven {
             url 'http://oss.sonatype.org/content/repositories/snapshots'
         }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
     }
 }
 
