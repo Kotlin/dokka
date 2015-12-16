@@ -59,7 +59,7 @@ class KotlinLanguageService : LanguageService {
         if (qNames.size != size)
             return null
 
-        return ReceiverKind.values.firstOrNull { kind -> qNames.all { it in kind.classes } }
+        return ReceiverKind.values().firstOrNull { kind -> qNames.all { it in kind.classes } }
     }
 
     private fun DocumentationNode.getReceiverQName(): String? {
