@@ -51,6 +51,7 @@ dependencies {
     runtime files("../lib/jps-model.jar")
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
 }
 
 tasks.withType(AbstractCompile) {
