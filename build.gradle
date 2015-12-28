@@ -21,8 +21,11 @@ task buildMavenPlugin << {
     if (exitValue != 0) {
         throw new IOException("Failed to run Maven command: exit value $exitValue, output $mvnOutput")
     }
+}
 
+task prepareMavenPluginUpload << {
     def uploadDir = new File("maven-plugin/upload")
+    uploadDir.delete()
     uploadDir.mkdirs()
     def releaseFileName = "dokka-maven-plugin-${dokka_version}"
     new File("maven-plugin/target/${releaseFileName}.jar").renameTo(new File(uploadDir, "${releaseFileName}.jar"))
