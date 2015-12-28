@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import kotlin.util.measureTimeMillis
+import kotlin.system.measureTimeMillis
 
 class DokkaArguments {
     @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
