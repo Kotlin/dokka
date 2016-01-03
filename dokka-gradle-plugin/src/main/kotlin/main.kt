@@ -4,10 +4,10 @@ import groovy.lang.Closure
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
@@ -28,12 +28,18 @@ public open class DokkaTask : DefaultTask() {
         description = "Generates dokka documentation for Kotlin"
     }
 
+    @Input
     var moduleName: String = ""
+    @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
+    @Input
     var processConfigurations: ArrayList<String> = arrayListOf("compile")
+    @Input
     var includes: ArrayList<String> = arrayListOf()
+    @Input
     var linkMappings: ArrayList<LinkMapping> = arrayListOf()
+    @Input
     var samples: ArrayList<String> = arrayListOf()
 
     fun linkMapping(closure: Closure<Any?>) {
@@ -54,10 +60,7 @@ public open class DokkaTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val project = project
-        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-
-        val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        val sourceDirectories = sourceSets?.allSource?.srcDirs?.filter { it.exists() } ?: emptyList()
+        val sourceDirectories = getSourceDirectories()
         val allConfigurations = project.configurations
 
         val classpath =
@@ -83,6 +86,19 @@ public open class DokkaTask : DefaultTask() {
                 false
         ).generate()
     }
+
+    fun getSourceDirectories(): List<File> {
+        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        return sourceSets?.allSource?.srcDirs?.filter { it.exists() } ?: emptyList()
+    }
+
+    @InputFiles
+    @SkipWhenEmpty
+    fun getIncludedFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) })
+
+    @OutputDirectory
+    fun getOutputDirectoryAsFile() : File = project.file(outputDirectory)
 
 }
 
