@@ -2,7 +2,7 @@ package org.jetbrains.dokka
 
 import java.io.File
 
-public interface Location {
+interface Location {
     val path: String get
     fun relativePathTo(other: Location, anchor: String? = null): String
 }
@@ -15,7 +15,7 @@ public interface Location {
  * $file: [File] for this location
  * $path: [String] representing path of this location
  */
-public data class FileLocation(val file: File): Location {
+data class FileLocation(val file: File): Location {
     override val path : String
         get() = file.path
 
@@ -41,7 +41,7 @@ public data class FileLocation(val file: File): Location {
  * * [SingleFolderLocationService] – all documentation is generated into single folder using fully qualified names
  * for file names.
  */
-public interface LocationService {
+interface LocationService {
     fun withExtension(newExtension: String) = this
 
     fun location(node: DocumentationNode): Location = location(node.path.map { it.name }, node.members.any())
@@ -56,7 +56,7 @@ public interface LocationService {
 }
 
 
-public interface FileLocationService: LocationService {
+interface FileLocationService: LocationService {
     override fun withExtension(newExtension: String): FileLocationService = this
 
     override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
@@ -64,7 +64,7 @@ public interface FileLocationService: LocationService {
 }
 
 
-public fun identifierToFilename(path: String): String {
+fun identifierToFilename(path: String): String {
     val escaped = path.replace('<', '-').replace('>', '-')
     val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
     return if (lowercase == "index") "--index--" else lowercase

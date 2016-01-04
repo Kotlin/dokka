@@ -11,9 +11,9 @@ import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
-import java.util.ArrayList
+import java.util.*
 
-public open class DokkaPlugin : Plugin<Project> {
+open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.tasks.create("dokka", DokkaTask::class.java).apply {
             moduleName = project.name
@@ -22,7 +22,7 @@ public open class DokkaPlugin : Plugin<Project> {
     }
 }
 
-public open class DokkaTask : DefaultTask() {
+open class DokkaTask : DefaultTask() {
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
         description = "Generates dokka documentation for Kotlin"
@@ -102,7 +102,7 @@ public open class DokkaTask : DefaultTask() {
 
 }
 
-public open class LinkMapping {
+open class LinkMapping {
     var dir: String = ""
     var url: String = ""
     var suffix: String? = null

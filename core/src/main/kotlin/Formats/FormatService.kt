@@ -7,7 +7,7 @@ package org.jetbrains.dokka
  * * [HtmlFormatService] – outputs documentation to HTML format
  * * [MarkdownFormatService] – outputs documentation in Markdown format
  */
-public interface FormatService {
+interface FormatService {
     /** Returns extension for output files */
     val extension: String
 

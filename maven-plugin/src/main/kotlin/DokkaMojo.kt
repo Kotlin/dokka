@@ -8,7 +8,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 
-public class SourceLinkMapItem {
+class SourceLinkMapItem {
     @Parameter(name = "dir", required = true)
     var dir: String = ""
 
@@ -20,7 +20,7 @@ public class SourceLinkMapItem {
 }
 
 @Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
-public class DokkaMojo : AbstractMojo() {
+class DokkaMojo : AbstractMojo() {
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
 

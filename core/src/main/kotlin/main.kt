@@ -27,38 +27,38 @@ import kotlin.system.measureTimeMillis
 class DokkaArguments {
     @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
     @ValueDescription("<path>")
-    public var src: String = ""
+    var src: String = ""
 
     @set:Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
     @ValueDescription("<path>=<url>[#lineSuffix]")
-    public var srcLink: String = ""
+    var srcLink: String = ""
 
     @set:Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
     @ValueDescription("<path>")
-    public var include: String = ""
+    var include: String = ""
 
     @set:Argument(value = "samples", description = "Source root for samples")
     @ValueDescription("<path>")
-    public var samples: String = ""
+    var samples: String = ""
 
     @set:Argument(value = "output", description = "Output directory path")
     @ValueDescription("<path>")
-    public var outputDir: String = "out/doc/"
+    var outputDir: String = "out/doc/"
 
     @set:Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
     @ValueDescription("<name>")
-    public var outputFormat: String = "html"
+    var outputFormat: String = "html"
 
     @set:Argument(value = "module", description = "Name of the documentation module")
     @ValueDescription("<name>")
-    public var moduleName: String = ""
+    var moduleName: String = ""
 
     @set:Argument(value = "classpath", description = "Classpath for symbol resolution")
     @ValueDescription("<path>")
-    public var classpath: String = ""
+    var classpath: String = ""
 
     @set:Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
-    public var nodeprecated: Boolean = false
+    var nodeprecated: Boolean = false
 
 }
 
@@ -69,7 +69,7 @@ private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
             urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
 }
 
-public fun main(args: Array<String>) {
+fun main(args: Array<String>) {
     val arguments = DokkaArguments()
     val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
     val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs

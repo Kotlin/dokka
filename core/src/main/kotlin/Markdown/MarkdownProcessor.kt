@@ -24,7 +24,7 @@ fun MarkdownNode.visit(action: (MarkdownNode, () -> Unit) -> Unit) {
     }
 }
 
-public fun MarkdownNode.toTestString(): String {
+fun MarkdownNode.toTestString(): String {
     val sb = StringBuilder()
     var level = 0
     visit { node, visitChildren ->

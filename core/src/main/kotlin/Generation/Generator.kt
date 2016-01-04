@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-public interface Generator {
+interface Generator {
     fun buildPages(nodes: Iterable<DocumentationNode>)
     fun buildOutlines(nodes: Iterable<DocumentationNode>)
     fun buildSupportFiles()

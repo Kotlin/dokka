@@ -57,7 +57,7 @@ import java.io.File
  * $messageCollector: required by compiler infrastructure and will receive all compiler messages
  * $body: optional and can be used to configure environment without creating local variable
  */
-public class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
+class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
     val configuration = CompilerConfiguration();
 
     init {
@@ -119,14 +119,14 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector) : Dispo
     /**
      * Classpath for this environment.
      */
-    public val classpath: List<File>
+    val classpath: List<File>
         get() = configuration.jvmClasspathRoots
 
     /**
      * Adds list of paths to classpath.
      * $paths: collection of files to add
      */
-    public fun addClasspath(paths: List<File>) {
+    fun addClasspath(paths: List<File>) {
         configuration.addJvmClasspathRoots(paths)
     }
 
@@ -134,14 +134,14 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector) : Dispo
      * Adds path to classpath.
      * $path: path to add
      */
-    public fun addClasspath(path: File) {
+    fun addClasspath(path: File) {
         configuration.addJvmClasspathRoot(path)
     }
 
     /**
      * List of source roots for this environment.
      */
-    public val sources: List<String>
+    val sources: List<String>
         get() = configuration.get(CommonConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<KotlinSourceRoot>()
                 ?.map { it.path } ?: emptyList()
@@ -150,25 +150,25 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector) : Dispo
      * Adds list of paths to source roots.
      * $list: collection of files to add
      */
-    public fun addSources(list: List<String>) {
+    fun addSources(list: List<String>) {
         list.forEach {
             configuration.add(CommonConfigurationKeys.CONTENT_ROOTS, contentRootFromPath(it))
         }
     }
 
-    public fun addRoots(list: List<ContentRoot>) {
+    fun addRoots(list: List<ContentRoot>) {
         configuration.addAll(CommonConfigurationKeys.CONTENT_ROOTS, list)
     }
 
     /**
      * Disposes the environment and frees all associated resources.
      */
-    public override fun dispose() {
+    override fun dispose() {
         Disposer.dispose(this)
     }
 }
 
-public fun contentRootFromPath(path: String): ContentRoot {
+fun contentRootFromPath(path: String): ContentRoot {
     val file = File(path)
     return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path)
 }

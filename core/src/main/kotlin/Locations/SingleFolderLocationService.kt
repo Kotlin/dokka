@@ -4,8 +4,9 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import java.io.File
 
-public fun SingleFolderLocationService(root: String): SingleFolderLocationService = SingleFolderLocationService(File(root), "")
-public class SingleFolderLocationService @Inject constructor(@Named("outputDir") val rootFile: File, val extension: String) : FileLocationService {
+class SingleFolderLocationService @Inject constructor(@Named("outputDir") val rootFile: File, val extension: String) : FileLocationService {
+    constructor(root: String): this(File(root), "")
+
     override fun withExtension(newExtension: String): FileLocationService =
         SingleFolderLocationService(rootFile, newExtension)
 

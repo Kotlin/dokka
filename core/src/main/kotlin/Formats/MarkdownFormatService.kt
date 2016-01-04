@@ -3,16 +3,16 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 
 
-public open class MarkdownFormatService
+open class MarkdownFormatService
     @Inject constructor(locationService: LocationService,
                         signatureGenerator: LanguageService,
                         linkExtension: String = "md")
 : StructuredFormatService(locationService, signatureGenerator, "md", linkExtension) {
-    override public fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
+    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         return items.map { formatLink(it) }.joinToString(" / ")
     }
 
-    override public fun formatText(text: String): String {
+    override fun formatText(text: String): String {
         return text.htmlEscape()
     }
 
@@ -27,19 +27,19 @@ public open class MarkdownFormatService
         return text.htmlEscape()
     }
 
-    override public fun formatCode(code: String): String {
+    override fun formatCode(code: String): String {
         return "`$code`"
     }
 
-    override public fun formatUnorderedList(text: String): String = text + "\n"
-    override public fun formatOrderedList(text: String): String = text + "\n"
+    override fun formatUnorderedList(text: String): String = text + "\n"
+    override fun formatOrderedList(text: String): String = text + "\n"
 
     override fun formatListItem(text: String, kind: ListKind): String {
         val itemText = if (text.endsWith("\n")) text else text + "\n"
         return if (kind == ListKind.Unordered) "* $itemText" else "1. $itemText"
     }
 
-    override public fun formatStrong(text: String): String {
+    override fun formatStrong(text: String): String {
         return "**$text**"
     }
 
@@ -55,7 +55,7 @@ public open class MarkdownFormatService
         return "[$text]($href)"
     }
 
-    override public fun appendLine(to: StringBuilder, text: String) {
+    override fun appendLine(to: StringBuilder, text: String) {
         to.appendln(text)
     }
 
@@ -63,19 +63,19 @@ public open class MarkdownFormatService
         // no anchors in Markdown
     }
 
-    override public fun appendParagraph(to: StringBuilder, text: String) {
+    override fun appendParagraph(to: StringBuilder, text: String) {
         to.appendln()
         to.appendln(text)
         to.appendln()
     }
 
-    override public fun appendHeader(to: StringBuilder, text: String, level: Int) {
+    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
         appendLine(to)
         appendLine(to, "${"#".repeat(level)} $text")
         appendLine(to)
     }
 
-    override public fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
         appendLine(to)
         to.appendln("``` ${language}")
         to.appendln(line)

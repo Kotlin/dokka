@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.ant
 
+import org.apache.tools.ant.BuildException
+import org.apache.tools.ant.Project
 import org.apache.tools.ant.Task
 import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
-import org.apache.tools.ant.BuildException
-import org.apache.tools.ant.Project
-import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
 
@@ -19,48 +19,48 @@ class AntLogger(val task: Task): DokkaLogger {
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
 class DokkaAntTask(): Task() {
-    public var moduleName: String? = null
-    public var outputDir: String? = null
-    public var outputFormat: String = "html"
+    var moduleName: String? = null
+    var outputDir: String? = null
+    var outputFormat: String = "html"
 
-    public var skipDeprecated: Boolean = false
+    var skipDeprecated: Boolean = false
 
-    public val compileClasspath: Path = Path(getProject())
-    public val sourcePath: Path = Path(getProject())
-    public val samplesPath: Path = Path(getProject())
-    public val includesPath: Path = Path(getProject())
+    val compileClasspath: Path = Path(getProject())
+    val sourcePath: Path = Path(getProject())
+    val samplesPath: Path = Path(getProject())
+    val includesPath: Path = Path(getProject())
 
-    public val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
+    val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
 
-    public fun setClasspath(classpath: Path) {
+    fun setClasspath(classpath: Path) {
         compileClasspath.append(classpath)
     }
 
-    public fun setClasspathRef(ref: Reference) {
+    fun setClasspathRef(ref: Reference) {
         compileClasspath.createPath().refid = ref
     }
 
-    public fun setSrc(src: Path) {
+    fun setSrc(src: Path) {
         sourcePath.append(src)
     }
 
-    public fun setSrcRef(ref: Reference) {
+    fun setSrcRef(ref: Reference) {
         sourcePath.createPath().refid = ref
     }
 
-    public fun setSamples(samples: Path) {
+    fun setSamples(samples: Path) {
         samplesPath.append(samples)
     }
 
-    public fun setSamplesRef(ref: Reference) {
+    fun setSamplesRef(ref: Reference) {
         samplesPath.createPath().refid = ref
     }
 
-    public fun setInclude(include: Path) {
+    fun setInclude(include: Path) {
         includesPath.append(include)
     }
 
-    public fun createSourceLink(): AntSourceLinkDefinition {
+    fun createSourceLink(): AntSourceLinkDefinition {
         val def = AntSourceLinkDefinition()
         antSourceLinks.add(def)
         return def

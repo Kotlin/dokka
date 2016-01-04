@@ -1,14 +1,14 @@
 package org.jetbrains.dokka
 
-public interface ContentNode {
+interface ContentNode {
     val textLength: Int
 }
 
-public object ContentEmpty : ContentNode {
+object ContentEmpty : ContentNode {
     override val textLength: Int get() = 0
 }
 
-public open class ContentBlock() : ContentNode {
+open class ContentBlock() : ContentNode {
     val children = arrayListOf<ContentNode>()
 
     fun append(node: ContentNode)  {
@@ -35,58 +35,58 @@ enum class IdentifierKind {
     Other
 }
 
-public data class ContentText(val text: String) : ContentNode {
+data class ContentText(val text: String) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
 
-public data class ContentKeyword(val text: String) : ContentNode {
+data class ContentKeyword(val text: String) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
 
-public data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode {
+data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
 
-public data class ContentSymbol(val text: String) : ContentNode {
+data class ContentSymbol(val text: String) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
 
-public data class ContentEntity(val text: String) : ContentNode {
+data class ContentEntity(val text: String) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
 
-public object ContentNonBreakingSpace: ContentNode {
+object ContentNonBreakingSpace: ContentNode {
     override val textLength: Int
         get() = 1
 }
 
-public object ContentSoftLineBreak: ContentNode {
+object ContentSoftLineBreak: ContentNode {
     override val textLength: Int
         get() = 0
 }
 
-public object ContentIndentedSoftLineBreak: ContentNode {
+object ContentIndentedSoftLineBreak: ContentNode {
     override val textLength: Int
         get() = 0
 }
 
-public class ContentParagraph() : ContentBlock()
-public class ContentEmphasis() : ContentBlock()
-public class ContentStrong() : ContentBlock()
-public class ContentStrikethrough() : ContentBlock()
-public class ContentCode() : ContentBlock()
-public class ContentBlockCode(val language: String = "") : ContentBlock()
+class ContentParagraph() : ContentBlock()
+class ContentEmphasis() : ContentBlock()
+class ContentStrong() : ContentBlock()
+class ContentStrikethrough() : ContentBlock()
+class ContentCode() : ContentBlock()
+class ContentBlockCode(val language: String = "") : ContentBlock()
 
-public abstract class ContentNodeLink() : ContentBlock() {
+abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?
 }
 
-public class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLink() {
+class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLink() {
     override fun equals(other: Any?): Boolean =
             super.equals(other) && other is ContentNodeDirectLink && node.name == other.node.name
 
@@ -94,7 +94,7 @@ public class ContentNodeDirectLink(override val node: DocumentationNode): Conten
             children.hashCode() * 31 + node.name.hashCode()
 }
 
-public class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode?): ContentNodeLink() {
+class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode?): ContentNodeLink() {
     override val node: DocumentationNode? get() = lazyNode()
 
     override fun equals(other: Any?): Boolean =
@@ -104,7 +104,7 @@ public class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> Docum
             children.hashCode() * 31 + linkText.hashCode()
 }
 
-public class ContentExternalLink(val href : String) : ContentBlock() {
+class ContentExternalLink(val href : String) : ContentBlock() {
     override fun equals(other: Any?): Boolean =
         super.equals(other) && other is ContentExternalLink && href == other.href
 
@@ -112,13 +112,13 @@ public class ContentExternalLink(val href : String) : ContentBlock() {
         children.hashCode() * 31 + href.hashCode()
 }
 
-public class ContentUnorderedList() : ContentBlock()
-public class ContentOrderedList() : ContentBlock()
-public class ContentListItem() : ContentBlock()
+class ContentUnorderedList() : ContentBlock()
+class ContentOrderedList() : ContentBlock()
+class ContentListItem() : ContentBlock()
 
-public class ContentHeading(val level: Int) : ContentBlock()
+class ContentHeading(val level: Int) : ContentBlock()
 
-public class ContentSection(public val tag: String, public val subjectName: String?) : ContentBlock() {
+class ContentSection(val tag: String, val subjectName: String?) : ContentBlock() {
     override fun equals(other: Any?): Boolean =
         super.equals(other) && other is ContentSection && tag == other.tag && subjectName == other.subjectName
 
@@ -126,7 +126,7 @@ public class ContentSection(public val tag: String, public val subjectName: Stri
         children.hashCode() * 31 * 31 + tag.hashCode() * 31 + (subjectName?.hashCode() ?: 0)
 }
 
-public object ContentTags {
+object ContentTags {
     val Description = "Description"
     val SeeAlso = "See Also"
 }
@@ -163,10 +163,10 @@ fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
     append(block)
 }
 
-public open class Content(): ContentBlock() {
-    public open val sections: List<ContentSection> get() = emptyList()
-    public open val summary: ContentNode get() = ContentEmpty
-    public open val description: ContentNode get() = ContentEmpty
+open class Content(): ContentBlock() {
+    open val sections: List<ContentSection> get() = emptyList()
+    open val summary: ContentNode get() = ContentEmpty
+    open val description: ContentNode get() = ContentEmpty
 
     fun findSectionByTag(tag: String): ContentSection? =
             sections.firstOrNull { tag.equals(it.tag, ignoreCase = true) }
@@ -182,9 +182,9 @@ public open class Content(): ContentBlock() {
     }
 }
 
-public open class MutableContent() : Content() {
+open class MutableContent() : Content() {
     private val sectionList = arrayListOf<ContentSection>()
-    public override val sections: List<ContentSection>
+    override val sections: List<ContentSection>
         get() = sectionList
 
     fun addSection(tag: String?, subjectName: String?): ContentSection {
@@ -193,9 +193,9 @@ public open class MutableContent() : Content() {
         return section
     }
 
-    public override val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
+    override val summary: ContentNode get() = children.firstOrNull() ?: ContentEmpty
 
-    public override val description: ContentNode by lazy {
+    override val description: ContentNode by lazy {
         val descriptionNodes = children.drop(1)
         if (descriptionNodes.isEmpty()) {
             ContentEmpty

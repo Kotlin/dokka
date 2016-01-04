@@ -6,11 +6,11 @@ import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
-public open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
-                                    signatureGenerator: LanguageService,
-                                    val templateService: HtmlTemplateService)
+open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
+                                                 signatureGenerator: LanguageService,
+                                                 val templateService: HtmlTemplateService)
 : StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
-    override public fun formatText(text: String): String {
+    override fun formatText(text: String): String {
         return text.htmlEscape()
     }
 

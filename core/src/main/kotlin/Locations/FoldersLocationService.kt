@@ -4,8 +4,9 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import java.io.File
 
-public fun FoldersLocationService(root: String): FoldersLocationService = FoldersLocationService(File(root), "")
-public class FoldersLocationService @Inject constructor(@Named("outputDir") val rootFile: File, val extension: String) : FileLocationService {
+class FoldersLocationService @Inject constructor(@Named("outputDir") val rootFile: File, val extension: String) : FileLocationService {
+    constructor(root: String): this(File(root), "")
+
     override val root: Location
         get() = FileLocation(rootFile)
 
