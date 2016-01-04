@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.psi.*
-import org.jetbrains.dokka.DocumentationNode.Kind
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
@@ -69,11 +68,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun link(node: DocumentationNode, element: PsiElement?) {
         val qualifiedName = getSignature(element)
         if (qualifiedName != null) {
-            refGraph.link(node, qualifiedName, DocumentationReference.Kind.Link)
+            refGraph.link(node, qualifiedName, RefKind.Link)
         }
     }
 
-    fun link(element: PsiElement?, node: DocumentationNode, kind: DocumentationReference.Kind) {
+    fun link(element: PsiElement?, node: DocumentationNode, kind: RefKind) {
         val qualifiedName = getSignature(element)
         if (qualifiedName != null) {
             refGraph.link(qualifiedName, node, kind)
@@ -81,7 +80,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun nodeForElement(element: PsiNamedElement,
-                       kind: Kind,
+                       kind: NodeKind,
                        name: String = element.name ?: "<anonymous>"): DocumentationNode {
         val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
@@ -92,17 +91,17 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
                 modifierList.annotations.filter { !ignoreAnnotation(it) }.forEach {
                     val annotation = it.build()
                     node.append(annotation,
-                            if (it.qualifiedName == "java.lang.Deprecated") DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+                            if (it.qualifiedName == "java.lang.Deprecated") RefKind.Deprecation else RefKind.Annotation)
                 }
             }
         }
         if (deprecatedContent != null) {
-            val deprecationNode = DocumentationNode("", deprecatedContent, Kind.Modifier)
-            node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
+            val deprecationNode = DocumentationNode("", deprecatedContent, NodeKind.Modifier)
+            node.append(deprecationNode, RefKind.Deprecation)
         }
         if (element is PsiDocCommentOwner && element.isDeprecated && node.deprecation == null) {
-            val deprecationNode = DocumentationNode("", Content.of(ContentText("Deprecated")), Kind.Modifier)
-            node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
+            val deprecationNode = DocumentationNode("", Content.of(ContentText("Deprecated")), NodeKind.Modifier)
+            node.append(deprecationNode, RefKind.Deprecation)
         }
         return node
     }
@@ -113,7 +112,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun <T : Any> DocumentationNode.appendChildren(elements: Array<T>,
-                                                   kind: DocumentationReference.Kind = DocumentationReference.Kind.Member,
+                                                   kind: RefKind = RefKind.Member,
                                                    buildFn: T.() -> DocumentationNode) {
         elements.forEach {
             if (!skipElement(it)) {
@@ -132,24 +131,24 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         element is PsiDocCommentOwner && element.docComment?.let { it.findTagByName("suppress") != null } ?: false
 
     fun <T : Any> DocumentationNode.appendMembers(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
-            appendChildren(elements, DocumentationReference.Kind.Member, buildFn)
+            appendChildren(elements, RefKind.Member, buildFn)
 
     fun <T : Any> DocumentationNode.appendDetails(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
-            appendChildren(elements, DocumentationReference.Kind.Detail, buildFn)
+            appendChildren(elements, RefKind.Detail, buildFn)
 
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
-            isInterface -> DocumentationNode.Kind.Interface
-            isEnum -> DocumentationNode.Kind.Enum
-            isAnnotationType -> DocumentationNode.Kind.AnnotationClass
-            else -> DocumentationNode.Kind.Class
+            isInterface -> NodeKind.Interface
+            isEnum -> NodeKind.Enum
+            isAnnotationType -> NodeKind.AnnotationClass
+            else -> NodeKind.Class
         }
         val node = nodeForElement(this, kind)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
-            node.appendType(it, Kind.Supertype)
+            node.appendType(it, NodeKind.Supertype)
             val superClass = it.resolve()
             if (superClass != null) {
-                link(superClass, node, DocumentationReference.Kind.Inheritor)
+                link(superClass, node, RefKind.Inheritor)
             }
         }
         node.appendDetails(typeParameters) { build() }
@@ -180,9 +179,9 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 
-    private fun PsiField.nodeKind(): Kind = when {
-        this is PsiEnumConstant -> Kind.EnumItem
-        else -> Kind.Field
+    private fun PsiField.nodeKind(): NodeKind = when {
+        this is PsiEnumConstant -> NodeKind.EnumItem
+        else -> NodeKind.Field
     }
 
     fun PsiMethod.build(): DocumentationNode {
@@ -198,24 +197,24 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 
-    private fun PsiMethod.nodeKind(): Kind = when {
-        isConstructor -> Kind.Constructor
-        else -> Kind.Function
+    private fun PsiMethod.nodeKind(): NodeKind = when {
+        isConstructor -> NodeKind.Constructor
+        else -> NodeKind.Function
     }
 
     fun PsiParameter.build(): DocumentationNode {
-        val node = nodeForElement(this, Kind.Parameter)
+        val node = nodeForElement(this, NodeKind.Parameter)
         node.appendType(type)
         if (type is PsiEllipsisType) {
-            node.appendTextNode("vararg", Kind.Modifier, DocumentationReference.Kind.Detail)
+            node.appendTextNode("vararg", NodeKind.Modifier, RefKind.Detail)
         }
         return node
     }
 
     fun PsiTypeParameter.build(): DocumentationNode {
-        val node = nodeForElement(this, Kind.TypeParameter)
-        extendsListTypes.forEach { node.appendType(it, Kind.UpperBound) }
-        implementsListTypes.forEach { node.appendType(it, Kind.UpperBound) }
+        val node = nodeForElement(this, NodeKind.TypeParameter)
+        extendsListTypes.forEach { node.appendType(it, NodeKind.UpperBound) }
+        implementsListTypes.forEach { node.appendType(it, NodeKind.UpperBound) }
         return node
     }
 
@@ -224,42 +223,42 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
         PsiModifier.MODIFIERS.forEach {
             if (modifierList.hasExplicitModifier(it)) {
-                appendTextNode(it, Kind.Modifier)
+                appendTextNode(it, NodeKind.Modifier)
             }
         }
     }
 
-    fun DocumentationNode.appendType(psiType: PsiType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
+    fun DocumentationNode.appendType(psiType: PsiType?, kind: NodeKind = NodeKind.Type) {
         if (psiType == null) {
             return
         }
-        append(psiType.build(kind), DocumentationReference.Kind.Detail)
+        append(psiType.build(kind), RefKind.Detail)
     }
 
-    fun PsiType.build(kind: DocumentationNode.Kind = DocumentationNode.Kind.Type): DocumentationNode {
+    fun PsiType.build(kind: NodeKind = NodeKind.Type): DocumentationNode {
         val name = mapTypeName(this)
         val node = DocumentationNode(name, Content.Empty, kind)
         if (this is PsiClassType) {
-            node.appendDetails(parameters) { build(Kind.Type) }
+            node.appendDetails(parameters) { build(NodeKind.Type) }
             link(node, resolve())
         }
         if (this is PsiArrayType && this !is PsiEllipsisType) {
-            node.append(componentType.build(Kind.Type), DocumentationReference.Kind.Detail)
+            node.append(componentType.build(NodeKind.Type), RefKind.Detail)
         }
         return node
     }
 
     fun PsiAnnotation.build(): DocumentationNode {
-        val node = DocumentationNode(nameReferenceElement?.text ?: "<?>", Content.Empty, DocumentationNode.Kind.Annotation)
+        val node = DocumentationNode(nameReferenceElement?.text ?: "<?>", Content.Empty, NodeKind.Annotation)
         parameterList.attributes.forEach {
-            val parameter = DocumentationNode(it.name ?: "value", Content.Empty, DocumentationNode.Kind.Parameter)
+            val parameter = DocumentationNode(it.name ?: "value", Content.Empty, NodeKind.Parameter)
             val value = it.value
             if (value != null) {
                 val valueText = (value as? PsiLiteralExpression)?.value as? String ?: value.text
-                val valueNode = DocumentationNode(valueText, Content.Empty, DocumentationNode.Kind.Value)
-                parameter.append(valueNode, DocumentationReference.Kind.Detail)
+                val valueNode = DocumentationNode(valueText, Content.Empty, NodeKind.Value)
+                parameter.append(valueNode, RefKind.Detail)
             }
-            node.append(parameter, DocumentationReference.Kind.Detail)
+            node.append(parameter, RefKind.Detail)
         }
         return node
     }

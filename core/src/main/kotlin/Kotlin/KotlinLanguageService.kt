@@ -11,22 +11,22 @@ class KotlinLanguageService : LanguageService {
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             when (node.kind) {
-                DocumentationNode.Kind.Package -> if (renderMode == RenderMode.FULL) renderPackage(node)
-                in DocumentationNode.Kind.classLike -> renderClass(node, renderMode)
+                NodeKind.Package -> if (renderMode == RenderMode.FULL) renderPackage(node)
+                in NodeKind.classLike -> renderClass(node, renderMode)
 
-                DocumentationNode.Kind.EnumItem,
-                DocumentationNode.Kind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
+                NodeKind.EnumItem,
+                NodeKind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
 
-                DocumentationNode.Kind.TypeParameter -> renderTypeParameter(node, renderMode)
-                DocumentationNode.Kind.Type,
-                DocumentationNode.Kind.UpperBound -> renderType(node, renderMode)
+                NodeKind.TypeParameter -> renderTypeParameter(node, renderMode)
+                NodeKind.Type,
+                NodeKind.UpperBound -> renderType(node, renderMode)
 
-                DocumentationNode.Kind.Modifier -> renderModifier(node)
-                DocumentationNode.Kind.Constructor,
-                DocumentationNode.Kind.Function,
-                DocumentationNode.Kind.CompanionObjectFunction -> renderFunction(node, renderMode)
-                DocumentationNode.Kind.Property,
-                DocumentationNode.Kind.CompanionObjectProperty -> renderProperty(node, renderMode)
+                NodeKind.Modifier -> renderModifier(node)
+                NodeKind.Constructor,
+                NodeKind.Function,
+                NodeKind.CompanionObjectFunction -> renderFunction(node, renderMode)
+                NodeKind.Property,
+                NodeKind.CompanionObjectProperty -> renderProperty(node, renderMode)
                 else -> identifier(node.name)
             }
         }
@@ -34,7 +34,7 @@ class KotlinLanguageService : LanguageService {
 
     override fun renderName(node: DocumentationNode): String {
         return when (node.kind) {
-            DocumentationNode.Kind.Constructor -> node.owner!!.name
+            NodeKind.Constructor -> node.owner!!.name
             else -> node.name
         }
     }
@@ -42,10 +42,10 @@ class KotlinLanguageService : LanguageService {
     override fun summarizeSignatures(nodes: List<DocumentationNode>): ContentNode? {
         if (nodes.size < 2) return null
         val receiverKind = nodes.getReceiverKind() ?: return null
-        val functionWithTypeParameter = nodes.firstOrNull { it.details(DocumentationNode.Kind.TypeParameter).any() } ?: return null
+        val functionWithTypeParameter = nodes.firstOrNull { it.details(NodeKind.TypeParameter).any() } ?: return null
         return content {
-            val typeParameter = functionWithTypeParameter.details(DocumentationNode.Kind.TypeParameter).first()
-            if (functionWithTypeParameter.kind == DocumentationNode.Kind.Function) {
+            val typeParameter = functionWithTypeParameter.details(NodeKind.TypeParameter).first()
+            if (functionWithTypeParameter.kind == NodeKind.Function) {
                 renderFunction(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
             }
             else {
@@ -63,9 +63,9 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun DocumentationNode.getReceiverQName(): String? {
-        if (kind != DocumentationNode.Kind.Function && kind != DocumentationNode.Kind.Property) return null
-        val receiver = details(DocumentationNode.Kind.Receiver).singleOrNull() ?: return null
-        return receiver.detail(DocumentationNode.Kind.Type).qualifiedNameFromType()
+        if (kind != NodeKind.Function && kind != NodeKind.Property) return null
+        val receiver = details(NodeKind.Receiver).singleOrNull() ?: return null
+        return receiver.detail(NodeKind.Type).qualifiedNameFromType()
     }
 
     companion object {
@@ -142,7 +142,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
-        var typeArguments = node.details(DocumentationNode.Kind.Type)
+        var typeArguments = node.details(NodeKind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
             val isExtension = node.annotations.any { it.name == "ExtensionFunctionType" }
@@ -174,7 +174,7 @@ class KotlinLanguageService : LanguageService {
             }
             symbol(">")
         }
-        val nullabilityModifier = node.details(DocumentationNode.Kind.NullabilityModifier).singleOrNull()
+        val nullabilityModifier = node.details(NodeKind.NullabilityModifier).singleOrNull()
         if (nullabilityModifier != null) {
             symbol(nullabilityModifier.name)
         }
@@ -200,7 +200,7 @@ class KotlinLanguageService : LanguageService {
 
         identifier(node.name)
 
-        val constraints = node.details(DocumentationNode.Kind.UpperBound)
+        val constraints = node.details(NodeKind.UpperBound)
         if (constraints.any()) {
             nbsp()
             symbol(":")
@@ -218,9 +218,9 @@ class KotlinLanguageService : LanguageService {
         identifier(node.name, IdentifierKind.ParameterName)
         symbol(":")
         nbsp()
-        val parameterType = node.detail(DocumentationNode.Kind.Type)
+        val parameterType = node.detail(NodeKind.Type)
         renderType(parameterType, renderMode)
-        val valueNode = node.details(DocumentationNode.Kind.Value).firstOrNull()
+        val valueNode = node.details(NodeKind.Value).firstOrNull()
         if (valueNode != null) {
             nbsp()
             symbol("=")
@@ -230,7 +230,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderTypeParametersForNode(node: DocumentationNode, renderMode: RenderMode) {
-        val typeParameters = node.details(DocumentationNode.Kind.TypeParameter)
+        val typeParameters = node.details(NodeKind.TypeParameter)
         if (typeParameters.any()) {
             symbol("<")
             renderList(typeParameters) {
@@ -241,7 +241,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderSupertypesForNode(node: DocumentationNode, renderMode: RenderMode) {
-        val supertypes = node.details(DocumentationNode.Kind.Supertype)
+        val supertypes = node.details(NodeKind.Supertype)
         if (supertypes.any()) {
             nbsp()
             symbol(":")
@@ -256,9 +256,9 @@ class KotlinLanguageService : LanguageService {
     private fun ContentBlock.renderModifiersForNode(node: DocumentationNode,
                                                     renderMode: RenderMode,
                                                     nowrap: Boolean = false) {
-        val modifiers = node.details(DocumentationNode.Kind.Modifier)
+        val modifiers = node.details(NodeKind.Modifier)
         for (it in modifiers) {
-            if (node.kind == org.jetbrains.dokka.DocumentationNode.Kind.Interface && it.name == "abstract")
+            if (node.kind == org.jetbrains.dokka.NodeKind.Interface && it.name == "abstract")
                 continue
             if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
                 continue
@@ -275,11 +275,11 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentBlock.renderAnnotation(node: DocumentationNode) {
         identifier("@" + node.name, IdentifierKind.AnnotationName)
-        val parameters = node.details(DocumentationNode.Kind.Parameter)
+        val parameters = node.details(NodeKind.Parameter)
         if (!parameters.isEmpty()) {
             symbol("(")
             renderList(parameters) {
-                text(it.detail(DocumentationNode.Kind.Value).name)
+                text(it.detail(NodeKind.Value).name)
             }
             symbol(")")
         }
@@ -292,12 +292,12 @@ class KotlinLanguageService : LanguageService {
         }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
-            DocumentationNode.Kind.Class,
-            DocumentationNode.Kind.AnnotationClass,
-            DocumentationNode.Kind.Enum -> keyword("class ")
-            DocumentationNode.Kind.Interface -> keyword("interface ")
-            DocumentationNode.Kind.EnumItem -> keyword("enum val ")
-            DocumentationNode.Kind.Object -> keyword("object ")
+            NodeKind.Class,
+            NodeKind.AnnotationClass,
+            NodeKind.Enum -> keyword("class ")
+            NodeKind.Interface -> keyword("interface ")
+            NodeKind.EnumItem -> keyword("enum val ")
+            NodeKind.Object -> keyword("object ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
         }
 
@@ -314,23 +314,23 @@ class KotlinLanguageService : LanguageService {
         }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
-            DocumentationNode.Kind.Constructor -> identifier(node.owner!!.name)
-            DocumentationNode.Kind.Function,
-            DocumentationNode.Kind.CompanionObjectFunction -> keyword("fun ")
+            NodeKind.Constructor -> identifier(node.owner!!.name)
+            NodeKind.Function,
+            NodeKind.CompanionObjectFunction -> keyword("fun ")
             else -> throw IllegalArgumentException("Node $node is not a function-like object")
         }
         renderTypeParametersForNode(node, renderMode)
-        if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
+        if (node.details(NodeKind.TypeParameter).any()) {
             text(" ")
         }
 
         renderReceiver(node, renderMode, signatureMapper)
 
-        if (node.kind != org.jetbrains.dokka.DocumentationNode.Kind.Constructor)
+        if (node.kind != org.jetbrains.dokka.NodeKind.Constructor)
             identifierOrDeprecated(node)
 
         symbol("(")
-        val parameters = node.details(DocumentationNode.Kind.Parameter)
+        val parameters = node.details(NodeKind.Parameter)
         renderList(parameters) {
             indentedSoftLineBreak()
             renderParameter(it, renderMode)
@@ -341,7 +341,7 @@ class KotlinLanguageService : LanguageService {
             }
             symbol(")")
             symbol(": ")
-            renderType(node.detail(DocumentationNode.Kind.Type), renderMode)
+            renderType(node.detail(NodeKind.Type), renderMode)
         }
         else {
             symbol(")")
@@ -349,24 +349,24 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderReceiver(node: DocumentationNode, renderMode: RenderMode, signatureMapper: SignatureMapper?) {
-        val receiver = node.details(DocumentationNode.Kind.Receiver).singleOrNull()
+        val receiver = node.details(NodeKind.Receiver).singleOrNull()
         if (receiver != null) {
             if (signatureMapper != null) {
                 signatureMapper.renderReceiver(receiver, this)
             } else {
-                renderType(receiver.detail(DocumentationNode.Kind.Type), renderMode)
+                renderType(receiver.detail(NodeKind.Type), renderMode)
             }
             symbol(".")
         }
     }
 
     private fun needReturnType(node: DocumentationNode) = when(node.kind) {
-        DocumentationNode.Kind.Constructor -> false
+        NodeKind.Constructor -> false
         else -> !node.isUnitReturnType()
     }
 
     fun DocumentationNode.isUnitReturnType(): Boolean =
-            detail(DocumentationNode.Kind.Type).hiddenLinks.firstOrNull()?.qualifiedName() == "kotlin.Unit"
+            detail(NodeKind.Type).hiddenLinks.firstOrNull()?.qualifiedName() == "kotlin.Unit"
 
     private fun ContentBlock.renderProperty(node: DocumentationNode,
                                             renderMode: RenderMode,
@@ -376,12 +376,12 @@ class KotlinLanguageService : LanguageService {
         }
         renderModifiersForNode(node, renderMode)
         when (node.kind) {
-            DocumentationNode.Kind.Property,
-            DocumentationNode.Kind.CompanionObjectProperty -> keyword("${node.getPropertyKeyword()} ")
+            NodeKind.Property,
+            NodeKind.CompanionObjectProperty -> keyword("${node.getPropertyKeyword()} ")
             else -> throw IllegalArgumentException("Node $node is not a property")
         }
         renderTypeParametersForNode(node, renderMode)
-        if (node.details(DocumentationNode.Kind.TypeParameter).any()) {
+        if (node.details(NodeKind.TypeParameter).any()) {
             text(" ")
         }
 
@@ -389,11 +389,11 @@ class KotlinLanguageService : LanguageService {
 
         identifierOrDeprecated(node)
         symbol(": ")
-        renderType(node.detail(DocumentationNode.Kind.Type), renderMode)
+        renderType(node.detail(NodeKind.Type), renderMode)
     }
 
     fun DocumentationNode.getPropertyKeyword() =
-            if (details(DocumentationNode.Kind.Modifier).any { it.name == "var" }) "var" else "val"
+            if (details(NodeKind.Modifier).any { it.name == "var" }) "var" else "val"
 
     fun ContentBlock.identifierOrDeprecated(node: DocumentationNode) {
         if (node.deprecation != null) {

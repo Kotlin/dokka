@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
@@ -9,23 +8,23 @@ import org.jetbrains.dokka.LanguageService.RenderMode
 class JavaLanguageService : LanguageService {
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return ContentText(when (node.kind) {
-            Kind.Package -> renderPackage(node)
-            in Kind.classLike -> renderClass(node)
+            NodeKind.Package -> renderPackage(node)
+            in NodeKind.classLike -> renderClass(node)
 
-            Kind.TypeParameter -> renderTypeParameter(node)
-            Kind.Type,
-            Kind.UpperBound -> renderType(node)
+            NodeKind.TypeParameter -> renderTypeParameter(node)
+            NodeKind.Type,
+            NodeKind.UpperBound -> renderType(node)
 
-            Kind.Constructor,
-            Kind.Function -> renderFunction(node)
-            Kind.Property -> renderProperty(node)
+            NodeKind.Constructor,
+            NodeKind.Function -> renderFunction(node)
+            NodeKind.Property -> renderProperty(node)
             else -> "${node.kind}: ${node.name}"
         })
     }
 
     override fun renderName(node: DocumentationNode): String {
         return when (node.kind) {
-            Kind.Constructor -> node.owner!!.name
+            NodeKind.Constructor -> node.owner!!.name
             else -> node.name
         }
     }
@@ -45,13 +44,13 @@ class JavaLanguageService : LanguageService {
     }
 
     fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.name) {
-        "Array" -> node.details(Kind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, DocumentationNode.Kind.ExternalClass)
-        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, DocumentationNode.Kind.Type)
+        "Array" -> node.details(NodeKind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, NodeKind.ExternalClass)
+        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, NodeKind.Type)
         else -> null
     }
 
     fun getArrayDimension(node: DocumentationNode): Int = when (node.name) {
-        "Array" -> 1 + (node.details(DocumentationNode.Kind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
+        "Array" -> 1 + (node.details(NodeKind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
         "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> 1
         else -> 0
     }
@@ -71,7 +70,7 @@ class JavaLanguageService : LanguageService {
     }
 
     private fun renderTypeParameter(node: DocumentationNode): String {
-        val constraints = node.details(Kind.UpperBound)
+        val constraints = node.details(NodeKind.UpperBound)
         return if (constraints.none())
             node.name
         else {
@@ -80,12 +79,12 @@ class JavaLanguageService : LanguageService {
     }
 
     private fun renderParameter(node: DocumentationNode): String {
-        return "${renderType(node.detail(Kind.Type))} ${node.name}"
+        return "${renderType(node.detail(NodeKind.Type))} ${node.name}"
     }
 
     private fun renderTypeParametersForNode(node: DocumentationNode): String {
         return StringBuilder().apply {
-            val typeParameters = node.details(Kind.TypeParameter)
+            val typeParameters = node.details(NodeKind.TypeParameter)
             if (typeParameters.any()) {
                 append("<")
                 append(typeParameters.map { renderTypeParameter(it) }.joinToString())
@@ -95,7 +94,7 @@ class JavaLanguageService : LanguageService {
     }
 
     private fun renderModifiersForNode(node: DocumentationNode): String {
-        val modifiers = node.details(Kind.Modifier).map { renderModifier(it) }.filter { it != "" }
+        val modifiers = node.details(NodeKind.Modifier).map { renderModifier(it) }.filter { it != "" }
         if (modifiers.none())
             return ""
         return modifiers.joinToString(" ", postfix = " ")
@@ -104,11 +103,11 @@ class JavaLanguageService : LanguageService {
     private fun renderClass(node: DocumentationNode): String {
         return StringBuilder().apply {
             when (node.kind) {
-                Kind.Class -> append("class ")
-                Kind.Interface -> append("interface ")
-                Kind.Enum -> append("enum ")
-                Kind.EnumItem -> append("enum value ")
-                Kind.Object -> append("class ")
+                NodeKind.Class -> append("class ")
+                NodeKind.Interface -> append("interface ")
+                NodeKind.Enum -> append("enum ")
+                NodeKind.EnumItem -> append("enum value ")
+                NodeKind.Object -> append("class ")
                 else -> throw IllegalArgumentException("Node $node is not a class-like object")
             }
 
@@ -120,22 +119,22 @@ class JavaLanguageService : LanguageService {
     private fun renderFunction(node: DocumentationNode): String {
         return StringBuilder().apply {
             when (node.kind) {
-                Kind.Constructor -> append(node.owner?.name)
-                Kind.Function -> {
+                NodeKind.Constructor -> append(node.owner?.name)
+                NodeKind.Function -> {
                     append(renderTypeParametersForNode(node))
-                    append(renderType(node.detail(Kind.Type)))
+                    append(renderType(node.detail(NodeKind.Type)))
                     append(" ")
                     append(node.name)
                 }
                 else -> throw IllegalArgumentException("Node $node is not a function-like object")
             }
 
-            val receiver = node.details(Kind.Receiver).singleOrNull()
+            val receiver = node.details(NodeKind.Receiver).singleOrNull()
             append("(")
             if (receiver != null)
-                (listOf(receiver) + node.details(Kind.Parameter)).map { renderParameter(it) }.joinTo(this)
+                (listOf(receiver) + node.details(NodeKind.Parameter)).map { renderParameter(it) }.joinTo(this)
             else
-                node.details(Kind.Parameter).map { renderParameter(it) }.joinTo(this)
+                node.details(NodeKind.Parameter).map { renderParameter(it) }.joinTo(this)
 
             append(")")
         }.toString()
@@ -144,19 +143,19 @@ class JavaLanguageService : LanguageService {
     private fun renderProperty(node: DocumentationNode): String {
         return StringBuilder().apply {
             when (node.kind) {
-                Kind.Property -> append("val ")
+                NodeKind.Property -> append("val ")
                 else -> throw IllegalArgumentException("Node $node is not a property")
             }
             append(renderTypeParametersForNode(node))
-            val receiver = node.details(Kind.Receiver).singleOrNull()
+            val receiver = node.details(NodeKind.Receiver).singleOrNull()
             if (receiver != null) {
-                append(renderType(receiver.detail(Kind.Type)))
+                append(renderType(receiver.detail(NodeKind.Type)))
                 append(".")
             }
 
             append(node.name)
             append(": ")
-            append(renderType(node.detail(Kind.Type)))
+            append(renderType(node.detail(NodeKind.Type)))
         }.toString()
     }
 }

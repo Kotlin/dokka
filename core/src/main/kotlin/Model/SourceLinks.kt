@@ -1,10 +1,10 @@
 package org.jetbrains.dokka
 
-import com.intellij.psi.PsiElement
-import java.io.File
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import java.io.File
 
 class SourceLinkDefinition(val path: String, val url: String, val lineSuffix: String?)
 
@@ -22,12 +22,12 @@ fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<Sourc
                 url += linkDef.lineSuffix + line.toString()
             }
         }
-        append(DocumentationNode(url, Content.Empty, DocumentationNode.Kind.SourceUrl),
-                DocumentationReference.Kind.Detail);
+        append(DocumentationNode(url, Content.Empty, NodeKind.SourceUrl),
+                RefKind.Detail);
     }
 
     if (target != null) {
-        append(DocumentationNode(target.sourcePosition(), Content.Empty, DocumentationNode.Kind.SourcePosition), DocumentationReference.Kind.Detail)
+        append(DocumentationNode(target.sourcePosition(), Content.Empty, NodeKind.SourcePosition), RefKind.Detail)
     }
 }
 

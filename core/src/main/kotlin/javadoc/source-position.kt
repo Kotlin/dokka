@@ -2,12 +2,13 @@ package org.jetbrains.dokka.javadoc
 
 import com.sun.javadoc.SourcePosition
 import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.NodeKind
 import java.io.File
 
 class SourcePositionAdapter(val docNode: DocumentationNode) : SourcePosition {
 
     private val sourcePositionParts: List<String> by lazy {
-        docNode.details(DocumentationNode.Kind.SourcePosition).firstOrNull()?.name?.split(":") ?: emptyList()
+        docNode.details(NodeKind.SourcePosition).firstOrNull()?.name?.split(":") ?: emptyList()
     }
 
     override fun file(): File? = if (sourcePositionParts.isEmpty()) null else File(sourcePositionParts[0])

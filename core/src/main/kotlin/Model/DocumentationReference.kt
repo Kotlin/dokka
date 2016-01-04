@@ -2,27 +2,28 @@ package org.jetbrains.dokka
 
 import com.google.inject.Singleton
 
-data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReference.Kind) {
-    enum class Kind {
-        Owner,
-        Member,
-        InheritedMember,
-        Detail,
-        Link,
-        HiddenLink,
-        Extension,
-        Inheritor,
-        Superclass,
-        Override,
-        Annotation,
-        Deprecation,
-        TopLevelPage
-    }
+enum class RefKind {
+    Owner,
+    Member,
+    InheritedMember,
+    Detail,
+    Link,
+    HiddenLink,
+    Extension,
+    Inheritor,
+    Superclass,
+    Override,
+    Annotation,
+    Deprecation,
+    TopLevelPage
+}
+
+data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {
 }
 
 class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
                                     val lazyNodeTo: () -> DocumentationNode?,
-                                    val kind: DocumentationReference.Kind) {
+                                    val kind: RefKind) {
     fun resolve() {
         val fromNode = lazyNodeFrom()
         val toNode = lazyNodeTo()
@@ -41,15 +42,15 @@ class NodeReferenceGraph() {
         nodeMap.put(signature, node)
     }
 
-    fun link(fromNode: DocumentationNode, toSignature: String, kind: DocumentationReference.Kind) {
+    fun link(fromNode: DocumentationNode, toSignature: String, kind: RefKind) {
         references.add(PendingDocumentationReference({ -> fromNode}, { -> nodeMap[toSignature]}, kind))
     }
 
-    fun link(fromSignature: String, toNode: DocumentationNode, kind: DocumentationReference.Kind) {
+    fun link(fromSignature: String, toNode: DocumentationNode, kind: RefKind) {
         references.add(PendingDocumentationReference({ -> nodeMap[fromSignature]}, { -> toNode}, kind))
     }
 
-    fun link(fromSignature: String, toSignature: String, kind: DocumentationReference.Kind) {
+    fun link(fromSignature: String, toSignature: String, kind: RefKind) {
         references.add(PendingDocumentationReference({ -> nodeMap[fromSignature]}, { -> nodeMap[toSignature]}, kind))
     }
 

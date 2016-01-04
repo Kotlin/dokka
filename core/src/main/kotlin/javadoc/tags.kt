@@ -176,9 +176,9 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         is ContentNodeLink -> {
             val target = node.node
             when (target?.kind) {
-                DocumentationNode.Kind.Function -> result.add(SeeMethodTagAdapter(holder, MethodAdapter(module, node.node!!), node))
+                NodeKind.Function -> result.add(SeeMethodTagAdapter(holder, MethodAdapter(module, node.node!!), node))
 
-                in DocumentationNode.Kind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
+                in NodeKind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
 
                 else -> buildInlineTags(module, holder, node.children, result)
             }

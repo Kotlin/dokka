@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
-import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.NodeKind
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -11,9 +11,9 @@ public class FunctionTest {
         verifyModel("testdata/functions/function.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals(NodeKind.Function, kind)
                 assertEquals("Function fn", content.summary.toTestString())
-                assertEquals("Unit", detail(DocumentationNode.Kind.Type).name)
+                assertEquals("Unit", detail(NodeKind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -24,17 +24,17 @@ public class FunctionTest {
         verifyModel("testdata/functions/functionWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("kotlin.String", name)
-                assertEquals(DocumentationNode.Kind.ExternalClass, kind)
+                assertEquals(NodeKind.ExternalClass, kind)
                 assertEquals(2, members.count())
                 with(members[0]) {
                     assertEquals("fn", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals(NodeKind.Function, kind)
                     assertEquals("Function with receiver", content.summary.toTestString())
                     assertEquals("public", details.elementAt(0).name)
                     assertEquals("final", details.elementAt(1).name)
                     with(details.elementAt(2)) {
                         assertEquals("<this>", name)
-                        assertEquals(DocumentationNode.Kind.Receiver, kind)
+                        assertEquals(NodeKind.Receiver, kind)
                         assertEquals(Content.Empty, content)
                         assertEquals("String", details.single().name)
                         assertTrue(members.none())
@@ -46,7 +46,7 @@ public class FunctionTest {
                 }
                 with(members[1]) {
                     assertEquals("fn", name)
-                    assertEquals(DocumentationNode.Kind.Function, kind)
+                    assertEquals(NodeKind.Function, kind)
                 }
             }
         }
@@ -56,14 +56,14 @@ public class FunctionTest {
         verifyModel("testdata/functions/genericFunction.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals(NodeKind.Function, kind)
                 assertEquals("generic function", content.summary.toTestString())
 
                 assertEquals("private", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
                     assertEquals("T", name)
-                    assertEquals(DocumentationNode.Kind.TypeParameter, kind)
+                    assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
                     assertTrue(details.none())
                     assertTrue(members.none())
@@ -80,18 +80,18 @@ public class FunctionTest {
         verifyModel("testdata/functions/genericFunctionWithConstraints.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals(NodeKind.Function, kind)
                 assertEquals("generic function", content.summary.toTestString())
 
                 assertEquals("public", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
                     assertEquals("T", name)
-                    assertEquals(DocumentationNode.Kind.TypeParameter, kind)
+                    assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
                     with(details.single()) {
                         assertEquals("R", name)
-                        assertEquals(DocumentationNode.Kind.UpperBound, kind)
+                        assertEquals(NodeKind.UpperBound, kind)
                         assertEquals(Content.Empty, content)
                         assertTrue(details.none())
                         assertTrue(members.none())
@@ -102,7 +102,7 @@ public class FunctionTest {
                 }
                 with(details.elementAt(3)) {
                     assertEquals("R", name)
-                    assertEquals(DocumentationNode.Kind.TypeParameter, kind)
+                    assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
                     assertTrue(members.none())
                     assertTrue(links.none())
@@ -119,7 +119,7 @@ public class FunctionTest {
         verifyModel("testdata/functions/functionWithParams.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals(NodeKind.Function, kind)
                 assertEquals("Multiline", content.summary.toTestString())
                 assertEquals("""Function
 Documentation""", content.description.toTestString())
@@ -128,7 +128,7 @@ Documentation""", content.description.toTestString())
                 assertEquals("final", details.elementAt(1).name)
                 with(details.elementAt(2)) {
                     assertEquals("x", name)
-                    assertEquals(DocumentationNode.Kind.Parameter, kind)
+                    assertEquals(NodeKind.Parameter, kind)
                     assertEquals("parameter", content.summary.toTestString())
                     assertEquals("Int", details.single().name)
                     assertTrue(members.none())
@@ -147,7 +147,7 @@ Documentation""", content.description.toTestString())
             with(func.annotations[0]) {
                 assertEquals("Strictfp", name)
                 assertEquals(Content.Empty, content)
-                assertEquals(DocumentationNode.Kind.Annotation, kind)
+                assertEquals(NodeKind.Annotation, kind)
             }
         }
     }
@@ -160,7 +160,7 @@ Documentation""", content.description.toTestString())
 
     @Test fun inlineFunction() {
         verifyPackageMember("testdata/functions/inlineFunction.kt") { func ->
-            val modifiers = func.details(DocumentationNode.Kind.Modifier).map { it.name }
+            val modifiers = func.details(NodeKind.Modifier).map { it.name }
             assertTrue("inline" in modifiers)
         }
     }
@@ -173,7 +173,7 @@ Documentation""", content.description.toTestString())
                     with(annotations[0]) {
                         assertEquals("Fancy", name)
                         assertEquals(Content.Empty, content)
-                        assertEquals(DocumentationNode.Kind.Annotation, kind)
+                        assertEquals(NodeKind.Annotation, kind)
                     }
                 }
             }
@@ -183,7 +183,7 @@ Documentation""", content.description.toTestString())
     @Test fun functionWithNoinlineParam() {
         verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt") { func ->
             with(func.details.elementAt(2)) {
-                val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                val modifiers = details(NodeKind.Modifier).map { it.name }
                 assertTrue("noinline" in modifiers)
             }
         }
@@ -196,13 +196,13 @@ Documentation""", content.description.toTestString())
                 with(annotations[0]) {
                     assertEquals("Fancy", name)
                     assertEquals(Content.Empty, content)
-                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    assertEquals(NodeKind.Annotation, kind)
                     assertEquals(1, details.count())
                     with(details[0]) {
-                        assertEquals(DocumentationNode.Kind.Parameter, kind)
+                        assertEquals(NodeKind.Parameter, kind)
                         assertEquals(1, details.count())
                         with(details[0]) {
-                            assertEquals(DocumentationNode.Kind.Value, kind)
+                            assertEquals(NodeKind.Value, kind)
                             assertEquals("1", name)
                         }
                     }
@@ -215,7 +215,7 @@ Documentation""", content.description.toTestString())
         verifyModel("testdata/functions/functionWithDefaultParameter.kt") { model ->
             with(model.members.single().members.single()) {
                 with(details.elementAt(2)) {
-                    val value = details(DocumentationNode.Kind.Value)
+                    val value = details(NodeKind.Value)
                     assertEquals(1, value.count())
                     with(value[0]) {
                         assertEquals("\"\"", name)
