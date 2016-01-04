@@ -187,7 +187,8 @@ abstract class StructuredFormatService(locationService: LocationService,
             val singleNode = nodes.singleOrNull()
             if (singleNode != null && singleNode.isModuleOrPackage()) {
                 if (singleNode.kind == NodeKind.Package) {
-                    appendHeader(to, "Package " + formatText(singleNode.name), 2)
+                    val packageName = if (singleNode.name.isEmpty()) "<root>" else singleNode.name
+                    appendHeader(to, "Package " + formatText(packageName), 2)
                 }
                 to.append(formatText(location, singleNode.content))
             } else {
@@ -275,7 +276,9 @@ abstract class StructuredFormatService(locationService: LocationService,
             }
 
             appendSection("Packages", node.members(NodeKind.Package))
-            appendSection("Types", node.members.filter { it.kind in NodeKind.classLike })
+            appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
+            appendSection("Annotations", node.members(NodeKind.AnnotationClass))
+            appendSection("Exceptions", node.members(NodeKind.Exception))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
             appendSection("Enum Values", node.members(NodeKind.EnumItem))
             appendSection("Constructors", node.members(NodeKind.Constructor))
@@ -292,6 +295,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                         NodeKind.Enum,
                         NodeKind.Object,
                         NodeKind.AnnotationClass,
+                        NodeKind.Exception,
                         NodeKind.Constructor,
                         NodeKind.Property,
                         NodeKind.Package,

@@ -10,6 +10,7 @@ enum class NodeKind {
     Interface,
     Enum,
     AnnotationClass,
+    Exception,
     EnumItem,
     Object,
 
@@ -28,7 +29,6 @@ enum class NodeKind {
     Supertype,
     UpperBound,
     LowerBound,
-    Exception,
 
     Modifier,
     NullabilityModifier,
@@ -50,7 +50,7 @@ enum class NodeKind {
     OverloadGroupNote;
 
     companion object {
-        val classLike = setOf(Class, Interface, Enum, AnnotationClass, Object)
+        val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object)
     }
 }
 

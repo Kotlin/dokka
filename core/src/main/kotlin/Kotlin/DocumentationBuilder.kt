@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
+import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
@@ -31,6 +32,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.types.typeUtil.supertypes
 
 data class DocumentationOptions(val outputDir: String,
                                 val outputFormat: String,
@@ -283,12 +285,13 @@ class DocumentationBuilder
     }
 
     fun ClassDescriptor.build(): DocumentationNode {
-        val kind = when (kind) {
-            ClassKind.OBJECT -> NodeKind.Object
-            ClassKind.INTERFACE -> NodeKind.Interface
-            ClassKind.ENUM_CLASS -> NodeKind.Enum
-            ClassKind.ANNOTATION_CLASS -> NodeKind.AnnotationClass
-            ClassKind.ENUM_ENTRY -> NodeKind.EnumItem
+        val kind = when {
+            kind == ClassKind.OBJECT -> NodeKind.Object
+            kind == ClassKind.INTERFACE -> NodeKind.Interface
+            kind == ClassKind.ENUM_CLASS -> NodeKind.Enum
+            kind == ClassKind.ANNOTATION_CLASS -> NodeKind.AnnotationClass
+            kind == ClassKind.ENUM_ENTRY -> NodeKind.EnumItem
+            isSubclassOfThrowable() -> NodeKind.Exception
             else -> NodeKind.Class
         }
         val node = nodeForDescriptor(this, kind)
@@ -316,6 +319,9 @@ class DocumentationBuilder
         register(this, node)
         return node
     }
+
+    fun ClassDescriptor.isSubclassOfThrowable(): Boolean =
+            defaultType.supertypes().any { it.constructor.declarationDescriptor == builtIns.throwable }
 
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.Constructor)
