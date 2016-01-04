@@ -4,10 +4,10 @@ import groovy.lang.Closure
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
@@ -15,11 +15,10 @@ import java.util.ArrayList
 
 public open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val ext = project.extensions.create("dokka", DokkaExtension::class.java)
-        project.tasks.create("dokka", DokkaTask::class.java)
-
-        ext.moduleName = project.name
-        ext.outputDirectory = File(project.buildDir, "dokka").absolutePath
+        project.tasks.create("dokka", DokkaTask::class.java).apply {
+            moduleName = project.name
+            outputDirectory = File(project.buildDir, "dokka").absolutePath
+        }
     }
 }
 
@@ -29,49 +28,18 @@ public open class DokkaTask : DefaultTask() {
         description = "Generates dokka documentation for Kotlin"
     }
 
-    @TaskAction
-    fun generate() {
-        val project = project
-        val conf = project.extensions.getByType(DokkaExtension::class.java)
-        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-
-        val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        val sourceDirectories = sourceSets?.allSource?.srcDirs?.filter { it.exists() } ?: emptyList()
-        val allConfigurations = project.configurations
-
-        val classpath =
-                conf.processConfigurations
-                .map { allConfigurations?.getByName(it) ?: throw IllegalArgumentException("No configuration $it found") }
-                .flatMap { it }
-
-        if (sourceDirectories.isEmpty()) {
-            logger.warn("No source directories found: skipping dokka generation")
-            return
-        }
-
-        DokkaGenerator(
-                DokkaGradleLogger(logger),
-                classpath.map { it.absolutePath },
-                sourceDirectories.map { it.absolutePath },
-                conf.samples,
-                conf.includes,
-                conf.moduleName,
-                conf.outputDirectory,
-                conf.outputFormat,
-                conf.linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
-                false
-        ).generate()
-    }
-
-}
-
-public open class DokkaExtension {
+    @Input
     var moduleName: String = ""
+    @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
+    @Input
     var processConfigurations: ArrayList<String> = arrayListOf("compile")
+    @Input
     var includes: ArrayList<String> = arrayListOf()
+    @Input
     var linkMappings: ArrayList<LinkMapping> = arrayListOf()
+    @Input
     var samples: ArrayList<String> = arrayListOf()
 
     fun linkMapping(closure: Closure<Any?>) {
@@ -88,6 +56,50 @@ public open class DokkaExtension {
 
         linkMappings.add(mapping)
     }
+
+    @TaskAction
+    fun generate() {
+        val project = project
+        val sourceDirectories = getSourceDirectories()
+        val allConfigurations = project.configurations
+
+        val classpath =
+                processConfigurations
+                .map { allConfigurations?.getByName(it) ?: throw IllegalArgumentException("No configuration $it found") }
+                .flatMap { it }
+
+        if (sourceDirectories.isEmpty()) {
+            logger.warn("No source directories found: skipping dokka generation")
+            return
+        }
+
+        DokkaGenerator(
+                DokkaGradleLogger(logger),
+                classpath.map { it.absolutePath },
+                sourceDirectories.map { it.absolutePath },
+                samples,
+                includes,
+                moduleName,
+                outputDirectory,
+                outputFormat,
+                linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
+                false
+        ).generate()
+    }
+
+    fun getSourceDirectories(): List<File> {
+        val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        return sourceSets?.allSource?.srcDirs?.filter { it.exists() } ?: emptyList()
+    }
+
+    @InputFiles
+    @SkipWhenEmpty
+    fun getIncludedFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) })
+
+    @OutputDirectory
+    fun getOutputDirectoryAsFile() : File = project.file(outputDirectory)
+
 }
 
 public open class LinkMapping {
