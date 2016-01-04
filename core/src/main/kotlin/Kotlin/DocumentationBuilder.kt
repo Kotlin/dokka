@@ -555,7 +555,7 @@ class KotlinJavaDocumentationBuilder
 private fun AnnotationDescriptor.isDocumented(): Boolean {
     if (source.getPsi() != null && mustBeDocumented()) return true
     val annotationClassName = type.constructor.declarationDescriptor?.fqNameSafe?.asString()
-    return annotationClassName == "kotlin.Extension"
+    return annotationClassName == "kotlin.ExtensionFunctionType"
 }
 
 fun AnnotationDescriptor.mustBeDocumented(): Boolean {

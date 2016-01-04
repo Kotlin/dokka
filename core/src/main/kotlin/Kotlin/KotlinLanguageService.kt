@@ -145,7 +145,7 @@ class KotlinLanguageService : LanguageService {
         var typeArguments = node.details(DocumentationNode.Kind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
             // lambda
-            val isExtension = node.annotations.any { it.name == "Extension" }
+            val isExtension = node.annotations.any { it.name == "ExtensionFunctionType" }
             if (isExtension) {
                 renderType(typeArguments.first(), renderMode)
                 symbol(".")
