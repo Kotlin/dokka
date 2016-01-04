@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
-import org.jetbrains.dokka.DocumentationNode.Kind
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
@@ -70,11 +69,11 @@ class DocumentationBuilder
             KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
             KtTokens.OVERRIDE_KEYWORD)
 
-    fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind) {
+    fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: RefKind) {
         refGraph.link(node, descriptor.signature(), kind)
     }
 
-    fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: DocumentationReference.Kind) {
+    fun link(fromDescriptor: DeclarationDescriptor?, toDescriptor: DeclarationDescriptor?, kind: RefKind) {
         if (fromDescriptor != null && toDescriptor != null) {
             refGraph.link(fromDescriptor.signature(), toDescriptor.signature(), kind)
         }
@@ -84,8 +83,8 @@ class DocumentationBuilder
         refGraph.register(descriptor.signature(), node)
     }
 
-    fun <T> nodeForDescriptor(descriptor: T, kind: Kind): DocumentationNode where T : DeclarationDescriptor, T : Named {
-        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor, kind == Kind.Parameter)
+    fun <T> nodeForDescriptor(descriptor: T, kind: NodeKind): DocumentationNode where T : DeclarationDescriptor, T : Named {
+        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor, kind == NodeKind.Parameter)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         callback(node)
         return node
@@ -110,22 +109,22 @@ class DocumentationBuilder
             }
         }
         val modifier = modality.name.toLowerCase()
-        appendTextNode(modifier, DocumentationNode.Kind.Modifier)
+        appendTextNode(modifier, NodeKind.Modifier)
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
         val modifier = descriptor.visibility.normalize().displayName
-        appendTextNode(modifier, DocumentationNode.Kind.Modifier)
+        appendTextNode(modifier, NodeKind.Modifier)
     }
 
     fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
         val superTypes = descriptor.typeConstructor.supertypes
         for (superType in superTypes) {
             if (!ignoreSupertype(superType)) {
-                appendType(superType, DocumentationNode.Kind.Supertype)
+                appendType(superType, NodeKind.Supertype)
                 val superclass = superType?.constructor?.declarationDescriptor
-                link(superclass, descriptor, DocumentationReference.Kind.Inheritor)
-                link(descriptor, superclass, DocumentationReference.Kind.Superclass)
+                link(superclass, descriptor, RefKind.Inheritor)
+                link(descriptor, superclass, RefKind.Superclass)
             }
         }
     }
@@ -139,16 +138,16 @@ class DocumentationBuilder
         return false
     }
 
-    fun DocumentationNode.appendProjection(projection: TypeProjection, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type) {
+    fun DocumentationNode.appendProjection(projection: TypeProjection, kind: NodeKind = NodeKind.Type) {
         if (projection.isStarProjection) {
-            appendTextNode("*", Kind.Type)
+            appendTextNode("*", NodeKind.Type)
         }
         else {
             appendType(projection.type, kind, projection.projectionKind.label)
         }
     }
 
-    fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: DocumentationNode.Kind = DocumentationNode.Kind.Type, prefix: String = "") {
+    fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "") {
         if (kotlinType == null)
             return
         val classifierDescriptor = kotlinType.constructor.declarationDescriptor
@@ -167,17 +166,17 @@ class DocumentationBuilder
         }
         val node = DocumentationNode(name, Content.Empty, kind)
         if (prefix != "") {
-            node.appendTextNode(prefix, Kind.Modifier)
+            node.appendTextNode(prefix, NodeKind.Modifier)
         }
         if (kotlinType.isMarkedNullable) {
-            node.appendTextNode("?", Kind.NullabilityModifier)
+            node.appendTextNode("?", NodeKind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
             link(node, classifierDescriptor,
-                    if (classifierDescriptor.isBoringBuiltinClass()) DocumentationReference.Kind.HiddenLink else DocumentationReference.Kind.Link)
+                    if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
         }
 
-        append(node, DocumentationReference.Kind.Detail)
+        append(node, RefKind.Detail)
         node.appendAnnotations(kotlinType)
         for (typeArgument in kotlinType.arguments) {
             node.appendProjection(typeArgument)
@@ -192,7 +191,7 @@ class DocumentationBuilder
             val annotationNode = it.build()
             if (annotationNode != null) {
                 append(annotationNode,
-                        if (annotationNode.isDeprecation()) DocumentationReference.Kind.Deprecation else DocumentationReference.Kind.Annotation)
+                        if (annotationNode.isDeprecation()) RefKind.Deprecation else RefKind.Annotation)
             }
         }
     }
@@ -201,7 +200,7 @@ class DocumentationBuilder
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
             if (psi.hasModifier(it)) {
-                appendTextNode(it.value, Kind.Modifier)
+                appendTextNode(it.value, NodeKind.Modifier)
             }
         }
     }
@@ -212,7 +211,7 @@ class DocumentationBuilder
         appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
     }
 
-    fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: DocumentationReference.Kind): DocumentationNode? {
+    fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: RefKind): DocumentationNode? {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.kind != CallableMemberDescriptor.Kind.DECLARATION)
             return null
@@ -238,22 +237,22 @@ class DocumentationBuilder
             if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
                 val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
                 if (baseDescriptor != null) {
-                    link(this, baseDescriptor, DocumentationReference.Kind.InheritedMember)
+                    link(this, baseDescriptor, RefKind.InheritedMember)
                 }
                 null
             }
             else {
                 val descriptorToUse = if (descriptor is ConstructorDescriptor) descriptor else descriptor.original
-                appendChild(descriptorToUse, DocumentationReference.Kind.Member)
+                appendChild(descriptorToUse, RefKind.Member)
             }
         }
         return nodes.filterNotNull()
     }
 
-    fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: DocumentationReference.Kind) {
+    fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: RefKind) {
         descriptors.forEach { descriptor ->
             val node = appendChild(descriptor, kind)
-            node?.addReferenceTo(this, DocumentationReference.Kind.TopLevelPage)
+            node?.addReferenceTo(this, RefKind.TopLevelPage)
         }
     }
 
@@ -285,17 +284,17 @@ class DocumentationBuilder
 
     fun ClassDescriptor.build(): DocumentationNode {
         val kind = when (kind) {
-            ClassKind.OBJECT -> Kind.Object
-            ClassKind.INTERFACE -> Kind.Interface
-            ClassKind.ENUM_CLASS -> Kind.Enum
-            ClassKind.ANNOTATION_CLASS -> Kind.AnnotationClass
-            ClassKind.ENUM_ENTRY -> Kind.EnumItem
-            else -> Kind.Class
+            ClassKind.OBJECT -> NodeKind.Object
+            ClassKind.INTERFACE -> NodeKind.Interface
+            ClassKind.ENUM_CLASS -> NodeKind.Enum
+            ClassKind.ANNOTATION_CLASS -> NodeKind.AnnotationClass
+            ClassKind.ENUM_ENTRY -> NodeKind.EnumItem
+            else -> NodeKind.Class
         }
         val node = nodeForDescriptor(this, kind)
         node.appendSupertypes(this)
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
-            node.appendInPageChildren(typeConstructor.parameters, DocumentationReference.Kind.Detail)
+            node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
             val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
                 constructors.filter { it.valueParameters.size > 0 }
             else
@@ -305,7 +304,7 @@ class DocumentationBuilder
         val members = defaultType.memberScope.getContributedDescriptors().filter { it != companionObjectDescriptor }
         node.appendMembers(members)
         node.appendMembers(staticScope.getContributedDescriptors()).forEach {
-            it.appendTextNode("static", Kind.Modifier)
+            it.appendTextNode("static", NodeKind.Modifier)
         }
         val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
@@ -319,8 +318,8 @@ class DocumentationBuilder
     }
 
     fun ConstructorDescriptor.build(): DocumentationNode {
-        val node = nodeForDescriptor(this, Kind.Constructor)
-        node.appendInPageChildren(valueParameters, DocumentationReference.Kind.Detail)
+        val node = nodeForDescriptor(this, NodeKind.Constructor)
+        node.appendInPageChildren(valueParameters, RefKind.Detail)
         register(this, node)
         return node
     }
@@ -339,11 +338,11 @@ class DocumentationBuilder
             logger.warn("Found an unresolved type in ${signatureWithSourceLocation()}")
         }
 
-        val node = nodeForDescriptor(this, if (inCompanionObject()) Kind.CompanionObjectFunction else Kind.Function)
+        val node = nodeForDescriptor(this, if (inCompanionObject()) NodeKind.CompanionObjectFunction else NodeKind.Function)
 
-        node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
-        extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
-        node.appendInPageChildren(valueParameters, DocumentationReference.Kind.Detail)
+        node.appendInPageChildren(typeParameters, RefKind.Detail)
+        extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
+        node.appendInPageChildren(valueParameters, RefKind.Detail)
         node.appendType(returnType)
         node.appendAnnotations(this)
         node.appendModifiers(this)
@@ -360,7 +359,7 @@ class DocumentationBuilder
     fun addOverrideLink(baseClassFunction: CallableMemberDescriptor, overridingFunction: CallableMemberDescriptor) {
         val source = baseClassFunction.original.source.getPsi()
         if (source != null) {
-            link(overridingFunction, baseClassFunction, DocumentationReference.Kind.Override)
+            link(overridingFunction, baseClassFunction, RefKind.Override)
         } else {
             baseClassFunction.overriddenDescriptors.forEach {
                 addOverrideLink(it, overridingFunction)
@@ -369,15 +368,15 @@ class DocumentationBuilder
     }
 
     fun PropertyDescriptor.build(): DocumentationNode {
-        val node = nodeForDescriptor(this, if (inCompanionObject()) Kind.CompanionObjectProperty else Kind.Property)
-        node.appendInPageChildren(typeParameters, DocumentationReference.Kind.Detail)
-        extensionReceiverParameter?.let { node.appendChild(it, DocumentationReference.Kind.Detail) }
+        val node = nodeForDescriptor(this, if (inCompanionObject()) NodeKind.CompanionObjectProperty else NodeKind.Property)
+        node.appendInPageChildren(typeParameters, RefKind.Detail)
+        extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendType(returnType)
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
         if (isVar) {
-            node.appendTextNode("var", DocumentationNode.Kind.Modifier)
+            node.appendTextNode("var", NodeKind.Modifier)
         }
         getter?.let {
             if (!it.isDefault) {
@@ -413,21 +412,21 @@ class DocumentationBuilder
     }
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
-        val node = nodeForDescriptor(this, Kind.Parameter)
+        val node = nodeForDescriptor(this, NodeKind.Parameter)
         node.appendType(varargElementType ?: type)
         if (declaresDefaultValue()) {
             val psi = source.getPsi() as? KtParameter
             if (psi != null) {
                 val defaultValueText = psi.defaultValue?.text
                 if (defaultValueText != null) {
-                    node.appendTextNode(defaultValueText, Kind.Value)
+                    node.appendTextNode(defaultValueText, NodeKind.Value)
                 }
             }
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
-        if (varargElementType != null && node.details(Kind.Modifier).none { it.name == "vararg" }) {
-            node.appendTextNode("vararg", Kind.Modifier)
+        if (varargElementType != null && node.details(NodeKind.Modifier).none { it.name == "vararg" }) {
+            node.appendTextNode("vararg", NodeKind.Modifier)
         }
         register(this, node)
         return node
@@ -438,25 +437,25 @@ class DocumentationBuilder
         val name = name.asString()
         val prefix = variance.label
 
-        val node = DocumentationNode(name, doc, DocumentationNode.Kind.TypeParameter)
+        val node = DocumentationNode(name, doc, NodeKind.TypeParameter)
         if (prefix != "") {
-            node.appendTextNode(prefix, Kind.Modifier)
+            node.appendTextNode(prefix, NodeKind.Modifier)
         }
         if (isReified) {
-            node.appendTextNode("reified", Kind.Modifier)
+            node.appendTextNode("reified", NodeKind.Modifier)
         }
 
         for (constraint in upperBounds) {
             if (KotlinBuiltIns.isDefaultBound(constraint)) {
                 continue
             }
-            node.appendType(constraint, Kind.UpperBound)
+            node.appendType(constraint, NodeKind.UpperBound)
         }
 
         for (constraint in lowerBounds) {
             if (KotlinBuiltIns.isNothing(constraint))
                 continue
-            node.appendType(constraint, Kind.LowerBound)
+            node.appendType(constraint, NodeKind.LowerBound)
         }
         return node
     }
@@ -468,9 +467,9 @@ class DocumentationBuilder
         }
         link(receiverClass,
                 containingDeclaration,
-                DocumentationReference.Kind.Extension)
+                RefKind.Extension)
 
-        val node = DocumentationNode(name.asString(), Content.Empty, Kind.Receiver)
+        val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
         node.appendType(type)
         return node
     }
@@ -480,14 +479,14 @@ class DocumentationBuilder
         if (annotationClass == null || ErrorUtils.isError(annotationClass)) {
             return null
         }
-        val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, DocumentationNode.Kind.Annotation)
+        val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, NodeKind.Annotation)
         val arguments = allValueArguments.toList().sortedBy { it.first.index }
         arguments.forEach {
             val valueNode = it.second.toDocumentationNode()
             if (valueNode != null) {
-                val paramNode = DocumentationNode(it.first.name.asString(), Content.Empty, DocumentationNode.Kind.Parameter)
-                paramNode.append(valueNode, DocumentationReference.Kind.Detail)
-                node.append(paramNode, DocumentationReference.Kind.Detail)
+                val paramNode = DocumentationNode(it.first.name.asString(), Content.Empty, NodeKind.Parameter)
+                paramNode.append(valueNode, RefKind.Detail)
+                node.append(paramNode, RefKind.Detail)
             }
         }
         return node
@@ -506,7 +505,7 @@ class DocumentationBuilder
                 value.containingDeclaration.name.asString() + "." + value.name.asString()
             else -> value.toString()
         }.let { valueString ->
-            DocumentationNode(valueString, Content.Empty, DocumentationNode.Kind.Value)
+            DocumentationNode(valueString, Content.Empty, NodeKind.Value)
         }
     }
 }
@@ -521,7 +520,7 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
             with(documentationBuilder) {
                 if (descriptor.isDocumented()) {
                     val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
-                    parent.appendChild(descriptor, DocumentationReference.Kind.Member)
+                    parent.appendChild(descriptor, RefKind.Member)
                 }
             }
         }
@@ -545,7 +544,7 @@ class KotlinJavaDocumentationBuilder
             }
             else {
                 with(documentationBuilder) {
-                    packageNode.appendChild(descriptor, DocumentationReference.Kind.Member)
+                    packageNode.appendChild(descriptor, RefKind.Member)
                 }
             }
         }
@@ -580,8 +579,8 @@ fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescripto
                 !ErrorUtils.isError(extensionClassDescriptor)) {
             val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
             return externalClassNodes.getOrPut(fqName, {
-                val newNode = DocumentationNode(fqName.asString(), Content.Empty, Kind.ExternalClass)
-                append(newNode, DocumentationReference.Kind.Member)
+                val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
+                append(newNode, RefKind.Member)
                 newNode
             })
         }

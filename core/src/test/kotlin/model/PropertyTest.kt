@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
-import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.DocumentationReference
+import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.RefKind
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -12,9 +12,9 @@ public class PropertyTest {
         verifyModel("testdata/properties/valueProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNode.Kind.Property, kind)
+                assertEquals(NodeKind.Property, kind)
                 assertEquals(Content.Empty, content)
-                assertEquals("String", detail(DocumentationNode.Kind.Type).name)
+                assertEquals("String", detail(NodeKind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -25,9 +25,9 @@ public class PropertyTest {
         verifyModel("testdata/properties/variableProperty.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNode.Kind.Property, kind)
+                assertEquals(NodeKind.Property, kind)
                 assertEquals(Content.Empty, content)
-                assertEquals("String", detail(DocumentationNode.Kind.Type).name)
+                assertEquals("String", detail(NodeKind.Type).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -38,9 +38,9 @@ public class PropertyTest {
         verifyModel("testdata/properties/valuePropertyWithGetter.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNode.Kind.Property, kind)
+                assertEquals(NodeKind.Property, kind)
                 assertEquals(Content.Empty, content)
-                assertEquals("String", detail(DocumentationNode.Kind.Type).name)
+                assertEquals("String", detail(NodeKind.Type).name)
                 assertTrue(links.none())
                 assertTrue(members.none())
             }
@@ -51,10 +51,10 @@ public class PropertyTest {
         verifyModel("testdata/properties/variablePropertyWithAccessors.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("property", name)
-                assertEquals(DocumentationNode.Kind.Property, kind)
+                assertEquals(NodeKind.Property, kind)
                 assertEquals(Content.Empty, content)
-                assertEquals("String", detail(DocumentationNode.Kind.Type).name)
-                val modifiers = details(DocumentationNode.Kind.Modifier).map { it.name }
+                assertEquals("String", detail(NodeKind.Type).name)
+                val modifiers = details(NodeKind.Modifier).map { it.name }
                 assertTrue("final" in modifiers)
                 assertTrue("public" in modifiers)
                 assertTrue("var" in modifiers)
@@ -71,7 +71,7 @@ public class PropertyTest {
                 with(annotations[0]) {
                     assertEquals("Volatile", name)
                     assertEquals(Content.Empty, content)
-                    assertEquals(DocumentationNode.Kind.Annotation, kind)
+                    assertEquals(NodeKind.Annotation, kind)
                 }
             }
         }
@@ -81,10 +81,10 @@ public class PropertyTest {
         verifyModel("testdata/properties/propertyWithReceiver.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("kotlin.String", name)
-                assertEquals(DocumentationNode.Kind.ExternalClass, kind)
+                assertEquals(NodeKind.ExternalClass, kind)
                 with(members.single()) {
                     assertEquals("foobar", name)
-                    assertEquals(DocumentationNode.Kind.Property, kind)
+                    assertEquals(NodeKind.Property, kind)
                 }
             }
         }
@@ -94,7 +94,7 @@ public class PropertyTest {
         verifyModel("testdata/properties/propertyOverride.kt") { model ->
             with(model.members.single().members.single { it.name == "Bar" }.members.single { it.name == "xyzzy"}) {
                 assertEquals("xyzzy", name)
-                val override = references(DocumentationReference.Kind.Override).single().to
+                val override = references(RefKind.Override).single().to
                 assertEquals("xyzzy", override.name)
                 assertEquals("Foo", override.owner!!.name)
             }

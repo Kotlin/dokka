@@ -112,8 +112,8 @@ class DescriptorDocumentationParser
             val parseResult = JavadocParser(refGraph).parseDocumentation(psi as PsiNamedElement)
             return parseResult.content to { node ->
                 parseResult.deprecatedContent?.let {
-                    val deprecationNode = DocumentationNode("", it, DocumentationNode.Kind.Modifier)
-                    node.append(deprecationNode, DocumentationReference.Kind.Deprecation)
+                    val deprecationNode = DocumentationNode("", it, NodeKind.Modifier)
+                    node.append(deprecationNode, RefKind.Deprecation)
                 }
             }
         }

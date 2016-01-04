@@ -103,7 +103,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     }
 
     fun locationHref(from: Location, to: DocumentationNode): String {
-        val topLevelPage = to.references(DocumentationReference.Kind.TopLevelPage).singleOrNull()?.to
+        val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
         if (topLevelPage != null) {
             return from.relativePathTo(locationService.location(topLevelPage), to.name)
         }
@@ -137,7 +137,7 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
         // All items have exactly the same documentation, so we can use any item to render it
         val item = items.first()
-        item.details(DocumentationNode.Kind.OverloadGroupNote).forEach {
+        item.details(NodeKind.OverloadGroupNote).forEach {
             to.append(formatText(location, it.content))
         }
         to.append(formatText(location, item.content.summary))
@@ -147,7 +147,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     }
 
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
-        kind == DocumentationNode.Kind.Module || kind == DocumentationNode.Kind.Package
+        kind == NodeKind.Module || kind == NodeKind.Package
 
     protected open fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
         block()
@@ -198,8 +198,8 @@ abstract class StructuredFormatService(locationService: LocationService,
 
     private fun DocumentationNode.appendDeprecation(location: Location, to: StringBuilder) {
         if (deprecation != null) {
-            val deprecationParameter = deprecation!!.details(DocumentationNode.Kind.Parameter).firstOrNull()
-            val deprecationValue = deprecationParameter?.details(DocumentationNode.Kind.Value)?.firstOrNull()
+            val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
+            val deprecationValue = deprecationParameter?.details(NodeKind.Value)?.firstOrNull()
             if (deprecationValue != null) {
                 to.append(formatStrong("Deprecated:")).append(" ")
                 appendLine(to, formatText(deprecationValue.name.removeSurrounding("\"")))
@@ -215,7 +215,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     }
 
     private fun DocumentationNode.appendSourceLink(to: StringBuilder) {
-        val sourceUrl = details(DocumentationNode.Kind.SourceUrl).firstOrNull()
+        val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
         if (sourceUrl != null) {
             to.append(" ")
             appendLine(to, formatLink("(source)", sourceUrl.name))
@@ -227,7 +227,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     fun appendLocation(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val singleNode = nodes.singleOrNull()
         if (singleNode != null && singleNode.isModuleOrPackage()) {
-            if (singleNode.kind == DocumentationNode.Kind.Package) {
+            if (singleNode.kind == NodeKind.Package) {
                 appendHeader(to, "Package " + formatText(singleNode.name), 2)
             }
             to.append(formatText(location, singleNode.content))
@@ -307,51 +307,51 @@ abstract class StructuredFormatService(locationService: LocationService,
         for ((breadcrumbs, items) in breakdownByLocation) {
             appendLine(to, breadcrumbs)
             appendLine(to)
-            appendLocation(location, to, items.filter { it.kind != DocumentationNode.Kind.ExternalClass })
+            appendLocation(location, to, items.filter { it.kind != NodeKind.ExternalClass })
         }
 
         for (node in nodes) {
-            if (node.kind == DocumentationNode.Kind.ExternalClass) {
+            if (node.kind == NodeKind.ExternalClass) {
                 appendSection(location, "Extensions for ${node.name}", node.members, node, to)
                 continue
             }
 
-            appendSection(location, "Packages", node.members(DocumentationNode.Kind.Package), node, to)
-            appendSection(location, "Types", node.members.filter { it.kind in DocumentationNode.Kind.classLike }, node, to)
-            appendSection(location, "Extensions for External Classes", node.members(DocumentationNode.Kind.ExternalClass), node, to)
-            appendSection(location, "Enum Values", node.members(DocumentationNode.Kind.EnumItem), node, to)
-            appendSection(location, "Constructors", node.members(DocumentationNode.Kind.Constructor), node, to)
-            appendSection(location, "Properties", node.members(DocumentationNode.Kind.Property), node, to)
-            appendSection(location, "Inherited Properties", node.inheritedMembers(DocumentationNode.Kind.Property), node, to)
-            appendSection(location, "Functions", node.members(DocumentationNode.Kind.Function), node, to)
-            appendSection(location, "Inherited Functions", node.inheritedMembers(DocumentationNode.Kind.Function), node, to)
-            appendSection(location, "Companion Object Properties", node.members(DocumentationNode.Kind.CompanionObjectProperty), node, to)
-            appendSection(location, "Companion Object Functions", node.members(DocumentationNode.Kind.CompanionObjectFunction), node, to)
+            appendSection(location, "Packages", node.members(NodeKind.Package), node, to)
+            appendSection(location, "Types", node.members.filter { it.kind in NodeKind.classLike }, node, to)
+            appendSection(location, "Extensions for External Classes", node.members(NodeKind.ExternalClass), node, to)
+            appendSection(location, "Enum Values", node.members(NodeKind.EnumItem), node, to)
+            appendSection(location, "Constructors", node.members(NodeKind.Constructor), node, to)
+            appendSection(location, "Properties", node.members(NodeKind.Property), node, to)
+            appendSection(location, "Inherited Properties", node.inheritedMembers(NodeKind.Property), node, to)
+            appendSection(location, "Functions", node.members(NodeKind.Function), node, to)
+            appendSection(location, "Inherited Functions", node.inheritedMembers(NodeKind.Function), node, to)
+            appendSection(location, "Companion Object Properties", node.members(NodeKind.CompanionObjectProperty), node, to)
+            appendSection(location, "Companion Object Functions", node.members(NodeKind.CompanionObjectFunction), node, to)
             appendSection(location, "Other members", node.members.filter {
                 it.kind !in setOf(
-                        DocumentationNode.Kind.Class,
-                        DocumentationNode.Kind.Interface,
-                        DocumentationNode.Kind.Enum,
-                        DocumentationNode.Kind.Object,
-                        DocumentationNode.Kind.AnnotationClass,
-                        DocumentationNode.Kind.Constructor,
-                        DocumentationNode.Kind.Property,
-                        DocumentationNode.Kind.Package,
-                        DocumentationNode.Kind.Function,
-                        DocumentationNode.Kind.CompanionObjectProperty,
-                        DocumentationNode.Kind.CompanionObjectFunction,
-                        DocumentationNode.Kind.ExternalClass,
-                        DocumentationNode.Kind.EnumItem
+                        NodeKind.Class,
+                        NodeKind.Interface,
+                        NodeKind.Enum,
+                        NodeKind.Object,
+                        NodeKind.AnnotationClass,
+                        NodeKind.Constructor,
+                        NodeKind.Property,
+                        NodeKind.Package,
+                        NodeKind.Function,
+                        NodeKind.CompanionObjectProperty,
+                        NodeKind.CompanionObjectFunction,
+                        NodeKind.ExternalClass,
+                        NodeKind.EnumItem
                         )
             }, node, to)
 
             val allExtensions = collectAllExtensions(node)
-            appendSection(location, "Extension Properties", allExtensions.filter { it.kind == DocumentationNode.Kind.Property }, node, to)
-            appendSection(location, "Extension Functions", allExtensions.filter { it.kind == DocumentationNode.Kind.Function }, node, to)
-            appendSection(location, "Companion Object Extension Properties", allExtensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectProperty }, node, to)
-            appendSection(location, "Companion Object Extension Functions", allExtensions.filter { it.kind == DocumentationNode.Kind.CompanionObjectFunction }, node, to)
+            appendSection(location, "Extension Properties", allExtensions.filter { it.kind == NodeKind.Property }, node, to)
+            appendSection(location, "Extension Functions", allExtensions.filter { it.kind == NodeKind.Function }, node, to)
+            appendSection(location, "Companion Object Extension Properties", allExtensions.filter { it.kind == NodeKind.CompanionObjectProperty }, node, to)
+            appendSection(location, "Companion Object Extension Functions", allExtensions.filter { it.kind == NodeKind.CompanionObjectFunction }, node, to)
             appendSection(location, "Inheritors",
-                    node.inheritors.filter { it.kind != DocumentationNode.Kind.EnumItem }, node, to)
+                    node.inheritors.filter { it.kind != NodeKind.EnumItem }, node, to)
             appendSection(location, "Links", node.links, node, to)
 
         }
@@ -364,7 +364,7 @@ abstract class StructuredFormatService(locationService: LocationService,
         fun collect(node: DocumentationNode) {
             if (!visited.add(node)) return
             result.addAll(node.extensions)
-            node.references(DocumentationReference.Kind.Superclass).forEach { collect(it.to) }
+            node.references(RefKind.Superclass).forEach { collect(it.to) }
         }
 
         collect(node)

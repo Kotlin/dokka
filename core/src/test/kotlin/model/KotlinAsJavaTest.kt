@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.DocumentationModule
-import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.NodeKind
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -11,11 +11,11 @@ class KotlinAsJavaTest {
             val pkg = model.members.single()
 
             val facadeClass = pkg.members.single { it.name == "FunctionKt" }
-            assertEquals(DocumentationNode.Kind.Class, facadeClass.kind)
+            assertEquals(NodeKind.Class, facadeClass.kind)
 
             val fn = facadeClass.members.single()
             assertEquals("fn", fn.name)
-            assertEquals(DocumentationNode.Kind.Function, fn.kind)
+            assertEquals(NodeKind.Function, fn.kind)
         }
     }
 
@@ -23,7 +23,7 @@ class KotlinAsJavaTest {
         verifyModelAsJava("testdata/comments/oneLineDoc.kt") { model ->
             val facadeClass = model.members.single().members.single { it.name == "OneLineDocKt" }
             val getter = facadeClass.members.single { it.name == "getProperty" }
-            assertEquals(DocumentationNode.Kind.Function, getter.kind)
+            assertEquals(NodeKind.Function, getter.kind)
             assertEquals("doc", getter.content.summary.toTestString())
         }
     }

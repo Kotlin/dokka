@@ -9,7 +9,7 @@ public class LinkTest {
         verifyModel("testdata/links/linkToSelf.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
-                assertEquals(DocumentationNode.Kind.Class, kind)
+                assertEquals(NodeKind.Class, kind)
                 assertEquals("This is link to [Foo -> Class:Foo]", content.summary.toTestString())
             }
         }
@@ -19,7 +19,7 @@ public class LinkTest {
         verifyModel("testdata/links/linkToMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
-                assertEquals(DocumentationNode.Kind.Class, kind)
+                assertEquals(NodeKind.Class, kind)
                 assertEquals("This is link to [member -> Function:member]", content.summary.toTestString())
             }
         }
@@ -29,7 +29,7 @@ public class LinkTest {
         verifyModel("testdata/links/linkToQualifiedMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
-                assertEquals(DocumentationNode.Kind.Class, kind)
+                assertEquals(NodeKind.Class, kind)
                 assertEquals("This is link to [Foo.member -> Function:member]", content.summary.toTestString())
             }
         }
@@ -39,7 +39,7 @@ public class LinkTest {
         verifyModel("testdata/links/linkToParam.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
-                assertEquals(DocumentationNode.Kind.Function, kind)
+                assertEquals(NodeKind.Function, kind)
                 assertEquals("This is link to [param -> Parameter:param]", content.summary.toTestString())
             }
         }
