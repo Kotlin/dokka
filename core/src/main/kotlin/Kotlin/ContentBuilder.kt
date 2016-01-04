@@ -103,6 +103,12 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 parent.append(createEntityOrText(node.text))
             }
 
+            MarkdownTokenTypes.EMPH -> {
+                if (node.parent?.type != MarkdownElementTypes.EMPH) {
+                    parent.append(ContentText(node.text))
+                }
+            }
+
             MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,

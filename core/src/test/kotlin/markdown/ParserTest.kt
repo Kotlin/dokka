@@ -86,6 +86,18 @@ number two
         runTestFor("*text*")
     }
 
+    @Test fun underscoresNoEmph() {
+        runTestFor("text_with_underscores")
+    }
+
+    @Test fun emphUnderscores() {
+        runTestFor("_text_")
+    }
+
+    @Test fun singleStar() {
+        runTestFor("Embedded*Star")
+    }
+
     @Test fun directive() {
         runTestFor("A text \${code with.another.value} with directive")
     }
