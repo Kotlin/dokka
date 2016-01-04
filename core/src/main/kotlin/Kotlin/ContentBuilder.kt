@@ -5,7 +5,7 @@ import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.html.entities.EntityConverter
 import java.util.*
 
-public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock, inline: Boolean = false): MutableContent {
+fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock, inline: Boolean = false): MutableContent {
     val result = MutableContent()
     if (inline) {
         buildInlineContentTo(tree, result, linkResolver)
@@ -16,7 +16,7 @@ public fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlo
     return result
 }
 
-public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
+fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
 //    println(tree.toTestString())
     val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
@@ -129,7 +129,7 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
 
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
-public fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
+fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
     inlineContent.forEach {
         buildContentTo(it, target, linkResolver)

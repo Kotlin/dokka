@@ -33,13 +33,13 @@ import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 
-public data class DocumentationOptions(val outputDir: String,
-                                       val outputFormat: String,
-                                       val includeNonPublic: Boolean = false,
-                                       val reportUndocumented: Boolean = true,
-                                       val skipEmptyPackages: Boolean = true,
-                                       val skipDeprecated: Boolean = false,
-                                       val sourceLinks: List<SourceLinkDefinition>)
+data class DocumentationOptions(val outputDir: String,
+                                val outputFormat: String,
+                                val includeNonPublic: Boolean = false,
+                                val reportUndocumented: Boolean = true,
+                                val skipEmptyPackages: Boolean = true,
+                                val skipDeprecated: Boolean = false,
+                                val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
     val package1 = DescriptorUtils.getParentOfType(descriptor1, PackageFragmentDescriptor::class.java)

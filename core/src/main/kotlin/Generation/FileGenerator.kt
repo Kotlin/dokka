@@ -6,7 +6,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 
-public class FileGenerator @Inject constructor(val locationService: FileLocationService) : Generator {
+class FileGenerator @Inject constructor(val locationService: FileLocationService) : Generator {
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService

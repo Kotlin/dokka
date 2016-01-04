@@ -1,9 +1,9 @@
 package org.jetbrains.dokka
 
-public class ConsoleGenerator(val signatureGenerator: LanguageService, val locationService: LocationService) {
+class ConsoleGenerator(val signatureGenerator: LanguageService, val locationService: LocationService) {
     val IndentStep = "  "
 
-    public fun generate(node: DocumentationNode, indent: String = "") {
+    fun generate(node: DocumentationNode, indent: String = "") {
         println("@${locationService.location(node).path}")
         generateHeader(node, indent)
         //generateDetails(node, indent)
@@ -11,7 +11,7 @@ public class ConsoleGenerator(val signatureGenerator: LanguageService, val locat
         generateLinks(node, indent)
     }
 
-    public fun generateHeader(node: DocumentationNode, indent: String = "") {
+    fun generateHeader(node: DocumentationNode, indent: String = "") {
         println(indent + signatureGenerator.render(node))
         val docString = node.content.toString()
         if (!docString.isEmpty())
@@ -19,19 +19,19 @@ public class ConsoleGenerator(val signatureGenerator: LanguageService, val locat
         println()
     }
 
-    public fun generateMembers(node: DocumentationNode, indent: String = "") {
+    fun generateMembers(node: DocumentationNode, indent: String = "") {
         val items = node.members.sortedBy { it.name }
         for (child in items)
             generate(child, indent + IndentStep)
     }
 
-    public fun generateDetails(node: DocumentationNode, indent: String = "") {
+    fun generateDetails(node: DocumentationNode, indent: String = "") {
         val items = node.details
         for (child in items)
             generate(child, indent + "  ")
     }
 
-    public fun generateLinks(node: DocumentationNode, indent: String = "") {
+    fun generateLinks(node: DocumentationNode, indent: String = "") {
         val items = node.links
         if (items.isEmpty())
             return

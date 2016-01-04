@@ -2,12 +2,12 @@ package org.jetbrains.dokka
 
 import java.nio.file.Path
 
-public interface HtmlTemplateService {
+interface HtmlTemplateService {
     fun appendHeader(to: StringBuilder, title: String?, basePath: Path)
     fun appendFooter(to: StringBuilder)
 
     companion object {
-        public fun default(css: String? = null): HtmlTemplateService {
+        fun default(css: String? = null): HtmlTemplateService {
             return object : HtmlTemplateService {
                 override fun appendFooter(to: StringBuilder) {
                     to.appendln("</BODY>")

@@ -6,7 +6,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode
 /**
  * Implements [LanguageService] and provides rendering of symbols in Java language
  */
-public class JavaLanguageService : LanguageService {
+class JavaLanguageService : LanguageService {
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return ContentText(when (node.kind) {
             Kind.Package -> renderPackage(node)
@@ -44,19 +44,19 @@ public class JavaLanguageService : LanguageService {
         }
     }
 
-    public fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.name) {
+    fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.name) {
         "Array" -> node.details(Kind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, DocumentationNode.Kind.ExternalClass)
         "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, DocumentationNode.Kind.Type)
         else -> null
     }
 
-    public fun getArrayDimension(node: DocumentationNode): Int = when (node.name) {
+    fun getArrayDimension(node: DocumentationNode): Int = when (node.name) {
         "Array" -> 1 + (node.details(DocumentationNode.Kind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
         "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> 1
         else -> 0
     }
 
-    public fun renderType(node: DocumentationNode): String {
+    fun renderType(node: DocumentationNode): String {
         return when (node.name) {
             "Unit" -> "void"
             "Int" -> "int"

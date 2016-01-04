@@ -2,8 +2,8 @@ package org.jetbrains.dokka
 
 import com.google.inject.Singleton
 
-public data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReference.Kind) {
-    public enum class Kind {
+data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: DocumentationReference.Kind) {
+    enum class Kind {
         Owner,
         Member,
         InheritedMember,

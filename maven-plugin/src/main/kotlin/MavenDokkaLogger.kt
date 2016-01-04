@@ -3,7 +3,7 @@ package org.jetbrains.dokka.maven
 import org.apache.maven.plugin.logging.Log
 import org.jetbrains.dokka.DokkaLogger
 
-public class MavenDokkaLogger(val log: Log) : DokkaLogger {
+class MavenDokkaLogger(val log: Log) : DokkaLogger {
     override fun error(message: String) {
         log.error(message)
     }

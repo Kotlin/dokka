@@ -8,13 +8,13 @@ import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import java.io.File
 
 @Singleton
-public class PackageDocs
+class PackageDocs
         @Inject constructor(val linkResolver: DeclarationLinkResolver?,
                             val logger: DokkaLogger)
 {
-    public val moduleContent: MutableContent = MutableContent()
+    val moduleContent: MutableContent = MutableContent()
     private val _packageContent: MutableMap<String, MutableContent> = hashMapOf()
-    public val packageContent: Map<String, Content>
+    val packageContent: Map<String, Content>
         get() = _packageContent
 
     fun parse(fileName: String, linkResolveContext: LazyPackageDescriptor?) {

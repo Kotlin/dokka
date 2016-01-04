@@ -2,7 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 
-public class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
+class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
                                  signatureGenerator: LanguageService)
 : JekyllFormatService(locationService, signatureGenerator, "html") {
     private var needHardLineBreaks = false
@@ -13,7 +13,7 @@ public class KotlinWebsiteFormatService @Inject constructor(locationService: Loc
         to.appendln("layout: api")
     }
 
-    override public fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
+    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
         items.drop(1)
 
         if (items.count() > 1) {
@@ -25,7 +25,7 @@ public class KotlinWebsiteFormatService @Inject constructor(locationService: Loc
         return ""
     }
 
-    override public fun formatCode(code: String): String = if (code.length > 0) "<code>$code</code>" else ""
+    override fun formatCode(code: String): String = if (code.length > 0) "<code>$code</code>" else ""
 
     override fun formatStrikethrough(text: String): String = "<s>$text</s>"
 
@@ -106,7 +106,7 @@ public class KotlinWebsiteFormatService @Inject constructor(locationService: Loc
         to.appendln("\n</td>")
     }
 
-    override public fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
         if (language.isNotEmpty()) {
             super.appendBlockCode(to, line, language)
         } else {

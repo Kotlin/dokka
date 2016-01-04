@@ -3,7 +3,7 @@ package org.jetbrains.dokka.Formats
 import org.jetbrains.dokka.*
 import kotlin.reflect.KClass
 
-public interface FormatDescriptor {
+interface FormatDescriptor {
     val formatServiceClass: KClass<out FormatService>?
     val outlineServiceClass: KClass<out OutlineFormatService>?
     val generatorServiceClass: KClass<out Generator>
