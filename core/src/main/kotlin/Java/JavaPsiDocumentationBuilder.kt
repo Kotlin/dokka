@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.psi.*
+import com.intellij.psi.util.InheritanceUtil
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
@@ -141,6 +142,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             isInterface -> NodeKind.Interface
             isEnum -> NodeKind.Enum
             isAnnotationType -> NodeKind.AnnotationClass
+            isException() -> NodeKind.Exception
             else -> NodeKind.Class
         }
         val node = nodeForElement(this, kind)
@@ -158,6 +160,8 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         register(this, node)
         return node
     }
+
+    fun PsiClass.isException() = InheritanceUtil.isInheritor(this, "java.lang.Throwable")
 
     fun ignoreSupertype(psiType: PsiClassType): Boolean =
             psiType.isClass("java.lang.Enum") || psiType.isClass("java.lang.Object")

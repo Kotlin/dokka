@@ -294,6 +294,7 @@ class KotlinLanguageService : LanguageService {
         when (node.kind) {
             NodeKind.Class,
             NodeKind.AnnotationClass,
+            NodeKind.Exception,
             NodeKind.Enum -> keyword("class ")
             NodeKind.Interface -> keyword("interface ")
             NodeKind.EnumItem -> keyword("enum val ")

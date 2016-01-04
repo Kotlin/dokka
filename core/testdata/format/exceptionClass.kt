@@ -1,0 +1,1 @@
+class MyException : Exception

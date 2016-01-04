@@ -26,9 +26,13 @@ public class MarkdownFormatTest {
     }
 
     @Test fun annotationClass() {
-        verifyOutput("testdata/format/annotationClass.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("annotationClass", withKotlinRuntime = true)
+        verifyMarkdownPackage("annotationClass", withKotlinRuntime = true)
+    }
+
+    @Test fun exceptionClass() {
+        verifyMarkdownNode("exceptionClass", withKotlinRuntime = true)
+        verifyMarkdownPackage("exceptionClass", withKotlinRuntime = true)
     }
 
     @Test fun annotationParams() {
@@ -213,6 +217,18 @@ public class MarkdownFormatTest {
     @Test fun inheritedExtensions() {
         verifyOutput("testdata/format/inheritedExtensions.kt", ".md") { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        }
+    }
+
+    private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
+        verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members)
+        }
+    }
+
+    private fun verifyMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
+        verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
 }
