@@ -115,8 +115,8 @@ class KotlinLanguageService : LanguageService {
         identifier(node.name)
     }
 
-    private fun ContentBlock.renderList(nodes: List<DocumentationNode>, separator: String = ", ",
-                                        noWrap: Boolean = false, renderItem: (DocumentationNode) -> Unit) {
+    private fun <T> ContentBlock.renderList(nodes: List<T>, separator: String = ", ",
+                                        noWrap: Boolean = false, renderItem: (T) -> Unit) {
         if (nodes.none())
             return
         renderItem(nodes.first())
@@ -201,7 +201,7 @@ class KotlinLanguageService : LanguageService {
         identifier(node.name)
 
         val constraints = node.details(NodeKind.UpperBound)
-        if (constraints.any()) {
+        if (constraints.size == 1) {
             nbsp()
             symbol(":")
             nbsp()
@@ -237,6 +237,22 @@ class KotlinLanguageService : LanguageService {
                 renderTypeParameter(it, renderMode)
             }
             symbol(">")
+        }
+    }
+
+    private fun ContentBlock.renderExtraTypeParameterConstraints(node: DocumentationNode, renderMode: RenderMode) {
+        val parametersWithMultipleConstraints = node.details(NodeKind.TypeParameter).filter { it.details(NodeKind.UpperBound).size > 1 }
+        val parametersWithConstraints = parametersWithMultipleConstraints
+                .flatMap { parameter -> parameter.details(NodeKind.UpperBound).map { constraint -> parameter to constraint } }
+        if (parametersWithMultipleConstraints.isNotEmpty()) {
+            keyword(" where ")
+            renderList(parametersWithConstraints) {
+                identifier(it.first.name)
+                nbsp()
+                symbol(":")
+                nbsp()
+                renderType(it.second, renderMode)
+            }
         }
     }
 
@@ -305,6 +321,7 @@ class KotlinLanguageService : LanguageService {
         identifierOrDeprecated(node)
         renderTypeParametersForNode(node, renderMode)
         renderSupertypesForNode(node, renderMode)
+        renderExtraTypeParameterConstraints(node, renderMode)
     }
 
     private fun ContentBlock.renderFunction(node: DocumentationNode,
@@ -347,6 +364,7 @@ class KotlinLanguageService : LanguageService {
         else {
             symbol(")")
         }
+        renderExtraTypeParameterConstraints(node, renderMode)
     }
 
     private fun ContentBlock.renderReceiver(node: DocumentationNode, renderMode: RenderMode, signatureMapper: SignatureMapper?) {
@@ -391,6 +409,7 @@ class KotlinLanguageService : LanguageService {
         identifierOrDeprecated(node)
         symbol(": ")
         renderType(node.detail(NodeKind.Type), renderMode)
+        renderExtraTypeParameterConstraints(node, renderMode)
     }
 
     fun DocumentationNode.getPropertyKeyword() =
