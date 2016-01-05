@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
+import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -311,13 +312,21 @@ class DocumentationBuilder
         }
         val companionObjectDescriptor = companionObjectDescriptor
         if (companionObjectDescriptor != null) {
-            node.appendMembers(companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors())
+            val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
+            val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
+            node.appendMembers(descriptorsToDocument)
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
         register(this, node)
         return node
+    }
+
+    fun CallableDescriptor.isInheritedFromAny(): Boolean {
+        return findTopMostOverriddenDescriptors().any {
+            DescriptorUtils.getFqNameSafe(it.containingDeclaration).asString() == "kotlin.Any"
+        }
     }
 
     fun ClassDescriptor.isSubclassOfThrowable(): Boolean =
