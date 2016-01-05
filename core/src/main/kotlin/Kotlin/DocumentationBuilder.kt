@@ -235,12 +235,13 @@ class DocumentationBuilder
                 (!options.skipDeprecated || !isDeprecated())
     }
 
-    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>): List<DocumentationNode> {
+    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>,
+                                        inheritedLinkKind: RefKind = RefKind.InheritedMember): List<DocumentationNode> {
         val nodes = descriptors.map { descriptor ->
             if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
                 val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
                 if (baseDescriptor != null) {
-                    link(this, baseDescriptor, RefKind.InheritedMember)
+                    link(this, baseDescriptor, inheritedLinkKind)
                 }
                 null
             }
@@ -314,7 +315,7 @@ class DocumentationBuilder
         if (companionObjectDescriptor != null) {
             val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
             val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
-            node.appendMembers(descriptorsToDocument)
+            node.appendMembers(descriptorsToDocument, RefKind.InheritedCompanionObjectMember)
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)

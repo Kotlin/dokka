@@ -287,7 +287,9 @@ abstract class StructuredFormatService(locationService: LocationService,
             appendSection("Functions", node.members(NodeKind.Function))
             appendSection("Inherited Functions", node.inheritedMembers(NodeKind.Function))
             appendSection("Companion Object Properties", node.members(NodeKind.CompanionObjectProperty))
+            appendSection("Inherited Companion Object Properties", node.inheritedCompanionObjectMembers(NodeKind.Property))
             appendSection("Companion Object Functions", node.members(NodeKind.CompanionObjectFunction))
+            appendSection("Inherited Companion Object Functions", node.inheritedCompanionObjectMembers(NodeKind.Function))
             appendSection("Other members", node.members.filter {
                 it.kind !in setOf(
                         NodeKind.Class,
