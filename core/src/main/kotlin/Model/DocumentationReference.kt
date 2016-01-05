@@ -6,6 +6,7 @@ enum class RefKind {
     Owner,
     Member,
     InheritedMember,
+    InheritedCompanionObjectMember,
     Detail,
     Link,
     HiddenLink,
