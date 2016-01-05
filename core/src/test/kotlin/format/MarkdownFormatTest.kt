@@ -215,9 +215,11 @@ public class MarkdownFormatTest {
     }
 
     @Test fun inheritedExtensions() {
-        verifyOutput("testdata/format/inheritedExtensions.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
-        }
+        verifyMarkdownNodeByName("inheritedExtensions", "Bar")
+    }
+
+    @Test fun arrayAverage() {
+        verifyMarkdownNodeByName("arrayAverage", "XArray")
     }
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
@@ -229,6 +231,12 @@ public class MarkdownFormatTest {
     private fun verifyMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
+    private fun verifyMarkdownNodeByName(fileName: String, name: String) {
+        verifyOutput("testdata/format/$fileName.kt", ".md") { model, output ->
+            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == name })
         }
     }
 }

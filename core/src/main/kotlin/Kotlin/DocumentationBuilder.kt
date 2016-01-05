@@ -633,10 +633,7 @@ fun CallableMemberDescriptor.parameterSignature(): String {
 fun KotlinType.signature(): String {
     val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
     val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-    if (typeName == "Array" && arguments.size == 1) {
-        return "Array<" + arguments.first().type.signature() + ">"
-    }
-    return typeName
+    return typeName + arguments.joinToString(prefix = "<", postfix = ">") { it.type.signature() }
 }
 
 fun DeclarationDescriptor.signatureWithSourceLocation(): String {
