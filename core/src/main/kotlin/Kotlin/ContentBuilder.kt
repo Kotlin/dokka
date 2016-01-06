@@ -48,27 +48,27 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
             MarkdownElementTypes.PARAGRAPH -> appendNodeWithChildren(ContentParagraph())
 
             MarkdownElementTypes.INLINE_LINK -> {
-                val label = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
+                val labelText = node.child(MarkdownElementTypes.LINK_TEXT)?.getLabelText()
                 val destination = node.child(MarkdownElementTypes.LINK_DESTINATION)
-                if (label != null) {
+                if (labelText != null) {
                     if (destination != null) {
                         val link = ContentExternalLink(destination.text)
-                        link.append(ContentText(label.text))
+                        link.append(ContentText(labelText))
                         parent.append(link)
                     } else {
-                        val link = ContentExternalLink(label.text)
-                        link.append(ContentText(label.text))
+                        val link = ContentExternalLink(labelText)
+                        link.append(ContentText(labelText))
                         parent.append(link)
                     }
                 }
             }
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK -> {
-                val label = node.child(MarkdownElementTypes.LINK_LABEL)?.child(MarkdownTokenTypes.TEXT)
-                if (label != null) {
-                    val link = linkResolver(label.text)
-                    val linkText = node.child(MarkdownElementTypes.LINK_TEXT)?.child(MarkdownTokenTypes.TEXT)
-                    link.append(ContentText(linkText?.text ?: label.text))
+                val labelText = node.child(MarkdownElementTypes.LINK_LABEL)?.getLabelText()
+                if (labelText != null) {
+                    val link = linkResolver(labelText)
+                    val linkText = node.child(MarkdownElementTypes.LINK_TEXT)?.getLabelText()
+                    link.append(ContentText(linkText ?: labelText))
                     parent.append(link)
                 }
             }
@@ -126,6 +126,8 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
         }
     }
 }
+
+private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH }.joinToString("") { it.text }
 
 private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
 
