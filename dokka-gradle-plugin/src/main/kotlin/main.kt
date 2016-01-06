@@ -95,7 +95,9 @@ public open class DokkaTask : DefaultTask() {
 
     @InputFiles
     @SkipWhenEmpty
-    fun getIncludedFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) })
+    fun getInputFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) }) +
+        project.files(includes) +
+        project.files(samples)
 
     @OutputDirectory
     fun getOutputDirectoryAsFile() : File = project.file(outputDirectory)
