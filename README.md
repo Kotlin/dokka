@@ -132,10 +132,17 @@ buildscript {
 apply plugin: 'org.jetbrains.dokka'
 ```
 
-To configure plugin use dokka lambda in the root scope. For example:
+The plugin adds a task named "dokka" to the project. The available configuration
+options are shown below:
 
 ```groovy
 dokka {
+    moduleName = 'data'
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+    processConfigurations = ['compile', 'extra']
+    includes = ['packages.md', 'extra.md']
+    samples = ['samples/basic.kt', 'samples/advanced.kt']
     linkMapping {
         dir = "src/main/kotlin"
         url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
@@ -149,6 +156,16 @@ To get it generated use gradle `dokka` task
 ```bash
 ./gradlew dokka
 ```
+
+More dokka tasks can be added to a project like this:
+
+```groovy
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+```
+
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
