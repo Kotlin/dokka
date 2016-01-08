@@ -19,9 +19,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.constants.TypedCompileTimeConstant
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
@@ -577,11 +575,6 @@ class DocumentationBuilder
             }
         }
         return node
-    }
-
-    fun CompileTimeConstant<Any?>.build(): DocumentationNode? = when (this) {
-        is TypedCompileTimeConstant -> constantValue.toDocumentationNode()
-        else -> null
     }
 
     fun ConstantValue<*>.toDocumentationNode(): DocumentationNode? = value?.let { value ->
