@@ -11,9 +11,9 @@ enum class ListKind {
 }
 
 abstract class StructuredFormatService(locationService: LocationService,
-                                              val languageService: LanguageService,
-                                              override val extension: String,
-                                              val linkExtension: String = extension) : FormatService {
+                                       val languageService: LanguageService,
+                                       override val extension: String,
+                                       val linkExtension: String = extension) : FormatService {
     val locationService: LocationService = locationService.withExtension(linkExtension)
 
     abstract fun appendBlockCode(to: StringBuilder, line: String, language: String)
@@ -51,49 +51,51 @@ abstract class StructuredFormatService(locationService: LocationService,
         return nodes.map { formatText(location, it, listKind) }.joinToString("")
     }
 
-    open fun formatText(location: Location, content: ContentNode, listKind: ListKind = ListKind.Unordered): String {
-        return StringBuilder().apply {
-            when (content) {
-                is ContentText -> append(formatText(content.text))
-                is ContentSymbol -> append(formatSymbol(content.text))
-                is ContentKeyword -> append(formatKeyword(content.text))
-                is ContentIdentifier -> append(formatIdentifier(content.text, content.kind))
-                is ContentNonBreakingSpace -> append(formatNonBreakingSpace())
-                is ContentSoftLineBreak -> append(formatSoftLineBreak())
-                is ContentIndentedSoftLineBreak -> append(formatIndentedSoftLineBreak())
-                is ContentEntity -> append(formatEntity(content.text))
-                is ContentStrong -> append(formatStrong(formatText(location, content.children)))
-                is ContentStrikethrough -> append(formatStrikethrough(formatText(location, content.children)))
-                is ContentCode -> append(formatCode(formatText(location, content.children)))
-                is ContentEmphasis -> append(formatEmphasis(formatText(location, content.children)))
-                is ContentUnorderedList -> append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered)))
-                is ContentOrderedList -> append(formatOrderedList(formatText(location, content.children, ListKind.Ordered)))
-                is ContentListItem -> append(formatListItem(formatText(location, content.children), listKind))
+    fun formatText(location: Location, content: ContentNode, listKind: ListKind = ListKind.Unordered): String {
+        return StringBuilder().apply { formatText(location, content, this, listKind) }.toString()
+    }
 
-                is ContentNodeLink -> {
-                    val node = content.node
-                    val linkTo = if (node != null) locationHref(location, node) else "#"
-                    val linkText = formatText(location, content.children)
-                    if (linkTo == ".") {
-                        append(linkText)
-                    } else {
-                        append(formatLink(linkText, linkTo))
-                    }
+    open fun formatText(location: Location, content: ContentNode, to: StringBuilder, listKind: ListKind = ListKind.Unordered) {
+        when (content) {
+            is ContentText -> to.append(formatText(content.text))
+            is ContentSymbol -> to.append(formatSymbol(content.text))
+            is ContentKeyword -> to.append(formatKeyword(content.text))
+            is ContentIdentifier -> to.append(formatIdentifier(content.text, content.kind))
+            is ContentNonBreakingSpace -> to.append(formatNonBreakingSpace())
+            is ContentSoftLineBreak -> to.append(formatSoftLineBreak())
+            is ContentIndentedSoftLineBreak -> to.append(formatIndentedSoftLineBreak())
+            is ContentEntity -> to.append(formatEntity(content.text))
+            is ContentStrong -> to.append(formatStrong(formatText(location, content.children)))
+            is ContentStrikethrough -> to.append(formatStrikethrough(formatText(location, content.children)))
+            is ContentCode -> to.append(formatCode(formatText(location, content.children)))
+            is ContentEmphasis -> to.append(formatEmphasis(formatText(location, content.children)))
+            is ContentUnorderedList -> to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered)))
+            is ContentOrderedList -> to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered)))
+            is ContentListItem -> to.append(formatListItem(formatText(location, content.children), listKind))
+
+            is ContentNodeLink -> {
+                val node = content.node
+                val linkTo = if (node != null) locationHref(location, node) else "#"
+                val linkText = formatText(location, content.children)
+                if (linkTo == ".") {
+                    to.append(linkText)
+                } else {
+                    to.append(formatLink(linkText, linkTo))
                 }
-                is ContentExternalLink -> {
-                    val linkText = formatText(location, content.children)
-                    if (content.href == ".") {
-                        append(linkText)
-                    } else {
-                        append(formatLink(linkText, content.href))
-                    }
-                }
-                is ContentParagraph -> appendParagraph(this, formatText(location, content.children))
-                is ContentBlockCode -> appendBlockCode(this, formatText(location, content.children), content.language)
-                is ContentHeading -> appendHeader(this, formatText(location, content.children), content.level)
-                is ContentBlock -> append(formatText(location, content.children))
             }
-        }.toString()
+            is ContentExternalLink -> {
+                val linkText = formatText(location, content.children)
+                if (content.href == ".") {
+                    to.append(linkText)
+                } else {
+                    to.append(formatLink(linkText, content.href))
+                }
+            }
+            is ContentParagraph -> appendParagraph(to, formatText(location, content.children))
+            is ContentBlockCode -> appendBlockCode(to, formatText(location, content.children), content.language)
+            is ContentHeading -> appendHeader(to, formatText(location, content.children), content.level)
+            is ContentBlock -> to.append(formatText(location, content.children))
+        }
     }
 
     open fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
@@ -142,7 +144,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                 appendLine(to)
             } else if (deprecation?.content != Content.Empty) {
                 to.append(formatStrong("Deprecated:")).append(" ")
-                to.append(formatText(location, deprecation!!.content))
+                formatText(location, deprecation!!.content, to)
             } else {
                 appendLine(to, formatStrong("Deprecated"))
                 appendLine(to)
@@ -190,7 +192,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                     val packageName = if (singleNode.name.isEmpty()) "<root>" else singleNode.name
                     appendHeader(to, "Package " + formatText(packageName), 2)
                 }
-                to.append(formatText(location, singleNode.content))
+                formatText(location, singleNode.content, to)
             } else {
                 val breakdownByName = nodes.groupBy { node -> node.name }
                 for ((name, items) in breakdownByName) {
@@ -227,9 +229,9 @@ abstract class StructuredFormatService(locationService: LocationService,
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
             item.details(NodeKind.OverloadGroupNote).forEach {
-                to.append(formatText(location, it.content))
+                formatText(location, it.content, to)
             }
-            to.append(formatText(location, item.content.summary))
+            formatText(location, item.content.summary, to)
             appendDescription(item)
             appendLine(to)
             appendLine(to)
@@ -257,7 +259,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                 if (subjectName != null) {
                     appendAnchor(to, subjectName)
                     to.append(formatCode(subjectName)).append(" - ")
-                    to.append(formatText(location, it))
+                    formatText(location, it, to)
                     appendLine(to)
                 }
             }
@@ -265,7 +267,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     }
 
     inner class SingleNodePageBuilder(location: Location, to: StringBuilder, val node: DocumentationNode)
-        : PageBuilder(location, to, listOf(node)) {
+    : PageBuilder(location, to, listOf(node)) {
 
         override fun build() {
             super.build()
