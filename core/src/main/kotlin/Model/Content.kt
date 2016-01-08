@@ -158,7 +158,11 @@ fun ContentBlock.code(body: ContentBlock.() -> Unit) {
 }
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
-    val block = ContentNodeDirectLink(to)
+    val block = if (to.kind == NodeKind.ExternalLink)
+        ContentExternalLink(to.name)
+    else
+        ContentNodeDirectLink(to)
+
     block.body()
     append(block)
 }

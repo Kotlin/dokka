@@ -43,6 +43,8 @@ enum class NodeKind {
     SourceUrl,
     SourcePosition,
 
+    ExternalLink,
+
     /**
      * A note which is rendered once on a page documenting a group of overloaded functions.
      * Needs to be generated equally on all overloads.
