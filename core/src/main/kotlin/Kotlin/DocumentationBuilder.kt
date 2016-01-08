@@ -66,7 +66,8 @@ class DocumentationBuilder
                             val descriptorDocumentationParser: DescriptorDocumentationParser,
                             val options: DocumentationOptions,
                             val refGraph: NodeReferenceGraph,
-                            val logger: DokkaLogger)
+                            val logger: DokkaLogger,
+                            val linkResolver: DeclarationLinkResolver)
 {
     val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
     val boringBuiltinClasses = setOf(
@@ -180,8 +181,14 @@ class DocumentationBuilder
             node.appendTextNode("?", NodeKind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
-            link(node, classifierDescriptor,
-                    if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
+            val jdkLink = linkResolver.buildJdkLink(classifierDescriptor)
+            if (jdkLink != null) {
+                node.append(DocumentationNode(jdkLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+            }
+            else {
+                link(node, classifierDescriptor,
+                        if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
+            }
         }
 
         append(node, RefKind.Detail)

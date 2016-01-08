@@ -1,9 +1,15 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
@@ -20,6 +26,10 @@ class DeclarationLinkResolver
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbol != null) {
+            val jdkHref = buildJdkLink(symbol)
+            if (jdkHref != null) {
+                return ContentExternalLink(jdkHref)
+            }
             return ContentNodeLazyLink(href, { -> refGraph.lookup(symbol.signature()) })
         }
         if ("/" in href) {
@@ -40,4 +50,26 @@ class DeclarationLinkResolver
         return symbol
     }
 
+    fun buildJdkLink(symbol: DeclarationDescriptor): String? {
+        if (symbol is JavaClassDescriptor) {
+            val fqName = DescriptorUtils.getFqName(symbol)
+            if (fqName.startsWith(Name.identifier("java")) || fqName.startsWith(Name.identifier("javax"))) {
+                return javadocRoot + fqName.asString().replace(".", "/") + ".html"
+            }
+        }
+        else if (symbol is JavaMethodDescriptor) {
+            val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
+            val containingClassLink = buildJdkLink(containingClass)
+            if (containingClassLink != null) {
+                val psi = (symbol.original.source as? PsiSourceElement)?.psi as? PsiMethod
+                if (psi != null) {
+                    val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
+                    return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                }
+            }
+        }
+        return null
+    }
+
+    private val javadocRoot = "http://docs.oracle.com/javase/6/docs/api/"
 }
