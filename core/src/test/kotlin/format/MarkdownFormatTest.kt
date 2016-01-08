@@ -230,6 +230,14 @@ public class MarkdownFormatTest {
         verifyMarkdownNodeByName("inheritedCompanionObjectProperties", "C")
     }
 
+    @Test fun shadowedExtensionFunctions() {
+        verifyMarkdownNodeByName("shadowedExtensionFunctions", "Bar")
+    }
+
+    @Test fun inapplicableExtensionFunctions() {
+        verifyMarkdownNodeByName("inapplicableExtensionFunctions", "Bar")
+    }
+
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.appendNodes(tempLocation, output, model.members)
