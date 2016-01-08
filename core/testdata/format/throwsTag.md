@@ -8,6 +8,7 @@
 ### Exceptions
 
 `IllegalArgumentException` - on Mondays
+
 `NullPointerException` - on Tuesdays
 
 
