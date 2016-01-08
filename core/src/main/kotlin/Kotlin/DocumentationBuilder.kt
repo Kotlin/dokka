@@ -43,17 +43,22 @@ data class DocumentationOptions(val outputDir: String,
                                 val skipDeprecated: Boolean = false,
                                 val sourceLinks: List<SourceLinkDefinition>)
 
-private fun isSamePackage(descriptor1: DeclarationDescriptor, descriptor2: DeclarationDescriptor): Boolean {
-    val package1 = DescriptorUtils.getParentOfType(descriptor1, PackageFragmentDescriptor::class.java)
-    val package2 = DescriptorUtils.getParentOfType(descriptor2, PackageFragmentDescriptor::class.java)
-    return package1 != null && package2 != null && package1.fqName == package2.fqName
+private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
+                                        extensionReceiverDescriptor: DeclarationDescriptor,
+                                        allFqNames: Collection<FqName>): Boolean {
+    val extensionFunctionPackage = DescriptorUtils.getParentOfType(extensionFunctionDescriptor, PackageFragmentDescriptor::class.java)
+    val extensionReceiverPackage = DescriptorUtils.getParentOfType(extensionReceiverDescriptor, PackageFragmentDescriptor::class.java)
+    return extensionFunctionPackage != null && extensionReceiverPackage != null &&
+            extensionFunctionPackage.fqName != extensionReceiverPackage.fqName &&
+            extensionReceiverPackage.fqName !in allFqNames
 }
 
 interface PackageDocumentationBuilder {
     fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                   packageName: FqName,
                                   packageNode: DocumentationNode,
-                                  declarations: List<DeclarationDescriptor>)
+                                  declarations: List<DeclarationDescriptor>,
+                                  allFqNames: Collection<FqName>)
 }
 
 class DocumentationBuilder
@@ -271,7 +276,8 @@ class DocumentationBuilder
             if (options.skipEmptyPackages && declarations.none { it.isDocumented() }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
-            packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode, declarations)
+            packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
+                    declarations, allFqNames)
         }
 
         propagateExtensionFunctionsToSubclasses(fragments)
@@ -594,12 +600,13 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
     override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                            packageName: FqName,
                                            packageNode: DocumentationNode,
-                                           declarations: List<DeclarationDescriptor>) {
+                                           declarations: List<DeclarationDescriptor>,
+                                           allFqNames: Collection<FqName>) {
         val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
         declarations.forEach { descriptor ->
             with(documentationBuilder) {
                 if (descriptor.isDocumented()) {
-                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes)
+                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes, allFqNames)
                     parent.appendChild(descriptor, RefKind.Member)
                 }
             }
@@ -652,10 +659,11 @@ fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
 } || (this is ConstructorDescriptor && containingDeclaration.isDeprecated())
 
 fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
-                                                externalClassNodes: MutableMap<FqName, DocumentationNode>): DocumentationNode {
+                                                externalClassNodes: MutableMap<FqName, DocumentationNode>,
+                                                allFqNames: Collection<FqName>): DocumentationNode {
     if (descriptor is CallableMemberDescriptor) {
         val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
-        if (extensionClassDescriptor != null && !isSamePackage(descriptor, extensionClassDescriptor) &&
+        if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
             val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
             return externalClassNodes.getOrPut(fqName, {
