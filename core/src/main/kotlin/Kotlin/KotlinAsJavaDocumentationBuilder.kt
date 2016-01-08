@@ -19,7 +19,8 @@ class KotlinAsJavaDocumentationBuilder
     override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                            packageName: FqName,
                                            packageNode: DocumentationNode,
-                                           declarations: List<DeclarationDescriptor>) {
+                                           declarations: List<DeclarationDescriptor>,
+                                           allFqNames: Collection<FqName>) {
         val project = documentationBuilder.resolutionFacade.project
         val psiPackage = JavaPsiFacade.getInstance(project).findPackage(packageName.asString())
         if (psiPackage == null) {
