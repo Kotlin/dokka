@@ -309,7 +309,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                 )
             })
 
-            val allExtensions = collectAllExtensions(node)
+            val allExtensions = node.extensions
             appendSection("Extension Properties", allExtensions.filter { it.kind == NodeKind.Property })
             appendSection("Extension Functions", allExtensions.filter { it.kind == NodeKind.Function })
             appendSection("Companion Object Extension Properties", allExtensions.filter { it.kind == NodeKind.CompanionObjectProperty })
@@ -378,19 +378,4 @@ abstract class StructuredFormatService(locationService: LocationService,
             PageBuilder(location, to, nodes).build()
         }
     }
-}
-
-private fun collectAllExtensions(node: DocumentationNode): Collection<DocumentationNode> {
-    val result = LinkedHashSet<DocumentationNode>()
-    val visited = hashSetOf<DocumentationNode>()
-
-    fun collect(node: DocumentationNode) {
-        if (!visited.add(node)) return
-        result.addAll(node.extensions)
-        node.references(RefKind.Superclass).forEach { collect(it.to) }
-    }
-
-    collect(node)
-
-    return result
 }

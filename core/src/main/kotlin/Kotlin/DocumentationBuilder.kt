@@ -33,6 +33,8 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 
 data class DocumentationOptions(val outputDir: String,
@@ -273,6 +275,69 @@ class DocumentationBuilder
             val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode, declarations)
         }
+
+        propagateExtensionFunctionsToSubclasses(fragments)
+    }
+
+    private fun propagateExtensionFunctionsToSubclasses(fragments: Collection<PackageFragmentDescriptor>) {
+        val allDescriptors = fragments.flatMap { it.getMemberScope().getContributedDescriptors() }
+        val allClasses = allDescriptors.filterIsInstance<ClassDescriptor>()
+        val classHierarchy = buildClassHierarchy(allClasses)
+
+        val allExtensionFunctions = allDescriptors
+                .filterIsInstance<CallableMemberDescriptor>()
+                .filter { it.extensionReceiverParameter != null }
+        val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
+
+        allExtensionFunctions.forEach { extensionFunction ->
+            val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
+                    ?.filter { fn -> fn.canShadow(extensionFunction) }
+                    ?: emptyList()
+
+            val classDescriptor = extensionFunction.getExtensionClassDescriptor() ?: return@forEach
+            val subclasses = classHierarchy[classDescriptor] ?: return@forEach
+            subclasses.forEach { subclass ->
+                if (subclass.defaultType.isSubtypeOf(extensionFunction.extensionReceiverParameter!!.type) &&
+                        possiblyShadowingFunctions.none { subclass.defaultType.isSubtypeOf(it.extensionReceiverParameter!!.type) }) {
+                    refGraph.link(subclass.signature(), extensionFunction.signature(), RefKind.Extension)
+                }
+            }
+        }
+    }
+
+    private fun buildClassHierarchy(classes: List<ClassDescriptor>): Map<ClassDescriptor, List<ClassDescriptor>> {
+        val result = hashMapOf<ClassDescriptor, MutableList<ClassDescriptor>>()
+        classes.forEach { cls ->
+            TypeUtils.getAllSupertypes(cls.defaultType).forEach { supertype ->
+                val classDescriptor = supertype.constructor.declarationDescriptor as? ClassDescriptor
+                if (classDescriptor != null) {
+                    val subtypesList = result.getOrPut(classDescriptor) { arrayListOf() }
+                    subtypesList.add(cls)
+                }
+            }
+        }
+        return result
+    }
+
+    private fun CallableMemberDescriptor.canShadow(other: CallableMemberDescriptor): Boolean {
+        if (this == other) return false
+        if (this is PropertyDescriptor && other is PropertyDescriptor) {
+            return true
+        }
+        if (this is FunctionDescriptor && other is FunctionDescriptor) {
+            val parameters1 = valueParameters
+            val parameters2 = other.valueParameters
+            if (parameters1.size != parameters2.size) {
+                return false
+            }
+            for ((p1, p2) in parameters1 zip parameters2) {
+                if (p1.type != p2.type) {
+                    return false
+                }
+            }
+            return true
+        }
+        return false
     }
 
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
@@ -608,7 +673,11 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     val extensionReceiver = extensionReceiverParameter
     if (extensionReceiver != null) {
         val type = extensionReceiver.type
-        return type.constructor.declarationDescriptor as? ClassDescriptor
+        val receiverClass = type.constructor.declarationDescriptor as? ClassDescriptor
+        if ((receiverClass as? ClassDescriptor)?.isCompanionObject ?: false) {
+            return receiverClass?.containingDeclaration as? ClassifierDescriptor
+        }
+        return receiverClass
     }
     return null
 }
