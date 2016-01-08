@@ -126,42 +126,6 @@ abstract class StructuredFormatService(locationService: LocationService,
     fun Content.getSectionsWithSubjects(): Map<String, List<ContentSection>> =
             sections.filter { it.subjectName != null }.groupBy { it.tag }
 
-    private fun DocumentationNode.appendOverrides(to: StringBuilder) {
-        overrides.forEach {
-            to.append("Overrides ")
-            val location = locationService.relativePathToLocation(this, it)
-            appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
-        }
-    }
-
-    private fun DocumentationNode.appendDeprecation(location: Location, to: StringBuilder) {
-        if (deprecation != null) {
-            val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
-            val deprecationValue = deprecationParameter?.details(NodeKind.Value)?.firstOrNull()
-            if (deprecationValue != null) {
-                to.append(formatStrong("Deprecated:")).append(" ")
-                appendLine(to, formatText(deprecationValue.name.removeSurrounding("\"")))
-                appendLine(to)
-            } else if (deprecation?.content != Content.Empty) {
-                to.append(formatStrong("Deprecated:")).append(" ")
-                formatText(location, deprecation!!.content, to)
-            } else {
-                appendLine(to, formatStrong("Deprecated"))
-                appendLine(to)
-            }
-        }
-    }
-
-    private fun DocumentationNode.appendSourceLink(to: StringBuilder) {
-        val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
-        if (sourceUrl != null) {
-            to.append(" ")
-            appendLine(to, formatLink("(source)", sourceUrl.name))
-        } else {
-            appendLine(to)
-        }
-    }
-
     private fun ContentNode.signatureToText(location: Location): String {
         return if (this is ContentBlock && this.isEmpty()) {
             ""
@@ -221,10 +185,10 @@ abstract class StructuredFormatService(locationService: LocationService,
                 val rendered = languageService.render(it)
                 appendAsSignature(to, rendered) {
                     to.append(formatCode(formatText(location, rendered)))
-                    it.appendSourceLink(to)
+                    it.appendSourceLink()
                 }
-                it.appendOverrides(to)
-                it.appendDeprecation(location, to)
+                it.appendOverrides()
+                it.appendDeprecation()
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
@@ -232,21 +196,57 @@ abstract class StructuredFormatService(locationService: LocationService,
                 formatText(location, it.content, to)
             }
             formatText(location, item.content.summary, to)
-            appendDescription(item)
+            item.appendDescription()
             appendLine(to)
             appendLine(to)
         }
 
-        private fun appendDescription(node: DocumentationNode) {
-            if (node.content.description != ContentEmpty) {
-                appendLine(to, formatText(location, node.content.description))
+        private fun DocumentationNode.appendSourceLink() {
+            val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
+            if (sourceUrl != null) {
+                to.append(" ")
+                appendLine(to, formatLink("(source)", sourceUrl.name))
+            } else {
                 appendLine(to)
             }
-            node.content.getSectionsWithSubjects().forEach {
+        }
+
+        private fun DocumentationNode.appendOverrides() {
+            overrides.forEach {
+                to.append("Overrides ")
+                val location = locationService.relativePathToLocation(this, it)
+                appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
+            }
+        }
+
+        private fun DocumentationNode.appendDeprecation() {
+            if (deprecation != null) {
+                val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
+                val deprecationValue = deprecationParameter?.details(NodeKind.Value)?.firstOrNull()
+                if (deprecationValue != null) {
+                    to.append(formatStrong("Deprecated:")).append(" ")
+                    appendLine(to, formatText(deprecationValue.name.removeSurrounding("\"")))
+                    appendLine(to)
+                } else if (deprecation?.content != Content.Empty) {
+                    to.append(formatStrong("Deprecated:")).append(" ")
+                    formatText(location, deprecation!!.content, to)
+                } else {
+                    appendLine(to, formatStrong("Deprecated"))
+                    appendLine(to)
+                }
+            }
+        }
+
+        private fun DocumentationNode.appendDescription() {
+            if (content.description != ContentEmpty) {
+                appendLine(to, formatText(location, content.description))
+                appendLine(to)
+            }
+            content.getSectionsWithSubjects().forEach {
                 appendSectionWithSubject(it.key, it.value)
             }
 
-            for (section in node.content.sections.filter { it.subjectName == null }) {
+            for (section in content.sections.filter { it.subjectName == null }) {
                 appendLine(to, formatStrong(formatText(section.tag)))
                 appendLine(to, formatText(location, section))
             }
