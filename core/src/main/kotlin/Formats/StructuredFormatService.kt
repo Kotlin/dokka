@@ -254,9 +254,17 @@ abstract class StructuredFormatService(locationService: LocationService,
 
         fun appendSectionWithSubject(title: String, subjectSections: List<ContentSection>) {
             appendHeader(to, title, 3)
+            var first: Boolean = true
             subjectSections.forEach {
                 val subjectName = it.subjectName
                 if (subjectName != null) {
+                    if (first) {
+                        first = false
+                    }
+                    else {
+                        appendLine(to)
+                    }
+
                     appendAnchor(to, subjectName)
                     to.append(formatCode(subjectName)).append(" - ")
                     formatText(location, it, to)
