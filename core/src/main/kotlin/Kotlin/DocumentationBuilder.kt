@@ -546,6 +546,12 @@ class DocumentationBuilder
         if ((receiverClass as? ClassDescriptor)?.isCompanionObject ?: false) {
             receiverClass = receiverClass.containingDeclaration!!
         }
+        else if (receiverClass is TypeParameterDescriptor) {
+            val upperBoundClass = receiverClass.upperBounds.singleOrNull()?.constructor?.declarationDescriptor
+            if (upperBoundClass != null) {
+                receiverClass = upperBoundClass
+            }
+        }
         link(receiverClass,
                 containingDeclaration,
                 RefKind.Extension)
