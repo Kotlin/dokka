@@ -23,7 +23,6 @@ apply plugin: 'com.jfrog.bintray'
 sourceCompatibility = 1.6
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         url 'http://oss.sonatype.org/content/repositories/snapshots'
