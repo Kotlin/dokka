@@ -19,6 +19,8 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.annotations.argumentValue
+import org.jetbrains.kotlin.resolve.constants.StringValue
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.ResolutionScope
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
@@ -43,7 +45,7 @@ class DescriptorDocumentationParser
         if (kdoc == null) {
             if (options.reportUndocumented && !descriptor.isDeprecated() &&
                     descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
-                    descriptor !is PropertyAccessorDescriptor) {
+                    descriptor !is PropertyAccessorDescriptor && !descriptor.isSuppressWarning()) {
                 logger.warn("No documentation for ${descriptor.signatureWithSourceLocation()}")
             }
             return Content.Empty to { node -> }
@@ -73,6 +75,14 @@ class DescriptorDocumentationParser
             }
         }
         return content to { node -> }
+    }
+
+    private fun DeclarationDescriptor.isSuppressWarning() : Boolean {
+        val suppressAnnotation = annotations.findAnnotation(FqName(Suppress::class.qualifiedName!!))
+        return if (suppressAnnotation != null) {
+            @Suppress("UNCHECKED_CAST")
+            (suppressAnnotation.argumentValue("names") as List<StringValue>).any { it.value == "NOT_DOCUMENTED" }
+        } else containingDeclaration?.isSuppressWarning() ?: false
     }
 
     /**

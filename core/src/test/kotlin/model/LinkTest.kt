@@ -25,6 +25,16 @@ public class LinkTest {
         }
     }
 
+    @Test fun linkToConstantWithUnderscores() {
+        verifyModel("testdata/links/linkToConstantWithUnderscores.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Foo", name)
+                assertEquals(DocumentationNode.Kind.Class, kind)
+                assertEquals("This is link to [MY_CONSTANT_VALUE -> CompanionObjectProperty:MY_CONSTANT_VALUE]", content.summary.toTestString())
+            }
+        }
+    }
+
     @Test fun linkToQualifiedMember() {
         verifyModel("testdata/links/linkToQualifiedMember.kt") { model ->
             with(model.members.single().members.single()) {
