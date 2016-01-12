@@ -34,13 +34,13 @@ open class DokkaTask : DefaultTask() {
     var outputFormat: String = "html"
     var outputDirectory: String = ""
     @Input
-    var processConfigurations: ArrayList<String> = arrayListOf("compile")
+    var processConfigurations: List<Any?> = arrayListOf("compile")
     @Input
-    var includes: ArrayList<String> = arrayListOf()
+    var includes: List<Any?> = arrayListOf()
     @Input
     var linkMappings: ArrayList<LinkMapping> = arrayListOf()
     @Input
-    var samples: ArrayList<String> = arrayListOf()
+    var samples: List<Any?> = arrayListOf()
 
     fun linkMapping(closure: Closure<Any?>) {
         val mapping = LinkMapping()
@@ -65,7 +65,7 @@ open class DokkaTask : DefaultTask() {
 
         val classpath =
                 processConfigurations
-                .map { allConfigurations?.getByName(it) ?: throw IllegalArgumentException("No configuration $it found") }
+                .map { allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found") }
                 .flatMap { it }
 
         if (sourceDirectories.isEmpty()) {
@@ -77,8 +77,8 @@ open class DokkaTask : DefaultTask() {
                 DokkaGradleLogger(logger),
                 classpath.map { it.absolutePath },
                 sourceDirectories.map { it.absolutePath },
-                samples,
-                includes,
+                samples.filterNotNull().map { project.file(it).absolutePath },
+                includes.filterNotNull().map { project.file(it).absolutePath },
                 moduleName,
                 outputDirectory,
                 outputFormat,
@@ -95,7 +95,9 @@ open class DokkaTask : DefaultTask() {
 
     @InputFiles
     @SkipWhenEmpty
-    fun getIncludedFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) })
+    fun getInputFiles() : FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) }) +
+        project.files(includes) +
+        project.files(samples)
 
     @OutputDirectory
     fun getOutputDirectoryAsFile() : File = project.file(outputDirectory)
