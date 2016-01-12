@@ -98,10 +98,15 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    open fun link(from: DocumentationNode, to: DocumentationNode): FormatLink = link(from, to, extension)
+    open fun link(from: DocumentationNode,
+                  to: DocumentationNode,
+                  name: (DocumentationNode) -> String = DocumentationNode::name): FormatLink = link(from, to, extension, name)
 
-    open fun link(from: DocumentationNode, to: DocumentationNode, extension: String): FormatLink {
-        return FormatLink(to.name, locationService.relativePathToLocation(from, to))
+    open fun link(from: DocumentationNode,
+                  to: DocumentationNode,
+                  extension: String,
+                  name: (DocumentationNode) -> String = DocumentationNode::name): FormatLink {
+        return FormatLink(name(to), locationService.relativePathToLocation(from, to))
     }
 
     fun locationHref(from: Location, to: DocumentationNode): String {
@@ -279,7 +284,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     }
 
     inner class SingleNodePageBuilder(location: Location, to: StringBuilder, val node: DocumentationNode)
-    : PageBuilder(location, to, listOf(node)) {
+            : PageBuilder(location, to, listOf(node)) {
 
         override fun build() {
             super.build()
@@ -319,7 +324,8 @@ abstract class StructuredFormatService(locationService: LocationService,
                         NodeKind.CompanionObjectProperty,
                         NodeKind.CompanionObjectFunction,
                         NodeKind.ExternalClass,
-                        NodeKind.EnumItem
+                        NodeKind.EnumItem,
+                        NodeKind.AllTypes
                 )
             })
 
@@ -330,7 +336,13 @@ abstract class StructuredFormatService(locationService: LocationService,
             appendSection("Companion Object Extension Functions", allExtensions.filter { it.kind == NodeKind.CompanionObjectFunction })
             appendSection("Inheritors",
                     node.inheritors.filter { it.kind != NodeKind.EnumItem })
-            appendSection("Links", node.links)
+
+            if (node.kind == NodeKind.Module) {
+                appendHeader(to, "Index", 3)
+                node.members(NodeKind.AllTypes).singleOrNull()?.let { allTypes ->
+                    to.append(formatLink(link(node, allTypes, { "All Types" })))
+                }
+            }
         }
 
         private fun appendSection(caption: String, members: List<DocumentationNode>) {
@@ -383,10 +395,47 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
+    inner class AllTypesNodeBuilder(location: Location, to: StringBuilder, val node: DocumentationNode)
+        : PageBuilder(location, to, listOf(node)) {
+
+        override fun build() {
+            to.append(formatText(location, node.owner!!.summary))
+            appendHeader(to, "All Types", 3)
+
+            appendTable(to) {
+                appendTableBody(to) {
+                    for (type in node.members) {
+                        appendTableRow(to) {
+                            appendTableCell(to) {
+                                to.append(formatLink(link(node, type) {
+                                    if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
+                                }))
+                                if (type.kind == NodeKind.ExternalClass) {
+                                    val packageName = type.owner?.name
+                                    if (packageName != null) {
+                                        to.append(formatText(" (extensions in package $packageName)"))
+                                    }
+                                }
+                            }
+                            appendTableCell(to) {
+                                to.append(formatText(location, type.summary))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         val singleNode = nodes.singleOrNull()
         if (singleNode != null) {
-            SingleNodePageBuilder(location, to, singleNode).build()
+            if (singleNode.kind == NodeKind.AllTypes) {
+                AllTypesNodeBuilder(location, to, singleNode).build()
+            }
+            else {
+                SingleNodePageBuilder(location, to, singleNode).build()
+            }
         }
         else {
             PageBuilder(location, to, nodes).build()

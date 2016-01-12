@@ -293,6 +293,7 @@ class DocumentationBuilder
         }
 
         propagateExtensionFunctionsToSubclasses(fragments)
+        generateAllTypesNode()
     }
 
     private fun propagateExtensionFunctionsToSubclasses(fragments: Collection<PackageFragmentDescriptor>) {
@@ -354,6 +355,19 @@ class DocumentationBuilder
             return true
         }
         return false
+    }
+
+    private fun DocumentationNode.generateAllTypesNode() {
+        val allTypes = members(NodeKind.Package)
+                .flatMap { it.members.filter { it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass } }
+                .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.') else it.name }
+
+        val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)
+        for (typeNode in allTypes) {
+            allTypesNode.addReferenceTo(typeNode, RefKind.Member)
+        }
+
+        append(allTypesNode, RefKind.Member)
     }
 
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
