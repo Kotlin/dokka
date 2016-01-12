@@ -5,6 +5,7 @@ import org.apache.tools.ant.Project
 import org.apache.tools.ant.Task
 import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
+import org.jetbrains.dokka.DocumentationOptions
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.SourceLinkDefinition
@@ -22,6 +23,7 @@ class DokkaAntTask(): Task() {
     var moduleName: String? = null
     var outputDir: String? = null
     var outputFormat: String = "html"
+    var jdkVersion: Int = 6
 
     var skipDeprecated: Boolean = false
 
@@ -77,14 +79,8 @@ class DokkaAntTask(): Task() {
             throw BuildException("Output directory needs to be specified")
         }
         val sourceLinks = antSourceLinks.map {
-            val path = it.path
-            if (path == null) {
-                throw BuildException("Path attribute of a <sourceLink> element is required")
-            }
-            val url = it.url
-            if (url == null) {
-                throw BuildException("Path attribute of a <sourceLink> element is required")
-            }
+            val path = it.path ?: throw BuildException("'path' attribute of a <sourceLink> element is required")
+            val url = it.url ?: throw BuildException("'url' attribute of a <sourceLink> element is required")
             SourceLinkDefinition(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
 
@@ -98,10 +94,10 @@ class DokkaAntTask(): Task() {
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
                 moduleName!!,
-                outputDir!!,
-                outputFormat,
-                sourceLinks,
-                skipDeprecated
+                DocumentationOptions(outputDir!!, outputFormat,
+                        skipDeprecated = skipDeprecated,
+                        sourceLinks = sourceLinks,
+                        jdkVersion = jdkVersion)
         )
         generator.generate()
     }

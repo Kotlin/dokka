@@ -41,6 +41,7 @@ data class DocumentationOptions(val outputDir: String,
                                 val reportUndocumented: Boolean = true,
                                 val skipEmptyPackages: Boolean = true,
                                 val skipDeprecated: Boolean = false,
+                                val jdkVersion: Int = 6,
                                 val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,

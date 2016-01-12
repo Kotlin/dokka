@@ -8,6 +8,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
+import org.jetbrains.dokka.DocumentationOptions
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
@@ -41,6 +42,8 @@ open class DokkaTask : DefaultTask() {
     var linkMappings: ArrayList<LinkMapping> = arrayListOf()
     @Input
     var samples: ArrayList<String> = arrayListOf()
+    @Input
+    var jdkVersion: Int = 6
 
     fun linkMapping(closure: Closure<Any?>) {
         val mapping = LinkMapping()
@@ -80,10 +83,9 @@ open class DokkaTask : DefaultTask() {
                 samples,
                 includes,
                 moduleName,
-                outputDirectory,
-                outputFormat,
-                linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
-                false
+                DocumentationOptions(outputDirectory, outputFormat,
+                        sourceLinks = linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
+                        jdkVersion = jdkVersion)
         ).generate()
     }
 

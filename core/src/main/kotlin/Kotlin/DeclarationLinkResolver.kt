@@ -14,7 +14,8 @@ import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                             val refGraph: NodeReferenceGraph,
-                            val logger: DokkaLogger) {
+                            val logger: DokkaLogger,
+                            val options: DocumentationOptions) {
     fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbol = try {
             val symbols = resolveKDocLink(resolutionFacade, fromDescriptor, null, href.split('.').toList())
@@ -71,5 +72,5 @@ class DeclarationLinkResolver
         return null
     }
 
-    private val javadocRoot = "http://docs.oracle.com/javase/6/docs/api/"
+    private val javadocRoot = "http://docs.oracle.com/javase/${options.jdkVersion}/docs/api/"
 }
