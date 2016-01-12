@@ -6,15 +6,15 @@ import com.intellij.psi.util.InheritanceUtil
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
-    is PsiField -> element.containingClass!!.qualifiedName + "#" + element.name
+    is PsiField -> element.containingClass!!.qualifiedName + "$" + element.name
     is PsiMethod ->
-        element.containingClass!!.qualifiedName + "#" + element.name + "(" +
+        element.containingClass!!.qualifiedName + "$" + element.name + "(" +
                 element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
     else -> null
 }
 
 private fun PsiType.typeSignature(): String = when(this) {
-    is PsiArrayType -> "Array<${componentType.typeSignature()}>"
+    is PsiArrayType -> "Array((${componentType.typeSignature()}))"
     else -> mapTypeName(this)
 }
 

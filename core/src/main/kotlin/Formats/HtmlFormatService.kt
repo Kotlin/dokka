@@ -22,8 +22,9 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         return "<span class=\"keyword\">${formatText(text)}</span>"
     }
 
-    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
-        return "<span class=\"identifier\">${formatText(text)}</span>"
+    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String {
+        val id = signature?.let { " id=\"$it\"" }.orEmpty()
+        return "<span class=\"identifier\"$id>${formatText(text)}</span>"
     }
 
     override fun appendBlockCode(to: StringBuilder, line: String, language: String) {

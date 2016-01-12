@@ -227,6 +227,10 @@ class DocumentationBuilder
         appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
     }
 
+    fun DocumentationNode.appendSignature(descriptor: DeclarationDescriptor) {
+        appendTextNode(descriptor.signature(), NodeKind.Signature, RefKind.Detail)
+    }
+
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: RefKind): DocumentationNode? {
         // do not include generated code
         if (descriptor is CallableMemberDescriptor && descriptor.kind != CallableMemberDescriptor.Kind.DECLARATION)
@@ -440,6 +444,7 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
+        node.appendSignature(this)
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -468,6 +473,7 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
+        node.appendSignature(this)
         if (isVar) {
             node.appendTextNode("var", NodeKind.Modifier)
         }
@@ -518,6 +524,7 @@ class DocumentationBuilder
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
+        node.appendSignature(this)
         if (varargElementType != null && node.details(NodeKind.Modifier).none { it.name == "vararg" }) {
             node.appendTextNode("vararg", NodeKind.Modifier)
         }
@@ -699,10 +706,10 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
 
 fun DeclarationDescriptor.signature(): String = when(this) {
     is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
-    is PropertyDescriptor -> containingDeclaration.signature() + "#" + name + receiverSignature()
-    is FunctionDescriptor -> containingDeclaration.signature() + "#" + name + parameterSignature()
-    is ValueParameterDescriptor -> containingDeclaration.signature() + ":" + name
-    is TypeParameterDescriptor -> containingDeclaration.signature() + "<" + name
+    is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
+    is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
+    is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
+    is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
 
     else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
 }
@@ -727,7 +734,10 @@ fun CallableMemberDescriptor.parameterSignature(): String {
 fun KotlinType.signature(): String {
     val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
     val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-    return typeName + arguments.joinToString(prefix = "<", postfix = ">") { it.type.signature() }
+    if (arguments.isEmpty()) {
+        return typeName
+    }
+    return typeName + arguments.joinToString(prefix = "((", postfix = "))") { it.type.signature() }
 }
 
 fun DeclarationDescriptor.signatureWithSourceLocation(): String {

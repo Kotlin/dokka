@@ -42,6 +42,7 @@ enum class NodeKind {
 
     SourceUrl,
     SourcePosition,
+    Signature,
 
     ExternalLink,
 
@@ -115,6 +116,7 @@ open class DocumentationNode(val name: String,
     fun links(kind: NodeKind): List<DocumentationNode> = links.filter { it.kind == kind }
 
     fun detail(kind: NodeKind): DocumentationNode = details.filter { it.kind == kind }.single()
+    fun detailOrNull(kind: NodeKind): DocumentationNode? = details.filter { it.kind == kind }.singleOrNull()
     fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
     fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
 

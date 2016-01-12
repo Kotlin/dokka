@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
 import com.google.inject.Singleton
 
 enum class RefKind {
@@ -35,7 +36,8 @@ class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
 }
 
 @Singleton
-class NodeReferenceGraph() {
+class NodeReferenceGraph
+        @Inject constructor(val logger: DokkaLogger) {
     private val nodeMap = hashMapOf<String, DocumentationNode>()
     val references = arrayListOf<PendingDocumentationReference>()
 
@@ -55,7 +57,13 @@ class NodeReferenceGraph() {
         references.add(PendingDocumentationReference({ -> nodeMap[fromSignature]}, { -> nodeMap[toSignature]}, kind))
     }
 
-    fun lookup(signature: String): DocumentationNode? = nodeMap[signature]
+    fun lookup(signature: String): DocumentationNode? {
+        val result = nodeMap[signature]
+        if (result == null) {
+            logger.warn("Can't find node by signature $signature")
+        }
+        return result
+    }
 
     fun resolveReferences() {
         references.forEach { it.resolve() }

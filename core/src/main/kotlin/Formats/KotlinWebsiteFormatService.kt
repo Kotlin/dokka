@@ -124,7 +124,8 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         return "<span class=\"keyword\">${formatText(text)}</span>"
     }
 
-    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
+    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String {
+        val id = signature?.let { " id=\"$it\"" }.orEmpty()
         return "<span class=\"${identifierClassName(kind)}\">${formatText(text)}</span>"
     }
 
