@@ -45,7 +45,9 @@ data class ContentKeyword(val text: String) : ContentNode {
         get() = text.length
 }
 
-data class ContentIdentifier(val text: String, val kind: IdentifierKind = IdentifierKind.Other) : ContentNode {
+data class ContentIdentifier(val text: String,
+                             val kind: IdentifierKind = IdentifierKind.Other,
+                             val signature: String? = null) : ContentNode {
     override val textLength: Int
         get() = text.length
 }
@@ -140,7 +142,11 @@ fun content(body: ContentBlock.() -> Unit): ContentBlock {
 fun ContentBlock.text(value: String) = append(ContentText(value))
 fun ContentBlock.keyword(value: String) = append(ContentKeyword(value))
 fun ContentBlock.symbol(value: String) = append(ContentSymbol(value))
-fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind.Other) = append(ContentIdentifier(value, kind))
+
+fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind.Other, signature: String? = null) {
+    append(ContentIdentifier(value, kind, signature))
+}
+
 fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
 fun ContentBlock.softLineBreak() = append(ContentSoftLineBreak)
 fun ContentBlock.indentedSoftLineBreak() = append(ContentIndentedSoftLineBreak)

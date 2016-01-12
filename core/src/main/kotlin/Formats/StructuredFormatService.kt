@@ -31,7 +31,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun formatText(text: String): String
     abstract fun formatSymbol(text: String): String
     abstract fun formatKeyword(text: String): String
-    abstract fun formatIdentifier(text: String, kind: IdentifierKind): String
+    abstract fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String
     fun formatEntity(text: String): String = text
     abstract fun formatLink(text: String, href: String): String
     open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
@@ -60,7 +60,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             is ContentText -> to.append(formatText(content.text))
             is ContentSymbol -> to.append(formatSymbol(content.text))
             is ContentKeyword -> to.append(formatKeyword(content.text))
-            is ContentIdentifier -> to.append(formatIdentifier(content.text, content.kind))
+            is ContentIdentifier -> to.append(formatIdentifier(content.text, content.kind, content.signature))
             is ContentNonBreakingSpace -> to.append(formatNonBreakingSpace())
             is ContentSoftLineBreak -> to.append(formatSoftLineBreak())
             is ContentIndentedSoftLineBreak -> to.append(formatIndentedSoftLineBreak())
@@ -107,7 +107,8 @@ abstract class StructuredFormatService(locationService: LocationService,
     fun locationHref(from: Location, to: DocumentationNode): String {
         val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
         if (topLevelPage != null) {
-            return from.relativePathTo(locationService.location(topLevelPage), to.name)
+            val signature = to.detailOrNull(NodeKind.Signature)
+            return from.relativePathTo(locationService.location(topLevelPage), signature?.name ?: to.name)
         }
         return from.relativePathTo(locationService.location(to))
     }
@@ -180,9 +181,12 @@ abstract class StructuredFormatService(locationService: LocationService,
             }
         }
 
-        private fun formatOverloadGroup(items: MutableList<DocumentationNode>) {
+        private fun formatOverloadGroup(items: List<DocumentationNode>) {
             items.forEach {
                 val rendered = languageService.render(it)
+                it.detailOrNull(NodeKind.Signature)?.let {
+                    appendAnchor(to, it.name)
+                }
                 appendAsSignature(to, rendered) {
                     to.append(formatCode(formatText(location, rendered)))
                     it.appendSourceLink()

@@ -51,7 +51,7 @@ public class ClassTest {
                         assertEquals("name", name)
                         assertEquals(NodeKind.Parameter, kind)
                         assertEquals(Content.Empty, content)
-                        assertEquals("String", details.single().name)
+                        assertEquals("String", detail(NodeKind.Type).name)
                         assertTrue(links.none())
                         assertTrue(members.none())
                     }

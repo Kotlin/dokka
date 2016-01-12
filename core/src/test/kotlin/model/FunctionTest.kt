@@ -130,7 +130,7 @@ Documentation""", content.description.toTestString())
                     assertEquals("x", name)
                     assertEquals(NodeKind.Parameter, kind)
                     assertEquals("parameter", content.summary.toTestString())
-                    assertEquals("Int", details.single().name)
+                    assertEquals("Int", detail(NodeKind.Type).name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }

@@ -12,20 +12,10 @@ open class MarkdownFormatService
         return items.map { formatLink(it) }.joinToString(" / ")
     }
 
-    override fun formatText(text: String): String {
-        return text.htmlEscape()
-    }
-
-    override fun formatSymbol(text: String): String {
-        return text.htmlEscape()
-    }
-
-    override fun formatKeyword(text: String): String {
-        return text.htmlEscape()
-    }
-    override fun formatIdentifier(text: String, kind: IdentifierKind): String {
-        return text.htmlEscape()
-    }
+    override fun formatText(text: String): String = text.htmlEscape()
+    override fun formatSymbol(text: String): String = text.htmlEscape()
+    override fun formatKeyword(text: String): String = text.htmlEscape()
+    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String = text.htmlEscape()
 
     override fun formatCode(code: String): String {
         return "`$code`"

@@ -366,7 +366,7 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docume
 class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), FieldDoc {
     override fun isSynthetic(): Boolean = false
 
-    override fun constantValueExpression(): String? = node.details(NodeKind.Value).firstOrNull()?.let { it.name }
+    override fun constantValueExpression(): String? = node.detailOrNull(NodeKind.Value)?.let { it.name }
     override fun constantValue(): Any? = constantValueExpression()
 
     override fun type(): Type = TypeAdapter(module, node.detail(NodeKind.Type))

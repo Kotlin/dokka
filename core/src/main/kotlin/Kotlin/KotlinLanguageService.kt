@@ -215,7 +215,7 @@ class KotlinLanguageService : LanguageService {
             renderAnnotationsForNode(node)
         }
         renderModifiersForNode(node, renderMode)
-        identifier(node.name, IdentifierKind.ParameterName)
+        identifier(node.name, IdentifierKind.ParameterName, node.detailOrNull(NodeKind.Signature)?.name)
         symbol(":")
         nbsp()
         val parameterType = node.detail(NodeKind.Type)
