@@ -60,6 +60,8 @@ class DokkaArguments {
     @set:Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
     var nodeprecated: Boolean = false
 
+    @set:Argument(value = "jdkVersion", description = "Version of JDK to use for linking to JDK JavaDoc")
+    var jdkVersion: Int = 6
 }
 
 private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
@@ -86,6 +88,14 @@ fun main(args: Array<String>) {
     }
 
     val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
+
+    val documentationOptions = DocumentationOptions(
+            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+            arguments.outputFormat,
+            skipDeprecated = arguments.nodeprecated,
+            sourceLinks = sourceLinks
+    )
+
     val generator = DokkaGenerator(
             DokkaConsoleLogger,
             classPath,
@@ -93,10 +103,7 @@ fun main(args: Array<String>) {
             samples,
             includes,
             arguments.moduleName,
-            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
-            arguments.outputFormat,
-            sourceLinks,
-            arguments.nodeprecated)
+            documentationOptions)
 
     generator.generate()
     DokkaConsoleLogger.report()
@@ -140,22 +147,17 @@ class DokkaGenerator(val logger: DokkaLogger,
                      val samples: List<String>,
                      val includes: List<String>,
                      val moduleName: String,
-                     val outputDir: String,
-                     val outputFormat: String,
-                     val sourceLinks: List<SourceLinkDefinition>,
-                     val skipDeprecated: Boolean = false) {
+                     val options: DocumentationOptions) {
     fun generate() {
         val environment = createAnalysisEnvironment()
 
         logger.info("Module: $moduleName")
-        logger.info("Output: ${File(outputDir)}")
+        logger.info("Output: ${File(options.outputDir)}")
         logger.info("Sources: ${environment.sources.joinToString()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
-
-        val options = DocumentationOptions(outputDir, outputFormat, false, sourceLinks = sourceLinks, skipDeprecated = skipDeprecated)
 
         val injector = Guice.createInjector(DokkaModule(environment, options, logger))
 

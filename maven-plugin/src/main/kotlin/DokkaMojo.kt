@@ -48,6 +48,9 @@ class DokkaMojo : AbstractMojo() {
     @Parameter(required = false, defaultValue = "false")
     var skip: Boolean = false
 
+    @Parameter(required = false, defaultValue = "6")
+    var jdkVersion: Int = 6
+
     override fun execute() {
         if (skip) {
             log.info("Dokka skip parameter is true so no dokka output will be produced")
@@ -61,9 +64,10 @@ class DokkaMojo : AbstractMojo() {
                 samplesDirs,
                 includeDirs,
                 moduleName,
-                outputDir,
-                outputFormat,
-                sourceLinks.map { SourceLinkDefinition(it.dir, it.url, it.urlSuffix) }
+                DocumentationOptions(outputDir, outputFormat,
+                        sourceLinks = sourceLinks.map { SourceLinkDefinition(it.dir, it.url, it.urlSuffix) },
+                        jdkVersion = jdkVersion
+                )
         )
 
         gen.generate()
