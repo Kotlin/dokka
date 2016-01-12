@@ -299,7 +299,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             appendSection("Annotations", node.members(NodeKind.AnnotationClass))
             appendSection("Exceptions", node.members(NodeKind.Exception))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
-            appendSection("Enum Values", node.members(NodeKind.EnumItem))
+            appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false)
             appendSection("Constructors", node.members(NodeKind.Constructor))
             appendSection("Properties", node.members(NodeKind.Property))
             appendSection("Inherited Properties",  node.inheritedMembers(NodeKind.Property))
@@ -345,12 +345,12 @@ abstract class StructuredFormatService(locationService: LocationService,
             }
         }
 
-        private fun appendSection(caption: String, members: List<DocumentationNode>) {
+        private fun appendSection(caption: String, members: List<DocumentationNode>, sortMembers: Boolean = true) {
             if (members.isEmpty()) return
 
             appendHeader(to, caption, 3)
 
-            val children = members.sortedBy { it.name }
+            val children = if (sortMembers) members.sortedBy { it.name } else members
             val membersMap = children.groupBy { link(node, it) }
 
             appendTable(to) {
