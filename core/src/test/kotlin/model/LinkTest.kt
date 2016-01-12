@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.NodeKind
 import org.junit.Test
-import kotlin.test.*
-import org.jetbrains.dokka.*
+import kotlin.test.assertEquals
 
-public class LinkTest {
+class LinkTest {
     @Test fun linkToSelf() {
         verifyModel("testdata/links/linkToSelf.kt") { model ->
             with(model.members.single().members.single()) {
@@ -29,7 +29,7 @@ public class LinkTest {
         verifyModel("testdata/links/linkToConstantWithUnderscores.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
-                assertEquals(DocumentationNode.Kind.Class, kind)
+                assertEquals(NodeKind.Class, kind)
                 assertEquals("This is link to [MY_CONSTANT_VALUE -> CompanionObjectProperty:MY_CONSTANT_VALUE]", content.summary.toTestString())
             }
         }
