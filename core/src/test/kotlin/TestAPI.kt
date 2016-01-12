@@ -50,7 +50,11 @@ public fun verifyModel(vararg roots: ContentRoot,
         }
         addRoots(roots.toList())
     }
-    val options = DocumentationOptions("", format, includeNonPublic = true, skipEmptyPackages = false, sourceLinks = listOf<SourceLinkDefinition>())
+    val options = DocumentationOptions("", format,
+            includeNonPublic = true,
+            skipEmptyPackages = false,
+            sourceLinks = listOf<SourceLinkDefinition>(),
+            generateIndexPages = false)
     val injector = Guice.createInjector(DokkaModule(environment, options, DokkaConsoleLogger))
     val documentation = buildDocumentationModule(injector, "test")
     verifier(documentation)

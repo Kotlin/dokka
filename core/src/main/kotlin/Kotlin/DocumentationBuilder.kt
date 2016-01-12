@@ -42,6 +42,7 @@ data class DocumentationOptions(val outputDir: String,
                                 val skipEmptyPackages: Boolean = true,
                                 val skipDeprecated: Boolean = false,
                                 val jdkVersion: Int = 6,
+                                val generateIndexPages: Boolean = true,
                                 val sourceLinks: List<SourceLinkDefinition>)
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
@@ -293,7 +294,9 @@ class DocumentationBuilder
         }
 
         propagateExtensionFunctionsToSubclasses(fragments)
-        generateAllTypesNode()
+        if (options.generateIndexPages) {
+            generateAllTypesNode()
+        }
     }
 
     private fun propagateExtensionFunctionsToSubclasses(fragments: Collection<PackageFragmentDescriptor>) {
