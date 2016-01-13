@@ -22,14 +22,8 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
-import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
-import org.jetbrains.kotlin.config.CommonConfigurationKeys
-import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.config.ContentRoot
-import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.cli.jvm.config.*
+import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -152,7 +146,11 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
      */
     fun addSources(list: List<String>) {
         list.forEach {
-            configuration.add(CommonConfigurationKeys.CONTENT_ROOTS, contentRootFromPath(it))
+            configuration.addKotlinSourceRoot(it)
+            val file = File(it)
+            if (file.isDirectory || file.extension == ".java") {
+                configuration.addJavaSourceRoot(file)
+            }
         }
     }
 
