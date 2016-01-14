@@ -199,6 +199,8 @@ class DescriptorDocumentationParser
             }
             currentScope = if (partSymbol is ClassDescriptor)
                 partSymbol.defaultType.memberScope
+            else if (partSymbol is PackageViewDescriptor)
+                partSymbol.memberScope
             else
                 getResolutionScope(resolutionFacade, partSymbol)
             symbol = partSymbol
