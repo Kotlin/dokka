@@ -10,6 +10,9 @@ buildscript {
     }
     repositories {
         jcenter()
+        maven {
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
+        }
     }
 }
 
@@ -23,6 +26,9 @@ sourceCompatibility = 1.5
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://dl.bintray.com/kotlin/kotlin-eap"
+    }
 }
 
 configurations {
