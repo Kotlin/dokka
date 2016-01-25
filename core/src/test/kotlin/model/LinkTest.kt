@@ -2,7 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.NodeKind
 import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 class LinkTest {
     @Test fun linkToSelf() {

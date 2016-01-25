@@ -4,8 +4,8 @@ import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 public class PackageTest {
     @Test fun rootPackage() {
