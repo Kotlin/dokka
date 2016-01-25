@@ -7,6 +7,7 @@ import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.plugins.annotations.ResolutionScope
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
+import org.jetbrains.dokka.DocumentationOptions
 
 class SourceLinkMapItem {
     @Parameter(name = "dir", required = true)
