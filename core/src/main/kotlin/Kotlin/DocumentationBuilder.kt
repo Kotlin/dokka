@@ -5,11 +5,12 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -654,7 +655,8 @@ class KotlinJavaDocumentationBuilder
         val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
 
         file.classes.forEach {
-            val javaDescriptorResolver = KotlinCacheService.getInstance(file.project).getProjectService(JvmPlatform,
+            val kotlinCacheService = KotlinCacheService.getInstance(file.project) as KotlinCacheServiceImpl
+            val javaDescriptorResolver = kotlinCacheService.getProjectService(JvmPlatform,
                     it.getModuleInfo(), JavaDescriptorResolver::class.java)
 
             val descriptor = javaDescriptorResolver.resolveClass(JavaClassImpl(it))

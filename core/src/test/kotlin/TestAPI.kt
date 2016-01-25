@@ -13,8 +13,8 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.junit.Assert
+import org.junit.Assert.fail
 import java.io.File
-import kotlin.test.fail
 
 public fun verifyModel(vararg roots: ContentRoot,
                        withJdk: Boolean = false,

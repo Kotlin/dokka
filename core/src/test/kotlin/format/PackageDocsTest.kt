@@ -5,7 +5,7 @@ import org.jetbrains.dokka.ContentText
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.PackageDocs
 import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 public class PackageDocsTest {
     @Test fun verifyParse() {

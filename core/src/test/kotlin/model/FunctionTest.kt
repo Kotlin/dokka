@@ -3,8 +3,8 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 public class FunctionTest {
     @Test fun function() {

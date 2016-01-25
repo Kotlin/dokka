@@ -30,7 +30,7 @@ import java.io.File
  * Workaround for the lack of ability to create a ProjectFileIndex implementation using only
  * classes from projectModel-{api,impl}.
  */
-class CoreProjectFileIndex(val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex, ModuleFileIndex {
+class CoreProjectFileIndex(private val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex, ModuleFileIndex {
     val sourceRoots = contentRoots.filter { it !is JvmClasspathRoot }
     val classpathRoots = contentRoots.filterIsInstance<JvmClasspathRoot>()
 
@@ -77,7 +77,7 @@ class CoreProjectFileIndex(val project: Project, contentRoots: List<ContentRoot>
             throw UnsupportedOperationException()
         }
 
-        override fun getProject(): Project = project
+        override fun getProject(): Project = this@CoreProjectFileIndex.project
 
         override fun getModuleContentWithDependenciesScope(): GlobalSearchScope {
             throw UnsupportedOperationException()
@@ -349,7 +349,7 @@ class CoreProjectFileIndex(val project: Project, contentRoots: List<ContentRoot>
             throw UnsupportedOperationException()
         }
 
-        override fun getModule(): Module = module
+        override fun getModule(): Module = this@CoreProjectFileIndex.module
 
         override fun isSdkInherited(): Boolean {
             throw UnsupportedOperationException()

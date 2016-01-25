@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.junit.Test
-import kotlin.test.*
+import org.junit.Assert.*
 import org.jetbrains.dokka.*
 
 public class CommentTest {
