@@ -1,7 +1,6 @@
 <component name="libraryTable">
   <library name="Gradle: junit:junit:4.12">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/" />
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar!/" />
     </CLASSES>
     <JAVADOC />
