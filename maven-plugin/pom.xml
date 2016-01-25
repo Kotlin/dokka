@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jetbrains.dokka</groupId>
   <artifactId>dokka-maven-plugin</artifactId>
-  <version>0.9.3</version>
+  <version>0.9.4</version>
   <packaging>maven-plugin</packaging>
   <properties>
     <maven-plugin-anno.version>1.4.1</maven-plugin-anno.version>
     <maven.version>3.0.5</maven.version>
     <plexus.version>3.0.22</plexus.version>
-    <kotlinVersion>1.0.0-beta-3594</kotlinVersion>
+    <kotlinVersion>1.0.0-rc-1007</kotlinVersion>
   </properties>
   <dependencies>
     <dependency>
@@ -121,6 +121,17 @@
       </releases>
       <snapshots>
         <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>kotlin.eap</id>
+      <name>Kotlin EAP</name>
+      <url>https://dl.bintray.com/kotlin/kotlin-eap</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
