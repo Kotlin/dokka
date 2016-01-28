@@ -159,12 +159,31 @@ fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
 
 fun formatPageTitle(node: DocumentationNode): String {
     val path = node.path
+    val moduleName = path.first().name
     if (path.size == 1) {
-        return path.first().name
+        return moduleName
     }
-    val qualifiedName = node.qualifiedName()
-    if (qualifiedName.length == 0 && path.size == 2) {
-        return path.first().name + " / root package"
+
+    val qName = qualifiedNameForPageTitle(node)
+    return qName + " - " + moduleName
+}
+
+private fun qualifiedNameForPageTitle(node: DocumentationNode): String {
+    if (node.kind == NodeKind.Package) {
+        var packageName = node.qualifiedName()
+        if (packageName.isEmpty()) {
+            packageName = "root package"
+        }
+        return packageName
     }
-    return path.first().name + " / " + qualifiedName
+
+    val path = node.path
+    var pathFromToplevelMember = path.dropWhile { it.kind !in NodeKind.classLike }
+    if (pathFromToplevelMember.isEmpty()) {
+        pathFromToplevelMember = path.dropWhile { it.kind != NodeKind.Property && it.kind != NodeKind.Function }
+    }
+    if (pathFromToplevelMember.isNotEmpty()) {
+        return pathFromToplevelMember.map { it.name }.filter { it.length > 0 }.joinToString(".")
+    }
+    return node.qualifiedName()
 }
