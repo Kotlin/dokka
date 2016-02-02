@@ -569,12 +569,6 @@ class DocumentationBuilder
             }
             node.appendType(constraint, NodeKind.UpperBound)
         }
-
-        for (constraint in lowerBounds) {
-            if (KotlinBuiltIns.isNothing(constraint))
-                continue
-            node.appendType(constraint, NodeKind.LowerBound)
-        }
         return node
     }
 
@@ -742,7 +736,7 @@ fun PropertyDescriptor.receiverSignature(): String {
 }
 
 fun CallableMemberDescriptor.parameterSignature(): String {
-    val params = valueParameters.map { it.type }.toArrayList()
+    val params = valueParameters.map { it.type }.toMutableList()
     val extensionReceiver = extensionReceiverParameter
     if (extensionReceiver != null) {
         params.add(0, extensionReceiver.type)
