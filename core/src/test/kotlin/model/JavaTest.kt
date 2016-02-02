@@ -2,10 +2,8 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.RefKind
+import org.junit.Assert.*
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 
 public class JavaTest {
     @Test fun function() {
@@ -145,6 +143,12 @@ public class JavaTest {
         verifyJavaPackageMember("testdata/java/staticMethod.java") { cls ->
             val m = cls.members(NodeKind.Function).single { it.name == "foo" }
             assertTrue("static" in m.details(NodeKind.Modifier).map { it.name })
+        }
+    }
+
+    @Test fun suppressTag() {
+        verifyJavaPackageMember("testdata/java/suppressTag.java") { cls ->
+            assertEquals(1, cls.members(NodeKind.Function).size)
         }
     }
 
