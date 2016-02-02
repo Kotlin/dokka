@@ -477,7 +477,7 @@ fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, Documentat
 }
 
 class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
-    val allPackages = module.members(NodeKind.Package).toMapBy { it.name }
+    val allPackages = module.members(NodeKind.Package).associateBy { it.name }
     val allTypes = module.members(NodeKind.Package).collectAllTypesRecursively()
 
     override fun packageNamed(name: String?): PackageDoc? = allPackages[name]?.let { PackageAdapter(this, it) }
