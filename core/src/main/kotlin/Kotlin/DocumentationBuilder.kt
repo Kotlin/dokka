@@ -72,7 +72,6 @@ class DocumentationBuilder
                             val logger: DokkaLogger,
                             val linkResolver: DeclarationLinkResolver)
 {
-    val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -238,20 +237,12 @@ class DocumentationBuilder
         if (descriptor is CallableMemberDescriptor && descriptor.kind != CallableMemberDescriptor.Kind.DECLARATION)
             return null
 
-        if (descriptor.isDocumented()) {
+        if (descriptor.isDocumented(options)) {
             val node = descriptor.build()
             append(node, kind)
             return node
         }
         return null
-    }
-
-    fun DeclarationDescriptor.isDocumented(): Boolean {
-        return (options.includeNonPublic
-                || this !is MemberDescriptor
-                || this.visibility in visibleToDocumentation) &&
-                !isDocumentationSuppressed() &&
-                (!options.skipDeprecated || !isDeprecated())
     }
 
     fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>,
@@ -287,7 +278,7 @@ class DocumentationBuilder
         for (packageName in allFqNames) {
             val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getContributedDescriptors() }
 
-            if (options.skipEmptyPackages && declarations.none { it.isDocumented() }) continue
+            if (options.skipEmptyPackages && declarations.none { it.isDocumented(options) }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
@@ -623,6 +614,16 @@ class DocumentationBuilder
     }
 }
 
+val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
+
+fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
+    return (options.includeNonPublic
+            || this !is MemberDescriptor
+            || this.visibility in visibleToDocumentation) &&
+            !isDocumentationSuppressed() &&
+            (!options.skipDeprecated || !isDeprecated())
+}
+
 class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
     override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                            packageName: FqName,
@@ -632,7 +633,7 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
         val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
         declarations.forEach { descriptor ->
             with(documentationBuilder) {
-                if (descriptor.isDocumented()) {
+                if (descriptor.isDocumented(options)) {
                     val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes, allFqNames)
                     parent.appendChild(descriptor, RefKind.Member)
                 }
@@ -643,21 +644,25 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
 
 class KotlinJavaDocumentationBuilder
         @Inject constructor(val documentationBuilder: DocumentationBuilder,
+                            val options: DocumentationOptions,
                             val logger: DokkaLogger) : JavaDocumentationBuilder
 {
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
-        val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
-
-        file.classes.forEach {
+        val classDescriptors = file.classes.map {
             val kotlinCacheService = KotlinCacheService.getInstance(file.project) as KotlinCacheServiceImpl
             val javaDescriptorResolver = kotlinCacheService.getProjectService(JvmPlatform,
                     it.getModuleInfo(), JavaDescriptorResolver::class.java)
 
-            val descriptor = javaDescriptorResolver.resolveClass(JavaClassImpl(it))
-            if (descriptor == null) {
+            javaDescriptorResolver.resolveClass(JavaClassImpl(it)) ?: run {
                 logger.warn("Cannot find descriptor for Java class ${it.qualifiedName}")
+                null
             }
-            else {
+        }
+
+        if (classDescriptors.any { it != null && it.isDocumented(options) }) {
+            val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
+
+            for (descriptor in classDescriptors.filterNotNull()) {
                 with(documentationBuilder) {
                     packageNode.appendChild(descriptor, RefKind.Member)
                 }
