@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
@@ -62,7 +61,7 @@ class DeclarationLinkResolver
             val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
             val containingClassLink = buildJdkLink(containingClass)
             if (containingClassLink != null) {
-                val psi = (symbol.original.source as? PsiSourceElement)?.psi as? PsiMethod
+                val psi = symbol.sourcePsi() as? PsiMethod
                 if (psi != null) {
                     val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
                     return containingClassLink + "#" + symbol.name + "(" + params + ")"

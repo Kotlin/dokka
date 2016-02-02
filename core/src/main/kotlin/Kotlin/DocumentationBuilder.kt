@@ -679,8 +679,13 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
 
 fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
     val doc = KDocFinder.findKDoc(this)
-    return doc is KDocSection && doc.findTagByName("suppress") != null
+    if (doc is KDocSection && doc.findTagByName("suppress") != null) return true
+
+    return hasSuppressDocTag(sourcePsi())
 }
+
+fun DeclarationDescriptor.sourcePsi() =
+        ((original as DeclarationDescriptorWithSource).source as? PsiSourceElement)?.psi
 
 fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
     DescriptorUtils.getFqName(it.type.constructor.declarationDescriptor!!).asString() == "kotlin.Deprecated"
@@ -760,13 +765,11 @@ fun DeclarationDescriptor.signatureWithSourceLocation(): String {
 }
 
 fun DeclarationDescriptor.sourceLocation(): String? {
-    if (this is DeclarationDescriptorWithSource) {
-        val psi = (this.source as? PsiSourceElement)?.getPsi()
-        if (psi != null) {
-            val fileName = psi.containingFile.name
-            val lineNumber = psi.lineNumber()
-            return if (lineNumber != null) "$fileName:$lineNumber" else fileName
-        }
+    val psi = sourcePsi()
+    if (psi != null) {
+        val fileName = psi.containingFile.name
+        val lineNumber = psi.lineNumber()
+        return if (lineNumber != null) "$fileName:$lineNumber" else fileName
     }
     return null
 }

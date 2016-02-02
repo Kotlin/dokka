@@ -122,14 +122,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
     }
 
-    private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressTag(element)
+    private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressDocTag(element)
 
     private fun skipElementByVisibility(element: Any): Boolean =
         !options.includeNonPublic && element is PsiModifierListOwner &&
                 (element.hasModifierProperty(PsiModifier.PRIVATE) || element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL))
-
-    private fun hasSuppressTag(element: Any) =
-        element is PsiDocCommentOwner && element.docComment?.let { it.findTagByName("suppress") != null } ?: false
 
     fun <T : Any> DocumentationNode.appendMembers(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, RefKind.Member, buildFn)
@@ -267,3 +264,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 }
+
+fun hasSuppressDocTag(element: Any?) =
+        element is PsiDocCommentOwner && element.docComment?.let { it.findTagByName("suppress") != null } ?: false
+
