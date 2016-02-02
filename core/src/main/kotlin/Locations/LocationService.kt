@@ -27,7 +27,7 @@ data class FileLocation(val file: File): Location {
             return "."
         }
         val ownerFolder = file.parentFile!!
-        val relativePath = ownerFolder.toPath().relativize(other.file.toPath()).toString()
+        val relativePath = ownerFolder.toPath().relativize(other.file.toPath()).toString().replace(File.separatorChar, '/')
         return if (anchor == null) relativePath else relativePath + "#" + anchor
     }
 }
