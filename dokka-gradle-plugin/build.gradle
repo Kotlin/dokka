@@ -67,7 +67,7 @@ bintray {
     key = System.getenv('BINTRAY_KEY')
 
     pkg {
-        repo = dokka_eap ? 'kotlin-eap' : 'dokka'
+        repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
         name = 'dokka'
         userOrg = 'kotlin'
         desc = 'Dokka, the Kotlin documentation tool'

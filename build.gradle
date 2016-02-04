@@ -39,7 +39,7 @@ bintray {
     key = System.getenv('BINTRAY_KEY')
 
     pkg {
-        repo = dokka_eap ? 'kotlin-eap' : 'dokka'
+        repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
         name = 'dokka'
         userOrg = 'kotlin'
         desc = 'Dokka, the Kotlin documentation tool'
@@ -52,6 +52,6 @@ bintray {
 
     filesSpec {
         from 'maven-plugin/upload'
-        into "/kotlin/${dokka_eap ? 'kotlin-eap' : 'dokka'}/dokka/${dokka_version}/org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
+        into "/kotlin/${dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'}/dokka/${dokka_version}/org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
     }
 }
