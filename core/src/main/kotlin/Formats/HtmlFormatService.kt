@@ -80,6 +80,9 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     }
 
     override fun formatLink(text: String, href: String): String {
+        var split = href.split(delimiters = '/', ignoreCase = true)
+        if(split.last() == href)
+            return "<strong> <a href=\"${href}\">${text}</a> </strong>"
         return "<a href=\"${href}\">${text}</a>"
     }
 

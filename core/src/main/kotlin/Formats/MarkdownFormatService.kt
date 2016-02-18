@@ -42,6 +42,9 @@ open class MarkdownFormatService
     }
 
     override fun formatLink(text: String, href: String): String {
+        var split = href.split(delimiters = '/', ignoreCase = true);
+        if(split.last() == href)
+            return formatStrong("[$text]($href)")
         return "[$text]($href)"
     }
 
