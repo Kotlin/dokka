@@ -10,8 +10,9 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -452,12 +453,6 @@ class DocumentationBuilder
             }
             node.appendType(constraint, Kind.UpperBound)
         }
-
-        for (constraint in lowerBounds) {
-            if (KotlinBuiltIns.isNothing(constraint))
-                continue
-            node.appendType(constraint, Kind.LowerBound)
-        }
         return node
     }
 
@@ -536,7 +531,7 @@ class KotlinJavaDocumentationBuilder
         val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
 
         file.classes.forEach {
-            val javaDescriptorResolver = KotlinCacheService.getInstance(file.project).getProjectService(JvmPlatform,
+            val javaDescriptorResolver = (KotlinCacheService.getInstance(file.project) as KotlinCacheServiceImpl).getProjectService(JvmPlatform,
                     it.getModuleInfo(), JavaDescriptorResolver::class.java)
 
             val descriptor = javaDescriptorResolver.resolveClass(JavaClassImpl(it))
@@ -617,7 +612,7 @@ fun PropertyDescriptor.receiverSignature(): String {
 }
 
 fun CallableMemberDescriptor.parameterSignature(): String {
-    val params = valueParameters.map { it.type }.toArrayList()
+    val params = valueParameters.map { it.type }.toMutableList()
     val extensionReceiver = extensionReceiverParameter
     if (extensionReceiver != null) {
         params.add(0, extensionReceiver.type)

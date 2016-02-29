@@ -34,7 +34,8 @@ import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
+import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl
 import org.jetbrains.kotlin.idea.caches.resolve.KotlinOutOfBlockCompletionModificationTracker
 import org.jetbrains.kotlin.idea.caches.resolve.LibraryModificationTracker
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
@@ -89,7 +90,7 @@ public class AnalysisEnvironment(val messageCollector: MessageCollector) : Dispo
         projectComponentManager.registerService(LibraryModificationTracker::class.java,
                 LibraryModificationTracker(environment.project))
         projectComponentManager.registerService(KotlinCacheService::class.java,
-                KotlinCacheService(environment.project))
+                KotlinCacheServiceImpl(environment.project))
         projectComponentManager.registerService(KotlinOutOfBlockCompletionModificationTracker::class.java,
                 KotlinOutOfBlockCompletionModificationTracker())
         return environment

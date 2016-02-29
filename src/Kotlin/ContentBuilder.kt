@@ -79,7 +79,7 @@ public fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver
                 }
             }
 
-            MarkdownTokenTypes.CODE -> {
+            MarkdownTokenTypes.CODE_LINE -> {
                 val block = ContentBlockCode()
                 block.append(ContentText(node.text))
                 parent.append(block)
