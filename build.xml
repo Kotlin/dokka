@@ -20,6 +20,7 @@
         <kotlinc output="out/dokka.jar">
             <src path="src"/>
             <src path="javadoc/src/main/kotlin"/>
+            <compilerArg value="-Xreport-perf"/>
             <compilerArg value="-Xrepeat"/>
             <compilerArg value="${kotlinc.repeat}"/>
             <classpath>
@@ -28,24 +29,6 @@
                 <file name="${java.home}/../lib/tools.jar"/>
             </classpath>
         </kotlinc>
-
-        <jar jarfile="out/dokka.jar" update="true" >
-            <zipfileset dir="resources" includes="**/*.properties"/>
-            <zipfileset dir="javadoc/src/main/resources" includes="**/*.properties"/>
-        </jar>
-
-        <kotlinc src="ant/src" output="out/dokka-ant.jar" includeRuntime="false">
-            <compilerArg value="-Xrepeat"/>
-            <compilerArg value="${kotlinc.repeat}"/>
-            <classpath>
-                <fileset dir="lib" includes="*.jar"/>
-                <fileset dir="out" includes="dokka.jar" />
-            </classpath>
-        </kotlinc>
-
-        <jar jarfile="out/dokka-ant.jar" update="true" >
-            <zipfileset dir="ant/src" includes="*.xml"/>
-        </jar>
     </target>
 
     <target name="zip" depends="build">
