@@ -10,17 +10,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/dokka-android-gradle-plugin" />
             <option value="$PROJECT_DIR$/dokka-gradle-plugin" />
           </set>
         </option>
         <option name="useAutoImport" value="true" />
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/dokka-gradle-plugin" />
-          </set>
-        </option>
       </GradleProjectSettings>
     </option>
   </component>

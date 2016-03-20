@@ -25,6 +25,12 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="core_main" target="1.5" />
+      <module name="core_test" target="1.5" />
+      <module name="dokka-android-gradle-plugin_main" target="1.6" />
+      <module name="dokka-android-gradle-plugin_test" target="1.6" />
+      <module name="dokka-gradle-plugin_main" target="1.6" />
+      <module name="dokka-gradle-plugin_test" target="1.6" />
       <module name="dokka-maven-plugin" target="1.5" />
       <module name="maven-plugin" target="1.5" />
     </bytecodeTargetLevel>

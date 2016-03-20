@@ -2,9 +2,16 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/dokka.iml" filepath="$PROJECT_DIR$/dokka.iml" />
-      <module fileurl="file://$PROJECT_DIR$/dokka-gradle-plugin/dokka-gradle-plugin.iml" filepath="$PROJECT_DIR$/dokka-gradle-plugin/dokka-gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin.iml" group="dokka-android-gradle-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin_main.iml" group="dokka-android-gradle-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-android-gradle-plugin/dokka-android-gradle-plugin_test.iml" group="dokka-android-gradle-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin.iml" group="dokka-gradle-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin_main.iml" group="dokka-gradle-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka-gradle-plugin/dokka-gradle-plugin_test.iml" group="dokka-gradle-plugin" />
       <module fileurl="file://$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/dokka-maven-plugin.iml" />
     </modules>
   </component>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.android.tools:sdk-common:25.0.0-beta7">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.android.tools/sdk-common/25.0.0-beta7/58df1222b2d8ff7e42a4b75cbe7465c38df422ee/sdk-common-25.0.0-beta7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.android.tools/sdk-common/25.0.0-beta7/bf62d6811ca430b89be3125a19ea52c3aa916730/sdk-common-25.0.0-beta7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
