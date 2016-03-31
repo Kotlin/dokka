@@ -17,17 +17,17 @@ To generate documentation, run the following command:
 
 Dokka supports the following command line arguments:
 
-  * `output` - the output directory where the documentation is generated
-  * `format` - the output format:
+  * `-output` - the output directory where the documentation is generated
+  * `-format` - the output format:
     * `html` - HTML (default)
     * `markdown` - Markdown
     * `jekyll` - Markdown adapted for Jekyll sites
     * `javadoc` - Javadoc (showing how the project can be accessed from Java)
-  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
-  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
-  * `module` - the name of the module being documented (used as the root directory of the generated documentation)
-  * `include` - names of files containing the documentation for the module and individual packages
-  * `nodeprecated` - if set, deprecated elements are not included in the generated documentation
+  * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
+  * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+  * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
+  * `-include` - names of files containing the documentation for the module and individual packages
+  * `-nodeprecated` - if set, deprecated elements are not included in the generated documentation
 
 
 ### Using the Ant task
