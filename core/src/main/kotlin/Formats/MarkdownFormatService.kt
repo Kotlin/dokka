@@ -67,10 +67,10 @@ open class MarkdownFormatService(locationService: LocationService,
         appendLine(to)
     }
 
-    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
         appendLine(to)
-        to.appendln("``` ${language}")
-        to.appendln(line)
+        to.appendln(if (language.isEmpty()) "```" else "``` $language")
+        to.appendln(lines.joinToString("\n"))
         to.appendln("```")
         appendLine(to)
     }

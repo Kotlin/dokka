@@ -9,7 +9,7 @@
 Paragraph
 
  ~~Strikethrough~~ ~~Deleted~~ `Code` 
-``` 
+```
 Block code
 ```
 

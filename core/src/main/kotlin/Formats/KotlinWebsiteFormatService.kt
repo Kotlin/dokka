@@ -107,12 +107,12 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         to.appendln("\n</td>")
     }
 
-    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
         if (language.isNotEmpty()) {
-            super.appendBlockCode(to, line, language)
+            super.appendBlockCode(to, lines, language)
         } else {
             to.append("<pre markdown=\"1\">")
-            to.append(line.trimStart())
+            to.append(lines.joinToString { "\n" }.trimStart())
             to.append("</pre>")
         }
     }

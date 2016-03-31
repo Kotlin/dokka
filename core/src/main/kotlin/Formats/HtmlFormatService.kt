@@ -27,9 +27,9 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         return "<span class=\"identifier\"$id>${formatText(text)}</span>"
     }
 
-    override fun appendBlockCode(to: StringBuilder, line: String, language: String) {
+    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
         to.append("<pre><code>")
-        to.append(line)
+        to.append(lines.joinToString("\n"))
         to.append("</code></pre>")
     }
 
