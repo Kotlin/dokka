@@ -156,12 +156,10 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
 
         var owner = node.owner
         while (owner != null) {
-            when (owner.kind) {
-                NodeKind.Class,
-                NodeKind.Interface,
-                NodeKind.Enum -> return ClassDocumentationNodeAdapter(module, owner)
-                else -> owner = owner.owner
+            if (owner.kind in NodeKind.classLike) {
+                return ClassDocumentationNodeAdapter(module, owner)
             }
+            owner = owner.owner
         }
 
         return null
@@ -346,6 +344,10 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
 
 class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ExecutableMemberAdapter(module, node), ConstructorDoc {
     override fun name(): String = node.owner?.name ?: throw IllegalStateException("No owner for $node")
+
+    override fun containingClass(): ClassDoc? {
+        return super.containingClass()
+    }
 }
 
 class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ExecutableMemberDoc by ExecutableMemberAdapter(module, node), MethodDoc {
