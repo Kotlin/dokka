@@ -51,7 +51,8 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
     }
 
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        div(to, "overload-group", block)
+        block()
+        to.append("<div class=\"overload-group\"></div>")
     }
 
     override fun formatLink(text: String, href: String): String {

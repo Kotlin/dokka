@@ -4,7 +4,7 @@ import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.dokka.MarkdownFormatService
 import org.junit.Test
 
-public class MarkdownFormatTest {
+class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
 
     @Test fun emptyDescription() {
