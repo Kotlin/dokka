@@ -2,11 +2,8 @@ package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.tests.verifyModel
+import org.junit.Assert.*
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 
 class JavadocTest {
     @Test fun testTypes() {
@@ -41,4 +38,13 @@ class JavadocTest {
         }
     }
 
+    @Test fun testException() {
+        verifyModel("testdata/javadoc/exception.kt", format = "javadoc", withKotlinRuntime = true) { model ->
+            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
+
+            val classDoc = doc.classNamed("foo.MyException")!!
+            val member = classDoc.methods().find { it.name() == "foo" }
+            assertEquals(classDoc, member!!.containingClass())
+        }
+    }
 }
