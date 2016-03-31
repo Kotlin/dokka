@@ -1,4 +1,4 @@
-dokka  [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion) 
+dokka  [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 =====
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
@@ -121,9 +121,9 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 ```groovy
 buildscript {
     repositories {
-        mavenLocal()
         jcenter()
     }
+
     dependencies {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
@@ -148,6 +148,7 @@ dokka {
         url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
         suffix = "#L"
     }
+    sourceDirs = files('src/main/kotlin')
 }
 ```
 
@@ -169,6 +170,27 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
+#### Android
+
+If you are using Android there is a separate gradle plugin. Just make sure you apply the plugin after
+`com.android.library` and `kotlin-android`.
+
+```groovy
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
+```
+
 ## Dokka Internals
 
 ### Documentation Model
@@ -184,26 +206,26 @@ Each reference between nodes also has semantic attached, and there are three of 
 2. Detail - reference means that target describes source in more details, form tree.
 3. Link - any link to any other node, free form.
 
-Member & Detail has reverse Owner reference, while Link's back reference is also Link. 
+Member & Detail has reverse Owner reference, while Link's back reference is also Link.
 
-Nodes that are Details of other nodes cannot have Members. 
+Nodes that are Details of other nodes cannot have Members.
 
 ### Rendering Docs
 
 When we have documentation model, we can render docs in various formats, languages and layouts. We have some core services:
 
 * FormatService -- represents output format
-* LocationService -- represents folder and file layout 
+* LocationService -- represents folder and file layout
 * SignatureGenerator -- represents target language by generating class/function/package signatures from model
 
 Basically, given the `documentation` as a model, we do this:
 
 ```kotlin
-    val signatureGenerator = KotlinSignatureGenerator() 
+    val signatureGenerator = KotlinSignatureGenerator()
     val locationService = FoldersLocationService(arguments.outputDir)
     val markdown = JekyllFormatService(locationService, signatureGenerator)
     val generator = FileGenerator(signatureGenerator, locationService, markdown)
-    generator.generate(documentation) 
+    generator.generate(documentation)
 ```
 
 ## Building Dokka
