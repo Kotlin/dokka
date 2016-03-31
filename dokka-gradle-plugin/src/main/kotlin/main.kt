@@ -12,6 +12,7 @@ import org.jetbrains.dokka.DocumentationOptions
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import java.io.File
+import java.io.Serializable
 import java.util.*
 
 open class DokkaPlugin : Plugin<Project> {
@@ -125,7 +126,7 @@ open class DokkaTask : DefaultTask() {
 
 }
 
-open class LinkMapping {
+open class LinkMapping : Serializable {
     var dir: String = ""
     var url: String = ""
     var suffix: String? = null
