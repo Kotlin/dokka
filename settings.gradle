@@ -1,1 +1,1 @@
-include 'core', 'dokka-gradle-plugin'
+include 'core', 'dokka-gradle-plugin', 'dokka-android-gradle-plugin'

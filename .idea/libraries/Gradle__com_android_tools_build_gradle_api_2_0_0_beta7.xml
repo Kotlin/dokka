@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.android.tools.build:gradle-api:2.0.0-beta7">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.android.tools.build/gradle-api/2.0.0-beta7/784eda8a2990d4f2c95aa684a6805350e5d2214d/gradle-api-2.0.0-beta7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.android.tools.build/gradle-api/2.0.0-beta7/34552710d4ef2d8db53af8122c5f794f2d0320b3/gradle-api-2.0.0-beta7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
