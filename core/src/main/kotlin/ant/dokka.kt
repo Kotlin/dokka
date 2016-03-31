@@ -27,10 +27,10 @@ class DokkaAntTask(): Task() {
 
     var skipDeprecated: Boolean = false
 
-    val compileClasspath: Path = Path(getProject())
-    val sourcePath: Path = Path(getProject())
-    val samplesPath: Path = Path(getProject())
-    val includesPath: Path = Path(getProject())
+    val compileClasspath: Path by lazy { Path(getProject()) }
+    val sourcePath: Path by lazy { Path(getProject()) }
+    val samplesPath: Path by lazy { Path(getProject()) }
+    val includesPath: Path by lazy { Path(getProject()) }
 
     val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
 

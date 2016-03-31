@@ -7,8 +7,12 @@
         </classpath>
     </typedef>
 
+    <path id="dokka.source.path">
+        <pathelement location="core/src/main/kotlin"/>
+    </path>
+
     <target name="document">
-        <dokka src="core/src/main/kotlin" outputdir="doc" modulename="dokka">
+        <dokka srcref="dokka.source.path" outputdir="doc" modulename="dokka">
             <sourcelink path="." url="https://github.com/kotlin/dokka/blob/master" linesuffix="#L"/>
         </dokka>
     </target>
