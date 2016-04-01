@@ -309,12 +309,21 @@ class DocumentationBuilder
             val classDescriptor = extensionFunction.getExtensionClassDescriptor() ?: return@forEach
             val subclasses = classHierarchy[classDescriptor] ?: return@forEach
             subclasses.forEach { subclass ->
-                if (subclass.defaultType.isSubtypeOf(extensionFunction.extensionReceiverParameter!!.type) &&
-                        possiblyShadowingFunctions.none { subclass.defaultType.isSubtypeOf(it.extensionReceiverParameter!!.type) }) {
+                if (subclass.isExtensionApplicable(extensionFunction) &&
+                        possiblyShadowingFunctions.none { subclass.isExtensionApplicable(it) }) {
                     refGraph.link(subclass.signature(), extensionFunction.signature(), RefKind.Extension)
                 }
             }
         }
+    }
+
+    private fun ClassDescriptor.isExtensionApplicable(extensionFunction: CallableMemberDescriptor): Boolean {
+        val receiverType = extensionFunction.extensionReceiverParameter!!.type
+        if (receiverType.arguments.any { it.type.constructor.declarationDescriptor is TypeParameterDescriptor }) {
+            val receiverClass = receiverType.constructor.declarationDescriptor
+            return receiverClass is ClassDescriptor && DescriptorUtils.isSubclass(this, receiverClass)
+        }
+        return defaultType.isSubtypeOf(receiverType)
     }
 
     private fun buildClassHierarchy(classes: List<ClassDescriptor>): Map<ClassDescriptor, List<ClassDescriptor>> {
