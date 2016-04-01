@@ -4,14 +4,18 @@
 # x
 
 `var x: String`
+
 **Getter**
 
 The getter returns an empty string.
 
 
+
+
 **Setter**
 
 The setter does nothing.
+
 
 
 

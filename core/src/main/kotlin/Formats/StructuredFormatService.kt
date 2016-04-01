@@ -256,8 +256,11 @@ abstract class StructuredFormatService(locationService: LocationService,
             }
 
             for (section in content.sections.filter { it.subjectName == null }) {
-                appendLine(to, formatStrong(formatText(section.tag)))
-                appendLine(to, formatText(location, section))
+                val sectionText = buildString {
+                    appendLine(this, formatStrong(formatText(section.tag)))
+                    append(formatText(location, section))
+                }
+                appendParagraph(to, sectionText)
             }
         }
 
