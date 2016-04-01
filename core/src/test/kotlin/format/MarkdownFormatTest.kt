@@ -218,6 +218,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("inheritedExtensions", "Bar")
     }
 
+    @Test fun genericInheritedExtensions() {
+        verifyMarkdownNodeByName("genericInheritedExtensions", "Bar")
+    }
+
     @Test fun arrayAverage() {
         verifyMarkdownNodeByName("arrayAverage", "XArray")
     }
