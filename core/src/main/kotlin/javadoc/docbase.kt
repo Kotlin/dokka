@@ -126,7 +126,7 @@ class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) 
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
-    override fun qualifiedName(): String? = if (node.kind == NodeKind.Type) node.qualifiedNameFromType() else node.qualifiedName()
+    override fun qualifiedName(): String? = node.qualifiedName()
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
     override fun isProtected(): Boolean = false

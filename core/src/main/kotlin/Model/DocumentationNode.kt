@@ -168,4 +168,9 @@ fun DocumentationNode.appendTextNode(text: String,
     append(DocumentationNode(text, Content.Empty, kind), refKind)
 }
 
-fun DocumentationNode.qualifiedName() = path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
+fun DocumentationNode.qualifiedName(): String {
+    if (kind == NodeKind.Type) {
+        return qualifiedNameFromType()
+    }
+    return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
+}
