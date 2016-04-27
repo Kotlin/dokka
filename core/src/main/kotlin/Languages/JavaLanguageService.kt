@@ -43,15 +43,24 @@ class JavaLanguageService : LanguageService {
         }
     }
 
-    fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.name) {
-        "Array" -> node.details(NodeKind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, NodeKind.ExternalClass)
-        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, NodeKind.Type)
+    fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.qualifiedName()) {
+        "kotlin.Array" ->
+            node.details(NodeKind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, NodeKind.ExternalClass)
+
+        "kotlin.IntArray", "kotlin.LongArray", "kotlin.ShortArray", "kotlin.ByteArray",
+        "kotlin.CharArray", "kotlin.DoubleArray", "kotlin.FloatArray", "kotlin.BooleanArray" ->
+            DocumentationNode(node.name.removeSuffix("Array").toLowerCase(), node.content, NodeKind.Type)
+
         else -> null
     }
 
-    fun getArrayDimension(node: DocumentationNode): Int = when (node.name) {
-        "Array" -> 1 + (node.details(NodeKind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
-        "IntArray", "LongArray", "ShortArray", "ByteArray", "CharArray", "DoubleArray", "FloatArray", "BooleanArray" -> 1
+    fun getArrayDimension(node: DocumentationNode): Int = when (node.qualifiedName()) {
+        "kotlin.Array" ->
+            1 + (node.details(NodeKind.Type).singleOrNull()?.let { getArrayDimension(it) } ?: 0)
+
+        "kotlin.IntArray", "kotlin.LongArray", "kotlin.ShortArray", "kotlin.ByteArray",
+        "kotlin.CharArray", "kotlin.DoubleArray", "kotlin.FloatArray", "kotlin.BooleanArray" ->
+            1
         else -> 0
     }
 

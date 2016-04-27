@@ -22,7 +22,7 @@ private fun mapTypeName(psiType: PsiType): String = when (psiType) {
     is PsiPrimitiveType -> psiType.canonicalText
     is PsiClassType -> psiType.resolve()?.qualifiedName ?: psiType.className
     is PsiEllipsisType -> mapTypeName(psiType.componentType)
-    is PsiArrayType -> "Array"
+    is PsiArrayType -> "kotlin.Array"
     else -> psiType.canonicalText
 }
 

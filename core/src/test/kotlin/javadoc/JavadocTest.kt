@@ -47,4 +47,16 @@ class JavadocTest {
             assertEquals(classDoc, member!!.containingClass())
         }
     }
+
+    @Test fun testByteArray() {
+        verifyModel("testdata/javadoc/bytearr.kt", format = "javadoc", withKotlinRuntime = true) { model ->
+            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
+
+            val classDoc = doc.classNamed("foo.ByteArray")!!
+            assertNotNull(classDoc.asClassDoc())
+
+            val member = classDoc.methods().find { it.name() == "foo" }!!
+            assertEquals("[]", member.returnType().dimension())
+        }
+    }
 }
