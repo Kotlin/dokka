@@ -107,15 +107,11 @@ class MarkdownFormatTest {
     }
 
     @Test fun typeParameterBounds() {
-        verifyOutput("testdata/format/typeParameterBounds.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("typeParameterBounds")
     }
 
     @Test fun typeParameterVariance() {
-        verifyOutput("testdata/format/typeParameterVariance.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("typeParameterVariance")
     }
 
     @Test fun typeProjectionVariance() {
