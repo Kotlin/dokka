@@ -168,6 +168,10 @@ class HtmlFormatTest {
         verifyHtmlNode("returnWithLink")
     }
 
+    @Test fun linkWithStarProjection() {
+        verifyHtmlNode("linkWithStarProjection", withKotlinRuntime = true)
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
