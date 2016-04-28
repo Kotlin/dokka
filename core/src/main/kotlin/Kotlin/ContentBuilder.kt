@@ -48,16 +48,16 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             MarkdownElementTypes.PARAGRAPH -> appendNodeWithChildren(ContentParagraph())
 
             MarkdownElementTypes.INLINE_LINK -> {
-                val labelText = node.child(MarkdownElementTypes.LINK_TEXT)?.getLabelText()
+                val linkTextNode = node.child(MarkdownElementTypes.LINK_TEXT)
                 val destination = node.child(MarkdownElementTypes.LINK_DESTINATION)
-                if (labelText != null) {
+                if (linkTextNode != null) {
                     if (destination != null) {
                         val link = ContentExternalLink(destination.text)
-                        link.append(ContentText(labelText))
+                        renderLinkTextTo(linkTextNode, link, linkResolver)
                         parent.append(link)
                     } else {
-                        val link = ContentExternalLink(labelText)
-                        link.append(ContentText(labelText))
+                        val link = ContentExternalLink(linkTextNode.getLabelText())
+                        renderLinkTextTo(linkTextNode, link, linkResolver)
                         parent.append(link)
                     }
                 }
@@ -67,8 +67,13 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
                 val labelText = node.child(MarkdownElementTypes.LINK_LABEL)?.getLabelText()
                 if (labelText != null) {
                     val link = linkResolver(labelText)
-                    val linkText = node.child(MarkdownElementTypes.LINK_TEXT)?.getLabelText()
-                    link.append(ContentText(linkText ?: labelText))
+                    val linkText = node.child(MarkdownElementTypes.LINK_TEXT)
+                    if (linkText != null) {
+                        renderLinkTextTo(linkText, link, linkResolver)
+                    }
+                    else {
+                        link.append(ContentText(labelText))
+                    }
                     parent.append(link)
                 }
             }
@@ -104,7 +109,8 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             }
 
             MarkdownTokenTypes.EMPH -> {
-                if (node.parent?.type != MarkdownElementTypes.EMPH) {
+                val parentNodeType = node.parent?.type
+                if (parentNodeType != MarkdownElementTypes.EMPH && parentNodeType != MarkdownElementTypes.STRONG) {
                     parent.append(ContentText(node.text))
                 }
             }
@@ -138,3 +144,9 @@ fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver:
     }
 }
 
+fun renderLinkTextTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
+    val linkTextNodes = tree.children.drop(1).dropLast(1)
+    linkTextNodes.forEach {
+        buildContentTo(it, target, linkResolver)
+    }
+}
