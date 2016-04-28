@@ -764,12 +764,23 @@ fun CallableMemberDescriptor.parameterSignature(): String {
 }
 
 fun KotlinType.signature(): String {
-    val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
-    val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
-    if (arguments.isEmpty()) {
-        return typeName
+    val visited = hashSetOf<KotlinType>()
+
+    fun KotlinType.signatureRecursive(): String {
+        if (this in visited) {
+            return ""
+        }
+        visited.add(this)
+
+        val declarationDescriptor = constructor.declarationDescriptor ?: return "<null>"
+        val typeName = DescriptorUtils.getFqName(declarationDescriptor).asString()
+        if (arguments.isEmpty()) {
+            return typeName
+        }
+        return typeName + arguments.joinToString(prefix = "((", postfix = "))") { it.type.signatureRecursive() }
     }
-    return typeName + arguments.joinToString(prefix = "((", postfix = "))") { it.type.signature() }
+
+    return signatureRecursive()
 }
 
 fun DeclarationDescriptor.signatureWithSourceLocation(): String {
