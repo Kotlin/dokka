@@ -8,4 +8,8 @@
 generic function
 
 
+### Parameters
+
+`T` - the first type parameter
+
 

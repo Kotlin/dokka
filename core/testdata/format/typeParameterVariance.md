@@ -5,6 +5,10 @@
 
 `class Foo&lt;out&nbsp;T&gt;`
 
+### Parameters
+
+`T` - the class parameter type
+
 
 
 ### Constructors
