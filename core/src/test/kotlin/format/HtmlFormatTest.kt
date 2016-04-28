@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.junit.Test
 import java.io.File
 
-public class HtmlFormatTest {
+class HtmlFormatTest {
     private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService.default())
 
     @Test fun classWithCompanionObject() {
@@ -159,5 +159,16 @@ public class HtmlFormatTest {
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
         }
     }
+
+    @Test fun markdownInLinks() {
+        verifyHtmlNode("markdownInLinks")
+    }
+
+    private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
+        verifyOutput("testdata/format/$fileName.kt", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
+            htmlService.appendNodes(tempLocation, output, model.members.single().members)
+        }
+    }
+
 }
 
