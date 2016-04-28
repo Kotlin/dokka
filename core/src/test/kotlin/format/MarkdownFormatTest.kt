@@ -242,6 +242,13 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("receiverParameterTypeBound", "Foo")
     }
 
+    @Test fun extensionWithDocumentedReceiver() {
+        verifyOutput("testdata/format/extensionWithDocumentedReceiver.kt", ".md") { model, output ->
+            val nodesWithName = model.members.single().members.single().members.filter { it.name == "fn" }
+            markdownService.appendNodes(tempLocation, output, nodesWithName)
+        }
+    }
+
     @Test fun jdkLinks() {
         verifyMarkdownNode("jdkLinks", withKotlinRuntime = true)
     }
@@ -264,7 +271,11 @@ class MarkdownFormatTest {
 
     private fun verifyMarkdownNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/$fileName.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == name })
+            val nodesWithName = model.members.single().members.filter { it.name == name }
+            if (nodesWithName.isEmpty()) {
+                throw IllegalArgumentException("Found no nodes named $name")
+            }
+            markdownService.appendNodes(tempLocation, output, nodesWithName)
         }
     }
 }
