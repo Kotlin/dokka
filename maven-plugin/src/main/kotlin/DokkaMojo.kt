@@ -1,13 +1,18 @@
 package org.jetbrains.dokka.maven
 
+import org.apache.maven.archiver.MavenArchiveConfiguration
+import org.apache.maven.archiver.MavenArchiver
+import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
-import org.apache.maven.plugins.annotations.LifecyclePhase
-import org.apache.maven.plugins.annotations.Mojo
-import org.apache.maven.plugins.annotations.Parameter
-import org.apache.maven.plugins.annotations.ResolutionScope
+import org.apache.maven.plugins.annotations.*
+import org.apache.maven.project.MavenProject
+import org.apache.maven.project.MavenProjectHelper
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.SourceLinkDefinition
 import org.jetbrains.dokka.DocumentationOptions
+import org.codehaus.plexus.archiver.Archiver
+import org.codehaus.plexus.archiver.jar.JarArchiver
+import java.io.File
 
 class SourceLinkMapItem {
     @Parameter(name = "dir", required = true)
@@ -20,8 +25,7 @@ class SourceLinkMapItem {
     var urlSuffix: String? = null
 }
 
-@Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
-class DokkaMojo : AbstractMojo() {
+abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
 
@@ -34,12 +38,6 @@ class DokkaMojo : AbstractMojo() {
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
     var classpath: List<String> = emptyList()
 
-    @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
-    var outputDir: String = ""
-
-    @Parameter(required = true, defaultValue = "html")
-    var outputFormat: String = "html"
-
     @Parameter
     var sourceLinks: Array<SourceLinkMapItem> = emptyArray()
 
@@ -51,6 +49,9 @@ class DokkaMojo : AbstractMojo() {
 
     @Parameter(required = false, defaultValue = "6")
     var jdkVersion: Int = 6
+
+    protected abstract fun getOutDir(): String
+    protected abstract fun getOutFormat(): String
 
     override fun execute() {
         if (skip) {
@@ -65,7 +66,7 @@ class DokkaMojo : AbstractMojo() {
                 samplesDirs,
                 includeDirs,
                 moduleName,
-                DocumentationOptions(outputDir, outputFormat,
+                DocumentationOptions(getOutDir(), getOutFormat(),
                         sourceLinks = sourceLinks.map { SourceLinkDefinition(it.dir, it.url, it.urlSuffix) },
                         jdkVersion = jdkVersion
                 )
@@ -74,3 +75,97 @@ class DokkaMojo : AbstractMojo() {
         gen.generate()
     }
 }
+
+@Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+class DokkaMojo : AbstractDokkaMojo() {
+    @Parameter(required = true, defaultValue = "html")
+    var outputFormat: String = "html"
+
+    @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokka")
+    var outputDir: String = ""
+
+    override fun getOutFormat() = outputFormat
+    override fun getOutDir() = outputDir
+}
+
+@Mojo(name = "javadoc", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+class DokkaJavadocMojo : AbstractDokkaMojo() {
+    @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
+    var outputDir: String = ""
+
+    override fun getOutFormat() = "javadoc"
+    override fun getOutDir() = outputDir
+}
+
+@Mojo(name = "javadocJar", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+class DokkaJavadocJarMojo : AbstractDokkaMojo() {
+    @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadocJar")
+    var outputDir: String = ""
+
+    /**
+     * Specifies the directory where the generated jar file will be put.
+     */
+    @Parameter(property = "project.build.directory")
+    private var jarOutputDirectory: String? = null
+
+    /**
+     * Specifies the filename that will be used for the generated jar file. Please note that `-javadoc`
+     * or `-test-javadoc` will be appended to the file name.
+     */
+    @Parameter(property = "project.build.finalName")
+    private var finalName: String? = null
+
+    /**
+     * Specifies whether to attach the generated artifact to the project helper.
+     */
+    @Parameter(property = "attach", defaultValue = "true")
+    private val attach: Boolean = false
+
+    /**
+     * The archive configuration to use.
+     * See [Maven Archiver Reference](http://maven.apache.org/shared/maven-archiver/index.html)
+     */
+    @Parameter
+    private val archive = MavenArchiveConfiguration()
+
+    @Parameter(property = "maven.javadoc.classifier", defaultValue = "javadoc", required = true)
+    private var classifier: String? = null
+
+    @Parameter(defaultValue = "\${session}", readonly = true, required = true)
+    protected var session: MavenSession? = null
+
+    @Parameter(defaultValue = "\${project}", readonly = true, required = true)
+    protected var project: MavenProject? = null
+
+    @Component
+    private var projectHelper: MavenProjectHelper? = null
+
+    @Component(role = Archiver::class, hint = "jar")
+    private var jarArchiver: JarArchiver? = null
+
+    override fun getOutFormat() = "javadoc"
+    override fun getOutDir() = outputDir
+
+    override fun execute() {
+        super.execute()
+        val outputFile = generateArchive("$finalName-$classifier.jar")
+        if (attach) {
+            projectHelper?.attachArtifact(project, "javadoc", classifier, outputFile)
+        }
+    }
+
+    private fun generateArchive(jarFileName: String): File {
+        val javadocJar = File(jarOutputDirectory, jarFileName)
+
+        val archiver = MavenArchiver()
+        archiver.setArchiver(jarArchiver)
+        archiver.setOutputFile(javadocJar)
+        archiver.archiver.addDirectory(File(outputDir), arrayOf("**/**"), arrayOf())
+
+        archive.setAddMavenDescriptor(false)
+        archiver.createArchive(session, project, archive)
+
+        return javadocJar
+    }
+}
+
