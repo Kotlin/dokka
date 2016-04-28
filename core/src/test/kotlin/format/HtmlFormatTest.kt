@@ -164,6 +164,10 @@ class HtmlFormatTest {
         verifyHtmlNode("markdownInLinks")
     }
 
+    @Test fun returnWithLink() {
+        verifyHtmlNode("returnWithLink")
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
             htmlService.appendNodes(tempLocation, output, model.members.single().members)
