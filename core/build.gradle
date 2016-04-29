@@ -151,6 +151,7 @@ shadowJar {
     relocate('org', 'dokkaorg') {
         exclude 'org.jetbrains.dokka.**'
         exclude 'org.xml.**'
+        exclude 'org.fusesource.jansi.**'
     }
 
     transform(ServiceFileTransformer)
