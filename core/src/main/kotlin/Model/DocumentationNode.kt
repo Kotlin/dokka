@@ -174,3 +174,5 @@ fun DocumentationNode.qualifiedName(): String {
     }
     return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
 }
+
+fun DocumentationNode.simpleName() = name.substringAfterLast('.')

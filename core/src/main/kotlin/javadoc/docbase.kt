@@ -173,7 +173,7 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
     private val javaLanguageService = JavaLanguageService()
 
     override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
-    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.name ?: node.name
+    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
     override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
@@ -194,8 +194,10 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
 
     override fun asTypeVariable(): TypeVariable? = if (node.kind == NodeKind.TypeParameter) TypeVariableAdapter(module, node) else null
     override fun asParameterizedType(): ParameterizedType? =
-            if (node.details(NodeKind.Type).isNotEmpty()) ParameterizedTypeAdapter(module, node)
-            else null  // TODO it should ignore dimensions
+            if (node.details(NodeKind.Type).isNotEmpty() && javaLanguageService.getArrayElementType(node) == null)
+                ParameterizedTypeAdapter(module, node)
+            else
+                null
 
     override fun asAnnotationTypeDoc(): AnnotationTypeDoc? = if (node.kind == NodeKind.AnnotationClass) AnnotationTypeDocAdapter(module, node) else null
     override fun asAnnotatedType(): AnnotatedType? = if (node.annotations.isNotEmpty()) AnnotatedTypeAdapter(module, node) else null
@@ -389,7 +391,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         if (parent?.kind in NodeKind.classLike) {
             return parent!!.name + "." + classNode.name
         }
-        return classNode.name
+        return classNode.simpleName()
     }
 
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(NodeKind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()

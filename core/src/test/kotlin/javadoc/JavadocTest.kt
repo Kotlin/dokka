@@ -59,4 +59,19 @@ class JavadocTest {
             assertEquals("[]", member.returnType().dimension())
         }
     }
+
+    @Test fun testStringArray() {
+        verifyModel("testdata/javadoc/stringarr.kt", format = "javadoc", withKotlinRuntime = true) { model ->
+            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
+
+            val classDoc = doc.classNamed("foo.Foo")!!
+            assertNotNull(classDoc.asClassDoc())
+
+            val member = classDoc.methods().find { it.name() == "main" }!!
+            val paramType = member.parameters()[0].type()
+            assertNull(paramType.asParameterizedType())
+            assertEquals("String", paramType.typeName())
+            assertEquals("String", paramType.asClassDoc().name())
+        }
+    }
 }

@@ -45,7 +45,8 @@ class JavaLanguageService : LanguageService {
 
     fun getArrayElementType(node: DocumentationNode): DocumentationNode? = when (node.qualifiedName()) {
         "kotlin.Array" ->
-            node.details(NodeKind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?: DocumentationNode("Object", node.content, NodeKind.ExternalClass)
+            node.details(NodeKind.Type).singleOrNull()?.let { et -> getArrayElementType(et) ?: et } ?:
+                    DocumentationNode("Object", node.content, NodeKind.ExternalClass)
 
         "kotlin.IntArray", "kotlin.LongArray", "kotlin.ShortArray", "kotlin.ByteArray",
         "kotlin.CharArray", "kotlin.DoubleArray", "kotlin.FloatArray", "kotlin.BooleanArray" ->
