@@ -142,16 +142,22 @@ shadowJar {
 
     dependencies {
         exclude(dependency('org.apache.ant:ant:1.9.6'))
+        exclude(dependency('org.apache.ant:ant-launcher:1.9.6'))
     }
 
-    relocate('com', 'dokkacom') {
+    relocate('com.', 'dokkacom.') {
         exclude 'com.sun.**'
     }
 
-    relocate('org', 'dokkaorg') {
+    relocate('org.', 'dokkaorg.') {
         exclude 'org.jetbrains.dokka.**'
         exclude 'org.xml.**'
+        exclude 'org.w3c.**'
+        exclude 'org.jaxen.**'
+        exclude 'org.apache.xerces.**'
+        exclude 'org.apache.xml.**'
         exclude 'org.fusesource.jansi.**'
+        exclude 'org.apache.tools.ant.**'
     }
 
     transform(ServiceFileTransformer)
