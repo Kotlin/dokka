@@ -5,13 +5,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl
-import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfo
 import org.jetbrains.kotlin.idea.kdoc.KDocFinder
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -26,7 +23,6 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
-import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.ErrorUtils
@@ -652,15 +648,14 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
 }
 
 class KotlinJavaDocumentationBuilder
-        @Inject constructor(val documentationBuilder: DocumentationBuilder,
+        @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
+                            val documentationBuilder: DocumentationBuilder,
                             val options: DocumentationOptions,
                             val logger: DokkaLogger) : JavaDocumentationBuilder
 {
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         val classDescriptors = file.classes.map {
-            val kotlinCacheService = KotlinCacheService.getInstance(file.project) as KotlinCacheServiceImpl
-            val javaDescriptorResolver = kotlinCacheService.getProjectService(JvmPlatform,
-                    it.getModuleInfo(), JavaDescriptorResolver::class.java)
+            val javaDescriptorResolver = resolutionFacade.getFrontendService(JavaDescriptorResolver::class.java)
 
             javaDescriptorResolver.resolveClass(JavaClassImpl(it)) ?: run {
                 logger.warn("Cannot find descriptor for Java class ${it.qualifiedName}")
