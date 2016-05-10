@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
-import org.jetbrains.kotlin.idea.kdoc.KDocFinder
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -687,7 +687,7 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
 }
 
 fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
-    val doc = KDocFinder.findKDoc(this)
+    val doc = findKDoc()
     if (doc is KDocSection && doc.findTagByName("suppress") != null) return true
 
     return hasSuppressDocTag(sourcePsi())

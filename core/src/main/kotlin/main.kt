@@ -73,7 +73,7 @@ private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
 
 fun main(args: Array<String>) {
     val arguments = DokkaArguments()
-    val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
+    val freeArgs: List<String> = Args.parse(arguments, args, false) ?: listOf()
     val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
     val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
     val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
