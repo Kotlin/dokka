@@ -38,7 +38,7 @@ class KotlinAsJavaDocumentationBuilder
     }
 
     fun PsiClass.isVisibleInDocumentation() : Boolean {
-        val origin: KtDeclaration? = (this as KtLightElement<*, *>).getOrigin()
+        val origin: KtDeclaration? = (this as KtLightElement<*, *>).kotlinOrigin as? KtDeclaration
         return origin?.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
                origin?.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
     }
@@ -50,7 +50,7 @@ class KotlinAsJavaDocumentationParser
 {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
         val kotlinLightElement = element as? KtLightElement<*, *> ?: return JavadocParseResult.Empty
-        val origin = kotlinLightElement.getOrigin() ?: return JavadocParseResult.Empty
+        val origin = kotlinLightElement.kotlinOrigin as? KtDeclaration ?: return JavadocParseResult.Empty
         if (origin is KtParameter) {
             // LazyDeclarationResolver does not support setter parameters
             val grandFather = origin.parent?.parent

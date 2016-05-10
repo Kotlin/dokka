@@ -47,6 +47,9 @@ public fun verifyModel(vararg roots: ContentRoot,
         if (withKotlinRuntime) {
             val kotlinPairRoot = PathManager.getResourceRoot(Pair::class.java, "/kotlin/Pair.class")
             addClasspath(File(kotlinPairRoot))
+
+            val kotlinStrictfpRoot = PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
+            addClasspath(File(kotlinStrictfpRoot))
         }
         addRoots(roots.toList())
     }

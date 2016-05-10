@@ -16,5 +16,11 @@
 ### Constructors
 
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
+| [&lt;init&gt;](test/-bar/-init-) | `Bar()`
+ 1. Rinse
+ 1. Repeat
+ 
+ 
+
+ |
 

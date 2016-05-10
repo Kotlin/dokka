@@ -19,5 +19,14 @@ A&lt;B&gt;C
 ### Constructors
 
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](test/-c/-init-) | `C()`
+
+`A&lt;B&gt;C`
+
+ 
+A&lt;B&gt;C
+
+ 
+
+ |
 

@@ -23,5 +23,18 @@ Block code
 ### Constructors
 
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](test/-c/-init-) | `C()`
+**Bold** **Strong** *Italic* *Emphasized* 
+Paragraph
+
+ ~~Strikethrough~~ ~~Deleted~~ `Code` 
+```
+Block code
+```
+
+ * List Item
+
+ 
+
+ |
 

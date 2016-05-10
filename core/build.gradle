@@ -47,8 +47,12 @@ dependencies {
     compile "org.jsoup:jsoup:1.8.3"
     compile "org.apache.ant:ant:1.9.6"
 
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+
     compile files("../lib/intellij-core-analysis.jar")
-    compile files("../lib/kotlin-for-upsource.jar")
+    compile files("../lib/kotlin-compiler.jar")
+    compile files("../lib/kotlin-ide-common.jar")
     compile files("../lib/markdown.jar")
     compile files("../lib/picocontainer.jar")
 

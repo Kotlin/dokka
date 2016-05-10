@@ -6,8 +6,8 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.kdoc.KDocFinder
-import org.jetbrains.kotlin.idea.kdoc.getResolutionScope
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.kdoc.getKDocLinkResolutionScope
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
@@ -41,7 +41,7 @@ class DescriptorDocumentationParser
             return parseJavadoc(descriptor)
         }
 
-        val kdoc = KDocFinder.findKDoc(descriptor) ?: findStdlibKDoc(descriptor)
+        val kdoc = descriptor.findKDoc() ?: findStdlibKDoc(descriptor)
         if (kdoc == null) {
             if (options.reportUndocumented && !descriptor.isDeprecated() &&
                     descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
@@ -106,7 +106,7 @@ class DescriptorDocumentationParser
                     val anyMethod = it.getMemberScope(listOf())
                             .getDescriptorsFiltered(DescriptorKindFilter.FUNCTIONS, { it == descriptor.name })
                             .single()
-                    val kdoc = KDocFinder.findKDoc(anyMethod)
+                    val kdoc = anyMethod.findKDoc()
                     if (kdoc != null) {
                         return kdoc
                     }
@@ -149,7 +149,7 @@ class DescriptorDocumentationParser
             logger.warn("Missing function name in @sample in ${descriptor.signature()}")
             return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
         }
-        val scope = getResolutionScope(resolutionFacade, descriptor)
+        val scope = getKDocLinkResolutionScope(resolutionFacade, descriptor)
         val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
         val rootScope = rootPackage.memberScope
         val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
@@ -188,7 +188,7 @@ class DescriptorDocumentationParser
 
         for (part in parts) {
             // short name
-            val symbolName = Name.guess(part)
+            val symbolName = Name.identifier(part)
             val partSymbol = currentScope.getContributedDescriptors(DescriptorKindFilter.ALL, { it == symbolName })
                     .filter { it.name == symbolName }
                     .firstOrNull()
@@ -202,7 +202,7 @@ class DescriptorDocumentationParser
             else if (partSymbol is PackageViewDescriptor)
                 partSymbol.memberScope
             else
-                getResolutionScope(resolutionFacade, partSymbol)
+                getKDocLinkResolutionScope(resolutionFacade, partSymbol)
             symbol = partSymbol
         }
 

@@ -17,5 +17,8 @@ Dmitry Jemerov
 ### Constructors
 
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](test/-c/-init-) | `C()`
+
+
+ |
 
