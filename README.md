@@ -10,7 +10,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.7/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.8/dokka-fatjar.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <source directories> <arguments>
@@ -86,7 +86,13 @@ Minimal maven configuration is
 </plugin>
 ```
 
-by default files will be generated in `target/dokka`
+By default files will be generated in `target/dokka`.
+
+The following goals are provided by the plugin:
+
+  * `dokka:dokka` - generate HTML documentation in Dokka format (showing declarations in Kotlin syntax);
+  * `dokka:javadoc` - generate HTML documentation in JavaDoc format (showing declarations in Java syntax);
+  * `dokka:javadocJar` - generate a .jar file with JavaDoc format documentation.
 
 Configuring source links mapping:
 
