@@ -84,12 +84,9 @@ class DokkaAntTask(): Task() {
             SourceLinkDefinition(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
 
-        val url = DokkaAntTask::class.java.getResource("/dokka-antlib.xml")
-        val jarRoot = url.path.substringBefore("!/").removePrefix("file:")
-
         val generator = DokkaGenerator(
                 AntLogger(this),
-                listOf(jarRoot) + compileClasspath.list().toList(),
+                compileClasspath.list().toList(),
                 sourcePath.list().toList(),
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
