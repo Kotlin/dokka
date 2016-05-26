@@ -148,6 +148,10 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
     override fun execute() {
         super.execute()
+        if(!File(outputDir).exists()) {
+            log.warn("No javadoc generated so no javadoc jar will be generated")
+            return
+        }
         val outputFile = generateArchive("$finalName-$classifier.jar")
         if (attach) {
             projectHelper?.attachArtifact(project, "javadoc", classifier, outputFile)
