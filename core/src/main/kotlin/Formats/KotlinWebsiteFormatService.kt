@@ -25,7 +25,11 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         return ""
     }
 
-    override fun formatCode(code: String): String = if (code.length > 0) "<code>$code</code>" else ""
+    override fun appendCode(to: StringBuilder, bodyAsText: ()->String) {
+        val code =  bodyAsText()
+        to.append(if (code.length > 0) "<code>$code</code>" else "")
+    }
+
 
     override fun formatStrikethrough(text: String): String = "<s>$text</s>"
 

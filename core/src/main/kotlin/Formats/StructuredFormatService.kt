@@ -21,6 +21,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun appendParagraph(to: StringBuilder, text: String)
     abstract fun appendLine(to: StringBuilder, text: String = "")
     abstract fun appendAnchor(to: StringBuilder, anchor: String)
+    abstract fun appendCode(to: StringBuilder, bodyAsText: ()->String)
 
     abstract fun appendList(to: StringBuilder, body: () -> Unit)
     abstract fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit)
@@ -38,7 +39,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun formatStrong(text: String): String
     abstract fun formatStrikethrough(text: String): String
     abstract fun formatEmphasis(text: String): String
-    abstract fun formatCode(code: String): String
+
     abstract fun formatUnorderedList(text: String): String
     abstract fun formatOrderedList(text: String): String
     abstract fun formatListItem(text: String, kind: ListKind): String
@@ -80,7 +81,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             is ContentEntity -> to.append(formatEntity(content.text))
             is ContentStrong -> to.append(formatStrong(formatText(location, content.children)))
             is ContentStrikethrough -> to.append(formatStrikethrough(formatText(location, content.children)))
-            is ContentCode -> to.append(formatCode(formatText(location, content.children)))
+            is ContentCode -> appendCode(to) { formatText(location, content.children) }
             is ContentEmphasis -> to.append(formatEmphasis(formatText(location, content.children)))
             is ContentUnorderedList -> appendList(to) { to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered))) }
             is ContentOrderedList -> appendList(to) { to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered))) }
@@ -206,7 +207,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                     appendAnchor(to, it.name)
                 }
                 appendAsSignature(to, rendered) {
-                    to.append(formatCode(formatText(location, rendered)))
+                    appendCode(to) { formatText(location, rendered) }
                     it.appendSourceLink()
                 }
                 it.appendOverrides()
@@ -291,7 +292,8 @@ abstract class StructuredFormatService(locationService: LocationService,
                     }
 
                     appendAnchor(to, subjectName)
-                    to.append(formatCode(subjectName)).append(" - ")
+                    appendCode(to) { subjectName }
+                    to.append(" - ")
                     formatText(location, it, to)
                     appendLine(to)
                 }

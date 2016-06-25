@@ -29,8 +29,8 @@ open class MarkdownFormatService(locationService: LocationService,
      */
     enum class LfPriority(val txt: String, val paraStart: String, val paraEnd: String, val requiredWhitespace: String, val escapeText: Boolean, val weight: Int) {
         SlashN("\n", "\n", "\n", "\n", true, 1),
-        Code("\n", "\n", "\n", "\n", false, 1),
         HtmlBr("<br/>", "<p>", "</p>", "", true, 2),
+        Code("\n", "\n", "\n", "\n", false, 2),
         Empty(" ", " ", " ", "", true, 3)
     }
 
@@ -59,12 +59,27 @@ open class MarkdownFormatService(locationService: LocationService,
 
     private val backTickFindingRegex = """(`+)""".toRegex()
 
-    override fun formatCode(code: String): String {
-        // if there is one or more backticks in the code, the fence must be one more back tick longer
-        val backTicks = backTickFindingRegex.findAll(code)
-        val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
-        val boundingTicks = "`".repeat(longestBackTickRun+1)
-        return "$boundingTicks$code$boundingTicks"
+    override fun appendCode(to: StringBuilder, bodyAsText: ()->String) {
+        changeLf(LfPriority.Code) {
+            val code = bodyAsText()
+            // if there is one or more backticks in the code, the fence must be one more back tick longer
+            val backTicks = backTickFindingRegex.findAll(code)
+            val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
+            val boundingTicks = "`".repeat(longestBackTickRun+1)
+            to.append("$boundingTicks$code$boundingTicks")
+        }
+    }
+
+    override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
+        changeLf(LfPriority.Code) {
+            block()
+        }
+    }
+
+    override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
+        changeLf(LfPriority.Code) {
+            block()
+        }
     }
 
     override fun formatUnorderedList(text: String): String {

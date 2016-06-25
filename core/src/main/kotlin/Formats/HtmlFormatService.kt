@@ -27,6 +27,10 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         return "<span class=\"identifier\"$id>${formatText(text)}</span>"
     }
 
+    override fun appendCode(to: StringBuilder, bodyAsText: ()->String) {
+        to.append("<code>${bodyAsText()}</code>")
+    }
+
     override fun appendBlockCode(to: StringBuilder, language: String, bodyAsLines: ()->List<String>) {
         to.append("<pre><code>")
         to.append(bodyAsLines().joinToString("\n"))
@@ -91,10 +95,6 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
 
     override fun formatStrikethrough(text: String): String {
         return "<s>${text}</s>"
-    }
-
-    override fun formatCode(code: String): String {
-        return "<code>${code}</code>"
     }
 
     override fun formatUnorderedList(text: String): String = "<ul>${text}</ul>"
