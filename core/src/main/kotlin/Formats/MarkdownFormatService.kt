@@ -16,7 +16,7 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     private fun String.escapeTextAndCleanLf(): String {
-        return (if (allowedLf().escapeText) this.htmlEscape() else this).adjustLf()
+       return (if (allowedLf().escapeText) this.htmlEscape() else this).adjustLf()
     }
 
     override fun formatText(text: String): String = text.escapeTextAndCleanLf()
@@ -27,11 +27,11 @@ open class MarkdownFormatService(locationService: LocationService,
     /**
      * Make sure that if the stack has a more restrictive LF replacement, we don't undo it.  Therefore a priority order needs to be known
      */
-    enum class LfPriority(val txt: String, val paraStart: String, val paraEnd: String, val requiredWhitespace: String, val escapeText: Boolean, val weight: Int) {
-        SlashN("\n", "\n", "\n", "\n", true, 1),
-        HtmlBr("<br/>", "<p>", "</p>", "", true, 2),
-        Code("\n", "\n", "\n", "\n", false, 2),
-        Empty(" ", " ", " ", "", true, 3)
+    enum class LfPriority(val lf: String, val paraStart: String, val paraEnd: String, val requiredWhitespace: String, val nbsp: String, val escapeText: Boolean, val weight: Int) {
+        SlashN("\n", "\n", "\n", "\n", "&nbsp;", true, 1),
+        HtmlBr("<br/>", "<p>", "</p>", "", "&nbsp;", true, 2),
+        Code("\n", "\n", "\n", "\n", "\u00A0", false, 2), // or \u00A0 for nbsp?
+        Empty(" ", " ", " ", "", " ", true, 3)
     }
 
     private val lfStack: MutableList<LfPriority> = arrayListOf(LfPriority.SlashN)
@@ -49,12 +49,12 @@ open class MarkdownFormatService(locationService: LocationService,
 
     private fun String.adjustLf(): String {
         val current = allowedLf()
-        return if (current == LfPriority.SlashN) this else this.replace("\n", current.txt)
+        return if (current == LfPriority.SlashN) this else this.replace("\n", current.lf)
     }
 
     private fun StringBuilder.appendWithAdjustedLF(text: String = "") {
         this.append(text.adjustLf())
-        this.append(allowedLf().txt)
+        this.append(allowedLf().lf)
     }
 
     private val backTickFindingRegex = """(`+)""".toRegex()
@@ -71,13 +71,13 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
-        changeLf(LfPriority.Code) {
+        changeLf(LfPriority.HtmlBr) {
             block()
         }
     }
 
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        changeLf(LfPriority.Code) {
+        changeLf(LfPriority.HtmlBr) {
             block()
         }
     }
@@ -167,5 +167,5 @@ open class MarkdownFormatService(locationService: LocationService,
         to.append(" |")
     }
 
-    override fun formatNonBreakingSpace(): String = "&nbsp;"
+    override fun formatNonBreakingSpace(): String = allowedLf().nbsp
 }
