@@ -167,7 +167,7 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit) {
-        to.appendln("|" + "&nbsp;|".repeat(columnCount))
+        to.appendln("|" + " |".repeat(columnCount))
         to.appendln("|" + "---|".repeat(columnCount))
         body()
     }
@@ -183,9 +183,9 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
-        to.append(" ")
+        to.append("")
         changeLf(LfPriority.HtmlBr) { body() }
-        to.append(" |")
+        to.append("|")
     }
 
     override fun formatNonBreakingSpace(): String = allowedLf().nbsp
