@@ -24,14 +24,15 @@ open class MarkdownFormatService(locationService: LocationService,
     override fun formatKeyword(text: String): String = text.escapeTextAndCleanLf()
     override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String = text.escapeTextAndCleanLf()
 
+    class TagPair(val start: String, val end: String)
     /**
      * Make sure that if the stack has a more restrictive LF replacement, we don't undo it.  Therefore a priority order needs to be known
      */
-    enum class LfPriority(val lf: String, val paraStart: String, val paraEnd: String, val requiredWhitespace: String, val nbsp: String, val escapeText: Boolean, val weight: Int) {
-        SlashN("\n", "\n", "\n", "\n", "&nbsp;", true, 1),
-        HtmlBr("<br/>", "<p>", "</p>", "", "&nbsp;", true, 2),
-        Code("\n", "\n", "\n", "\n", "\u00A0", false, 2), // or \u00A0 for nbsp?
-        Empty(" ", " ", " ", "", " ", true, 3)
+    enum class LfPriority(val lf: String, val paragraph: TagPair, val inlineCode: TagPair, val codeSnippet: TagPair, val requiredWhitespace: String, val nbsp: String, val escapeText: Boolean, val weight: Int) {
+        SlashN("\n", TagPair("\n", "\n"), TagPair("`", "`"), TagPair("```", "```"), "\n", "&nbsp;", true, 1),
+        Code("\n", TagPair("\n", "\n"), TagPair("`", "`"), TagPair("```", "```"), "\n", "\u00A0", false, 2), // or \u00A0 for nbsp?
+        HtmlBr("<br/>", TagPair("<p>", "</p>"), TagPair("`", "`"), TagPair("<pre><code>", "</code></pre>"), "", "&nbsp;", true, 3),
+        Sig("<br/>", TagPair("<p>", "</p>"), TagPair("<code>","</code>"), TagPair("<pre><code>", "</code></pre>"), "", "\u00A0", false, 4),
     }
 
     private val lfStack: MutableList<LfPriority> = arrayListOf(LfPriority.SlashN)
@@ -60,24 +61,34 @@ open class MarkdownFormatService(locationService: LocationService,
     private val backTickFindingRegex = """(`+)""".toRegex()
 
     override fun appendCode(to: StringBuilder, bodyAsText: ()->String) {
-        changeLf(LfPriority.Code) {
-            val code = bodyAsText()
-            // if there is one or more backticks in the code, the fence must be one more back tick longer
-            val backTicks = backTickFindingRegex.findAll(code)
-            val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
-            val boundingTicks = "`".repeat(longestBackTickRun+1)
-            to.append("$boundingTicks$code$boundingTicks")
+        val codeTags = allowedLf().inlineCode
+        if (codeTags.start == "`") {
+            changeLf(LfPriority.Code) { // TODO: should this be different, we don't have LF in the middle of these
+                val code = bodyAsText()
+                // if there is one or more backticks in the code, the fence must be one more back tick longer
+                val backTicks = backTickFindingRegex.findAll(code)
+                val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
+                val boundingTicks = "`".repeat(longestBackTickRun + 1)
+                to.append("$boundingTicks$code$boundingTicks")
+            }
+        } else {
+            changeLf(LfPriority.HtmlBr) {
+                val code = bodyAsText()
+
+                // TODO: this path is only used by signatures, check escaping of code but without breaking links that are in signatures
+                to.append("${codeTags.start}${code}${codeTags.end}")
+            }
         }
     }
 
     override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
-        changeLf(LfPriority.HtmlBr) {
+        changeLf(LfPriority.Sig) {
             block()
         }
     }
 
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        changeLf(LfPriority.HtmlBr) {
+        changeLf(LfPriority.Sig) {
             block()
         }
     }
@@ -124,9 +135,9 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendParagraph(to: StringBuilder, text: String) {
-        to.append(allowedLf().paraStart)
+        to.append(allowedLf().paragraph.start)
         to.append(text)
-        to.append(allowedLf().paraEnd)
+        to.append(allowedLf().paragraph.end)
     }
 
     override fun appendHeader(to: StringBuilder, text: String, level: Int) {
@@ -136,12 +147,22 @@ open class MarkdownFormatService(locationService: LocationService,
 
     override fun appendBlockCode(to: StringBuilder, language: String, bodyAsLines: ()->List<String>) {
         to.append(allowedLf().requiredWhitespace)
-        changeLf(LfPriority.Code) {
-            // this does not adjust line feeds, a code block in a list or table will just break formatting
-            to.appendln(if (language.isEmpty()) "```" else "``` $language")
-            // use 4 zero width spaces which act as a code fence escaping any use of ``` within the code block
-            to.appendln(bodyAsLines().map { "​\u200B\u200B\u200B\u200B$it" }.joinToString("\n"))
-            to.appendln("```")
+
+        val codeTags = allowedLf().inlineCode
+        if (codeTags.start.startsWith('`')) {
+            changeLf(LfPriority.Code) {
+                // this does not adjust line feeds, a code block in a list or table will just break formatting
+                to.appendln(if (language.isEmpty()) "```" else "``` $language")
+                // use 4 zero width spaces which act as a code fence escaping any use of ``` within the code block
+                to.appendln(bodyAsLines().map { "​\u200B\u200B\u200B\u200B$it" }.joinToString("\n"))
+                to.appendln("```")
+            }
+        } else {
+            changeLf(LfPriority.HtmlBr) {
+                to.appendln(codeTags.start)
+                to.appendln(bodyAsLines().map { it.htmlEscape() }.joinToString("\n"))
+                to.appendln(codeTags.end)
+            }
         }
     }
 
