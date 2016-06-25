@@ -77,16 +77,10 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         }
     }
 
-    override fun appendTable(to: StringBuilder, body: () -> Unit) {
+    override fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit) {
         to.appendln("<table class=\"api-docs-table\">")
         body()
         to.appendln("</table>")
-    }
-
-    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<thead>")
-        body()
-        to.appendln("</thead>")
     }
 
     override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
@@ -107,12 +101,12 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         to.appendln("\n</td>")
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
+    override fun appendBlockCode(to: StringBuilder, language: String, bodyAsLines: ()->List<String>) {
         if (language.isNotEmpty()) {
-            super.appendBlockCode(to, lines, language)
+            super.appendBlockCode(to, language, bodyAsLines)
         } else {
             to.append("<pre markdown=\"1\">")
-            to.append(lines.joinToString { "\n" }.trimStart())
+            to.append(bodyAsLines().joinToString { "\n" }.trimStart())
             to.append("</pre>")
         }
     }

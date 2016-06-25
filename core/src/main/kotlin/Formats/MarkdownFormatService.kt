@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import java.util.*
 
 
 open class MarkdownFormatService(locationService: LocationService,
@@ -14,20 +15,67 @@ open class MarkdownFormatService(locationService: LocationService,
         return items.map { formatLink(it) }.joinToString(" / ")
     }
 
-    override fun formatText(text: String): String = text.htmlEscape()
-    override fun formatSymbol(text: String): String = text.htmlEscape()
-    override fun formatKeyword(text: String): String = text.htmlEscape()
-    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String = text.htmlEscape()
-
-    override fun formatCode(code: String): String {
-        return "`$code`"
+    private fun String.escapeTextAndCleanLf(): String {
+        return (if (allowedLf().escapeText) this.htmlEscape() else this).adjustLf()
     }
 
-    override fun formatUnorderedList(text: String): String = text + "\n"
-    override fun formatOrderedList(text: String): String = text + "\n"
+    override fun formatText(text: String): String = text.escapeTextAndCleanLf()
+    override fun formatSymbol(text: String): String = text.escapeTextAndCleanLf()
+    override fun formatKeyword(text: String): String = text.escapeTextAndCleanLf()
+    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String = text.escapeTextAndCleanLf()
+
+    /**
+     * Make sure that if the stack has a more restrictive LF replacement, we don't undo it.  Therefore a priority order needs to be known
+     */
+    enum class LfPriority(val txt: String, val paraStart: String, val paraEnd: String, val requiredWhitespace: String, val escapeText: Boolean, val weight: Int) {
+        SlashN("\n", "\n", "\n", "\n", true, 1),
+        Code("\n", "\n", "\n", "\n", false, 1),
+        HtmlBr("<br/>", "<p>", "</p>", "", true, 2),
+        Empty(" ", " ", " ", "", true, 3)
+    }
+
+    private val lfStack: MutableList<LfPriority> = arrayListOf(LfPriority.SlashN)
+    private fun pushLf(lf: LfPriority) = lfStack.add(lf)
+    private fun popLf() = lfStack.removeAt(lfStack.lastIndex)
+    private fun allowedLf(): LfPriority = lfStack.last()
+    private fun allowedParentLf(): LfPriority = if (lfStack.size > 1) lfStack.takeLast(2).first() else allowedLf()
+
+    private fun changeLf(newLf: LfPriority, block: ()->Unit) {
+        val current = allowedLf()
+        pushLf(if (newLf.weight >= current.weight) newLf else current)
+        block()
+        popLf()
+    }
+
+    private fun String.adjustLf(): String {
+        val current = allowedLf()
+        return if (current == LfPriority.SlashN) this else this.replace("\n", current.txt)
+    }
+
+    private fun StringBuilder.appendWithAdjustedLF(text: String = "") {
+        this.append(text.adjustLf())
+        this.append(allowedLf().txt)
+    }
+
+    private val backTickFindingRegex = """(`+)""".toRegex()
+
+    override fun formatCode(code: String): String {
+        // if there is one or more backticks in the code, the fence must be one more back tick longer
+        val backTicks = backTickFindingRegex.findAll(code)
+        val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
+        val boundingTicks = "`".repeat(longestBackTickRun+1)
+        return "$boundingTicks$code$boundingTicks"
+    }
+
+    override fun formatUnorderedList(text: String): String {
+        return text
+    }
+    override fun formatOrderedList(text: String): String {
+        return text
+    }
 
     override fun formatListItem(text: String, kind: ListKind): String {
-        val itemText = if (text.endsWith("\n")) text else text + "\n"
+        val itemText = if (text.endsWith(allowedParentLf().requiredWhitespace)) text else text + allowedParentLf().requiredWhitespace
         return if (kind == ListKind.Unordered) "* $itemText" else "1. $itemText"
     }
 
@@ -44,11 +92,16 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun formatLink(text: String, href: String): String {
-        return "[$text]($href)"
+        return """[${text.replace("[", "\\[").replace("]","\\]")}](${href})"""
     }
 
     override fun appendLine(to: StringBuilder, text: String) {
-        to.appendln(text)
+        to.appendWithAdjustedLF(text)
+    }
+
+    override fun appendList(to: StringBuilder, body: () -> Unit) {
+        to.append(allowedLf().requiredWhitespace)
+        changeLf(LfPriority.HtmlBr) { body() }
     }
 
     override fun appendAnchor(to: StringBuilder, anchor: String) {
@@ -56,32 +109,30 @@ open class MarkdownFormatService(locationService: LocationService,
     }
 
     override fun appendParagraph(to: StringBuilder, text: String) {
-        to.appendln()
-        to.appendln(text)
-        to.appendln()
+        to.append(allowedLf().paraStart)
+        to.append(text)
+        to.append(allowedLf().paraEnd)
     }
 
     override fun appendHeader(to: StringBuilder, text: String, level: Int) {
-        appendLine(to)
-        appendLine(to, "${"#".repeat(level)} $text")
-        appendLine(to)
+        to.append(allowedLf().requiredWhitespace)
+        to.appendWithAdjustedLF("${"#".repeat(level)} $text")
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
-        appendLine(to)
-        to.appendln(if (language.isEmpty()) "```" else "``` $language")
-        to.appendln(lines.joinToString("\n"))
-        to.appendln("```")
-        appendLine(to)
+    override fun appendBlockCode(to: StringBuilder, language: String, bodyAsLines: ()->List<String>) {
+        to.append(allowedLf().requiredWhitespace)
+        changeLf(LfPriority.Code) {
+            // this does not adjust line feeds, a code block in a list or table will just break formatting
+            to.appendln(if (language.isEmpty()) "```" else "``` $language")
+            // use 4 zero width spaces which act as a code fence escaping any use of ``` within the code block
+            to.appendln(bodyAsLines().map { "​\u200B\u200B\u200B\u200B$it" }.joinToString("\n"))
+            to.appendln("```")
+        }
     }
 
-    override fun appendTable(to: StringBuilder, body: () -> Unit) {
-        to.appendln()
-        body()
-        to.appendln()
-    }
-
-    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
+    override fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit) {
+        to.appendln("|" + "&nbsp;|".repeat(columnCount))
+        to.appendln("|" + "---|".repeat(columnCount))
         body()
     }
 
@@ -97,7 +148,7 @@ open class MarkdownFormatService(locationService: LocationService,
 
     override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
         to.append(" ")
-        body()
+        changeLf(LfPriority.HtmlBr) { body() }
         to.append(" |")
     }
 
