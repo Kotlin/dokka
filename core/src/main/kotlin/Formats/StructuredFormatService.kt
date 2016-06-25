@@ -56,7 +56,17 @@ abstract class StructuredFormatService(locationService: LocationService,
         return StringBuilder().apply { formatText(location, content, this, listKind) }.toString()
     }
 
-    fun List<ContentNode>.ignoreParagraphMarker(): List<ContentNode> {
+    fun ContentNode.ignoreParagraphAtTop(): ContentNode {
+        return if (this is ContentParagraph) {
+            val temp = ContentBlock()
+            this.children.forEach { temp.append(it) }
+            temp
+        } else {
+            this
+        }
+    }
+
+    fun List<ContentNode>.ignoreParagraphAtTop(): List<ContentNode> {
         return if (this.size == 1) {
             val possibleParagraph = this.first()
             if (possibleParagraph is ContentParagraph) {
@@ -85,7 +95,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             is ContentEmphasis -> to.append(formatEmphasis(formatText(location, content.children)))
             is ContentUnorderedList -> appendList(to) { to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered))) }
             is ContentOrderedList -> appendList(to) { to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered))) }
-            is ContentListItem -> to.append(formatListItem(formatText(location, content.children.ignoreParagraphMarker()), listKind))
+            is ContentListItem -> to.append(formatListItem(formatText(location, content.children.ignoreParagraphAtTop()), listKind))
 
             is ContentNodeLink -> {
                 val node = content.node
@@ -381,7 +391,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                                 to.append(formatLink(memberLocation))
                             }
                             appendTableCell(to) {
-                                val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
+                                val breakdownBySummary = members.groupBy { formatText(location, it.summary.ignoreParagraphAtTop()) }
                                 for ((summary, items) in breakdownBySummary) {
                                     appendSummarySignatures(items)
                                     if (!summary.isEmpty()) {
@@ -410,7 +420,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                 }
             }
             appendAsSignature(to, renderedSignatures.last()) {
-                to.append(renderedSignatures.last().signatureToText(location))
+                appendLine(to, renderedSignatures.last().signatureToText(location))
             }
         }
     }
@@ -439,7 +449,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                                 }
                             }
                             appendTableCell(to) {
-                                to.append(formatText(location, type.summary))
+                                to.append(formatText(location, type.summary.ignoreParagraphAtTop()))
                             }
                         }
                     }
