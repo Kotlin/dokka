@@ -420,7 +420,12 @@ abstract class StructuredFormatService(locationService: LocationService,
                 }
             }
             appendAsSignature(to, renderedSignatures.last()) {
-                appendLine(to, renderedSignatures.last().signatureToText(location))
+                val sigText = renderedSignatures.last().signatureToText(location)
+                if (sigText.isNotBlank()) {
+                    appendLine(to, sigText)
+                } else {
+                    to.append(sigText)
+                }
             }
         }
     }
