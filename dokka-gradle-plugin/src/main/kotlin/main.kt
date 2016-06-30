@@ -114,22 +114,45 @@ open class DokkaTask : DefaultTask() {
         return sourceDirs?.filter { it.exists() } ?: emptyList()
     }
 
-    @Input
     @InputFiles
     @SkipWhenEmpty
-    fun getInputFiles(): FileCollection = project.files(getSourceDirectories().map { project.fileTree(it) }) +
+    fun getInputFiles(): FileCollection =
+            project.files(getSourceDirectories().map { project.fileTree(it) }) +
             project.files(includes) +
-            project.files(samples)
+            project.files(samples.map { project.fileTree(it) })
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
-
 }
 
 open class LinkMapping : Serializable {
     var dir: String = ""
     var url: String = ""
     var suffix: String? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as LinkMapping
+
+        if (dir != other.dir) return false
+        if (url != other.url) return false
+        if (suffix != other.suffix) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dir.hashCode()
+        result = 31 * result + url.hashCode()
+        result = 31 * result + (suffix?.hashCode() ?: 0)
+        return result
+    }
+
+    companion object {
+        const val serialVersionUID: Long = -8133501684312445981L
+    }
 }
 
 /**
