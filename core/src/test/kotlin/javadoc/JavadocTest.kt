@@ -7,8 +7,7 @@ import org.junit.Test
 
 class JavadocTest {
     @Test fun testTypes() {
-        verifyModel("testdata/javadoc/types.kt", format = "javadoc", withJdk = true) { model ->
-            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
+        verifyJavadoc("testdata/javadoc/types.kt", withJdk = true) { doc ->
             val classDoc = doc.classNamed("foo.TypesKt")!!
             val method = classDoc.methods().find { it.name() == "foo" }!!
 
@@ -24,9 +23,7 @@ class JavadocTest {
     }
 
     @Test fun testObject() {
-        verifyModel("testdata/javadoc/obj.kt", format = "javadoc") { model ->
-            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
-
+        verifyJavadoc("testdata/javadoc/obj.kt") { doc ->
             val classDoc = doc.classNamed("foo.O")
             assertNotNull(classDoc)
 
@@ -39,9 +36,7 @@ class JavadocTest {
     }
 
     @Test fun testException() {
-        verifyModel("testdata/javadoc/exception.kt", format = "javadoc", withKotlinRuntime = true) { model ->
-            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
-
+        verifyJavadoc("testdata/javadoc/exception.kt", withKotlinRuntime = true) { doc ->
             val classDoc = doc.classNamed("foo.MyException")!!
             val member = classDoc.methods().find { it.name() == "foo" }
             assertEquals(classDoc, member!!.containingClass())
@@ -49,9 +44,7 @@ class JavadocTest {
     }
 
     @Test fun testByteArray() {
-        verifyModel("testdata/javadoc/bytearr.kt", format = "javadoc", withKotlinRuntime = true) { model ->
-            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
-
+        verifyJavadoc("testdata/javadoc/bytearr.kt", withKotlinRuntime = true) { doc ->
             val classDoc = doc.classNamed("foo.ByteArray")!!
             assertNotNull(classDoc.asClassDoc())
 
@@ -61,9 +54,7 @@ class JavadocTest {
     }
 
     @Test fun testStringArray() {
-        verifyModel("testdata/javadoc/stringarr.kt", format = "javadoc", withKotlinRuntime = true) { model ->
-            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
-
+        verifyJavadoc("testdata/javadoc/stringarr.kt", withKotlinRuntime = true) { doc ->
             val classDoc = doc.classNamed("foo.Foo")!!
             assertNotNull(classDoc.asClassDoc())
 
@@ -72,6 +63,27 @@ class JavadocTest {
             assertNull(paramType.asParameterizedType())
             assertEquals("String", paramType.typeName())
             assertEquals("String", paramType.asClassDoc().name())
+        }
+    }
+
+    @Test fun testJvmName() {
+        verifyJavadoc("testdata/javadoc/jvmName.kt", withKotlinRuntime = true) { doc ->
+            val classDoc = doc.classNamed("foo.Apple")!!
+            assertNotNull(classDoc.asClassDoc())
+
+            val member = classDoc.methods().find { it.name() == "_tree" }
+            assertNotNull(member)
+        }
+    }
+
+    private fun verifyJavadoc(name: String,
+                              withJdk: Boolean = false,
+                              withKotlinRuntime: Boolean = false,
+                              callback: (ModuleNodeAdapter) -> Unit) {
+
+        verifyModel(name, format = "javadoc", withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
+            val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
+            callback(doc)
         }
     }
 }
