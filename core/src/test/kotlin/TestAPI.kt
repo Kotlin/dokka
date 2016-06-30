@@ -16,11 +16,12 @@ import org.junit.Assert
 import org.junit.Assert.fail
 import java.io.File
 
-public fun verifyModel(vararg roots: ContentRoot,
-                       withJdk: Boolean = false,
-                       withKotlinRuntime: Boolean = false,
-                       format: String = "html",
-                       verifier: (DocumentationModule) -> Unit) {
+fun verifyModel(vararg roots: ContentRoot,
+                withJdk: Boolean = false,
+                withKotlinRuntime: Boolean = false,
+                format: String = "html",
+                includeNonPublic: Boolean = true,
+                verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {
@@ -54,7 +55,7 @@ public fun verifyModel(vararg roots: ContentRoot,
         addRoots(roots.toList())
     }
     val options = DocumentationOptions("", format,
-            includeNonPublic = true,
+            includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
@@ -64,11 +65,12 @@ public fun verifyModel(vararg roots: ContentRoot,
     Disposer.dispose(environment)
 }
 
-public fun verifyModel(source: String,
-                       withJdk: Boolean = false,
-                       withKotlinRuntime: Boolean = false,
-                       format: String = "html",
-                       verifier: (DocumentationModule) -> Unit) {
+fun verifyModel(source: String,
+                withJdk: Boolean = false,
+                withKotlinRuntime: Boolean = false,
+                format: String = "html",
+                includeNonPublic: Boolean = true,
+                verifier: (DocumentationModule) -> Unit) {
     if (!File(source).exists()) {
         throw IllegalArgumentException("Can't find test data file $source")
     }
@@ -76,22 +78,23 @@ public fun verifyModel(source: String,
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,
             format = format,
+            includeNonPublic = includeNonPublic,
             verifier = verifier)
 }
 
-public fun verifyPackageMember(source: String,
-                               withJdk: Boolean = false,
-                               withKotlinRuntime: Boolean = false,
-                               verifier: (DocumentationNode) -> Unit) {
+fun verifyPackageMember(source: String,
+                        withJdk: Boolean = false,
+                        withKotlinRuntime: Boolean = false,
+                        verifier: (DocumentationNode) -> Unit) {
     verifyModel(source, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
     }
 }
 
-public fun verifyJavaModel(source: String,
-                           withKotlinRuntime: Boolean = false,
-                           verifier: (DocumentationModule) -> Unit) {
+fun verifyJavaModel(source: String,
+                    withKotlinRuntime: Boolean = false,
+                    verifier: (DocumentationModule) -> Unit) {
     val tempDir = FileUtil.createTempDirectory("dokka", "")
     try {
         val sourceFile = File(source)
@@ -103,20 +106,20 @@ public fun verifyJavaModel(source: String,
     }
 }
 
-public fun verifyJavaPackageMember(source: String,
-                                   withKotlinRuntime: Boolean = false,
-                                   verifier: (DocumentationNode) -> Unit) {
+fun verifyJavaPackageMember(source: String,
+                            withKotlinRuntime: Boolean = false,
+                            verifier: (DocumentationNode) -> Unit) {
     verifyJavaModel(source, withKotlinRuntime) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
     }
 }
 
-public fun verifyOutput(roots: Array<ContentRoot>,
-                        outputExtension: String,
-                        withJdk: Boolean = false,
-                        withKotlinRuntime: Boolean = false,
-                        outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+fun verifyOutput(roots: Array<ContentRoot>,
+                 outputExtension: String,
+                 withJdk: Boolean = false,
+                 withKotlinRuntime: Boolean = false,
+                 outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) {
         verifyModelOutput(it, outputExtension, outputGenerator, roots.first().path)
     }
@@ -134,24 +137,24 @@ private fun verifyModelOutput(it: DocumentationModule,
     assertEqualsIgnoringSeparators(expectedOutput, output.toString())
 }
 
-public fun verifyOutput(path: String,
-                        outputExtension: String,
-                        withJdk: Boolean = false,
-                        withKotlinRuntime: Boolean = false,
-                        outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+fun verifyOutput(path: String,
+                 outputExtension: String,
+                 withJdk: Boolean = false,
+                 withKotlinRuntime: Boolean = false,
+                 outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, outputGenerator)
 }
 
-public fun verifyJavaOutput(path: String,
-                            outputExtension: String,
-                            withKotlinRuntime: Boolean = false,
-                            outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+fun verifyJavaOutput(path: String,
+                     outputExtension: String,
+                     withKotlinRuntime: Boolean = false,
+                     outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyJavaModel(path, withKotlinRuntime) { model ->
         verifyModelOutput(model, outputExtension, outputGenerator, path)
     }
 }
 
-public fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
+fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
     Assert.assertEquals(expectedOutput.replace("\r\n", "\n"), output.replace("\r\n", "\n"))
 }
 

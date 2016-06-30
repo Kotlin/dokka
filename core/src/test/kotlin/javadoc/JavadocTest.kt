@@ -87,12 +87,22 @@ class JavadocTest {
         }
     }
 
+    @Test fun testInternalVisibility() {
+        verifyJavadoc("testdata/javadoc/internal.kt", withKotlinRuntime = true, includeNonPublic = false) { doc ->
+            val classDoc = doc.classNamed("foo.Person")!!
+            val constructors = classDoc.constructors()
+            assertEquals(1, constructors.size)
+            assertEquals(1, constructors.single().parameters().size)
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,
+                              includeNonPublic: Boolean = true,
                               callback: (ModuleNodeAdapter) -> Unit) {
 
-        verifyModel(name, format = "javadoc", withJdk = withJdk, withKotlinRuntime = withKotlinRuntime) { model ->
+        verifyModel(name, format = "javadoc", withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, includeNonPublic = includeNonPublic) { model ->
             val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
             callback(doc)
         }
