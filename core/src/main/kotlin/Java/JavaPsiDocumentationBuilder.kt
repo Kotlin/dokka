@@ -15,6 +15,7 @@ fun getSignature(element: PsiElement?) = when(element) {
 
 private fun PsiType.typeSignature(): String = when(this) {
     is PsiArrayType -> "Array((${componentType.typeSignature()}))"
+    is PsiPrimitiveType -> "kotlin." + canonicalText.capitalize()
     else -> mapTypeName(this)
 }
 
