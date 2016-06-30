@@ -81,10 +81,6 @@ open class MarkdownFormatService(locationService: LocationService,
         to.appendln()
     }
 
-    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
-        body()
-    }
-
     override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
         body()
     }

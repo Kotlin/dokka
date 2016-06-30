@@ -55,12 +55,6 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         to.appendln("</table>")
     }
 
-    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<thead>")
-        body()
-        to.appendln("</thead>")
-    }
-
     override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
         to.appendln("<tbody>")
         body()
