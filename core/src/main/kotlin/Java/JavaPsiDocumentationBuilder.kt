@@ -3,6 +3,10 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.psi.*
 import com.intellij.psi.util.InheritanceUtil
+import org.jetbrains.kotlin.asJava.KtLightElement
+import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtModifierListOwner
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
@@ -127,7 +131,14 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     private fun skipElementByVisibility(element: Any): Boolean =
         !options.includeNonPublic && element is PsiModifierListOwner &&
-                (element.hasModifierProperty(PsiModifier.PRIVATE) || element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL))
+                (element.hasModifierProperty(PsiModifier.PRIVATE) ||
+                 element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
+                 element.isInternal())
+
+    private fun PsiElement.isInternal(): Boolean {
+        val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false
+        return (ktElement as? KtModifierListOwner)?.hasModifier(KtTokens.INTERNAL_KEYWORD) ?: false
+    }
 
     fun <T : Any> DocumentationNode.appendMembers(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, RefKind.Member, buildFn)
