@@ -33,7 +33,11 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var samplesDirs: List<String> = emptyList()
 
     @Parameter
+    @Deprecated("Use <includes> instead")
     var includeDirs: List<String> = emptyList()
+
+    @Parameter
+    var includes: List<String> = emptyList()
 
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
     var classpath: List<String> = emptyList()
@@ -64,7 +68,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                 classpath,
                 sourceDirectories,
                 samplesDirs,
-                includeDirs,
+                includeDirs + includes,
                 moduleName,
                 DocumentationOptions(getOutDir(), getOutFormat(),
                         sourceLinks = sourceLinks.map { SourceLinkDefinition(it.dir, it.url, it.urlSuffix) },
