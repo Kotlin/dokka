@@ -27,9 +27,13 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         return "<span class=\"identifier\"$id>${formatText(text)}</span>"
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
+    override fun appendCode(to: StringBuilder, bodyAsText: ()->String) {
+        to.append("<code>${bodyAsText()}</code>")
+    }
+
+    override fun appendBlockCode(to: StringBuilder, language: String, bodyAsLines: ()->List<String>) {
         to.append("<pre><code>")
-        to.append(lines.joinToString("\n"))
+        to.append(bodyAsLines().joinToString("\n"))
         to.append("</code></pre>")
     }
 
@@ -45,20 +49,18 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         to.appendln("$text<br/>")
     }
 
+    override fun appendList(to: StringBuilder, body: () -> Unit) {
+        body()
+    }
+
     override fun appendAnchor(to: StringBuilder, anchor: String) {
         to.appendln("<a name=\"${anchor.htmlEscape()}\"></a>")
     }
 
-    override fun appendTable(to: StringBuilder, body: () -> Unit) {
+    override fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit) {
         to.appendln("<table>")
         body()
         to.appendln("</table>")
-    }
-
-    override fun appendTableHeader(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<thead>")
-        body()
-        to.appendln("</thead>")
     }
 
     override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
@@ -93,10 +95,6 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
 
     override fun formatStrikethrough(text: String): String {
         return "<s>${text}</s>"
-    }
-
-    override fun formatCode(code: String): String {
-        return "<code>${code}</code>"
     }
 
     override fun formatUnorderedList(text: String): String = "<ul>${text}</ul>"

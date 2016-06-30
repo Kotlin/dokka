@@ -16,14 +16,15 @@ abstract class StructuredFormatService(locationService: LocationService,
                                        val linkExtension: String = extension) : FormatService {
     val locationService: LocationService = locationService.withExtension(linkExtension)
 
-    abstract fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String)
+    abstract fun appendBlockCode(to: StringBuilder, langauge: String, bodyAsLines: ()->List<String>)
     abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
     abstract fun appendParagraph(to: StringBuilder, text: String)
     abstract fun appendLine(to: StringBuilder, text: String = "")
     abstract fun appendAnchor(to: StringBuilder, anchor: String)
+    abstract fun appendCode(to: StringBuilder, bodyAsText: ()->String)
 
-    abstract fun appendTable(to: StringBuilder, body: () -> Unit)
-    abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
+    abstract fun appendList(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTable(to: StringBuilder, columnCount: Int, body: () -> Unit)
     abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
@@ -38,7 +39,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun formatStrong(text: String): String
     abstract fun formatStrikethrough(text: String): String
     abstract fun formatEmphasis(text: String): String
-    abstract fun formatCode(code: String): String
+
     abstract fun formatUnorderedList(text: String): String
     abstract fun formatOrderedList(text: String): String
     abstract fun formatListItem(text: String, kind: ListKind): String
@@ -55,6 +56,29 @@ abstract class StructuredFormatService(locationService: LocationService,
         return StringBuilder().apply { formatText(location, content, this, listKind) }.toString()
     }
 
+    fun ContentNode.ignoreParagraphAtTop(): ContentNode {
+        return if (this is ContentParagraph) {
+            val temp = ContentBlock()
+            this.children.forEach { temp.append(it) }
+            temp
+        } else {
+            this
+        }
+    }
+
+    fun List<ContentNode>.ignoreParagraphAtTop(): List<ContentNode> {
+        return if (this.size == 1) {
+            val possibleParagraph = this.first()
+            if (possibleParagraph is ContentParagraph) {
+                possibleParagraph.children
+            } else {
+                this
+            }
+        } else {
+            this
+        }
+    }
+
     open fun formatText(location: Location, content: ContentNode, to: StringBuilder, listKind: ListKind = ListKind.Unordered) {
         when (content) {
             is ContentText -> to.append(formatText(content.text))
@@ -67,11 +91,11 @@ abstract class StructuredFormatService(locationService: LocationService,
             is ContentEntity -> to.append(formatEntity(content.text))
             is ContentStrong -> to.append(formatStrong(formatText(location, content.children)))
             is ContentStrikethrough -> to.append(formatStrikethrough(formatText(location, content.children)))
-            is ContentCode -> to.append(formatCode(formatText(location, content.children)))
+            is ContentCode -> appendCode(to) { formatText(location, content.children) }
             is ContentEmphasis -> to.append(formatEmphasis(formatText(location, content.children)))
-            is ContentUnorderedList -> to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered)))
-            is ContentOrderedList -> to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered)))
-            is ContentListItem -> to.append(formatListItem(formatText(location, content.children), listKind))
+            is ContentUnorderedList -> appendList(to) { to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered))) }
+            is ContentOrderedList -> appendList(to) { to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered))) }
+            is ContentListItem -> to.append(formatListItem(formatText(location, content.children.ignoreParagraphAtTop()), listKind))
 
             is ContentNodeLink -> {
                 val node = content.node
@@ -92,7 +116,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                 }
             }
             is ContentParagraph -> appendParagraph(to, formatText(location, content.children))
-            is ContentBlockCode -> appendBlockCode(to, content.children.map { formatText(location, it) }, content.language)
+            is ContentBlockCode -> appendBlockCode(to, content.language) { content.children.map { formatText(location, it) } }
             is ContentHeading -> appendHeader(to, formatText(location, content.children), content.level)
             is ContentBlock -> to.append(formatText(location, content.children))
         }
@@ -193,7 +217,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                     appendAnchor(to, it.name)
                 }
                 appendAsSignature(to, rendered) {
-                    to.append(formatCode(formatText(location, rendered)))
+                    appendCode(to) { formatText(location, rendered) }
                     it.appendSourceLink()
                 }
                 it.appendOverrides()
@@ -278,7 +302,8 @@ abstract class StructuredFormatService(locationService: LocationService,
                     }
 
                     appendAnchor(to, subjectName)
-                    to.append(formatCode(subjectName)).append(" - ")
+                    appendCode(to) { subjectName }
+                    to.append(" - ")
                     formatText(location, it, to)
                     appendLine(to)
                 }
@@ -342,6 +367,7 @@ abstract class StructuredFormatService(locationService: LocationService,
 
             if (node.kind == NodeKind.Module) {
                 appendHeader(to, "Index", 3)
+                appendLine(to)
                 node.members(NodeKind.AllTypes).singleOrNull()?.let { allTypes ->
                     to.append(formatLink(link(node, allTypes, { "All Types" })))
                 }
@@ -352,11 +378,12 @@ abstract class StructuredFormatService(locationService: LocationService,
             if (members.isEmpty()) return
 
             appendHeader(to, caption, 3)
+            appendLine(to)
 
             val children = if (sortMembers) members.sortedBy { it.name } else members
             val membersMap = children.groupBy { link(node, it) }
 
-            appendTable(to) {
+            appendTable(to, 2) {
                 appendTableBody(to) {
                     for ((memberLocation, members) in membersMap) {
                         appendTableRow(to) {
@@ -364,7 +391,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                                 to.append(formatLink(memberLocation))
                             }
                             appendTableCell(to) {
-                                val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
+                                val breakdownBySummary = members.groupBy { formatText(location, it.summary.ignoreParagraphAtTop()) }
                                 for ((summary, items) in breakdownBySummary) {
                                     appendSummarySignatures(items)
                                     if (!summary.isEmpty()) {
@@ -393,7 +420,12 @@ abstract class StructuredFormatService(locationService: LocationService,
                 }
             }
             appendAsSignature(to, renderedSignatures.last()) {
-                to.append(renderedSignatures.last().signatureToText(location))
+                val sigText = renderedSignatures.last().signatureToText(location)
+                if (sigText.isNotBlank()) {
+                    appendLine(to, sigText)
+                } else {
+                    to.append(sigText)
+                }
             }
         }
     }
@@ -404,8 +436,9 @@ abstract class StructuredFormatService(locationService: LocationService,
         override fun build() {
             to.append(formatText(location, node.owner!!.summary))
             appendHeader(to, "All Types", 3)
+            appendLine(to)
 
-            appendTable(to) {
+            appendTable(to, 2) {
                 appendTableBody(to) {
                     for (type in node.members) {
                         appendTableRow(to) {
@@ -421,7 +454,7 @@ abstract class StructuredFormatService(locationService: LocationService,
                                 }
                             }
                             appendTableCell(to) {
-                                to.append(formatText(location, type.summary))
+                                to.append(formatText(location, type.summary.ignoreParagraphAtTop()))
                             }
                         }
                     }
