@@ -76,6 +76,17 @@ class JavadocTest {
         }
     }
 
+    @Test fun testLinkWithParam() {
+        verifyJavadoc("testdata/javadoc/paramlink.kt", withKotlinRuntime = true) { doc ->
+            val classDoc = doc.classNamed("demo.Apple")!!
+            assertNotNull(classDoc.asClassDoc())
+            val tags = classDoc.inlineTags().filterIsInstance<SeeTagAdapter>()
+            assertEquals(2, tags.size)
+            val linkTag = tags[1] as SeeMethodTagAdapter
+            assertEquals("cutIntoPieces", linkTag.method.name())
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,
