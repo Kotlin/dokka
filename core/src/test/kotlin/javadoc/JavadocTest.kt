@@ -67,7 +67,7 @@ class JavadocTest {
     }
 
     @Test fun testJvmName() {
-        verifyJavadoc("testdata/javadoc/jvmName.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/jvmname.kt", withKotlinRuntime = true) { doc ->
             val classDoc = doc.classNamed("foo.Apple")!!
             assertNotNull(classDoc.asClassDoc())
 
