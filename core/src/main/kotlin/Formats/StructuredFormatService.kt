@@ -23,7 +23,6 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
     abstract fun appendTable(to: StringBuilder, body: () -> Unit)
-    abstract fun appendTableHeader(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
