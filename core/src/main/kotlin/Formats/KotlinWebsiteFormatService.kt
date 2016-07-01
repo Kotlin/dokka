@@ -2,9 +2,14 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 
-class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
-                                 signatureGenerator: LanguageService)
-: JekyllFormatService(locationService, signatureGenerator, "html") {
+
+class KotlinWebsiteOutputBuilder(to: StringBuilder,
+                                 location: Location,
+                                 locationService: LocationService,
+                                 languageService: LanguageService,
+                                 extension: String)
+    : JekyllOutputBuilder(to, location, locationService, languageService, extension)
+{
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
@@ -139,4 +144,12 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         IdentifierKind.SummarizedTypeName -> "summarizedTypeName"
         else -> "identifier"
     }
+}
+
+class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
+                                 signatureGenerator: LanguageService)
+    : JekyllFormatService(locationService, signatureGenerator, "html")
+{
+    override fun createOutputBuilder(to: StringBuilder, location: Location) =
+        KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension)
 }

@@ -6,10 +6,14 @@ import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
-                                                 signatureGenerator: LanguageService,
-                                                 val templateService: HtmlTemplateService)
-: StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
+open class HtmlOutputBuilder(to: StringBuilder,
+                             location: Location,
+                             locationService: LocationService,
+                             languageService: LanguageService,
+                             extension: String,
+                             val templateService: HtmlTemplateService)
+    : StructuredOutputBuilder(to, location, locationService, languageService, extension)
+{
     override fun formatText(text: String): String {
         return text.htmlEscape()
     }
@@ -105,21 +109,31 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     }
 
 
-    override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, getPageTitle(nodes), calcPathToRoot(location))
-        super.appendNodes(location, to, nodes)
+    override fun appendNodes(nodes: Iterable<DocumentationNode>) {
+        templateService.appendHeader(to, getPageTitle(nodes), locationService.calcPathToRoot(location))
+        super.appendNodes(nodes)
         templateService.appendFooter(to)
     }
+
+    override fun formatNonBreakingSpace(): String = "&nbsp;"
+}
+
+open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
+                                                 signatureGenerator: LanguageService,
+                                                 val templateService: HtmlTemplateService)
+: StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
+
+    override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
+        callback("/dokka/styles/style.css", "style.css")
+    }
+
+    override fun createOutputBuilder(to: StringBuilder, location: Location) =
+        HtmlOutputBuilder(to, location, locationService, languageService, extension, templateService)
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, "Module Contents", calcPathToRoot(location))
+        templateService.appendHeader(to, "Module Contents", locationService.calcPathToRoot(location))
         super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
-    }
-
-    private fun calcPathToRoot(location: Location): Path {
-        val path = Paths.get(location.path)
-        return path.parent?.relativize(Paths.get(locationService.root.path + '/')) ?: path
     }
 
     override fun getOutlineFileName(location: Location): File {
@@ -129,7 +143,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
         val link = ContentNodeDirectLink(node)
         link.append(languageService.render(node, LanguageService.RenderMode.FULL))
-        val signature = formatText(location, link)
+        val signature = createOutputBuilder(to, location).formatText(location, link)
         to.appendln("<a href=\"${location.path}\">${signature}</a><br/>")
     }
 
@@ -138,12 +152,11 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         body()
         to.appendln("</ul>")
     }
+}
 
-    override fun formatNonBreakingSpace(): String = "&nbsp;"
-
-    override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
-        callback("/dokka/styles/style.css", "style.css")
-    }
+private fun LocationService.calcPathToRoot(location: Location): Path {
+    val path = Paths.get(location.path)
+    return path.parent?.relativize(Paths.get(root.path + '/')) ?: path
 }
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
