@@ -77,7 +77,7 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
         }
     }
 
-    override fun appendTable(to: StringBuilder, body: () -> Unit) {
+    override fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit) {
         to.appendln("<table class=\"api-docs-table\">")
         body()
         to.appendln("</table>")
