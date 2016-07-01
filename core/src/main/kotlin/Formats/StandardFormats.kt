@@ -1,12 +1,14 @@
 package org.jetbrains.dokka.Formats
 
 import org.jetbrains.dokka.*
+import kotlin.reflect.KClass
 
 abstract class KotlinFormatDescriptorBase : FormatDescriptor {
     override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
     override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
 
     override val generatorServiceClass = FileGenerator::class
+    override val outlineServiceClass: KClass<out OutlineFormatService>? = null
 }
 
 class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
@@ -29,10 +31,12 @@ class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
 
 class JekyllFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = JekyllFormatService::class
-    override val outlineServiceClass = null
 }
 
 class MarkdownFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = MarkdownFormatService::class
-    override val outlineServiceClass = null
+}
+
+class GFMFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = GFMFormatService::class
 }

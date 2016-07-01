@@ -22,7 +22,7 @@ abstract class StructuredFormatService(locationService: LocationService,
     abstract fun appendLine(to: StringBuilder, text: String = "")
     abstract fun appendAnchor(to: StringBuilder, anchor: String)
 
-    abstract fun appendTable(to: StringBuilder, body: () -> Unit)
+    abstract fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit)
     abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
     abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
@@ -355,7 +355,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             val children = if (sortMembers) members.sortedBy { it.name } else members
             val membersMap = children.groupBy { link(node, it) }
 
-            appendTable(to) {
+            appendTable(to, "Name", "Summary") {
                 appendTableBody(to) {
                     for ((memberLocation, members) in membersMap) {
                         appendTableRow(to) {
@@ -404,7 +404,7 @@ abstract class StructuredFormatService(locationService: LocationService,
             to.append(formatText(location, node.owner!!.summary))
             appendHeader(to, "All Types", 3)
 
-            appendTable(to) {
+            appendTable(to, "Name", "Summary") {
                 appendTableBody(to) {
                     for (type in node.members) {
                         appendTableRow(to) {

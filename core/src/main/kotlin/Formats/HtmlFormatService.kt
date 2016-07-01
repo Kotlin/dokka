@@ -49,7 +49,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         to.appendln("<a name=\"${anchor.htmlEscape()}\"></a>")
     }
 
-    override fun appendTable(to: StringBuilder, body: () -> Unit) {
+    override fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit) {
         to.appendln("<table>")
         body()
         to.appendln("</table>")
