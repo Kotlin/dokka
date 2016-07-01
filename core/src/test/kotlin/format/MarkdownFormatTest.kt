@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.DocumentationModule
+import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.dokka.MarkdownFormatService
 import org.junit.Test
@@ -8,21 +10,15 @@ class MarkdownFormatTest {
     private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
 
     @Test fun emptyDescription() {
-        verifyOutput("testdata/format/emptyDescription.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("emptyDescription")
     }
 
     @Test fun classWithCompanionObject() {
-        verifyOutput("testdata/format/classWithCompanionObject.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("classWithCompanionObject")
     }
 
     @Test fun annotations() {
-        verifyOutput("testdata/format/annotations.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("annotations")
     }
 
     @Test fun annotationClass() {
@@ -36,74 +32,60 @@ class MarkdownFormatTest {
     }
 
     @Test fun annotationParams() {
-        verifyOutput("testdata/format/annotationParams.kt", ".md", withKotlinRuntime = true) { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("annotationParams", withKotlinRuntime = true)
     }
 
     @Test fun extensions() {
         verifyOutput("testdata/format/extensions.kt", ".package.md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members)
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
         }
         verifyOutput("testdata/format/extensions.kt", ".class.md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
         }
     }
 
     @Test fun enumClass() {
         verifyOutput("testdata/format/enumClass.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
         }
         verifyOutput("testdata/format/enumClass.kt", ".value.md") { model, output ->
             val enumClassNode = model.members.single().members[0]
-            markdownService.appendNodes(tempLocation, output,
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(
                     enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" })
         }
     }
 
     @Test fun varargsFunction() {
-        verifyOutput("testdata/format/varargsFunction.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("varargsFunction")
     }
 
     @Test fun overridingFunction() {
-        verifyOutput("testdata/format/overridingFunction.kt", ".md") { model, output ->
+        verifyMarkdownNodes("overridingFunction") { model->
             val classMembers = model.members.single().members.first { it.name == "D" }.members
-            markdownService.appendNodes(tempLocation, output, classMembers.filter { it.name == "f" })
+            classMembers.filter { it.name == "f" }
         }
-
     }
 
     @Test fun propertyVar() {
-        verifyOutput("testdata/format/propertyVar.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("propertyVar")
     }
 
     @Test fun functionWithDefaultParameter() {
-        verifyOutput("testdata/format/functionWithDefaultParameter.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("functionWithDefaultParameter")
     }
 
     @Test fun accessor() {
-        verifyOutput("testdata/format/accessor.kt", ".md") { model, output ->
-            val propertyNode = model.members.single().members.first { it.name == "C" }.members.filter { it.name == "x" }
-            markdownService.appendNodes(tempLocation, output, propertyNode)
+        verifyMarkdownNodes("accessor") { model ->
+            model.members.single().members.first { it.name == "C" }.members.filter { it.name == "x" }
         }
     }
 
     @Test fun paramTag() {
-        verifyOutput("testdata/format/paramTag.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("paramTag")
     }
 
     @Test fun throwsTag() {
-        verifyOutput("testdata/format/throwsTag.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("throwsTag")
     }
 
     @Test fun typeParameterBounds() {
@@ -115,99 +97,71 @@ class MarkdownFormatTest {
     }
 
     @Test fun typeProjectionVariance() {
-        verifyOutput("testdata/format/typeProjectionVariance.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("typeProjectionVariance")
     }
 
     @Test fun javadocHtml() {
-        verifyJavaOutput("testdata/format/javadocHtml.java", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyJavaMarkdownNode("javadocHtml")
     }
 
     @Test fun javaCodeLiteralTags() {
-        verifyJavaOutput("testdata/format/javaCodeLiteralTags.java", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyJavaMarkdownNode("javaCodeLiteralTags")
     }
 
     @Test fun javaCodeInParam() {
-        verifyJavaOutput("testdata/format/javaCodeInParam.java", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyJavaMarkdownNode("javaCodeInParam")
     }
 
     @Test fun javaSpaceInAuthor() {
-        verifyJavaOutput("testdata/format/javaSpaceInAuthor.java", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyJavaMarkdownNode("javaSpaceInAuthor")
     }
 
     @Test fun nullability() {
-        verifyOutput("testdata/format/nullability.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("nullability")
     }
 
     @Test fun operatorOverloading() {
-        verifyOutput("testdata/format/operatorOverloading.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" })
+        verifyMarkdownNodes("operatorOverloading") { model->
+            model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" }
         }
     }
 
     @Test fun javadocOrderedList() {
-        verifyJavaOutput("testdata/format/javadocOrderedList.java", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
+        verifyJavaMarkdownNodes("javadocOrderedList") { model ->
+            model.members.single().members.filter { it.name == "Bar" }
         }
     }
 
     @Test fun companionObjectExtension() {
-        verifyOutput("testdata/format/companionObjectExtension.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Foo" })
-        }
+        verifyMarkdownNodeByName("companionObjectExtension", "Foo")
     }
 
     @Test fun starProjection() {
-        verifyOutput("testdata/format/starProjection.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("starProjection")
     }
 
     @Test fun extensionFunctionParameter() {
-        verifyOutput("testdata/format/extensionFunctionParameter.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("extensionFunctionParameter")
     }
 
     @Test fun summarizeSignatures() {
-        verifyOutput("testdata/format/summarizeSignatures.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members)
-        }
+        verifyMarkdownNodes("summarizeSignatures") { model -> model.members }
     }
 
     @Test fun summarizeSignaturesProperty() {
-        verifyOutput("testdata/format/summarizeSignaturesProperty.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members)
-        }
+        verifyMarkdownNodes("summarizeSignaturesProperty") { model -> model.members }
     }
 
     @Test fun reifiedTypeParameter() {
-        verifyOutput("testdata/format/reifiedTypeParameter.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("reifiedTypeParameter", withKotlinRuntime = true)
     }
 
     @Test fun annotatedTypeParameter() {
-        verifyOutput("testdata/format/annotatedTypeParameter.kt", ".md", withKotlinRuntime = true) { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
-        }
+        verifyMarkdownNode("annotatedTypeParameter", withKotlinRuntime = true)
     }
 
     @Test fun inheritedMembers() {
-        verifyOutput("testdata/format/inheritedMembers.kt", ".md") { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == "Bar" })
-        }
+        verifyMarkdownNodeByName("inheritedMembers", "Bar")
     }
 
     @Test fun inheritedExtensions() {
@@ -243,9 +197,8 @@ class MarkdownFormatTest {
     }
 
     @Test fun extensionWithDocumentedReceiver() {
-        verifyOutput("testdata/format/extensionWithDocumentedReceiver.kt", ".md") { model, output ->
-            val nodesWithName = model.members.single().members.single().members.filter { it.name == "fn" }
-            markdownService.appendNodes(tempLocation, output, nodesWithName)
+        verifyMarkdownNodes("extensionWithDocumentedReceiver") { model ->
+            model.members.single().members.single().members.filter { it.name == "fn" }
         }
     }
 
@@ -259,23 +212,37 @@ class MarkdownFormatTest {
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members)
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
         }
     }
 
     private fun verifyMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
+        verifyMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    }
+
+    private fun verifyMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
         verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            markdownService.appendNodes(tempLocation, output, model.members.single().members)
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
+        }
+    }
+
+    private fun verifyJavaMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
+        verifyJavaMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    }
+
+    private fun verifyJavaMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
+        verifyJavaOutput("testdata/format/$fileName.java", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
         }
     }
 
     private fun verifyMarkdownNodeByName(fileName: String, name: String) {
-        verifyOutput("testdata/format/$fileName.kt", ".md") { model, output ->
+        verifyMarkdownNodes(fileName) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")
             }
-            markdownService.appendNodes(tempLocation, output, nodesWithName)
+            nodesWithName
         }
     }
 }

@@ -17,7 +17,7 @@ class KotlinWebSiteFormatTest {
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website/$fileName.kt", ".md") { model, output ->
-            kwsService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == name })
+            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
         }
     }
 }

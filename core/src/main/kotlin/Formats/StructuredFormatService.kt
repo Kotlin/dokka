@@ -10,11 +10,11 @@ enum class ListKind {
     Unordered
 }
 
-abstract class StructuredFormatService(locationService: LocationService,
+abstract class StructuredOutputBuilder(val to: StringBuilder,
+                                       val location: Location,
+                                       val locationService: LocationService,
                                        val languageService: LanguageService,
-                                       override val extension: String,
-                                       val linkExtension: String = extension) : FormatService {
-    val locationService: LocationService = locationService.withExtension(linkExtension)
+                                       val extension: String) : FormattedOutputBuilder {
 
     abstract fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String)
     abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
@@ -141,7 +141,7 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    open inner class PageBuilder(val location: Location, val to: StringBuilder, val nodes: Iterable<DocumentationNode>) {
+    open inner class PageBuilder(val nodes: Iterable<DocumentationNode>) {
         open fun build() {
             val breakdownByLocation = nodes.groupBy { node ->
                 formatBreadcrumbs(node.path.filterNot { it.name.isEmpty() }.map { link(node, it) })
@@ -285,8 +285,8 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    inner class SingleNodePageBuilder(location: Location, to: StringBuilder, val node: DocumentationNode)
-            : PageBuilder(location, to, listOf(node)) {
+    inner class SingleNodePageBuilder(val node: DocumentationNode)
+            : PageBuilder(listOf(node)) {
 
         override fun build() {
             super.build()
@@ -397,8 +397,8 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    inner class AllTypesNodeBuilder(location: Location, to: StringBuilder, val node: DocumentationNode)
-        : PageBuilder(location, to, listOf(node)) {
+    inner class AllTypesNodeBuilder(val node: DocumentationNode)
+           : PageBuilder(listOf(node)) {
 
         override fun build() {
             to.append(formatText(location, node.owner!!.summary))
@@ -429,18 +429,26 @@ abstract class StructuredFormatService(locationService: LocationService,
         }
     }
 
-    override fun appendNodes(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
+    override fun appendNodes(nodes: Iterable<DocumentationNode>) {
         val singleNode = nodes.singleOrNull()
         if (singleNode != null) {
             if (singleNode.kind == NodeKind.AllTypes) {
-                AllTypesNodeBuilder(location, to, singleNode).build()
+                AllTypesNodeBuilder(singleNode).build()
             }
             else {
-                SingleNodePageBuilder(location, to, singleNode).build()
+                SingleNodePageBuilder(singleNode).build()
             }
         }
         else {
-            PageBuilder(location, to, nodes).build()
+            PageBuilder(nodes).build()
         }
     }
+
+}
+
+abstract class StructuredFormatService(locationService: LocationService,
+                                       val languageService: LanguageService,
+                                       override val extension: String,
+                                       val linkExtension: String = extension) : FormatService {
+    val locationService: LocationService = locationService.withExtension(linkExtension)
 }

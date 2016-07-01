@@ -12,7 +12,7 @@ The class Foo.
 
 ### Constructors
 
-| Name | Summary
+| Name | Summary |
 |---|---|
 | [&lt;init&gt;](test/-foo/-init-) | `Foo()`
 The class Foo.
@@ -21,7 +21,7 @@ The class Foo.
 
 ### Functions
 
-| Name | Summary
+| Name | Summary |
 |---|---|
 | [bar](test/-foo/bar) | `fun bar(): Unit`
 The method bar.

@@ -13,7 +13,7 @@ class GFMFormatTest {
 
     private fun verifyGFMNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/gfm/$fileName.kt", ".md") { model, output ->
-            gfmService.appendNodes(tempLocation, output, model.members.single().members.filter { it.name == name })
+            gfmService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
         }
     }
 }
