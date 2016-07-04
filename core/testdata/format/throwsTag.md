@@ -1,6 +1,5 @@
 [test](test/index) / [f](test/f)
 
-
 # f
 
 `fun f(): Unit`
@@ -10,5 +9,3 @@
 `IllegalArgumentException` - on Mondays
 
 `NullPointerException` - on Tuesdays
-
-

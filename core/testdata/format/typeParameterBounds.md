@@ -1,15 +1,11 @@
 [test](test/index) / [generic](test/generic)
 
-
 # generic
 
-`fun &lt;T&nbsp;:&nbsp;R, R&gt; generic(): Unit`
+`fun <T : R, R> generic(): Unit`
 
 generic function
-
 
 ### Parameters
 
 `T` - the first type parameter
-
-

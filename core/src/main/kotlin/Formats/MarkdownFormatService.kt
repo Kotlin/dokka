@@ -1,7 +1,12 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import java.util.*
 
+enum class ListKind {
+    Ordered,
+    Unordered
+}
 
 open class MarkdownOutputBuilder(to: StringBuilder,
                                  location: Location,
@@ -10,94 +15,178 @@ open class MarkdownOutputBuilder(to: StringBuilder,
                                  extension: String)
     : StructuredOutputBuilder(to, location, locationService, languageService, extension)
 {
-    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
-        return items.map { formatLink(it) }.joinToString(" / ")
+    private val listKindStack = Stack<ListKind>()
+    protected var inTableCell = false
+    protected var inCodeBlock = false
+    private var lastTableCellStart = -1
+
+    private fun appendNewline() {
+        while (to.endsWith(' ')) {
+            to.setLength(to.length - 1)
+        }
+        to.appendln()
     }
 
-    override fun formatText(text: String): String = text.htmlEscape()
-    override fun formatSymbol(text: String): String = text.htmlEscape()
-    override fun formatKeyword(text: String): String = text.htmlEscape()
-    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String = text.htmlEscape()
-
-    override fun formatCode(code: String): String {
-        return "`$code`"
+    private fun ensureNewline() {
+        if (inTableCell && listKindStack.isEmpty()) {
+            if (to.length != lastTableCellStart && !to.endsWith("<br>")) {
+                to.append("<br>")
+            }
+        }
+        else {
+            if (!endsWithNewline()) {
+                appendNewline()
+            }
+        }
     }
 
-    override fun formatUnorderedList(text: String): String = text + "\n"
-    override fun formatOrderedList(text: String): String = text + "\n"
-
-    override fun formatListItem(text: String, kind: ListKind): String {
-        val itemText = if (text.endsWith("\n")) text else text + "\n"
-        return if (kind == ListKind.Unordered) "* $itemText" else "1. $itemText"
+    private fun endsWithNewline(): Boolean {
+        var index = to.length - 1
+        while (index > 0) {
+            val c = to[index]
+            if (c != ' ') {
+                return c == '\n'
+            }
+            index--
+        }
+        return false
     }
 
-    override fun formatStrong(text: String): String {
-        return "**$text**"
+    override fun ensureParagraph() {
+        if (!to.endsWith("\n\n")) {
+            if (!to.endsWith('\n')) {
+                appendNewline()
+            }
+            appendNewline()
+        }
+    }
+    override fun appendBreadcrumbSeparator() {
+        to.append(" / ")
     }
 
-    override fun formatEmphasis(text: String): String {
-        return "*$text*"
+    override fun appendText(text: String) {
+        if (inCodeBlock) {
+            to.append(text)
+        }
+        else {
+            to.append(text.htmlEscape())
+        }
     }
 
-    override fun formatStrikethrough(text: String): String {
-        return "~~$text~~"
+    override fun appendCode(body: () -> Unit) {
+        inCodeBlock = true
+        wrapIfNotEmpty("`", "`", body, checkEndsWith = true)
+        inCodeBlock = false
     }
 
-    override fun formatLink(text: String, href: String): String {
-        return "[$text]($href)"
+    override fun appendUnorderedList(body: () -> Unit) {
+        listKindStack.push(ListKind.Unordered)
+        body()
+        listKindStack.pop()
+        ensureNewline()
     }
 
-    override fun appendLine(to: StringBuilder, text: String) {
-        to.appendln(text)
+    override fun appendOrderedList(body: () -> Unit) {
+        listKindStack.push(ListKind.Ordered)
+        body()
+        listKindStack.pop()
+        ensureNewline()
     }
 
-    override fun appendAnchor(to: StringBuilder, anchor: String) {
+    override fun appendListItem(body: () -> Unit) {
+        ensureNewline()
+        to.append(if (listKindStack.peek() == ListKind.Unordered) "* " else "1. ")
+        body()
+        ensureNewline()
+    }
+
+    override fun appendStrong(body: () -> Unit) = wrap("**", "**", body)
+    override fun appendEmphasis(body: () -> Unit) = wrap("*", "*", body)
+    override fun appendStrikethrough(body: () -> Unit) = wrap("~~", "~~", body)
+
+    override fun appendLink(href: String, body: () -> Unit) {
+        if (inCodeBlock) {
+            wrap("`[`", "`]($href)`", body)
+        }
+        else {
+            wrap("[", "]($href)", body)
+        }
+    }
+
+    override fun appendLine() {
+        if (inTableCell) {
+            to.append("<br>")
+        }
+        else {
+            appendNewline()
+        }
+    }
+
+    override fun appendAnchor(anchor: String) {
         // no anchors in Markdown
     }
 
-    override fun appendParagraph(to: StringBuilder, text: String) {
-        to.appendln()
-        to.appendln(text)
-        to.appendln()
+    override fun appendParagraph(body: () -> Unit) {
+        if (inTableCell) {
+            ensureNewline()
+            body()
+        }
+        else {
+            ensureParagraph()
+            body()
+            ensureParagraph()
+        }
     }
 
-    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
-        appendLine(to)
-        appendLine(to, "${"#".repeat(level)} $text")
-        appendLine(to)
+    override fun appendHeader(level: Int, body: () -> Unit) {
+        ensureParagraph()
+        to.append("${"#".repeat(level)} ")
+        body()
+        ensureParagraph()
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
-        appendLine(to)
+    override fun appendBlockCode(language: String, body: () -> Unit) {
+        ensureParagraph()
         to.appendln(if (language.isEmpty()) "```" else "``` $language")
-        to.appendln(lines.joinToString("\n"))
+        body()
+        ensureNewline()
         to.appendln("```")
-        appendLine(to)
+        appendLine()
     }
 
-    override fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit) {
-        to.appendln()
+    override fun appendTable(vararg columns: String, body: () -> Unit) {
+        ensureParagraph()
         body()
-        to.appendln()
+        ensureParagraph()
     }
 
-    override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableBody(body: () -> Unit) {
         body()
     }
 
-    override fun appendTableRow(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableRow(body: () -> Unit) {
         to.append("|")
         body()
-        to.appendln()
+        appendNewline()
     }
 
-    override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableCell(body: () -> Unit) {
         to.append(" ")
+        inTableCell = true
+        lastTableCellStart = to.length
         body()
+        inTableCell = false
         to.append(" |")
     }
 
-    override fun formatNonBreakingSpace(): String = "&nbsp;"
+    override fun appendNonBreakingSpace() {
+        if (inCodeBlock) {
+            to.append(" ")
+        }
+        else {
+            to.append("&nbsp;")
+        }
+    }
 }
 
 open class MarkdownFormatService(locationService: LocationService,

@@ -11,6 +11,10 @@ class GFMFormatTest {
         verifyGFMNodeByName("sample", "Foo")
     }
 
+    @Test fun listInTableCell() {
+        verifyGFMNodeByName("listInTableCell", "Foo")
+    }
+
     private fun verifyGFMNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/gfm/$fileName.kt", ".md") { model, output ->
             gfmService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
