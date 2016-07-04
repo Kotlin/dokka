@@ -10,6 +10,9 @@ interface HtmlTemplateService {
         fun default(css: String? = null): HtmlTemplateService {
             return object : HtmlTemplateService {
                 override fun appendFooter(to: StringBuilder) {
+                    if (!to.endsWith('\n')) {
+                        to.append('\n')
+                    }
                     to.appendln("</BODY>")
                     to.appendln("</HTML>")
                 }

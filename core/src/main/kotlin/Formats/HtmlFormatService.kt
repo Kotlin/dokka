@@ -14,100 +14,61 @@ open class HtmlOutputBuilder(to: StringBuilder,
                              val templateService: HtmlTemplateService)
     : StructuredOutputBuilder(to, location, locationService, languageService, extension)
 {
-    override fun formatText(text: String): String {
-        return text.htmlEscape()
+    override fun appendText(text: String) {
+        to.append(text.htmlEscape())
     }
 
-    override fun formatSymbol(text: String): String {
-        return "<span class=\"symbol\">${formatText(text)}</span>"
+    override fun appendSymbol(text: String) {
+        to.append("<span class=\"symbol\">${text.htmlEscape()}</span>")
     }
 
-    override fun formatKeyword(text: String): String {
-        return "<span class=\"keyword\">${formatText(text)}</span>"
+    override fun appendKeyword(text: String) {
+        to.append("<span class=\"keyword\">${text.htmlEscape()}</span>")
     }
 
-    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String {
+    override fun appendIdentifier(text: String, kind: IdentifierKind, signature: String?) {
         val id = signature?.let { " id=\"$it\"" }.orEmpty()
-        return "<span class=\"identifier\"$id>${formatText(text)}</span>"
+        to.append("<span class=\"identifier\"$id>${text.htmlEscape()}</span>")
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
-        to.append("<pre><code>")
-        to.append(lines.joinToString("\n"))
-        to.append("</code></pre>")
+    override fun appendBlockCode(language: String, body: () -> Unit) = wrap("<pre><code>", "</code></pre>", body)
+
+    override fun appendHeader(level: Int, body: () -> Unit) =
+        wrapInTag("h$level", body, newlineBeforeOpen = true, newlineAfterClose = true)
+    override fun appendParagraph(body: () -> Unit) =
+        wrapInTag("p", body, newlineBeforeOpen = true, newlineAfterClose = true)
+
+    override fun appendLine() {
+        to.appendln("<br/>")
     }
 
-    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
-        to.appendln("<h$level>${text}</h$level>")
-    }
-
-    override fun appendParagraph(to: StringBuilder, text: String) {
-        to.appendln("<p>${text}</p>")
-    }
-
-    override fun appendLine(to: StringBuilder, text: String) {
-        to.appendln("$text<br/>")
-    }
-
-    override fun appendAnchor(to: StringBuilder, anchor: String) {
+    override fun appendAnchor(anchor: String) {
         to.appendln("<a name=\"${anchor.htmlEscape()}\"></a>")
     }
 
-    override fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit) {
-        to.appendln("<table>")
-        body()
-        to.appendln("</table>")
+    override fun appendTable(vararg columns: String, body: () -> Unit) =
+            wrapInTag("table", body, newlineAfterOpen = true, newlineAfterClose = true)
+    override fun appendTableBody(body: () -> Unit) =
+            wrapInTag("tbody", body, newlineAfterOpen = true, newlineAfterClose = true)
+    override fun appendTableRow(body: () -> Unit) =
+            wrapInTag("tr", body, newlineAfterOpen = true, newlineAfterClose = true)
+    override fun appendTableCell(body: () -> Unit) =
+            wrapInTag("td", body, newlineAfterOpen = true, newlineAfterClose = true)
+
+    override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
+
+    override fun appendStrong(body: () -> Unit) = wrapInTag("strong", body)
+    override fun appendEmphasis(body: () -> Unit) = wrapInTag("emph", body)
+    override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
+    override fun appendCode(body: () -> Unit) = wrapInTag("code", body)
+
+    override fun appendUnorderedList(body: () -> Unit) = wrapInTag("ul", body, newlineAfterClose = true)
+    override fun appendOrderedList(body: () -> Unit) = wrapInTag("ol", body, newlineAfterClose = true)
+    override fun appendListItem(body: () -> Unit) = wrapInTag("li", body, newlineAfterClose = true)
+
+    override fun appendBreadcrumbSeparator() {
+        to.append("&nbsp;/&nbsp;")
     }
-
-    override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<tbody>")
-        body()
-        to.appendln("</tbody>")
-    }
-
-    override fun appendTableRow(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<tr>")
-        body()
-        to.appendln("</tr>")
-    }
-
-    override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
-        to.appendln("<td>")
-        body()
-        to.appendln("</td>")
-    }
-
-    override fun formatLink(text: String, href: String): String {
-        return "<a href=\"${href}\">${text}</a>"
-    }
-
-    override fun formatStrong(text: String): String {
-        return "<strong>${text}</strong>"
-    }
-
-    override fun formatEmphasis(text: String): String {
-        return "<emph>${text}</emph>"
-    }
-
-    override fun formatStrikethrough(text: String): String {
-        return "<s>${text}</s>"
-    }
-
-    override fun formatCode(code: String): String {
-        return "<code>${code}</code>"
-    }
-
-    override fun formatUnorderedList(text: String): String = "<ul>${text}</ul>"
-    override fun formatOrderedList(text: String): String = "<ol>${text}</ol>"
-
-    override fun formatListItem(text: String, kind: ListKind): String {
-        return "<li>${text}</li>"
-    }
-
-    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
-        return items.map { formatLink(it) }.joinToString("&nbsp;/&nbsp;")
-    }
-
 
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
         templateService.appendHeader(to, getPageTitle(nodes), locationService.calcPathToRoot(location))
@@ -115,7 +76,15 @@ open class HtmlOutputBuilder(to: StringBuilder,
         templateService.appendFooter(to)
     }
 
-    override fun formatNonBreakingSpace(): String = "&nbsp;"
+    override fun appendNonBreakingSpace() {
+        to.append("&nbsp;")
+    }
+
+    override fun ensureParagraph() {
+        if (!to.endsWith("<p>") && !to.endsWith("</p>")) {
+            to.append("\n<p>")
+        }
+    }
 }
 
 open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
@@ -143,8 +112,9 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
         val link = ContentNodeDirectLink(node)
         link.append(languageService.render(node, LanguageService.RenderMode.FULL))
-        val signature = createOutputBuilder(to, location).formatText(location, link)
-        to.appendln("<a href=\"${location.path}\">${signature}</a><br/>")
+        val tempBuilder = StringBuilder()
+        createOutputBuilder(tempBuilder, location).appendContent(link)
+        to.appendln("<a href=\"${location.path}\">${tempBuilder.toString()}</a><br/>")
     }
 
     override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {

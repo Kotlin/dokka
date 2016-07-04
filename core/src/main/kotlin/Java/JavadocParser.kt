@@ -64,7 +64,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph) : JavaDocumentatio
                 htmlBuilder.append(it.text)
             }
         }
-        val doc = Jsoup.parse(htmlBuilder.toString().trimStart())
+        val doc = Jsoup.parse(htmlBuilder.toString().trim())
         doc.body().childNodes().forEach {
             convertHtmlNode(it)
         }

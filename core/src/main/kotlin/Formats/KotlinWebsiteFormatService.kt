@@ -18,21 +18,17 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
         to.appendln("layout: api")
     }
 
-    override fun formatBreadcrumbs(items: Iterable<FormatLink>): String {
-        items.drop(1)
-
-        if (items.count() > 1) {
-            return "<div class='api-docs-breadcrumbs'>" +
-                    items.map { formatLink(it) }.joinToString(" / ") +
-                    "</div>"
+    override fun appendBreadcrumbs(path: Iterable<FormatLink>) {
+        if (path.count() > 1) {
+            to.append("<div class='api-docs-breadcrumbs'>")
+            super.appendBreadcrumbs(path)
+            to.append("</div>")
         }
-
-        return ""
     }
 
-    override fun formatCode(code: String): String = if (code.length > 0) "<code>$code</code>" else ""
+    override fun appendCode(body: () -> Unit) = wrapIfNotEmpty("<code>", "</code>", body)
 
-    override fun formatStrikethrough(text: String): String = "<s>$text</s>"
+    override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
 
     private fun div(to: StringBuilder, cssClass: String, block: () -> Unit) {
         to.append("<div class=\"$cssClass\">")
@@ -42,7 +38,7 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
         to.append("</div>\n")
     }
 
-    override fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
+    override fun appendAsSignature(node: ContentNode, block: () -> Unit) {
         val contentLength = node.textLength
         if (contentLength == 0) return
         div(to, "signature") {
@@ -60,84 +56,81 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
         to.append("<div class=\"overload-group\"></div>")
     }
 
-    override fun formatLink(text: String, href: String): String {
-        return "<a href=\"${href}\">${text}</a>"
-    }
+    override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
 
-    override fun appendHeader(to: StringBuilder, text: String, level: Int) {
+    override fun appendHeader(level: Int, body: () -> Unit) {
         if (insideDiv > 0) {
-            to.appendln("<h$level>${text}</h$level>")
+            wrapInTag("p", body, newlineAfterClose = true)
         }
         else {
-            super.appendHeader(to, text, level)
+            super.appendHeader(level, body)
         }
     }
 
-    override fun appendLine(to: StringBuilder, text: String) {
+    override fun appendLine() {
         if (insideDiv > 0) {
-            to.appendln("$text<br/>")
+            to.appendln("<br/>")
         }
         else {
-            super.appendLine(to, text)
+            super.appendLine()
         }
     }
 
-    override fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit) {
+    override fun appendTable(vararg columns: String, body: () -> Unit) {
         to.appendln("<table class=\"api-docs-table\">")
         body()
         to.appendln("</table>")
     }
 
-    override fun appendTableBody(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableBody(body: () -> Unit) {
         to.appendln("<tbody>")
         body()
         to.appendln("</tbody>")
     }
 
-    override fun appendTableRow(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableRow(body: () -> Unit) {
         to.appendln("<tr>")
         body()
         to.appendln("</tr>")
     }
 
-    override fun appendTableCell(to: StringBuilder, body: () -> Unit) {
+    override fun appendTableCell(body: () -> Unit) {
         to.appendln("<td markdown=\"1\">")
         body()
         to.appendln("\n</td>")
     }
 
-    override fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String) {
+    override fun appendBlockCode(language: String, body: () -> Unit) {
         if (language.isNotEmpty()) {
-            super.appendBlockCode(to, lines, language)
+            super.appendBlockCode(language, body)
         } else {
-            to.append("<pre markdown=\"1\">")
-            to.append(lines.joinToString { "\n" }.trimStart())
-            to.append("</pre>")
+            wrap("<pre markdown=\"1\">", "</pre>", body)
         }
     }
 
-    override fun formatSymbol(text: String): String {
-        return "<span class=\"symbol\">${formatText(text)}</span>"
+    override fun appendSymbol(text: String) {
+        to.append("<span class=\"symbol\">${text.htmlEscape()}</span>")
     }
 
-    override fun formatKeyword(text: String): String {
-        return "<span class=\"keyword\">${formatText(text)}</span>"
+    override fun appendKeyword(text: String) {
+        to.append("<span class=\"keyword\">${text.htmlEscape()}</span>")
     }
 
-    override fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String {
+    override fun appendIdentifier(text: String, kind: IdentifierKind, signature: String?) {
         val id = signature?.let { " id=\"$it\"" }.orEmpty()
-        return "<span class=\"${identifierClassName(kind)}\">${formatText(text)}</span>"
+        to.append("<span class=\"${identifierClassName(kind)}\"$id>${text.htmlEscape()}</span>")
     }
 
-    override fun formatSoftLineBreak(): String = if (needHardLineBreaks)
-        "<br/>"
-    else
-        ""
+    override fun appendSoftLineBreak() {
+        if (needHardLineBreaks)
+            to.append("<br/>")
 
-    override fun formatIndentedSoftLineBreak(): String = if (needHardLineBreaks)
-        "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
-    else
-        ""
+    }
+    override fun appendIndentedSoftLineBreak() {
+        if (needHardLineBreaks) {
+            to.append("<br/>&nbsp;&nbsp;&nbsp;&nbsp;")
+        }
+    }
 
     private fun identifierClassName(kind: IdentifierKind) = when(kind) {
         IdentifierKind.ParameterName -> "parameterName"

@@ -5,95 +5,162 @@ import java.util.*
 
 data class FormatLink(val text: String, val href: String)
 
-enum class ListKind {
-    Ordered,
-    Unordered
-}
-
 abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val location: Location,
                                        val locationService: LocationService,
                                        val languageService: LanguageService,
                                        val extension: String) : FormattedOutputBuilder {
 
-    abstract fun appendBlockCode(to: StringBuilder, lines: List<String>, language: String)
-    abstract fun appendHeader(to: StringBuilder, text: String, level: Int = 1)
-    abstract fun appendParagraph(to: StringBuilder, text: String)
-    abstract fun appendLine(to: StringBuilder, text: String = "")
-    abstract fun appendAnchor(to: StringBuilder, anchor: String)
-
-    abstract fun appendTable(to: StringBuilder, vararg columns: String, body: () -> Unit)
-    abstract fun appendTableBody(to: StringBuilder, body: () -> Unit)
-    abstract fun appendTableRow(to: StringBuilder, body: () -> Unit)
-    abstract fun appendTableCell(to: StringBuilder, body: () -> Unit)
-
-    abstract fun formatText(text: String): String
-    abstract fun formatSymbol(text: String): String
-    abstract fun formatKeyword(text: String): String
-    abstract fun formatIdentifier(text: String, kind: IdentifierKind, signature: String?): String
-    fun formatEntity(text: String): String = text
-    abstract fun formatLink(text: String, href: String): String
-    open fun formatLink(link: FormatLink): String = formatLink(formatText(link.text), link.href)
-    abstract fun formatStrong(text: String): String
-    abstract fun formatStrikethrough(text: String): String
-    abstract fun formatEmphasis(text: String): String
-    abstract fun formatCode(code: String): String
-    abstract fun formatUnorderedList(text: String): String
-    abstract fun formatOrderedList(text: String): String
-    abstract fun formatListItem(text: String, kind: ListKind): String
-    abstract fun formatBreadcrumbs(items: Iterable<FormatLink>): String
-    abstract fun formatNonBreakingSpace(): String
-    open fun formatSoftLineBreak(): String = ""
-    open fun formatIndentedSoftLineBreak(): String = ""
-
-    open fun formatText(location: Location, nodes: Iterable<ContentNode>, listKind: ListKind = ListKind.Unordered): String {
-        return nodes.map { formatText(location, it, listKind) }.joinToString("")
+    protected fun wrap(prefix: String, suffix: String, body: () -> Unit) {
+        to.append(prefix)
+        body()
+        to.append(suffix)
     }
 
-    fun formatText(location: Location, content: ContentNode, listKind: ListKind = ListKind.Unordered): String {
-        return StringBuilder().apply { formatText(location, content, this, listKind) }.toString()
+    protected fun wrapIfNotEmpty(prefix: String, suffix: String, body: () -> Unit, checkEndsWith: Boolean = false) {
+        val startLength = to.length
+        to.append(prefix)
+        body()
+        if (checkEndsWith && to.endsWith(suffix)) {
+            to.setLength(to.length - suffix.length)
+        }
+        else if (to.length > startLength + prefix.length) {
+            to.append(suffix)
+        }
+        else {
+            to.setLength(startLength)
+        }
     }
 
-    open fun formatText(location: Location, content: ContentNode, to: StringBuilder, listKind: ListKind = ListKind.Unordered) {
+    protected fun wrapInTag(tag: String,
+                            body: () -> Unit,
+                            newlineBeforeOpen: Boolean = false,
+                            newlineAfterOpen: Boolean = false,
+                            newlineAfterClose: Boolean = false) {
+        if (newlineBeforeOpen && !to.endsWith('\n')) to.appendln()
+        to.append("<$tag>")
+        if (newlineAfterOpen) to.appendln()
+        body()
+        to.append("</$tag>")
+        if (newlineAfterClose) to.appendln()
+    }
+
+    protected abstract fun ensureParagraph()
+
+    abstract fun appendBlockCode(language: String, body: () -> Unit)
+    abstract fun appendHeader(level: Int = 1, body: () -> Unit)
+    abstract fun appendParagraph(body: () -> Unit)
+    abstract fun appendLine()
+    abstract fun appendAnchor(anchor: String)
+
+    abstract fun appendTable(vararg columns: String, body: () -> Unit)
+    abstract fun appendTableBody(body: () -> Unit)
+    abstract fun appendTableRow(body: () -> Unit)
+    abstract fun appendTableCell(body: () -> Unit)
+
+    abstract fun appendText(text: String)
+
+    open fun appendSymbol(text: String) {
+        appendText(text)
+    }
+
+    open fun appendKeyword(text: String) {
+        appendText(text)
+    }
+
+    open fun appendIdentifier(text: String, kind: IdentifierKind, signature: String?) {
+        appendText(text)
+    }
+
+    fun appendEntity(text: String) {
+        to.append(text)
+    }
+
+    abstract fun appendLink(href: String, body: () -> Unit)
+
+    open fun appendLink(link: FormatLink) {
+        appendLink(link.href) { appendText(link.text) }
+    }
+
+    abstract fun appendStrong(body: () -> Unit)
+    abstract fun appendStrikethrough(body: () -> Unit)
+    abstract fun appendEmphasis(body: () -> Unit)
+    abstract fun appendCode(body: () -> Unit)
+    abstract fun appendUnorderedList(body: () -> Unit)
+    abstract fun appendOrderedList(body: () -> Unit)
+    abstract fun appendListItem(body: () -> Unit)
+
+    abstract fun appendBreadcrumbSeparator()
+    abstract fun appendNonBreakingSpace()
+    open fun appendSoftLineBreak() {
+    }
+
+    open fun appendIndentedSoftLineBreak() {
+    }
+
+    fun appendContent(content: List<ContentNode>) {
+        for (contentNode in content) {
+            appendContent(contentNode)
+        }
+    }
+
+    open fun appendContent(content: ContentNode) {
         when (content) {
-            is ContentText -> to.append(formatText(content.text))
-            is ContentSymbol -> to.append(formatSymbol(content.text))
-            is ContentKeyword -> to.append(formatKeyword(content.text))
-            is ContentIdentifier -> to.append(formatIdentifier(content.text, content.kind, content.signature))
-            is ContentNonBreakingSpace -> to.append(formatNonBreakingSpace())
-            is ContentSoftLineBreak -> to.append(formatSoftLineBreak())
-            is ContentIndentedSoftLineBreak -> to.append(formatIndentedSoftLineBreak())
-            is ContentEntity -> to.append(formatEntity(content.text))
-            is ContentStrong -> to.append(formatStrong(formatText(location, content.children)))
-            is ContentStrikethrough -> to.append(formatStrikethrough(formatText(location, content.children)))
-            is ContentCode -> to.append(formatCode(formatText(location, content.children)))
-            is ContentEmphasis -> to.append(formatEmphasis(formatText(location, content.children)))
-            is ContentUnorderedList -> to.append(formatUnorderedList(formatText(location, content.children, ListKind.Unordered)))
-            is ContentOrderedList -> to.append(formatOrderedList(formatText(location, content.children, ListKind.Ordered)))
-            is ContentListItem -> to.append(formatListItem(formatText(location, content.children), listKind))
+            is ContentText -> appendText(content.text)
+            is ContentSymbol -> appendSymbol(content.text)
+            is ContentKeyword -> appendKeyword(content.text)
+            is ContentIdentifier -> appendIdentifier(content.text, content.kind, content.signature)
+            is ContentNonBreakingSpace -> appendNonBreakingSpace()
+            is ContentSoftLineBreak -> appendSoftLineBreak()
+            is ContentIndentedSoftLineBreak -> appendIndentedSoftLineBreak()
+            is ContentEntity -> appendEntity(content.text)
+            is ContentStrong -> appendStrong { appendContent(content.children) }
+            is ContentStrikethrough -> appendStrikethrough { appendContent(content.children) }
+            is ContentCode -> appendCode { appendContent(content.children) }
+            is ContentEmphasis -> appendEmphasis { appendContent(content.children) }
+            is ContentUnorderedList -> appendUnorderedList { appendContent(content.children) }
+            is ContentOrderedList -> appendOrderedList { appendContent(content.children) }
+            is ContentListItem -> appendListItem {
+                val child = content.children.singleOrNull()
+                if (child is ContentParagraph) {
+                    appendContent(child.children)
+                }
+                else {
+                    appendContent(content.children)
+                }
+            }
 
             is ContentNodeLink -> {
                 val node = content.node
                 val linkTo = if (node != null) locationHref(location, node) else "#"
-                val linkText = formatText(location, content.children)
-                if (linkTo == ".") {
-                    to.append(linkText)
-                } else {
-                    to.append(formatLink(linkText, linkTo))
+                appendLinkIfNotThisPage(linkTo, content)
+            }
+            is ContentExternalLink -> appendLinkIfNotThisPage(content.href, content)
+
+            is ContentParagraph -> {
+                if (!content.isEmpty()) {
+                    appendParagraph { appendContent(content.children) }
                 }
             }
-            is ContentExternalLink -> {
-                val linkText = formatText(location, content.children)
-                if (content.href == ".") {
-                    to.append(linkText)
-                } else {
-                    to.append(formatLink(linkText, content.href))
+
+            is ContentBlockCode -> appendBlockCode(content.language) {
+                for ((index, contentNode) in content.children.withIndex()) {
+                    appendContent(contentNode)
+                    if (index < content.children.size - 1) {
+                        to.append("\n")
+                    }
                 }
             }
-            is ContentParagraph -> appendParagraph(to, formatText(location, content.children))
-            is ContentBlockCode -> appendBlockCode(to, content.children.map { formatText(location, it) }, content.language)
-            is ContentHeading -> appendHeader(to, formatText(location, content.children), content.level)
-            is ContentBlock -> to.append(formatText(location, content.children))
+            is ContentHeading -> appendHeader(content.level) { appendContent(content.children) }
+            is ContentBlock -> appendContent(content.children)
+        }
+    }
+
+    private fun appendLinkIfNotThisPage(href: String, content: ContentBlock) {
+        if (href == ".") {
+            appendContent(content.children)
+        } else {
+            appendLink(href) { appendContent(content.children) }
         }
     }
 
@@ -120,7 +187,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
             kind == NodeKind.Module || kind == NodeKind.Package
 
-    protected open fun appendAsSignature(to: StringBuilder, node: ContentNode, block: () -> Unit) {
+    protected open fun appendAsSignature(node: ContentNode, block: () -> Unit) {
         block()
     }
 
@@ -128,29 +195,40 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         block()
     }
 
+    protected open fun appendBreadcrumbs(path: Iterable<FormatLink>) {
+        for ((index, item) in path.withIndex()) {
+            if (index > 0) {
+                appendBreadcrumbSeparator()
+
+            }
+            appendLink(item)
+        }
+    }
+
     fun Content.getSectionsWithSubjects(): Map<String, List<ContentSection>> =
             sections.filter { it.subjectName != null }.groupBy { it.tag }
 
-    private fun ContentNode.signatureToText(location: Location): String {
-        return if (this is ContentBlock && this.isEmpty()) {
-            ""
-        } else {
-            val signatureAsCode = ContentCode()
-            signatureAsCode.append(this)
-            formatText(location, signatureAsCode)
+    private fun ContentNode.appendSignature() {
+        if (this is ContentBlock && this.isEmpty()) {
+            return
         }
+
+        val signatureAsCode = ContentCode()
+        signatureAsCode.append(this)
+        appendContent(signatureAsCode)
     }
 
     open inner class PageBuilder(val nodes: Iterable<DocumentationNode>) {
         open fun build() {
             val breakdownByLocation = nodes.groupBy { node ->
-                formatBreadcrumbs(node.path.filterNot { it.name.isEmpty() }.map { link(node, it) })
+                node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
             }
 
-            for ((breadcrumbs, items) in breakdownByLocation) {
-                appendLine(to, breadcrumbs)
-                appendLine(to)
-                appendLocation(items.filter { it.kind != NodeKind.ExternalClass })
+            for ((path, nodes) in breakdownByLocation) {
+                appendBreadcrumbs(path)
+                appendLine()
+                appendLine()
+                appendLocation(nodes.filter { it.kind != NodeKind.ExternalClass })
             }
         }
 
@@ -159,13 +237,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (singleNode != null && singleNode.isModuleOrPackage()) {
                 if (singleNode.kind == NodeKind.Package) {
                     val packageName = if (singleNode.name.isEmpty()) "<root>" else singleNode.name
-                    appendHeader(to, "Package " + formatText(packageName), 2)
+                    appendHeader(2) { appendText("Package $packageName") }
                 }
-                formatText(location, singleNode.content, to)
+                appendContent(singleNode.content)
             } else {
                 val breakdownByName = nodes.groupBy { node -> node.name }
                 for ((name, items) in breakdownByName) {
-                    appendHeader(to, formatText(name))
+                    appendHeader { appendText(name) }
                     appendDocumentation(items)
                 }
             }
@@ -178,6 +256,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 formatOverloadGroup(breakdownBySummary.values.single())
             } else {
                 for ((summary, items) in breakdownBySummary) {
+                    ensureParagraph()
                     appendAsOverloadGroup(to) {
                         formatOverloadGroup(items)
                     }
@@ -186,44 +265,43 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun formatOverloadGroup(items: List<DocumentationNode>) {
-            items.forEach {
-                val rendered = languageService.render(it)
-                it.detailOrNull(NodeKind.Signature)?.let {
-                    appendAnchor(to, it.name)
+            for ((index, item) in items.withIndex()) {
+                if (index > 0) appendLine()
+                val rendered = languageService.render(item)
+                item.detailOrNull(NodeKind.Signature)?.let {
+                    appendAnchor(it.name)
                 }
-                appendAsSignature(to, rendered) {
-                    to.append(formatCode(formatText(location, rendered)))
-                    it.appendSourceLink()
+                appendAsSignature(rendered) {
+                    appendCode { appendContent(rendered) }
+                    item.appendSourceLink()
                 }
-                it.appendOverrides()
-                it.appendDeprecation()
+                item.appendOverrides()
+                item.appendDeprecation()
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
             item.details(NodeKind.OverloadGroupNote).forEach {
-                formatText(location, it.content, to)
+                appendContent(it.content)
             }
-            formatText(location, item.content.summary, to)
+            appendContent(item.content.summary)
             item.appendDescription()
-            appendLine(to)
-            appendLine(to)
         }
 
         private fun DocumentationNode.appendSourceLink() {
             val sourceUrl = details(NodeKind.SourceUrl).firstOrNull()
             if (sourceUrl != null) {
                 to.append(" ")
-                appendLine(to, formatLink("(source)", sourceUrl.name))
-            } else {
-                appendLine(to)
+                appendLink(sourceUrl.name) { to.append("(source)") }
             }
         }
 
         private fun DocumentationNode.appendOverrides() {
             overrides.forEach {
-                to.append("Overrides ")
-                val location = locationService.relativePathToLocation(this, it)
-                appendLine(to, formatLink(FormatLink(it.owner!!.name + "." + it.name, location)))
+                appendParagraph {
+                    to.append("Overrides ")
+                    val location = locationService.relativePathToLocation(this, it)
+                    appendLink(FormatLink(it.owner!!.name + "." + it.name, location))
+                }
             }
         }
 
@@ -231,55 +309,52 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (deprecation != null) {
                 val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
                 val deprecationValue = deprecationParameter?.details(NodeKind.Value)?.firstOrNull()
+                appendLine()
                 if (deprecationValue != null) {
-                    to.append(formatStrong("Deprecated:")).append(" ")
-                    appendLine(to, formatText(deprecationValue.name.removeSurrounding("\"")))
-                    appendLine(to)
+                    appendStrong { to.append("Deprecated:") }
+                    appendText(" " + deprecationValue.name.removeSurrounding("\""))
+                    appendLine()
+                    appendLine()
                 } else if (deprecation?.content != Content.Empty) {
-                    to.append(formatStrong("Deprecated:")).append(" ")
-                    formatText(location, deprecation!!.content, to)
+                    appendStrong { to.append("Deprecated:") }
+                    to.append(" ")
+                    appendContent(deprecation!!.content)
                 } else {
-                    appendLine(to, formatStrong("Deprecated"))
-                    appendLine(to)
+                    appendStrong { to.append("Deprecated") }
+                    appendLine()
+                    appendLine()
                 }
             }
         }
 
         private fun DocumentationNode.appendDescription() {
             if (content.description != ContentEmpty) {
-                appendLine(to, formatText(location, content.description))
-                appendLine(to)
+                appendContent(content.description)
             }
             content.getSectionsWithSubjects().forEach {
                 appendSectionWithSubject(it.key, it.value)
             }
 
             for (section in content.sections.filter { it.subjectName == null }) {
-                val sectionText = buildString {
-                    appendLine(this, formatStrong(formatText(section.tag)))
-                    append(formatText(location, section))
+                appendParagraph {
+                    appendStrong { appendText(section.tag) }
+                    appendLine()
+                    appendContent(section)
                 }
-                appendParagraph(to, sectionText)
             }
         }
 
         fun appendSectionWithSubject(title: String, subjectSections: List<ContentSection>) {
-            appendHeader(to, title, 3)
-            var first: Boolean = true
+            appendHeader(3) { appendText(title) }
             subjectSections.forEach {
                 val subjectName = it.subjectName
                 if (subjectName != null) {
-                    if (first) {
-                        first = false
-                    }
-                    else {
-                        appendLine(to)
-                    }
+                    ensureParagraph()
 
-                    appendAnchor(to, subjectName)
-                    to.append(formatCode(subjectName)).append(" - ")
-                    formatText(location, it, to)
-                    appendLine(to)
+                    appendAnchor(subjectName)
+                    appendCode { to.append(subjectName) }
+                    to.append(" - ")
+                    appendContent(it)
                 }
             }
         }
@@ -340,9 +415,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     node.inheritors.filter { it.kind != NodeKind.EnumItem })
 
             if (node.kind == NodeKind.Module) {
-                appendHeader(to, "Index", 3)
+                appendHeader(3) { to.append("Index") }
                 node.members(NodeKind.AllTypes).singleOrNull()?.let { allTypes ->
-                    to.append(formatLink(link(node, allTypes, { "All Types" })))
+                    appendLink(link(node, allTypes, { "All Types" }))
                 }
             }
         }
@@ -350,25 +425,23 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun appendSection(caption: String, members: List<DocumentationNode>, sortMembers: Boolean = true) {
             if (members.isEmpty()) return
 
-            appendHeader(to, caption, 3)
+            appendHeader(3) { appendText(caption) }
 
             val children = if (sortMembers) members.sortedBy { it.name } else members
             val membersMap = children.groupBy { link(node, it) }
 
-            appendTable(to, "Name", "Summary") {
-                appendTableBody(to) {
+            appendTable("Name", "Summary") {
+                appendTableBody() {
                     for ((memberLocation, members) in membersMap) {
-                        appendTableRow(to) {
-                            appendTableCell(to) {
-                                to.append(formatLink(memberLocation))
+                        appendTableRow() {
+                            appendTableCell {
+                                appendLink(memberLocation)
                             }
-                            appendTableCell(to) {
-                                val breakdownBySummary = members.groupBy { formatText(location, it.summary) }
+                            appendTableCell {
+                                val breakdownBySummary = members.groupBy { it.summary }
                                 for ((summary, items) in breakdownBySummary) {
                                     appendSummarySignatures(items)
-                                    if (!summary.isEmpty()) {
-                                        to.append(summary)
-                                    }
+                                    appendContent(summary)
                                 }
                             }
                         }
@@ -380,19 +453,20 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun appendSummarySignatures(items: List<DocumentationNode>) {
             val summarySignature = languageService.summarizeSignatures(items)
             if (summarySignature != null) {
-                appendAsSignature(to, summarySignature) {
-                    appendLine(to, summarySignature.signatureToText(location))
+                appendAsSignature(summarySignature) {
+                    summarySignature.appendSignature()
                 }
                 return
             }
             val renderedSignatures = items.map { languageService.render(it, RenderMode.SUMMARY) }
             renderedSignatures.subList(0, renderedSignatures.size - 1).forEach {
-                appendAsSignature(to, it) {
-                    appendLine(to, it.signatureToText(location))
+                appendAsSignature(it) {
+                    it.appendSignature()
                 }
+                appendLine()
             }
-            appendAsSignature(to, renderedSignatures.last()) {
-                to.append(renderedSignatures.last().signatureToText(location))
+            appendAsSignature(renderedSignatures.last()) {
+                renderedSignatures.last().appendSignature()
             }
         }
     }
@@ -401,26 +475,26 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
            : PageBuilder(listOf(node)) {
 
         override fun build() {
-            to.append(formatText(location, node.owner!!.summary))
-            appendHeader(to, "All Types", 3)
+            appendContent(node.owner!!.summary)
+            appendHeader(3) { to.append("All Types") }
 
-            appendTable(to, "Name", "Summary") {
-                appendTableBody(to) {
+            appendTable("Name", "Summary") {
+                appendTableBody() {
                     for (type in node.members) {
-                        appendTableRow(to) {
-                            appendTableCell(to) {
-                                to.append(formatLink(link(node, type) {
+                        appendTableRow() {
+                            appendTableCell {
+                                appendLink(link(node, type) {
                                     if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
-                                }))
+                                })
                                 if (type.kind == NodeKind.ExternalClass) {
                                     val packageName = type.owner?.name
                                     if (packageName != null) {
-                                        to.append(formatText(" (extensions in package $packageName)"))
+                                        appendText(" (extensions in package $packageName)")
                                     }
                                 }
                             }
-                            appendTableCell(to) {
-                                to.append(formatText(location, type.summary))
+                            appendTableCell {
+                                appendContent(type.summary)
                             }
                         }
                     }
@@ -443,12 +517,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             PageBuilder(nodes).build()
         }
     }
-
 }
 
 abstract class StructuredFormatService(locationService: LocationService,
                                        val languageService: LanguageService,
                                        override val extension: String,
-                                       val linkExtension: String = extension) : FormatService {
+                                       linkExtension: String = extension) : FormatService {
     val locationService: LocationService = locationService.withExtension(linkExtension)
 }

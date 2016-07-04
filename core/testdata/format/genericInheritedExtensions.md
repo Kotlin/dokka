@@ -1,21 +1,15 @@
 [test](test/index) / [Bar](test/-bar/index)
 
-
 # Bar
 
-`class Bar&lt;T&gt;&nbsp;:&nbsp;[Foo](test/-foo/index)&lt;T&gt;`
-
-
+`class Bar<T> : `[`Foo`](test/-foo/index)`<T>`
 
 ### Constructors
 
-
 | [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
-
 
 ### Extension Functions
 
-
-| [first](test/first) | `fun &lt;T&gt; [Foo](test/-foo/index)&lt;T&gt;.first(): Unit` |
-| [second](test/second) | `fun &lt;T&gt; [Bar](test/-bar/index)&lt;T&gt;.second(): Unit` |
+| [first](test/first) | `fun <T> `[`Foo`](test/-foo/index)`<T>.first(): Unit` |
+| [second](test/second) | `fun <T> `[`Bar`](test/-bar/index)`<T>.second(): Unit` |
 
