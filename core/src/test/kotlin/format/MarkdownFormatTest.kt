@@ -214,6 +214,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("exclInCodeBlock", "foo")
     }
 
+    @Test fun backtickInCodeBlock() {
+        verifyMarkdownNodeByName("backtickInCodeBlock", "foo")
+    }
+
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)

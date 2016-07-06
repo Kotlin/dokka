@@ -19,6 +19,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     protected var inTableCell = false
     protected var inCodeBlock = false
     private var lastTableCellStart = -1
+    private var maxBackticksInCodeBlock = 0
 
     private fun appendNewline() {
         while (to.endsWith(' ')) {
@@ -64,9 +65,14 @@ open class MarkdownOutputBuilder(to: StringBuilder,
         to.append(" / ")
     }
 
+    private val backTickFindingRegex = """(`+)""".toRegex()
+
     override fun appendText(text: String) {
         if (inCodeBlock) {
             to.append(text)
+            val backTicks = backTickFindingRegex.findAll(text)
+            val longestBackTickRun = backTicks.map { it.value.length }.max() ?: 0
+            maxBackticksInCodeBlock = maxBackticksInCodeBlock.coerceAtLeast(longestBackTickRun)
         }
         else {
             to.append(text.htmlEscape())
@@ -75,7 +81,17 @@ open class MarkdownOutputBuilder(to: StringBuilder,
 
     override fun appendCode(body: () -> Unit) {
         inCodeBlock = true
+        val codeBlockStart = to.length
+        maxBackticksInCodeBlock = 0
+
         wrapIfNotEmpty("`", "`", body, checkEndsWith = true)
+
+        if (maxBackticksInCodeBlock > 0) {
+            val extraBackticks = "`".repeat(maxBackticksInCodeBlock)
+            to.insert(codeBlockStart, extraBackticks)
+            to.append(extraBackticks)
+        }
+
         inCodeBlock = false
     }
 

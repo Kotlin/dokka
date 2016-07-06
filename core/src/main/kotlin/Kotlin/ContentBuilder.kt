@@ -43,7 +43,12 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             MarkdownElementTypes.EMPH -> appendNodeWithChildren(ContentEmphasis())
             MarkdownElementTypes.STRONG -> appendNodeWithChildren(ContentStrong())
             MarkdownElementTypes.CODE_SPAN -> {
-                appendNodeWithChildren(ContentCode())
+                val startDelimiter = node.child(MarkdownTokenTypes.BACKTICK)?.text
+                if (startDelimiter != null) {
+                    val text = node.text.substring(startDelimiter.length).removeSuffix(startDelimiter)
+                    val codeSpan = ContentCode().apply { append(ContentText(text)) }
+                    parent.append(codeSpan)
+                }
             }
             MarkdownElementTypes.CODE_BLOCK,
             MarkdownElementTypes.CODE_FENCE -> appendNodeWithChildren(ContentBlockCode())
@@ -126,6 +131,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             MarkdownTokenTypes.LBRACKET,
             MarkdownTokenTypes.RBRACKET,
             MarkdownTokenTypes.EXCLAMATION_MARK,
+            MarkdownTokenTypes.BACKTICK,
             MarkdownTokenTypes.CODE_FENCE_CONTENT -> {
                 parent.append(ContentText(node.text))
             }
