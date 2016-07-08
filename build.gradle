@@ -2,6 +2,31 @@ plugins {
     id "com.jfrog.bintray" version "1.4"
 }
 
+allprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+            jcenter()
+            maven {
+                url "https://dl.bintray.com/kotlin/kotlin-eap"
+            }
+            maven {
+                url "https://dl.bintray.com/kotlin/kotlin-dev"
+            }
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
+        }
+        maven {
+            url "https://dl.bintray.com/kotlin/kotlin-dev"
+        }
+    }
+}
+
 apply plugin: 'maven-publish'
 
 task updatePom << {

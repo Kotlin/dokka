@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.config.CommonConfigurationKeys
+import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
@@ -136,9 +136,16 @@ object DokkaConsoleLogger: DokkaLogger {
 }
 
 class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
+    private var seenErrors = false
+
     override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        if (severity == CompilerMessageSeverity.ERROR) {
+            seenErrors = true
+        }
         logger.error(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
     }
+
+    override fun hasErrors() = seenErrors
 }
 
 class DokkaGenerator(val logger: DokkaLogger,
@@ -242,7 +249,7 @@ fun buildDocumentationModule(injector: Injector,
 
 
 fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
-    val sourceRoots = configuration.get(CommonConfigurationKeys.CONTENT_ROOTS)
+    val sourceRoots = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
             ?.map { it.file }
             ?: listOf()
