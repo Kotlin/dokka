@@ -218,6 +218,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("backtickInCodeBlock", "foo")
     }
 
+    @Test fun qualifiedNameLink() {
+        verifyMarkdownNodeByName("qualifiedNameLink", "foo", withKotlinRuntime = true)
+    }
+
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
@@ -244,8 +248,8 @@ class MarkdownFormatTest {
         }
     }
 
-    private fun verifyMarkdownNodeByName(fileName: String, name: String) {
-        verifyMarkdownNodes(fileName) { model->
+    private fun verifyMarkdownNodeByName(fileName: String, name: String, withKotlinRuntime: Boolean = false) {
+        verifyMarkdownNodes(fileName, withKotlinRuntime) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")

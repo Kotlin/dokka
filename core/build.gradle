@@ -14,12 +14,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
     }
-    repositories {
-        jcenter()
-        maven {
-            url "https://dl.bintray.com/kotlin/kotlin-eap"
-        }
-    }
 }
 
 apply plugin: 'java'
@@ -30,19 +24,12 @@ apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.5
 
-repositories {
-    mavenCentral()
-    maven {
-        url "https://dl.bintray.com/kotlin/kotlin-eap"
-    }
-}
-
 configurations {
     provided
 }
 
 dependencies {
-    compile "com.google.inject:guice:4.0"
+    compile "com.google.inject:guice:4.1.0"
     compile "com.github.spullara.cli-parser:cli-parser:1.1.1"
     compile "org.jsoup:jsoup:1.8.3"
     compile "org.apache.ant:ant:1.9.6"
@@ -66,7 +53,7 @@ dependencies {
     runtime files("../lib/asm-all.jar")
     runtime files("../lib/jps-model.jar")
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
 }
 

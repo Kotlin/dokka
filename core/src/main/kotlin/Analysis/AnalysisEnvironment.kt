@@ -60,7 +60,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val projectComponentManager = environment.project as MockComponentManager
 
         val projectFileIndex = CoreProjectFileIndex(environment.project,
-                environment.configuration.getList(CommonConfigurationKeys.CONTENT_ROOTS))
+                environment.configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
 
         val moduleManager = object : CoreModuleManager(environment.project, this) {
             override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
@@ -127,7 +127,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
      * List of source roots for this environment.
      */
     val sources: List<String>
-        get() = configuration.get(CommonConfigurationKeys.CONTENT_ROOTS)
+        get() = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<KotlinSourceRoot>()
                 ?.map { it.path } ?: emptyList()
 
@@ -146,7 +146,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
     }
 
     fun addRoots(list: List<ContentRoot>) {
-        configuration.addAll(CommonConfigurationKeys.CONTENT_ROOTS, list)
+        configuration.addAll(JVMConfigurationKeys.CONTENT_ROOTS, list)
     }
 
     /**
@@ -186,7 +186,7 @@ class DokkaResolutionFacade(override val project: Project,
     }
 
     override fun <T : Any> getFrontendService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
-        throw UnsupportedOperationException()
+        return resolverForModule.componentProvider.getService(serviceClass)
     }
 
     override fun <T : Any> getIdeService(serviceClass: Class<T>): T {

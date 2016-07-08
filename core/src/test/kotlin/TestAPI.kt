@@ -37,6 +37,8 @@ fun verifyModel(vararg roots: ContentRoot,
                 }
             }
         }
+
+        override fun hasErrors() = false
     }
 
     val environment = AnalysisEnvironment(messageCollector)

@@ -2,13 +2,6 @@ group 'org.jetbrains.dokka'
 version dokka_version
 
 buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            url "https://dl.bintray.com/kotlin/kotlin-eap"
-        }
-    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
@@ -21,13 +14,6 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
-
-repositories {
-    mavenCentral()
-    maven {
-        url "https://dl.bintray.com/kotlin/kotlin-eap"
-    }
-}
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'

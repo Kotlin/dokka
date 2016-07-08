@@ -17,7 +17,8 @@ class DeclarationLinkResolver
                             val options: DocumentationOptions) {
     fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbol = try {
-            val symbols = resolveKDocLink(resolutionFacade, fromDescriptor, null, href.split('.').toList())
+            val symbols = resolveKDocLink(resolutionFacade.resolveSession.bindingContext,
+                    resolutionFacade, fromDescriptor, null, href.split('.').toList())
             findTargetSymbol(symbols)
         } catch(e: Exception) {
             null
