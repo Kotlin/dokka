@@ -8,6 +8,8 @@ enum class ListKind {
     Unordered
 }
 
+private val TWO_LINE_BREAKS = System.lineSeparator() + System.lineSeparator()
+
 open class MarkdownOutputBuilder(to: StringBuilder,
                                  location: Location,
                                  locationService: LocationService,
@@ -54,7 +56,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     override fun ensureParagraph() {
-        if (!to.endsWith("\n\n")) {
+        if (!to.endsWith(TWO_LINE_BREAKS)) {
             if (!to.endsWith('\n')) {
                 appendNewline()
             }
