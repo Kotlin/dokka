@@ -21,6 +21,7 @@ Dokka supports the following command line arguments:
   * `-format` - the output format:
     * `html` - HTML (default)
     * `markdown` - Markdown
+    * `gfm` - GitHub-Flavored Markdown
     * `jekyll` - Markdown adapted for Jekyll sites
     * `javadoc` - Javadoc (showing how the project can be accessed from Java)
   * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
