@@ -10,7 +10,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.8/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.9/dokka-fatjar.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <source directories> <arguments>
