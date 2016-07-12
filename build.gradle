@@ -77,6 +77,6 @@ bintray {
 
     filesSpec {
         from 'maven-plugin/upload'
-        into "/kotlin/${dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'}/dokka/${dokka_version}/org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
+        into "org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
     }
 }
