@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jetbrains.dokka</groupId>
   <artifactId>dokka-maven-plugin</artifactId>
-  <version>0.9.8</version>
+  <version>0.9.9</version>
   <packaging>maven-plugin</packaging>
   <properties>
     <maven-plugin-anno.version>1.4.1</maven-plugin-anno.version>
     <maven.version>3.0.5</maven.version>
     <plexus.version>3.0.22</plexus.version>
-    <kotlinVersion>1.0.2</kotlinVersion>
+    <kotlinVersion>1.0.3</kotlinVersion>
   </properties>
   <dependencies>
     <dependency>
