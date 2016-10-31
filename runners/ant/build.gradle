@@ -1,0 +1,16 @@
+sourceCompatibility = 1.5
+
+configurations {
+    provided
+}
+
+tasks.withType(AbstractCompile) {
+    classpath += configurations.provided
+}
+
+
+dependencies {
+    compile project(":core")
+    provided group: 'org.apache.ant', name: 'ant', version: ant_version
+}
+

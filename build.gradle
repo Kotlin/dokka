@@ -1,8 +1,7 @@
-plugins {
-    id "com.jfrog.bintray" version "1.4"
-}
-
 allprojects {
+    group 'org.jetbrains.dokka'
+    version dokka_version
+
     buildscript {
         repositories {
             mavenCentral()
@@ -14,10 +13,15 @@ allprojects {
                 url "https://dl.bintray.com/kotlin/kotlin-dev"
             }
         }
+        dependencies {
+            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+            classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        }
     }
 
     repositories {
         mavenCentral()
+        mavenLocal()
         maven {
             url "https://dl.bintray.com/kotlin/kotlin-eap"
         }
@@ -27,56 +31,28 @@ allprojects {
     }
 }
 
-apply plugin: 'maven-publish'
 
-task updatePom << {
-    def parser = new XmlParser()
-    def pomFile = new File("maven-plugin/pom.xml")
-    def pom = parser.parse(pomFile)
-    pom.version[0].setValue(dokka_version)
-    pom.properties.kotlinVersion[0].setValue(kotlin_version)
-    pomFile.setText(groovy.xml.XmlUtil.serialize(pom))
-}
+def bintrayPublication(project, List<String> _publications) {
+    configure(project, {
+        apply plugin: 'com.jfrog.bintray'
 
-task buildMavenPlugin << {
-    def process = "mvn clean package".execute(null, new File("maven-plugin"))
-    process.waitFor()
-    def mvnOutput = process.text
-    def exitValue = process.exitValue()
-    if (exitValue != 0) {
-        throw new IOException("Failed to run Maven command: exit value $exitValue, output $mvnOutput")
-    }
-}
+        bintray {
+            user = System.getenv('BINTRAY_USER')
+            key = System.getenv('BINTRAY_KEY')
 
-task prepareMavenPluginUpload << {
-    def uploadDir = new File("maven-plugin/upload")
-    uploadDir.delete()
-    uploadDir.mkdirs()
-    def releaseFileName = "dokka-maven-plugin-${dokka_version}"
-    new File("maven-plugin/target/${releaseFileName}.jar").renameTo(new File(uploadDir, "${releaseFileName}.jar"))
-    new File(uploadDir, "${releaseFileName}.pom").bytes = new File("maven-plugin/pom.xml").bytes
-}
+            pkg {
+                repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
+                name = 'dokka'
+                userOrg = 'kotlin'
+                desc = 'Dokka, the Kotlin documentation tool'
+                vcsUrl = 'https://github.com/kotlin/dokka.git'
+                licenses = ['Apache-2.0']
+                version {
+                    name = dokka_version
+                }
+            }
 
-buildMavenPlugin.dependsOn(updatePom)
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-
-    pkg {
-        repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
-        name = 'dokka'
-        userOrg = 'kotlin'
-        desc = 'Dokka, the Kotlin documentation tool'
-        vcsUrl = 'https://github.com/kotlin/dokka.git'
-        licenses = ['Apache-2.0']
-        version {
-            name = dokka_version
+            publications = _publications
         }
-    }
-
-    filesSpec {
-        from 'maven-plugin/upload'
-        into "org/jetbrains/dokka/dokka-maven-plugin/${dokka_version}"
-    }
+    })
 }

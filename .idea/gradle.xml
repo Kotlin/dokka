@@ -9,12 +9,17 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/dokka-android-gradle-plugin" />
-            <option value="$PROJECT_DIR$/dokka-gradle-plugin" />
+            <option value="$PROJECT_DIR$/runners" />
+            <option value="$PROJECT_DIR$/runners/android-gradle-plugin" />
+            <option value="$PROJECT_DIR$/runners/ant" />
+            <option value="$PROJECT_DIR$/runners/cli" />
+            <option value="$PROJECT_DIR$/runners/fatjar" />
+            <option value="$PROJECT_DIR$/runners/gradle-plugin" />
+            <option value="$PROJECT_DIR$/runners/maven-plugin" />
           </set>
         </option>
-        <option name="useAutoImport" value="true" />
       </GradleProjectSettings>
     </option>
   </component>
