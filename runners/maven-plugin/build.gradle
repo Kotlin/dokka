@@ -1,0 +1,80 @@
+
+apply plugin: 'kotlin'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+configurations {
+    provided
+}
+
+tasks.withType(AbstractCompile) {
+    classpath += configurations.provided
+    classpath += configurations.shadow
+}
+
+dependencies {
+    shadow project(":runners:fatjar")
+    shadow "org.apache.maven:maven-core:$maven_version"
+    shadow "org.apache.maven:maven-model:$maven_version"
+    shadow "org.apache.maven:maven-plugin-api:$maven_version"
+    shadow "org.apache.maven:maven-archiver:$maven_archiver_version"
+    shadow "org.codehaus.plexus:plexus-utils:$plexus_utils_version"
+    shadow "org.codehaus.plexus:plexus-archiver:$plexus_archiver_version"
+    shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
+}
+
+task generatePom << {
+    final pomTemplate = new File(projectDir, "pom.tpl.xml")
+    final pom = new File(buildDir, "pom.xml")
+    pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
+            .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
+            .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+}
+
+task pluginDescriptor(type: Exec) {
+    workingDir buildDir
+    commandLine 'mvn', '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+}
+
+task helpMojo(type: Exec) {
+    workingDir buildDir
+    commandLine 'mvn', '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
+}
+
+
+helpMojo.dependsOn generatePom
+sourceSets.main.java.srcDir("$buildDir/generated-sources/plugin")
+compileJava.dependsOn helpMojo
+
+pluginDescriptor.dependsOn generatePom
+
+shadowJar {
+    baseName = 'dokka-maven-plugin'
+    classifier = ''
+
+    relocate('kotlin.', 'dokkakotlin.')
+}
+
+shadowJar.dependsOn pluginDescriptor
+
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        dokkaMavenPlugin(MavenPublication) {
+            from components.shadow
+            artifactId = 'dokka-maven-plugin'
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
+
+bintrayPublication(project, ['dokkaMavenPlugin'])

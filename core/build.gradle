@@ -1,60 +1,17 @@
-import com.github.jengelman.gradle.plugins.shadow.relocation.Relocator
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
-import groovy.xml.XmlUtil
-import org.apache.tools.zip.ZipEntry
-import org.apache.tools.zip.ZipOutputStream
-
 import javax.tools.ToolProvider
-
-group 'org.jetbrains.dokka'
-version dokka_version
 
 buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
     }
 }
 
-apply plugin: 'java'
 apply plugin: 'kotlin'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.5
 
 configurations {
     provided
-}
-
-dependencies {
-    compile "com.google.inject:guice:4.1.0"
-    compile "com.github.spullara.cli-parser:cli-parser:1.1.1"
-    compile "org.jsoup:jsoup:1.8.3"
-    compile "org.apache.ant:ant:1.9.6"
-
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
-
-    compile files("../lib/intellij-core-analysis.jar")
-    compile files("../lib/kotlin-compiler.jar")
-    compile files("../lib/kotlin-ide-common.jar")
-    compile files("../lib/markdown.jar")
-    compile files("../lib/picocontainer.jar")
-
-    provided files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
-
-    runtime "org.fusesource.jansi:jansi:1.11"
-
-    runtime files("../lib/trove4j.jar")
-    runtime files("../lib/jdom.jar")
-    runtime files("../lib/protobuf-2.5.0-lite.jar")
-    runtime files("../lib/asm-all.jar")
-    runtime files("../lib/jps-model.jar")
-
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
 }
 
 tasks.withType(AbstractCompile) {
@@ -65,125 +22,31 @@ tasks.withType(Test) {
     classpath += configurations.provided
 }
 
-jar {
-    manifest {
-        attributes "Implementation-Title": "Dokka Kotlin Documentation tool"
-        attributes "Implementation-Version": version
-        attributes "Main-Class": "org.jetbrains.dokka.MainKt"
-    }
+dependencies {
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+
+    compile "com.google.inject:guice:4.1.0"
+    compile "org.jsoup:jsoup:1.8.3"
+
+    compile files("../lib/intellij-core-analysis.jar")
+    compile files("../lib/kotlin-compiler.jar")
+    compile files("../lib/kotlin-ide-common.jar")
+    compile files("../lib/markdown.jar")
+    compile files("../lib/picocontainer.jar")
+
+    runtime "org.fusesource.jansi:jansi:1.11"
+
+    runtime files("../lib/trove4j.jar")
+    runtime files("../lib/jdom.jar")
+    runtime files("../lib/protobuf-2.5.0-lite.jar")
+    runtime files("../lib/asm-all.jar")
+    runtime files("../lib/jps-model.jar")
+
+    //tools.jar
+    provided files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
 }
 
-class PluginXmlTransformer implements com.github.jengelman.gradle.plugins.shadow.transformers.Transformer {
-    private Map<String, Node> transformedPluginXmlFiles = new HashMap<>();
-
-    @Override
-    boolean canTransformResource(FileTreeElement fileTreeElement) {
-        return fileTreeElement.relativePath.segments.contains("META-INF") && fileTreeElement.name.endsWith(".xml")
-    }
-
-    @Override
-    void transform(String path, InputStream inputStream, List<Relocator> relocators) {
-        Node node = new XmlParser().parse(inputStream)
-        relocateXml(node, relocators)
-        transformedPluginXmlFiles.put(path, node)
-    }
-
-    @Override
-    boolean hasTransformedResource() {
-        return !transformedPluginXmlFiles.isEmpty()
-    }
-
-    @Override
-    void modifyOutputStream(ZipOutputStream zipOutputStream) {
-        for (Map.Entry<String, Node> entry : transformedPluginXmlFiles.entrySet()) {
-            zipOutputStream.putNextEntry(new ZipEntry(entry.key))
-            XmlUtil.serialize(entry.value, zipOutputStream)
-        }
-    }
-
-    private static void relocateXml(Node node, List<Relocator> relocators) {
-        Map attributes = node.attributes()
-        for (Map.Entry entry : attributes.entrySet()) {
-            entry.setValue(relocateClassName((String) entry.getValue(), relocators))
-        }
-        List<String> localText = node.localText()
-        if (localText.size() == 1) {
-            node.setValue(relocateClassName(localText[0], relocators))
-        }
-        node.children().each {
-            if (it instanceof Node) {
-                relocateXml((Node) it, relocators)
-            }
-        }
-    }
-
-    private static String relocateClassName(String className, List<Relocator> relocators) {
-        for (Relocator relocator : relocators) {
-            if (relocator.canRelocateClass(className)) {
-                return relocator.relocateClass(className)
-            }
-        }
-        return className
-    }
-}
-
-shadowJar {
-    baseName = 'dokka-fatjar'
-    classifier = ''
-
-    dependencies {
-        exclude(dependency('org.apache.ant:ant:1.9.6'))
-        exclude(dependency('org.apache.ant:ant-launcher:1.9.6'))
-    }
-
-    relocate('com.', 'dokkacom.') {
-        exclude 'com.sun.**'
-    }
-
-    relocate('org.', 'dokkaorg.') {
-        exclude 'org.jetbrains.dokka.**'
-        exclude 'org.xml.**'
-        exclude 'org.w3c.**'
-        exclude 'org.jaxen.**'
-        exclude 'org.apache.xerces.**'
-        exclude 'org.apache.xml.**'
-        exclude 'org.fusesource.jansi.**'
-        exclude 'org.apache.tools.ant.**'
-    }
-
-    transform(ServiceFileTransformer)
-    transform(PluginXmlTransformer)
-
-    exclude 'colorScheme/**'
-    exclude 'fileTemplates/**'
-    exclude 'inspectionDescriptions/**'
-    exclude 'intentionDescriptions/**'
-}
-
-publishing {
-    publications {
-        shadow(MavenPublication) {
-            from components.shadow
-            artifactId = 'dokka-fatjar'
-        }
-    }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-
-    pkg {
-        repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
-        name = 'dokka'
-        userOrg = 'kotlin'
-        desc = 'Dokka, the Kotlin documentation tool'
-        vcsUrl = 'https://github.com/kotlin/dokka.git'
-        licenses = ['Apache-2.0']
-        version {
-            name = dokka_version
-        }
-    }
-
-    publications = ['shadow']
-}

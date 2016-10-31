@@ -3,12 +3,13 @@
 
     <typedef resource="dokka-antlib.xml">
         <classpath>
-            <fileset dir="core/build/libs" includes="dokka-fatjar-*.jar"/>
+            <fileset dir="runners/fatjar/build/libs" includes="dokka-fatjar-*.jar"/>
         </classpath>
     </typedef>
 
     <path id="dokka.source.path">
         <pathelement location="core/src/main/kotlin"/>
+        <fileset dir="runners" includes="*/src/main/kotlin/**" />
     </path>
 
     <target name="document">
