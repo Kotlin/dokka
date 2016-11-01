@@ -61,14 +61,8 @@ class CrossPlatformExec extends AbstractExecTask {
         if (!Files.isExecutable(commandFile)) {
             return null;
         }
-
-        String resolvedCommand = commandFile.toAbsolutePath().normalize();
-
-        if (!windows && !resolvedCommand.startsWith('.')) {
-            resolvedCommand = '.' + File.separator + resolvedCommand;
-        }
-
-        return resolvedCommand;
+        
+        return commandFile.toAbsolutePath().normalize();
     }
 
     private static String normalizeCommandPaths(String command) {
