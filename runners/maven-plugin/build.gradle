@@ -33,12 +33,12 @@ task generatePom << {
 
 task pluginDescriptor(type: Exec) {
     workingDir buildDir
-    commandLine 'mvn', '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+    commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
 }
 
 task helpMojo(type: Exec) {
     workingDir buildDir
-    commandLine 'mvn', '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
+    commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
 }
 
 
