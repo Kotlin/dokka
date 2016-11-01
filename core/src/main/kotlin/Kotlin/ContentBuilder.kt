@@ -123,6 +123,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             }
 
             MarkdownTokenTypes.COLON,
+            MarkdownTokenTypes.SINGLE_QUOTE,
             MarkdownTokenTypes.DOUBLE_QUOTE,
             MarkdownTokenTypes.LT,
             MarkdownTokenTypes.GT,
