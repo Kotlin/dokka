@@ -25,7 +25,7 @@ class CrossPlatformExec extends AbstractExecTask {
         List<String> commandLine = this.getCommandLine();
 
         if (!commandLine.isEmpty()) {
-            commandLine[0] = findCommand(workingDir, commandLine[0], windows);
+            commandLine[0] = findCommand(commandLine[0], windows);
         }
 
         if (windows) {
@@ -41,7 +41,7 @@ class CrossPlatformExec extends AbstractExecTask {
         super.exec();
     }
 
-    private static String findCommand(File workingDir, String command, boolean windows) {
+    private static String findCommand(String command, boolean windows) {
         command = normalizeCommandPaths(command);
         def extensions = windows ? windowsExtensions : unixExtensions;
 
@@ -53,18 +53,16 @@ class CrossPlatformExec extends AbstractExecTask {
                 commandFile = Paths.get(command);
             }
 
-            return resolveCommandFromFile(workingDir, commandFile, windows);
+            return resolveCommandFromFile(commandFile, windows);
         };
     }
 
-    private static String resolveCommandFromFile(File workingDir, Path commandFile, boolean windows) {
+    private static String resolveCommandFromFile(Path commandFile, boolean windows) {
         if (!Files.isExecutable(commandFile)) {
             return null;
         }
 
-        Path cwd = Paths.get(workingDir.absolutePath).toAbsolutePath().normalize();
-
-        String resolvedCommand = cwd.relativize(commandFile.toAbsolutePath().normalize());
+        String resolvedCommand = commandFile.toAbsolutePath().normalize();
 
         if (!windows && !resolvedCommand.startsWith('.')) {
             resolvedCommand = '.' + File.separator + resolvedCommand;
