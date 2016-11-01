@@ -19,6 +19,7 @@ interface HtmlTemplateService {
                 override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {
                     to.appendln("<HTML>")
                     to.appendln("<HEAD>")
+                    to.appendln("<meta charset=\"UTF-8\">")
                     if (title != null) {
                         to.appendln("<title>$title</title>")
                     }
