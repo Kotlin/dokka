@@ -76,6 +76,14 @@ public class CommentTest {
         }
     }
 
+    @Test fun quotes() {
+        verifyModel("testdata/comments/quotes.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("it's \"useful\"", content.summary.toTestString())
+            }
+        }
+    }
+
     @Test fun section1() {
         verifyModel("testdata/comments/section1.kt") { model ->
             with(model.members.single().members.single()) {
