@@ -31,7 +31,13 @@ open class HtmlOutputBuilder(to: StringBuilder,
         to.append("<span class=\"identifier\"$id>${text.htmlEscape()}</span>")
     }
 
-    override fun appendBlockCode(language: String, body: () -> Unit) = wrap("<pre><code>", "</code></pre>", body)
+    override fun appendBlockCode(language: String, body: () -> Unit) {
+        val openTags = if (language.isNotBlank())
+            "<pre><code class=\"lang-$language\">"
+        else
+            "<pre><code>"
+        wrap(openTags, "</code></pre>", body)
+    }
 
     override fun appendHeader(level: Int, body: () -> Unit) =
         wrapInTag("h$level", body, newlineBeforeOpen = true, newlineAfterClose = true)

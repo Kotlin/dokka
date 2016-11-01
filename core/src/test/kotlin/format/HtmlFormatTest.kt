@@ -76,6 +76,10 @@ class HtmlFormatTest {
         }
     }
 
+    @Test fun codeBlock() {
+        verifyHtmlNode("codeBlock")
+    }
+
     @Test fun javaLinkTag() {
         verifyJavaHtmlNode("javaLinkTag")
     }

@@ -175,7 +175,10 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
         }
         is ContentEmphasis -> append("*").appendChildren(node).append("*")
         is ContentBlockCode -> {
-            appendln("[code]")
+            if (node.language.isNotBlank())
+                appendln("[code lang=${node.language}]")
+            else
+                appendln("[code]")
             appendChildren(node)
             appendln()
             appendln("[/code]")
