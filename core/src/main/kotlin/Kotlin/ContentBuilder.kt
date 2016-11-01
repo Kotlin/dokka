@@ -51,7 +51,10 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
                 }
             }
             MarkdownElementTypes.CODE_BLOCK,
-            MarkdownElementTypes.CODE_FENCE -> appendNodeWithChildren(ContentBlockCode())
+            MarkdownElementTypes.CODE_FENCE -> {
+                val language = node.child(MarkdownTokenTypes.FENCE_LANG)?.text?.trim() ?: ""
+                appendNodeWithChildren(ContentBlockCode(language))
+            }
             MarkdownElementTypes.PARAGRAPH -> appendNodeWithChildren(ContentParagraph())
 
             MarkdownElementTypes.INLINE_LINK -> {

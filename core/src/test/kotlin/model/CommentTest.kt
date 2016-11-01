@@ -5,6 +5,26 @@ import org.junit.Assert.*
 import org.jetbrains.dokka.*
 
 public class CommentTest {
+
+    @Test fun codeBlockComment() {
+        verifyModel("testdata/comments/codeBlockComment.kt") { model ->
+            with(model.members.single().members.first()) {
+                assertEquals("""[code lang=brainfuck]
+                                |++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
+                                |[/code]
+                                |""".trimMargin(),
+                        content.toTestString())
+            }
+            with(model.members.single().members.last()) {
+                assertEquals("""[code]
+                                |a + b - c
+                                |[/code]
+                                |""".trimMargin(),
+                        content.toTestString())
+            }
+        }
+    }
+
     @Test fun emptyDoc() {
         verifyModel("testdata/comments/emptyDoc.kt") { model ->
             with(model.members.single().members.single()) {
@@ -133,27 +153,27 @@ line two""", toTestString())
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())
                 with (content.description) {
-                    assertEqualsIgnoringSeparators("""[code]
-if (true) {
-    println(property)
-}
-[/code]
-[code]
-if (true) {
-    println(property)
-}
-[/code]
-[code]
-if (true) {
-    println(property)
-}
-[/code]
-[code]
-if (true) {
-    println(property)
-}
-[/code]
-""", toTestString())
+                    assertEqualsIgnoringSeparators("""[code lang=kotlin]
+                        |if (true) {
+                        |    println(property)
+                        |}
+                        |[/code]
+                        |[code lang=kotlin]
+                        |if (true) {
+                        |    println(property)
+                        |}
+                        |[/code]
+                        |[code lang=kotlin]
+                        |if (true) {
+                        |    println(property)
+                        |}
+                        |[/code]
+                        |[code lang=kotlin]
+                        |if (true) {
+                        |    println(property)
+                        |}
+                        |[/code]
+                        |""".trimMargin(), toTestString())
                 }
             }
         }

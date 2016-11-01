@@ -11,3 +11,12 @@ import kotlin.reflect.KClass
  * ```
  */
 class Throws
+
+
+/**
+ * Check output of
+ * ``` brainfuck
+ * ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
+ * ```
+ */
+class ItDoesSomeObfuscatedThing
