@@ -7,8 +7,6 @@ layout: api
 
 # magic
 
-<div class="overload-group">
-
 <div class="signature"><code><span class="keyword">fun </span><span class="identifier">magic</span><span class="symbol">(</span><span class="parameterName" id="$magic(kotlin.String)/spell">spell</span><span class="symbol">:</span>&nbsp;<span class="identifier">String</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Int</span></code></div>
 
 ### Parameters
@@ -18,9 +16,7 @@ layout: api
 **Return**
 Spell ID for future casts
 
-</div>
-
-<div class="overload-group">
+<div class="overload-group"></div>
 
 <div class="signature"><code><span class="keyword">fun </span><span class="identifier">magic</span><span class="symbol">(</span><span class="parameterName" id="$magic(kotlin.Int)/spell">spell</span><span class="symbol">:</span>&nbsp;<span class="identifier">Int</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Int</span></code></div>
 
@@ -31,4 +27,4 @@ Spell ID for future casts
 **Return**
 Spell ID for future casts
 
-</div>
+<div class="overload-group"></div>

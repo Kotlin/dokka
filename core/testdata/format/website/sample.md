@@ -7,8 +7,6 @@ layout: api
 
 # foo
 
-<div class="overload-group">
-
 <div class="signature"><code><span class="keyword">fun </span><span class="identifier">foo</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Int</span></code></div>
 
 Groups elements of the original sequence by the key returned by the given <a href="#">keySelector</a> function
@@ -20,10 +18,8 @@ if (true) {
 }
 ```
 
-</div>
-
-<div class="overload-group">
+<div class="overload-group"></div>
 
 <div class="signature"><code><span class="keyword">fun </span><span class="identifier">foo</span><span class="symbol">(</span><span class="parameterName" id="$foo(kotlin.Int)/i">i</span><span class="symbol">:</span>&nbsp;<span class="identifier">Int</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Int</span></code></div>
 
-</div>
+<div class="overload-group"></div>
