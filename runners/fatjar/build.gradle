@@ -8,6 +8,12 @@ dependencies {
     compile project(":runners:ant")
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.jetbrains.dokka.MainKt'
+    }
+}
+
 shadowJar {
     baseName = 'dokka-fatjar'
     classifier = ''
