@@ -3,6 +3,7 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.RefKind
 import org.junit.Assert.*
+import org.junit.Ignore
 import org.junit.Test
 
 public class JavaTest {
@@ -146,7 +147,13 @@ public class JavaTest {
         }
     }
 
-    @Test fun suppressTag() {
+    /**
+     *  `@suppress` not supported in Java!
+     *
+     *  [Proposed tags](http://www.oracle.com/technetwork/java/javase/documentation/proposed-tags-142378.html)
+     *  Proposed tag `@exclude` for it, but not supported yet
+     */
+    @Ignore("@suppress not supported in Java!") @Test fun suppressTag() {
         verifyJavaPackageMember("testdata/java/suppressTag.java") { cls ->
             assertEquals(1, cls.members(NodeKind.Function).size)
         }

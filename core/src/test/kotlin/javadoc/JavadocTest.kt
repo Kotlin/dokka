@@ -96,6 +96,17 @@ class JavadocTest {
         }
     }
 
+    @Test fun testSuppress() {
+        verifyJavadoc("testdata/javadoc/suppress.kt", withKotlinRuntime = true) { doc ->
+            assertNull(doc.classNamed("Some"))
+            assertNull(doc.classNamed("SomeAgain"))
+            assertNull(doc.classNamed("Interface"))
+            val classSame = doc.classNamed("Same")!!
+            assertTrue(classSame.fields().isEmpty())
+            assertTrue(classSame.methods().isEmpty())
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,

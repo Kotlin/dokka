@@ -4,12 +4,9 @@ import com.google.inject.Inject
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.asJava.KtLightElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtDeclaration
@@ -40,15 +37,11 @@ class KotlinAsJavaDocumentationBuilder
         }
     }
 
-    fun KtDeclaration.isNotSuppressed() =
-            PsiTreeUtil.findChildrenOfType(this.docComment, KDocTag::class.java).none { it.knownTag == KDocKnownTag.SUPPRESS }
-
-    fun PsiClass.isVisibleInDocumentation() : Boolean {
+    fun PsiClass.isVisibleInDocumentation(): Boolean {
         val origin: KtDeclaration = (this as KtLightElement<*, *>).kotlinOrigin as? KtDeclaration ?: return true
 
-        return  origin.isNotSuppressed() &&
-                origin.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
-               origin.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
+        return origin.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
+                origin.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
     }
 }
 
