@@ -140,7 +140,7 @@ val DocumentationNode.path: List<DocumentationNode>
         return parent.path + this
     }
 
-fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>): DocumentationNode {
+fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
     val existingNode = members(NodeKind.Package).firstOrNull { it.name  == packageName }
     if (existingNode != null) {
         return existingNode
@@ -149,6 +149,7 @@ fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageConten
             packageContent.getOrElse(packageName) { Content.Empty },
             NodeKind.Package)
     append(newNode, RefKind.Member)
+    refGraph.register(packageName, newNode)
     return newNode
 }
 

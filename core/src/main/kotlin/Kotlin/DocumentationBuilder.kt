@@ -276,7 +276,7 @@ class DocumentationBuilder
 
             if (options.skipEmptyPackages && declarations.none { it.isDocumented(options) }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
-            val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent)
+            val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent, this@DocumentationBuilder.refGraph)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
                     declarations, allFqNames)
         }
@@ -664,7 +664,7 @@ class KotlinJavaDocumentationBuilder
         }
 
         if (classDescriptors.any { it != null && it.isDocumented(options) }) {
-            val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent)
+            val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent, documentationBuilder.refGraph)
 
             for (descriptor in classDescriptors.filterNotNull()) {
                 with(documentationBuilder) {
@@ -737,7 +737,7 @@ fun DeclarationDescriptor.signature(): String = when(this) {
     is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
     is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
     is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
-
+    is PackageViewDescriptor -> fqName.toString()
     else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
 }
 

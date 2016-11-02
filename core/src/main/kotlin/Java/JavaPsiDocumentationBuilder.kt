@@ -60,7 +60,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (file.classes.all { skipElement(it) }) {
             return
         }
-        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap())
+        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap(), refGraph)
         appendClasses(packageNode, file.classes)
     }
 
