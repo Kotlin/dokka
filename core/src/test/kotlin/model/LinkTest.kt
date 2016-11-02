@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.ContentBlock
+import org.jetbrains.dokka.ContentNodeLazyLink
 import org.jetbrains.dokka.NodeKind
-import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class LinkTest {
     @Test fun linkToSelf() {
@@ -51,6 +53,21 @@ class LinkTest {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Function, kind)
                 assertEquals("This is link to [param -> Parameter:param]", content.summary.toTestString())
+            }
+        }
+    }
+
+    @Test fun linkToPackage() {
+        verifyModel("testdata/links/linkToPackage.kt") { model ->
+            val packageNode = model.members.single()
+            with(packageNode) {
+                assertEquals(this.name, "test.magic")
+            }
+            with(packageNode.members.single()) {
+                assertEquals("Magic", name)
+                assertEquals(NodeKind.Class, kind)
+                assertEquals("Basic implementations of [Magic -> Class:Magic] are located in [test.magic -> Package:test.magic] package", content.summary.toTestString())
+                assertEquals(packageNode, ((this.content.summary as ContentBlock).children.filterIsInstance<ContentNodeLazyLink>().last()).lazyNode.invoke())
             }
         }
     }
