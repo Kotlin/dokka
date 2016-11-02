@@ -732,12 +732,11 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
 }
 
 fun DeclarationDescriptor.signature(): String = when(this) {
-    is ClassDescriptor, is PackageFragmentDescriptor -> DescriptorUtils.getFqName(this).asString()
+    is ClassDescriptor, is PackageFragmentDescriptor, is PackageViewDescriptor  -> DescriptorUtils.getFqName(this).asString()
     is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
     is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
     is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
     is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
-    is PackageViewDescriptor -> fqName.toString()
     else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
 }
 
