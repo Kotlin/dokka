@@ -3,9 +3,13 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.psi.*
 import com.intellij.psi.util.InheritanceUtil
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.asJava.KtLightDeclaration
 import org.jetbrains.kotlin.asJava.KtLightElement
-import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
+import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 
 fun getSignature(element: PsiElement?) = when(element) {
@@ -277,6 +281,8 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 }
 
-fun hasSuppressDocTag(element: Any?) =
-        element is PsiDocCommentOwner && element.docComment?.let { it.findTagByName("suppress") != null } ?: false
+fun hasSuppressDocTag(element: Any?): Boolean {
+    val declaration = (element as? KtLightDeclaration<*, *>)?.kotlinOrigin as? KtDeclaration ?: return false
+    return PsiTreeUtil.findChildrenOfType(declaration.docComment, KDocTag::class.java).any { it.knownTag == KDocKnownTag.SUPPRESS }
+}
 

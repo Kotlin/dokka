@@ -37,10 +37,11 @@ class KotlinAsJavaDocumentationBuilder
         }
     }
 
-    fun PsiClass.isVisibleInDocumentation() : Boolean {
-        val origin: KtDeclaration? = (this as KtLightElement<*, *>).kotlinOrigin as? KtDeclaration
-        return origin?.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
-               origin?.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
+    fun PsiClass.isVisibleInDocumentation(): Boolean {
+        val origin: KtDeclaration = (this as KtLightElement<*, *>).kotlinOrigin as? KtDeclaration ?: return true
+
+        return origin.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
+                origin.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
     }
 }
 
