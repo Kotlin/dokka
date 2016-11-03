@@ -52,8 +52,11 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
     }
 
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
+        to.append("<div class=\"overload-group\" markdown=\"1\">")
+        ensureParagraph()
         block()
-        to.append("<div class=\"overload-group\"></div>")
+        ensureParagraph()
+        to.append("</div>")
     }
 
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
