@@ -100,10 +100,10 @@ class DescriptorDocumentationParser
                 deepestDescriptor = deepestDescriptor.overriddenDescriptors.first()
             }
             if (DescriptorUtils.getFqName(deepestDescriptor.containingDeclaration).asString() == "kotlin.Any") {
-                val anyClassDescriptors = resolutionFacade.resolveSession.getTopLevelClassDescriptors(
+                val anyClassDescriptors = resolutionFacade.resolveSession.getTopLevelClassifierDescriptors(
                         FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.FROM_IDE)
                 anyClassDescriptors.forEach {
-                    val anyMethod = it.getMemberScope(listOf())
+                    val anyMethod = (it as ClassDescriptor).getMemberScope(listOf())
                             .getDescriptorsFiltered(DescriptorKindFilter.FUNCTIONS, { it == descriptor.name })
                             .single()
                     val kdoc = anyMethod.findKDoc()

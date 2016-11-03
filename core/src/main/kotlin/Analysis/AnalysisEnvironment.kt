@@ -166,6 +166,9 @@ fun contentRootFromPath(path: String): ContentRoot {
 class DokkaResolutionFacade(override val project: Project,
                             override val moduleDescriptor: ModuleDescriptor,
                             val resolverForModule: ResolverForModule) : ResolutionFacade {
+    override fun analyze(elements: Collection<KtElement>, bodyResolveMode: BodyResolveMode): BindingContext {
+        throw UnsupportedOperationException()
+    }
 
     val resolveSession: ResolveSession get() = getFrontendService(ResolveSession::class.java)
 
