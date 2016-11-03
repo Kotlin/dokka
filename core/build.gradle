@@ -26,11 +26,12 @@ dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
 
-    compile "com.google.inject:guice:4.1.0"
+    compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile "org.jsoup:jsoup:1.8.3"
 
     compile files("../lib/intellij-core-analysis.jar")
     compile files("../lib/kotlin-compiler.jar")
+    compile files("../lib/kotlin-script-runtime.jar")
     compile files("../lib/kotlin-ide-common.jar")
     compile files("../lib/markdown.jar")
     compile files("../lib/picocontainer.jar")
@@ -45,6 +46,8 @@ dependencies {
 
     //tools.jar
     provided files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
+
+
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version

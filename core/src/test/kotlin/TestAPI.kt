@@ -23,6 +23,10 @@ fun verifyModel(vararg roots: ContentRoot,
                 includeNonPublic: Boolean = true,
                 verifier: (DocumentationModule) -> Unit) {
     val messageCollector = object : MessageCollector {
+        override fun clear() {
+
+        }
+
         override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
             when (severity) {
                 CompilerMessageSeverity.WARNING,

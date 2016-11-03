@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Utilities.DokkaModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -16,7 +15,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
-import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
+import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
@@ -84,6 +83,10 @@ class DokkaGenerator(val logger: DokkaLogger,
 }
 
 class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
+    override fun clear() {
+        seenErrors = false
+    }
+
     private var seenErrors = false
 
     override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
@@ -105,7 +108,7 @@ fun buildDocumentationModule(injector: Injector,
     val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
 
     val resolutionFacade = injector.getInstance(DokkaResolutionFacade::class.java)
-    val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzerForTopLevel::class.java)
+    val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzer::class.java)
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
     val fragments = fragmentFiles
