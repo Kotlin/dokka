@@ -10,6 +10,6 @@
  */
 fun hackTheArithmetic(){
     valueOf(1) {
-        set(2)
+        set(3)
     }
 }
