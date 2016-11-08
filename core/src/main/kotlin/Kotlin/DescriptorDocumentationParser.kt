@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.getKDocLinkResolutionScope
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
+import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
@@ -60,10 +61,10 @@ class DescriptorDocumentationParser
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
-                when (it.name) {
-                    "sample" ->
+                when (it.knownTag) {
+                    KDocKnownTag.SAMPLE ->
                         content.append(functionBody(descriptor, it.getSubjectName()))
-                    "see" ->
+                    KDocKnownTag.SEE ->
                         content.addTagToSeeAlso(descriptor, it)
                     else -> {
                         val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
@@ -147,7 +148,7 @@ class DescriptorDocumentationParser
     private fun functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
         if (functionName == null) {
             logger.warn("Missing function name in @sample in ${descriptor.signature()}")
-            return ContentBlockCode().let() { it.append(ContentText("Missing function name in @sample")); it }
+            return ContentBlockSampleCode().let { it.append(ContentText("//Missing function name in @sample")); it }
         }
         val scope = getKDocLinkResolutionScope(resolutionFacade, descriptor)
         val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
@@ -155,16 +156,16 @@ class DescriptorDocumentationParser
         val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
         if (symbol == null) {
             logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockCode().let() { it.append(ContentText("Unresolved: $functionName")); it }
+            return ContentBlockSampleCode().let { it.append(ContentText("//Unresolved: $functionName")); it }
         }
         val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
         if (psiElement == null) {
             logger.warn("Can't find source for function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockCode().let() { it.append(ContentText("Source not found: $functionName")); it }
+            return ContentBlockSampleCode().let { it.append(ContentText("//Source not found: $functionName")); it }
         }
 
         val text = when (psiElement) {
-            is KtDeclarationWithBody -> ContentBlockCode().let() {
+            is KtDeclarationWithBody -> ContentBlockCode().let {
                 val bodyExpression = psiElement.bodyExpression
                 when (bodyExpression) {
                     is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
@@ -174,10 +175,10 @@ class DescriptorDocumentationParser
             else -> psiElement.text
         }
 
-        val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot { it.length == 0 }
-        val indent = lines.map { it.takeWhile { it.isWhitespace() }.count() }.min() ?: 0
+        val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot(String::isEmpty)
+        val indent = lines.map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
         val finalText = lines.map { it.drop(indent) }.joinToString("\n")
-        return ContentBlockCode("kotlin").let() { it.append(ContentText(finalText)); it }
+        return ContentBlockSampleCode().let { it.append(ContentText(finalText)); it }
     }
 
     private fun resolveInScope(functionName: String, scope: ResolutionScope): DeclarationDescriptor? {
@@ -197,6 +198,7 @@ class DescriptorDocumentationParser
                 symbol = null
                 break
             }
+            @Suppress("IfThenToElvis")
             currentScope = if (partSymbol is ClassDescriptor)
                 partSymbol.defaultType.memberScope
             else if (partSymbol is PackageViewDescriptor)
