@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.analyzer.ResolverForModule
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
+import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.config.*
@@ -94,7 +95,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                 listOf(module),
                 { ModuleContent(sourceFiles, GlobalSearchScope.allScope(environment.project)) },
                 JvmPlatformParameters { module },
-                CompilerEnvironment
+                CompilerEnvironment,
+                packagePartProviderFactory = { info, content -> JvmPackagePartProvider(environment, content.moduleContentScope) }
         )
 
         val resolverForModule = resolverForProject.resolverForModule(module)
