@@ -164,12 +164,14 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     override fun appendBlockCode(language: String, body: () -> Unit) {
+        inCodeBlock = true
         ensureParagraph()
         to.appendln(if (language.isEmpty()) "```" else "``` $language")
         body()
         ensureNewline()
         to.appendln("```")
         appendLine()
+        inCodeBlock = false
     }
 
     override fun appendTable(vararg columns: String, body: () -> Unit) {
