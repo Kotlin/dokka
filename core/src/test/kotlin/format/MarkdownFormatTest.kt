@@ -4,6 +4,7 @@ import org.jetbrains.dokka.DocumentationModule
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.dokka.MarkdownFormatService
+import org.junit.Ignore
 import org.junit.Test
 
 class MarkdownFormatTest {
@@ -26,6 +27,8 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("annotationClass", withKotlinRuntime = true)
     }
 
+    //TODO: Enable after typealias support
+    @Ignore("Disabled until we will correctly support typealias")
     @Test fun exceptionClass() {
         verifyMarkdownNode("exceptionClass", withKotlinRuntime = true)
         verifyMarkdownPackage("exceptionClass", withKotlinRuntime = true)
