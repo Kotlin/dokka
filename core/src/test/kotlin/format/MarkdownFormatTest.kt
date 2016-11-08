@@ -135,6 +135,10 @@ class MarkdownFormatTest {
         }
     }
 
+    @Test fun codeBlockNoHtmlEscape() {
+        verifyMarkdownNodeByName("codeBlockNoHtmlEscape", "hackTheArithmetic")
+    }
+
     @Test fun companionObjectExtension() {
         verifyMarkdownNodeByName("companionObjectExtension", "Foo")
     }
