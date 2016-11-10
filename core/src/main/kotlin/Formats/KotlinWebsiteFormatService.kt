@@ -53,9 +53,14 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
         }
     }
 
-    override fun appendSampleBlockCode(language: String, body: () -> Unit) {
+    override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
         div(to, "sample", true) {
-            appendBlockCode(language, body)
+            appendBlockCode(language) {
+                imports()
+                wrap("\nfun main(args: Array<String>) {", "}") {
+                    wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
+                }
+            }
         }
     }
 

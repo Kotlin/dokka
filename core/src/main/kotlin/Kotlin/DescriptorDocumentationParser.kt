@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.annotations.argumentValue
@@ -148,7 +149,7 @@ class DescriptorDocumentationParser
     private fun functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
         if (functionName == null) {
             logger.warn("Missing function name in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().let { it.append(ContentText("//Missing function name in @sample")); it }
+            return ContentBlockSampleCode().apply { append(ContentText("//Missing function name in @sample")) }
         }
         val scope = getKDocLinkResolutionScope(resolutionFacade, descriptor)
         val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
@@ -156,12 +157,12 @@ class DescriptorDocumentationParser
         val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
         if (symbol == null) {
             logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().let { it.append(ContentText("//Unresolved: $functionName")); it }
+            return ContentBlockSampleCode().apply { append(ContentText("//Unresolved: $functionName")) }
         }
         val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
         if (psiElement == null) {
             logger.warn("Can't find source for function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().let { it.append(ContentText("//Source not found: $functionName")); it }
+            return ContentBlockSampleCode().apply { append(ContentText("//Source not found: $functionName")) }
         }
 
         val text = when (psiElement) {
@@ -178,7 +179,18 @@ class DescriptorDocumentationParser
         val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot(String::isEmpty)
         val indent = lines.map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
         val finalText = lines.map { it.drop(indent) }.joinToString("\n")
-        return ContentBlockSampleCode().let { it.append(ContentText(finalText)); it }
+
+        val psiFile = psiElement.containingFile
+        val importsBlock = if (psiFile is KtFile) {
+            ContentBlockCode("kotlin").apply {
+                append(ContentText(psiFile.importList?.text ?: ""))
+            }
+        } else {
+            ContentBlockCode("")
+        }
+
+
+        return ContentBlockSampleCode(importsBlock = importsBlock).apply { append(ContentText(finalText)) }
     }
 
     private fun resolveInScope(functionName: String, scope: ResolutionScope): DeclarationDescriptor? {

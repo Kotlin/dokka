@@ -17,8 +17,13 @@ applied to each element and returns a map where each group key is associated wit
 <div class="sample" markdown="1">
 
 ``` kotlin
+
+fun main(args: Array<String>) {
+//sampleStart
 if (true) {
     println(property)
+}
+//sampleEnd
 }
 ```
 
