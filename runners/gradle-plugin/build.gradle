@@ -28,10 +28,6 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
-}
 
 shadowJar {
     baseName = 'dokka-gradle-plugin'

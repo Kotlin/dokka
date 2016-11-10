@@ -12,29 +12,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="maven-plugin_main" />
     <orderEntry type="module" module-name="fatjar_main" />
+    <orderEntry type="module" module-name="cli_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/markdown.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module" module-name="core_main" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-compiler.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/asm-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../lib/jps-model.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -49,17 +31,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="cli_main" />
-    <orderEntry type="module" module-name="ant_main" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/jps-model.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -69,6 +40,35 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-ide-common.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/markdown.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/asm-all.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module" module-name="ant_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -90,15 +90,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-ide-common.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../../lib/intellij-core-analysis.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -109,6 +100,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-script-runtime.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-compiler.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
