@@ -1,12 +1,16 @@
 package org.jetbrains.dokka.gradle
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BasePlugin
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.internal.VariantManager
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
 import java.io.File
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.memberProperties
 
 open class DokkaAndroidPlugin : Plugin<Project> {
     val allVariantsClassPath = mutableSetOf<File>()
@@ -32,8 +36,14 @@ open class DokkaAndroidPlugin : Plugin<Project> {
     }
 
     private fun collectClasspath(project: Project) {
-        val variants = project.collectAllVariants()
-        variants.flatMapTo(allVariantsClassPath) { it.javaCompiler.classpath.files }
+        val plugin = (project.plugins.findPlugin("android")
+                ?: project.plugins.findPlugin("android-library")
+                ?: project.plugins.findPlugin("com.android.test")) as BasePlugin
+
+        val variantManagerProperty = plugin::class.memberProperties.find { it.name == "variantManager" }!!
+        variantManagerProperty.isAccessible = true
+        val variantManager = variantManagerProperty.get(plugin) as VariantManager
+        variantManager.variantDataList.flatMapTo(allVariantsClassPath) { it.variantConfiguration.compileClasspath }
     }
 }
 

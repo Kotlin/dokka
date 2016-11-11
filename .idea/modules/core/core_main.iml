@@ -31,34 +31,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/dnsns.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../lib/intellij-core-analysis.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/lib/tools.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/sunpkcs11.jar!/" />
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -77,6 +50,15 @@
       <library>
         <CLASSES>
           <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/cldrdata.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../lib/intellij-core-analysis.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -112,7 +94,25 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/" />
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/dnsns.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/sunpkcs11.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar:///usr/lib/jvm/java-8-oracle/lib/tools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
