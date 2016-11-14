@@ -1,4 +1,4 @@
-package Samples
+package org.jetbrains.dokka.Samples
 
 import org.jetbrains.dokka.ContentNode
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor

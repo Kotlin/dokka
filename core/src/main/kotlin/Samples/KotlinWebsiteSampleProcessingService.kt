@@ -1,14 +1,11 @@
-package Samples
+package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.DocumentationOptions
 import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.DokkaResolutionFacade
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
-import java.util.*
 
 open class KotlinWebsiteSampleProcessingService
 @Inject constructor(options: DocumentationOptions,
@@ -16,66 +13,68 @@ open class KotlinWebsiteSampleProcessingService
                     resolutionFacade: DokkaResolutionFacade)
     : DefaultSampleProcessingService(options, logger, resolutionFacade) {
 
+    private class SampleBuilder() : KtVisitorVoid() {
+        val builder = StringBuilder()
+        val text: String
+            get() = builder.toString()
 
-    fun buildReplacementData(psiElement: PsiElement): Map<TextRange, String> {
-
-        val result = TreeMap<TextRange, String>({ o1, o2 -> o1.startOffset.compareTo(o2.startOffset) })
         fun convertAssertPrints(expression: KtCallExpression) {
             val (argument, commentArgument) = expression.valueArguments
             val comment = commentArgument.getArgumentExpression() as KtStringTemplateExpression
             val commentText = comment.entries.joinToString("") { it.text }
-            result[expression.textRange] = "println(${argument.text}) //$commentText"
+            builder.apply {
+                append("println(")
+                append(argument.text)
+                append(") // ")
+                append(commentText)
+            }
         }
 
         fun convertAssertTrue(expression: KtCallExpression) {
             val (argument) = expression.valueArguments
-            result[expression.textRange] = "println(\"${argument.text} is \${${argument.text}}\") //true "
+            builder.apply {
+                append("println(\"")
+                append(argument.text)
+                append(" is \${")
+                append(argument.text)
+                append("}\") // true")
+            }
         }
 
-        if (psiElement is KtElement) {
-            val visitor = object : KtTreeVisitor<Any>() {
-                override fun visitCallExpression(expression: KtCallExpression, data: Any?): Void? {
-                    when (expression.calleeExpression?.text) {
-                        "assertPrints" -> convertAssertPrints(expression)
-                        "assertTrue" -> convertAssertTrue(expression)
-                        else -> super.visitCallExpression(expression, data)
-                    }
-                    return null
-                }
+        override fun visitCallExpression(expression: KtCallExpression) {
+            when (expression.calleeExpression?.text) {
+                "assertPrints" -> convertAssertPrints(expression)
+                "assertTrue" -> convertAssertTrue(expression)
+                else -> super.visitCallExpression(expression)
             }
-            psiElement.acceptChildren(visitor)
         }
-        return result
+
+        override fun visitElement(element: PsiElement?) {
+            if (element != null) {
+                if (element.children.isEmpty())
+                    builder.append(element.text)
+                else
+                    element.acceptChildren(this)
+            }
+        }
     }
 
-    private fun String.applyReplacements(baseOffset: Int, replacementData: Map<TextRange, String>): String {
-        val partsList = arrayListOf<String>()
-        var prevRange = TextRange(0, baseOffset)
-        for ((range, replacement) in replacementData) {
-            partsList.add(substring(prevRange.endOffset - baseOffset, range.startOffset - baseOffset))
-            partsList.add(replacement)
-            prevRange = range
-        }
-        partsList.add(substring(prevRange.endOffset - baseOffset))
-        return partsList.joinToString(separator = "")
+    private fun PsiElement.buildSampleText(): String {
+        val sampleBuilder = SampleBuilder()
+        this.accept(sampleBuilder)
+        return sampleBuilder.text
     }
 
-
-    override fun processSampleBody(psiElement: PsiElement): String {
-
-        val replacementData = buildReplacementData(psiElement)
-
-        return when (psiElement) {
-            is KtDeclarationWithBody -> {
-                val bodyExpression = psiElement.bodyExpression
-                val bodyExpressionText = bodyExpression!!.text.applyReplacements(bodyExpression.startOffset, replacementData)
-                when (bodyExpression) {
-                    is KtBlockExpression -> bodyExpressionText.removeSurrounding("{", "}")
-                    else -> bodyExpressionText
-                }
+    override fun processSampleBody(psiElement: PsiElement) = when (psiElement) {
+        is KtDeclarationWithBody -> {
+            val bodyExpression = psiElement.bodyExpression
+            val bodyExpressionText = bodyExpression!!.buildSampleText()
+            when (bodyExpression) {
+                is KtBlockExpression -> bodyExpressionText.removeSurrounding("{", "}")
+                else -> bodyExpressionText
             }
-            else -> psiElement.text.applyReplacements(psiElement.startOffset, replacementData)
         }
+        else -> psiElement.buildSampleText()
     }
 }
 

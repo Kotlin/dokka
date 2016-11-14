@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.Formats
 
-import Samples.SampleProcessingService
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Samples.SampleProcessingService
 import kotlin.reflect.KClass
 
 interface FormatDescriptor {

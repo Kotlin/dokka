@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.Formats
 
-import Samples.DefaultSampleProcessingService
-import Samples.KotlinWebsiteSampleProcessingService
-import Samples.SampleProcessingService
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
+import org.jetbrains.dokka.Samples.KotlinWebsiteSampleProcessingService
+import org.jetbrains.dokka.Samples.SampleProcessingService
 import kotlin.reflect.KClass
 
 abstract class KotlinFormatDescriptorBase : FormatDescriptor {

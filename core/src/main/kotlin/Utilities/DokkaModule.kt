@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.Utilities
 
-import Samples.SampleProcessingService
 import com.google.inject.Binder
 import com.google.inject.Module
 import com.google.inject.Provider
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 

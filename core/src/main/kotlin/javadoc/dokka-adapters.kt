@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.javadoc
 
-import Samples.DefaultSampleProcessingService
 import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 
 class JavadocGenerator @Inject constructor (val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
     override fun buildPages(nodes: Iterable<DocumentationNode>) {

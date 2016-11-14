@@ -1,4 +1,4 @@
-package Samples
+package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
 import com.intellij.psi.PsiElement
