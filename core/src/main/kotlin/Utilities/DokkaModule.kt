@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.Utilities
 
+import Samples.SampleProcessingService
 import com.google.inject.Binder
 import com.google.inject.Module
 import com.google.inject.Provider
@@ -44,6 +45,7 @@ class DokkaModule(val environment: AnalysisEnvironment,
         }
         binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
         binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)
+        binder.bind<SampleProcessingService>().to(descriptor.sampleProcessingService.java)
 
         binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
 

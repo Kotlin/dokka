@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.Kotlin
 
+import Samples.SampleProcessingService
 import com.google.inject.Inject
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiNamedElement
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtBlockExpression
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
@@ -33,7 +35,8 @@ class DescriptorDocumentationParser
                              val logger: DokkaLogger,
                              val linkResolver: DeclarationLinkResolver,
                              val resolutionFacade: DokkaResolutionFacade,
-                             val refGraph: NodeReferenceGraph)
+                             val refGraph: NodeReferenceGraph,
+                             val sampleService: SampleProcessingService)
 {
     fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
             parseDocumentationAndDetails(descriptor, inline).first
@@ -64,7 +67,7 @@ class DescriptorDocumentationParser
             tags.forEach {
                 when (it.knownTag) {
                     KDocKnownTag.SAMPLE ->
-                        content.append(functionBody(descriptor, it.getSubjectName()))
+                        content.append(sampleService.resolveSample(descriptor, it.getSubjectName()))
                     KDocKnownTag.SEE ->
                         content.addTagToSeeAlso(descriptor, it)
                     else -> {
@@ -146,80 +149,4 @@ class DescriptorDocumentationParser
         }
     }
 
-    private fun functionBody(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
-        if (functionName == null) {
-            logger.warn("Missing function name in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().apply { append(ContentText("//Missing function name in @sample")) }
-        }
-        val scope = getKDocLinkResolutionScope(resolutionFacade, descriptor)
-        val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
-        val rootScope = rootPackage.memberScope
-        val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
-        if (symbol == null) {
-            logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().apply { append(ContentText("//Unresolved: $functionName")) }
-        }
-        val psiElement = DescriptorToSourceUtils.descriptorToDeclaration(symbol)
-        if (psiElement == null) {
-            logger.warn("Can't find source for function $functionName in @sample in ${descriptor.signature()}")
-            return ContentBlockSampleCode().apply { append(ContentText("//Source not found: $functionName")) }
-        }
-
-        val text = when (psiElement) {
-            is KtDeclarationWithBody -> ContentBlockCode().let {
-                val bodyExpression = psiElement.bodyExpression
-                when (bodyExpression) {
-                    is KtBlockExpression -> bodyExpression.text.removeSurrounding("{", "}")
-                    else -> bodyExpression!!.text
-                }
-            }
-            else -> psiElement.text
-        }
-
-        val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot(String::isEmpty)
-        val indent = lines.map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
-        val finalText = lines.map { it.drop(indent) }.joinToString("\n")
-
-        val psiFile = psiElement.containingFile
-        val importsBlock = if (psiFile is KtFile) {
-            ContentBlockCode("kotlin").apply {
-                append(ContentText(psiFile.importList?.text ?: ""))
-            }
-        } else {
-            ContentBlockCode("")
-        }
-
-
-        return ContentBlockSampleCode(importsBlock = importsBlock).apply { append(ContentText(finalText)) }
-    }
-
-    private fun resolveInScope(functionName: String, scope: ResolutionScope): DeclarationDescriptor? {
-        var currentScope = scope
-        val parts = functionName.split('.')
-
-        var symbol: DeclarationDescriptor? = null
-
-        for (part in parts) {
-            // short name
-            val symbolName = Name.identifier(part)
-            val partSymbol = currentScope.getContributedDescriptors(DescriptorKindFilter.ALL, { it == symbolName })
-                    .filter { it.name == symbolName }
-                    .firstOrNull()
-
-            if (partSymbol == null) {
-                symbol = null
-                break
-            }
-            @Suppress("IfThenToElvis")
-            currentScope = if (partSymbol is ClassDescriptor)
-                partSymbol.defaultType.memberScope
-            else if (partSymbol is PackageViewDescriptor)
-                partSymbol.memberScope
-            else
-                getKDocLinkResolutionScope(resolutionFacade, partSymbol)
-            symbol = partSymbol
-        }
-
-        return symbol
-    }
 }

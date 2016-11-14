@@ -1,5 +1,8 @@
 package org.jetbrains.dokka.Formats
 
+import Samples.DefaultSampleProcessingService
+import Samples.KotlinWebsiteSampleProcessingService
+import Samples.SampleProcessingService
 import org.jetbrains.dokka.*
 import kotlin.reflect.KClass
 
@@ -9,6 +12,7 @@ abstract class KotlinFormatDescriptorBase : FormatDescriptor {
 
     override val generatorServiceClass = FileGenerator::class
     override val outlineServiceClass: KClass<out OutlineFormatService>? = null
+    override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
 }
 
 class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
@@ -22,11 +26,13 @@ class HtmlAsJavaFormatDescriptor : FormatDescriptor {
     override val generatorServiceClass = FileGenerator::class
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
+    override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
 }
 
 class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteFormatService::class
     override val outlineServiceClass = YamlOutlineService::class
+    override val sampleProcessingService: KClass<out SampleProcessingService> = KotlinWebsiteSampleProcessingService::class
 }
 
 class JekyllFormatDescriptor : KotlinFormatDescriptorBase() {

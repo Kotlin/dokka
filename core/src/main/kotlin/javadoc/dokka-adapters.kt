@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.javadoc
 
+import Samples.DefaultSampleProcessingService
 import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
@@ -27,4 +28,5 @@ class JavadocFormatDescriptor : FormatDescriptor {
     override val generatorServiceClass = JavadocGenerator::class
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
+    override val sampleProcessingService = DefaultSampleProcessingService::class
 }
