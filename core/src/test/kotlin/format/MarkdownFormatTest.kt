@@ -27,8 +27,6 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("annotationClass", withKotlinRuntime = true)
     }
 
-    //TODO: Enable after typealias support
-   // @Ignore("Disabled until we will correctly support typealias")
     @Test fun exceptionClass() {
         verifyMarkdownNode("exceptionClass", withKotlinRuntime = true)
         verifyMarkdownPackage("exceptionClass", withKotlinRuntime = true)

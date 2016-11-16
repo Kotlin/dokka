@@ -152,10 +152,9 @@ class DocumentationBuilder
     fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "") {
         if (kotlinType == null)
             return
-        if (kotlinType is WrappedType)
-            return appendType(kotlinType.unwrap())
-        if (kotlinType is AbbreviatedType)
-            return appendType(kotlinType.abbreviation)
+        (kotlinType.unwrap() as? AbbreviatedType)?.let {
+            return appendType(it.abbreviation)
+        }
 
         val classifierDescriptor = kotlinType.constructor.declarationDescriptor
         val name = when (classifierDescriptor) {
