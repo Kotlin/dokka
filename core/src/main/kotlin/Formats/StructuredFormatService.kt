@@ -23,11 +23,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         body()
         if (checkEndsWith && to.endsWith(suffix)) {
             to.setLength(to.length - suffix.length)
-        }
-        else if (to.length > startLength + prefix.length) {
+        } else if (to.length > startLength + prefix.length) {
             to.append(suffix)
-        }
-        else {
+        } else {
             to.setLength(startLength)
         }
     }
@@ -124,8 +122,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 val child = content.children.singleOrNull()
                 if (child is ContentParagraph) {
                     appendContent(child.children)
-                }
-                else {
+                } else {
                     appendContent(content.children)
                 }
             }
@@ -361,7 +358,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     }
 
     inner class SingleNodePageBuilder(val node: DocumentationNode)
-            : PageBuilder(listOf(node)) {
+        : PageBuilder(listOf(node)) {
 
         override fun build() {
             super.build()
@@ -372,14 +369,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             appendSection("Packages", node.members(NodeKind.Package))
-            appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
+            appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
             appendSection("Annotations", node.members(NodeKind.AnnotationClass))
             appendSection("Exceptions", node.members(NodeKind.Exception))
+            appendSection("Type aliases", node.members(NodeKind.TypeAlias))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
             appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false)
             appendSection("Constructors", node.members(NodeKind.Constructor))
             appendSection("Properties", node.members(NodeKind.Property))
-            appendSection("Inherited Properties",  node.inheritedMembers(NodeKind.Property))
+            appendSection("Inherited Properties", node.inheritedMembers(NodeKind.Property))
             appendSection("Functions", node.members(NodeKind.Function))
             appendSection("Inherited Functions", node.inheritedMembers(NodeKind.Function))
             appendSection("Companion Object Properties", node.members(NodeKind.CompanionObjectProperty))
@@ -394,6 +392,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         NodeKind.Object,
                         NodeKind.AnnotationClass,
                         NodeKind.Exception,
+                        NodeKind.TypeAlias,
                         NodeKind.Constructor,
                         NodeKind.Property,
                         NodeKind.Package,
@@ -472,7 +471,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     }
 
     inner class AllTypesNodeBuilder(val node: DocumentationNode)
-           : PageBuilder(listOf(node)) {
+        : PageBuilder(listOf(node)) {
 
         override fun build() {
             appendContent(node.owner!!.summary)
@@ -508,12 +507,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         if (singleNode != null) {
             if (singleNode.kind == NodeKind.AllTypes) {
                 AllTypesNodeBuilder(singleNode).build()
-            }
-            else {
+            } else {
                 SingleNodePageBuilder(singleNode).build()
             }
-        }
-        else {
+        } else {
             PageBuilder(nodes).build()
         }
     }

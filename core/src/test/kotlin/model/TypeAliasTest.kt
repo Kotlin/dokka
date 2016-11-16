@@ -1,0 +1,105 @@
+package org.jetbrains.dokka.tests
+
+import junit.framework.TestCase.assertEquals
+import org.jetbrains.dokka.Content
+import org.jetbrains.dokka.NodeKind
+import org.junit.Test
+
+class TypeAliasTest {
+    @Test
+    fun testSimple() {
+        verifyModel("testdata/typealias/simple.kt") {
+            val pkg = it.members.single()
+            with(pkg.member(NodeKind.TypeAlias)) {
+                assertEquals(Content.Empty, content)
+                assertEquals("B", name)
+                assertEquals("A", detail(NodeKind.TypeAliasUnderlyingType).name)
+            }
+        }
+    }
+
+    @Test
+    fun testInheritanceFromTypeAlias() {
+        verifyModel("testdata/typealias/inheritanceFromTypeAlias.kt") {
+            val pkg = it.members.single()
+            with(pkg.member(NodeKind.TypeAlias)) {
+                assertEquals(Content.Empty, content)
+                assertEquals("Same", name)
+                assertEquals("Some", detail(NodeKind.TypeAliasUnderlyingType).name)
+                assertEquals("My", inheritors.single().name)
+            }
+            with(pkg.members(NodeKind.Class).find { it.name == "My" }!!) {
+                assertEquals("Same", detail(NodeKind.Supertype).name)
+            }
+        }
+    }
+
+    @Test
+    fun testChain() {
+        verifyModel("testdata/typealias/chain.kt") {
+            val pkg = it.members.single()
+            with(pkg.members(NodeKind.TypeAlias).find { it.name == "B" }!!) {
+                assertEquals(Content.Empty, content)
+                assertEquals("A", detail(NodeKind.TypeAliasUnderlyingType).name)
+            }
+            with(pkg.members(NodeKind.TypeAlias).find { it.name == "C" }!!) {
+                assertEquals(Content.Empty, content)
+                assertEquals("B", detail(NodeKind.TypeAliasUnderlyingType).name)
+            }
+        }
+    }
+
+    @Test
+    fun testDocumented() {
+        verifyModel("testdata/typealias/documented.kt") {
+            val pkg = it.members.single()
+            with(pkg.member(NodeKind.TypeAlias)) {
+                assertEquals("Just typealias", content.summary.toTestString())
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecated() {
+        verifyModel("testdata/typealias/deprecated.kt") {
+            val pkg = it.members.single()
+            with(pkg.member(NodeKind.TypeAlias)) {
+                assertEquals(Content.Empty, content)
+                assertEquals("Deprecated", deprecation!!.name)
+                assertEquals("\"Not mainstream now\"", deprecation!!.detail(NodeKind.Parameter).detail(NodeKind.Value).name)
+            }
+        }
+    }
+
+    @Test
+    fun testGeneric() {
+        verifyModel("testdata/typealias/generic.kt") {
+            val pkg = it.members.single()
+            with(pkg.members(NodeKind.TypeAlias).find { it.name == "B" }!!) {
+                assertEquals("Any", detail(NodeKind.TypeAliasUnderlyingType).detail(NodeKind.Type).name)
+            }
+
+            with(pkg.members(NodeKind.TypeAlias).find { it.name == "C" }!!) {
+                assertEquals("T", detail(NodeKind.TypeAliasUnderlyingType).detail(NodeKind.Type).name)
+                assertEquals("T", detail(NodeKind.TypeParameter).name)
+            }
+        }
+    }
+
+    @Test
+    fun testFunctional() {
+        verifyModel("testdata/typealias/functional.kt") {
+            val pkg = it.members.single()
+            with(pkg.member(NodeKind.TypeAlias)) {
+                assertEquals("Function1", detail(NodeKind.TypeAliasUnderlyingType).name)
+                val typeParams = detail(NodeKind.TypeAliasUnderlyingType).details(NodeKind.Type)
+                assertEquals("A", typeParams.first().name)
+                assertEquals("B", typeParams.last().name)
+            }
+
+            with(pkg.member(NodeKind.Function)) {
+                assertEquals("Spell", detail(NodeKind.Parameter).detail(NodeKind.Type).name)
+            }
+        }
+    }
+}
