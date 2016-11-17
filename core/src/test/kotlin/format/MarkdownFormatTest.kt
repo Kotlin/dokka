@@ -227,6 +227,11 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("qualifiedNameLink", "foo", withKotlinRuntime = true)
     }
 
+    @Test fun typeAliases() {
+        verifyMarkdownNode("typeAliases")
+        verifyMarkdownPackage("typeAliases")
+    }
+
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)

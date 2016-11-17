@@ -372,7 +372,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
             appendSection("Annotations", node.members(NodeKind.AnnotationClass))
             appendSection("Exceptions", node.members(NodeKind.Exception))
-            appendSection("Type aliases", node.members(NodeKind.TypeAlias))
+            appendSection("Type Aliases", node.members(NodeKind.TypeAlias))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
             appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false)
             appendSection("Constructors", node.members(NodeKind.Constructor))
