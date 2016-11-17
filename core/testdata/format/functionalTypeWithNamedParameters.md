@@ -14,8 +14,8 @@
 
 # f
 
-`val f: ("a": `[`A`](test/-a/index)`, "b": `[`B`](test/-b/index)`) -> `[`C`](test/-c/index)[test](test/index) / [acceptFunctionTypeWithNamedArguments](test/accept-function-type-with-named-arguments)
+`val f: (a: `[`A`](test/-a/index)`, b: `[`B`](test/-b/index)`) -> `[`C`](test/-c/index)[test](test/index) / [acceptFunctionTypeWithNamedArguments](test/accept-function-type-with-named-arguments)
 
 # acceptFunctionTypeWithNamedArguments
 
-`fun acceptFunctionTypeWithNamedArguments(f: ("bb": `[`B`](test/-b/index)`, "aa": `[`A`](test/-a/index)`) -> `[`C`](test/-c/index)`): Unit`
+`fun acceptFunctionTypeWithNamedArguments(f: (bb: `[`B`](test/-b/index)`, aa: `[`A`](test/-a/index)`) -> `[`C`](test/-c/index)`): Unit`

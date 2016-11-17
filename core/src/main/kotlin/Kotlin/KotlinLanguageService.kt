@@ -145,7 +145,7 @@ class KotlinLanguageService : LanguageService {
         node.references(RefKind.HiddenAnnotation).map { it.to }
                 .find { it.name == "ParameterName" }?.let {
             val parameterNameValue = it.detail(NodeKind.Parameter).detail(NodeKind.Value)
-            identifier(parameterNameValue.name, IdentifierKind.ParameterName)
+            identifier(parameterNameValue.name.removeSurrounding("\""), IdentifierKind.ParameterName)
             symbol(":")
             nbsp()
         }
