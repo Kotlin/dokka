@@ -102,4 +102,22 @@ class TypeAliasTest {
             }
         }
     }
+
+    @Test
+    fun testAsTypeBoundWithVariance() {
+        verifyModel("testdata/typealias/asTypeBoundWithVariance.kt") {
+            val pkg = it.members.single()
+            with(pkg.members(NodeKind.Class).find { it.name == "C" }!!) {
+                val tParam = detail(NodeKind.TypeParameter)
+                assertEquals("out", tParam.detail(NodeKind.Modifier).name)
+                assertEquals("B", tParam.detail(NodeKind.Type).link(NodeKind.TypeAlias).name)
+            }
+
+            with(pkg.members(NodeKind.Class).find { it.name == "D" }!!) {
+                val tParam = detail(NodeKind.TypeParameter)
+                assertEquals("in", tParam.detail(NodeKind.Modifier).name)
+                assertEquals("B", tParam.detail(NodeKind.Type).link(NodeKind.TypeAlias).name)
+            }
+        }
+    }
 }
