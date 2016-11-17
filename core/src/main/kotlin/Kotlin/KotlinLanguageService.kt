@@ -141,6 +141,16 @@ class KotlinLanguageService : LanguageService {
             }
     }
 
+    private fun ContentBlock.renderFunctionalTypeParameterName(node: DocumentationNode, renderMode: RenderMode) {
+        node.references(RefKind.HiddenAnnotation).map { it.to }
+                .find { it.name == "ParameterName" }?.let {
+            val parameterNameValue = it.detail(NodeKind.Parameter).detail(NodeKind.Value)
+            identifier(parameterNameValue.name, IdentifierKind.ParameterName)
+            symbol(":")
+            nbsp()
+        }
+    }
+
     private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
         var typeArguments = node.details(NodeKind.Type)
         if (node.name == "Function${typeArguments.count() - 1}") {
@@ -153,6 +163,7 @@ class KotlinLanguageService : LanguageService {
             }
             symbol("(")
             renderList(typeArguments.take(typeArguments.size - 1), noWrap = true) {
+                renderFunctionalTypeParameterName(it, renderMode)
                 renderType(it, renderMode)
             }
             symbol(")")
