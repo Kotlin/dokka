@@ -31,34 +31,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jaccess.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/cldrdata.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../lib/intellij-core-analysis.jar!/" />
+          <root url="jar:///usr/lib/jvm/java-8-oracle/lib/tools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -77,6 +50,15 @@
       <library>
         <CLASSES>
           <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/localedata.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jaccess.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -112,7 +94,25 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar:///usr/lib/jvm/java-8-oracle/lib/tools.jar!/" />
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../lib/intellij-core-analysis.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar:///usr/lib/jvm/java-8-oracle/jre/lib/ext/cldrdata.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -199,7 +199,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M03" level="project" />
     <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
@@ -209,10 +209,10 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M03" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject:guice:3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.8.3" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M03" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: aopalliance:aopalliance:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.sonatype.sisu.inject:cglib:2.2.1-v20090111" level="project" />

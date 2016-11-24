@@ -25,34 +25,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/trove4j.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/picocontainer.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-ide-common.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/markdown.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -67,8 +40,35 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/intellij-core-analysis.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/markdown.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module" module-name="ant_main" />
+    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/picocontainer.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -90,15 +90,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/intellij-core-analysis.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-script-runtime.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -109,6 +100,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-compiler.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/trove4j.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -134,13 +134,13 @@
     <orderEntry type="library" name="Gradle: org.codehaus.plexus:plexus-component-annotations:1.5.5" level="project" />
     <orderEntry type="library" name="Gradle: org.sonatype.plexus:plexus-sec-dispatcher:1.3" level="project" />
     <orderEntry type="library" name="Gradle: org.sonatype.sisu:sisu-inject-bean:2.3.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M02-8" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M03" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M03" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject:guice:3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.8.3" level="project" />
     <orderEntry type="library" name="Gradle: org.fusesource.jansi:jansi:1.11" level="project" />
     <orderEntry type="library" name="Gradle: org.sonatype.sisu:sisu-guice:no_aop:3.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M03" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: aopalliance:aopalliance:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.sonatype.sisu.inject:cglib:2.2.1-v20090111" level="project" />

@@ -22,6 +22,16 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="ant_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-script-runtime.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -31,7 +41,24 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/jps-model.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/jdom.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -44,26 +71,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/trove4j.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module" module-name="ant_main" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/protobuf-2.5.0-lite.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/kotlin-script-runtime.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../lib/asm-all.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -90,17 +98,25 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/asm-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../lib/intellij-core-analysis.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="cli_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/jdom.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../lib/trove4j.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../../lib/protobuf-2.5.0-lite.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -115,6 +131,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module" module-name="cli_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -124,27 +142,9 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/jps-model.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../lib/intellij-core-analysis.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M02-8" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M02-8" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M02-8" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.1-M03" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.1-M03" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1-M03" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject:guice:3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.8.3" level="project" />
     <orderEntry type="library" name="Gradle: org.fusesource.jansi:jansi:1.11" level="project" />
