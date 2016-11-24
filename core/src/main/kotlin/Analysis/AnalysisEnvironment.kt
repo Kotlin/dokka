@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -89,6 +90,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
             override val name: Name = Name.special("<module>")
             override fun dependencies(): List<ModuleInfo> = listOf(this)
         }
+
+        val builtIns = JvmBuiltIns(projectContext.storageManager)
         val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
                 "Dokka",
                 projectContext,
@@ -96,11 +99,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                 { ModuleContent(sourceFiles, GlobalSearchScope.allScope(environment.project)) },
                 JvmPlatformParameters { module },
                 CompilerEnvironment,
-                packagePartProviderFactory = { info, content -> JvmPackagePartProvider(environment, content.moduleContentScope) }
+                packagePartProviderFactory = { info, content -> JvmPackagePartProvider(environment, content.moduleContentScope) },
+                builtIns = builtIns
         )
 
+
         val resolverForModule = resolverForProject.resolverForModule(module)
-        return DokkaResolutionFacade(environment.project, resolverForProject.descriptorForModule(module), resolverForModule)
+        val moduleDescriptor = resolverForProject.descriptorForModule(module)
+        builtIns.initialize(moduleDescriptor, true)
+        return DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
     }
 
     /**
@@ -168,6 +175,10 @@ fun contentRootFromPath(path: String): ContentRoot {
 class DokkaResolutionFacade(override val project: Project,
                             override val moduleDescriptor: ModuleDescriptor,
                             val resolverForModule: ResolverForModule) : ResolutionFacade {
+    override fun resolveToDescriptor(declaration: KtDeclaration, bodyResolveMode: BodyResolveMode): DeclarationDescriptor {
+        return resolveSession.resolveToDescriptor(declaration)
+    }
+
     override fun analyze(elements: Collection<KtElement>, bodyResolveMode: BodyResolveMode): BindingContext {
         throw UnsupportedOperationException()
     }
@@ -198,7 +209,4 @@ class DokkaResolutionFacade(override val project: Project,
         throw UnsupportedOperationException()
     }
 
-    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        return resolveSession.resolveToDescriptor(declaration)
-    }
 }
