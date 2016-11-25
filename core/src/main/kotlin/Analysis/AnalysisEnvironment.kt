@@ -12,7 +12,6 @@ import com.intellij.openapi.roots.OrderEnumerationHandler
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.AnalysisResult
@@ -32,8 +31,6 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
-import org.jetbrains.kotlin.load.kotlin.JvmVirtualFileFinder
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.psi.KtDeclaration
