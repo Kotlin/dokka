@@ -25,10 +25,7 @@ import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
-import org.jetbrains.kotlin.types.ErrorUtils
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 
@@ -61,13 +58,12 @@ interface PackageDocumentationBuilder {
 }
 
 class DocumentationBuilder
-        @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
-                            val descriptorDocumentationParser: DescriptorDocumentationParser,
-                            val options: DocumentationOptions,
-                            val refGraph: NodeReferenceGraph,
-                            val logger: DokkaLogger,
-                            val linkResolver: DeclarationLinkResolver)
-{
+@Inject constructor(val resolutionFacade: DokkaResolutionFacade,
+                    val descriptorDocumentationParser: DescriptorDocumentationParser,
+                    val options: DocumentationOptions,
+                    val refGraph: NodeReferenceGraph,
+                    val logger: DokkaLogger,
+                    val linkResolver: DeclarationLinkResolver) {
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -97,7 +93,7 @@ class DocumentationBuilder
         return node
     }
 
-    private fun DocumentationNode.withModifiers(descriptor: DeclarationDescriptor) : DocumentationNode{
+    private fun DocumentationNode.withModifiers(descriptor: DeclarationDescriptor): DocumentationNode {
         if (descriptor is MemberDescriptor) {
             appendVisibility(descriptor)
             if (descriptor !is ConstructorDescriptor) {
@@ -124,15 +120,15 @@ class DocumentationBuilder
         appendTextNode(modifier, NodeKind.Modifier)
     }
 
-    fun DocumentationNode.appendSupertypes(descriptor: ClassDescriptor) {
-        val superTypes = descriptor.typeConstructor.supertypes
-        for (superType in superTypes) {
-            if (!ignoreSupertype(superType)) {
-                appendType(superType, NodeKind.Supertype)
-                val superclass = superType?.constructor?.declarationDescriptor
-                link(superclass, descriptor, RefKind.Inheritor)
-                link(descriptor, superclass, RefKind.Superclass)
-            }
+    fun DocumentationNode.appendSupertype(descriptor: ClassDescriptor, superType: KotlinType) {
+        val unwrappedType = superType.unwrap()
+        if (unwrappedType is AbbreviatedType) {
+            appendSupertype(descriptor, unwrappedType.abbreviation)
+        } else if (!ignoreSupertype(unwrappedType)) {
+            appendType(unwrappedType, NodeKind.Supertype)
+            val superclass = unwrappedType.constructor.declarationDescriptor
+            link(superclass, descriptor, RefKind.Inheritor)
+            link(descriptor, superclass, RefKind.Superclass)
         }
     }
 
@@ -148,8 +144,7 @@ class DocumentationBuilder
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: NodeKind = NodeKind.Type) {
         if (projection.isStarProjection) {
             appendTextNode("*", NodeKind.Type)
-        }
-        else {
+        } else {
             appendType(projection.type, kind, projection.projectionKind.label)
         }
     }
@@ -157,14 +152,17 @@ class DocumentationBuilder
     fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "") {
         if (kotlinType == null)
             return
+        (kotlinType.unwrap() as? AbbreviatedType)?.let {
+            return appendType(it.abbreviation)
+        }
+
         val classifierDescriptor = kotlinType.constructor.declarationDescriptor
         val name = when (classifierDescriptor) {
             is ClassDescriptor -> {
                 if (classifierDescriptor.isCompanionObject) {
                     classifierDescriptor.containingDeclaration.name.asString() +
                             "." + classifierDescriptor.name.asString()
-                }
-                else {
+                } else {
                     classifierDescriptor.name.asString()
                 }
             }
@@ -182,8 +180,7 @@ class DocumentationBuilder
             val jdkLink = linkResolver.buildJdkLink(classifierDescriptor)
             if (jdkLink != null) {
                 node.append(DocumentationNode(jdkLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
-            }
-            else {
+            } else {
                 link(node, classifierDescriptor,
                         if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
             }
@@ -197,7 +194,7 @@ class DocumentationBuilder
     }
 
     fun ClassifierDescriptor.isBoringBuiltinClass(): Boolean =
-        DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
+            DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
         annotated.annotations.filter { it.isDocumented() }.forEach {
@@ -250,8 +247,7 @@ class DocumentationBuilder
                     link(this, baseDescriptor, inheritedLinkKind)
                 }
                 null
-            }
-            else {
+            } else {
                 val descriptorToUse = if (descriptor is ConstructorDescriptor) descriptor else descriptor.original
                 appendChild(descriptorToUse, RefKind.Member)
             }
@@ -378,7 +374,23 @@ class DocumentationBuilder
         is TypeParameterDescriptor -> build()
         is ValueParameterDescriptor -> build()
         is ReceiverParameterDescriptor -> build()
+        is TypeAliasDescriptor -> build()
         else -> throw IllegalStateException("Descriptor $this is not known")
+    }
+
+    fun TypeAliasDescriptor.build(): DocumentationNode {
+        val node = nodeForDescriptor(this, NodeKind.TypeAlias)
+
+        node.appendAnnotations(this)
+        node.appendModifiers(this)
+        node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
+
+        node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
+
+        node.appendSourceLink(source)
+
+        register(this, node)
+        return node
     }
 
     fun ClassDescriptor.build(): DocumentationNode {
@@ -392,7 +404,9 @@ class DocumentationBuilder
             else -> NodeKind.Class
         }
         val node = nodeForDescriptor(this, kind)
-        node.appendSupertypes(this)
+        typeConstructor.supertypes.forEach {
+            node.appendSupertype(this, it)
+        }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
             val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
@@ -572,8 +586,7 @@ class DocumentationBuilder
         var receiverClass: DeclarationDescriptor = type.constructor.declarationDescriptor!!
         if ((receiverClass as? ClassDescriptor)?.isCompanionObject ?: false) {
             receiverClass = receiverClass.containingDeclaration!!
-        }
-        else if (receiverClass is TypeParameterDescriptor) {
+        } else if (receiverClass is TypeParameterDescriptor) {
             val upperBoundClass = receiverClass.upperBounds.singleOrNull()?.constructor?.declarationDescriptor
             if (upperBoundClass != null) {
                 receiverClass = upperBoundClass
@@ -648,11 +661,10 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
 }
 
 class KotlinJavaDocumentationBuilder
-        @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
-                            val documentationBuilder: DocumentationBuilder,
-                            val options: DocumentationOptions,
-                            val logger: DokkaLogger) : JavaDocumentationBuilder
-{
+@Inject constructor(val resolutionFacade: DokkaResolutionFacade,
+                    val documentationBuilder: DocumentationBuilder,
+                    val options: DocumentationOptions,
+                    val logger: DokkaLogger) : JavaDocumentationBuilder {
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         val classDescriptors = file.classes.map {
             val javaDescriptorResolver = resolutionFacade.getFrontendService(JavaDescriptorResolver::class.java)
@@ -731,8 +743,12 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     return null
 }
 
-fun DeclarationDescriptor.signature(): String = when(this) {
-    is ClassDescriptor, is PackageFragmentDescriptor, is PackageViewDescriptor  -> DescriptorUtils.getFqName(this).asString()
+fun DeclarationDescriptor.signature(): String = when (this) {
+    is ClassDescriptor,
+    is PackageFragmentDescriptor,
+    is PackageViewDescriptor,
+    is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
+
     is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
     is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
     is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name

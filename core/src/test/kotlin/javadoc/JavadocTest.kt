@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.javadoc
 
+import com.sun.javadoc.Type
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.tests.verifyModel
 import org.junit.Assert.*
@@ -106,6 +107,22 @@ class JavadocTest {
             assertTrue(classSame.methods().isEmpty())
         }
     }
+
+    @Test fun testTypeAliases() {
+        verifyJavadoc("testdata/javadoc/typealiases.kt", withKotlinRuntime = true) { doc ->
+            assertNull(doc.classNamed("B"))
+            assertNull(doc.classNamed("D"))
+
+            assertEquals("A", doc.classNamed("C")!!.superclass().name())
+            val methodParamType = doc.classNamed("TypealiasesKt")!!.methods()
+                    .find { it.name() == "some" }!!.parameters().first()
+                    .type()
+            assertEquals("kotlin.jvm.functions.Function1", methodParamType.qualifiedTypeName())
+            assertEquals("? super A, C", methodParamType.asParameterizedType().typeArguments()
+                    .map(Type::qualifiedTypeName).joinToString())
+        }
+    }
+
 
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
