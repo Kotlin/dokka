@@ -30,14 +30,17 @@ import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
+import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import java.io.File
@@ -82,28 +85,57 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         return environment
     }
 
+    fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope {
+        // TODO: Fix when going to implement dokka for JS
+        return TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
+    }
+
+
     fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
+
         val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
 
-        val module = object : ModuleInfo {
-            override val name: Name = Name.special("<module>")
+
+        val library = object : ModuleInfo {
+            override val name: Name = Name.special("<library>")
             override fun dependencies(): List<ModuleInfo> = listOf(this)
         }
+        val module = object : ModuleInfo {
+            override val name: Name = Name.special("<module>")
+            override fun dependencies(): List<ModuleInfo> = listOf(this, library)
+        }
+
+        val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
 
         val builtIns = JvmBuiltIns(projectContext.storageManager)
         val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
                 "Dokka",
                 projectContext,
-                listOf(module),
-                { ModuleContent(sourceFiles, GlobalSearchScope.allScope(environment.project)) },
-                JvmPlatformParameters { module },
+                listOf(library, module),
+                {
+                    when (it) {
+                        library -> ModuleContent(emptyList(), GlobalSearchScope.notScope(sourcesScope))
+                        module -> ModuleContent(sourceFiles, sourcesScope)
+                        else -> throw IllegalArgumentException("Unexpected module info")
+                    }
+                },
+                JvmPlatformParameters {
+                    val file = (it as JavaClassImpl).psi.containingFile.virtualFile
+                    if (file in sourcesScope)
+                        module
+                    else
+                        library
+                },
                 CompilerEnvironment,
-                packagePartProviderFactory = { info, content -> JvmPackagePartProvider(environment, content.moduleContentScope) },
+                packagePartProviderFactory = {
+                    info, content ->
+                    JvmPackagePartProvider(environment, content.moduleContentScope)
+                },
                 builtIns = builtIns
         )
 
-
+        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
         val resolverForModule = resolverForProject.resolverForModule(module)
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
         builtIns.initialize(moduleDescriptor, true)

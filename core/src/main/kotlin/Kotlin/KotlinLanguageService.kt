@@ -315,6 +315,7 @@ class KotlinLanguageService : LanguageService {
             NodeKind.Interface -> keyword("interface ")
             NodeKind.EnumItem -> keyword("enum val ")
             NodeKind.Object -> keyword("object ")
+            NodeKind.TypeAlias -> keyword("typealias ")
             else -> throw IllegalArgumentException("Node $node is not a class-like object")
         }
 
@@ -322,6 +323,13 @@ class KotlinLanguageService : LanguageService {
         renderTypeParametersForNode(node, renderMode)
         renderSupertypesForNode(node, renderMode)
         renderExtraTypeParameterConstraints(node, renderMode)
+
+        if (node.kind == NodeKind.TypeAlias) {
+            nbsp()
+            symbol("=")
+            nbsp()
+            renderType(node.detail(NodeKind.TypeAliasUnderlyingType), renderMode)
+        }
     }
 
     private fun ContentBlock.renderFunction(node: DocumentationNode,

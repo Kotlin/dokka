@@ -27,8 +27,6 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("annotationClass", withKotlinRuntime = true)
     }
 
-    //TODO: Enable after typealias support
-    @Ignore("Disabled until we will correctly support typealias")
     @Test fun exceptionClass() {
         verifyMarkdownNode("exceptionClass", withKotlinRuntime = true)
         verifyMarkdownPackage("exceptionClass", withKotlinRuntime = true)
@@ -227,6 +225,11 @@ class MarkdownFormatTest {
 
     @Test fun qualifiedNameLink() {
         verifyMarkdownNodeByName("qualifiedNameLink", "foo", withKotlinRuntime = true)
+    }
+
+    @Test fun typeAliases() {
+        verifyMarkdownNode("typeAliases")
+        verifyMarkdownPackage("typeAliases")
     }
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {

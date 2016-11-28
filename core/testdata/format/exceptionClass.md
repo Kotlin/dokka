@@ -2,7 +2,7 @@
 
 # MyException
 
-`class MyException : `[`Exception`](http://docs.oracle.com/javase/6/docs/api/java/lang/Exception.html)
+`class MyException : Exception`
 
 ### Constructors
 
