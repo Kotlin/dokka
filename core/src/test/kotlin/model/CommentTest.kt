@@ -9,14 +9,14 @@ public class CommentTest {
     @Test fun codeBlockComment() {
         verifyModel("testdata/comments/codeBlockComment.kt") { model ->
             with(model.members.single().members.first()) {
-                assertEquals("""[code lang=brainfuck]
+                assertEqualsIgnoringSeparators("""[code lang=brainfuck]
                                 |++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
                                 |[/code]
                                 |""".trimMargin(),
                         content.toTestString())
             }
             with(model.members.single().members.last()) {
-                assertEquals("""[code]
+                assertEqualsIgnoringSeparators("""[code]
                                 |a + b - c
                                 |[/code]
                                 |""".trimMargin(),
