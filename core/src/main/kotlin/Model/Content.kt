@@ -131,6 +131,7 @@ class ContentSection(val tag: String, val subjectName: String?) : ContentBlock()
 object ContentTags {
     val Description = "Description"
     val SeeAlso = "See Also"
+    val Return = "Return"
 }
 
 fun content(body: ContentBlock.() -> Unit): ContentBlock {
