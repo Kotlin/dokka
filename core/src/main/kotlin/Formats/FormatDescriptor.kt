@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.Formats
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Samples.SampleProcessingService
 import kotlin.reflect.KClass
 
 interface FormatDescriptor {
@@ -9,4 +10,5 @@ interface FormatDescriptor {
     val generatorServiceClass: KClass<out Generator>
     val packageDocumentationBuilderClass: KClass<out PackageDocumentationBuilder>
     val javaDocumentationBuilderClass: KClass<out JavaDocumentationBuilder>
+    val sampleProcessingService: KClass<out SampleProcessingService>
 }

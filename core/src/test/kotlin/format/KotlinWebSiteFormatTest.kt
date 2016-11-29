@@ -19,8 +19,12 @@ class KotlinWebSiteFormatTest {
         verifyKWSNodeByName("overloadGroup", "magic")
     }
 
+    @Test fun sampleWithAsserts() {
+        verifyKWSNodeByName("sampleWithAsserts", "a")
+    }
+
     private fun verifyKWSNodeByName(fileName: String, name: String) {
-        verifyOutput("testdata/format/website/$fileName.kt", ".md") { model, output ->
+        verifyOutput("testdata/format/website/$fileName.kt", ".md", format = "kotlin-website") { model, output ->
             kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
         }
     }
