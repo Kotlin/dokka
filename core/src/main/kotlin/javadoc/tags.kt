@@ -114,20 +114,20 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
 }
 
 
-class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter) : ThrowsTag {
+class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter, val content: List<ContentNode>) : ThrowsTag {
     override fun name(): String = "@throws"
     override fun kind(): String = name()
     override fun holder(): Doc = holder
     override fun position(): SourcePosition? = holder.position()
 
-    override fun text(): String = "@throws ${type.qualifiedTypeName()}"
-    override fun inlineTags(): Array<out Tag> = emptyArray()
+    override fun text(): String = "${name()} ${exceptionName()} ${exceptionComment()}"
+    override fun inlineTags(): Array<out Tag> = buildInlineTags(type.module, holder, content).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = emptyArray()
 
-    override fun exceptionComment(): String = ""
+    override fun exceptionComment(): String = content.toString()
     override fun exceptionType(): Type = type
     override fun exception(): ClassDoc = type
-    override fun exceptionName(): String = type.qualifiedName()
+    override fun exceptionName(): String = type.qualifiedTypeName()
 }
 
 class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val content: List<ContentNode>) : Tag {

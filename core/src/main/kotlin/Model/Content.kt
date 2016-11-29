@@ -132,6 +132,7 @@ object ContentTags {
     val Description = "Description"
     val SeeAlso = "See Also"
     val Return = "Return"
+    val Exceptions = "Exceptions"
 }
 
 fun content(body: ContentBlock.() -> Unit): ContentBlock {
@@ -237,6 +238,6 @@ open class MutableContent() : Content() {
 fun javadocSectionDisplayName(sectionName: String?): String? =
         when(sectionName) {
             "param" -> "Parameters"
-            "throws", "exception" -> "Exceptions"
+            "throws", "exception" -> ContentTags.Exceptions
             else -> sectionName?.capitalize()
         }
