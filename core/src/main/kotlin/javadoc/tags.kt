@@ -104,8 +104,8 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
     override fun holder(): Doc = holder
     override fun position(): SourcePosition? = holder.position()
 
-    override fun text(): String = "@param $parameterName ..."
-    override fun inlineTags(): Array<out Tag> = content.flatMap { buildInlineTags(module, holder, it) }.toTypedArray()
+    override fun text(): String = "@param $parameterName ${parameterComment()}" // Seems has no effect, so used for debug
+    override fun inlineTags(): Array<out Tag> = buildInlineTags(module, holder, content).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = arrayOf(TextTag(holder, ContentText(text())))
 
     override fun isTypeParameter(): Boolean = typeParameter
@@ -114,23 +114,36 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
 }
 
 
-class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter) : ThrowsTag {
+class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter, val content: List<ContentNode>) : ThrowsTag {
     override fun name(): String = "@throws"
     override fun kind(): String = name()
     override fun holder(): Doc = holder
     override fun position(): SourcePosition? = holder.position()
 
-    override fun text(): String = "@throws ${type.qualifiedTypeName()}"
-    override fun inlineTags(): Array<out Tag> = emptyArray()
+    override fun text(): String = "${name()} ${exceptionName()} ${exceptionComment()}"
+    override fun inlineTags(): Array<out Tag> = buildInlineTags(type.module, holder, content).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = emptyArray()
 
-    override fun exceptionComment(): String = ""
+    override fun exceptionComment(): String = content.toString()
     override fun exceptionType(): Type = type
     override fun exception(): ClassDoc = type
-    override fun exceptionName(): String = type.qualifiedName()
+    override fun exceptionName(): String = type.qualifiedTypeName()
 }
 
-fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().let { buildInlineTags(module, holder, root, it); it }
+class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val content: List<ContentNode>) : Tag {
+    override fun name(): String = "@return"
+    override fun kind() = name()
+    override fun holder() = holder
+    override fun position(): SourcePosition? = holder.position()
+
+    override fun text(): String = "@return $content" // Seems has no effect, so used for debug
+    override fun inlineTags(): Array<Tag> = buildInlineTags(module, holder, content).toTypedArray()
+    override fun firstSentenceTags(): Array<Tag> = inlineTags()
+}
+
+fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, tags: List<ContentNode>): List<Tag> = ArrayList<Tag>().apply { tags.forEach { buildInlineTags(module, holder, it, this) } }
+
+fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().apply { buildInlineTags(module, holder, root, this) }
 
 private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, nodes: List<ContentNode>, result: MutableList<Tag>) {
     nodes.forEach {

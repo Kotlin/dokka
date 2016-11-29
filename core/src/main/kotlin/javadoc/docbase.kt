@@ -297,6 +297,10 @@ fun classOf(fqName: String, kind: NodeKind = NodeKind.Class) = DocumentationNode
     node
 }
 
+private fun DocumentationNode.hasNonEmptyContent() =
+        this.content.summary !is ContentEmpty || this.content.description !is ContentEmpty || this.content.sections.isNotEmpty()
+
+
 open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), ExecutableMemberDoc {
 
     override fun isSynthetic(): Boolean = false
@@ -305,20 +309,16 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
     override fun thrownExceptions(): Array<out ClassDoc> = emptyArray() // TODO
     override fun throwsTags(): Array<out ThrowsTag> =
             node.content.sections
-                    .filter { it.tag == "Exceptions" }
-                    .map { it.subjectName }
-                    .filterNotNull()
-                    .map { ThrowsTagAdapter(this, ClassDocumentationNodeAdapter(module, classOf(it, NodeKind.Exception))) }
+                    .filter { it.tag == ContentTags.Exceptions && it.subjectName != null }
+                    .map { ThrowsTagAdapter(this, ClassDocumentationNodeAdapter(module, classOf(it.subjectName!!, NodeKind.Exception)), it.children) }
                     .toTypedArray()
 
     override fun isVarArgs(): Boolean = node.details(NodeKind.Parameter).any { false } // TODO
 
     override fun isSynchronized(): Boolean = node.annotations.any { it.name == "synchronized" }
 
-    override fun paramTags(): Array<out ParamTag> = node.details(NodeKind.Parameter)
-            .filter { it.content.summary !is ContentEmpty || it.content.description !is ContentEmpty || it.content.sections.isNotEmpty() }
-            .map { ParamTagAdapter(module, this, it.name, false, it.content.children) }
-            .toTypedArray()
+    override fun paramTags(): Array<out ParamTag> =
+            collectParamTags(NodeKind.Parameter, sectionFilter = { it.subjectName in parameters().map { it.name() } })
 
     override fun thrownExceptionTypes(): Array<out Type> = emptyArray()
     override fun receiverType(): Type? = receiverNode()?.let { receiver -> TypeAdapter(module, receiver) }
@@ -332,9 +332,8 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
 
     override fun typeParameters(): Array<out TypeVariable> = node.details(NodeKind.TypeParameter).map { TypeVariableAdapter(module, it) }.toTypedArray()
 
-    override fun typeParamTags(): Array<out ParamTag> = node.details(NodeKind.TypeParameter).filter { it.content.summary !is ContentEmpty || it.content.description !is ContentEmpty || it.content.sections.isNotEmpty() }.map {
-        ParamTagAdapter(module, this, it.name, true, it.content.children)
-    }.toTypedArray()
+    override fun typeParamTags(): Array<out ParamTag> =
+            collectParamTags(NodeKind.TypeParameter, sectionFilter = { it.subjectName in typeParameters().map { it.simpleTypeName() } })
 
     private fun receiverNode() = node.details(NodeKind.Receiver).let { receivers ->
         when {
@@ -365,6 +364,17 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docume
     override fun isDefault(): Boolean = false
 
     override fun returnType(): Type = TypeAdapter(module, node.detail(NodeKind.Type))
+
+    override fun tags(tagname: String?) = super.tags(tagname)
+
+    override fun tags(): Array<out Tag> {
+        val tags = super.tags().toMutableList()
+        node.content.findSectionByTag(ContentTags.Return)?.let {
+            tags += ReturnTagAdapter(module, this, it.children)
+        }
+
+        return tags.toTypedArray()
+    }
 }
 
 class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), FieldDoc {
@@ -416,11 +426,8 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
             .map { ClassDocumentationNodeAdapter(module, it) }
             .toTypedArray()
 
-    override fun typeParamTags(): Array<out ParamTag> = (classNode.details(NodeKind.TypeParameter).filter { it.content.summary !is ContentEmpty || it.content.description !is ContentEmpty || it.content.sections.isNotEmpty() }.map {
-        ParamTagAdapter(module, this, it.name, true, it.content.children)
-    } + classNode.content.sections.filter { it.subjectName in typeParameters().map { it.simpleTypeName() } }.map {
-        ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children)
-    }).toTypedArray()
+    override fun typeParamTags(): Array<out ParamTag> =
+            collectParamTags(NodeKind.TypeParameter, sectionFilter = { it.subjectName in typeParameters().map { it.simpleTypeName() } })
 
     override fun fields(): Array<out FieldDoc> = fields(true)
     override fun fields(filter: Boolean): Array<out FieldDoc> = classNode.members(NodeKind.Field).map { FieldAdapter(module, it) }.toTypedArray()
@@ -503,3 +510,14 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
 
     override fun specifiedClasses(): Array<out ClassDoc> = classes()
 }
+
+private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, sectionFilter: (ContentSection) -> Boolean) =
+        (node.details(kind)
+                .filter(DocumentationNode::hasNonEmptyContent)
+                .map { ParamTagAdapter(module, this, it.name, true, it.content.children) }
+
+                + node.content.sections
+                .filter(sectionFilter)
+                .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) })
+
+                .toTypedArray()
