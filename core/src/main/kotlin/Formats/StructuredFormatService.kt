@@ -45,6 +45,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
     protected abstract fun ensureParagraph()
 
+    open fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) = appendBlockCode(language, body)
     abstract fun appendBlockCode(language: String, body: () -> Unit)
     abstract fun appendHeader(level: Int = 1, body: () -> Unit)
     abstract fun appendParagraph(body: () -> Unit)
@@ -140,12 +141,21 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
 
-            is ContentBlockCode -> appendBlockCode(content.language) {
-                for ((index, contentNode) in content.children.withIndex()) {
-                    appendContent(contentNode)
-                    if (index < content.children.size - 1) {
-                        to.append("\n")
+            is ContentBlockSampleCode, is ContentBlockCode -> {
+                content as ContentBlockCode
+                fun ContentBlockCode.appendBlockCodeContent() {
+                    for ((index, contentNode) in this.children.withIndex()) {
+                        appendContent(contentNode)
+                        if (index < this.children.size - 1) {
+                            to.append("\n")
+                        }
                     }
+                }
+                when (content) {
+                    is ContentBlockSampleCode ->
+                        appendSampleBlockCode(content.language, content.importsBlock::appendBlockCodeContent, { content.appendBlockCodeContent() })
+                    is ContentBlockCode ->
+                        appendBlockCode(content.language, { content.appendBlockCodeContent() })
                 }
             }
             is ContentHeading -> appendHeader(content.level) { appendContent(content.children) }

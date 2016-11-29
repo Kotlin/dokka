@@ -82,7 +82,8 @@ class ContentEmphasis() : ContentBlock()
 class ContentStrong() : ContentBlock()
 class ContentStrikethrough() : ContentBlock()
 class ContentCode() : ContentBlock()
-class ContentBlockCode(val language: String = "") : ContentBlock()
+open class ContentBlockCode(val language: String = "") : ContentBlock()
+class ContentBlockSampleCode(language: String = "kotlin", val importsBlock: ContentBlockCode = ContentBlockCode(language)) : ContentBlockCode(language)
 
 abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?

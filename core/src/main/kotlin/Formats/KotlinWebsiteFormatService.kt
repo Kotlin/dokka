@@ -30,11 +30,13 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
     override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
 
-    private fun div(to: StringBuilder, cssClass: String, block: () -> Unit) {
-        to.append("<div class=\"$cssClass\">")
-        insideDiv++
+    private fun div(to: StringBuilder, cssClass: String, markdown: Boolean = false, block: () -> Unit) {
+        to.append("<div class=\"$cssClass\"")
+        if (markdown) to.append(" markdown=\"1\"")
+        to.append(">")
+        if (!markdown) insideDiv++
         block()
-        insideDiv--
+        if (!markdown) insideDiv--
         to.append("</div>\n")
     }
 
@@ -51,12 +53,23 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
         }
     }
 
+    override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
+        div(to, "sample", true) {
+            appendBlockCode(language) {
+                imports()
+                wrap("\nfun main(args: Array<String>) {", "}") {
+                    wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
+                }
+            }
+        }
+    }
+
     override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        to.append("<div class=\"overload-group\" markdown=\"1\">")
-        ensureParagraph()
-        block()
-        ensureParagraph()
-        to.append("</div>")
+        div(to, "overload-group", true) {
+            ensureParagraph()
+            block()
+            ensureParagraph()
+        }
     }
 
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)

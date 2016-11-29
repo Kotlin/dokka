@@ -6,6 +6,7 @@ import com.google.inject.Provider
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 
@@ -44,6 +45,7 @@ class DokkaModule(val environment: AnalysisEnvironment,
         }
         binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
         binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)
+        binder.bind<SampleProcessingService>().to(descriptor.sampleProcessingService.java)
 
         binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
 
