@@ -123,6 +123,14 @@ class JavadocTest {
         }
     }
 
+    @Test fun testKDocKeywordsOnMethod() {
+        verifyJavadoc("testdata/javadoc/kdocKeywordsOnMethod.kt", withKotlinRuntime = true) { doc ->
+            val method = doc.classNamed("KdocKeywordsOnMethodKt")!!.methods()[0]
+            assertEquals("@return [ContentText(text=value of a)]", method.tags("return").first().text())
+            assertEquals("@param a [ContentText(text=Some string)]", method.paramTags().first().text())
+            assertEquals("@throws FireException [ContentText(text=in case of fire)]", method.throwsTags().first().text())
+        }
+    }
 
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
