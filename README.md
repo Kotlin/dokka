@@ -10,7 +10,7 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.9/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.10/dokka-fatjar.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <source directories> <arguments>
@@ -125,9 +125,6 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Gradle plugin
 
-If you want use Dokka **0.9.9** with **Kotlin 1.1-M03+**
-it's recommended to use Gradle 3.2
-
 ```groovy
 buildscript {
     repositories {
@@ -181,9 +178,6 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
 #### Android
-
-If you want use Dokka **0.9.9** with **Kotlin 1.1-M03+**
-it's recommended to use Gradle 3.2
 
 If you are using Android there is a separate gradle plugin. Just make sure you apply the plugin after
 `com.android.library` and `kotlin-android`.
