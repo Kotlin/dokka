@@ -14,11 +14,20 @@ layout: api
 Groups elements of the original sequence by the key returned by the given <a href="#">keySelector</a> function
 applied to each element and returns a map where each group key is associated with a list of corresponding elements.
 
+<div class="sample" markdown="1">
+
 ``` kotlin
+
+fun main(args: Array<String>) {
+//sampleStart
 if (true) {
     println(property)
 }
+//sampleEnd
+}
 ```
+
+</div>
 
 </div>
 
