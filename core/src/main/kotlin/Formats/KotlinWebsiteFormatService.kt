@@ -3,11 +3,11 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 
 
-class KotlinWebsiteOutputBuilder(to: StringBuilder,
-                                 location: Location,
-                                 locationService: LocationService,
-                                 languageService: LanguageService,
-                                 extension: String)
+open class KotlinWebsiteOutputBuilder(to: StringBuilder,
+                                      location: Location,
+                                      locationService: LocationService,
+                                      languageService: LanguageService,
+                                      extension: String)
     : JekyllOutputBuilder(to, location, locationService, languageService, extension)
 {
     private var needHardLineBreaks = false
@@ -30,7 +30,7 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
     override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
 
-    private fun div(to: StringBuilder, cssClass: String, markdown: Boolean = false, block: () -> Unit) {
+    protected fun div(to: StringBuilder, cssClass: String, markdown: Boolean = false, block: () -> Unit) {
         to.append("<div class=\"$cssClass\"")
         if (markdown) to.append(" markdown=\"1\"")
         to.append(">")
@@ -49,17 +49,6 @@ class KotlinWebsiteOutputBuilder(to: StringBuilder,
                 block()
             } finally {
                 needHardLineBreaks = false
-            }
-        }
-    }
-
-    override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
-        div(to, "sample", true) {
-            appendBlockCode(language) {
-                imports()
-                wrap("\nfun main(args: Array<String>) {", "}") {
-                    wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
-                }
             }
         }
     }
@@ -162,3 +151,31 @@ class KotlinWebsiteFormatService @Inject constructor(locationService: LocationSe
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
         KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension)
 }
+
+
+class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
+                                                location: Location,
+                                                locationService: LocationService,
+                                                languageService: LanguageService,
+                                                extension: String)
+    : KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension) {
+
+    override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
+        div(to, "sample", true) {
+            appendBlockCode(language) {
+                imports()
+                wrap("\nfun main(args: Array<String>) {", "}") {
+                    wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
+                }
+            }
+        }
+    }
+}
+
+class KotlinWebsiteRunnableSamplesFormatService @Inject constructor(locationService: LocationService,
+                                                                    signatureGenerator: LanguageService)
+    : JekyllFormatService(locationService, signatureGenerator, "html") {
+    override fun createOutputBuilder(to: StringBuilder, location: Location) =
+            KotlinWebsiteRunnableSamplesOutputBuilder(to, location, locationService, languageService, extension)
+}
+
