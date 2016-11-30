@@ -54,13 +54,14 @@ import java.io.File
  * $body: optional and can be used to configure environment without creating local variable
  */
 class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
-    val configuration = CompilerConfiguration();
+    val configuration = CompilerConfiguration()
 
     init {
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
     }
 
     fun createCoreEnvironment(): KotlinCoreEnvironment {
+        System.setProperty("idea.io.use.fallback", "true")
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val projectComponentManager = environment.project as MockComponentManager
 
