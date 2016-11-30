@@ -12,7 +12,7 @@ class SourcePositionAdapter(val docNode: DocumentationNode) : SourcePosition {
 
     override fun file(): File? = if (sourcePositionParts.isEmpty()) null else File(sourcePositionParts[0])
 
-    override fun line(): Int = sourcePositionParts.getOrNull(1)?.toInt() ?: -1
+    override fun line(): Int = sourcePositionParts.getOrNull(1)?.let {  java.lang.Integer.parseInt(it) } ?: -1
 
-    override fun column(): Int = sourcePositionParts.getOrNull(2)?.toInt() ?: -1
+    override fun column(): Int = sourcePositionParts.getOrNull(2)?.let { java.lang.Integer.parseInt(it) } ?: -1
 }
