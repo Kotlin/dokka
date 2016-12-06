@@ -22,29 +22,6 @@ shadowJar {
         exclude provided
     }
 
-    relocate('com.', 'dokkacom.') {
-        exclude 'com.sun.**'
-    }
-
-    relocate('org.', 'dokkaorg.') {
-        exclude 'org.jetbrains.dokka.**'
-        exclude 'org.xml.**'
-        exclude 'org.w3c.**'
-        exclude 'org.jaxen.**'
-        exclude 'org.apache.xerces.**'
-        exclude 'org.apache.xml.**'
-        exclude 'org.fusesource.jansi.**'
-        exclude 'org.apache.tools.ant.**'
-    }
-
-
-    relocate('kotlin.', 'dokkakotlin.') {
-        exclude '**.*kotlin_builtins' //For kotlin_builtins, still not sure that we should relocate kotlin stdlib
-        exclude 'kotlin.reflect' /* WAT? Ok, ok. Relocate works as Ctrl + Shift + R for ALL class files, so,
-        if you have string "kotlin.reflect", it will be rewritten to not relevant "dokkakotlin.reflect" and you will got
-        builtins crash in runtime, cause could not find dokkakotlin/reflect/reflect.kotlin_builtins */
-    }
-
     transform(ServiceFileTransformer)
     transform(PluginXmlTransformer)
 

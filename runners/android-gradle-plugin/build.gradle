@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    shadow project(':runners:fatjar')
+
     shadow project(':runners:gradle-plugin')
 
     provided gradleApi()
@@ -35,7 +35,6 @@ task sourceJar(type: Jar) {
 shadowJar {
     baseName = 'dokka-android-gradle-plugin'
     classifier = ''
-    relocate('kotlin.', 'dokkakotlin.')
 }
 
 apply plugin: 'maven-publish'

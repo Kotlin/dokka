@@ -1,1 +1,1 @@
-include 'core', 'runners:fatjar', 'runners:ant', 'runners:cli', 'runners:maven-plugin', 'runners:gradle-plugin', 'runners:android-gradle-plugin'
+include 'core', 'runners:fatjar', 'runners:ant', 'runners:cli', 'runners:maven-plugin', 'runners:gradle-plugin', 'runners:android-gradle-plugin', 'integration'

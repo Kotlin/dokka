@@ -45,13 +45,6 @@ class DokkaArguments {
     var jdkVersion: Int = 6
 }
 
-private fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
-    val (path, urlAndLine) = srcLink.split('=')
-    return SourceLinkDefinition(File(path).absolutePath,
-            urlAndLine.substringBefore("#"),
-            urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
-}
-
 fun main(args: Array<String>) {
     val arguments = DokkaArguments()
     val freeArgs: List<String> = Args.parse(arguments, args, false) ?: listOf()

@@ -8,20 +8,36 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.DocumentationOptions
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.SourceLinkDefinition
+import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.automagicTypedProxy
+import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
 import java.io.File
 import java.io.Serializable
+import java.net.URLClassLoader
 import java.util.*
+import java.util.function.BiConsumer
 
 open class DokkaPlugin : Plugin<Project> {
+
+    val properties = Properties()
+
+    init {
+        properties.load(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
+    }
     override fun apply(project: Project) {
+        version = properties.getProperty("dokka-version")
         project.tasks.create("dokka", DokkaTask::class.java).apply {
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
         }
     }
+}
+
+var version: String? = null
+
+object ClassloaderContainer {
+    @JvmField
+    var fatJarClassLoader: ClassLoader? = null
 }
 
 open class DokkaTask : DefaultTask() {
@@ -47,6 +63,8 @@ open class DokkaTask : DefaultTask() {
     var jdkVersion: Int = 6
     @Input
     var sourceDirs: Iterable<File> = emptyList()
+    @Input
+    var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
 
     protected open val sdkProvider: SdkProvider? = null
 
@@ -65,8 +83,27 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
+
+    fun loadFatJar() {
+        if (fatJarClassLoader == null) {
+            val fatjar = if (dokkaFatJar is File)
+                dokkaFatJar as File
+            else {
+                val dependency = project.buildscript.dependencies.create(dokkaFatJar)
+                val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
+                configuration.description = "Dokka main jar"
+                configuration.resolve().first()
+            }
+
+            fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()))
+        }
+    }
+
+
     @TaskAction
     fun generate() {
+        loadFatJar()
+
         val project = project
         val sdkProvider = sdkProvider
         val sourceDirectories = getSourceDirectories()
@@ -83,17 +120,39 @@ open class DokkaTask : DefaultTask() {
             return
         }
 
-        DokkaGenerator(
-                DokkaGradleLogger(logger),
+        val bootstrapClass = fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
+
+        val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
+
+        val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
+
+        bootstrapProxy.configure(
+                BiConsumer { level, message ->
+                    when (level) {
+                        "info" -> logger.info(message)
+                        "warn" -> logger.warn(message)
+                        "error" -> logger.error(message)
+                    }
+                },
+                moduleName,
                 classpath.map { it.absolutePath },
                 sourceDirectories.map { it.absolutePath },
                 samples.filterNotNull().map { project.file(it).absolutePath },
                 includes.filterNotNull().map { project.file(it).absolutePath },
-                moduleName,
-                DocumentationOptions(outputDirectory, outputFormat,
-                        sourceLinks = linkMappings.map { SourceLinkDefinition(project.file(it.dir).absolutePath, it.url, it.suffix) },
-                        jdkVersion = jdkVersion)
-        ).generate()
+                outputDirectory,
+                outputFormat,
+                false,
+                false,
+                false,
+                false,
+                6,
+                true,
+                linkMappings.map {
+                    val path = project.file(it.dir).absolutePath
+                    "$path=${it.url}${it.suffix}"
+                })
+
+        bootstrapProxy.generate()
     }
 
     fun getSourceDirectories(): Collection<File> {
