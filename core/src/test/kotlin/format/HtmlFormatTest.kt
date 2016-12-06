@@ -134,6 +134,10 @@ class HtmlFormatTest {
         verifyHtmlNode("linkWithStarProjection", withKotlinRuntime = true)
     }
 
+    @Test fun functionalTypeWithNamedParameters() {
+        verifyHtmlNode("functionalTypeWithNamedParameters")
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }

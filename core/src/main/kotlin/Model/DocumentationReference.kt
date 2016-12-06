@@ -16,6 +16,7 @@ enum class RefKind {
     Superclass,
     Override,
     Annotation,
+    HiddenAnnotation,
     Deprecation,
     TopLevelPage
 }
