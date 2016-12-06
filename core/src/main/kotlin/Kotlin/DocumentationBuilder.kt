@@ -197,11 +197,15 @@ class DocumentationBuilder
             DescriptorUtils.getFqName(this).asString() in boringBuiltinClasses
 
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
-        annotated.annotations.filter { it.isDocumented() }.forEach {
-            val annotationNode = it.build()
-            if (annotationNode != null) {
-                append(annotationNode,
-                        if (annotationNode.isDeprecation()) RefKind.Deprecation else RefKind.Annotation)
+        annotated.annotations.forEach {
+            it.build()?.let { annotationNode ->
+                val refKind = when {
+                    it.isDocumented() && annotationNode.isDeprecation() -> RefKind.Deprecation
+                    it.isDocumented() -> RefKind.Annotation
+                    it.isHiddenInDocumentation() -> RefKind.HiddenAnnotation
+                    else -> return@forEach
+                }
+                append(annotationNode, refKind)
             }
         }
     }
@@ -687,10 +691,17 @@ class KotlinJavaDocumentationBuilder
     }
 }
 
+private val hiddenAnnotations = setOf(
+        KotlinBuiltIns.FQ_NAMES.parameterName.asString()
+)
+
+private fun AnnotationDescriptor.isHiddenInDocumentation() =
+        type.constructor.declarationDescriptor?.fqNameSafe?.asString() in hiddenAnnotations
+
 private fun AnnotationDescriptor.isDocumented(): Boolean {
     if (source.getPsi() != null && mustBeDocumented()) return true
     val annotationClassName = type.constructor.declarationDescriptor?.fqNameSafe?.asString()
-    return annotationClassName == "kotlin.ExtensionFunctionType"
+    return annotationClassName == KotlinBuiltIns.FQ_NAMES.extensionFunctionType.asString()
 }
 
 fun AnnotationDescriptor.mustBeDocumented(): Boolean {

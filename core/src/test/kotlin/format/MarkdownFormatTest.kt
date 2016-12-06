@@ -227,6 +227,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("qualifiedNameLink", "foo", withKotlinRuntime = true)
     }
 
+    @Test fun functionalTypeWithNamedParameters() {
+        verifyMarkdownNode("functionalTypeWithNamedParameters")
+    }
+
     @Test fun typeAliases() {
         verifyMarkdownNode("typeAliases")
         verifyMarkdownPackage("typeAliases")
