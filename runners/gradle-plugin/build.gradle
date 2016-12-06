@@ -14,12 +14,13 @@ tasks.withType(AbstractCompile) {
 }
 
 dependencies {
-
-    shadow project(':runners:fatjar')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    provided group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
-    provided group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+
+    compile project(":integration")
+
     provided gradleApi()
     provided localGroovy()
 }
@@ -28,11 +29,19 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+processResources {
+    eachFile {
+        if (it.name == "org.jetbrains.dokka.properties") {
+            it.filter { line ->
+                line.replace("<version>", dokka_version)
+            }
+        }
+    }
+}
 
 shadowJar {
     baseName = 'dokka-gradle-plugin'
     classifier = ''
-    relocate('kotlin.', 'dokkakotlin.')
 }
 
 apply plugin: 'maven-publish'
