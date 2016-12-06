@@ -15,7 +15,7 @@ import java.io.File
 import java.io.Serializable
 import java.net.URLClassLoader
 import java.util.*
-import java.util.function.Predicate
+import java.util.function.BiConsumer
 
 open class DokkaPlugin : Plugin<Project> {
 
@@ -124,15 +124,16 @@ open class DokkaTask : DefaultTask() {
 
         val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
 
-        val bootstrapProxy = automagicTypedProxy(javaClass.classLoader,
-                DokkaBootstrap::class.java,
-                fatJarClassLoader!!,
-                bootstrapInstance,
-                Predicate { it.name.startsWith("org.jetbrains.dokka") }
-        )
+        val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
         bootstrapProxy.configure(
-                DokkaGradleLogger(logger),
+                BiConsumer { level, message ->
+                    when (level) {
+                        "info" -> logger.info(message)
+                        "warn" -> logger.warn(message)
+                        "error" -> logger.error(message)
+                    }
+                },
                 moduleName,
                 classpath.map { it.absolutePath },
                 sourceDirectories.map { it.absolutePath },
@@ -148,7 +149,7 @@ open class DokkaTask : DefaultTask() {
                 true,
                 linkMappings.map {
                     val path = project.file(it.dir).absolutePath
-                    return@map "$path=${it.url}${it.suffix}"
+                    "$path=${it.url}${it.suffix}"
                 })
 
         bootstrapProxy.generate()

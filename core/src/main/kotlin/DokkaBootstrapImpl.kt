@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.io.File
+import java.util.function.BiConsumer
 
 fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
     val (path, urlAndLine) = srcLink.split('=')
@@ -9,12 +10,25 @@ fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
             urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
 }
 
-
 class DokkaBootstrapImpl : DokkaBootstrap {
+
+    class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+        override fun info(message: String) {
+            consumer.accept("info", message)
+        }
+
+        override fun warn(message: String) {
+            consumer.accept("warn", message)
+        }
+
+        override fun error(message: String) {
+            consumer.accept("error", message)
+        }
+    }
 
     lateinit var generator: DokkaGenerator
 
-    override fun configure(logger: DokkaLogger,
+    override fun configure(logger: BiConsumer<String, String>,
                            moduleName: String,
                            classpath: List<String>,
                            sources: List<String>,
@@ -30,7 +44,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                            generateIndexPages: Boolean,
                            sourceLinks: List<String>) {
         generator = DokkaGenerator(
-                logger,
+                DokkaProxyLogger(logger),
                 classpath,
                 sources,
                 samples,

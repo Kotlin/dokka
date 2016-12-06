@@ -1,5 +1,11 @@
 package org.jetbrains.dokka
 
+interface DokkaLogger {
+    fun info(message: String)
+    fun warn(message: String)
+    fun error(message: String)
+}
+
 object DokkaConsoleLogger : DokkaLogger {
     var warningCount: Int = 0
 

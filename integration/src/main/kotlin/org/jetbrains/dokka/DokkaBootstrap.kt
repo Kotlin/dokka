@@ -1,8 +1,10 @@
 package org.jetbrains.dokka
 
+import java.util.function.BiConsumer
+
 interface DokkaBootstrap {
 
-    fun configure(logger: DokkaLogger,
+    fun configure(logger: BiConsumer<String, String>,
                   moduleName: String,
                   classpath: List<String>,
                   sources: List<String>,
