@@ -102,22 +102,32 @@ object MainKt {
     }
 
     fun createClassLoaderWithTools(): ClassLoader {
-        val toolsJar = findToolsJar().absoluteFile.toURI().toURL()
+        val toolsJar = findToolsJar().canonicalFile.toURI().toURL()
         val dokkaJar = javaClass.protectionDomain.codeSource.location
-        return URLClassLoader(arrayOf(toolsJar, dokkaJar))
+        return URLClassLoader(arrayOf(toolsJar, dokkaJar), ClassLoader.getSystemClassLoader().parent)
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+    fun startWithToolsJar(args: Array<String>) {
         try {
             javaClass.classLoader.loadClass("com.sun.tools.doclets.formats.html.HtmlDoclet")
             entry(args)
         } catch (e: ClassNotFoundException) {
             val classLoader = createClassLoaderWithTools()
             classLoader.loadClass("org.jetbrains.dokka.MainKt")
-                    .getMethod("entry", Array<String>::class.java)
+                    .methods.find { it.name == "entry" }!!
                     .invoke(null, args)
         }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val arguments = DokkaArguments()
+        Args.parse(arguments, args, false)
+
+        if (arguments.outputFormat == "javadoc")
+            startWithToolsJar(args)
+        else
+            entry(args)
     }
 }
 
