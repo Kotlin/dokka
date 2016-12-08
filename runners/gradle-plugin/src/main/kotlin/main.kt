@@ -95,7 +95,7 @@ open class DokkaTask : DefaultTask() {
                 configuration.resolve().first()
             }
 
-            fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()))
+            fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()), ClassLoader.getSystemClassLoader().parent)
         }
     }
 
