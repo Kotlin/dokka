@@ -4,6 +4,7 @@ import com.sampullara.cli.Args
 import com.sampullara.cli.Argument
 import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import java.io.File
+import java.net.URLClassLoader
 
 class DokkaArguments {
     @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
@@ -45,41 +46,90 @@ class DokkaArguments {
     var jdkVersion: Int = 6
 }
 
-fun main(args: Array<String>) {
-    val arguments = DokkaArguments()
-    val freeArgs: List<String> = Args.parse(arguments, args, false) ?: listOf()
-    val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
-    val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
-    val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
 
-    val sourceLinks = if (arguments.srcLink.isNotEmpty() && arguments.srcLink.contains("="))
-        listOf(parseSourceLinkDefinition(arguments.srcLink))
-    else {
-        if (arguments.srcLink.isNotEmpty()) {
-            println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+object MainKt {
+
+    @JvmStatic
+    fun entry(args: Array<String>) {
+        val arguments = DokkaArguments()
+        val freeArgs: List<String> = Args.parse(arguments, args, false) ?: listOf()
+        val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
+        val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
+        val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
+
+        val sourceLinks = if (arguments.srcLink.isNotEmpty() && arguments.srcLink.contains("="))
+            listOf(parseSourceLinkDefinition(arguments.srcLink))
+        else {
+            if (arguments.srcLink.isNotEmpty()) {
+                println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+            }
+            listOf()
         }
-        listOf()
+
+        val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
+
+        val documentationOptions = DocumentationOptions(
+                arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+                arguments.outputFormat,
+                skipDeprecated = arguments.nodeprecated,
+                sourceLinks = sourceLinks
+        )
+
+        val generator = DokkaGenerator(
+                DokkaConsoleLogger,
+                classPath,
+                sources,
+                samples,
+                includes,
+                arguments.moduleName,
+                documentationOptions)
+
+        generator.generate()
+        DokkaConsoleLogger.report()
     }
 
-    val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
+    fun findToolsJar(): File {
+        val javaHome = System.getProperty("java.home")
+        val default = File(javaHome, "../lib/tools.jar")
+        val mac = File(javaHome, "../Classes/classes.jar")
+        when {
+            default.exists() -> return default
+            mac.exists() -> return mac
+            else -> {
+                throw Exception("tools.jar not found, please check it, also you can provide it manually, using -cp")
+            }
+        }
+    }
 
-    val documentationOptions = DocumentationOptions(
-            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
-            arguments.outputFormat,
-            skipDeprecated = arguments.nodeprecated,
-            sourceLinks = sourceLinks
-    )
+    fun createClassLoaderWithTools(): ClassLoader {
+        val toolsJar = findToolsJar().canonicalFile.toURI().toURL()
+        val dokkaJar = javaClass.protectionDomain.codeSource.location
+        return URLClassLoader(arrayOf(toolsJar, dokkaJar), ClassLoader.getSystemClassLoader().parent)
+    }
 
-    val generator = DokkaGenerator(
-            DokkaConsoleLogger,
-            classPath,
-            sources,
-            samples,
-            includes,
-            arguments.moduleName,
-            documentationOptions)
+    fun startWithToolsJar(args: Array<String>) {
+        try {
+            javaClass.classLoader.loadClass("com.sun.tools.doclets.formats.html.HtmlDoclet")
+            entry(args)
+        } catch (e: ClassNotFoundException) {
+            val classLoader = createClassLoaderWithTools()
+            classLoader.loadClass("org.jetbrains.dokka.MainKt")
+                    .methods.find { it.name == "entry" }!!
+                    .invoke(null, args)
+        }
+    }
 
-    generator.generate()
-    DokkaConsoleLogger.report()
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val arguments = DokkaArguments()
+        Args.parse(arguments, args, false)
+
+        if (arguments.outputFormat == "javadoc")
+            startWithToolsJar(args)
+        else
+            entry(args)
+    }
 }
+
+
 

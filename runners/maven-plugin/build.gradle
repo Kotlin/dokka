@@ -1,4 +1,6 @@
+import groovy.xml.QName
 import org.jetbrains.CrossPlatformExec
+
 
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -52,8 +54,6 @@ pluginDescriptor.dependsOn generatePom
 shadowJar {
     baseName = 'dokka-maven-plugin'
     classifier = ''
-
-    relocate('kotlin.', 'dokkakotlin.')
 }
 
 shadowJar.dependsOn pluginDescriptor
@@ -74,7 +74,61 @@ publishing {
             artifact sourceJar {
                 classifier "sources"
             }
+
+            pom.withXml {
+                Node root = asNode()
+
+                def dependency = new XmlParser().parseText('''
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>1.8.0</version>
+                    <scope>system</scope>
+                    <systemPath>${toolsjar}</systemPath>
+                </dependency>
+                ''')
+
+                root.children().find {
+                    return ((QName) it.name()).qualifiedName == "dependencies"
+                }.append(dependency)
+
+                def profiles = new XmlParser().parseText('''
+                <profiles>
+                    <profile>
+                        <id>default-profile</id>
+                        <activation>
+                            <activeByDefault>true</activeByDefault>
+                            <file>
+                                <exists>${java.home}/../lib/tools.jar</exists>
+                            </file>
+                        </activation>
+                        <properties>
+                            <toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+                        </properties>
+                    </profile>
+                    <profile>
+                        <id>mac-profile</id>
+                        <activation>
+                            <activeByDefault>false</activeByDefault>
+                            <file>
+                                <exists>${java.home}/../Classes/classes.jar</exists>
+                            </file>
+                        </activation>
+                        <properties>
+                            <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
+                        </properties>
+                    </profile>
+                </profiles>
+                ''')
+                root.append(profiles)
+            }
         }
+    }
+}
+
+tasks.withType(GenerateMavenPom) { Task generatePom ->
+    generatePom.doLast {
+
     }
 }
 
