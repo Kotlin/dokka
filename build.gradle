@@ -41,7 +41,7 @@ def bintrayPublication(project, List<String> _publications) {
             key = System.getenv('BINTRAY_KEY')
 
             pkg {
-                repo = dokka_eap.toBoolean() ? 'kotlin-eap' : 'dokka'
+                repo = dokka_publication_channel
                 name = 'dokka'
                 userOrg = 'kotlin'
                 desc = 'Dokka, the Kotlin documentation tool'
