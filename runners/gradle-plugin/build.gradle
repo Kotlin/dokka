@@ -3,6 +3,7 @@ apply plugin: 'java'
 sourceCompatibility = 1.6
 
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: "com.gradle.plugin-publish"
 
 configurations {
     provided
@@ -61,3 +62,17 @@ publishing {
 
 bintrayPublication(project, ['dokkaGradlePlugin'])
 
+
+pluginBundle {
+    website = 'http://www.kotlinlang.org/'
+    vcsUrl = 'https://github.com/kotlin/dokka.git'
+    description = 'Dokka, the Kotlin documentation tool'
+    tags = ['dokka', 'kotlin']
+
+    plugins {
+        dokkaGradlePlugin {
+            id = 'org.jetbrains.dokka'
+            displayName = 'Dokka plugin'
+        }
+    }
+}
