@@ -16,6 +16,8 @@ open class DokkaAndroidPlugin : Plugin<Project> {
     val allVariantsClassPath = mutableSetOf<File>()
 
     override fun apply(project: Project) {
+
+        DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka-android.properties"))
         project.tasks.create("dokka", DokkaAndroidTask::class.java).apply {
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
