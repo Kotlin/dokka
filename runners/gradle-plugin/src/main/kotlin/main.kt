@@ -11,7 +11,9 @@ import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.automagicTypedProxy
 import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
+import org.jetbrains.dokka.gradle.DokkaVersion.version
 import java.io.File
+import java.io.InputStream
 import java.io.Serializable
 import java.net.URLClassLoader
 import java.util.*
@@ -19,13 +21,8 @@ import java.util.function.BiConsumer
 
 open class DokkaPlugin : Plugin<Project> {
 
-    val properties = Properties()
-
-    init {
-        properties.load(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
-    }
     override fun apply(project: Project) {
-        version = properties.getProperty("dokka-version")
+        DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
         project.tasks.create("dokka", DokkaTask::class.java).apply {
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
@@ -33,7 +30,16 @@ open class DokkaPlugin : Plugin<Project> {
     }
 }
 
-var version: String? = null
+object DokkaVersion {
+    var version: String? = null
+
+    fun loadFrom(stream: InputStream) {
+        version = Properties().apply {
+            load(stream)
+        }.getProperty("dokka-version")
+    }
+}
+
 
 object ClassloaderContainer {
     @JvmField
@@ -89,8 +95,10 @@ open class DokkaTask : DefaultTask() {
             val fatjar = if (dokkaFatJar is File)
                 dokkaFatJar as File
             else {
-                val dependency = project.buildscript.dependencies.create(dokkaFatJar)
-                val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
+                //Searching for buildscript where dependency to dokka plugin was defined
+                val myBuildScript = project.allprojects.map { it.buildscript }.find { it.classLoader == javaClass.classLoader }!!
+                val dependency = myBuildScript.dependencies.create(dokkaFatJar)
+                val configuration = myBuildScript.configurations.detachedConfiguration(dependency)
                 configuration.description = "Dokka main jar"
                 configuration.resolve().first()
             }

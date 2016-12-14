@@ -26,11 +26,21 @@ dependencies {
     provided gradleApi()
     provided localGroovy()
 
-    shadow 'com.android.tools.build:gradle:2.2.0'
+    provided 'com.android.tools.build:gradle:2.2.0'
 }
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allSource
+}
+
+processResources {
+    eachFile {
+        if (it.name == "org.jetbrains.dokka-android.properties") {
+            it.filter { line ->
+                line.replace("<version>", dokka_version)
+            }
+        }
+    }
 }
 
 shadowJar {
