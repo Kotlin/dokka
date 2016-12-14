@@ -62,17 +62,25 @@ publishing {
 
 bintrayPublication(project, ['dokkaGradlePlugin'])
 
+configurations.archives.artifacts.clear()
+artifacts {
+    archives shadowJar
+}
 
 pluginBundle {
     website = 'http://www.kotlinlang.org/'
     vcsUrl = 'https://github.com/kotlin/dokka.git'
     description = 'Dokka, the Kotlin documentation tool'
-    tags = ['dokka', 'kotlin']
+    tags = ['dokka', 'kotlin', 'kdoc']
 
     plugins {
         dokkaGradlePlugin {
             id = 'org.jetbrains.dokka'
             displayName = 'Dokka plugin'
         }
+    }
+
+    mavenCoordinates {
+        groupId = "org.jetbrains.dokka"
     }
 }
