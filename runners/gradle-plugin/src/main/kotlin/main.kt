@@ -90,19 +90,23 @@ open class DokkaTask : DefaultTask() {
     }
 
 
+    fun tryResolveFatJar(project: Project): File {
+        return try {
+            val dependency = project.buildscript.dependencies.create(dokkaFatJar)
+            val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
+            configuration.description = "Dokka main jar"
+            configuration.resolve().first()
+        } catch (e: Exception) {
+            project.parent?.let { tryResolveFatJar(it) } ?: throw e
+        }
+    }
+
     fun loadFatJar() {
         if (fatJarClassLoader == null) {
             val fatjar = if (dokkaFatJar is File)
                 dokkaFatJar as File
-            else {
-                //Searching for buildscript where dependency to dokka plugin was defined
-                val myBuildScript = project.allprojects.map { it.buildscript }.find { it.classLoader == javaClass.classLoader }!!
-                val dependency = myBuildScript.dependencies.create(dokkaFatJar)
-                val configuration = myBuildScript.configurations.detachedConfiguration(dependency)
-                configuration.description = "Dokka main jar"
-                configuration.resolve().first()
-            }
-
+            else
+                tryResolveFatJar(project)
             fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()), ClassLoader.getSystemClassLoader().parent)
         }
     }
@@ -185,8 +189,8 @@ open class DokkaTask : DefaultTask() {
     @SkipWhenEmpty
     fun getInputFiles(): FileCollection =
             project.files(getSourceDirectories().map { project.fileTree(it) }) +
-            project.files(includes) +
-            project.files(samples.map { project.fileTree(it) })
+                    project.files(includes) +
+                    project.files(samples.map { project.fileTree(it) })
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
