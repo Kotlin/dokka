@@ -209,8 +209,12 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
     override fun equals(other: Any?): Boolean = other is TypeAdapter && toString() == other.toString()
 }
 
+class NotAnnotatedTypeAdapter(typeAdapter: AnnotatedTypeAdapter) : Type by typeAdapter {
+    override fun asAnnotatedType() = null
+}
+
 class AnnotatedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : TypeAdapter(module, node), AnnotatedType {
-    override fun underlyingType(): Type? = this
+    override fun underlyingType(): Type? = NotAnnotatedTypeAdapter(this)
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this).toTypedArray()
 }
 
