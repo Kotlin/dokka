@@ -121,7 +121,7 @@ class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: Documentati
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
 
-class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
+open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
@@ -297,7 +297,7 @@ fun classOf(fqName: String, kind: DocumentationNode.Kind = DocumentationNode.Kin
     node
 }
 
-open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), ExecutableMemberDoc {
+open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ProgramElementAdapter(module, node), ExecutableMemberDoc {
 
     override fun isSynthetic(): Boolean = false
     override fun isNative(): Boolean = node.annotations.any { it.name == "native" }
@@ -348,7 +348,7 @@ class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : E
     override fun name(): String = node.owner?.name ?: throw IllegalStateException("No owner for $node")
 }
 
-class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ExecutableMemberDoc by ExecutableMemberAdapter(module, node), MethodDoc {
+class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ExecutableMemberAdapter(module, node), MethodDoc {
     override fun overrides(meth: MethodDoc?): Boolean = false // TODO
 
     override fun overriddenType(): Type? = node.overrides.firstOrNull()?.owner?.let { owner -> TypeAdapter(module, owner) }
@@ -363,7 +363,7 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docume
     override fun returnType(): Type = TypeAdapter(module, node.detail(DocumentationNode.Kind.Type))
 }
 
-class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), FieldDoc {
+class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ProgramElementAdapter(module, node), FieldDoc {
     override fun isSynthetic(): Boolean = false
 
     override fun constantValueExpression(): String? = node.details(DocumentationNode.Kind.Value).firstOrNull()?.let { it.name }
@@ -377,9 +377,8 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Documen
 }
 
 open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode)
-    : DocumentationNodeAdapter(module, classNode),
+    : ProgramElementAdapter(module, classNode),
       Type by TypeAdapter(module, classNode),
-      ProgramElementDoc by ProgramElementAdapter(module, classNode),
       ClassDoc {
 
     override fun name(): String {
