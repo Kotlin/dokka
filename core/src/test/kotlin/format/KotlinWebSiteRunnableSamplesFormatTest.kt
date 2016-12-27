@@ -7,6 +7,11 @@ import org.junit.Test
 class KotlinWebSiteRunnableSamplesFormatTest {
     private val kwsService = KotlinWebsiteRunnableSamplesFormatService(InMemoryLocationService, KotlinLanguageService())
 
+
+    @Test fun dropImport() {
+        verifyKWSNodeByName("dropImport", "foo")
+    }
+
     @Test fun sample() {
         verifyKWSNodeByName("sample", "foo")
     }
