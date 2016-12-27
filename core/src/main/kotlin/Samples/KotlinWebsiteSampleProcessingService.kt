@@ -2,10 +2,9 @@ package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
 import com.intellij.psi.PsiElement
-import org.jetbrains.dokka.DocumentationOptions
-import org.jetbrains.dokka.DokkaLogger
-import org.jetbrains.dokka.DokkaResolutionFacade
+import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.resolve.ImportPath
 
 open class KotlinWebsiteSampleProcessingService
 @Inject constructor(options: DocumentationOptions,
@@ -63,6 +62,22 @@ open class KotlinWebsiteSampleProcessingService
         val sampleBuilder = SampleBuilder()
         this.accept(sampleBuilder)
         return sampleBuilder.text
+    }
+
+    val importsToIgnore = arrayOf("samples.*").map(::ImportPath)
+
+    override fun processImports(psiElement: PsiElement): ContentBlockCode {
+        val psiFile = psiElement.containingFile
+        if (psiFile is KtFile) {
+            return ContentBlockCode("kotlin").apply {
+                psiFile.importList?.let {
+                    it.children.filter {
+                        it !is KtImportDirective || it.importPath !in importsToIgnore
+                    }.forEach { append(ContentText(it.text)) }
+                }
+            }
+        }
+        return super.processImports(psiElement)
     }
 
     override fun processSampleBody(psiElement: PsiElement) = when (psiElement) {
