@@ -72,6 +72,11 @@ open class DokkaTask : DefaultTask() {
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
 
+    @Input var skipDeprecated = false
+    @Input var skipEmptyPackages = true
+    @Input var reportNotDocumented = true
+
+
     protected open val sdkProvider: SdkProvider? = null
 
     fun linkMapping(closure: Closure<Any?>) {
@@ -154,9 +159,9 @@ open class DokkaTask : DefaultTask() {
                 outputDirectory,
                 outputFormat,
                 false,
-                false,
-                false,
-                false,
+                reportNotDocumented,
+                skipEmptyPackages,
+                skipDeprecated,
                 6,
                 true,
                 linkMappings.map {
