@@ -121,7 +121,7 @@ class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: Documentati
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
 
-class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
+open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
@@ -305,7 +305,7 @@ private fun DocumentationNode.hasNonEmptyContent() =
         this.content.summary !is ContentEmpty || this.content.description !is ContentEmpty || this.content.sections.isNotEmpty()
 
 
-open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), ExecutableMemberDoc {
+open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ProgramElementAdapter(module, node), ExecutableMemberDoc {
 
     override fun isSynthetic(): Boolean = false
     override fun isNative(): Boolean = node.annotations.any { it.name == "native" }
@@ -355,7 +355,7 @@ class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : E
     }
 }
 
-class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ExecutableMemberDoc by ExecutableMemberAdapter(module, node), MethodDoc {
+class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ExecutableMemberAdapter(module, node), MethodDoc {
     override fun overrides(meth: MethodDoc?): Boolean = false // TODO
 
     override fun overriddenType(): Type? = node.overrides.firstOrNull()?.owner?.let { owner -> TypeAdapter(module, owner) }
@@ -381,7 +381,7 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Docume
     }
 }
 
-class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc by ProgramElementAdapter(module, node), FieldDoc {
+class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ProgramElementAdapter(module, node), FieldDoc {
     override fun isSynthetic(): Boolean = false
 
     override fun constantValueExpression(): String? = node.detailOrNull(NodeKind.Value)?.let { it.name }
@@ -393,11 +393,9 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : Documen
 
     override fun isVolatile(): Boolean = node.hasAnnotation(Volatile::class)
 }
-
 open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode)
-    : DocumentationNodeAdapter(module, classNode),
+    : ProgramElementAdapter(module, classNode),
       Type by TypeAdapter(module, classNode),
-      ProgramElementDoc by ProgramElementAdapter(module, classNode),
         ClassDoc {
 
     override fun name(): String {
