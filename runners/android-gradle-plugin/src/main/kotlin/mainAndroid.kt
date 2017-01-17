@@ -41,8 +41,8 @@ open class DokkaAndroidPlugin : Plugin<Project> {
         val plugin = (project.plugins.findPlugin("android")
                 ?: project.plugins.findPlugin("android-library")
                 ?: project.plugins.findPlugin("com.android.test")) as BasePlugin
-
-        val variantManagerProperty = plugin::class.memberProperties.find { it.name == "variantManager" }!!
+        
+        val variantManagerProperty = plugin.javaClass.kotlin.memberProperties.find { it.name == "variantManager" }!!
         variantManagerProperty.isAccessible = true
         val variantManager = variantManagerProperty.get(plugin) as VariantManager
         variantManager.variantDataList.flatMapTo(allVariantsClassPath) { it.variantConfiguration.compileClasspath }

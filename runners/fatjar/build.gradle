@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.jetbrains.PluginXmlTransformer
 
+apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {

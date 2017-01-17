@@ -1,7 +1,6 @@
 import groovy.xml.QName
 import org.jetbrains.CrossPlatformExec
 
-
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
