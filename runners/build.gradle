@@ -1,9 +1,15 @@
-buildscript {
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+configure([project("ant"), project("cli"), project("fatjar"), project("maven-plugin")]) {
+    buildscript {
+        dependencies {
+            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        }
     }
 }
 
-subprojects {
-    apply plugin: 'kotlin'
+configure([project("gradle-plugin"), project("android-gradle-plugin")]) {
+    buildscript {
+        dependencies {
+            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_for_gradle_version"
+        }
+    }
 }
