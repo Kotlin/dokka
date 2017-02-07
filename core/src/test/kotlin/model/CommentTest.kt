@@ -153,22 +153,26 @@ line two""", toTestString())
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())
                 with (content.description) {
-                    assertEqualsIgnoringSeparators("""[code lang=kotlin]
-                        |if (true) {
-                        |    println(property)
-                        |}
-                        |[/code]
+                    assertEqualsIgnoringSeparators("""
                         |[code lang=kotlin]
                         |if (true) {
                         |    println(property)
                         |}
                         |[/code]
                         |[code lang=kotlin]
+                        |
                         |if (true) {
                         |    println(property)
                         |}
                         |[/code]
                         |[code lang=kotlin]
+                        |
+                        |if (true) {
+                        |    println(property)
+                        |}
+                        |[/code]
+                        |[code lang=kotlin]
+                        |
                         |if (true) {
                         |    println(property)
                         |}

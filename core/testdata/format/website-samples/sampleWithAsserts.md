@@ -14,6 +14,7 @@ layout: api
 
 fun main(args: Array<String>) {
 //sampleStart
+
 println(a()) // Hello, Work
 println("a() == b() is ${a() == b()}") // true
 //sampleEnd

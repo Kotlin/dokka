@@ -44,8 +44,8 @@ open class DefaultSampleProcessingService
 
         val text = processSampleBody(psiElement)
 
-        val lines = text.trimEnd().split("\n".toRegex()).toTypedArray().filterNot(String::isEmpty)
-        val indent = lines.map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
+        val lines = text.trimEnd().split("\n")
+        val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
         val finalText = lines.map { it.drop(indent) }.joinToString("\n")
 
         return ContentBlockSampleCode(importsBlock = processImports(psiElement)).apply { append(ContentText(finalText)) }
