@@ -14,7 +14,6 @@ layout: api
 
 fun main(args: Array<String>) {
 //sampleStart
-
 val words = listOf("a", "abc", "ab", "def", "abcd")
 val byLength = words.groupBy { it.length }
 

@@ -42,9 +42,8 @@ open class DefaultSampleProcessingService
             return ContentBlockSampleCode().apply { append(ContentText("//Source not found: $functionName")) }
         }
 
-        val text = processSampleBody(psiElement)
-
-        val lines = text.trimEnd().split("\n")
+        val text = processSampleBody(psiElement).trim { it == '\n' || it == '\r' }.trimEnd()
+        val lines = text.split("\n")
         val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
         val finalText = lines.map { it.drop(indent) }.joinToString("\n")
 

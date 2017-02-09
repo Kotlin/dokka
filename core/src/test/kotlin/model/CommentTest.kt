@@ -160,19 +160,16 @@ line two""", toTestString())
                         |}
                         |[/code]
                         |[code lang=kotlin]
-                        |
                         |if (true) {
                         |    println(property)
                         |}
                         |[/code]
                         |[code lang=kotlin]
-                        |
                         |if (true) {
                         |    println(property)
                         |}
                         |[/code]
                         |[code lang=kotlin]
-                        |
                         |if (true) {
                         |    println(property)
                         |}
