@@ -164,7 +164,7 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
         div(to, "sample", true) {
             appendBlockCode(language) {
                 imports()
-                wrap("\nfun main(args: Array<String>) {", "}") {
+                wrap("\n\nfun main(args: Array<String>) {", "}") {
                     wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
                 }
             }

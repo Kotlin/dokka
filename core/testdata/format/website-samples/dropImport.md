@@ -12,6 +12,7 @@ layout: api
 
 ``` kotlin
 import some.*
+
 fun main(args: Array<String>) {
 //sampleStart
 
