@@ -18,7 +18,8 @@ enum class RefKind {
     Annotation,
     HiddenAnnotation,
     Deprecation,
-    TopLevelPage
+    TopLevelPage,
+    SinceKotlin
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {

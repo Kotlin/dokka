@@ -6,8 +6,9 @@ import org.jetbrains.dokka.RefKind
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import kotlin.test.assertNotNull
 
-public class ClassTest {
+class ClassTest {
     @Test fun emptyClass() {
         verifyModel("testdata/classes/emptyClass.kt") { model ->
             with(model.members.single().members.single()) {
@@ -269,6 +270,14 @@ public class ClassTest {
             with (constructors.first { it.details(NodeKind.Parameter).size == 1}) {
                 assertEquals("<init>", name)
                 assertEquals("This is a secondary constructor.", summary.toTestString())
+            }
+        }
+    }
+
+    @Test fun sinceKotlin() {
+        verifyModel("testdata/classes/sinceKotlin.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertNotNull(sinceKotlin)
             }
         }
     }

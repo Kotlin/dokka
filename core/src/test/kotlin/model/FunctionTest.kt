@@ -5,8 +5,9 @@ import org.jetbrains.dokka.NodeKind
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import kotlin.test.assertNotNull
 
-public class FunctionTest {
+class FunctionTest {
     @Test fun function() {
         verifyModel("testdata/functions/function.kt") { model ->
             with(model.members.single().members.single()) {
@@ -221,6 +222,14 @@ Documentation""", content.description.toTestString())
                         assertEquals("\"\"", name)
                     }
                 }
+            }
+        }
+    }
+
+    @Test fun sinceKotlin() {
+        verifyModel("testdata/functions/sinceKotlin.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertNotNull(sinceKotlin)
             }
         }
     }

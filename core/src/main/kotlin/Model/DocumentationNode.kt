@@ -97,6 +97,8 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Annotation).map { it.to }
     val deprecation: DocumentationNode?
         get() = references(RefKind.Deprecation).singleOrNull()?.to
+    val sinceKotlin: DocumentationNode?
+        get() = references(RefKind.SinceKotlin).singleOrNull()?.to
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {

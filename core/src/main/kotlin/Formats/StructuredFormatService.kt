@@ -59,6 +59,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
     abstract fun appendText(text: String)
 
+    open fun appendSinceKotlin(version: String) {
+        appendParagraph {
+            appendText("Available since Kotlin: ")
+            appendCode { appendText(version) }
+        }
+    }
+
     open fun appendSymbol(text: String) {
         appendText(text)
     }
@@ -284,12 +291,14 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
                 item.appendOverrides()
                 item.appendDeprecation()
+                item.appendSinceKotlin()
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
             item.details(NodeKind.OverloadGroupNote).forEach {
                 appendContent(it.content)
             }
+
             appendContent(item.content.summary)
             item.appendDescription()
         }
@@ -310,6 +319,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     appendLink(FormatLink(it.owner!!.name + "." + it.name, location))
                 }
             }
+        }
+
+        private fun DocumentationNode.appendSinceKotlin() {
+            val annotation = sinceKotlin ?: return
+            val value = annotation.detail(NodeKind.Parameter).detail(NodeKind.Value)
+            appendSinceKotlin(value.name)
         }
 
         private fun DocumentationNode.appendDeprecation() {
