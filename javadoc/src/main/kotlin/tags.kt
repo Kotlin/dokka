@@ -69,9 +69,11 @@ class SeeMethodTagAdapter(holder: Doc, val method: MethodAdapter, content: Conte
     override fun referencedMember(): MemberDoc = method
     override fun referencedMemberName(): String = method.name()
     override fun referencedPackage(): PackageDoc? = null
-    override fun referencedClass(): ClassDoc = method.containingClass()
-    override fun referencedClassName(): String = method.containingClass().name()
-    override fun label(): String = "${method.containingClass().name()}.${method.name()}"
+    override fun referencedClass(): ClassDoc? = method.containingClass()
+    override fun referencedClassName(): String? = method.containingClass()?.name()
+    override fun label(): String = method.containingClass().let { containingClass ->
+        if (containingClass != null) "${containingClass.name()}.${method.name()}" else method.name()
+    }
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
@@ -127,7 +129,7 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter)
     override fun exceptionComment(): String = ""
     override fun exceptionType(): Type = type
     override fun exception(): ClassDoc = type
-    override fun exceptionName(): String = type.qualifiedName()
+    override fun exceptionName(): String = type.qualifiedName() ?: ""
 }
 
 fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode): List<Tag> = ArrayList<Tag>().let { buildInlineTags(module, holder, root, it); it }
