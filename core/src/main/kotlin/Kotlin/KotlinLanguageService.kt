@@ -151,26 +151,43 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
+    private fun ContentBlock.renderFunctionalType(node: DocumentationNode, renderMode: RenderMode) {
         var typeArguments = node.details(NodeKind.Type)
-        if (node.name == "Function${typeArguments.count() - 1}") {
-            // lambda
-            val isExtension = node.annotations.any { it.name == "ExtensionFunctionType" }
-            if (isExtension) {
-                renderType(typeArguments.first(), renderMode)
-                symbol(".")
-                typeArguments = typeArguments.drop(1)
-            }
-            symbol("(")
-            renderList(typeArguments.take(typeArguments.size - 1), noWrap = true) {
-                renderFunctionalTypeParameterName(it, renderMode)
-                renderType(it, renderMode)
-            }
-            symbol(")")
-            nbsp()
-            symbol("->")
-            nbsp()
-            renderType(typeArguments.last(), renderMode)
+
+        if (node.name.startsWith("Suspend")) {
+            keyword("suspend ")
+        }
+
+        // lambda
+        val isExtension = node.annotations.any { it.name == "ExtensionFunctionType" }
+        if (isExtension) {
+            renderType(typeArguments.first(), renderMode)
+            symbol(".")
+            typeArguments = typeArguments.drop(1)
+        }
+        symbol("(")
+        renderList(typeArguments.take(typeArguments.size - 1), noWrap = true) {
+            renderFunctionalTypeParameterName(it, renderMode)
+            renderType(it, renderMode)
+        }
+        symbol(")")
+        nbsp()
+        symbol("->")
+        nbsp()
+        renderType(typeArguments.last(), renderMode)
+
+    }
+
+    private fun DocumentationNode.isFunctionalType(): Boolean {
+        val typeArguments = details(NodeKind.Type)
+        val functionalTypeName = "Function${typeArguments.count() - 1}"
+        val suspendFunctionalTypeName = "Suspend$functionalTypeName"
+        return name == functionalTypeName || name == suspendFunctionalTypeName
+    }
+
+    private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
+        if (node.isFunctionalType()) {
+            renderFunctionalType(node, renderMode)
             return
         }
         if (renderMode == RenderMode.FULL) {
@@ -178,7 +195,8 @@ class KotlinLanguageService : LanguageService {
         }
         renderModifiersForNode(node, renderMode, true)
         renderLinked(node) { identifier(it.name, IdentifierKind.TypeName) }
-        if (typeArguments.any()) {
+        val typeArguments = node.details(NodeKind.Type)
+        if (typeArguments.isNotEmpty()) {
             symbol("<")
             renderList(typeArguments, noWrap = true) {
                 renderType(it, renderMode)
