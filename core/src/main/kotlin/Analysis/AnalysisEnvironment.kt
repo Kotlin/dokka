@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
+import org.jetbrains.kotlin.resolve.MultiTargetPlatform
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
@@ -133,7 +134,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                     info, content ->
                     JvmPackagePartProvider(environment, content.moduleContentScope)
                 },
-                builtIns = builtIns
+                builtIns = { builtIns },
+                modulePlatforms = { MultiTargetPlatform.Specific("JVM") }
         )
 
         resolverForProject.resolverForModule(library) // Required before module to initialize library properly
