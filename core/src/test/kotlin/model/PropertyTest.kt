@@ -6,8 +6,9 @@ import org.jetbrains.dokka.RefKind
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import kotlin.test.assertNotNull
 
-public class PropertyTest {
+class PropertyTest {
     @Test fun valueProperty() {
         verifyModel("testdata/properties/valueProperty.kt") { model ->
             with(model.members.single().members.single()) {
@@ -97,6 +98,14 @@ public class PropertyTest {
                 val override = references(RefKind.Override).single().to
                 assertEquals("xyzzy", override.name)
                 assertEquals("Foo", override.owner!!.name)
+            }
+        }
+    }
+
+    @Test fun sinceKotlin() {
+        verifyModel("testdata/properties/sinceKotlin.kt") { model ->
+            with(model.members.single().members.single()) {
+                assertNotNull(sinceKotlin)
             }
         }
     }

@@ -4,7 +4,6 @@ import org.jetbrains.dokka.DocumentationModule
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.dokka.MarkdownFormatService
-import org.junit.Ignore
 import org.junit.Test
 
 class MarkdownFormatTest {
@@ -239,6 +238,11 @@ class MarkdownFormatTest {
     @Test fun suspendParam() {
         verifyMarkdownNode("suspendParam")
         verifyMarkdownPackage("suspendParam")
+    }
+
+    @Test fun sinceKotlin() {
+        verifyMarkdownNode("sinceKotlin")
+        verifyMarkdownPackage("sinceKotlin")
     }
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {

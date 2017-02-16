@@ -200,8 +200,12 @@ class DocumentationBuilder
         annotated.annotations.forEach {
             it.build()?.let { annotationNode ->
                 val refKind = when {
-                    it.isDocumented() && annotationNode.isDeprecation() -> RefKind.Deprecation
-                    it.isDocumented() -> RefKind.Annotation
+                    it.isDocumented() ->
+                        when {
+                            annotationNode.isDeprecation() -> RefKind.Deprecation
+                            annotationNode.isSinceKotlin() -> RefKind.SinceKotlin
+                            else -> RefKind.Annotation
+                        }
                     it.isHiddenInDocumentation() -> RefKind.HiddenAnnotation
                     else -> return@forEach
                 }
@@ -220,6 +224,8 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.isDeprecation() = name == "Deprecated" || name == "deprecated"
+
+    fun DocumentationNode.isSinceKotlin() = name == "SinceKotlin" && kind == NodeKind.Annotation
 
     fun DocumentationNode.appendSourceLink(sourceElement: SourceElement) {
         appendSourceLink(sourceElement.getPsi(), options.sourceLinks)

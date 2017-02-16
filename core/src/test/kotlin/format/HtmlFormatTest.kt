@@ -138,6 +138,10 @@ class HtmlFormatTest {
         verifyHtmlNode("functionalTypeWithNamedParameters")
     }
 
+    @Test fun sinceKotlin() {
+        verifyHtmlNode("sinceKotlin")
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }
