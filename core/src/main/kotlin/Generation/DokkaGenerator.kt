@@ -56,7 +56,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     }
 
     fun createAnalysisEnvironment(): AnalysisEnvironment {
-        val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
+        val environment = JVMAnalysisEnvironment(DokkaMessageCollector(logger))
 
         environment.apply {
             addClasspath(PathUtil.getJdkClassesRoots())

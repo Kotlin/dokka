@@ -45,7 +45,7 @@ fun verifyModel(vararg roots: ContentRoot,
         override fun hasErrors() = false
     }
 
-    val environment = AnalysisEnvironment(messageCollector)
+    val environment = JVMAnalysisEnvironment(messageCollector)
     environment.apply {
         if (withJdk || withKotlinRuntime) {
             val stringRoot = PathManager.getResourceRoot(String::class.java, "/java/lang/String.class")
