@@ -241,6 +241,10 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("suspendParam")
     }
 
+    @Test fun blankLineInsideCodeBlock() {
+        verifyMarkdownNode("blankLineInsideCodeBlock")
+    }
+
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)

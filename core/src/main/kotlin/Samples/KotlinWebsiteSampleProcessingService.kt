@@ -70,6 +70,7 @@ open class KotlinWebsiteSampleProcessingService
         val psiFile = psiElement.containingFile
         if (psiFile is KtFile) {
             return ContentBlockCode("kotlin").apply {
+                append(ContentText("\n"))
                 psiFile.importList?.let {
                     it.children.filter {
                         it !is KtImportDirective || it.importPath !in importsToIgnore
