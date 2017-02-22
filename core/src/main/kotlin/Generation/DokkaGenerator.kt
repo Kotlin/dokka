@@ -7,7 +7,8 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.dokka.Utilities.DokkaModule
+import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
+import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -28,7 +29,21 @@ class DokkaGenerator(val logger: DokkaLogger,
                      val includes: List<String>,
                      val moduleName: String,
                      val options: DocumentationOptions) {
+
+    private val documentationModule = DocumentationModule(moduleName)
+
     fun generate() {
+        appendSourceModule()
+
+        val timeBuild = measureTimeMillis {
+            logger.info("Generating pages... ")
+            val outputInjector = Guice.createInjector(DokkaOutputModule(options, logger))
+            outputInjector.getInstance(Generator::class.java).buildAll(documentationModule)
+        }
+        logger.info("done in ${timeBuild / 1000} secs")
+    }
+
+    private fun appendSourceModule() {
         val environment = createAnalysisEnvironment()
 
         logger.info("Module: $moduleName")
@@ -39,18 +54,12 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val injector = Guice.createInjector(DokkaModule(environment, options, logger))
+        val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, logger))
 
-        val documentation = buildDocumentationModule(injector, moduleName, { isSample(it) }, includes)
+        buildDocumentationModule(injector, documentationModule, { isSample(it) }, includes)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
-
-        val timeBuild = measureTimeMillis {
-            logger.info("Generating pages... ")
-            injector.getInstance(Generator::class.java).buildAll(documentation)
-        }
-        logger.info("done in ${timeBuild / 1000} secs")
 
         Disposer.dispose(environment)
     }
@@ -100,9 +109,9 @@ class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
 }
 
 fun buildDocumentationModule(injector: Injector,
-                             moduleName: String,
+                             documentationModule: DocumentationModule,
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
-                             includes: List<String> = listOf()): DocumentationModule {
+                             includes: List<String> = listOf()) {
 
     val coreEnvironment = injector.getInstance(KotlinCoreEnvironment::class.java)
     val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
@@ -120,7 +129,11 @@ fun buildDocumentationModule(injector: Injector,
     for (include in includes) {
         packageDocs.parse(include, fragments.firstOrNull())
     }
-    val documentationModule = DocumentationModule(moduleName, packageDocs.moduleContent)
+    documentationModule.updateContent {
+        for (node in packageDocs.moduleContent.children) {
+            append(node)
+        }
+    }
 
     with(injector.getInstance(DocumentationBuilder::class.java)) {
         documentationModule.appendFragments(fragments, packageDocs.packageContent,
@@ -133,8 +146,6 @@ fun buildDocumentationModule(injector: Injector,
     }
 
     injector.getInstance(NodeReferenceGraph::class.java).resolveReferences()
-
-    return documentationModule
 }
 
 
