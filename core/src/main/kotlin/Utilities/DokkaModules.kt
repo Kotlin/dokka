@@ -10,10 +10,37 @@ import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 
-class DokkaModule(val environment: AnalysisEnvironment,
-                  val options: DocumentationOptions,
-                  val logger: DokkaLogger) : Module {
+class DokkaAnalysisModule(val environment: AnalysisEnvironment,
+                          val options: DocumentationOptions,
+                          val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
+        val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
+
+        binder.registerCategory<LanguageService>("language")
+        binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
+        binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)
+        binder.bind<SampleProcessingService>().to(descriptor.sampleProcessingService.java)
+
+        val coreEnvironment = environment.createCoreEnvironment()
+        binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
+
+        val dokkaResolutionFacade = environment.createResolutionFacade(coreEnvironment)
+        binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
+
+        binder.bind<DocumentationOptions>().toInstance(options)
+        binder.bind<DokkaLogger>().toInstance(logger)
+    }
+}
+
+class DokkaOutputModule(val options: DocumentationOptions,
+                        val logger: DokkaLogger) : Module {
+    override fun configure(binder: Binder) {
+        binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
+
+        binder.bind(HtmlTemplateService::class.java).toProvider(object : Provider<HtmlTemplateService> {
+            override fun get(): HtmlTemplateService = HtmlTemplateService.default("style.css")
+        })
+
         binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(options.outputDir))
 
         binder.bindNameAnnotated<LocationService, SingleFolderLocationService>("singleFolder")
@@ -24,13 +51,7 @@ class DokkaModule(val environment: AnalysisEnvironment,
         // defaults
         binder.bind(LocationService::class.java).to(FoldersLocationService::class.java)
         binder.bind(FileLocationService::class.java).to(FoldersLocationService::class.java)
-        binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
 
-        binder.bind(HtmlTemplateService::class.java).toProvider(object : Provider<HtmlTemplateService> {
-            override fun get(): HtmlTemplateService = HtmlTemplateService.default("style.css")
-        })
-
-        binder.registerCategory<LanguageService>("language")
         binder.registerCategory<OutlineFormatService>("outline")
         binder.registerCategory<FormatService>("format")
         binder.registerCategory<Generator>("generator")
@@ -43,17 +64,8 @@ class DokkaModule(val environment: AnalysisEnvironment,
         descriptor.formatServiceClass?.let { clazz ->
             binder.bind(FormatService::class.java).to(clazz.java)
         }
-        binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
-        binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)
-        binder.bind<SampleProcessingService>().to(descriptor.sampleProcessingService.java)
 
         binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
-
-        val coreEnvironment = environment.createCoreEnvironment()
-        binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
-
-        val dokkaResolutionFacade = environment.createResolutionFacade(coreEnvironment)
-        binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
 
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)

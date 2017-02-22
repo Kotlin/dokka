@@ -5,7 +5,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.Utilities.DokkaModule
+import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -65,8 +65,9 @@ fun verifyModel(vararg roots: ContentRoot,
             skipEmptyPackages = false,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
-    val injector = Guice.createInjector(DokkaModule(environment, options, DokkaConsoleLogger))
-    val documentation = buildDocumentationModule(injector, "test")
+    val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, DokkaConsoleLogger))
+    val documentation = DocumentationModule("test")
+    buildDocumentationModule(injector, documentation)
     verifier(documentation)
     Disposer.dispose(environment)
 }
