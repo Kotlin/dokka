@@ -44,6 +44,9 @@ class DokkaArguments {
 
     @set:Argument(value = "jdkVersion", description = "Version of JDK to use for linking to JDK JavaDoc")
     var jdkVersion: Int = 6
+
+    @set:Argument(value = "impliedPlatforms", description = "List of implied platforms (comma-separated)")
+    var impliedPlatforms: String = ""
 }
 
 
@@ -72,7 +75,8 @@ object MainKt {
                 arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
                 arguments.outputFormat,
                 skipDeprecated = arguments.nodeprecated,
-                sourceLinks = sourceLinks
+                sourceLinks = sourceLinks,
+                impliedPlatforms = arguments.impliedPlatforms.split(',')
         )
 
         val generator = DokkaGenerator(
