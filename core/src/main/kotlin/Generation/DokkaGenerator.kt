@@ -22,9 +22,11 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
 
+class SourceRoot(val path: String, val implicitPlatforms: List<String> = emptyList())
+
 class DokkaGenerator(val logger: DokkaLogger,
                      val classpath: List<String>,
-                     val sources: List<String>,
+                     val sources: List<SourceRoot>,
                      val samples: List<String>,
                      val includes: List<String>,
                      val moduleName: String,
@@ -33,7 +35,10 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        appendSourceModule()
+        val sourcesGroupedByPlatform = sources.groupBy { it.implicitPlatforms }
+        for ((platforms, roots) in sourcesGroupedByPlatform) {
+            appendSourceModule(platforms, roots.map { it.path })
+        }
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
@@ -43,18 +48,18 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule() {
-        val environment = createAnalysisEnvironment()
+    private fun appendSourceModule(implicitPlatforms: List<String>, sourcePaths: List<String>) {
+        val environment = createAnalysisEnvironment(sourcePaths)
 
         logger.info("Module: $moduleName")
         logger.info("Output: ${File(options.outputDir)}")
-        logger.info("Sources: ${environment.sources.joinToString()}")
+        logger.info("Sources: ${sourcePaths.joinToString()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, logger))
+        val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, implicitPlatforms, logger))
 
         buildDocumentationModule(injector, documentationModule, { isSample(it) }, includes)
 
@@ -64,7 +69,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         Disposer.dispose(environment)
     }
 
-    fun createAnalysisEnvironment(): AnalysisEnvironment {
+    fun createAnalysisEnvironment(sourcePaths: List<String>): AnalysisEnvironment {
         val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
 
         environment.apply {
@@ -74,7 +79,7 @@ class DokkaGenerator(val logger: DokkaLogger,
                 addClasspath(File(element))
             }
 
-            addSources(this@DokkaGenerator.sources)
+            addSources(sourcePaths)
             addSources(this@DokkaGenerator.samples)
         }
 

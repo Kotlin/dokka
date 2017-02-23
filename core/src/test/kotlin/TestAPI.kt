@@ -22,6 +22,22 @@ fun verifyModel(vararg roots: ContentRoot,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
                 verifier: (DocumentationModule) -> Unit) {
+    val documentation = DocumentationModule("test")
+    appendDocumentation(documentation, *roots,
+            withJdk = withJdk,
+            withKotlinRuntime = withKotlinRuntime,
+            format = format,
+            includeNonPublic = includeNonPublic)
+    verifier(documentation)
+}
+
+fun appendDocumentation(documentation: DocumentationModule,
+                        vararg roots: ContentRoot,
+                        withJdk: Boolean = false,
+                        withKotlinRuntime: Boolean = false,
+                        format: String = "html",
+                        includeNonPublic: Boolean = true,
+                        implicitPlatforms: List<String> = emptyList()) {
     val messageCollector = object : MessageCollector {
         override fun clear() {
 
@@ -65,10 +81,8 @@ fun verifyModel(vararg roots: ContentRoot,
             skipEmptyPackages = false,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
-    val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, DokkaConsoleLogger))
-    val documentation = DocumentationModule("test")
+    val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, implicitPlatforms, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
-    verifier(documentation)
     Disposer.dispose(environment)
 }
 
@@ -129,19 +143,18 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  format: String = "html",
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, format = format) {
-        verifyModelOutput(it, outputExtension, outputGenerator, roots.first().path)
+        verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
 }
 
-private fun verifyModelOutput(it: DocumentationModule,
-                              outputExtension: String,
-                              outputGenerator: (DocumentationModule, StringBuilder) -> Unit,
-                              sourcePath: String) {
+fun verifyModelOutput(it: DocumentationModule,
+                      outputExtension: String,
+                      sourcePath: String,
+                      outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     val output = StringBuilder()
     outputGenerator(it, output)
     val ext = outputExtension.removePrefix(".")
-    val path = sourcePath
-    val expectedFileContent = File(path.replaceAfterLast(".", ext, path + "." + ext)).readText()
+    val expectedFileContent = File(sourcePath.replaceAfterLast(".", ext, sourcePath + "." + ext)).readText()
     val expectedOutput =
             if (ext.equals("html", true))
                 expectedFileContent.lines().joinToString(separator = "\n", transform = String::trim)
@@ -164,7 +177,7 @@ fun verifyJavaOutput(path: String,
                      withKotlinRuntime: Boolean = false,
                      outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyJavaModel(path, withKotlinRuntime) { model ->
-        verifyModelOutput(model, outputExtension, outputGenerator, path)
+        verifyModelOutput(model, outputExtension, path, outputGenerator)
     }
 }
 

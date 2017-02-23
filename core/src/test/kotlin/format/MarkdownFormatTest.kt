@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.dokka.DocumentationModule
-import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.KotlinLanguageService
-import org.jetbrains.dokka.MarkdownFormatService
+import org.jetbrains.dokka.*
 import org.junit.Test
 
 class MarkdownFormatTest {
@@ -243,6 +240,16 @@ class MarkdownFormatTest {
     @Test fun sinceKotlin() {
         verifyMarkdownNode("sinceKotlin")
         verifyMarkdownPackage("sinceKotlin")
+    }
+
+    @Test fun multiplePlatforms() {
+        val module = DocumentationModule("test")
+        val sourcePath = "testdata/format/multiplatform/foo.kt"
+        appendDocumentation(module, contentRootFromPath(sourcePath), implicitPlatforms = listOf("JVM"))
+        appendDocumentation(module, contentRootFromPath("testdata/format/multiplatform/bar.kt"), implicitPlatforms = listOf("JS"))
+        verifyModelOutput(module, ".package.md", sourcePath) { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+        }
     }
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {

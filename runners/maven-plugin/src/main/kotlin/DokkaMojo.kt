@@ -7,11 +7,12 @@ import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.*
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.SourceLinkDefinition
-import org.jetbrains.dokka.DocumentationOptions
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
+import org.jetbrains.dokka.DocumentationOptions
+import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.SourceLinkDefinition
+import org.jetbrains.dokka.SourceRoot
 import java.io.File
 
 class SourceLinkMapItem {
@@ -66,7 +67,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         val gen = DokkaGenerator(
                 MavenDokkaLogger(log),
                 classpath,
-                sourceDirectories,
+                sourceDirectories.map { SourceRoot(it) },
                 samplesDirs,
                 includeDirs + includes,
                 moduleName,

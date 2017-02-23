@@ -78,7 +78,7 @@ object MainKt {
         val generator = DokkaGenerator(
                 DokkaConsoleLogger,
                 classPath,
-                sources,
+                sources.map(::parseSourceRoot),
                 samples,
                 includes,
                 arguments.moduleName,

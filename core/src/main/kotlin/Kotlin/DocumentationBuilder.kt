@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import com.google.inject.name.Named as GuiceNamed
 
 data class DocumentationOptions(val outputDir: String,
                                 val outputFormat: String,
@@ -57,6 +58,8 @@ interface PackageDocumentationBuilder {
                                   allFqNames: Collection<FqName>)
 }
 
+const val implicitPlatformName = "implicitPlatform"
+
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
@@ -64,7 +67,8 @@ class DocumentationBuilder
                     val refGraph: NodeReferenceGraph,
                     val platformNodeRegistry: PlatformNodeRegistry,
                     val logger: DokkaLogger,
-                    val linkResolver: DeclarationLinkResolver) {
+                    val linkResolver: DeclarationLinkResolver,
+                    @GuiceNamed(implicitPlatformName) val implicitPlatforms: List<String>) {
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -234,6 +238,12 @@ class DocumentationBuilder
             if (psi.hasModifier(it)) {
                 appendTextNode(it.value, NodeKind.Modifier)
             }
+        }
+    }
+
+    fun DocumentationNode.appendImplicitPlatforms() {
+        for (platform in implicitPlatforms) {
+            append(platformNodeRegistry[platform], RefKind.Platform)
         }
     }
 
@@ -412,6 +422,7 @@ class DocumentationBuilder
         node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
 
         node.appendSourceLink(source)
+        node.appendImplicitPlatforms()
 
         register(this, node)
         return node
@@ -453,6 +464,7 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
+        node.appendImplicitPlatforms()
         register(this, node)
         return node
     }
@@ -469,6 +481,7 @@ class DocumentationBuilder
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.Constructor)
         node.appendInPageChildren(valueParameters, RefKind.Detail)
+        node.appendImplicitPlatforms()
         register(this, node)
         return node
     }
@@ -497,6 +510,7 @@ class DocumentationBuilder
         node.appendModifiers(this)
         node.appendSourceLink(source)
         node.appendSignature(this)
+        node.appendImplicitPlatforms()
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -543,6 +557,7 @@ class DocumentationBuilder
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
+        node.appendImplicitPlatforms()
 
         register(this, node)
         return node
