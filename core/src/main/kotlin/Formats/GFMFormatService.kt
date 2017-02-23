@@ -3,11 +3,12 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 
 open class GFMOutputBuilder(to: StringBuilder,
-                                 location: Location,
-                                 locationService: LocationService,
-                                 languageService: LanguageService,
-                                 extension: String)
-    : MarkdownOutputBuilder(to, location, locationService, languageService, extension)
+                            location: Location,
+                            locationService: LocationService,
+                            languageService: LanguageService,
+                            extension: String,
+                            impliedPlatforms: List<String>)
+    : MarkdownOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
     override fun appendTable(vararg columns: String, body: () -> Unit) {
         to.appendln(columns.joinToString(" | ", "| ", " |"))
@@ -45,12 +46,14 @@ open class GFMOutputBuilder(to: StringBuilder,
 
 open class GFMFormatService(locationService: LocationService,
                             signatureGenerator: LanguageService,
-                            linkExtension: String)
-: MarkdownFormatService(locationService, signatureGenerator, linkExtension) {
+                            linkExtension: String,
+                            impliedPlatforms: List<String>)
+: MarkdownFormatService(locationService, signatureGenerator, linkExtension, impliedPlatforms) {
 
     @Inject constructor(locationService: LocationService,
-                        signatureGenerator: LanguageService) : this(locationService, signatureGenerator, "md")
+                        signatureGenerator: LanguageService,
+                        impliedPlatforms: List<String>) : this(locationService, signatureGenerator, "md", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
-        GFMOutputBuilder(to, location, locationService, languageService, extension)
+        GFMOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }

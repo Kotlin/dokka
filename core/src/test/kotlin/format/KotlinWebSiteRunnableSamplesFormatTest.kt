@@ -5,7 +5,7 @@ import org.jetbrains.dokka.KotlinWebsiteRunnableSamplesFormatService
 import org.junit.Test
 
 class KotlinWebSiteRunnableSamplesFormatTest {
-    private val kwsService = KotlinWebsiteRunnableSamplesFormatService(InMemoryLocationService, KotlinLanguageService())
+    private val kwsService = KotlinWebsiteRunnableSamplesFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
 
 
     @Test fun dropImport() {

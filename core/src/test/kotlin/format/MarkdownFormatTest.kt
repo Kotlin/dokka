@@ -4,7 +4,7 @@ import org.jetbrains.dokka.*
 import org.junit.Test
 
 class MarkdownFormatTest {
-    private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService())
+    private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
 
     @Test fun emptyDescription() {
         verifyMarkdownNode("emptyDescription")
@@ -257,10 +257,18 @@ class MarkdownFormatTest {
         }
     }
 
+    @Test fun multiplePlatformsImplied() {
+        val module = buildMultiplePlatforms("multiplatformImplied")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatformImplied/foo.kt") { model, output ->
+            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf("JVM", "JS"))
+                    .createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+        }
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), implicitPlatforms = listOf("JVM"))
-        appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), implicitPlatforms = listOf("JS"))
+        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"))
+        appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), defaultPlatforms = listOf("JS"))
         return module
     }
 

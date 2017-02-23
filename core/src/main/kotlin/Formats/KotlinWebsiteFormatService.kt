@@ -1,14 +1,17 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
+import org.jetbrains.dokka.Utilities.impliedPlatformsName
 
 
 open class KotlinWebsiteOutputBuilder(to: StringBuilder,
                                       location: Location,
                                       locationService: LocationService,
                                       languageService: LanguageService,
-                                      extension: String)
-    : JekyllOutputBuilder(to, location, locationService, languageService, extension)
+                                      extension: String,
+                                      impliedPlatforms: List<String>)
+    : JekyllOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
     private var needHardLineBreaks = false
     private var insideDiv = 0
@@ -145,11 +148,12 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
 }
 
 class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
-                                 signatureGenerator: LanguageService)
-    : JekyllFormatService(locationService, signatureGenerator, "html")
+                                                     signatureGenerator: LanguageService,
+                                                     impliedPlatforms: List<String>)
+    : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms)
 {
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-        KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension)
+        KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }
 
 
@@ -157,8 +161,9 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
                                                 location: Location,
                                                 locationService: LocationService,
                                                 languageService: LanguageService,
-                                                extension: String)
-    : KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension) {
+                                                extension: String,
+                                                impliedPlatforms: List<String>)
+    : KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms) {
 
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
         div(to, "sample", true) {
@@ -173,9 +178,10 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
 }
 
 class KotlinWebsiteRunnableSamplesFormatService @Inject constructor(locationService: LocationService,
-                                                                    signatureGenerator: LanguageService)
-    : JekyllFormatService(locationService, signatureGenerator, "html") {
+                                                                    signatureGenerator: LanguageService,
+                                                                    @Named(impliedPlatformsName) impliedPlatforms: List<String>)
+    : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms) {
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-            KotlinWebsiteRunnableSamplesOutputBuilder(to, location, locationService, languageService, extension)
+            KotlinWebsiteRunnableSamplesOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }
 

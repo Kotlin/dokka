@@ -37,7 +37,7 @@ fun appendDocumentation(documentation: DocumentationModule,
                         withKotlinRuntime: Boolean = false,
                         format: String = "html",
                         includeNonPublic: Boolean = true,
-                        implicitPlatforms: List<String> = emptyList()) {
+                        defaultPlatforms: List<String> = emptyList()) {
     val messageCollector = object : MessageCollector {
         override fun clear() {
 
@@ -82,7 +82,7 @@ fun appendDocumentation(documentation: DocumentationModule,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
     val injector = Guice.createInjector(
-            DokkaAnalysisModule(environment, options, implicitPlatforms, documentation.nodeRefGraph, DokkaConsoleLogger))
+            DokkaAnalysisModule(environment, options, defaultPlatforms, documentation.nodeRefGraph, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
     Disposer.dispose(environment)
 }

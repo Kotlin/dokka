@@ -11,9 +11,12 @@ import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 
+const val defaultPlatformsName = "defaultPlatforms"
+const val impliedPlatformsName = "impliedPlatforms"
+
 class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val options: DocumentationOptions,
-                          val implicitPlatforms: List<String>,
+                          val defaultPlatforms: List<String>,
                           val nodeReferenceGraph: NodeReferenceGraph,
                           val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
@@ -33,7 +36,7 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
 
-        binder.bind(StringListType).annotatedWith(Names.named(implicitPlatformName)).toInstance(implicitPlatforms)
+        binder.bind(StringListType).annotatedWith(Names.named(defaultPlatformsName)).toInstance(defaultPlatforms)
 
         binder.bind<NodeReferenceGraph>().toInstance(nodeReferenceGraph)
     }
@@ -78,6 +81,7 @@ class DokkaOutputModule(val options: DocumentationOptions,
 
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
+        binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(options.impliedPlatforms)
     }
 }
 
