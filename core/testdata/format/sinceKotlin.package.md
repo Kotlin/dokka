@@ -4,5 +4,5 @@
 
 ### Types
 
-| [Since1.1](test/-since1.1/index) | `class Since1.1`<br>Useful |
+| [Since1.1](test/-since1.1/index)<br>(Kotlin 1.1) | `class Since1.1`<br>Useful |
 

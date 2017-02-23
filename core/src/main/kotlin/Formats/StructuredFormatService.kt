@@ -457,11 +457,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             val membersMap = children.groupBy { link(node, it) }
 
             appendTable("Name", "Summary") {
-                appendTableBody() {
+                appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        appendTableRow() {
+                        appendTableRow {
                             appendTableCell {
                                 appendLink(memberLocation)
+                                appendPlatforms(members)
                             }
                             appendTableCell {
                                 val breakdownBySummary = members.groupBy { it.summary }
@@ -493,6 +494,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
             appendAsSignature(renderedSignatures.last()) {
                 renderedSignatures.last().appendSignature()
+            }
+        }
+
+        private fun appendPlatforms(items: List<DocumentationNode>) {
+            val platforms = items.foldRight(items.first().platforms.toSet()) {
+                node, platforms -> platforms.intersect(node.platforms)
+            }
+            if (platforms.isNotEmpty()) {
+                appendLine()
+                to.append("(${platforms.joinToString()})")
             }
         }
     }
