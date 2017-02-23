@@ -19,7 +19,7 @@ enum class RefKind {
     HiddenAnnotation,
     Deprecation,
     TopLevelPage,
-    SinceKotlin
+    Platform
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {
@@ -69,5 +69,16 @@ class NodeReferenceGraph
 
     fun resolveReferences() {
         references.forEach { it.resolve() }
+    }
+}
+
+@Singleton
+class PlatformNodeRegistry {
+    private val platformNodes = hashMapOf<String, DocumentationNode>()
+
+    operator fun get(platform: String): DocumentationNode {
+        return platformNodes.getOrPut(platform) {
+            DocumentationNode(platform, Content.Empty, NodeKind.Platform)
+        }
     }
 }

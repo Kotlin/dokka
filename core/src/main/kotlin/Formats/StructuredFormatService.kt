@@ -291,7 +291,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
                 item.appendOverrides()
                 item.appendDeprecation()
-                item.appendSinceKotlin()
+                item.appendPlatforms()
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
@@ -321,12 +321,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun DocumentationNode.appendSinceKotlin() {
-            val annotation = sinceKotlin ?: return
-            val value = annotation.detail(NodeKind.Parameter).detail(NodeKind.Value)
-            appendSinceKotlin(value.name)
-        }
-
         private fun DocumentationNode.appendDeprecation() {
             if (deprecation != null) {
                 val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
@@ -346,6 +340,14 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     appendLine()
                     appendLine()
                 }
+            }
+        }
+
+        private fun DocumentationNode.appendPlatforms() {
+            if (platforms.isEmpty()) return
+            appendParagraph {
+                appendStrong { to.append("Platform and version requirements:") }
+                to.append(" " + platforms.joinToString())
             }
         }
 

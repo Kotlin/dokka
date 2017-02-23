@@ -2,10 +2,9 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import kotlin.test.assertNotNull
+import org.junit.Test
 
 class FunctionTest {
     @Test fun function() {
@@ -229,7 +228,7 @@ Documentation""", content.description.toTestString())
     @Test fun sinceKotlin() {
         verifyModel("testdata/functions/sinceKotlin.kt") { model ->
             with(model.members.single().members.single()) {
-                assertNotNull(sinceKotlin)
+                assertEquals(listOf("Kotlin 1.1"), platforms)
             }
         }
     }
