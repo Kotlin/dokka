@@ -260,11 +260,7 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: RefKind): DocumentationNode? {
-        // do not include generated code
-        if (descriptor is CallableMemberDescriptor && descriptor.kind != CallableMemberDescriptor.Kind.DECLARATION)
-            return null
-
-        if (descriptor.isDocumented(options)) {
+        if (!descriptor.isGenerated() && descriptor.isDocumented(options)) {
             val node = descriptor.build()
             append(node, kind)
             return node
@@ -272,21 +268,57 @@ class DocumentationBuilder
         return null
     }
 
-    fun DocumentationNode.appendMembers(descriptors: Iterable<DeclarationDescriptor>,
-                                        inheritedLinkKind: RefKind = RefKind.InheritedMember): List<DocumentationNode> {
-        val nodes = descriptors.map { descriptor ->
-            if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
-                val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
-                if (baseDescriptor != null) {
-                    link(this, baseDescriptor, inheritedLinkKind)
+    fun DocumentationNode.appendOrUpdateMember(descriptor: DeclarationDescriptor) {
+        if (descriptor.isGenerated() || !descriptor.isDocumented(options)) return
+
+        val existingNode = refGraph.lookup(descriptor.signature())
+        if (existingNode != null) {
+            existingNode.updatePlatforms()
+
+            if (descriptor is ClassDescriptor) {
+                val membersToDocument = descriptor.collectMembersToDocument()
+                for ((memberDescriptor, inheritedLinkKind, extraModifier) in membersToDocument) {
+                    if (memberDescriptor is ClassDescriptor) {
+                        existingNode.appendOrUpdateMember(memberDescriptor)   // recurse into nested classes
+                    }
+                    else {
+                        val existingMemberNode = refGraph.lookup(memberDescriptor.signature())
+                        if (existingMemberNode != null) {
+                            existingMemberNode.updatePlatforms()
+                        }
+                        else {
+                            existingNode.appendClassMember(memberDescriptor, inheritedLinkKind, extraModifier)
+                        }
+                    }
                 }
-                null
-            } else {
-                val descriptorToUse = if (descriptor is ConstructorDescriptor) descriptor else descriptor.original
-                appendChild(descriptorToUse, RefKind.Member)
             }
         }
-        return nodes.filterNotNull()
+        else {
+            appendChild(descriptor, RefKind.Member)
+        }
+    }
+
+    private fun DocumentationNode.updatePlatforms() {
+        for (platform in implicitPlatforms - platforms) {
+            append(platformNodeRegistry[platform], RefKind.Platform)
+        }
+    }
+
+    fun DocumentationNode.appendClassMember(descriptor: DeclarationDescriptor,
+                                            inheritedLinkKind: RefKind = RefKind.InheritedMember,
+                                            extraModifier: String?) {
+        if (descriptor is CallableMemberDescriptor && descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+            val baseDescriptor = descriptor.overriddenDescriptors.firstOrNull()
+            if (baseDescriptor != null) {
+                link(this, baseDescriptor, inheritedLinkKind)
+            }
+        } else {
+            val descriptorToUse = if (descriptor is ConstructorDescriptor) descriptor else descriptor.original
+            val child = appendChild(descriptorToUse, RefKind.Member)
+            if (extraModifier != null) {
+                child?.appendTextNode("static", NodeKind.Modifier)
+            }
+        }
     }
 
     fun DocumentationNode.appendInPageChildren(descriptors: Iterable<DeclarationDescriptor>, kind: RefKind) {
@@ -444,22 +476,9 @@ class DocumentationBuilder
         }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
-            val constructorsToDocument = if (getKind() == ClassKind.ENUM_CLASS)
-                constructors.filter { it.valueParameters.size > 0 }
-            else
-                constructors
-            node.appendMembers(constructorsToDocument)
         }
-        val members = defaultType.memberScope.getContributedDescriptors().filter { it != companionObjectDescriptor }
-        node.appendMembers(members)
-        node.appendMembers(staticScope.getContributedDescriptors()).forEach {
-            it.appendTextNode("static", NodeKind.Modifier)
-        }
-        val companionObjectDescriptor = companionObjectDescriptor
-        if (companionObjectDescriptor != null) {
-            val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
-            val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
-            node.appendMembers(descriptorsToDocument, RefKind.InheritedCompanionObjectMember)
+        for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
+            node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
@@ -467,6 +486,38 @@ class DocumentationBuilder
         node.appendImplicitPlatforms()
         register(this, node)
         return node
+    }
+
+    data class ClassMember(val descriptor: DeclarationDescriptor,
+                           val inheritedLinkKind: RefKind = RefKind.InheritedMember,
+                           val extraModifier: String? = null)
+
+    fun ClassDescriptor.collectMembersToDocument(): List<ClassMember> {
+        val result = arrayListOf<ClassMember>()
+        if (kind != ClassKind.OBJECT && kind != ClassKind.ENUM_ENTRY) {
+            val constructorsToDocument = if (kind == ClassKind.ENUM_CLASS)
+                constructors.filter { it.valueParameters.size > 0 }
+            else
+                constructors
+            constructorsToDocument.mapTo(result) { ClassMember(it) }
+        }
+
+        defaultType.memberScope.getContributedDescriptors()
+                .filter { it != companionObjectDescriptor }
+                .mapTo(result) { ClassMember(it) }
+
+        staticScope.getContributedDescriptors()
+                .mapTo(result) { ClassMember(it, extraModifier = "static") }
+
+        val companionObjectDescriptor = companionObjectDescriptor
+        if (companionObjectDescriptor != null) {
+            val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
+            val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
+            descriptorsToDocument.mapTo(result) {
+                ClassMember(it, inheritedLinkKind = RefKind.InheritedCompanionObjectMember)
+            }
+        }
+        return result
     }
 
     fun CallableDescriptor.isInheritedFromAny(): Boolean {
@@ -681,6 +732,8 @@ fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
             (!options.skipDeprecated || !isDeprecated())
 }
 
+private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION
+
 class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
     override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                            packageName: FqName,
@@ -692,7 +745,7 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
             with(documentationBuilder) {
                 if (descriptor.isDocumented(options)) {
                     val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes, allFqNames)
-                    parent.appendChild(descriptor, RefKind.Member)
+                    parent.appendOrUpdateMember(descriptor)
                 }
             }
         }

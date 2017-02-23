@@ -20,7 +20,8 @@ interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): JavadocParseResult
 }
 
-class JavadocParser(private val refGraph: NodeReferenceGraph) : JavaDocumentationParser {
+class JavadocParser(private val refGraph: NodeReferenceGraph,
+                    private val logger: DokkaLogger) : JavaDocumentationParser {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
         val docComment = (element as? PsiDocCommentOwner)?.docComment
         if (docComment == null) return JavadocParseResult.Empty
@@ -99,7 +100,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph) : JavaDocumentatio
     private fun createLink(element: Element): ContentBlock {
         val docref = element.attr("docref")
         if (docref != null) {
-            return ContentNodeLazyLink(docref, { -> refGraph.lookup(docref)})
+            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger)})
         }
         val href = element.attr("href")
         if (href != null) {
@@ -118,7 +119,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph) : JavaDocumentatio
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.text)
         if (linkSignature != null) {
-            val linkNode = ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookup(linkSignature)})
+            val linkNode = ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger)})
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {

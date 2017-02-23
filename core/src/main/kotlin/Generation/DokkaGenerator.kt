@@ -59,7 +59,8 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, implicitPlatforms, logger))
+        val injector = Guice.createInjector(
+                DokkaAnalysisModule(environment, options, implicitPlatforms, documentationModule.nodeRefGraph, logger))
 
         buildDocumentationModule(injector, documentationModule, { isSample(it) }, includes)
 
