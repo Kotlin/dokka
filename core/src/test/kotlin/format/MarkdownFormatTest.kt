@@ -243,11 +243,29 @@ class MarkdownFormatTest {
     }
 
     @Test fun multiplePlatforms() {
+        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform"), "multiplatform")
+    }
+
+    @Test fun multiplePlatformsMerge() {
+        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatformMerge"), "multiplatformMerge")
+    }
+
+    @Test fun multiplePlatformsMergeMembers() {
+        val module = buildMultiplePlatforms("multiplatformMergeMembers")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatformMergeMembers/foo.kt") { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+        }
+    }
+
+    private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val sourcePath = "testdata/format/multiplatform/foo.kt"
-        appendDocumentation(module, contentRootFromPath(sourcePath), implicitPlatforms = listOf("JVM"))
-        appendDocumentation(module, contentRootFromPath("testdata/format/multiplatform/bar.kt"), implicitPlatforms = listOf("JS"))
-        verifyModelOutput(module, ".package.md", sourcePath) { model, output ->
+        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), implicitPlatforms = listOf("JVM"))
+        appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), implicitPlatforms = listOf("JS"))
+        return module
+    }
+
+    private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
+        verifyModelOutput(module, ".package.md", "testdata/format/$path/multiplatform.kt") { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
         }
     }

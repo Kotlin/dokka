@@ -31,7 +31,7 @@ class DeclarationLinkResolver
             if (jdkHref != null) {
                 return ContentExternalLink(jdkHref)
             }
-            return ContentNodeLazyLink(href, { -> refGraph.lookup(symbol.signature()) })
+            return ContentNodeLazyLink(href, { -> refGraph.lookupOrWarn(symbol.signature(), logger) })
         }
         if ("/" in href) {
             return ContentExternalLink(href)

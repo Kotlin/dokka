@@ -14,6 +14,7 @@ import java.io.File
 class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val options: DocumentationOptions,
                           val implicitPlatforms: List<String>,
+                          val nodeReferenceGraph: NodeReferenceGraph,
                           val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
@@ -33,6 +34,8 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DokkaLogger>().toInstance(logger)
 
         binder.bind(StringListType).annotatedWith(Names.named(implicitPlatformName)).toInstance(implicitPlatforms)
+
+        binder.bind<NodeReferenceGraph>().toInstance(nodeReferenceGraph)
     }
 }
 

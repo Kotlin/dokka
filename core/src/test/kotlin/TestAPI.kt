@@ -81,7 +81,8 @@ fun appendDocumentation(documentation: DocumentationModule,
             skipEmptyPackages = false,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
-    val injector = Guice.createInjector(DokkaAnalysisModule(environment, options, implicitPlatforms, DokkaConsoleLogger))
+    val injector = Guice.createInjector(
+            DokkaAnalysisModule(environment, options, implicitPlatforms, documentation.nodeRefGraph, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
     Disposer.dispose(environment)
 }

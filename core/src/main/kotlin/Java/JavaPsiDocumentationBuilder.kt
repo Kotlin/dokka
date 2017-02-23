@@ -44,10 +44,10 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
 
-    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph) {
+    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger) {
         this.options = options
         this.refGraph = refGraph
-        this.docParser = JavadocParser(refGraph)
+        this.docParser = JavadocParser(refGraph, logger)
     }
 
     constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {

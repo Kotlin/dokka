@@ -138,6 +138,7 @@ open class DocumentationNode(val name: String,
 
 class DocumentationModule(name: String, content: Content = Content.Empty)
     : DocumentationNode(name, content, NodeKind.Module) {
+    val nodeRefGraph = NodeReferenceGraph()
 }
 
 val DocumentationNode.path: List<DocumentationNode>
