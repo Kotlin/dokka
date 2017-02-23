@@ -23,11 +23,19 @@ fun verifyModel(vararg roots: ContentRoot,
                 includeNonPublic: Boolean = true,
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
+
+    val options = DocumentationOptions("", format,
+            includeNonPublic = includeNonPublic,
+            skipEmptyPackages = false,
+            sourceLinks = listOf<SourceLinkDefinition>(),
+            generateIndexPages = false)
+
     appendDocumentation(documentation, *roots,
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,
-            format = format,
-            includeNonPublic = includeNonPublic)
+            options = options)
+    documentation.prepareForGeneration(options)
+
     verifier(documentation)
 }
 
@@ -35,8 +43,7 @@ fun appendDocumentation(documentation: DocumentationModule,
                         vararg roots: ContentRoot,
                         withJdk: Boolean = false,
                         withKotlinRuntime: Boolean = false,
-                        format: String = "html",
-                        includeNonPublic: Boolean = true,
+                        options: DocumentationOptions,
                         defaultPlatforms: List<String> = emptyList()) {
     val messageCollector = object : MessageCollector {
         override fun clear() {
@@ -76,11 +83,6 @@ fun appendDocumentation(documentation: DocumentationModule,
         }
         addRoots(roots.toList())
     }
-    val options = DocumentationOptions("", format,
-            includeNonPublic = includeNonPublic,
-            skipEmptyPackages = false,
-            sourceLinks = listOf<SourceLinkDefinition>(),
-            generateIndexPages = false)
     val injector = Guice.createInjector(
             DokkaAnalysisModule(environment, options, defaultPlatforms, documentation.nodeRefGraph, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
