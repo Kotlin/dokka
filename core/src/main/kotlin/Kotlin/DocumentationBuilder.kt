@@ -39,7 +39,7 @@ data class DocumentationOptions(val outputDir: String,
                                 val skipDeprecated: Boolean = false,
                                 val jdkVersion: Int = 6,
                                 val generateIndexPages: Boolean = true,
-                                val sourceLinks: List<SourceLinkDefinition>,
+                                val sourceLinks: List<SourceLinkDefinition> = emptyList(),
                                 val impliedPlatforms: List<String> = emptyList())
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
@@ -344,9 +344,6 @@ class DocumentationBuilder
         }
 
         propagateExtensionFunctionsToSubclasses(fragments)
-        if (options.generateIndexPages) {
-            generateAllTypesNode()
-        }
     }
 
     private fun propagateExtensionFunctionsToSubclasses(fragments: Collection<PackageFragmentDescriptor>) {
@@ -417,19 +414,6 @@ class DocumentationBuilder
             return true
         }
         return false
-    }
-
-    private fun DocumentationNode.generateAllTypesNode() {
-        val allTypes = members(NodeKind.Package)
-                .flatMap { it.members.filter { it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass } }
-                .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.') else it.name }
-
-        val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)
-        for (typeNode in allTypes) {
-            allTypesNode.addReferenceTo(typeNode, RefKind.Member)
-        }
-
-        append(allTypesNode, RefKind.Member)
     }
 
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
@@ -906,4 +890,24 @@ fun DeclarationDescriptor.sourceLocation(): String? {
         return if (lineNumber != null) "$fileName:$lineNumber" else fileName
     }
     return null
+}
+
+fun DocumentationModule.prepareForGeneration(options: DocumentationOptions) {
+    if (options.generateIndexPages) {
+        generateAllTypesNode()
+    }
+    nodeRefGraph.resolveReferences()
+}
+
+fun DocumentationNode.generateAllTypesNode() {
+    val allTypes = members(NodeKind.Package)
+            .flatMap { it.members.filter { it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass } }
+            .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.') else it.name }
+
+    val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)
+    for (typeNode in allTypes) {
+        allTypesNode.addReferenceTo(typeNode, RefKind.Member)
+    }
+
+    append(allTypesNode, RefKind.Member)
 }

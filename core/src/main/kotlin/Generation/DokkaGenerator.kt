@@ -39,6 +39,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         for ((platforms, roots) in sourcesGroupedByPlatform) {
             appendSourceModule(platforms, roots.map { it.path })
         }
+        documentationModule.prepareForGeneration(options)
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
@@ -150,8 +151,6 @@ fun buildDocumentationModule(injector: Injector,
     with(injector.getInstance(JavaDocumentationBuilder::class.java)) {
         javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
     }
-
-    injector.getInstance(NodeReferenceGraph::class.java).resolveReferences()
 }
 
 
