@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
 
-class SourceRoot(val path: String, val implicitPlatforms: List<String> = emptyList())
+class SourceRoot(val path: String, val defaultPlatforms: List<String> = emptyList())
 
 class DokkaGenerator(val logger: DokkaLogger,
                      val classpath: List<String>,
@@ -35,7 +35,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.implicitPlatforms }
+        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms }
         for ((platforms, roots) in sourcesGroupedByPlatform) {
             appendSourceModule(platforms, roots.map { it.path })
         }
@@ -48,7 +48,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(implicitPlatforms: List<String>, sourcePaths: List<String>) {
+    private fun appendSourceModule(defaultPlatforms: List<String>, sourcePaths: List<String>) {
         val environment = createAnalysisEnvironment(sourcePaths)
 
         logger.info("Module: $moduleName")
@@ -60,7 +60,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val startAnalyse = System.currentTimeMillis()
 
         val injector = Guice.createInjector(
-                DokkaAnalysisModule(environment, options, implicitPlatforms, documentationModule.nodeRefGraph, logger))
+                DokkaAnalysisModule(environment, options, defaultPlatforms, documentationModule.nodeRefGraph, logger))
 
         buildDocumentationModule(injector, documentationModule, { isSample(it) }, includes)
 

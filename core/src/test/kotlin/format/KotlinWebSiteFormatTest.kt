@@ -5,7 +5,7 @@ import org.jetbrains.dokka.KotlinWebsiteFormatService
 import org.junit.Test
 
 class KotlinWebSiteFormatTest {
-    private val kwsService = KotlinWebsiteFormatService(InMemoryLocationService, KotlinLanguageService())
+    private val kwsService = KotlinWebsiteFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
 
     @Test fun sample() {
         verifyKWSNodeByName("sample", "foo")

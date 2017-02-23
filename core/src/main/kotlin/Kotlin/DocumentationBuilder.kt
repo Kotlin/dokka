@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
+import org.jetbrains.dokka.Utilities.defaultPlatformsName
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
@@ -38,7 +39,8 @@ data class DocumentationOptions(val outputDir: String,
                                 val skipDeprecated: Boolean = false,
                                 val jdkVersion: Int = 6,
                                 val generateIndexPages: Boolean = true,
-                                val sourceLinks: List<SourceLinkDefinition>)
+                                val sourceLinks: List<SourceLinkDefinition>,
+                                val impliedPlatforms: List<String> = emptyList())
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
                                         extensionReceiverDescriptor: DeclarationDescriptor,
@@ -58,8 +60,6 @@ interface PackageDocumentationBuilder {
                                   allFqNames: Collection<FqName>)
 }
 
-const val implicitPlatformName = "implicitPlatform"
-
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
@@ -68,7 +68,7 @@ class DocumentationBuilder
                     val platformNodeRegistry: PlatformNodeRegistry,
                     val logger: DokkaLogger,
                     val linkResolver: DeclarationLinkResolver,
-                    @GuiceNamed(implicitPlatformName) val implicitPlatforms: List<String>) {
+                    @GuiceNamed(defaultPlatformsName) val defaultPlatforms: List<String>) {
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -241,8 +241,8 @@ class DocumentationBuilder
         }
     }
 
-    fun DocumentationNode.appendImplicitPlatforms() {
-        for (platform in implicitPlatforms) {
+    fun DocumentationNode.appenDefaultPlatforms() {
+        for (platform in defaultPlatforms) {
             append(platformNodeRegistry[platform], RefKind.Platform)
         }
     }
@@ -299,7 +299,7 @@ class DocumentationBuilder
     }
 
     private fun DocumentationNode.updatePlatforms() {
-        for (platform in implicitPlatforms - platforms) {
+        for (platform in defaultPlatforms - platforms) {
             append(platformNodeRegistry[platform], RefKind.Platform)
         }
     }
@@ -454,7 +454,7 @@ class DocumentationBuilder
         node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
 
         node.appendSourceLink(source)
-        node.appendImplicitPlatforms()
+        node.appenDefaultPlatforms()
 
         register(this, node)
         return node
@@ -483,7 +483,7 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
-        node.appendImplicitPlatforms()
+        node.appenDefaultPlatforms()
         register(this, node)
         return node
     }
@@ -532,7 +532,7 @@ class DocumentationBuilder
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.Constructor)
         node.appendInPageChildren(valueParameters, RefKind.Detail)
-        node.appendImplicitPlatforms()
+        node.appenDefaultPlatforms()
         register(this, node)
         return node
     }
@@ -561,7 +561,7 @@ class DocumentationBuilder
         node.appendModifiers(this)
         node.appendSourceLink(source)
         node.appendSignature(this)
-        node.appendImplicitPlatforms()
+        node.appenDefaultPlatforms()
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -608,7 +608,7 @@ class DocumentationBuilder
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
-        node.appendImplicitPlatforms()
+        node.appenDefaultPlatforms()
 
         register(this, node)
         return node

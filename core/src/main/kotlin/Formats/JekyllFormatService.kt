@@ -1,13 +1,16 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
+import org.jetbrains.dokka.Utilities.impliedPlatformsName
 
 open class JekyllOutputBuilder(to: StringBuilder,
                                location: Location,
                                locationService: LocationService,
                                languageService: LanguageService,
-                               extension: String)
-    : MarkdownOutputBuilder(to, location, locationService, languageService, extension)
+                               extension: String,
+                               impliedPlatforms: List<String>)
+    : MarkdownOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
         to.appendln("---")
@@ -25,14 +28,15 @@ open class JekyllOutputBuilder(to: StringBuilder,
 
 open class JekyllFormatService(locationService: LocationService,
                                signatureGenerator: LanguageService,
-                               linkExtension: String)
-: MarkdownFormatService(locationService, signatureGenerator, linkExtension) {
+                               linkExtension: String,
+                               impliedPlatforms: List<String>)
+: MarkdownFormatService(locationService, signatureGenerator, linkExtension, impliedPlatforms) {
 
     @Inject constructor(locationService: LocationService,
-                        signatureGenerator: LanguageService): this(locationService, signatureGenerator, "md") {
-    }
+                        signatureGenerator: LanguageService,
+                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "md", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
-        JekyllOutputBuilder(to, location, locationService, languageService, extension)
+        JekyllOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 
 }

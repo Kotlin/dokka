@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -11,8 +12,9 @@ open class HtmlOutputBuilder(to: StringBuilder,
                              locationService: LocationService,
                              languageService: LanguageService,
                              extension: String,
+                             impliedPlatforms: List<String>,
                              val templateService: HtmlTemplateService)
-    : StructuredOutputBuilder(to, location, locationService, languageService, extension)
+    : StructuredOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
     override fun appendText(text: String) {
         to.append(text.htmlEscape())
@@ -95,7 +97,8 @@ open class HtmlOutputBuilder(to: StringBuilder,
 
 open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
                                                  signatureGenerator: LanguageService,
-                                                 val templateService: HtmlTemplateService)
+                                                 val templateService: HtmlTemplateService,
+                                                 @Named(impliedPlatformsName) val impliedPlatforms: List<String>)
 : StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
 
     override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
@@ -103,7 +106,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     }
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-        HtmlOutputBuilder(to, location, locationService, languageService, extension, templateService)
+        HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, templateService)
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
         templateService.appendHeader(to, "Module Contents", locationService.calcPathToRoot(location))

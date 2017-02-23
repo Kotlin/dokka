@@ -5,7 +5,7 @@ import org.jetbrains.dokka.KotlinLanguageService
 import org.junit.Test
 
 class GFMFormatTest {
-    private val gfmService = GFMFormatService(InMemoryLocationService, KotlinLanguageService())
+    private val gfmService = GFMFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
 
     @Test fun sample() {
         verifyGFMNodeByName("sample", "Foo")

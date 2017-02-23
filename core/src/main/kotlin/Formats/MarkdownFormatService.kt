@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
+import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import java.util.*
 
 enum class ListKind {
@@ -14,8 +16,9 @@ open class MarkdownOutputBuilder(to: StringBuilder,
                                  location: Location,
                                  locationService: LocationService,
                                  languageService: LanguageService,
-                                 extension: String)
-    : StructuredOutputBuilder(to, location, locationService, languageService, extension)
+                                 extension: String,
+                                 impliedPlatforms: List<String>)
+    : StructuredOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
     private val listKindStack = Stack<ListKind>()
     protected var inTableCell = false
@@ -211,11 +214,13 @@ open class MarkdownOutputBuilder(to: StringBuilder,
 
 open class MarkdownFormatService(locationService: LocationService,
                                  signatureGenerator: LanguageService,
-                                 linkExtension: String)
+                                 linkExtension: String,
+                                 val impliedPlatforms: List<String>)
 : StructuredFormatService(locationService, signatureGenerator, "md", linkExtension) {
     @Inject constructor(locationService: LocationService,
-                        signatureGenerator: LanguageService): this(locationService, signatureGenerator, "md")
+                        signatureGenerator: LanguageService,
+                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "md", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
-        MarkdownOutputBuilder(to, location, locationService, languageService, extension)
+        MarkdownOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }

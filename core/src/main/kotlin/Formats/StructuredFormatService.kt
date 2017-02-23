@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.LanguageService.RenderMode
+import org.jetbrains.kotlin.utils.ifEmpty
 import java.util.*
 
 data class FormatLink(val text: String, val href: String)
@@ -9,7 +10,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val location: Location,
                                        val locationService: LocationService,
                                        val languageService: LanguageService,
-                                       val extension: String) : FormattedOutputBuilder {
+                                       val extension: String,
+                                       val impliedPlatforms: List<String>) : FormattedOutputBuilder {
 
     protected fun wrap(prefix: String, suffix: String, body: () -> Unit) {
         to.append(prefix)
@@ -344,12 +346,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun DocumentationNode.appendPlatforms() {
-            if (platforms.isEmpty()) return
+            val platforms = platformsToShow.ifEmpty { return }
             appendParagraph {
                 appendStrong { to.append("Platform and version requirements:") }
                 to.append(" " + platforms.joinToString())
             }
         }
+
+        val DocumentationNode.platformsToShow: List<String>
+            get() = platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
 
         private fun DocumentationNode.appendDescription() {
             if (content.description != ContentEmpty) {
@@ -498,8 +503,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun appendPlatforms(items: List<DocumentationNode>) {
-            val platforms = items.foldRight(items.first().platforms.toSet()) {
-                node, platforms -> platforms.intersect(node.platforms)
+            val platforms = items.foldRight(items.first().platformsToShow.toSet()) {
+                node, platforms -> platforms.intersect(node.platformsToShow)
             }
             if (platforms.isNotEmpty()) {
                 appendLine()

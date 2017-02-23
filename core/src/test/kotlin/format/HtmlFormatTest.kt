@@ -7,7 +7,7 @@ import org.junit.Test
 import java.io.File
 
 class HtmlFormatTest {
-    private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService.default())
+    private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService.default(), listOf())
 
     @Test fun classWithCompanionObject() {
         verifyHtmlNode("classWithCompanionObject")
