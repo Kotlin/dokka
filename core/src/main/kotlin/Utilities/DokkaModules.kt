@@ -3,6 +3,7 @@ package org.jetbrains.dokka.Utilities
 import com.google.inject.Binder
 import com.google.inject.Module
 import com.google.inject.Provider
+import com.google.inject.TypeLiteral
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
@@ -12,6 +13,7 @@ import java.io.File
 
 class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val options: DocumentationOptions,
+                          val implicitPlatforms: List<String>,
                           val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
@@ -29,8 +31,12 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
 
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
+
+        binder.bind(StringListType).annotatedWith(Names.named(implicitPlatformName)).toInstance(implicitPlatforms)
     }
 }
+
+object StringListType : TypeLiteral<@JvmSuppressWildcards List<String>>()
 
 class DokkaOutputModule(val options: DocumentationOptions,
                         val logger: DokkaLogger) : Module {

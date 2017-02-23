@@ -5,10 +5,7 @@ import org.apache.tools.ant.Project
 import org.apache.tools.ant.Task
 import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
-import org.jetbrains.dokka.DocumentationOptions
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.DokkaLogger
-import org.jetbrains.dokka.SourceLinkDefinition
+import org.jetbrains.dokka.*
 import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {
@@ -87,7 +84,7 @@ class DokkaAntTask(): Task() {
         val generator = DokkaGenerator(
                 AntLogger(this),
                 compileClasspath.list().toList(),
-                sourcePath.list().toList(),
+                sourcePath.list().map { SourceRoot(it) },
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
                 moduleName!!,
