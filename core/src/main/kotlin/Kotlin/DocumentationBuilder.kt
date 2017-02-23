@@ -62,6 +62,7 @@ class DocumentationBuilder
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
                     val options: DocumentationOptions,
                     val refGraph: NodeReferenceGraph,
+                    val platformNodeRegistry: PlatformNodeRegistry,
                     val logger: DokkaLogger,
                     val linkResolver: DeclarationLinkResolver) {
     val boringBuiltinClasses = setOf(
@@ -199,19 +200,32 @@ class DocumentationBuilder
     fun DocumentationNode.appendAnnotations(annotated: Annotated) {
         annotated.annotations.forEach {
             it.build()?.let { annotationNode ->
-                val refKind = when {
-                    it.isDocumented() ->
-                        when {
-                            annotationNode.isDeprecation() -> RefKind.Deprecation
-                            annotationNode.isSinceKotlin() -> RefKind.SinceKotlin
-                            else -> RefKind.Annotation
-                        }
-                    it.isHiddenInDocumentation() -> RefKind.HiddenAnnotation
-                    else -> return@forEach
+                if (annotationNode.isSinceKotlin()) {
+                    appendSinceKotlin(annotationNode)
                 }
-                append(annotationNode, refKind)
+                else {
+                    val refKind = when {
+                        it.isDocumented() ->
+                            when {
+                                annotationNode.isDeprecation() -> RefKind.Deprecation
+                                else -> RefKind.Annotation
+                            }
+                        it.isHiddenInDocumentation() -> RefKind.HiddenAnnotation
+                        else -> return@forEach
+                    }
+                    append(annotationNode, refKind)
+                }
+
             }
         }
+    }
+
+    fun DocumentationNode.appendSinceKotlin(annotation: DocumentationNode) {
+        var kotlinVersion = annotation.detail(NodeKind.Parameter).detail(NodeKind.Value).name
+        if (kotlinVersion.startsWith('\"') && kotlinVersion.endsWith('\"')) {
+            kotlinVersion = kotlinVersion.substring(1..kotlinVersion.length-2)
+        }
+        append(platformNodeRegistry["Kotlin " + kotlinVersion], RefKind.Platform)
     }
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {

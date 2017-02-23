@@ -4,7 +4,6 @@ import junit.framework.TestCase.assertEquals
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.junit.Test
-import kotlin.test.assertNotNull
 
 class TypeAliasTest {
     @Test
@@ -126,7 +125,7 @@ class TypeAliasTest {
     fun sinceKotlin() {
         verifyModel("testdata/typealias/sinceKotlin.kt") { model ->
             with(model.members.single().members.single()) {
-                assertNotNull(sinceKotlin)
+                assertEquals(listOf("Kotlin 1.1"), platforms)
             }
         }
     }

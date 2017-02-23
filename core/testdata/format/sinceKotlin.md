@@ -4,7 +4,7 @@
 
 `class Since1.1`
 
-Available since Kotlin: `"1.1"`
+**Platform and version requirements:** Kotlin 1.1
 
 Useful
 

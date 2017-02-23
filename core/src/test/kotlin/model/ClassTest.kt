@@ -3,10 +3,9 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.RefKind
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import kotlin.test.assertNotNull
+import org.junit.Test
 
 class ClassTest {
     @Test fun emptyClass() {
@@ -277,7 +276,7 @@ class ClassTest {
     @Test fun sinceKotlin() {
         verifyModel("testdata/classes/sinceKotlin.kt") { model ->
             with(model.members.single().members.single()) {
-                assertNotNull(sinceKotlin)
+                assertEquals(listOf("Kotlin 1.1"), platforms)
             }
         }
     }
