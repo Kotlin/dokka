@@ -149,7 +149,7 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
 class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
                                                      signatureGenerator: LanguageService,
-                                                     impliedPlatforms: List<String>)
+                                                     @Named(impliedPlatformsName) impliedPlatforms: List<String>)
     : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms)
 {
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
