@@ -406,15 +406,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendSection("Exceptions", node.members(NodeKind.Exception))
             appendSection("Type Aliases", node.members(NodeKind.TypeAlias))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
-            appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false)
-            appendSection("Constructors", node.members(NodeKind.Constructor))
-            appendSection("Properties", node.members(NodeKind.Property))
+            appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false, omitSamePlatforms = true)
+            appendSection("Constructors", node.members(NodeKind.Constructor), omitSamePlatforms = true)
+            appendSection("Properties", node.members(NodeKind.Property), omitSamePlatforms = true)
             appendSection("Inherited Properties", node.inheritedMembers(NodeKind.Property))
-            appendSection("Functions", node.members(NodeKind.Function))
+            appendSection("Functions", node.members(NodeKind.Function), omitSamePlatforms = true)
             appendSection("Inherited Functions", node.inheritedMembers(NodeKind.Function))
-            appendSection("Companion Object Properties", node.members(NodeKind.CompanionObjectProperty))
+            appendSection("Companion Object Properties", node.members(NodeKind.CompanionObjectProperty), omitSamePlatforms = true)
             appendSection("Inherited Companion Object Properties", node.inheritedCompanionObjectMembers(NodeKind.Property))
-            appendSection("Companion Object Functions", node.members(NodeKind.CompanionObjectFunction))
+            appendSection("Companion Object Functions", node.members(NodeKind.CompanionObjectFunction), omitSamePlatforms = true)
             appendSection("Inherited Companion Object Functions", node.inheritedCompanionObjectMembers(NodeKind.Function))
             appendSection("Other members", node.members.filter {
                 it.kind !in setOf(
@@ -453,7 +453,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun appendSection(caption: String, members: List<DocumentationNode>, sortMembers: Boolean = true) {
+        private fun appendSection(caption: String, members: List<DocumentationNode>,
+                                  sortMembers: Boolean = true,
+                                  omitSamePlatforms: Boolean = false) {
             if (members.isEmpty()) return
 
             appendHeader(3) { appendText(caption) }
@@ -467,7 +469,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         appendTableRow {
                             appendTableCell {
                                 appendLink(memberLocation)
-                                appendPlatforms(members)
+                                appendPlatforms(members, omitSamePlatforms)
                             }
                             appendTableCell {
                                 val breakdownBySummary = members.groupBy { it.summary }
@@ -502,11 +504,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun appendPlatforms(items: List<DocumentationNode>) {
+        private fun appendPlatforms(items: List<DocumentationNode>, omitSamePlatforms: Boolean) {
             val platforms = items.foldRight(items.first().platformsToShow.toSet()) {
                 node, platforms -> platforms.intersect(node.platformsToShow)
             }
-            if (platforms.isNotEmpty()) {
+            if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
                 appendLine()
                 to.append("(${platforms.joinToString()})")
             }
