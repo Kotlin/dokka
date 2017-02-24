@@ -63,7 +63,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val injector = Guice.createInjector(
                 DokkaAnalysisModule(environment, options, defaultPlatforms, documentationModule.nodeRefGraph, logger))
 
-        buildDocumentationModule(injector, documentationModule, { isSample(it) }, includes)
+        buildDocumentationModule(injector, documentationModule, { isNotSample(it) }, includes)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -88,7 +88,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         return environment
     }
 
-    fun isSample(file: PsiFile): Boolean {
+    fun isNotSample(file: PsiFile): Boolean {
         val sourceFile = File(file.virtualFile!!.path)
         return samples.none { sample ->
             val canonicalSample = File(sample).canonicalPath
