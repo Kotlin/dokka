@@ -148,7 +148,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
 
 private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH }.joinToString("") { it.text }
 
-private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection
+private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection || node is ContentBlockCode
 
 fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)

@@ -142,6 +142,10 @@ class HtmlFormatTest {
         verifyHtmlNode("sinceKotlin")
     }
 
+    @Test fun blankLineInsideCodeBlock() {
+        verifyHtmlNode("blankLineInsideCodeBlock")
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }

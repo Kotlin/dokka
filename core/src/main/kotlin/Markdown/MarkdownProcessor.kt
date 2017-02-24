@@ -4,13 +4,14 @@ import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.ast.LeafASTNode
+import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 
 class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: String) {
     val children: List<MarkdownNode> = node.children.map { MarkdownNode(it, this, markdown) }
     val type: IElementType get() = node.type
-    val text: String get() = markdown.substring(node.startOffset, node.endOffset)
+    val text: String get() = node.getTextInNode(markdown).toString()
     fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
 
     override fun toString(): String = StringBuilder().apply { presentTo(this) }.toString()
@@ -30,6 +31,7 @@ fun MarkdownNode.toTestString(): String {
     visit { node, visitChildren ->
         sb.append(" ".repeat(level * 2))
         node.presentTo(sb)
+        sb.appendln()
         level++
         visitChildren()
         level--
@@ -40,7 +42,6 @@ fun MarkdownNode.toTestString(): String {
 private fun MarkdownNode.presentTo(sb: StringBuilder) {
     sb.append(type.toString())
     sb.append(":" + text.replace("\n", "\u23CE"))
-    sb.appendln()
 }
 
 fun parseMarkdown(markdown: String): MarkdownNode {

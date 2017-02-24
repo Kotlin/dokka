@@ -153,12 +153,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             is ContentBlockSampleCode, is ContentBlockCode -> {
                 content as ContentBlockCode
                 fun ContentBlockCode.appendBlockCodeContent() {
-                    for ((index, contentNode) in this.children.withIndex()) {
-                        appendContent(contentNode)
-                        if (index < this.children.size - 1) {
-                            to.append("\n")
-                        }
-                    }
+                    children
+                            .dropWhile { it is ContentText && it.text.isBlank() }
+                            .forEach { appendContent(it) }
                 }
                 when (content) {
                     is ContentBlockSampleCode ->
