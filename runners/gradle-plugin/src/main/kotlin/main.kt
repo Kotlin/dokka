@@ -159,6 +159,7 @@ open class DokkaTask : DefaultTask() {
                 outputDirectory,
                 outputFormat,
                 false,
+                false,
                 reportNotDocumented,
                 skipEmptyPackages,
                 skipDeprecated,

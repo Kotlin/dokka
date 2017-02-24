@@ -148,9 +148,11 @@ fun buildDocumentationModule(injector: Injector,
     for (include in includes) {
         packageDocs.parse(include, fragments.firstOrNull())
     }
-    documentationModule.updateContent {
-        for (node in packageDocs.moduleContent.children) {
-            append(node)
+    if (documentationModule.content.isEmpty()) {
+        documentationModule.updateContent {
+            for (node in packageDocs.moduleContent.children) {
+                append(node)
+            }
         }
     }
 
