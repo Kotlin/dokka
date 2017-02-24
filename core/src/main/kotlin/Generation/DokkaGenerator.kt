@@ -38,7 +38,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms[0] }
+        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms.firstOrNull() }
         for ((platform, roots) in sourcesGroupedByPlatform) {
             appendSourceModule(platform, roots)
         }
@@ -52,7 +52,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(defaultPlatform: String, sourceRoots: List<SourceRoot>) {
+    private fun appendSourceModule(defaultPlatform: String?, sourceRoots: List<SourceRoot>) {
         val sourcePaths = sourceRoots.map { it.path }
         val environment = createAnalysisEnvironment(sourcePaths)
 
@@ -64,12 +64,13 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
+        val defaultPlatformAsList = defaultPlatform?.let { listOf(it) }.orEmpty()
         val defaultPlatformsProvider = object : DefaultPlatformsProvider {
             override fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String> {
                 val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
                         ?.let { File(it).absolutePath }
                 val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
-                return sourceRoot?.defaultPlatforms ?: listOf(defaultPlatform)
+                return sourceRoot?.defaultPlatforms ?: defaultPlatformAsList
             }
         }
 
