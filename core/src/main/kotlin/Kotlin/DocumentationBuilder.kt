@@ -165,6 +165,11 @@ class DocumentationBuilder
             return appendType(it.abbreviation)
         }
 
+        if (kotlinType.isDynamic()) {
+            append(DocumentationNode("dynamic", Content.Empty, kind), RefKind.Detail)
+            return
+        }
+
         val classifierDescriptor = kotlinType.constructor.declarationDescriptor
         val name = when (classifierDescriptor) {
             is ClassDescriptor -> {
@@ -361,13 +366,14 @@ class DocumentationBuilder
                 .filter { it.extensionReceiverParameter != null }
         val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
 
-        allExtensionFunctions.forEach { extensionFunction ->
+        for (extensionFunction in allExtensionFunctions) {
             val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
                     ?.filter { fn -> fn.canShadow(extensionFunction) }
                     ?: emptyList()
 
-            val classDescriptor = extensionFunction.getExtensionClassDescriptor() ?: return@forEach
-            val subclasses = classHierarchy[classDescriptor] ?: return@forEach
+            if (extensionFunction.extensionReceiverParameter?.type?.isDynamic() == true) continue
+            val classDescriptor = extensionFunction.getExtensionClassDescriptor() ?: continue
+            val subclasses = classHierarchy[classDescriptor] ?: continue
             subclasses.forEach { subclass ->
                 if (subclass.isExtensionApplicable(extensionFunction) &&
                         possiblyShadowingFunctions.none { subclass.isExtensionApplicable(it) }) {

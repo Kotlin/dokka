@@ -242,6 +242,14 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("sinceKotlin")
     }
 
+    @Test fun dynamicType() {
+        verifyMarkdownNode("dynamicType")
+    }
+
+    @Test fun dynamicExtension() {
+        verifyMarkdownNodes("dynamicExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
+    }
+
     @Test fun multiplePlatforms() {
         verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform"), "multiplatform")
     }

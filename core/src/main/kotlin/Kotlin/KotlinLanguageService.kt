@@ -186,6 +186,10 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderType(node: DocumentationNode, renderMode: RenderMode) {
+        if (node.name == "dynamic") {
+            keyword("dynamic")
+            return
+        }
         if (node.isFunctionalType()) {
             renderFunctionalType(node, renderMode)
             return
