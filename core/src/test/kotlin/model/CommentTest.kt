@@ -10,14 +10,18 @@ public class CommentTest {
         verifyModel("testdata/comments/codeBlockComment.kt") { model ->
             with(model.members.single().members.first()) {
                 assertEqualsIgnoringSeparators("""[code lang=brainfuck]
+                                |
                                 |++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
+                                |
                                 |[/code]
                                 |""".trimMargin(),
                         content.toTestString())
             }
             with(model.members.single().members.last()) {
                 assertEqualsIgnoringSeparators("""[code]
+                                |
                                 |a + b - c
+                                |
                                 |[/code]
                                 |""".trimMargin(),
                         content.toTestString())

@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.javadoc
 
+import com.sun.javadoc.Tag
 import com.sun.javadoc.Type
 import org.jetbrains.dokka.DokkaConsoleLogger
+import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
 import org.jetbrains.dokka.tests.verifyModel
 import org.junit.Assert.*
 import org.junit.Test
@@ -129,6 +131,23 @@ class JavadocTest {
             assertEquals("@return [ContentText(text=value of a)]", method.tags("return").first().text())
             assertEquals("@param a [ContentText(text=Some string)]", method.paramTags().first().text())
             assertEquals("@throws FireException [ContentText(text=in case of fire)]", method.throwsTags().first().text())
+        }
+    }
+
+    @Test
+    fun testBlankLineInsideCodeBlock() {
+        verifyJavadoc("testdata/javadoc/blankLineInsideCodeBlock.kt", withKotlinRuntime = true) { doc ->
+            val method = doc.classNamed("BlankLineInsideCodeBlockKt")!!.methods()[0]
+            val text = method.inlineTags().joinToString(separator = "", transform = Tag::text)
+            assertEqualsIgnoringSeparators("""
+                <p><code><pre>
+                This is a test
+                    of Dokka's code blocks.
+                Here is a blank line.
+
+                The previous line was blank.
+                </pre></code></p>
+            """.trimIndent(), text)
         }
     }
 
