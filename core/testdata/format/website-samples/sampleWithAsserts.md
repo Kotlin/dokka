@@ -12,6 +12,7 @@ layout: api
 
 ``` kotlin
 
+
 fun main(args: Array<String>) {
 //sampleStart
 println(a()) // Hello, Work

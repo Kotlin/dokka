@@ -18,6 +18,7 @@ applied to each element and returns a map where each group key is associated wit
 
 ``` kotlin
 
+
 fun main(args: Array<String>) {
 //sampleStart
 if (true) {

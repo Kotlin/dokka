@@ -2,6 +2,7 @@ package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.ImportPath
@@ -12,7 +13,7 @@ open class KotlinWebsiteSampleProcessingService
                     resolutionFacade: DokkaResolutionFacade)
     : DefaultSampleProcessingService(options, logger, resolutionFacade) {
 
-    private class SampleBuilder() : KtVisitorVoid() {
+    private class SampleBuilder : KtTreeVisitorVoid() {
         val builder = StringBuilder()
         val text: String
             get() = builder.toString()
@@ -48,13 +49,10 @@ open class KotlinWebsiteSampleProcessingService
             }
         }
 
-        override fun visitElement(element: PsiElement?) {
-            if (element != null) {
-                if (element.children.isEmpty())
-                    builder.append(element.text)
-                else
-                    element.acceptChildren(this)
-            }
+        override fun visitElement(element: PsiElement) {
+            if (element is LeafPsiElement)
+                builder.append(element.text)
+            super.visitElement(element)
         }
     }
 
