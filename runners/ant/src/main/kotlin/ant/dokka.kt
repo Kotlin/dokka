@@ -26,6 +26,7 @@ class DokkaAntTask: Task() {
     var moduleName: String? = null
     var outputDir: String? = null
     var outputFormat: String = "html"
+    var impliedPlatforms: String = ""
     var jdkVersion: Int = 6
 
     var skipDeprecated: Boolean = false
@@ -100,7 +101,8 @@ class DokkaAntTask: Task() {
                 DocumentationOptions(outputDir!!, outputFormat,
                         skipDeprecated = skipDeprecated,
                         sourceLinks = sourceLinks,
-                        jdkVersion = jdkVersion)
+                        jdkVersion = jdkVersion,
+                        impliedPlatforms = impliedPlatforms.split(','))
         )
         generator.generate()
     }
