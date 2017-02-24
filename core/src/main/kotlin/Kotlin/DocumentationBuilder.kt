@@ -33,6 +33,7 @@ import com.google.inject.name.Named as GuiceNamed
 data class DocumentationOptions(val outputDir: String,
                                 val outputFormat: String,
                                 val includeNonPublic: Boolean = false,
+                                val includeRootPackage: Boolean = false,
                                 val reportUndocumented: Boolean = true,
                                 val skipEmptyPackages: Boolean = true,
                                 val skipDeprecated: Boolean = false,
@@ -337,6 +338,7 @@ class DocumentationBuilder
         val allFqNames = fragments.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
+            if (packageName.isRoot && !options.includeRootPackage) continue
             val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getContributedDescriptors() }
 
             if (options.skipEmptyPackages && declarations.none { it.isDocumented(options) }) continue

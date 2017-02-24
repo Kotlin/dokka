@@ -28,6 +28,7 @@ fun verifyModel(vararg roots: ContentRoot,
     val options = DocumentationOptions("", format,
             includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
+            includeRootPackage = true,
             sourceLinks = listOf<SourceLinkDefinition>(),
             generateIndexPages = false)
 
