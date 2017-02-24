@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
-import org.jetbrains.dokka.Utilities.defaultPlatformsName
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
@@ -60,6 +59,10 @@ interface PackageDocumentationBuilder {
                                   allFqNames: Collection<FqName>)
 }
 
+interface DefaultPlatformsProvider {
+    fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String>
+}
+
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
@@ -68,7 +71,7 @@ class DocumentationBuilder
                     val platformNodeRegistry: PlatformNodeRegistry,
                     val logger: DokkaLogger,
                     val linkResolver: DeclarationLinkResolver,
-                    @GuiceNamed(defaultPlatformsName) val defaultPlatforms: List<String>) {
+                    val defaultPlatformsProvider: DefaultPlatformsProvider) {
     val boringBuiltinClasses = setOf(
             "kotlin.Unit", "kotlin.Byte", "kotlin.Short", "kotlin.Int", "kotlin.Long", "kotlin.Char", "kotlin.Boolean",
             "kotlin.Float", "kotlin.Double", "kotlin.String", "kotlin.Array", "kotlin.Any")
@@ -241,8 +244,8 @@ class DocumentationBuilder
         }
     }
 
-    fun DocumentationNode.appenDefaultPlatforms() {
-        for (platform in defaultPlatforms) {
+    fun DocumentationNode.appendDefaultPlatforms(descriptor: DeclarationDescriptor) {
+        for (platform in defaultPlatformsProvider.getDefaultPlatforms(descriptor)) {
             append(platformNodeRegistry[platform], RefKind.Platform)
         }
     }
@@ -273,7 +276,7 @@ class DocumentationBuilder
 
         val existingNode = refGraph.lookup(descriptor.signature())
         if (existingNode != null) {
-            existingNode.updatePlatforms()
+            existingNode.updatePlatforms(descriptor)
 
             if (descriptor is ClassDescriptor) {
                 val membersToDocument = descriptor.collectMembersToDocument()
@@ -284,7 +287,7 @@ class DocumentationBuilder
                     else {
                         val existingMemberNode = refGraph.lookup(memberDescriptor.signature())
                         if (existingMemberNode != null) {
-                            existingMemberNode.updatePlatforms()
+                            existingMemberNode.updatePlatforms(memberDescriptor)
                         }
                         else {
                             existingNode.appendClassMember(memberDescriptor, inheritedLinkKind, extraModifier)
@@ -298,8 +301,8 @@ class DocumentationBuilder
         }
     }
 
-    private fun DocumentationNode.updatePlatforms() {
-        for (platform in defaultPlatforms - platforms) {
+    private fun DocumentationNode.updatePlatforms(descriptor: DeclarationDescriptor) {
+        for (platform in defaultPlatformsProvider.getDefaultPlatforms(descriptor) - platforms) {
             append(platformNodeRegistry[platform], RefKind.Platform)
         }
     }
@@ -438,7 +441,7 @@ class DocumentationBuilder
         node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
 
         node.appendSourceLink(source)
-        node.appenDefaultPlatforms()
+        node.appendDefaultPlatforms(this)
 
         register(this, node)
         return node
@@ -467,7 +470,7 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
-        node.appenDefaultPlatforms()
+        node.appendDefaultPlatforms(this)
         register(this, node)
         return node
     }
@@ -516,7 +519,7 @@ class DocumentationBuilder
     fun ConstructorDescriptor.build(): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.Constructor)
         node.appendInPageChildren(valueParameters, RefKind.Detail)
-        node.appenDefaultPlatforms()
+        node.appendDefaultPlatforms(this)
         register(this, node)
         return node
     }
@@ -545,7 +548,7 @@ class DocumentationBuilder
         node.appendModifiers(this)
         node.appendSourceLink(source)
         node.appendSignature(this)
-        node.appenDefaultPlatforms()
+        node.appendDefaultPlatforms(this)
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -592,7 +595,7 @@ class DocumentationBuilder
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
-        node.appenDefaultPlatforms()
+        node.appendDefaultPlatforms(this)
 
         register(this, node)
         return node

@@ -16,13 +16,16 @@ import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
 
-class SourceRoot(val path: String, val defaultPlatforms: List<String> = emptyList())
+class SourceRoot(path: String, val defaultPlatforms: List<String> = emptyList()) {
+    val path: String = File(path).absolutePath
+}
 
 class DokkaGenerator(val logger: DokkaLogger,
                      val classpath: List<String>,
@@ -35,9 +38,9 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms }
-        for ((platforms, roots) in sourcesGroupedByPlatform) {
-            appendSourceModule(platforms, roots.map { it.path })
+        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms[0] }
+        for ((platform, roots) in sourcesGroupedByPlatform) {
+            appendSourceModule(platform, roots.map { it.path })
         }
         documentationModule.prepareForGeneration(options)
 
@@ -49,7 +52,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(defaultPlatforms: List<String>, sourcePaths: List<String>) {
+    private fun appendSourceModule(defaultPlatform: String, sourcePaths: List<String>) {
         val environment = createAnalysisEnvironment(sourcePaths)
 
         logger.info("Module: $moduleName")
@@ -60,8 +63,17 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
+        val defaultPlatformsProvider = object : DefaultPlatformsProvider {
+            override fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String> {
+                val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
+                        ?.let { File(it).absolutePath }
+                val sourceRoot = containingFilePath?.let { path -> sources.find { path.startsWith(it.path) } }
+                return sourceRoot?.defaultPlatforms ?: listOf(defaultPlatform)
+            }
+        }
+
         val injector = Guice.createInjector(
-                DokkaAnalysisModule(environment, options, defaultPlatforms, documentationModule.nodeRefGraph, logger))
+                DokkaAnalysisModule(environment, options, defaultPlatformsProvider, documentationModule.nodeRefGraph, logger))
 
         buildDocumentationModule(injector, documentationModule, { isNotSample(it) }, includes)
 

@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.junit.Assert
 import org.junit.Assert.fail
 import java.io.File
@@ -83,8 +84,11 @@ fun appendDocumentation(documentation: DocumentationModule,
         }
         addRoots(roots.toList())
     }
+    val defaultPlatformsProvider = object : DefaultPlatformsProvider {
+        override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = defaultPlatforms
+    }
     val injector = Guice.createInjector(
-            DokkaAnalysisModule(environment, options, defaultPlatforms, documentation.nodeRefGraph, DokkaConsoleLogger))
+            DokkaAnalysisModule(environment, options, defaultPlatformsProvider, documentation.nodeRefGraph, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
     Disposer.dispose(environment)
 }
