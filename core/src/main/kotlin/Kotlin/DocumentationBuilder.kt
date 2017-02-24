@@ -367,6 +367,7 @@ class DocumentationBuilder
         val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
 
         for (extensionFunction in allExtensionFunctions) {
+            if (extensionFunction.dispatchReceiverParameter != null) continue
             val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
                     ?.filter { fn -> fn.canShadow(extensionFunction) }
                     ?: emptyList()
@@ -677,9 +678,10 @@ class DocumentationBuilder
                 receiverClass = upperBoundClass
             }
         }
-        link(receiverClass,
-                containingDeclaration,
-                RefKind.Extension)
+
+        if ((containingDeclaration as? FunctionDescriptor)?.dispatchReceiverParameter == null) {
+            link(receiverClass, containingDeclaration, RefKind.Extension)
+        }
 
         val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
         node.appendType(type)
