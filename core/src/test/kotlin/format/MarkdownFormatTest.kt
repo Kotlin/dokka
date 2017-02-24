@@ -265,6 +265,13 @@ class MarkdownFormatTest {
         }
     }
 
+    @Test fun multiplePlatformsOmitRedundant() {
+        val module = buildMultiplePlatforms("multiplatformOmitRedundant")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatformOmitRedundant/foo.kt") { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+        }
+    }
+
     @Test fun multiplePlatformsImplied() {
         val module = buildMultiplePlatforms("multiplatformImplied")
         verifyModelOutput(module, ".md", "testdata/format/multiplatformImplied/foo.kt") { model, output ->
