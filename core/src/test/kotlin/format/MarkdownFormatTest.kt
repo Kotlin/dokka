@@ -250,6 +250,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodes("dynamicExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
     }
 
+    @Test fun memberExtension() {
+        verifyMarkdownNodes("memberExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
+    }
+
     @Test fun multiplePlatforms() {
         verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform"), "multiplatform")
     }
