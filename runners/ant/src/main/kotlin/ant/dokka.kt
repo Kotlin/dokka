@@ -16,7 +16,13 @@ class AntLogger(val task: Task): DokkaLogger {
 
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
-class DokkaAntTask(): Task() {
+class AntSourceRoot(var path: String? = null, var platforms: String? = null)
+
+fun AntSourceRoot.toSourceRoot(): SourceRoot? = path?.let {
+    path -> SourceRoot(path, platforms?.split(',').orEmpty())
+}
+
+class DokkaAntTask: Task() {
     var moduleName: String? = null
     var outputDir: String? = null
     var outputFormat: String = "html"
@@ -30,6 +36,7 @@ class DokkaAntTask(): Task() {
     val includesPath: Path by lazy { Path(getProject()) }
 
     val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
+    val antSourceRoots: MutableList<AntSourceRoot> = arrayListOf()
 
     fun setClasspath(classpath: Path) {
         compileClasspath.append(classpath)
@@ -65,8 +72,10 @@ class DokkaAntTask(): Task() {
         return def
     }
 
+    fun createSourceRoot(): AntSourceRoot = AntSourceRoot().apply { antSourceRoots.add(this) }
+
     override fun execute() {
-        if (sourcePath.list().size == 0) {
+        if (sourcePath.list().isEmpty() && antSourceRoots.isEmpty()) {
             throw BuildException("At least one source path needs to be specified")
         }
         if (moduleName == null) {
@@ -84,7 +93,7 @@ class DokkaAntTask(): Task() {
         val generator = DokkaGenerator(
                 AntLogger(this),
                 compileClasspath.list().toList(),
-                sourcePath.list().map { SourceRoot(it) },
+                sourcePath.list().map { SourceRoot(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
                 moduleName!!,
