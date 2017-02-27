@@ -162,12 +162,7 @@ fun verifyModelOutput(it: DocumentationModule,
     val output = StringBuilder()
     outputGenerator(it, output)
     val ext = outputExtension.removePrefix(".")
-    val expectedFileContent = File(sourcePath.replaceAfterLast(".", ext, sourcePath + "." + ext)).readText()
-    val expectedOutput =
-            if (ext.equals("html", true))
-                expectedFileContent.lines().joinToString(separator = "\n", transform = String::trim)
-            else
-                expectedFileContent
+    val expectedOutput = File(sourcePath.replaceAfterLast(".", ext, sourcePath + "." + ext)).readText()
     assertEqualsIgnoringSeparators(expectedOutput, output.toString())
 }
 
