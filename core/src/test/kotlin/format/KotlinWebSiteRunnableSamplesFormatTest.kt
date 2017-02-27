@@ -24,6 +24,10 @@ class KotlinWebSiteRunnableSamplesFormatTest {
         verifyKWSNodeByName("newLinesInSamples", "foo")
     }
 
+    @Test fun newLinesInImportList() {
+        verifyKWSNodeByName("newLinesInImportList", "foo")
+    }
+
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website-samples/$fileName.kt", ".md", format = "kotlin-website-samples") { model, output ->
             kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
