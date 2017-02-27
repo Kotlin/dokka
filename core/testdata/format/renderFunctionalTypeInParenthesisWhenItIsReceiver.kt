@@ -1,0 +1,3 @@
+fun (suspend () -> Unit).foo() {
+
+}

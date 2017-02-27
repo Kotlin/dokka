@@ -414,7 +414,15 @@ class KotlinLanguageService : LanguageService {
             if (signatureMapper != null) {
                 signatureMapper.renderReceiver(receiver, this)
             } else {
-                renderType(receiver.detail(NodeKind.Type), renderMode)
+                val type = receiver.detail(NodeKind.Type)
+
+                if (type.isFunctionalType()) {
+                    symbol("(")
+                    renderFunctionalType(type, renderMode)
+                    symbol(")")
+                } else {
+                    renderType(type, renderMode)
+                }
             }
             symbol(".")
         }

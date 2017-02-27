@@ -254,6 +254,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodes("memberExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
     }
 
+    @Test fun renderFunctionalTypeInParenthesisWhenItIsReceiver() {
+        verifyMarkdownNode("renderFunctionalTypeInParenthesisWhenItIsReceiver")
+    }
+
     @Test fun multiplePlatforms() {
         verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform"), "multiplatform")
     }
