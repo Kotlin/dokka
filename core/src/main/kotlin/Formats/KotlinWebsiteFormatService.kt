@@ -148,7 +148,7 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
         if (platforms.isNotEmpty())
-            wrap("<tr data-platform=\"${platforms.joinToString(" ")}\">", "</tr>", block)
+            wrap("<tr data-platform=\"${platforms.joinToString()}\">", "</tr>", block)
         else
             appendTableRow(block)
     }

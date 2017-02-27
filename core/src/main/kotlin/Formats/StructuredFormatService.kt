@@ -408,7 +408,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 return
             }
 
-            appendSection("Packages", node.members(NodeKind.Package))
+            appendSection("Packages", node.members(NodeKind.Package), platformsBasedOnMembers = true)
             appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
             appendSection("Annotations", node.members(NodeKind.AnnotationClass))
             appendSection("Exceptions", node.members(NodeKind.Exception))
@@ -463,7 +463,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
         private fun appendSection(caption: String, members: List<DocumentationNode>,
                                   sortMembers: Boolean = true,
-                                  omitSamePlatforms: Boolean = false) {
+                                  omitSamePlatforms: Boolean = false,
+                                  platformsBasedOnMembers: Boolean = false) {
             if (members.isEmpty()) return
 
             appendHeader(3) { appendText(caption) }
@@ -476,7 +477,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        val platforms = platformsOfItems(members, omitSamePlatforms)
+                        val elementPlatforms = platformsOfItems(members, omitSamePlatforms)
+                        val platforms = if (platformsBasedOnMembers)
+                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
+                        else
+                            elementPlatforms
                         appendIndexRow(platforms) {
                             appendTableCell {
                                 appendLink(memberLocation)

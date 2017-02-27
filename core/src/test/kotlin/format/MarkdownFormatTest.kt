@@ -255,32 +255,41 @@ class MarkdownFormatTest {
     }
 
     @Test fun multiplePlatforms() {
-        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform"), "multiplatform")
+        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform/simple"), "multiplatform/simple")
     }
 
     @Test fun multiplePlatformsMerge() {
-        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatformMerge"), "multiplatformMerge")
+        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform/merge"), "multiplatform/merge")
     }
 
     @Test fun multiplePlatformsMergeMembers() {
-        val module = buildMultiplePlatforms("multiplatformMergeMembers")
-        verifyModelOutput(module, ".md", "testdata/format/multiplatformMergeMembers/foo.kt") { model, output ->
+        val module = buildMultiplePlatforms("multiplatform/mergeMembers")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatform/mergeMembers/foo.kt") { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
         }
     }
 
     @Test fun multiplePlatformsOmitRedundant() {
-        val module = buildMultiplePlatforms("multiplatformOmitRedundant")
-        verifyModelOutput(module, ".md", "testdata/format/multiplatformOmitRedundant/foo.kt") { model, output ->
+        val module = buildMultiplePlatforms("multiplatform/omitRedundant")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatform/omitRedundant/foo.kt") { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
         }
     }
 
     @Test fun multiplePlatformsImplied() {
-        val module = buildMultiplePlatforms("multiplatformImplied")
-        verifyModelOutput(module, ".md", "testdata/format/multiplatformImplied/foo.kt") { model, output ->
+        val module = buildMultiplePlatforms("multiplatform/implied")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatform/implied/foo.kt") { model, output ->
             MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf("JVM", "JS"))
                     .createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+        }
+    }
+
+    @Test fun multiplePlatformsPackagePlatformFromMembers() {
+        val module = buildMultiplePlatforms("multiplatform/packagePlatformsFromMembers")
+        verifyModelOutput(module, ".md", "testdata/format/multiplatform/packagePlatformsFromMembers/multiplatform.index.kt") {
+            model, output ->
+            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
+                    .createOutputBuilder(output, tempLocation).appendNodes(model.members)
         }
     }
 
