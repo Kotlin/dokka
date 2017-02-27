@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.resolve.ImportPath
 
 open class KotlinWebsiteSampleProcessingService
@@ -70,7 +71,7 @@ open class KotlinWebsiteSampleProcessingService
             return ContentBlockCode("kotlin").apply {
                 append(ContentText("\n"))
                 psiFile.importList?.let {
-                    it.children.filter {
+                    it.allChildren.filter {
                         it !is KtImportDirective || it.importPath !in importsToIgnore
                     }.forEach { append(ContentText(it.text)) }
                 }
