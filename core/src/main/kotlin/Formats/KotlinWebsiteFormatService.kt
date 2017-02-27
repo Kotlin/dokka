@@ -145,6 +145,13 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
         IdentifierKind.SummarizedTypeName -> "summarizedTypeName"
         else -> "identifier"
     }
+
+    override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
+        if (platforms.isNotEmpty())
+            wrap("<tr data-platform=\"${platforms.joinToString(" ")}\">", "</tr>", block)
+        else
+            appendTableRow(block)
+    }
 }
 
 class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,

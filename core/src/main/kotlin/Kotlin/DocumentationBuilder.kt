@@ -234,10 +234,11 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendSinceKotlin(annotation: DocumentationNode) {
-        var kotlinVersion = annotation.detail(NodeKind.Parameter).detail(NodeKind.Value).name
-        if (kotlinVersion.startsWith('\"') && kotlinVersion.endsWith('\"')) {
-            kotlinVersion = kotlinVersion.substring(1..kotlinVersion.length-2)
-        }
+        val kotlinVersion = annotation
+                .detail(NodeKind.Parameter)
+                .detail(NodeKind.Value)
+                .name.removeSurrounding("\"")
+
         append(platformNodeRegistry["Kotlin " + kotlinVersion], RefKind.Platform)
     }
 

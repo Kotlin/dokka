@@ -208,6 +208,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         block()
     }
 
+    protected open fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
+        appendTableRow(block)
+    }
+
+    protected open fun appendPlatforms(platforms: Set<String>) {
+        if (platforms.isNotEmpty()) {
+            appendLine()
+            appendText(platforms.joinToString(prefix = "(", postfix = ")"))
+        }
+    }
+
     protected open fun appendBreadcrumbs(path: Iterable<FormatLink>) {
         for ((index, item) in path.withIndex()) {
             if (index > 0) {
@@ -460,13 +471,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             val children = if (sortMembers) members.sortedBy { it.name } else members
             val membersMap = children.groupBy { link(node, it) }
 
+
+
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        appendTableRow {
+                        val platforms = platformsOfItems(members, omitSamePlatforms)
+                        appendIndexRow(platforms) {
                             appendTableCell {
                                 appendLink(memberLocation)
-                                appendPlatforms(members, omitSamePlatforms)
+                                appendPlatforms(platforms)
                             }
                             appendTableCell {
                                 val breakdownBySummary = members.groupBy { it.summary }
@@ -479,6 +493,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     }
                 }
             }
+        }
+
+        private fun platformsOfItems(items: List<DocumentationNode>, omitSamePlatforms: Boolean = true): Set<String> {
+            val platforms = items.foldRight(items.first().platformsToShow.toSet()) {
+                node, platforms ->
+                platforms.intersect(node.platformsToShow)
+            }
+            if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
+                return platforms
+            }
+            return emptySet()
         }
 
         private fun appendSummarySignatures(items: List<DocumentationNode>) {
@@ -500,16 +525,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 renderedSignatures.last().appendSignature()
             }
         }
-
-        private fun appendPlatforms(items: List<DocumentationNode>, omitSamePlatforms: Boolean) {
-            val platforms = items.foldRight(items.first().platformsToShow.toSet()) {
-                node, platforms -> platforms.intersect(node.platformsToShow)
-            }
-            if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
-                appendLine()
-                to.append("(${platforms.joinToString()})")
-            }
-        }
     }
 
     inner class AllTypesNodeBuilder(val node: DocumentationNode)
@@ -520,9 +535,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendHeader(3) { to.append("All Types") }
 
             appendTable("Name", "Summary") {
-                appendTableBody() {
+                appendTableBody {
                     for (type in node.members) {
-                        appendTableRow() {
+                        appendTableRow {
                             appendTableCell {
                                 appendLink(link(node, type) {
                                     if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
