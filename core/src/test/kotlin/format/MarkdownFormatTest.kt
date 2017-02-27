@@ -284,13 +284,17 @@ class MarkdownFormatTest {
         }
     }
 
-    @Test fun multiplePlatformsPackagePlatformFromMembers() {
+    @Test fun multiplePlatformsPackagePlatformFromMembersIndex() {
         val module = buildMultiplePlatforms("multiplatform/packagePlatformsFromMembers")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/packagePlatformsFromMembers/multiplatform.index.kt") {
             model, output ->
             MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
-                    .createOutputBuilder(output, tempLocation).appendNodes(model.members)
+                    .createOutputBuilder(output, tempLocation).appendNodes(listOf(model))
         }
+    }
+
+    @Test fun multiplePlatformsPackagePlatformFromMembers() {
+        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform/packagePlatformsFromMembers"), "multiplatform/packagePlatformsFromMembers")
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {

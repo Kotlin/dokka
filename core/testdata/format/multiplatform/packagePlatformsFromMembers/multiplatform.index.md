@@ -1,8 +1,8 @@
-[test](test/index) / [foo.bar](test/foo.bar/index)
+[test](test/index)
 
-## Package foo.bar
+### Packages
 
-### Functions
+| [foo.bar](test/foo.bar/index)<br>(JVM, JS) |  |
 
-| [buz](test/foo.bar/buz)<br>(JVM, JS) | `fun buz(): Unit` |
+### Index
 

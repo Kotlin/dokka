@@ -263,6 +263,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     val packageName = if (singleNode.name.isEmpty()) "<root>" else singleNode.name
                     appendHeader(2) { appendText("Package $packageName") }
                 }
+                singleNode.appendPlatforms()
                 appendContent(singleNode.content)
             } else {
                 val breakdownByName = nodes.groupBy { node -> node.name }
@@ -354,12 +355,24 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun DocumentationNode.appendPlatforms() {
-            val platforms = platformsToShow.ifEmpty { return }
+            val platforms = if (isModuleOrPackage())
+                platformsToShow.toSet() + platformsOfItems(members)
+            else
+                platformsToShow
+
+            if(platforms.isEmpty()) return
+
             appendParagraph {
                 appendStrong { to.append("Platform and version requirements:") }
                 to.append(" " + platforms.joinToString())
             }
         }
+
+        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> =
+                items.foldRight(items.first().platformsToShow.toSet()) {
+                    node, platforms ->
+                    platforms.intersect(node.platformsToShow)
+                }
 
         val DocumentationNode.platformsToShow: List<String>
             get() = platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
@@ -501,10 +514,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun platformsOfItems(items: List<DocumentationNode>, omitSamePlatforms: Boolean = true): Set<String> {
-            val platforms = items.foldRight(items.first().platformsToShow.toSet()) {
-                node, platforms ->
-                platforms.intersect(node.platformsToShow)
-            }
+            val platforms = platformsOfItems(items)
             if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
                 return platforms
             }
