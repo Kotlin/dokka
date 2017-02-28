@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 
 
 open class KotlinWebsiteOutputBuilder(to: StringBuilder,
@@ -147,9 +148,19 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
     }
 
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
-        if (platforms.isNotEmpty())
-            wrap("<tr data-platform=\"${platforms.joinToString()}\">", "</tr>", block)
-        else
+        if (platforms.isNotEmpty()) {
+            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+            fun String.isJREVersion() = this.startsWith("JRE")
+            val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
+            val jreVersion = platforms.singleOrNull(String::isJREVersion)
+            val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+
+            val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
+            val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
+            val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
+
+            wrap("<tr$platformsAttr$kotlinVersionAttr$jreVersionAttr>", "</tr>", block)
+        } else
             appendTableRow(block)
     }
 }
