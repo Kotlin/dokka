@@ -368,11 +368,19 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> =
-                items.foldRight(items.first().platformsToShow.toSet()) {
-                    node, platforms ->
-                    platforms.intersect(node.platformsToShow)
+        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
+            val platforms = items.asSequence().map {
+                when (it.kind) {
+                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module -> platformsOfItems(it.members)
+                    else -> it.platformsToShow.toSet()
                 }
+            }
+            // Calculating common platforms for items
+            return platforms.fold(platforms.first()) {
+                result, platforms ->
+                result.intersect(platforms)
+            }
+        }
 
         val DocumentationNode.platformsToShow: List<String>
             get() = platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
@@ -498,7 +506,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         appendIndexRow(platforms) {
                             appendTableCell {
                                 appendLink(memberLocation)
-                                appendPlatforms(platforms)
+                                if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
+                                    appendPlatforms(platforms)
+                                }
                             }
                             appendTableCell {
                                 val breakdownBySummary = members.groupBy { it.summary }

@@ -288,17 +288,20 @@ class MarkdownFormatTest {
         }
     }
 
-    @Test fun multiplePlatformsPackagePlatformFromMembersIndex() {
-        val module = buildMultiplePlatforms("multiplatform/packagePlatformsFromMembers")
-        verifyModelOutput(module, ".md", "testdata/format/multiplatform/packagePlatformsFromMembers/multiplatform.index.kt") {
-            model, output ->
-            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
-                    .createOutputBuilder(output, tempLocation).appendNodes(listOf(model))
-        }
+    @Test fun packagePlatformsWithExtExtensions() {
+        val path = "multiplatform/packagePlatformsWithExtExtensions"
+        val module = DocumentationModule("test")
+        val options = DocumentationOptions("", "html", generateIndexPages = false)
+        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), withKotlinRuntime = true, options = options)
+        verifyMultiplatformIndex(module, path)
+        verifyMultiplatformPackage(module, path)
     }
 
     @Test fun multiplePlatformsPackagePlatformFromMembers() {
-        verifyMultiplatformPackage(buildMultiplePlatforms("multiplatform/packagePlatformsFromMembers"), "multiplatform/packagePlatformsFromMembers")
+        val path = "multiplatform/packagePlatformsFromMembers"
+        val module = buildMultiplePlatforms(path)
+        verifyMultiplatformIndex(module, path)
+        verifyMultiplatformPackage(module, path)
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
@@ -312,6 +315,14 @@ class MarkdownFormatTest {
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.md", "testdata/format/$path/multiplatform.kt") { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+        }
+    }
+
+    private fun verifyMultiplatformIndex(module: DocumentationModule, path: String) {
+        verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.index.kt") {
+            model, output ->
+            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
+                    .createOutputBuilder(output, tempLocation).appendNodes(listOf(model))
         }
     }
 
