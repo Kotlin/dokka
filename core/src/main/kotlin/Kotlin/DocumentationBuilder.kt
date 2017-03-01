@@ -278,11 +278,36 @@ class DocumentationBuilder
         return null
     }
 
+    fun createGroupNode(signature: String, nodes: List<DocumentationNode>) = (nodes.find { it.kind == NodeKind.GroupNode } ?:
+            DocumentationNode(nodes.first().name, Content.Empty, NodeKind.GroupNode).apply {
+                appendTextNode(signature, NodeKind.Signature, RefKind.Detail)
+            })
+            .also { groupNode ->
+                nodes.forEach { node ->
+                    if (node != groupNode) {
+                        node.owner?.let { owner ->
+                            node.dropReferences { it.to == owner && it.kind == RefKind.Owner }
+                            owner.dropReferences { it.to == node && it.kind == RefKind.Member }
+                            owner.append(groupNode, RefKind.Member)
+                        }
+                        groupNode.append(node, RefKind.Member)
+                    }
+                }
+            }
+
+
     fun DocumentationNode.appendOrUpdateMember(descriptor: DeclarationDescriptor) {
         if (descriptor.isGenerated() || !descriptor.isDocumented(options)) return
 
         val existingNode = refGraph.lookup(descriptor.signature())
         if (existingNode != null) {
+            if (existingNode.kind == NodeKind.TypeAlias && descriptor is ClassDescriptor
+                    || existingNode.kind == NodeKind.Class && descriptor is TypeAliasDescriptor) {
+                val node = createGroupNode(descriptor.signature(), listOf(existingNode, descriptor.build()))
+                register(descriptor, node)
+                return
+            }
+
             existingNode.updatePlatforms(descriptor)
 
             if (descriptor is ClassDescriptor) {

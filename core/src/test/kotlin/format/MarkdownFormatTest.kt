@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import org.junit.Test
 
 class MarkdownFormatTest {
@@ -301,6 +302,15 @@ class MarkdownFormatTest {
         val path = "multiplatform/packagePlatformsFromMembers"
         val module = buildMultiplePlatforms(path)
         verifyMultiplatformIndex(module, path)
+        verifyMultiplatformPackage(module, path)
+    }
+
+    @Test fun multiplePlatformsGroupNode() {
+        val path = "multiplatform/groupNode"
+        val module = buildMultiplePlatforms(path)
+        verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.find { it.kind == NodeKind.GroupNode }.singletonOrEmptyList())
+        }
         verifyMultiplatformPackage(module, path)
     }
 
