@@ -163,6 +163,10 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
         } else
             appendTableRow(block)
     }
+
+    override fun appendPlatforms(platforms: Set<String>) {
+
+    }
 }
 
 class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
