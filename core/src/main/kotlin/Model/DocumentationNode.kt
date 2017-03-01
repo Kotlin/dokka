@@ -56,7 +56,9 @@ enum class NodeKind {
      * A note which is rendered once on a page documenting a group of overloaded functions.
      * Needs to be generated equally on all overloads.
      */
-    OverloadGroupNote;
+    OverloadGroupNote,
+
+    GroupNode;
 
     companion object {
         val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)
@@ -104,6 +106,10 @@ open class DocumentationNode(val name: String,
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
         references.add(DocumentationReference(this, to, kind))
+    }
+
+    fun dropReferences(predicate: (DocumentationReference) -> Boolean) {
+        references.removeAll(predicate)
     }
 
     fun addAllReferencesFrom(other: DocumentationNode) {

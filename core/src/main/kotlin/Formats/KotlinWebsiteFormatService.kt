@@ -34,8 +34,8 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
     override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
 
-    protected fun div(to: StringBuilder, cssClass: String, markdown: Boolean = false, block: () -> Unit) {
-        to.append("<div class=\"$cssClass\"")
+    protected fun div(to: StringBuilder, cssClass: String, otherAttributes: String = "", markdown: Boolean = false, block: () -> Unit) {
+        to.append("<div class=\"$cssClass\"$otherAttributes")
         if (markdown) to.append(" markdown=\"1\"")
         to.append(">")
         if (!markdown) insideDiv++
@@ -57,8 +57,8 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
         }
     }
 
-    override fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
-        div(to, "overload-group", true) {
+    override fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
+        div(to, "overload-group", calculateDataAttributes(platforms), true) {
             ensureParagraph()
             block()
             ensureParagraph()
@@ -147,20 +147,23 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
         else -> "identifier"
     }
 
+    fun calculateDataAttributes(platforms: Set<String>): String {
+        fun String.isKotlinVersion() = this.startsWith("Kotlin")
+        fun String.isJREVersion() = this.startsWith("JRE")
+        val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
+        val jreVersion = platforms.singleOrNull(String::isJREVersion)
+        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+
+        val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
+        val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
+        val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
+        return "$platformsAttr$kotlinVersionAttr$jreVersionAttr"
+    }
+
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
-        if (platforms.isNotEmpty()) {
-            fun String.isKotlinVersion() = this.startsWith("Kotlin")
-            fun String.isJREVersion() = this.startsWith("JRE")
-            val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
-            val jreVersion = platforms.singleOrNull(String::isJREVersion)
-            val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
-
-            val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
-            val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
-            val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
-
-            wrap("<tr$platformsAttr$kotlinVersionAttr$jreVersionAttr>", "</tr>", block)
-        } else
+        if (platforms.isNotEmpty())
+            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
+        else
             appendTableRow(block)
     }
 
@@ -188,7 +191,7 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
     : KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms) {
 
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
-        div(to, "sample", true) {
+        div(to, "sample", markdown = true) {
             appendBlockCode(language) {
                 imports()
                 wrap("\n\nfun main(args: Array<String>) {", "}") {

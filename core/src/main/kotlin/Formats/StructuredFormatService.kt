@@ -185,6 +185,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                   to: DocumentationNode,
                   extension: String,
                   name: (DocumentationNode) -> String = DocumentationNode::name): FormatLink {
+        if (to.owner?.kind == NodeKind.GroupNode)
+            return link(from, to.owner!!, extension, name)
+
         return FormatLink(name(to), locationService.relativePathToLocation(from, to))
     }
 
@@ -204,7 +207,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         block()
     }
 
-    protected open fun appendAsOverloadGroup(to: StringBuilder, block: () -> Unit) {
+    protected open fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
         block()
     }
 
@@ -242,16 +245,18 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         appendContent(signatureAsCode)
     }
 
-    open inner class PageBuilder(val nodes: Iterable<DocumentationNode>) {
+    open inner class PageBuilder(val nodes: Iterable<DocumentationNode>, val noHeader: Boolean = false) {
         open fun build() {
             val breakdownByLocation = nodes.groupBy { node ->
                 node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
             }
 
             for ((path, nodes) in breakdownByLocation) {
-                appendBreadcrumbs(path)
-                appendLine()
-                appendLine()
+                if (!noHeader) {
+                    appendBreadcrumbs(path)
+                    appendLine()
+                    appendLine()
+                }
                 appendLocation(nodes.filter { it.kind != NodeKind.ExternalClass })
             }
         }
@@ -268,7 +273,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             } else {
                 val breakdownByName = nodes.groupBy { node -> node.name }
                 for ((name, items) in breakdownByName) {
-                    appendHeader { appendText(name) }
+                    if (!noHeader)
+                        appendHeader { appendText(name) }
                     appendDocumentation(items)
                 }
             }
@@ -280,9 +286,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (breakdownBySummary.size == 1) {
                 formatOverloadGroup(breakdownBySummary.values.single())
             } else {
-                for ((summary, items) in breakdownBySummary) {
+                for ((_, items) in breakdownBySummary) {
                     ensureParagraph()
-                    appendAsOverloadGroup(to) {
+                    appendAsOverloadGroup(to, platformsOfItems(items)) {
                         formatOverloadGroup(items)
                     }
                 }
@@ -371,7 +377,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
             val platforms = items.asSequence().map {
                 when (it.kind) {
-                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module -> platformsOfItems(it.members)
+                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module, NodeKind.GroupNode -> platformsOfItems(it.members)
                     else -> it.platformsToShow.toSet()
                 }
             }
@@ -418,8 +424,38 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    inner class SingleNodePageBuilder(val node: DocumentationNode)
-        : PageBuilder(listOf(node)) {
+    inner class GroupNodePageBuilder(val node: DocumentationNode) : PageBuilder(listOf(node)) {
+
+        override fun build() {
+
+            val breakdownByLocation = node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
+
+            appendBreadcrumbs(breakdownByLocation)
+            appendLine()
+            appendLine()
+            appendHeader { appendText(node.name) }
+
+            fun DocumentationNode.priority(): Int = when (kind) {
+                NodeKind.TypeAlias -> 1
+                NodeKind.Class -> 2
+                else -> 3
+            }
+
+            for (member in node.members.sortedBy(DocumentationNode::priority)) {
+                ensureParagraph()
+                appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
+                    formatSubNodeOfGroup(member)
+                }
+            }
+        }
+
+        fun formatSubNodeOfGroup(member: DocumentationNode) {
+            SingleNodePageBuilder(member, true).build()
+        }
+    }
+
+    inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false)
+        : PageBuilder(listOf(node), noHeader) {
 
         override fun build() {
             super.build()
@@ -429,11 +465,19 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 return
             }
 
+            fun DocumentationNode.membersOrGroupMembers(predicate: (DocumentationNode) -> Boolean): List<DocumentationNode> {
+                return members.filter(predicate) + members(NodeKind.GroupNode).flatMap { it.members.filter(predicate) }
+            }
+
+            fun DocumentationNode.membersOrGroupMembers(kind: NodeKind): List<DocumentationNode> {
+                return membersOrGroupMembers { it.kind == kind }
+            }
+
             appendSection("Packages", node.members(NodeKind.Package), platformsBasedOnMembers = true)
-            appendSection("Types", node.members.filter { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
-            appendSection("Annotations", node.members(NodeKind.AnnotationClass))
-            appendSection("Exceptions", node.members(NodeKind.Exception))
-            appendSection("Type Aliases", node.members(NodeKind.TypeAlias))
+            appendSection("Types", node.membersOrGroupMembers { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
+            appendSection("Annotations", node.membersOrGroupMembers(NodeKind.AnnotationClass))
+            appendSection("Exceptions", node.membersOrGroupMembers(NodeKind.Exception))
+            appendSection("Type Aliases", node.membersOrGroupMembers(NodeKind.TypeAlias))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
             appendSection("Enum Values", node.members(NodeKind.EnumItem), sortMembers = false, omitSamePlatforms = true)
             appendSection("Constructors", node.members(NodeKind.Constructor), omitSamePlatforms = true)
@@ -462,7 +506,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         NodeKind.CompanionObjectFunction,
                         NodeKind.ExternalClass,
                         NodeKind.EnumItem,
-                        NodeKind.AllTypes
+                        NodeKind.AllTypes,
+                        NodeKind.GroupNode
                 )
             })
 
@@ -586,14 +631,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
         val singleNode = nodes.singleOrNull()
-        if (singleNode != null) {
-            if (singleNode.kind == NodeKind.AllTypes) {
-                AllTypesNodeBuilder(singleNode).build()
-            } else {
-                SingleNodePageBuilder(singleNode).build()
-            }
-        } else {
-            PageBuilder(nodes).build()
+        when (singleNode?.kind) {
+            NodeKind.AllTypes -> AllTypesNodeBuilder(singleNode).build()
+            NodeKind.GroupNode -> GroupNodePageBuilder(singleNode).build()
+            null -> PageBuilder(nodes).build()
+            else -> SingleNodePageBuilder(singleNode).build()
         }
     }
 }
