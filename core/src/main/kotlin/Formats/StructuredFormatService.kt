@@ -253,7 +253,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for ((path, nodes) in breakdownByLocation) {
-                if (!noHeader) {
+                if (!noHeader && path.isNotEmpty()) {
                     appendBreadcrumbs(path)
                     appendLine()
                     appendLine()
