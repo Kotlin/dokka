@@ -40,6 +40,12 @@ class KotlinWebsiteFormatRunnableSamplesDescriptor : KotlinFormatDescriptorBase(
     override val outlineServiceClass = YamlOutlineService::class
 }
 
+class KotlinWebsiteHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = KotlinWebsiteHtmlFormatService::class
+    override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
+    override val outlineServiceClass = YamlOutlineService::class
+}
+
 class JekyllFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = JekyllFormatService::class
 }
