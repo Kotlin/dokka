@@ -1,7 +1,6 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.LanguageService.RenderMode
-import org.jetbrains.kotlin.utils.ifEmpty
 import java.util.*
 
 data class FormatLink(val text: String, val href: String)
@@ -188,6 +187,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         if (to.owner?.kind == NodeKind.GroupNode)
             return link(from, to.owner!!, extension, name)
 
+        if (from.owner?.kind == NodeKind.GroupNode)
+            return link(from.owner!!, to, extension, name)
+
         return FormatLink(name(to), locationService.relativePathToLocation(from, to))
     }
 
@@ -226,7 +228,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         for ((index, item) in path.withIndex()) {
             if (index > 0) {
                 appendBreadcrumbSeparator()
-
             }
             appendLink(item)
         }
@@ -248,7 +249,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     open inner class PageBuilder(val nodes: Iterable<DocumentationNode>, val noHeader: Boolean = false) {
         open fun build() {
             val breakdownByLocation = nodes.groupBy { node ->
-                node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
+                node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }.distinct()
             }
 
             for ((path, nodes) in breakdownByLocation) {
