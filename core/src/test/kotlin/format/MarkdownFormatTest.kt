@@ -309,9 +309,19 @@ class MarkdownFormatTest {
         val path = "multiplatform/groupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.find { it.kind == NodeKind.GroupNode }.singletonOrEmptyList())
+            markdownService.createOutputBuilder(output, tempLocation)
+                    .appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
         }
         verifyMultiplatformPackage(module, path)
+    }
+
+    @Test fun multiplePlatformsBreadcrumbsInMemberOfMemberOfGroupNode() {
+        val path = "multiplatform/breadcrumbsInMemberOfMemberOfGroupNode"
+        val module = buildMultiplePlatforms(path)
+        verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
+            markdownService.createOutputBuilder(output, tempLocation)
+                    .appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Class)?.member(NodeKind.Function)))
+        }
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
