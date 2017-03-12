@@ -1,10 +1,13 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300i,400,700);
 
 body, table {
     padding:50px;
-    font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font:14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     color:#555;
     font-weight:300;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1440px;
 }
 
 .keyword {
