@@ -46,6 +46,8 @@ open class HtmlOutputBuilder(to: StringBuilder,
     override fun appendParagraph(body: () -> Unit) =
         wrapInTag("p", body, newlineBeforeOpen = true, newlineAfterClose = true)
 
+    override fun appendSoftParagraph(body: () -> Unit) = appendParagraph(body)
+
     override fun appendLine() {
         to.appendln("<br/>")
     }
@@ -89,9 +91,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     }
 
     override fun ensureParagraph() {
-        if (!to.endsWith("<p>") && !to.endsWith("</p>")) {
-            to.append("\n<p>")
-        }
+
     }
 }
 

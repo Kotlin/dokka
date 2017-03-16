@@ -50,6 +50,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     abstract fun appendBlockCode(language: String, body: () -> Unit)
     abstract fun appendHeader(level: Int = 1, body: () -> Unit)
     abstract fun appendParagraph(body: () -> Unit)
+
+    open fun appendSoftParagraph(body: () -> Unit) {
+        ensureParagraph()
+        body()
+    }
+
     abstract fun appendLine()
     abstract fun appendAnchor(anchor: String)
 
@@ -288,9 +294,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 formatOverloadGroup(breakdownBySummary.values.single())
             } else {
                 for ((_, items) in breakdownBySummary) {
-                    ensureParagraph()
-                    appendAsOverloadGroup(to, platformsOfItems(items)) {
-                        formatOverloadGroup(items)
+                    appendSoftParagraph {
+                        appendAsOverloadGroup(to, platformsOfItems(items)) {
+                            formatOverloadGroup(items)
+                        }
                     }
                 }
             }
@@ -414,12 +421,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             subjectSections.forEach {
                 val subjectName = it.subjectName
                 if (subjectName != null) {
-                    ensureParagraph()
-
-                    appendAnchor(subjectName)
-                    appendCode { to.append(subjectName) }
-                    to.append(" - ")
-                    appendContent(it)
+                    appendSoftParagraph {
+                        appendAnchor(subjectName)
+                        appendCode { to.append(subjectName) }
+                        to.append(" - ")
+                        appendContent(it)
+                    }
                 }
             }
         }
@@ -443,9 +450,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for (member in node.members.sortedBy(DocumentationNode::priority)) {
-                ensureParagraph()
-                appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
-                    formatSubNodeOfGroup(member)
+                appendSoftParagraph {
+                    appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
+                        formatSubNodeOfGroup(member)
+                    }
                 }
             }
         }

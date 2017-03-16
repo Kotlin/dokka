@@ -7,14 +7,10 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.nio.file.Path
 
 
-private object EmptyHtmlTemplateServie : HtmlTemplateService {
-    override fun appendFooter(to: StringBuilder) {
+private object EmptyHtmlTemplateService : HtmlTemplateService {
+    override fun appendFooter(to: StringBuilder) {}
 
-    }
-
-    override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {
-
-    }
+    override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {}
 }
 
 
@@ -24,13 +20,11 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
                                           languageService: LanguageService,
                                           extension: String,
                                           impliedPlatforms: List<String>)
-    : HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, EmptyHtmlTemplateServie) {
+    : HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, EmptyHtmlTemplateService) {
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
-    override fun appendLine() {
-
-    }
+    override fun appendLine() {}
 
     override fun appendBreadcrumbs(path: Iterable<FormatLink>) {
         if (path.count() > 1) {
@@ -41,8 +35,6 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
     }
 
     override fun appendCode(body: () -> Unit) = wrapIfNotEmpty("<code>", "</code>", body)
-
-    override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
 
     protected fun div(to: StringBuilder, cssClass: String, otherAttributes: String = "", block: () -> Unit) {
         to.append("<div class=\"$cssClass\"$otherAttributes")
@@ -68,9 +60,7 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
 
     override fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
         div(to, "overload-group", calculateDataAttributes(platforms)) {
-            ensureParagraph()
             block()
-            ensureParagraph()
         }
     }
 
@@ -158,9 +148,7 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
             appendTableRow(block)
     }
 
-    override fun appendPlatforms(platforms: Set<String>) {
-
-    }
+    override fun appendPlatforms(platforms: Set<String>) {}
 
     override fun appendBreadcrumbSeparator() {
         to.append(" / ")
@@ -181,11 +169,9 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
 class KotlinWebsiteHtmlFormatService @Inject constructor(locationService: LocationService,
                                                          signatureGenerator: LanguageService,
                                                          @Named(impliedPlatformsName) impliedPlatforms: List<String>)
-    : HtmlFormatService(locationService, signatureGenerator, EmptyHtmlTemplateServie, impliedPlatforms) {
+    : HtmlFormatService(locationService, signatureGenerator, EmptyHtmlTemplateService, impliedPlatforms) {
 
-    override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
-
-    }
+    override fun enumerateSupportFiles(callback: (String, String) -> Unit) {}
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
             KotlinWebsiteHtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
