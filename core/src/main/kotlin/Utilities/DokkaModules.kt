@@ -19,6 +19,8 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val nodeReferenceGraph: NodeReferenceGraph,
                           val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
+        binder.bind<DokkaLogger>().toInstance(logger)
+
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
 
         binder.registerCategory<LanguageService>("language")
@@ -33,7 +35,6 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
 
         binder.bind<DocumentationOptions>().toInstance(options)
-        binder.bind<DokkaLogger>().toInstance(logger)
 
         binder.bind<DefaultPlatformsProvider>().toInstance(defaultPlatformsProvider)
 

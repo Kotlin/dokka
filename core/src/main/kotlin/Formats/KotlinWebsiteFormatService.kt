@@ -174,9 +174,14 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
 
 class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
                                                      signatureGenerator: LanguageService,
-                                                     @Named(impliedPlatformsName) impliedPlatforms: List<String>)
+                                                     @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+                                                     logger: DokkaLogger)
     : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms)
 {
+    init {
+        logger.warn("Format kotlin-website deprecated and will be removed in next release")
+    }
+
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
         KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }
@@ -204,8 +209,14 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
 
 class KotlinWebsiteRunnableSamplesFormatService @Inject constructor(locationService: LocationService,
                                                                     signatureGenerator: LanguageService,
-                                                                    @Named(impliedPlatformsName) impliedPlatforms: List<String>)
+                                                                    @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+                                                                    logger: DokkaLogger)
     : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms) {
+
+    init {
+        logger.warn("Format kotlin-website-samples deprecated and will be removed in next release")
+    }
+
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
             KotlinWebsiteRunnableSamplesOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 }
