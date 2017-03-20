@@ -7,11 +7,13 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.idea.kdoc.getKDocLinkResolutionScope
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.ResolutionScope
@@ -23,15 +25,13 @@ open class DefaultSampleProcessingService
                     val resolutionFacade: DokkaResolutionFacade)
     : SampleProcessingService {
 
-    override fun resolveSample(descriptor: DeclarationDescriptor, functionName: String?): ContentNode {
+    override fun resolveSample(descriptor: DeclarationDescriptor, functionName: String?, kdocTag: KDocTag): ContentNode {
         if (functionName == null) {
             logger.warn("Missing function name in @sample in ${descriptor.signature()}")
             return ContentBlockSampleCode().apply { append(ContentText("//Missing function name in @sample")) }
         }
-        val scope = getKDocLinkResolutionScope(resolutionFacade, descriptor)
-        val rootPackage = resolutionFacade.moduleDescriptor.getPackage(FqName.ROOT)
-        val rootScope = rootPackage.memberScope
-        val symbol = resolveInScope(functionName, scope) ?: resolveInScope(functionName, rootScope)
+        val bindingContext = BindingContext.EMPTY
+        val symbol = resolveKDocLink(bindingContext, resolutionFacade, descriptor, kdocTag, functionName.split(".")).firstOrNull()
         if (symbol == null) {
             logger.warn("Unresolved function $functionName in @sample in ${descriptor.signature()}")
             return ContentBlockSampleCode().apply { append(ContentText("//Unresolved: $functionName")) }

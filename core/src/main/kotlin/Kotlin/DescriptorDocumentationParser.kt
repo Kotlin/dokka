@@ -59,7 +59,7 @@ class DescriptorDocumentationParser
             tags.forEach {
                 when (it.knownTag) {
                     KDocKnownTag.SAMPLE ->
-                        content.append(sampleService.resolveSample(descriptor, it.getSubjectName()))
+                        content.append(sampleService.resolveSample(descriptor, it.getSubjectName(), it))
                     KDocKnownTag.SEE ->
                         content.addTagToSeeAlso(descriptor, it)
                     else -> {
