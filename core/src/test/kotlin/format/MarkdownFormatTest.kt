@@ -233,6 +233,15 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("typeAliases")
     }
 
+    @Test fun sampleByFQName() {
+        verifyMarkdownNode("sampleByFQName")
+    }
+
+    @Test fun sampleByShortName() {
+        verifyMarkdownNode("sampleByShortName")
+    }
+
+
     @Test fun suspendParam() {
         verifyMarkdownNode("suspendParam")
         verifyMarkdownPackage("suspendParam")
