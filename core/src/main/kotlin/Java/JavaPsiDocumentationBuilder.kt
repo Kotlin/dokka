@@ -133,11 +133,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressDocTag(element)
 
-    private fun skipElementByVisibility(element: Any): Boolean =
-        !options.includeNonPublic && element is PsiModifierListOwner &&
-                (element.hasModifierProperty(PsiModifier.PRIVATE) ||
-                 element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
-                 element.isInternal())
+    private fun skipElementByVisibility(element: Any): Boolean = element is PsiModifierListOwner &&
+            !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
+            (element.hasModifierProperty(PsiModifier.PRIVATE) ||
+                    element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
+                    element.isInternal())
 
     private fun PsiElement.isInternal(): Boolean {
         val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false

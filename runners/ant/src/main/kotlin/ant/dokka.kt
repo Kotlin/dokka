@@ -16,11 +16,24 @@ class AntLogger(val task: Task): DokkaLogger {
 
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
-class AntSourceRoot(var path: String? = null, var platforms: String? = null)
-
-fun AntSourceRoot.toSourceRoot(): SourceRoot? = path?.let {
-    path -> SourceRoot(path, platforms?.split(',').orEmpty())
+class AntSourceRoot(var path: String? = null, var platforms: String? = null) {
+    fun toSourceRoot(): SourceRoot? = path?.let {
+        path ->
+        SourceRoot(path, platforms?.split(',').orEmpty())
+    }
 }
+
+class AntPackageOptions(var prefix: String = "",
+                        var includeNonPublic: Boolean = false,
+                        var reportUndocumented: Boolean = true,
+                        var skipDeprecated: Boolean = false) {
+    fun toPackageOptions(): PackageOptions {
+        if(prefix == "")
+            throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
+        return PackageOptions(prefix, includeNonPublic, reportUndocumented, skipDeprecated)
+    }
+}
+
 
 class DokkaAntTask: Task() {
     var moduleName: String? = null
@@ -38,6 +51,7 @@ class DokkaAntTask: Task() {
 
     val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
     val antSourceRoots: MutableList<AntSourceRoot> = arrayListOf()
+    val antPackageOptions: MutableList<AntPackageOptions> = arrayListOf()
 
     fun setClasspath(classpath: Path) {
         compileClasspath.append(classpath)
@@ -75,6 +89,8 @@ class DokkaAntTask: Task() {
 
     fun createSourceRoot(): AntSourceRoot = AntSourceRoot().apply { antSourceRoots.add(this) }
 
+    fun createPackageOptions(): AntPackageOptions = AntPackageOptions().apply { antPackageOptions.add(this) }
+
     override fun execute() {
         if (sourcePath.list().isEmpty() && antSourceRoots.isEmpty()) {
             throw BuildException("At least one source path needs to be specified")
@@ -102,7 +118,8 @@ class DokkaAntTask: Task() {
                         skipDeprecated = skipDeprecated,
                         sourceLinks = sourceLinks,
                         jdkVersion = jdkVersion,
-                        impliedPlatforms = impliedPlatforms.split(','))
+                        impliedPlatforms = impliedPlatforms.split(','),
+                        perPackageOptions = antPackageOptions.map { it.toPackageOptions() })
         )
         generator.generate()
     }
