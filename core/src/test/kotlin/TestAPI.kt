@@ -4,6 +4,7 @@ import com.google.inject.Guice
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -162,8 +163,8 @@ fun verifyModelOutput(it: DocumentationModule,
     val output = StringBuilder()
     outputGenerator(it, output)
     val ext = outputExtension.removePrefix(".")
-    val expectedOutput = File(sourcePath.replaceAfterLast(".", ext, sourcePath + "." + ext)).readText()
-    assertEqualsIgnoringSeparators(expectedOutput, output.toString())
+    val expectedFile = File(sourcePath.replaceAfterLast(".", ext, sourcePath + "." + ext))
+    assertEqualsIgnoringSeparators(expectedFile, output.toString())
 }
 
 fun verifyOutput(path: String,
@@ -182,6 +183,14 @@ fun verifyJavaOutput(path: String,
     verifyJavaModel(path, withKotlinRuntime) { model ->
         verifyModelOutput(model, outputExtension, path, outputGenerator)
     }
+}
+
+fun assertEqualsIgnoringSeparators(expectedFile: File, output: String) {
+    val expectedText = expectedFile.readText().replace("\r\n", "\n")
+    val actualText = output.replace("\r\n", "\n")
+
+    if(expectedText != actualText)
+        throw FileComparisonFailure("", expectedText, actualText, expectedFile.canonicalPath)
 }
 
 fun assertEqualsIgnoringSeparators(expectedOutput: String, output: String) {
