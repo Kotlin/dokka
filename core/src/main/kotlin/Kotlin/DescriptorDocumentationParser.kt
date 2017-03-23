@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.annotations.argumentValue
 import org.jetbrains.kotlin.resolve.constants.StringValue
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -40,7 +41,7 @@ class DescriptorDocumentationParser
 
         val kdoc = descriptor.findKDoc() ?: findStdlibKDoc(descriptor)
         if (kdoc == null) {
-            if (options.reportUndocumented && !descriptor.isDeprecated() &&
+            if (options.effectivePackageOptions(descriptor.fqNameSafe).reportUndocumented && !descriptor.isDeprecated() &&
                     descriptor !is ValueParameterDescriptor && descriptor !is TypeParameterDescriptor &&
                     descriptor !is PropertyAccessorDescriptor && !descriptor.isSuppressWarning()) {
                 logger.warn("No documentation for ${descriptor.signatureWithSourceLocation()}")

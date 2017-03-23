@@ -30,17 +30,33 @@ import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import com.google.inject.name.Named as GuiceNamed
 
-data class DocumentationOptions(val outputDir: String,
-                                val outputFormat: String,
-                                val includeNonPublic: Boolean = false,
-                                val includeRootPackage: Boolean = false,
-                                val reportUndocumented: Boolean = true,
-                                val skipEmptyPackages: Boolean = true,
-                                val skipDeprecated: Boolean = false,
-                                val jdkVersion: Int = 6,
-                                val generateIndexPages: Boolean = true,
-                                val sourceLinks: List<SourceLinkDefinition> = emptyList(),
-                                val impliedPlatforms: List<String> = emptyList())
+class DocumentationOptions(val outputDir: String,
+                           val outputFormat: String,
+                           includeNonPublic: Boolean = false,
+                           val includeRootPackage: Boolean = false,
+                           reportUndocumented: Boolean = true,
+                           val skipEmptyPackages: Boolean = true,
+                           skipDeprecated: Boolean = false,
+                           val jdkVersion: Int = 6,
+                           val generateIndexPages: Boolean = true,
+                           val sourceLinks: List<SourceLinkDefinition> = emptyList(),
+                           val impliedPlatforms: List<String> = emptyList(),
+                           // Sorted by pattern length
+                           perPackageOptions: List<PackageOptions> = emptyList()) {
+    val perPackageOptions = perPackageOptions.sortedByDescending { it.prefix.length } + PackageOptions("", includeNonPublic, reportUndocumented, skipDeprecated)
+
+
+    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.first { pack.startsWith(it.prefix) }
+    fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
+}
+
+
+data class PackageOptions(val prefix: String,
+                          val includeNonPublic: Boolean = false,
+                          val reportUndocumented: Boolean = true,
+                          val skipDeprecated: Boolean = false)
+
+
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
                                         extensionReceiverDescriptor: DeclarationDescriptor,
@@ -748,11 +764,11 @@ class DocumentationBuilder
 val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
 
 fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
-    return (options.includeNonPublic
+    return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
             || this.visibility in visibleToDocumentation) &&
             !isDocumentationSuppressed() &&
-            (!options.skipDeprecated || !isDeprecated())
+            (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
 private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION

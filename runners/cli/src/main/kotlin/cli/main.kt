@@ -47,6 +47,9 @@ class DokkaArguments {
 
     @set:Argument(value = "impliedPlatforms", description = "List of implied platforms (comma-separated)")
     var impliedPlatforms: String = ""
+
+    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented;...\" ")
+    var packageOptions: String = ""
 }
 
 
@@ -76,7 +79,8 @@ object MainKt {
                 arguments.outputFormat,
                 skipDeprecated = arguments.nodeprecated,
                 sourceLinks = sourceLinks,
-                impliedPlatforms = arguments.impliedPlatforms.split(',')
+                impliedPlatforms = arguments.impliedPlatforms.split(','),
+                perPackageOptions = parsePerPackageOptions(arguments.packageOptions)
         )
 
         val generator = DokkaGenerator(
