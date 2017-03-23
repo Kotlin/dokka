@@ -116,61 +116,69 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
+    val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
 
     @TaskAction
     fun generate() {
-        loadFatJar()
+        val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY)
+        System.setProperty(COLORS_ENABLED_PROPERTY, "false")
+        try {
+            loadFatJar()
 
-        val project = project
-        val sdkProvider = sdkProvider
-        val sourceDirectories = getSourceDirectories()
-        val allConfigurations = project.configurations
+            val project = project
+            val sdkProvider = sdkProvider
+            val sourceDirectories = getSourceDirectories()
+            val allConfigurations = project.configurations
 
-        val classpath =
-                if (sdkProvider != null && sdkProvider.isValid) sdkProvider.classpath else emptyList<File>() +
-                        processConfigurations
-                                .map { allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found") }
-                                .flatMap { it }
+            val classpath =
+                    if (sdkProvider != null && sdkProvider.isValid) sdkProvider.classpath else emptyList<File>() +
+                            processConfigurations
+                                    .map { allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found") }
+                                    .flatMap { it }
 
-        if (sourceDirectories.isEmpty()) {
-            logger.warn("No source directories found: skipping dokka generation")
-            return
+            if (sourceDirectories.isEmpty()) {
+                logger.warn("No source directories found: skipping dokka generation")
+                return
+            }
+
+            val bootstrapClass = fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
+
+            val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
+
+            val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
+
+            bootstrapProxy.configure(
+                    BiConsumer { level, message ->
+                        when (level) {
+                            "info" -> logger.info(message)
+                            "warn" -> logger.warn(message)
+                            "error" -> logger.error(message)
+                        }
+                    },
+                    moduleName,
+                    classpath.map { it.absolutePath },
+                    sourceDirectories.map { it.absolutePath },
+                    samples.filterNotNull().map { project.file(it).absolutePath },
+                    includes.filterNotNull().map { project.file(it).absolutePath },
+                    outputDirectory,
+                    outputFormat,
+                    false,
+                    false,
+                    reportNotDocumented,
+                    skipEmptyPackages,
+                    skipDeprecated,
+                    6,
+                    true,
+                    linkMappings.map {
+                        val path = project.file(it.dir).absolutePath
+                        "$path=${it.url}${it.suffix}"
+                    })
+
+            bootstrapProxy.generate()
+
+        } finally {
+            System.setProperty(COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
-
-        val bootstrapClass = fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
-
-        val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
-
-        val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
-
-        bootstrapProxy.configure(
-                BiConsumer { level, message ->
-                    when (level) {
-                        "info" -> logger.info(message)
-                        "warn" -> logger.warn(message)
-                        "error" -> logger.error(message)
-                    }
-                },
-                moduleName,
-                classpath.map { it.absolutePath },
-                sourceDirectories.map { it.absolutePath },
-                samples.filterNotNull().map { project.file(it).absolutePath },
-                includes.filterNotNull().map { project.file(it).absolutePath },
-                outputDirectory,
-                outputFormat,
-                false,
-                false,
-                reportNotDocumented,
-                skipEmptyPackages,
-                skipDeprecated,
-                6,
-                true,
-                linkMappings.map {
-                    val path = project.file(it.dir).absolutePath
-                    "$path=${it.url}${it.suffix}"
-                })
-
-        bootstrapProxy.generate()
     }
 
     fun getSourceDirectories(): Collection<File> {
