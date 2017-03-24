@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
+import org.jetbrains.dokka.Utilities.impliedPlatformsName
 
 open class GFMOutputBuilder(to: StringBuilder,
                             location: Location,
@@ -52,7 +54,7 @@ open class GFMFormatService(locationService: LocationService,
 
     @Inject constructor(locationService: LocationService,
                         signatureGenerator: LanguageService,
-                        impliedPlatforms: List<String>) : this(locationService, signatureGenerator, "md", impliedPlatforms)
+                        @Named(impliedPlatformsName) impliedPlatforms: List<String>) : this(locationService, signatureGenerator, "md", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
         GFMOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
