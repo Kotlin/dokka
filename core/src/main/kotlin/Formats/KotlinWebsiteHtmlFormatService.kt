@@ -66,14 +66,6 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
 
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
 
-    override fun appendHeader(level: Int, body: () -> Unit) {
-        if (insideDiv > 0) {
-            wrapInTag("p", body, newlineAfterClose = true)
-        } else {
-            super.appendHeader(level, body)
-        }
-    }
-
     override fun appendTable(vararg columns: String, body: () -> Unit) {
         to.appendln("<table class=\"api-docs-table\">")
         body()
@@ -162,6 +154,17 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
                     wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
                 }
             }
+        }
+    }
+
+    override fun appendSoftParagraph(body: () -> Unit) = appendParagraph(body)
+
+
+    override fun appendSectionWithTag(section: ContentSection) {
+        appendParagraph {
+            appendStrong { appendText(section.tag) }
+            appendText(" ")
+            appendContent(section)
         }
     }
 }

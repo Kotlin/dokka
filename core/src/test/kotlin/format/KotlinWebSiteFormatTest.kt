@@ -2,8 +2,10 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore
 class KotlinWebSiteFormatTest {
     private val kwsService = KotlinWebsiteFormatService(InMemoryLocationService, KotlinLanguageService(), listOf(), DokkaConsoleLogger)
 
