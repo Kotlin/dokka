@@ -68,7 +68,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
 
     override fun appendStrong(body: () -> Unit) = wrapInTag("strong", body)
-    override fun appendEmphasis(body: () -> Unit) = wrapInTag("emph", body)
+    override fun appendEmphasis(body: () -> Unit) = wrapInTag("em", body)
     override fun appendStrikethrough(body: () -> Unit) = wrapInTag("s", body)
     override fun appendCode(body: () -> Unit) = wrapInTag("code", body)
 
