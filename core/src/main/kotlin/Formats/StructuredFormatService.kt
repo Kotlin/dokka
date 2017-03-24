@@ -73,6 +73,14 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
+    open fun appendSectionWithTag(section: ContentSection) {
+        appendParagraph {
+            appendStrong { appendText(section.tag) }
+            appendLine()
+            appendContent(section)
+        }
+    }
+
     open fun appendSymbol(text: String) {
         appendText(text)
     }
@@ -294,11 +302,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 formatOverloadGroup(breakdownBySummary.values.single())
             } else {
                 for ((_, items) in breakdownBySummary) {
-                    appendSoftParagraph {
-                        appendAsOverloadGroup(to, platformsOfItems(items)) {
-                            formatOverloadGroup(items)
-                        }
+
+                    appendAsOverloadGroup(to, platformsOfItems(items)) {
+                        formatOverloadGroup(items)
                     }
+
                 }
             }
         }
@@ -408,11 +416,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for (section in content.sections.filter { it.subjectName == null }) {
-                appendParagraph {
-                    appendStrong { appendText(section.tag) }
-                    appendLine()
-                    appendContent(section)
-                }
+                appendSectionWithTag(section)
             }
         }
 
@@ -450,11 +454,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for (member in node.members.sortedBy(DocumentationNode::priority)) {
-                appendSoftParagraph {
-                    appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
-                        formatSubNodeOfGroup(member)
-                    }
+
+                appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
+                    formatSubNodeOfGroup(member)
                 }
+
             }
         }
 
@@ -559,9 +563,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                             elementPlatforms
                         appendIndexRow(platforms) {
                             appendTableCell {
-                                appendLink(memberLocation)
-                                if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
-                                    appendPlatforms(platforms)
+                                appendParagraph {
+                                    appendLink(memberLocation)
+                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
+                                        appendPlatforms(platforms)
+                                    }
                                 }
                             }
                             appendTableCell {
