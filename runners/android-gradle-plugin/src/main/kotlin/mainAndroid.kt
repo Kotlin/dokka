@@ -37,15 +37,28 @@ open class DokkaAndroidPlugin : Plugin<Project> {
         }
     }
 
+
+    private fun getVariantManagerOld(plugin: BasePlugin): VariantManager? {
+        val variantManagerProperty =
+                plugin.javaClass.kotlin.memberProperties
+                        .find { it.name == "variantManager" } ?: return null
+        variantManagerProperty.isAccessible = true
+        return variantManagerProperty.get(plugin) as VariantManager
+    }
+
+    private fun getVariantManager(plugin: BasePlugin): VariantManager = plugin.variantManager
+
     private fun collectClasspath(project: Project) {
         val plugin = (project.plugins.findPlugin("android")
                 ?: project.plugins.findPlugin("android-library")
-                ?: project.plugins.findPlugin("com.android.test")) as BasePlugin
-        
-        val variantManagerProperty = plugin.javaClass.kotlin.memberProperties.find { it.name == "variantManager" }!!
-        variantManagerProperty.isAccessible = true
-        val variantManager = variantManagerProperty.get(plugin) as VariantManager
-        variantManager.variantDataList.flatMapTo(allVariantsClassPath) { it.variantConfiguration.compileClasspath }
+                ?: project.plugins.findPlugin("com.android.test")
+                ?: throw Exception("Android plugin not found, please use dokka-android with android or android-library plugin.")) as BasePlugin
+        try {
+            val variantManager = getVariantManagerOld(plugin) ?: getVariantManager(plugin)
+            variantManager.variantDataList.flatMapTo(allVariantsClassPath) { it.variantConfiguration.compileClasspath }
+        } catch(e: Exception) {
+            throw Exception("Unsupported version of android build tools, could not access variant manager.", e)
+        }
     }
 }
 
