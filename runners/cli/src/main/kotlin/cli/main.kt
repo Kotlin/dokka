@@ -1,8 +1,9 @@
 package org.jetbrains.dokka
 
-import com.sampullara.cli.Args
-import com.sampullara.cli.Argument
+
 import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
+import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Args
+import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Argument
 import java.io.File
 import java.net.URLClassLoader
 
