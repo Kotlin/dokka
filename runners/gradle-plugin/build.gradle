@@ -83,5 +83,6 @@ pluginBundle {
 
     mavenCoordinates {
         groupId = "org.jetbrains.dokka"
+        artifactId = "dokka-gradle-plugin"
     }
 }
