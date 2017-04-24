@@ -97,7 +97,7 @@ open class KotlinWebsiteSampleProcessingService
         return sampleBuilder.text
     }
 
-    val importsToIgnore = arrayOf("samples.*").map(::ImportPath)
+    val importsToIgnore = arrayOf("samples.*").map { ImportPath.fromString(it) }
 
     override fun processImports(psiElement: PsiElement): ContentBlockCode {
         val psiFile = psiElement.containingFile

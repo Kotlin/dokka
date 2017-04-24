@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import org.junit.Test
 
 class MarkdownFormatTest {

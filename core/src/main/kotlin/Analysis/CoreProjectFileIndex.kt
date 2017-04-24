@@ -16,6 +16,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileFilter
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
@@ -31,6 +32,14 @@ import java.io.File
  * classes from projectModel-{api,impl}.
  */
 class CoreProjectFileIndex(private val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex, ModuleFileIndex {
+    override fun iterateContentUnderDirectory(p0: VirtualFile, p1: ContentIterator, p2: VirtualFileFilter): Boolean {
+        throw UnsupportedOperationException()
+    }
+
+    override fun isInLibrary(p0: VirtualFile): Boolean {
+        throw UnsupportedOperationException()
+    }
+
     val sourceRoots = contentRoots.filter { it !is JvmClasspathRoot }
     val classpathRoots = contentRoots.filterIsInstance<JvmClasspathRoot>()
 
