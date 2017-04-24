@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import org.junit.Test
 
 class KotlinWebSiteHtmlFormatTest {
@@ -45,7 +44,7 @@ class KotlinWebSiteHtmlFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.find { it.kind == NodeKind.GroupNode }.singletonOrEmptyList())
+            kwsService.createOutputBuilder(output, tempLocation).appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
         }
         verifyMultiplatformPackage(module, path)
     }
