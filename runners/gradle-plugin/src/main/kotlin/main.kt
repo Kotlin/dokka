@@ -116,11 +116,10 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
 
     @TaskAction
     fun generate() {
-        val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY)
+        val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
             loadFatJar()
@@ -208,6 +207,10 @@ open class DokkaTask : DefaultTask() {
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
+
+    companion object {
+        const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
+    }
 }
 
 open class LinkMapping : Serializable {
