@@ -21,7 +21,7 @@ dependencies {
     shadow group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
     shadow group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
 
-    shadow project(":integration")
+    compile project(":integration")
 
     provided gradleApi()
     provided localGroovy()
