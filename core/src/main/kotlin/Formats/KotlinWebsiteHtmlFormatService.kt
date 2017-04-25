@@ -150,7 +150,7 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
         div(to, "sample") {
             appendBlockCode(language) {
                 imports()
-                wrap("\n\nfun main(args: Array<String>) {", "}") {
+                wrap("\n\nfun main(args: Array<String>) {".htmlEscape(), "}") {
                     wrap("\n//sampleStart\n", "\n//sampleEnd\n", body)
                 }
             }
