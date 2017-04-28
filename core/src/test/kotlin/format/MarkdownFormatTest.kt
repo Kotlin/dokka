@@ -332,6 +332,30 @@ class MarkdownFormatTest {
         }
     }
 
+    @Test fun linksInEmphasis() {
+        verifyMarkdownNode("linksInEmphasis")
+    }
+
+    @Test fun linksInStrong() {
+        verifyMarkdownNode("linksInStrong")
+    }
+
+    @Test fun linksInHeaders() {
+        verifyMarkdownNode("linksInHeaders")
+    }
+
+    @Test fun tokensInEmphasis() {
+        verifyMarkdownNode("tokensInEmphasis")
+    }
+
+    @Test fun tokensInStrong() {
+        verifyMarkdownNode("tokensInStrong")
+    }
+
+    @Test fun tokensInHeaders() {
+        verifyMarkdownNode("tokensInHeaders")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false)
