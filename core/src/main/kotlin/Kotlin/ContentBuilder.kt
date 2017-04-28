@@ -87,9 +87,16 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
                     parent.append(link)
                 }
             }
-            MarkdownTokenTypes.WHITE_SPACE,
+            MarkdownTokenTypes.WHITE_SPACE -> {
+                // Don't append first space if start of header (it is added during formatting later)
+                //                   v
+                //               #### Some Heading
+                if (nodeStack.peek() !is ContentHeading || node.parent?.children?.first() != node) {
+                    parent.append(ContentText(node.text))
+                }
+            }
             MarkdownTokenTypes.EOL -> {
-                if (keepWhitespace(nodeStack.peek()) && node.parent?.children?.last() != node) {
+                if (keepEol(nodeStack.peek()) && node.parent?.children?.last() != node) {
                     parent.append(ContentText(node.text))
                 }
             }
@@ -148,7 +155,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
 
 private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH }.joinToString("") { it.text }
 
-private fun keepWhitespace(node: ContentNode) = node is ContentParagraph || node is ContentSection || node is ContentBlockCode
+private fun keepEol(node: ContentNode) = node is ContentParagraph || node is ContentSection || node is ContentBlockCode
 
 fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)
