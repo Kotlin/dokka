@@ -10,6 +10,13 @@ enum class ListKind {
     Unordered
 }
 
+private class ListState(val kind: ListKind, var size: Int = 1) {
+    fun getTagAndIncrement() = when (kind) {
+        ListKind.Ordered -> "${size++}. "
+        else -> "* "
+    }
+}
+
 private val TWO_LINE_BREAKS = System.lineSeparator() + System.lineSeparator()
 
 open class MarkdownOutputBuilder(to: StringBuilder,
@@ -20,7 +27,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
                                  impliedPlatforms: List<String>)
     : StructuredOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
 {
-    private val listKindStack = Stack<ListKind>()
+    private val listStack = ArrayDeque<ListState>()
     protected var inTableCell = false
     protected var inCodeBlock = false
     private var lastTableCellStart = -1
@@ -34,7 +41,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     private fun ensureNewline() {
-        if (inTableCell && listKindStack.isEmpty()) {
+        if (inTableCell && listStack.isEmpty()) {
             if (to.length != lastTableCellStart && !to.endsWith("<br>")) {
                 to.append("<br>")
             }
@@ -101,22 +108,22 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     override fun appendUnorderedList(body: () -> Unit) {
-        listKindStack.push(ListKind.Unordered)
+        listStack.push(ListState(ListKind.Unordered))
         body()
-        listKindStack.pop()
+        listStack.pop()
         ensureNewline()
     }
 
     override fun appendOrderedList(body: () -> Unit) {
-        listKindStack.push(ListKind.Ordered)
+        listStack.push(ListState(ListKind.Ordered))
         body()
-        listKindStack.pop()
+        listStack.pop()
         ensureNewline()
     }
 
     override fun appendListItem(body: () -> Unit) {
         ensureNewline()
-        to.append(if (listKindStack.peek() == ListKind.Unordered) "* " else "1. ")
+        to.append(listStack.peek()?.getTagAndIncrement())
         body()
         ensureNewline()
     }
@@ -151,8 +158,10 @@ open class MarkdownOutputBuilder(to: StringBuilder,
         if (inTableCell) {
             ensureNewline()
             body()
-        }
-        else {
+        } else if (listStack.isNotEmpty()) {
+            body()
+            ensureNewline()
+        } else {
             ensureParagraph()
             body()
             ensureParagraph()

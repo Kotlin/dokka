@@ -356,6 +356,14 @@ class MarkdownFormatTest {
         verifyMarkdownNode("tokensInHeaders")
     }
 
+    @Test fun unorderedLists() {
+        verifyMarkdownNode("unorderedLists")
+    }
+
+    @Test fun nestedLists() {
+        verifyMarkdownNode("nestedLists")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false)
