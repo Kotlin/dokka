@@ -96,7 +96,9 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
                 }
             }
             MarkdownTokenTypes.EOL -> {
-                if (keepEol(nodeStack.peek()) && node.parent?.children?.last() != node) {
+                if ((keepEol(nodeStack.peek()) && node.parent?.children?.last() != node) ||
+                        // Keep extra blank lines when processing lists (affects Markdown formatting)
+                        (processingList(nodeStack.peek()) && node.previous?.type == MarkdownTokenTypes.EOL)) {
                     parent.append(ContentText(node.text))
                 }
             }
@@ -156,6 +158,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
 private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH }.joinToString("") { it.text }
 
 private fun keepEol(node: ContentNode) = node is ContentParagraph || node is ContentSection || node is ContentBlockCode
+private fun processingList(node: ContentNode) = node is ContentOrderedList || node is ContentUnorderedList
 
 fun buildInlineContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (String) -> ContentBlock) {
     val inlineContent = tree.children.singleOrNull { it.type == MarkdownElementTypes.PARAGRAPH }?.children ?: listOf(tree)

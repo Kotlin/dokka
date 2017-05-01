@@ -14,6 +14,8 @@ class MarkdownNode(val node: ASTNode, val parent: MarkdownNode?, val markdown: S
     val text: String get() = node.getTextInNode(markdown).toString()
     fun child(type: IElementType): MarkdownNode? = children.firstOrNull { it.type == type }
 
+    val previous get() = parent?.children?.getOrNull(parent.children.indexOf(this) - 1)
+
     override fun toString(): String = StringBuilder().apply { presentTo(this) }.toString()
 }
 
