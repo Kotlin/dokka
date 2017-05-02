@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
+import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -22,10 +23,6 @@ import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
-
-class SourceRoot(path: String, val defaultPlatforms: List<String> = emptyList()) {
-    val path: String = File(path).absolutePath
-}
 
 class DokkaGenerator(val logger: DokkaLogger,
                      val classpath: List<String>,

@@ -11,8 +11,8 @@ import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.jetbrains.dokka.DocumentationOptions
 import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.SourceLinkDefinition
-import org.jetbrains.dokka.SourceRoot
+import org.jetbrains.dokka.SourceLinkDefinitionImpl
+import org.jetbrains.dokka.SourceRootImpl
 import java.io.File
 
 class SourceLinkMapItem {
@@ -67,12 +67,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         val gen = DokkaGenerator(
                 MavenDokkaLogger(log),
                 classpath,
-                sourceDirectories.map { SourceRoot(it) },
+                sourceDirectories.map { SourceRootImpl(it) },
                 samplesDirs,
                 includeDirs + includes,
                 moduleName,
                 DocumentationOptions(getOutDir(), getOutFormat(),
-                        sourceLinks = sourceLinks.map { SourceLinkDefinition(it.dir, it.url, it.urlSuffix) },
+                        sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.dir, it.url, it.urlSuffix) },
                         jdkVersion = jdkVersion
                 )
         )

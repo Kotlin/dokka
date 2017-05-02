@@ -3,10 +3,10 @@ package org.jetbrains.dokka
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
+import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import java.io.File
 
-class SourceLinkDefinition(val path: String, val url: String, val lineSuffix: String?)
 
 fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<SourceLinkDefinition>) {
     val path = psi?.containingFile?.virtualFile?.path ?: return

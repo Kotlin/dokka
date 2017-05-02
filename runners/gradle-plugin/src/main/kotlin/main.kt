@@ -9,9 +9,13 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.SerializeOnlyDokkaConfiguration
 import org.jetbrains.dokka.automagicTypedProxy
 import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
 import org.jetbrains.dokka.gradle.DokkaVersion.version
+import ru.yole.jkid.JsonExclude
+import ru.yole.jkid.serialization.serialize
 import java.io.File
 import java.io.InputStream
 import java.io.Serializable
@@ -69,6 +73,9 @@ open class DokkaTask : DefaultTask() {
     var jdkVersion: Int = 6
     @Input
     var sourceDirs: Iterable<File> = emptyList()
+
+    @Input var sourceRoots: MutableList<SourceRoot> = arrayListOf()
+
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
 
@@ -84,7 +91,7 @@ open class DokkaTask : DefaultTask() {
         closure.delegate = mapping
         closure.call()
 
-        if (mapping.dir.isEmpty()) {
+        if (mapping.path.isEmpty()) {
             throw IllegalArgumentException("Link mapping should have dir")
         }
         if (mapping.url.isEmpty()) {
@@ -94,6 +101,12 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
+    fun sourceRoot(closure: Closure<Any?>) {
+        val sourceRoot = SourceRoot()
+        closure.delegate = sourceRoot
+        closure.call()
+        sourceRoots.add(sourceRoot)
+    }
 
     fun tryResolveFatJar(project: Project): File {
         return try {
@@ -126,7 +139,7 @@ open class DokkaTask : DefaultTask() {
 
             val project = project
             val sdkProvider = sdkProvider
-            val sourceDirectories = getSourceDirectories()
+            val sourceRoots = collectSourceRoots()
             val allConfigurations = project.configurations
 
             val classpath =
@@ -135,7 +148,7 @@ open class DokkaTask : DefaultTask() {
                                     .map { allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found") }
                                     .flatMap { it }
 
-            if (sourceDirectories.isEmpty()) {
+            if (sourceRoots.isEmpty()) {
                 logger.warn("No source directories found: skipping dokka generation")
                 return
             }
@@ -146,17 +159,10 @@ open class DokkaTask : DefaultTask() {
 
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
-            bootstrapProxy.configure(
-                    BiConsumer { level, message ->
-                        when (level) {
-                            "info" -> logger.info(message)
-                            "warn" -> logger.warn(message)
-                            "error" -> logger.error(message)
-                        }
-                    },
+            val configuration = SerializeOnlyDokkaConfiguration(
                     moduleName,
                     classpath.map { it.absolutePath },
-                    sourceDirectories.map { it.absolutePath },
+                    sourceRoots,
                     samples.filterNotNull().map { project.file(it).absolutePath },
                     includes.filterNotNull().map { project.file(it).absolutePath },
                     outputDirectory,
@@ -168,10 +174,19 @@ open class DokkaTask : DefaultTask() {
                     skipDeprecated,
                     6,
                     true,
-                    linkMappings.map {
-                        val path = project.file(it.dir).absolutePath
-                        "$path=${it.url}${it.suffix}"
-                    })
+                    linkMappings)
+
+
+            bootstrapProxy.configure(
+                    BiConsumer { level, message ->
+                        when (level) {
+                            "info" -> logger.info(message)
+                            "warn" -> logger.warn(message)
+                            "error" -> logger.error(message)
+                        }
+                    },
+                    serialize(configuration)
+            )
 
             bootstrapProxy.generate()
 
@@ -180,7 +195,11 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    fun getSourceDirectories(): Collection<File> {
+    fun collectSourceRoots(): List<SourceRoot> {
+        if (sourceRoots.any()) {
+            return sourceRoots
+        }
+
         val provider = sdkProvider
         val sourceDirs = if (sourceDirs.any()) {
             logger.info("Dokka: Taking source directories provided by the user")
@@ -195,13 +214,13 @@ open class DokkaTask : DefaultTask() {
             sourceSets?.allSource?.srcDirs
         }
 
-        return sourceDirs?.filter { it.exists() } ?: emptyList()
+        return sourceDirs?.filter { it.exists() }?.map { SourceRoot().apply { path = it.path } } ?: emptyList()
     }
 
     @InputFiles
     @SkipWhenEmpty
     fun getInputFiles(): FileCollection =
-            project.files(getSourceDirectories().map { project.fileTree(it) }) +
+            project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
                     project.files(includes) +
                     project.files(samples.map { project.fileTree(it) })
 
@@ -213,10 +232,34 @@ open class DokkaTask : DefaultTask() {
     }
 }
 
-open class LinkMapping : Serializable {
-    var dir: String = ""
-    var url: String = ""
-    var suffix: String? = null
+class SourceRoot : DokkaConfiguration.SourceRoot {
+    override var path: String = ""
+        set(value) {
+            field = File(value).absolutePath
+        }
+
+    override var defaultPlatforms: List<String> = arrayListOf()
+}
+
+open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
+    @JsonExclude
+    var dir: String
+        get() = path
+        set(value) {
+            path = value
+        }
+
+    override var path: String = ""
+    override var url: String = ""
+
+    @JsonExclude
+    var suffix: String?
+        get() = lineSuffix
+        set(value) {
+            lineSuffix = value
+        }
+
+    override var lineSuffix: String? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -224,17 +267,17 @@ open class LinkMapping : Serializable {
 
         other as LinkMapping
 
-        if (dir != other.dir) return false
+        if (path != other.path) return false
         if (url != other.url) return false
-        if (suffix != other.suffix) return false
+        if (lineSuffix != other.lineSuffix) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = dir.hashCode()
+        var result = path.hashCode()
         result = 31 * result + url.hashCode()
-        result = 31 * result + (suffix?.hashCode() ?: 0)
+        result = 31 * result + (lineSuffix?.hashCode() ?: 0)
         return result
     }
 

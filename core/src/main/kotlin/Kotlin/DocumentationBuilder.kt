@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
+import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
@@ -873,7 +874,7 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     if (extensionReceiver != null) {
         val type = extensionReceiver.type
         val receiverClass = type.constructor.declarationDescriptor as? ClassDescriptor
-        if ((receiverClass as? ClassDescriptor)?.isCompanionObject ?: false) {
+        if (receiverClass?.isCompanionObject ?: false) {
             return receiverClass?.containingDeclaration as? ClassifierDescriptor
         }
         return receiverClass
