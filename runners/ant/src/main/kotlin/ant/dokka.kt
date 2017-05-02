@@ -17,9 +17,9 @@ class AntLogger(val task: Task): DokkaLogger {
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
 class AntSourceRoot(var path: String? = null, var platforms: String? = null) {
-    fun toSourceRoot(): SourceRoot? = path?.let {
+    fun toSourceRoot(): SourceRootImpl? = path?.let {
         path ->
-        SourceRoot(path, platforms?.split(',').orEmpty())
+        SourceRootImpl(path, platforms?.split(',').orEmpty())
     }
 }
 
@@ -104,13 +104,13 @@ class DokkaAntTask: Task() {
         val sourceLinks = antSourceLinks.map {
             val path = it.path ?: throw BuildException("'path' attribute of a <sourceLink> element is required")
             val url = it.url ?: throw BuildException("'url' attribute of a <sourceLink> element is required")
-            SourceLinkDefinition(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
+            SourceLinkDefinitionImpl(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
 
         val generator = DokkaGenerator(
                 AntLogger(this),
                 compileClasspath.list().toList(),
-                sourcePath.list().map { SourceRoot(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
+                sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
                 moduleName!!,

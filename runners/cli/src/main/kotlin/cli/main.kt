@@ -65,7 +65,7 @@ object MainKt {
         val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
 
         val sourceLinks = if (arguments.srcLink.isNotEmpty() && arguments.srcLink.contains("="))
-            listOf(parseSourceLinkDefinition(arguments.srcLink))
+            listOf(SourceLinkDefinitionImpl.parseSourceLinkDefinition(arguments.srcLink))
         else {
             if (arguments.srcLink.isNotEmpty()) {
                 println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
@@ -87,7 +87,7 @@ object MainKt {
         val generator = DokkaGenerator(
                 DokkaConsoleLogger,
                 classPath,
-                sources.map(::parseSourceRoot),
+                sources.map(SourceRootImpl.Companion::parseSourceRoot),
                 samples,
                 includes,
                 arguments.moduleName,

@@ -27,12 +27,9 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-        maven {
-            url  "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-        }
-        maven {
-            url "https://dl.bintray.com/kotlin/kotlin-dev"
-        }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+        maven { url 'https://jitpack.io' }
     }
 }
 
