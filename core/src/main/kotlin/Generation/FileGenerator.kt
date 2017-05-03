@@ -10,6 +10,8 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService
+    @set:Inject(optional = true) lateinit var options: DocumentationOptions
+    @set:Inject(optional = true) var packageListService: PackageListService? = null
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val specificLocationService = locationService.withExtension(formatService.extension)
@@ -50,6 +52,21 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
             }
         }
     }
+
+    override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
+        if (packageListService == null) return
+
+        for (module in nodes) {
+
+            val moduleRoot = locationService.location(module).file.parentFile
+            val packageListFile = File(moduleRoot, "package-list")
+
+            packageListFile.writeText("\$dokka.format:${options.outputFormat}\n" +
+                    packageListService!!.formatPackageList(module as DocumentationModule))
+        }
+
+    }
+
 }
 
 private fun File.mkdirsOrFail() {

@@ -5,6 +5,8 @@ import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Args
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Argument
 import java.io.File
+import java.net.MalformedURLException
+import java.net.URL
 import java.net.URLClassLoader
 
 class DokkaArguments {
@@ -51,10 +53,32 @@ class DokkaArguments {
 
     @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented;...\" ")
     var packageOptions: String = ""
+
+    @set:Argument(value = "links", description = "")
+    var links: String = ""
 }
 
 
 object MainKt {
+
+    fun parseLinks(links: String): List<DokkaConfiguration.ExternalDocumentationLink> {
+        val (parsedLinks, parsedOfflineLinks) = links.split("^^")
+                .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
+                .filter { it.isNotEmpty() }
+                .partition { it.size == 1 }
+
+        return parsedLinks.map { (root) -> ExternalDocumentationLinkImpl(root) } +
+                parsedOfflineLinks.map { (root, packageList) ->
+                    val rootUrl = URL(root)
+                    val packageListUrl =
+                            try {
+                                URL(packageList)
+                            } catch (ex: MalformedURLException) {
+                                File(packageList).toURI().toURL()
+                            }
+                    ExternalDocumentationLinkImpl(rootUrl, packageListUrl)
+                }
+    }
 
     @JvmStatic
     fun entry(args: Array<String>) {
@@ -81,7 +105,9 @@ object MainKt {
                 skipDeprecated = arguments.nodeprecated,
                 sourceLinks = sourceLinks,
                 impliedPlatforms = arguments.impliedPlatforms.split(','),
-                perPackageOptions = parsePerPackageOptions(arguments.packageOptions)
+                perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
+                jdkVersion = arguments.jdkVersion,
+                externalDocumentationLinks = parseLinks(arguments.links)
         )
 
         val generator = DokkaGenerator(

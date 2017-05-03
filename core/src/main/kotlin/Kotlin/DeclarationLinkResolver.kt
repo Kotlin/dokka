@@ -14,7 +14,9 @@ class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                             val refGraph: NodeReferenceGraph,
                             val logger: DokkaLogger,
-                            val options: DocumentationOptions) {
+                            val options: DocumentationOptions,
+                            val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver) {
+
     fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock {
         val symbol = try {
             val symbols = resolveKDocLink(resolutionFacade.resolveSession.bindingContext,
@@ -27,9 +29,9 @@ class DeclarationLinkResolver
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbol != null) {
-            val jdkHref = buildJdkLink(symbol)
-            if (jdkHref != null) {
-                return ContentExternalLink(jdkHref)
+            val externalHref = externalDocumentationLinkResolver.buildExternalDocumentationLink(symbol)
+            if (externalHref != null) {
+                return ContentExternalLink(externalHref)
             }
             return ContentNodeLazyLink(href, { -> refGraph.lookupOrWarn(symbol.signature(), logger) })
         }
@@ -51,26 +53,4 @@ class DeclarationLinkResolver
         return symbol
     }
 
-    fun buildJdkLink(symbol: DeclarationDescriptor): String? {
-        if (symbol is JavaClassDescriptor) {
-            val fqName = DescriptorUtils.getFqName(symbol)
-            if (fqName.startsWith(Name.identifier("java")) || fqName.startsWith(Name.identifier("javax"))) {
-                return javadocRoot + fqName.asString().replace(".", "/") + ".html"
-            }
-        }
-        else if (symbol is JavaMethodDescriptor) {
-            val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
-            val containingClassLink = buildJdkLink(containingClass)
-            if (containingClassLink != null) {
-                val psi = symbol.sourcePsi() as? PsiMethod
-                if (psi != null) {
-                    val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
-                    return containingClassLink + "#" + symbol.name + "(" + params + ")"
-                }
-            }
-        }
-        return null
-    }
-
-    private val javadocRoot = "http://docs.oracle.com/javase/${options.jdkVersion}/docs/api/"
 }

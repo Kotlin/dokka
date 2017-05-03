@@ -109,7 +109,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     }
 }
 
-class DokkaMessageCollector(val logger: DokkaLogger): MessageCollector {
+class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
     override fun clear() {
         seenErrors = false
     }

@@ -62,6 +62,7 @@ enum class NodeKind {
 
     companion object {
         val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)
+        val memberLike = setOf(Function, Property, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem)
     }
 }
 

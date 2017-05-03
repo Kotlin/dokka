@@ -32,7 +32,7 @@ class FunctionTest {
                     assertEquals("Function with receiver", content.summary.toTestString())
                     assertEquals("public", details.elementAt(0).name)
                     assertEquals("final", details.elementAt(1).name)
-                    with(details.elementAt(2)) {
+                    with(details.elementAt(3)) {
                         assertEquals("<this>", name)
                         assertEquals(NodeKind.Receiver, kind)
                         assertEquals(Content.Empty, content)
@@ -40,7 +40,7 @@ class FunctionTest {
                         assertTrue(members.none())
                         assertTrue(links.none())
                     }
-                    assertEquals("Unit", details.elementAt(3).name)
+                    assertEquals("Unit", details.elementAt(4).name)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
@@ -61,7 +61,7 @@ class FunctionTest {
 
                 assertEquals("private", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
-                with(details.elementAt(2)) {
+                with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
@@ -69,7 +69,7 @@ class FunctionTest {
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                assertEquals("Unit", details.elementAt(3).name)
+                assertEquals("Unit", details.elementAt(4).name)
 
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -85,7 +85,7 @@ class FunctionTest {
 
                 assertEquals("public", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
-                with(details.elementAt(2)) {
+                with(details.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
@@ -100,14 +100,14 @@ class FunctionTest {
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                with(details.elementAt(3)) {
+                with(details.elementAt(4)) {
                     assertEquals("R", name)
                     assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                assertEquals("Unit", details.elementAt(4).name)
+                assertEquals("Unit", details.elementAt(5).name)
 
                 assertTrue(members.none())
                 assertTrue(links.none())
@@ -126,7 +126,7 @@ Documentation""", content.description.toTestString())
 
                 assertEquals("public", details.elementAt(0).name)
                 assertEquals("final", details.elementAt(1).name)
-                with(details.elementAt(2)) {
+                with(details.elementAt(3)) {
                     assertEquals("x", name)
                     assertEquals(NodeKind.Parameter, kind)
                     assertEquals("parameter", content.summary.toTestString())
@@ -134,7 +134,7 @@ Documentation""", content.description.toTestString())
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                assertEquals("Unit", details.elementAt(3).name)
+                assertEquals("Unit", details.elementAt(4).name)
                 assertTrue(members.none())
                 assertTrue(links.none())
             }
@@ -167,8 +167,8 @@ Documentation""", content.description.toTestString())
 
     @Test fun functionWithAnnotatedParam() {
         verifyModel("testdata/functions/functionWithAnnotatedParam.kt") { model ->
-            with(model.members.single().members.single { it.name == "function"} ) {
-                with(details.elementAt(2)) {
+            with(model.members.single().members.single { it.name == "function" }) {
+                with(details(NodeKind.Parameter).first()) {
                     assertEquals(1, annotations.count())
                     with(annotations[0]) {
                         assertEquals("Fancy", name)
@@ -182,7 +182,7 @@ Documentation""", content.description.toTestString())
 
     @Test fun functionWithNoinlineParam() {
         verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt") { func ->
-            with(func.details.elementAt(2)) {
+            with(func.details(NodeKind.Parameter).first()) {
                 val modifiers = details(NodeKind.Modifier).map { it.name }
                 assertTrue("noinline" in modifiers)
             }
@@ -191,7 +191,7 @@ Documentation""", content.description.toTestString())
 
     @Test fun annotatedFunctionWithAnnotationParameters() {
         verifyModel("testdata/functions/annotatedFunctionWithAnnotationParameters.kt") { model ->
-            with(model.members.single().members.single { it.name == "f"}) {
+            with(model.members.single().members.single { it.name == "f" }) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {
                     assertEquals("Fancy", name)
@@ -214,7 +214,7 @@ Documentation""", content.description.toTestString())
     @Test fun functionWithDefaultParameter() {
         verifyModel("testdata/functions/functionWithDefaultParameter.kt") { model ->
             with(model.members.single().members.single()) {
-                with(details.elementAt(2)) {
+                with(details.elementAt(3)) {
                     val value = details(NodeKind.Value)
                     assertEquals(1, value.count())
                     with(value[0]) {
