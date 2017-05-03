@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
+import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
@@ -44,20 +45,18 @@ class DocumentationOptions(val outputDir: String,
                            val impliedPlatforms: List<String> = emptyList(),
                            // Sorted by pattern length
                            perPackageOptions: List<PackageOptions> = emptyList()) {
-    val perPackageOptions = perPackageOptions.sortedByDescending { it.prefix.length } + PackageOptions("", includeNonPublic, reportUndocumented, skipDeprecated)
 
+    init {
+        if (perPackageOptions.any { it.prefix == "" })
+            throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
+    }
 
-    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.first { pack.startsWith(it.prefix) }
+    val perPackageOptions = perPackageOptions.sortedByDescending { it.prefix.length }
+    val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated)
+
+    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
 }
-
-
-data class PackageOptions(val prefix: String,
-                          val includeNonPublic: Boolean = false,
-                          val reportUndocumented: Boolean = true,
-                          val skipDeprecated: Boolean = false)
-
-
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
                                         extensionReceiverDescriptor: DeclarationDescriptor,
