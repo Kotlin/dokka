@@ -3,8 +3,7 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
-import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
-import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
+import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
@@ -39,13 +38,13 @@ class DocumentationOptions(val outputDir: String,
                            reportUndocumented: Boolean = true,
                            val skipEmptyPackages: Boolean = true,
                            skipDeprecated: Boolean = false,
-                           val jdkVersion: Int = 6,
+                           jdkVersion: Int = 6,
                            val generateIndexPages: Boolean = true,
                            val sourceLinks: List<SourceLinkDefinition> = emptyList(),
                            val impliedPlatforms: List<String> = emptyList(),
                            // Sorted by pattern length
-                           perPackageOptions: List<PackageOptions> = emptyList()) {
-
+                           perPackageOptions: List<PackageOptions> = emptyList(),
+                           externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -56,6 +55,8 @@ class DocumentationOptions(val outputDir: String,
 
     fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
+
+    val externalDocumentationLinks = listOf(ExternalDocumentationLinkImpl("http://docs.oracle.com/javase/$jdkVersion/docs/api/")) + externalDocumentationLinks
 }
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
@@ -114,6 +115,7 @@ class DocumentationBuilder
     fun <T> nodeForDescriptor(descriptor: T, kind: NodeKind): DocumentationNode where T : DeclarationDescriptor, T : Named {
         val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor, kind == NodeKind.Parameter)
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
+        node.appendSignature(descriptor)
         callback(node)
         return node
     }
@@ -207,9 +209,9 @@ class DocumentationBuilder
             node.appendTextNode("?", NodeKind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
-            val jdkLink = linkResolver.buildJdkLink(classifierDescriptor)
-            if (jdkLink != null) {
-                node.append(DocumentationNode(jdkLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+            val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(classifierDescriptor)
+            if (externalLink != null) {
+                node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
             } else {
                 link(node, classifierDescriptor,
                         if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
@@ -598,7 +600,6 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
-        node.appendSignature(this)
         node.appendDefaultPlatforms(this)
 
         overriddenDescriptors.forEach {
@@ -628,7 +629,6 @@ class DocumentationBuilder
         node.appendAnnotations(this)
         node.appendModifiers(this)
         node.appendSourceLink(source)
-        node.appendSignature(this)
         if (isVar) {
             node.appendTextNode("var", NodeKind.Modifier)
         }
@@ -680,7 +680,6 @@ class DocumentationBuilder
         }
         node.appendAnnotations(this)
         node.appendModifiers(this)
-        node.appendSignature(this)
         if (varargElementType != null && node.details(NodeKind.Modifier).none { it.name == "vararg" }) {
             node.appendTextNode("vararg", NodeKind.Modifier)
         }

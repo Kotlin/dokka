@@ -79,6 +79,8 @@ class DokkaOutputModule(val options: DocumentationOptions,
 
         binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
 
+        descriptor.packageListServiceClass?.let { binder.bind<PackageListService>().to(it.java) }
+
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
         binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(options.impliedPlatforms)

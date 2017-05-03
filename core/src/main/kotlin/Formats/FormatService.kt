@@ -11,6 +11,10 @@ interface FormatService {
     /** Returns extension for output files */
     val extension: String
 
+    /** extension which will be used for internal and external linking */
+    val linkExtension: String
+        get() = extension
+
     fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder
 
     fun enumerateSupportFiles(callback: (resource: String, targetPath: String) -> Unit) {

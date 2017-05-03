@@ -5,8 +5,10 @@ import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
+import kotlin.reflect.KClass
 
-class JavadocGenerator @Inject constructor (val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
+class JavadocGenerator @Inject constructor(val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
+
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single() as DocumentationModule
 
@@ -20,6 +22,10 @@ class JavadocGenerator @Inject constructor (val options: DocumentationOptions, v
 
     override fun buildSupportFiles() {
     }
+
+    override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
+        // handled by javadoc itself
+    }
 }
 
 class JavadocFormatDescriptor : FormatDescriptor {
@@ -29,4 +35,5 @@ class JavadocFormatDescriptor : FormatDescriptor {
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
+    override val packageListServiceClass: KClass<out PackageListService>? = null
 }

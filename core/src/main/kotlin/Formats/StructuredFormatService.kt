@@ -290,16 +290,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 for ((name, items) in breakdownByName) {
                     if (!noHeader)
                         appendHeader { appendText(name) }
-                    appendDocumentation(items)
+                    appendDocumentation(items, singleNode != null)
                 }
             }
         }
 
-        private fun appendDocumentation(overloads: Iterable<DocumentationNode>) {
+        private fun appendDocumentation(overloads: Iterable<DocumentationNode>, isSingleNode: Boolean) {
             val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
 
             if (breakdownBySummary.size == 1) {
-                formatOverloadGroup(breakdownBySummary.values.single())
+                formatOverloadGroup(breakdownBySummary.values.single(), isSingleNode)
             } else {
                 for ((_, items) in breakdownBySummary) {
 
@@ -311,12 +311,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun formatOverloadGroup(items: List<DocumentationNode>) {
+        private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
             for ((index, item) in items.withIndex()) {
                 if (index > 0) appendLine()
                 val rendered = languageService.render(item)
                 item.detailOrNull(NodeKind.Signature)?.let {
-                    appendAnchor(it.name)
+                    if (item.kind !in NodeKind.classLike || !isSingleNode)
+                        appendAnchor(it.name)
                 }
                 appendAsSignature(rendered) {
                     appendCode { appendContent(rendered) }
@@ -439,7 +440,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     inner class GroupNodePageBuilder(val node: DocumentationNode) : PageBuilder(listOf(node)) {
 
         override fun build() {
-
             val breakdownByLocation = node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
 
             appendBreadcrumbs(breakdownByLocation)
@@ -658,6 +658,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 abstract class StructuredFormatService(locationService: LocationService,
                                        val languageService: LanguageService,
                                        override val extension: String,
-                                       linkExtension: String = extension) : FormatService {
+                                       override final val linkExtension: String = extension) : FormatService {
     val locationService: LocationService = locationService.withExtension(linkExtension)
 }
