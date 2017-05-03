@@ -82,6 +82,8 @@ open class DokkaTask : DefaultTask() {
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
     @Input var reportNotDocumented = true
+    @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
+    @Input var impliedPlatforms: MutableList<String> = arrayListOf()
 
 
     protected open val sdkProvider: SdkProvider? = null
@@ -106,6 +108,13 @@ open class DokkaTask : DefaultTask() {
         closure.delegate = sourceRoot
         closure.call()
         sourceRoots.add(sourceRoot)
+    }
+
+    fun packageOptions(closure: Closure<Any?>) {
+        val packageOptions = PackageOptions()
+        closure.delegate = packageOptions
+        closure.call()
+        perPackageOptions.add(packageOptions)
     }
 
     fun tryResolveFatJar(project: Project): File {
@@ -172,9 +181,11 @@ open class DokkaTask : DefaultTask() {
                     reportNotDocumented,
                     skipEmptyPackages,
                     skipDeprecated,
-                    6,
+                    jdkVersion,
                     true,
-                    linkMappings)
+                    linkMappings,
+                    impliedPlatforms,
+                    perPackageOptions)
 
 
             bootstrapProxy.configure(
@@ -238,7 +249,7 @@ class SourceRoot : DokkaConfiguration.SourceRoot {
             field = File(value).absolutePath
         }
 
-    override var defaultPlatforms: List<String> = arrayListOf()
+    override var platforms: List<String> = arrayListOf()
 }
 
 open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
@@ -286,6 +297,12 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     }
 }
 
+class PackageOptions : DokkaConfiguration.PackageOptions {
+    override var prefix: String = ""
+    override var includeNonPublic: Boolean = false
+    override var reportUndocumented: Boolean = true
+    override var skipDeprecated: Boolean = false
+}
 /**
  * A provider for SDKs that can be used if a project uses classes that live outside the JDK or uses a
  * different method to determine the source directories.

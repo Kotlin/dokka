@@ -9,10 +9,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
-import org.jetbrains.dokka.DocumentationOptions
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.SourceLinkDefinitionImpl
-import org.jetbrains.dokka.SourceRootImpl
+import org.jetbrains.dokka.*
 import java.io.File
 
 class SourceLinkMapItem {
@@ -27,8 +24,30 @@ class SourceLinkMapItem {
 }
 
 abstract class AbstractDokkaMojo : AbstractMojo() {
+    class SourceRoot : DokkaConfiguration.SourceRoot {
+        @Parameter(required = true)
+        override var path: String = ""
+
+        @Parameter
+        override var platforms: List<String> = emptyList()
+    }
+
+    class PackageOptions : DokkaConfiguration.PackageOptions {
+        @Parameter
+        override var prefix: String = ""
+        @Parameter
+        override var includeNonPublic: Boolean = false
+        @Parameter
+        override var reportUndocumented: Boolean = true
+        @Parameter
+        override var skipDeprecated: Boolean = false
+    }
+
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
+
+    @Parameter
+    var sourceRoots: List<SourceRoot> = emptyList()
 
     @Parameter
     var samplesDirs: List<String> = emptyList()
@@ -55,6 +74,19 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(required = false, defaultValue = "6")
     var jdkVersion: Int = 6
 
+    @Parameter
+    var skipDeprecated = false
+    @Parameter
+    var skipEmptyPackages = true
+    @Parameter
+    var reportNotDocumented = true
+
+    @Parameter
+    var impliedPlatforms: List<String> = emptyList()
+
+    @Parameter
+    var perPackageOptions: List<PackageOptions> = emptyList()
+
     protected abstract fun getOutDir(): String
     protected abstract fun getOutFormat(): String
 
@@ -67,13 +99,18 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         val gen = DokkaGenerator(
                 MavenDokkaLogger(log),
                 classpath,
-                sourceDirectories.map { SourceRootImpl(it) },
+                sourceDirectories.map { SourceRootImpl(it) } + sourceRoots,
                 samplesDirs,
                 includeDirs + includes,
                 moduleName,
                 DocumentationOptions(getOutDir(), getOutFormat(),
                         sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.dir, it.url, it.urlSuffix) },
-                        jdkVersion = jdkVersion
+                        jdkVersion = jdkVersion,
+                        skipDeprecated = skipDeprecated,
+                        skipEmptyPackages = skipEmptyPackages,
+                        reportUndocumented = reportNotDocumented,
+                        impliedPlatforms = impliedPlatforms,
+                        perPackageOptions = perPackageOptions
                 )
         )
 

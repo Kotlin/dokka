@@ -23,16 +23,11 @@ class AntSourceRoot(var path: String? = null, var platforms: String? = null) {
     }
 }
 
-class AntPackageOptions(var prefix: String = "",
-                        var includeNonPublic: Boolean = false,
-                        var reportUndocumented: Boolean = true,
-                        var skipDeprecated: Boolean = false) {
-    fun toPackageOptions(): PackageOptions {
-        if(prefix == "")
-            throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
-        return PackageOptions(prefix, includeNonPublic, reportUndocumented, skipDeprecated)
-    }
-}
+class AntPackageOptions(
+        override var prefix: String = "",
+        override var includeNonPublic: Boolean = false,
+        override var reportUndocumented: Boolean = true,
+        override var skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
 
 
 class DokkaAntTask: Task() {
@@ -119,7 +114,7 @@ class DokkaAntTask: Task() {
                         sourceLinks = sourceLinks,
                         jdkVersion = jdkVersion,
                         impliedPlatforms = impliedPlatforms.split(','),
-                        perPackageOptions = antPackageOptions.map { it.toPackageOptions() })
+                        perPackageOptions = antPackageOptions)
         )
         generator.generate()
     }

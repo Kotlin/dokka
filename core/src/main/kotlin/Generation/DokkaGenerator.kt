@@ -35,7 +35,7 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.defaultPlatforms.firstOrNull() }
+        val sourcesGroupedByPlatform = sources.groupBy { it.platforms.firstOrNull() }
         for ((platform, roots) in sourcesGroupedByPlatform) {
             appendSourceModule(platform, roots)
         }
@@ -67,7 +67,7 @@ class DokkaGenerator(val logger: DokkaLogger,
                 val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
                         ?.let { File(it).absolutePath }
                 val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
-                return sourceRoot?.defaultPlatforms ?: defaultPlatformAsList
+                return sourceRoot?.platforms ?: defaultPlatformAsList
             }
         }
 

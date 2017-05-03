@@ -18,7 +18,7 @@ data class SourceLinkDefinitionImpl(override val path: String,
     }
 }
 
-class SourceRootImpl(path: String, override val defaultPlatforms: List<String> = emptyList()) : SourceRoot {
+class SourceRootImpl(path: String, override val platforms: List<String> = emptyList()) : SourceRoot {
     override val path: String = File(path).absolutePath
 
     companion object {
@@ -28,6 +28,11 @@ class SourceRootImpl(path: String, override val defaultPlatforms: List<String> =
         }
     }
 }
+
+data class PackageOptionsImpl(override val prefix: String,
+                              override val includeNonPublic: Boolean = false,
+                              override val reportUndocumented: Boolean = true,
+                              override val skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
 
 data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val classpath: List<String>,
@@ -43,4 +48,6 @@ data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val skipDeprecated: Boolean,
                                   override val jdkVersion: Int,
                                   override val generateIndexPages: Boolean,
-                                  override val sourceLinks: List<SourceLinkDefinitionImpl>) : DokkaConfiguration
+                                  override val sourceLinks: List<SourceLinkDefinitionImpl>,
+                                  override val impliedPlatforms: List<String>,
+                                  override val perPackageOptions: List<PackageOptionsImpl>) : DokkaConfiguration
