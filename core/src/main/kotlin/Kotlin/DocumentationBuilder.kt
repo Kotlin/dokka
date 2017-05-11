@@ -548,7 +548,7 @@ class DocumentationBuilder
                 .mapTo(result) { ClassMember(it, extraModifier = "static") }
 
         val companionObjectDescriptor = companionObjectDescriptor
-        if (companionObjectDescriptor != null) {
+        if (companionObjectDescriptor != null && companionObjectDescriptor.isDocumented(options)) {
             val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
             val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
             descriptorsToDocument.mapTo(result) {

@@ -280,4 +280,14 @@ class ClassTest {
             }
         }
     }
+
+    @Test fun privateCompanionObject() {
+        verifyModel("testdata/classes/privateCompanionObject.kt", includeNonPublic = false) { model ->
+            with(model.members.single().members.single()) {
+                assertEquals(0, members(NodeKind.CompanionObjectFunction).size)
+                assertEquals(0, members(NodeKind.CompanionObjectProperty).size)
+            }
+        }
+    }
+
 }
