@@ -6,6 +6,7 @@ import org.apache.tools.ant.Task
 import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {
@@ -47,6 +48,7 @@ class DokkaAntTask: Task() {
     val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
     val antSourceRoots: MutableList<AntSourceRoot> = arrayListOf()
     val antPackageOptions: MutableList<AntPackageOptions> = arrayListOf()
+    val antExternalDocumentationLinks = mutableListOf<ExternalDocumentationLink.Builder>()
 
     fun setClasspath(classpath: Path) {
         compileClasspath.append(classpath)
@@ -86,6 +88,8 @@ class DokkaAntTask: Task() {
 
     fun createPackageOptions(): AntPackageOptions = AntPackageOptions().apply { antPackageOptions.add(this) }
 
+    fun createExternalDocumentationLink() = ExternalDocumentationLink.Builder().apply { antExternalDocumentationLinks.add(this) }
+
     override fun execute() {
         if (sourcePath.list().isEmpty() && antSourceRoots.isEmpty()) {
             throw BuildException("At least one source path needs to be specified")
@@ -114,7 +118,9 @@ class DokkaAntTask: Task() {
                         sourceLinks = sourceLinks,
                         jdkVersion = jdkVersion,
                         impliedPlatforms = impliedPlatforms.split(','),
-                        perPackageOptions = antPackageOptions)
+                        perPackageOptions = antPackageOptions,
+                        externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() }
+                )
         )
         generator.generate()
     }

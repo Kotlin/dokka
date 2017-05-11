@@ -56,7 +56,7 @@ class DocumentationOptions(val outputDir: String,
     fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
 
-    val externalDocumentationLinks = listOf(ExternalDocumentationLinkImpl("http://docs.oracle.com/javase/$jdkVersion/docs/api/")) + externalDocumentationLinks
+    val externalDocumentationLinks = listOf(ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()) + externalDocumentationLinks
 }
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
