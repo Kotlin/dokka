@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Args
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Argument
@@ -61,13 +62,13 @@ class DokkaArguments {
 
 object MainKt {
 
-    fun parseLinks(links: String): List<DokkaConfiguration.ExternalDocumentationLink> {
+    fun parseLinks(links: String): List<ExternalDocumentationLink> {
         val (parsedLinks, parsedOfflineLinks) = links.split("^^")
                 .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
                 .filter { it.isNotEmpty() }
                 .partition { it.size == 1 }
 
-        return parsedLinks.map { (root) -> ExternalDocumentationLinkImpl(root) } +
+        return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
                 parsedOfflineLinks.map { (root, packageList) ->
                     val rootUrl = URL(root)
                     val packageListUrl =
@@ -76,7 +77,7 @@ object MainKt {
                             } catch (ex: MalformedURLException) {
                                 File(packageList).toURI().toURL()
                             }
-                    ExternalDocumentationLinkImpl(rootUrl, packageListUrl)
+                    ExternalDocumentationLink.Builder(rootUrl, packageListUrl).build()
                 }
     }
 

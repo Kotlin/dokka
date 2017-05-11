@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import java.io.File
-import java.net.URL
 
 
 data class SourceLinkDefinitionImpl(override val path: String,
@@ -35,16 +34,6 @@ data class PackageOptionsImpl(override val prefix: String,
                               override val reportUndocumented: Boolean = true,
                               override val skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
 
-data class ExternalDocumentationLinkImpl(override val url: URL,
-                                         override val packageListUrl: URL) : DokkaConfiguration.ExternalDocumentationLink {
-    constructor(root: URL) : this(root, URL(root, "package-list"))
-
-    constructor(root: String) : this(URL(root))
-
-    constructor(root: String, packageListUrl: String) : this(URL(root), URL(packageListUrl))
-
-}
-
 data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val classpath: List<String>,
                                   override val sourceRoots: List<SourceRootImpl>,
@@ -61,4 +50,5 @@ data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val generateIndexPages: Boolean,
                                   override val sourceLinks: List<SourceLinkDefinitionImpl>,
                                   override val impliedPlatforms: List<String>,
-                                  override val perPackageOptions: List<PackageOptionsImpl>) : DokkaConfiguration
+                                  override val perPackageOptions: List<PackageOptionsImpl>,
+                                  override val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>) : DokkaConfiguration

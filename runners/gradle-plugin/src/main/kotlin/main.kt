@@ -85,6 +85,8 @@ open class DokkaTask : DefaultTask() {
     @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
     @Input var impliedPlatforms: MutableList<String> = arrayListOf()
 
+    @Input var externalDocumentationLinks = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
+
 
     protected open val sdkProvider: SdkProvider? = null
 
@@ -115,6 +117,13 @@ open class DokkaTask : DefaultTask() {
         closure.delegate = packageOptions
         closure.call()
         perPackageOptions.add(packageOptions)
+    }
+
+    fun externalDocumentationLink(closure: Closure<Any?>) {
+        val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
+        closure.delegate = builder
+        closure.call()
+        externalDocumentationLinks.add(builder.build())
     }
 
     fun tryResolveFatJar(project: Project): File {
@@ -185,7 +194,8 @@ open class DokkaTask : DefaultTask() {
                     true,
                     linkMappings,
                     impliedPlatforms,
-                    perPackageOptions)
+                    perPackageOptions,
+                    externalDocumentationLinks)
 
 
             bootstrapProxy.configure(
