@@ -1,14 +1,9 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
-import com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
-import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
@@ -17,7 +12,8 @@ class DeclarationLinkResolver
                             val options: DocumentationOptions,
                             val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver) {
 
-    fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock {
+
+    fun tryResolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock? {
         val symbol = try {
             val symbols = resolveKDocLink(resolutionFacade.resolveSession.bindingContext,
                     resolutionFacade, fromDescriptor, null, href.split('.').toList())
@@ -38,9 +34,14 @@ class DeclarationLinkResolver
         if ("/" in href) {
             return ContentExternalLink(href)
         }
-        logger.warn("Unresolved link to $href in doc comment of ${fromDescriptor.signatureWithSourceLocation()}")
-        return ContentExternalLink("#")
+        return null
     }
+
+    fun resolveContentLink(fromDescriptor: DeclarationDescriptor, href: String) =
+            tryResolveContentLink(fromDescriptor, href) ?: run {
+                logger.warn("Unresolved link to $href in doc comment of ${fromDescriptor.signatureWithSourceLocation()}")
+                ContentExternalLink("#")
+            }
 
     fun findTargetSymbol(symbols: Collection<DeclarationDescriptor>): DeclarationDescriptor? {
         if (symbols.isEmpty()) {
