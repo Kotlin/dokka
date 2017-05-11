@@ -34,7 +34,7 @@ open class JekyllFormatService(locationService: LocationService,
 
     @Inject constructor(locationService: LocationService,
                         signatureGenerator: LanguageService,
-                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "md", impliedPlatforms)
+                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "html", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
         JekyllOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
