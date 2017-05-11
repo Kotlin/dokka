@@ -17,7 +17,7 @@ class PackageDocs
     val packageContent: Map<String, Content>
         get() = _packageContent
 
-    fun parse(fileName: String, linkResolveContext: LazyPackageDescriptor?) {
+    fun parse(fileName: String, linkResolveContext: List<LazyPackageDescriptor>) {
         val file = File(fileName)
         if (file.exists()) {
             val text = file.readText()
@@ -51,9 +51,14 @@ class PackageDocs
     private fun findOrCreatePackageContent(packageName: String) =
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
-    private fun resolveContentLink(href: String, linkResolveContext: LazyPackageDescriptor?): ContentBlock {
-        if (linkResolveContext != null && linkResolver != null) {
-            return linkResolver.resolveContentLink(linkResolveContext, href)
+    private fun resolveContentLink(href: String, linkResolveContext: List<LazyPackageDescriptor>): ContentBlock {
+        if (linkResolver != null) {
+            linkResolveContext
+                    .asSequence()
+                    .map { p -> linkResolver.tryResolveContentLink(p, href) }
+                    .filterNotNull()
+                    .firstOrNull()
+                    ?.let { return it }
         }
         return ContentExternalLink("#")
     }

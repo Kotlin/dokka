@@ -145,7 +145,7 @@ fun buildDocumentationModule(injector: Injector,
 
     val packageDocs = injector.getInstance(PackageDocs::class.java)
     for (include in includes) {
-        packageDocs.parse(include, fragments.firstOrNull())
+        packageDocs.parse(include, fragments)
     }
     if (documentationModule.content.isEmpty()) {
         documentationModule.updateContent {
