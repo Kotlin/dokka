@@ -217,10 +217,11 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         is Content -> {
             surroundWith(module, holder, "<p>", "</p>", node.summary, result)
             surroundWith(module, holder, "<p>", "</p>", node.description, result)
-//            node.sections.forEach {
-//                buildInlineTags(module, holder, it, result)
-//            }
         }
+        is ContentBlock -> {
+            surroundWith(module, holder, "", "", node, result)
+        }
+        is ContentHardLineBreak -> result.add(TextTag(holder, ContentText("<br/>")))
 
         else -> result.add(TextTag(holder, ContentText("$node")))
     }

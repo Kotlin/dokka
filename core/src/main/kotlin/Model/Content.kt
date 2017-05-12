@@ -89,6 +89,11 @@ abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?
 }
 
+object ContentHardLineBreak : ContentNode {
+    override val textLength: Int
+        get() = 0
+}
+
 class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLink() {
     override fun equals(other: Any?): Boolean =
             super.equals(other) && other is ContentNodeDirectLink && node.name == other.node.name
@@ -153,6 +158,7 @@ fun ContentBlock.identifier(value: String, kind: IdentifierKind = IdentifierKind
 fun ContentBlock.nbsp() = append(ContentNonBreakingSpace)
 fun ContentBlock.softLineBreak() = append(ContentSoftLineBreak)
 fun ContentBlock.indentedSoftLineBreak() = append(ContentIndentedSoftLineBreak)
+fun ContentBlock.hardLineBreak() = append(ContentHardLineBreak)
 
 fun ContentBlock.strong(body: ContentBlock.() -> Unit) {
     val strong = ContentStrong()

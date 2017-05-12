@@ -94,6 +94,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
         "ol" -> ContentOrderedList()
         "li" -> ContentListItem()
         "a" -> createLink(element)
+        "br" -> ContentBlock().apply { hardLineBreak() }
         else -> ContentBlock()
     }
 
