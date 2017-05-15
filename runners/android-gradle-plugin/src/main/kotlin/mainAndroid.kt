@@ -46,7 +46,7 @@ private class AndroidSdkProvider(private val project: Project) : SdkProvider {
 
     private val allVariantsClassPath by lazy {
         try {
-            variantManager?.variantDataList?.flatMap { it.variantConfiguration.compileClasspath }.orEmpty()
+            variantManager?.variantDataList?.flatMap { it.variantConfiguration.compileClasspath }!!
         } catch(e: Exception) {
             throw Exception("Unsupported version of android build tools, could not access variant manager.", e)
         }
