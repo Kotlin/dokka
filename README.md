@@ -8,52 +8,140 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ## Using Dokka
 
-### Using the Command Line
+### Using the Gradle plugin
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.10/dokka-fatjar.jar).
-To generate documentation, run the following command:
+```groovy
+buildscript {
+    repositories {
+        jcenter()
+    }
 
-    java -jar dokka-fatjar.jar <source directories> <arguments>
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+    }
+}
 
-Dokka supports the following command line arguments:
-
-  * `-output` - the output directory where the documentation is generated
-  * `-format` - the output format:
-    * `html` - HTML (default)
-    * `markdown` - Markdown
-    * `gfm` - GitHub-Flavored Markdown
-    * `jekyll` - Markdown adapted for Jekyll sites
-    * `javadoc` - Javadoc (showing how the project can be accessed from Java)
-  * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
-  * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
-  * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
-  * `-include` - names of files containing the documentation for the module and individual packages
-  * `-nodeprecated` - if set, deprecated elements are not included in the generated documentation
-
-
-### Using the Ant task
-
-The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example of using it:
-
-```xml
-<project name="Dokka" default="document">
-    <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
-
-    <target name="document">
-        <dokka src="src" outputdir="doc" modulename="myproject"/>
-    </target>
-</project>
+apply plugin: 'org.jetbrains.dokka'
 ```
 
-The Ant task supports the following attributes:
+The plugin adds a task named "dokka" to the project.
+ 
+Minimal dokka configuration:
 
-  * `outputdir` - the output directory where the documentation is generated
-  * `outputformat` - the output format (see the list of supported formats above)
-  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
-  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
-  * `modulename` - the name of the module being documented (used as the root directory of the generated documentation)
-  * `include` - names of files containing the documentation for the module and individual packages
-  * `skipdeprecated` - if set, deprecated elements are not included in the generated documentation
+```groovy
+dokka {
+    outputFormat = 'html' 
+    outputDirectory = "$buildDir/javadoc"
+}
+```
+
+[Output formats](#output_formats)
+ 
+The available configuration options are shown below:
+
+```groovy
+dokka {
+    moduleName = 'data'
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    processConfigurations = ['compile', 'extra']
+    includes = ['packages.md', 'extra.md']
+    samples = ['samples/basic.kt', 'samples/advanced.kt']
+    
+    jdkVersion = 6 // Used for linking to JDK
+    
+    skipDeprecated = false // Do not output deprecated members, applies globally, can be overridden by packageOptions
+    reportNotDocumented = true // Emit warnings about not documented members, applies globally, also can be overridden by packageOptions
+    
+    skipEmptyPackages = true // Do not create index pages for empty packages
+ 
+    impliedPlatforms = ["JVM"] // See platforms section of documentation 
+    
+    // Selector for resolving dokkaFatJar or File for local path to dokka-fatjar
+    dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
+    
+    // By default, sourceRoots is taken from processConfigurations
+    // Short form sourceRoots
+    // If specified, processConfigurations are ignored
+    sourceDirs = files('src/main/kotlin')
+    
+    // By default, sourceRoots is taken from processConfigurations
+    // Full form sourceRoot declaration
+    // If specified, processConfigurations are NOT ignored, and sourceRoots are appended
+    // Repeat for multiple sourceRoots
+    sourceRoot {
+        // Path to source root
+        path = "src" 
+        // See platforms section of documentation 
+        platforms = ["JVM"] 
+    }
+    
+    // Mapping to source
+    // Repeat for multiple mappings
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
+        suffix = "#L"
+    }
+    
+    // No default documentation link to kotlin-stdlib
+    noStdlibLink = false
+    
+    // Repeat for multiple links
+    externalDocumentationLink {
+        url = new URL("https://example.com/docs")
+        // If package-list file located in non-standard location
+        // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
+    }
+    
+    // Repeat for multiple packageOptions
+    packageOptions {
+        prefix = "kotlin" // will match kotlin and all sub-packages of it
+        // All options are optional, default values are below:
+        skipDeprecated = false
+        reportUndocumented = true // Emit warnings about not documented members 
+        includeNonPublic = false
+    }
+}
+```
+
+To get it generated use gradle `dokka` task
+
+```bash
+./gradlew dokka
+```
+
+More dokka tasks can be added to a project like this:
+
+```groovy
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+```
+
+Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
+
+#### Android
+
+If you are using Android there is a separate gradle plugin. Just make sure you apply the plugin after
+`com.android.library` and `kotlin-android`.
+
+```groovy
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
+```
 
 ### Using the Maven plugin
 
@@ -95,7 +183,7 @@ The following goals are provided by the plugin:
   * `dokka:javadoc` - generate HTML documentation in JavaDoc format (showing declarations in Java syntax);
   * `dokka:javadocJar` - generate a .jar file with JavaDoc format documentation.
 
-Configuring source links mapping:
+The available configuration options are shown below:
 
 ```xml
 <plugin>
@@ -111,92 +199,174 @@ Configuring source links mapping:
         </execution>
     </executions>
     <configuration>
+    
+        <!-- Set to true to skip dokka task, default: false -->
+        <skip>false</skip>
+    
+        <!-- Default: ${project.artifactId} -->
+        <moduleName>data</moduleName>
+        <!-- See list of possible formats below -->
+        <outFormat>html</outFormat>
+        <!-- Default: ${project.basedir}/target/dokka -->
+        <outputDir>some/out/dir</outputDir>
+        
+        <!-- List of '.md' files with perPackage and module docs -->
+        <includes>
+            <file>packages.md</file>
+            <file>extra.md</file>
+        </includes>
+        
+        <!-- List of sample roots -->
+        <samplesDirs>
+            <dir>src/test/samples</dir>
+        </samplesDirs>
+        
+        <!-- Used for linking to JDK, default: 6 -->
+        <jdkVersion>6</jdkVersion>
+        
+        <!-- Do not output deprecated members, applies globally, can be overridden by packageOptions -->
+        <skipDeprecated>false</skipDeprecated> 
+        <!-- Emit warnings about not documented members, applies globally, also can be overridden by packageOptions -->
+        <reportNotDocumented>true</reportNotDocumented>             
+        <!-- Do not create index pages for empty packages -->
+        <skipEmptyPackages>true</skipEmptyPackages> 
+        
+        <!-- See platforms section of documentation -->
+        <impliedPlatforms>
+            <platform>JVM</platform>
+        </impliedPlatforms>
+        
+        <!-- Short form list of sourceRoots, by default, set to ${project.compileSourceRoots} -->
+        <sourceDirectories>
+            <dir>src/main/kotlin</dir>
+        </sourceDirectories>
+        
+        <!-- Full form list of sourceRoots -->
+        <sourceRoots>
+            <root>
+                <path>src/main/kotlin</path>
+                <!-- See platforms section of documentation -->
+                <platforms>JVM</platforms>
+            </root>
+        </sourceRoots>
+        
         <sourceLinks>
             <link>
                 <dir>${project.basedir}/src/main/kotlin</dir>
                 <url>http://github.com/me/myrepo</url>
+                <!-- Line suffix, e.g #L -> /me/myrepo/some.html#L99 -->
+                <urlSuffix>#L</urlSuffix>
             </link>
         </sourceLinks>
+        
+        <!-- No default documentation link to kotlin-stdlib -->
+        <noStdlibLink>false</noStdlibLink>
+        
+        <externalDocumentationLinks>
+            <link>
+                <url>https://example.com/docs</url>
+                <!-- If package-list file located in non-standard location -->
+                <!-- <packageListUrl>file:///home/user/localdocs/package-list</packageListUrl> -->
+            </link>
+        </externalDocumentationLinks>
+
+        <perPackageOptions>
+            <packageOptions>
+                <!-- Will match kotlin and all sub-packages of it -->
+                <prefix>kotlin</prefix>
+                
+                <!-- All options are optional, default values are below: -->
+                <skipDeprecated>false</skipDeprecated>
+                <!-- Emit warnings about not documented members  -->
+                <reportUndocumented>true</reportUndocumented>
+                <includeNonPublic>false</includeNonPublic>
+            </packageOptions>
+        </perPackageOptions>
     </configuration>
 </plugin>
 ```
 
 Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin-examples/tree/master/maven/dokka-maven-example) for an example.
 
-### Using the Gradle plugin
+[Output formats](#output_formats)
 
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-    }
+### Using the Ant task
 
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
-    }
-}
+The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example of using it:
 
-apply plugin: 'org.jetbrains.dokka'
+```xml
+<project name="Dokka" default="document">
+    <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
+
+    <target name="document">
+        <dokka src="src" outputdir="doc" modulename="myproject"/>
+    </target>
+</project>
 ```
 
-The plugin adds a task named "dokka" to the project. The available configuration
-options are shown below:
+The Ant task supports the following attributes:
 
-```groovy
-dokka {
-    moduleName = 'data'
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-    processConfigurations = ['compile', 'extra']
-    includes = ['packages.md', 'extra.md']
-    samples = ['samples/basic.kt', 'samples/advanced.kt']
-    linkMapping {
-        dir = "src/main/kotlin"
-        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
-        suffix = "#L"
-    }
-    sourceDirs = files('src/main/kotlin')
-}
-```
+  * `outputDir` - the output directory where the documentation is generated
+  * `outputFormat` - the output format (see the list of supported formats above)
+  * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
+  * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+  * `moduleName` - the name of the module being documented (used as the root directory of the generated documentation)
+  * `include` - names of files containing the documentation for the module and individual packages
+  * `skipDeprecated` - if set, deprecated elements are not included in the generated documentation
+  * `jdkVersion` - version for linking to JDK
+  * `impliedPlatforms` - See [platforms](#platforms) section
+  * `<sourceRoot path="src" platforms="JVM" />` - analogue of src, but allows to specify [platforms](#platforms) 
+  * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
+    Per package options for package `kotlin` and sub-packages of it
+  * `noStdlibLink` - No default documentation link to kotlin-stdlib
+  * `<externalDocumentationLink url="https://example.com/docs" packageListUrl="file:///home/user/localdocs/package-list"/>` -
+    linking to external documentation, packageListUrl should be used if package-list located not in standard location
+    
 
-To get it generated use gradle `dokka` task
+### Using the Command Line
 
-```bash
-./gradlew dokka
-```
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.10/dokka-fatjar.jar).
+To generate documentation, run the following command:
 
-More dokka tasks can be added to a project like this:
+    java -jar dokka-fatjar.jar <source directories> <arguments>
 
-```groovy
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-}
-```
+Dokka supports the following command line arguments:
 
+  * `-output` - the output directory where the documentation is generated
+  * `-format` - the output format:
+    * `html` - HTML (default)
+    * `markdown` - Markdown
+    * `gfm` - GitHub-Flavored Markdown
+    * `jekyll` - Markdown adapted for Jekyll sites
+    * `javadoc` - Javadoc (showing how the project can be accessed from Java)
+  * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
+  * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+  * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
+  * `-include` - names of files containing the documentation for the module and individual packages
+  * `-nodeprecated` - if set, deprecated elements are not included in the generated documentation
+  * `-impliedPlatforms` - List of implied platforms (comma-separated)
+  * `-packageOptions` - List of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
+  * `-links` - External documentation links in format `url^packageListUrl^^url2...`
+  * `-noStdlibLink` - Disable documentation link to stdlib
 
-Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
+### Output formats<a name="output_formats"></a>
+  * `html` - minimalistic html format used by default
+  * `javadoc` - Dokka mimic to javadoc
+  * `html-as-java` - as `html` but using java syntax
+  * `markdown` - Markdown structured as `html`
+    * `gfm` - GitHub flavored markdown  
+    * `jekyll` - Jekyll compatible markdown 
+  * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 
-#### Android
+### Platforms<a name="platforms"></a>
+Dokka can annotate elements with special `platform` block with platform requirements 
 
-If you are using Android there is a separate gradle plugin. Just make sure you apply the plugin after
-`com.android.library` and `kotlin-android`.
+Example of usage can be found on [kotlinlang.org](https://kotlinlang.org/api/latest/jvm/stdlib/)
 
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
-    }
-}
-
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
-```
+Each source root has list of platforms for which members are suitable. 
+Also, the list of 'implied' platforms is passed to Dokka, 
+if member suitable for all platforms from implied platform set, 
+then only platforms which not contained in the set will be shown.
 
 ## Dokka Internals
 
