@@ -3,8 +3,10 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -87,14 +89,18 @@ interface InboundExternalLinkResolutionService {
         override fun getPath(symbol: DeclarationDescriptor): String? {
             if (symbol is JavaClassDescriptor) {
                 return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
-            } else if (symbol is JavaMethodDescriptor) {
+            } else if (symbol is JavaCallableMemberDescriptor) {
                 val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
                 val containingClassLink = getPath(containingClass)
                 if (containingClassLink != null) {
-                    val psi = symbol.sourcePsi() as? PsiMethod
-                    if (psi != null) {
-                        val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
-                        return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                    if (symbol is JavaMethodDescriptor) {
+                        val psi = symbol.sourcePsi() as? PsiMethod
+                        if (psi != null) {
+                            val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
+                            return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                        }
+                    } else if (symbol is JavaPropertyDescriptor) {
+                        return "$containingClassLink#${symbol.name}"
                     }
                 }
             }
