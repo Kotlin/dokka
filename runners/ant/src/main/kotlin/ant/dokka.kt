@@ -38,6 +38,8 @@ class DokkaAntTask: Task() {
     var impliedPlatforms: String = ""
     var jdkVersion: Int = 6
 
+    var noStdlibLink: Boolean = false
+
     var skipDeprecated: Boolean = false
 
     val compileClasspath: Path by lazy { Path(getProject()) }
@@ -119,7 +121,8 @@ class DokkaAntTask: Task() {
                         jdkVersion = jdkVersion,
                         impliedPlatforms = impliedPlatforms.split(','),
                         perPackageOptions = antPackageOptions,
-                        externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() }
+                        externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
+                        noStdlibLink = noStdlibLink
                 )
         )
         generator.generate()

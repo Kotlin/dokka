@@ -32,7 +32,8 @@ fun verifyModel(vararg roots: ContentRoot,
             skipEmptyPackages = false,
             includeRootPackage = true,
             sourceLinks = listOf<SourceLinkDefinition>(),
-            generateIndexPages = false)
+            generateIndexPages = false,
+            noStdlibLink = true)
 
     appendDocumentation(documentation, *roots,
             withJdk = withJdk,

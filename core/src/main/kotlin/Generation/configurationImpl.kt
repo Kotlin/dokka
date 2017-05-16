@@ -51,4 +51,5 @@ data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val sourceLinks: List<SourceLinkDefinitionImpl>,
                                   override val impliedPlatforms: List<String>,
                                   override val perPackageOptions: List<PackageOptionsImpl>,
-                                  override val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>) : DokkaConfiguration
+                                  override val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>,
+                                  override val noStdlibLink: Boolean) : DokkaConfiguration

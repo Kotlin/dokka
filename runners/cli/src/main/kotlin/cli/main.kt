@@ -55,8 +55,11 @@ class DokkaArguments {
     @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented;...\" ")
     var packageOptions: String = ""
 
-    @set:Argument(value = "links", description = "")
+    @set:Argument(value = "links", description = "External documentation links in format url^packageListUrl^^url2...")
     var links: String = ""
+
+    @set: Argument(value = "noStdlibLink", description = "Disable documentation link to stdlib")
+    var noStdlibLink: Boolean = false
 }
 
 
@@ -108,7 +111,8 @@ object MainKt {
                 impliedPlatforms = arguments.impliedPlatforms.split(','),
                 perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
                 jdkVersion = arguments.jdkVersion,
-                externalDocumentationLinks = parseLinks(arguments.links)
+                externalDocumentationLinks = parseLinks(arguments.links),
+                noStdlibLink = arguments.noStdlibLink
         )
 
         val generator = DokkaGenerator(

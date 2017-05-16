@@ -99,6 +99,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
 
+    @Parameter(defaultValue = "false")
+    var noStdlibLink: Boolean = false
+
     protected abstract fun getOutDir(): String
     protected abstract fun getOutFormat(): String
 
@@ -123,7 +126,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         reportUndocumented = reportNotDocumented,
                         impliedPlatforms = impliedPlatforms,
                         perPackageOptions = perPackageOptions,
-                        externalDocumentationLinks = externalDocumentationLinks.map { it.build() }
+                        externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
+                        noStdlibLink = noStdlibLink
                 )
         )
 

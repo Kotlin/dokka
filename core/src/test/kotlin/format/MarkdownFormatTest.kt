@@ -300,7 +300,7 @@ class MarkdownFormatTest {
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false)
+        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), withKotlinRuntime = true, options = options)
         verifyMultiplatformIndex(module, path)
         verifyMultiplatformPackage(module, path)
@@ -366,7 +366,7 @@ class MarkdownFormatTest {
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false)
+        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
         return module
