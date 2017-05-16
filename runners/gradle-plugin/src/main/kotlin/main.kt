@@ -87,6 +87,7 @@ open class DokkaTask : DefaultTask() {
 
     @Input var externalDocumentationLinks = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
 
+    @Input var noStdlibLink: Boolean = false
 
     protected open val sdkProvider: SdkProvider? = null
 
@@ -195,7 +196,8 @@ open class DokkaTask : DefaultTask() {
                     linkMappings,
                     impliedPlatforms,
                     perPackageOptions,
-                    externalDocumentationLinks)
+                    externalDocumentationLinks,
+                    noStdlibLink)
 
 
             bootstrapProxy.configure(
@@ -217,10 +219,6 @@ open class DokkaTask : DefaultTask() {
     }
 
     fun collectSourceRoots(): List<SourceRoot> {
-        if (sourceRoots.any()) {
-            return sourceRoots
-        }
-
         val provider = sdkProvider
         val sourceDirs = if (sourceDirs.any()) {
             logger.info("Dokka: Taking source directories provided by the user")
@@ -235,7 +233,7 @@ open class DokkaTask : DefaultTask() {
             sourceSets?.allSource?.srcDirs
         }
 
-        return sourceDirs?.filter { it.exists() }?.map { SourceRoot().apply { path = it.path } } ?: emptyList()
+        return sourceRoots + (sourceDirs?.filter { it.exists() }?.map { SourceRoot().apply { path = it.path } } ?: emptyList())
     }
 
     @InputFiles

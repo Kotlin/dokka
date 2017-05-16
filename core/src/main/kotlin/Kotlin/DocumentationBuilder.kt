@@ -44,7 +44,8 @@ class DocumentationOptions(val outputDir: String,
                            val impliedPlatforms: List<String> = emptyList(),
                            // Sorted by pattern length
                            perPackageOptions: List<PackageOptions> = emptyList(),
-                           externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList()) {
+                           externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
+                           noStdlibLink: Boolean) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -53,10 +54,17 @@ class DocumentationOptions(val outputDir: String,
     val perPackageOptions = perPackageOptions.sortedByDescending { it.prefix.length }
     val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated)
 
-    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
+    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack == it.prefix || pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
 
-    val externalDocumentationLinks = listOf(ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()) + externalDocumentationLinks
+    val defaultLinks = run {
+        val links = mutableListOf(ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build())
+        if (!noStdlibLink)
+            links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
+        links
+    }
+
+    val externalDocumentationLinks = defaultLinks + externalDocumentationLinks
 }
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
