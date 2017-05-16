@@ -87,7 +87,11 @@ open class MarkdownOutputBuilder(to: StringBuilder,
             maxBackticksInCodeBlock = maxBackticksInCodeBlock.coerceAtLeast(longestBackTickRun)
         }
         else {
-            to.append(text.htmlEscape())
+            if (text == "\n" && inTableCell) {
+                to.append(" ")
+            } else {
+                to.append(text.htmlEscape())
+            }
         }
     }
 
