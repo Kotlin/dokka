@@ -364,6 +364,10 @@ class MarkdownFormatTest {
         verifyMarkdownNode("nestedLists")
     }
 
+    @Test fun newlineInTableCell() {
+        verifyMarkdownPackage("newlineInTableCell")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
