@@ -364,6 +364,14 @@ class MarkdownFormatTest {
         verifyMarkdownNode("nestedLists")
     }
 
+    @Test fun referenceLink() {
+        verifyMarkdownNode("referenceLink")
+    }
+
+    @Test fun externalReferenceLink() {
+        verifyMarkdownNode("externalReferenceLink")
+    }
+
     @Test fun newlineInTableCell() {
         verifyMarkdownPackage("newlineInTableCell")
     }
