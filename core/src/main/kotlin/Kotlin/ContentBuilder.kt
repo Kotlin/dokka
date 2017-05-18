@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.html.entities.EntityConverter
+import org.intellij.markdown.parser.LinkMap
 import java.util.*
 
 fun buildContent(tree: MarkdownNode, linkResolver: (String) -> ContentBlock, inline: Boolean = false): MutableContent {
@@ -20,6 +21,8 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
 //    println(tree.toTestString())
     val nodeStack = ArrayDeque<ContentBlock>()
     nodeStack.push(target)
+
+    val linkMap = LinkMap.buildLinkMap(tree.node, tree.text)
 
     tree.visit {node, processChildren ->
         val parent = nodeStack.peek()
@@ -74,14 +77,15 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             }
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK -> {
-                val labelText = node.child(MarkdownElementTypes.LINK_LABEL)?.getLabelText()
-                if (labelText != null) {
-                    val link = linkResolver(labelText)
+                val labelElement = node.child(MarkdownElementTypes.LINK_LABEL)
+                if (labelElement != null) {
+                    val linkInfo = linkMap.getLinkInfo(labelElement.text)
+                    val labelText = labelElement.getLabelText()
+                    val link = linkInfo?.let { linkResolver(it.destination.toString()) } ?: linkResolver(labelText)
                     val linkText = node.child(MarkdownElementTypes.LINK_TEXT)
                     if (linkText != null) {
                         renderLinkTextTo(linkText, link, linkResolver)
-                    }
-                    else {
+                    } else {
                         link.append(ContentText(labelText))
                     }
                     parent.append(link)
@@ -148,6 +152,10 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: (Stri
             MarkdownTokenTypes.CODE_FENCE_CONTENT -> {
                 parent.append(ContentText(node.text))
             }
+
+            MarkdownElementTypes.LINK_DEFINITION -> {
+            }
+
             else -> {
                 processChildren()
             }
