@@ -44,25 +44,32 @@ dokka {
     moduleName = 'data'
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
+    
+    // The list of configurations the dependencies of which 
+    // are included in Dokka's classpath for code analysis 
     processConfigurations = ['compile', 'extra']
+    
+    // List of files with module and package documentation
+    // http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
     includes = ['packages.md', 'extra.md']
+    
+    // The list of files or directories containing sample code (referenced with @sample tags)
     samples = ['samples/basic.kt', 'samples/advanced.kt']
     
     jdkVersion = 6 // Used for linking to JDK
     
-    skipDeprecated = false // Do not output deprecated members, applies globally, can be overridden by packageOptions
-    reportNotDocumented = true // Emit warnings about not documented members, applies globally, also can be overridden by packageOptions
+    // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+    skipDeprecated = false 
+   
+    // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+    reportNotDocumented = true 
     
     skipEmptyPackages = true // Do not create index pages for empty packages
  
     impliedPlatforms = ["JVM"] // See platforms section of documentation 
     
-    // Selector for resolving dokkaFatJar or File for local path to dokka-fatjar
-    dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:$dokka_version"
-    
     // By default, sourceRoots is taken from processConfigurations
     // Short form sourceRoots
-    // If specified, processConfigurations are ignored
     sourceDirs = files('src/main/kotlin')
     
     // By default, sourceRoots is taken from processConfigurations
@@ -76,24 +83,34 @@ dokka {
         platforms = ["JVM"] 
     }
     
-    // Mapping to source
+    // Specifies the location of the project source code on the Web.
+    // If provided, Dokka generates "source" links for each declaration.
     // Repeat for multiple mappings
     linkMapping {
+        // Source directory
         dir = "src/main/kotlin"
+         
+        // URL showing where the source code can be accessed through the web browser
         url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
+        
+        // Suffix which is used to append the line number to the URL. Use #L for GitHub
         suffix = "#L"
     }
     
     // No default documentation link to kotlin-stdlib
     noStdlibLink = false
     
+    // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
     // Repeat for multiple links
     externalDocumentationLink {
+        // URL of the generated documentation 
         url = new URL("https://example.com/docs")
+        
         // If package-list file located in non-standard location
         // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
     }
     
+    // Allows to customize documentation generation options on a per-package basis
     // Repeat for multiple packageOptions
     packageOptions {
         prefix = "kotlin" // will match kotlin and all sub-packages of it
@@ -105,7 +122,7 @@ dokka {
 }
 ```
 
-To get it generated use gradle `dokka` task
+To generate the documentation, use the `dokka` Gradle task:
 
 ```bash
 ./gradlew dokka
@@ -124,7 +141,7 @@ Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotli
 
 #### Android
 
-If you are using Android there is a separate gradle plugin. Just make sure you apply the plugin after
+If you are using Android there is a separate Gradle plugin. Just make sure you apply the plugin after
 `com.android.library` and `kotlin-android`.
 
 ```groovy
@@ -157,7 +174,7 @@ The Maven plugin is available in JCenter. You need to add the JCenter repository
 </pluginRepositories>
 ```
 
-Minimal maven configuration is
+Minimal Maven configuration is
 
 ```xml
 <plugin>
@@ -210,7 +227,8 @@ The available configuration options are shown below:
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
         
-        <!-- List of '.md' files with perPackage and module docs -->
+        <!-- List of '.md' files with package and module docs -->
+        <!-- http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
         <includes>
             <file>packages.md</file>
             <file>extra.md</file>
@@ -250,11 +268,15 @@ The available configuration options are shown below:
             </root>
         </sourceRoots>
         
+        <!-- Specifies the location of the project source code on the Web. If provided, Dokka generates "source" links
+             for each declaration. -->
         <sourceLinks>
             <link>
+                <!-- Source directory -->
                 <dir>${project.basedir}/src/main/kotlin</dir>
+                <!-- URL showing where the source code can be accessed through the web browser -->
                 <url>http://github.com/me/myrepo</url>
-                <!-- Line suffix, e.g #L -> /me/myrepo/some.html#L99 -->
+                <!--Suffix which is used to append the line number to the URL. Use #L for GitHub -->
                 <urlSuffix>#L</urlSuffix>
             </link>
         </sourceLinks>
@@ -262,14 +284,17 @@ The available configuration options are shown below:
         <!-- No default documentation link to kotlin-stdlib -->
         <noStdlibLink>false</noStdlibLink>
         
+        <!-- Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka) -->
         <externalDocumentationLinks>
             <link>
+                <!-- URL of the generated documentation -->
                 <url>https://example.com/docs</url>
                 <!-- If package-list file located in non-standard location -->
                 <!-- <packageListUrl>file:///home/user/localdocs/package-list</packageListUrl> -->
             </link>
         </externalDocumentationLinks>
 
+        <!-- Allows to customize documentation generation options on a per-package basis -->
         <perPackageOptions>
             <packageOptions>
                 <!-- Will match kotlin and all sub-packages of it -->
@@ -333,12 +358,7 @@ To generate documentation, run the following command:
 Dokka supports the following command line arguments:
 
   * `-output` - the output directory where the documentation is generated
-  * `-format` - the output format:
-    * `html` - HTML (default)
-    * `markdown` - Markdown
-    * `gfm` - GitHub-Flavored Markdown
-    * `jekyll` - Markdown adapted for Jekyll sites
-    * `javadoc` - Javadoc (showing how the project can be accessed from Java)
+  * `-format` - the [output format](#output-formats):
   * `-classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
   * `-samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
   * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
@@ -350,6 +370,7 @@ Dokka supports the following command line arguments:
   * `-noStdlibLink` - Disable documentation link to stdlib
 
 ### Output formats<a name="output_formats"></a>
+
   * `html` - minimalistic html format used by default
   * `javadoc` - Dokka mimic to javadoc
   * `html-as-java` - as `html` but using java syntax
@@ -359,14 +380,15 @@ Dokka supports the following command line arguments:
   * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 
 ### Platforms<a name="platforms"></a>
+
 Dokka can annotate elements with special `platform` block with platform requirements 
 
 Example of usage can be found on [kotlinlang.org](https://kotlinlang.org/api/latest/jvm/stdlib/)
 
-Each source root has list of platforms for which members are suitable. 
-Also, the list of 'implied' platforms is passed to Dokka, 
-if member suitable for all platforms from implied platform set, 
-then only platforms which not contained in the set will be shown.
+Each source root has a list of platforms for which members are suitable. 
+Also, the list of 'implied' platforms is passed to Dokka.
+If a member is not available for all platforms in the implied platforms set, its documentation will show
+the list of platforms for which it's available.
 
 ## Dokka Internals
 
