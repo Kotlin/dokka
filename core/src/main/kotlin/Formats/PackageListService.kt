@@ -52,9 +52,9 @@ class DefaultPackageListService @Inject constructor(locationService: FileLocatio
             appendln("\$dokka.linkExtension:${formatService.linkExtension}")
 
             nonStandardLocations.map { (signature, location) -> "\$dokka.location:$signature\u001f$location" }
-                    .joinTo(this, separator = "\n", postfix = "\n")
+                    .sorted().joinTo(this, separator = "\n", postfix = "\n")
 
-            packages.joinTo(this, separator = "\n", postfix = "\n")
+            packages.sorted().joinTo(this, separator = "\n", postfix = "\n")
         }
 
     }
