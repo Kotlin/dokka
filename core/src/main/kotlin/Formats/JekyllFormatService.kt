@@ -23,6 +23,10 @@ open class JekyllOutputBuilder(to: StringBuilder,
     protected open fun appendFrontMatter(nodes: Iterable<DocumentationNode>, to: StringBuilder) {
         to.appendln("title: ${getPageTitle(nodes)}")
     }
+
+    override fun appendLink(href: String, body: () -> Unit) {
+        super.appendLink(href.removeSuffix(".md") + "/", body)
+    }
 }
 
 
