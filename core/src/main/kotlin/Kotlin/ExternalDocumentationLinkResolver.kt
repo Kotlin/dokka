@@ -25,8 +25,10 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
     fun loadPackageLists() {
         options.externalDocumentationLinks.forEach { link ->
+            val linkUrl = URL(link.url)
+            val packageListUrl = link.packageListUrl?.let { URL(it) } ?: URL(linkUrl, "package-list")
             val (params, packages) =
-                    link.packageListUrl
+                    packageListUrl
                             .openStream()
                             .bufferedReader()
                             .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
@@ -50,7 +52,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                 InboundExternalLinkResolutionService.Dokka(linkExtension)
             }
 
-            val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
+            val rootInfo = ExternalDocumentationRoot(linkUrl, resolver, locations)
 
             packages.map { FqName(it) }.forEach { packageFqNameToLocation[it] = rootInfo }
         }

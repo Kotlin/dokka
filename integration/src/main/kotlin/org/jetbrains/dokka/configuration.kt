@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import java.net.URL
+import java.io.Serializable
 
 
 interface DokkaConfiguration {
@@ -42,22 +42,17 @@ interface DokkaConfiguration {
         val skipDeprecated: Boolean
     }
 
-    interface ExternalDocumentationLink {
-        val url: URL
-        val packageListUrl: URL
+    interface ExternalDocumentationLink : Serializable {
+        val url: String
+        val packageListUrl: String?
 
-        open class Builder(open var url: URL? = null,
-                           open var packageListUrl: URL? = null) {
-
-            constructor(root: String) : this(URL(root), null)
+        open class Builder(open var url: String? = null,
+                           open var packageListUrl: String? = null) {
 
             fun build(): DokkaConfiguration.ExternalDocumentationLink =
-                    if (packageListUrl != null && url != null)
-                        ExternalDocumentationLinkImpl(url!!, packageListUrl!!)
-                    else if (url != null)
-                        ExternalDocumentationLinkImpl(url!!, URL(url!!, "package-list"))
-                    else
-                        throw IllegalArgumentException("url or url && packageListUrl must not be null for external documentation link")
+                    ExternalDocumentationLinkImpl(
+                            url ?: throw IllegalArgumentException("url must not be null for external documentation link"),
+                            packageListUrl)
         }
     }
 }
@@ -83,5 +78,5 @@ data class SerializeOnlyDokkaConfiguration(override val moduleName: String,
                                            override val noStdlibLink: Boolean) : DokkaConfiguration
 
 
-data class ExternalDocumentationLinkImpl internal constructor(override val url: URL,
-                                                              override val packageListUrl: URL) : DokkaConfiguration.ExternalDocumentationLink
+data class ExternalDocumentationLinkImpl internal constructor(override val url: String,
+                                                              override val packageListUrl: String? = null) : DokkaConfiguration.ExternalDocumentationLink

@@ -11,7 +11,6 @@ import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.jetbrains.dokka.*
 import java.io.File
-import java.net.URL
 
 class SourceLinkMapItem {
     @Parameter(name = "dir", required = true)
@@ -27,9 +26,9 @@ class SourceLinkMapItem {
 class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentationLink.Builder() {
 
     @Parameter(name = "url", required = true)
-    override var url: URL? = null
+    override var url: String? = null
     @Parameter(name = "packageListUrl", required = true)
-    override var packageListUrl: URL? = null
+    override var packageListUrl: String? = null
 }
 
 abstract class AbstractDokkaMojo : AbstractMojo() {

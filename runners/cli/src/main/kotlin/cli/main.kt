@@ -6,8 +6,6 @@ import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Args
 import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Argument
 import java.io.File
-import java.net.MalformedURLException
-import java.net.URL
 import java.net.URLClassLoader
 
 class DokkaArguments {
@@ -72,14 +70,7 @@ object MainKt {
                 .partition { it.size == 1 }
 
         return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
-                parsedOfflineLinks.map { (root, packageList) ->
-                    val rootUrl = URL(root)
-                    val packageListUrl =
-                            try {
-                                URL(packageList)
-                            } catch (ex: MalformedURLException) {
-                                File(packageList).toURI().toURL()
-                            }
+                parsedOfflineLinks.map { (rootUrl, packageListUrl) ->
                     ExternalDocumentationLink.Builder(rootUrl, packageListUrl).build()
                 }
     }

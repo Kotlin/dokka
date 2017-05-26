@@ -104,10 +104,10 @@ dokka {
     // Repeat for multiple links
     externalDocumentationLink {
         // URL of the generated documentation 
-        url = new URL("https://example.com/docs")
+        url = "https://example.com/docs"
         
         // If package-list file located in non-standard location
-        // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
+        // packageListUrl = "file:///home/user/localdocs/package-list" 
     }
     
     // Allows to customize documentation generation options on a per-package basis
