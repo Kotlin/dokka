@@ -189,6 +189,7 @@ fun verifyJavaOutput(path: String,
 }
 
 fun assertEqualsIgnoringSeparators(expectedFile: File, output: String) {
+    if (!expectedFile.exists()) expectedFile.createNewFile()
     val expectedText = expectedFile.readText().replace("\r\n", "\n")
     val actualText = output.replace("\r\n", "\n")
 

@@ -51,5 +51,6 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
+    testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }
 
