@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.intellij.markdown.parser.LinkMap
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.descriptors.*
@@ -54,7 +55,8 @@ class DescriptorDocumentationParser
             kdocText += "\n"
         }
         val tree = parseMarkdown(kdocText)
-        val content = buildContent(tree, { href -> linkResolver.resolveContentLink(descriptor, href) }, inline)
+        val linkMap = LinkMap.buildLinkMap(tree.node, kdocText)
+        val content = buildContent(tree, LinkResolver(linkMap, { href -> linkResolver.resolveContentLink(descriptor, href) }), inline)
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
@@ -67,7 +69,7 @@ class DescriptorDocumentationParser
                         val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
-                        buildInlineContentTo(markdownNode, section, { href -> linkResolver.resolveContentLink(descriptor, href) })
+                        buildInlineContentTo(markdownNode, section, LinkResolver(linkMap, { href -> linkResolver.resolveContentLink(descriptor, href) }))
                     }
                 }
             }

@@ -4,7 +4,8 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
+import org.intellij.markdown.parser.LinkMap
+import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import java.io.File
 
 @Singleton
@@ -17,11 +18,12 @@ class PackageDocs
     val packageContent: Map<String, Content>
         get() = _packageContent
 
-    fun parse(fileName: String, linkResolveContext: List<LazyPackageDescriptor>) {
+    fun parse(fileName: String, linkResolveContext: List<PackageFragmentDescriptor>) {
         val file = File(fileName)
         if (file.exists()) {
             val text = file.readText()
             val tree = parseMarkdown(text)
+            val linkMap = LinkMap.buildLinkMap(tree.node, text)
             var targetContent: MutableContent = moduleContent
             tree.children.forEach {
                 if (it.type == MarkdownElementTypes.ATX_1) {
@@ -30,7 +32,7 @@ class PackageDocs
                         targetContent = findTargetContent(headingText.trimStart())
                     }
                 } else {
-                    buildContentTo(it, targetContent, { resolveContentLink(it, linkResolveContext) })
+                    buildContentTo(it, targetContent, LinkResolver(linkMap, { resolveContentLink(it, linkResolveContext) }))
                 }
             }
         } else {
@@ -51,7 +53,7 @@ class PackageDocs
     private fun findOrCreatePackageContent(packageName: String) =
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
-    private fun resolveContentLink(href: String, linkResolveContext: List<LazyPackageDescriptor>): ContentBlock {
+    private fun resolveContentLink(href: String, linkResolveContext: List<PackageFragmentDescriptor>): ContentBlock {
         if (linkResolver != null) {
             linkResolveContext
                     .asSequence()
