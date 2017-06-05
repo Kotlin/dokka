@@ -1,7 +1,9 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.intellij.psi.PsiMethod
+import com.intellij.util.io.*
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
@@ -11,11 +13,19 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
+import java.io.ByteArrayOutputStream
+import java.io.PrintWriter
 import java.net.URL
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.security.MessageDigest
 
+fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
 
+@Singleton
 class ExternalDocumentationLinkResolver @Inject constructor(
-        val options: DocumentationOptions
+        val options: DocumentationOptions,
+        val logger: DokkaLogger
 ) {
 
     val packageFqNameToLocation = mutableMapOf<FqName, ExternalDocumentationRoot>()
@@ -23,41 +33,90 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
     class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>)
 
-    fun loadPackageLists() {
-        options.externalDocumentationLinks.forEach { link ->
-            val (params, packages) =
-                    link.packageListUrl
-                            .openStream()
-                            .bufferedReader()
-                            .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
+    // TODO: Make configurable
+    val cacheDir: Path = Paths.get(options.cacheRoot, "packageListCache").apply { createDirectories() }
 
-            val paramsMap = params.asSequence()
-                    .map { it.removePrefix(DOKKA_PARAM_PREFIX).split(":", limit = 2) }
-                    .groupBy({ (key, _) -> key }, { (_, value) -> value })
+    val cachedProtocols = setOf("http", "https", "ftp")
 
-            val format = paramsMap["format"]?.singleOrNull() ?: "javadoc"
+    fun loadPackageList(link: DokkaConfiguration.ExternalDocumentationLink) {
 
-            val locations = paramsMap["location"].orEmpty()
-                    .map { it.split("\u001f", limit = 2) }
-                    .map { (key, value) -> key to value }
-                    .toMap()
+        val packageListUrl = link.packageListUrl
+        val needsCache = packageListUrl.protocol in cachedProtocols
 
-            val resolver = if (format == "javadoc") {
-                InboundExternalLinkResolutionService.Javadoc()
+        val packageListStream = if (needsCache) {
+            val text = packageListUrl.toExternalForm()
+
+            val digest = MessageDigest.getInstance("SHA-256")
+            val hash = digest.digest(text.toByteArray(Charsets.UTF_8)).toHexString()
+            val cacheEntry = cacheDir.resolve(hash)
+
+            if (cacheEntry.exists()) {
+                try {
+                    val connection = packageListUrl.openConnection()
+                    val originModifiedDate = connection.date
+                    val cacheDate = cacheEntry.lastModified().toMillis()
+                    if (originModifiedDate > cacheDate || originModifiedDate == 0L) {
+                        if (originModifiedDate == 0L)
+                            logger.warn("No date header for $packageListUrl, downloading anyway")
+                        else
+                            logger.info("Renewing package-list from $packageListUrl")
+                        connection.getInputStream().copyTo(cacheEntry.outputStream())
+                    }
+                } catch(e: Exception) {
+                    logger.error("Failed to update package-list cache for $link")
+                    val baos = ByteArrayOutputStream()
+                    PrintWriter(baos).use {
+                        e.printStackTrace(it)
+                    }
+                    baos.flush()
+                    logger.error(baos.toString())
+                }
             } else {
-                val linkExtension = paramsMap["linkExtension"]?.singleOrNull() ?:
-                        throw RuntimeException("Failed to parse package list from ${link.packageListUrl}")
-                InboundExternalLinkResolutionService.Dokka(linkExtension)
+                logger.info("Downloading package-list from $packageListUrl")
+                packageListUrl.openStream().copyTo(cacheEntry.outputStream())
             }
-
-            val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
-
-            packages.map { FqName(it) }.forEach { packageFqNameToLocation[it] = rootInfo }
+            cacheEntry.inputStream()
+        } else {
+            packageListUrl.openStream()
         }
+
+        val (params, packages) =
+                packageListStream
+                        .bufferedReader()
+                        .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
+
+        val paramsMap = params.asSequence()
+                .map { it.removePrefix(DOKKA_PARAM_PREFIX).split(":", limit = 2) }
+                .groupBy({ (key, _) -> key }, { (_, value) -> value })
+
+        val format = paramsMap["format"]?.singleOrNull() ?: "javadoc"
+
+        val locations = paramsMap["location"].orEmpty()
+                .map { it.split("\u001f", limit = 2) }
+                .map { (key, value) -> key to value }
+                .toMap()
+
+        val resolver = if (format == "javadoc") {
+            InboundExternalLinkResolutionService.Javadoc()
+        } else {
+            val linkExtension = paramsMap["linkExtension"]?.singleOrNull() ?:
+                    throw RuntimeException("Failed to parse package list from $packageListUrl")
+            InboundExternalLinkResolutionService.Dokka(linkExtension)
+        }
+
+        val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
+
+        packages.map { FqName(it) }.forEach { packageFqNameToLocation[it] = rootInfo }
     }
 
     init {
-        loadPackageLists()
+        options.externalDocumentationLinks.forEach {
+            try {
+                loadPackageList(it)
+            } catch (e: Exception) {
+                throw RuntimeException("Exception while loading package-list from $it", e)
+            }
+        }
     }
 
     fun buildExternalDocumentationLink(symbol: DeclarationDescriptor): String? {
