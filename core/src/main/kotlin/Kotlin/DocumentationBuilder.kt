@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import java.nio.file.Paths
 import com.google.inject.name.Named as GuiceNamed
 
 class DocumentationOptions(val outputDir: String,
@@ -45,7 +46,8 @@ class DocumentationOptions(val outputDir: String,
                            // Sorted by pattern length
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
-                           noStdlibLink: Boolean) {
+                           noStdlibLink: Boolean,
+                           val cacheRoot: String = Paths.get(System.getProperty("user.home"), ".cache", "dokka").toString()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
