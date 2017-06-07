@@ -89,6 +89,8 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
+    @Input var cacheRoot: String? = null
+
     protected open val sdkProvider: SdkProvider? = null
 
     fun linkMapping(closure: Closure<Any?>) {
@@ -197,7 +199,8 @@ open class DokkaTask : DefaultTask() {
                     impliedPlatforms,
                     perPackageOptions,
                     externalDocumentationLinks,
-                    noStdlibLink)
+                    noStdlibLink,
+                    cacheRoot)
 
 
             bootstrapProxy.configure(
