@@ -8,6 +8,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Optional
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.SerializeOnlyDokkaConfiguration
@@ -89,7 +90,7 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
-    @Input var cacheRoot: String? = null
+    @Optional @Input var cacheRoot: String? = null
 
     protected open val sdkProvider: SdkProvider? = null
 
