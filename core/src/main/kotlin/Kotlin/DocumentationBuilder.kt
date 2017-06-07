@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import java.nio.file.Path
 import java.nio.file.Paths
 import com.google.inject.name.Named as GuiceNamed
 
@@ -47,7 +48,7 @@ class DocumentationOptions(val outputDir: String,
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
-                           val cacheRoot: String = Paths.get(System.getProperty("user.home"), ".cache", "dokka").toString()) {
+                           cacheRoot: String? = null) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -67,6 +68,12 @@ class DocumentationOptions(val outputDir: String,
     }
 
     val externalDocumentationLinks = defaultLinks + externalDocumentationLinks
+
+    val cacheRoot: Path? = when {
+        cacheRoot == "default" -> Paths.get(System.getProperty("user.home"), ".cache", "dokka")
+        cacheRoot != null -> Paths.get(cacheRoot)
+        else -> null
+    }
 }
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,

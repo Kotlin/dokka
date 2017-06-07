@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 import java.net.URL
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.security.MessageDigest
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
@@ -33,8 +32,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
     class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>)
 
-    // TODO: Make configurable
-    val cacheDir: Path = Paths.get(options.cacheRoot, "packageListCache").apply { createDirectories() }
+    val cacheDir: Path? = options.cacheRoot?.resolve("packageListCache")?.apply { createDirectories() }
 
     val cachedProtocols = setOf("http", "https", "ftp")
 
@@ -43,11 +41,11 @@ class ExternalDocumentationLinkResolver @Inject constructor(
         val packageListUrl = link.packageListUrl
         val needsCache = packageListUrl.protocol in cachedProtocols
 
-        val packageListStream = if (needsCache) {
-            val text = packageListUrl.toExternalForm()
+        val packageListStream = if (cacheDir != null && needsCache) {
+            val packageListLink = packageListUrl.toExternalForm()
 
             val digest = MessageDigest.getInstance("SHA-256")
-            val hash = digest.digest(text.toByteArray(Charsets.UTF_8)).toHexString()
+            val hash = digest.digest(packageListLink.toByteArray(Charsets.UTF_8)).toHexString()
             val cacheEntry = cacheDir.resolve(hash)
 
             if (cacheEntry.exists()) {

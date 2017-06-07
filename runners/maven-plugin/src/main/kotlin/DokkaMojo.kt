@@ -102,6 +102,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(defaultValue = "false")
     var noStdlibLink: Boolean = false
 
+    @Parameter
+    var cacheRoot: String? = null
+
     protected abstract fun getOutDir(): String
     protected abstract fun getOutFormat(): String
 
@@ -127,7 +130,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         impliedPlatforms = impliedPlatforms,
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink
+                        noStdlibLink = noStdlibLink,
+                        cacheRoot = cacheRoot
                 )
         )
 

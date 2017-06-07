@@ -42,6 +42,8 @@ class DokkaAntTask: Task() {
 
     var skipDeprecated: Boolean = false
 
+    var cacheRoot: String? = null
+
     val compileClasspath: Path by lazy { Path(getProject()) }
     val sourcePath: Path by lazy { Path(getProject()) }
     val samplesPath: Path by lazy { Path(getProject()) }
@@ -122,7 +124,8 @@ class DokkaAntTask: Task() {
                         impliedPlatforms = impliedPlatforms.split(','),
                         perPackageOptions = antPackageOptions,
                         externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink
+                        noStdlibLink = noStdlibLink,
+                        cacheRoot = cacheRoot
                 )
         )
         generator.generate()
