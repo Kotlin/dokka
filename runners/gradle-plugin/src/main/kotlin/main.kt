@@ -4,15 +4,14 @@ import groovy.lang.Closure
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
-import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.SerializeOnlyDokkaConfiguration
-import org.jetbrains.dokka.automagicTypedProxy
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
 import org.jetbrains.dokka.gradle.DokkaVersion.version
 import ru.yole.jkid.JsonExclude
@@ -52,9 +51,24 @@ object ClassloaderContainer {
 }
 
 open class DokkaTask : DefaultTask() {
+
+    fun defaultKotlinTasks() = with(ReflectDsl) {
+
+        val abstractKotlinCompileClz = try {
+            project.buildscript.classLoader.loadClass(ABSTRACT_KOTLIN_COMPILE)
+        } catch (cnfe: ClassNotFoundException) {
+            return@with emptyList<Task>()
+        }
+
+        return@with project.tasks.filter { it isInstance abstractKotlinCompileClz }.filter { "Test" !in it.name }
+    }
+
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
         description = "Generates dokka documentation for Kotlin"
+        project.afterEvaluate {
+            this.dependsOn(kotlinTasks.flatMap { it.dependsOn })
+        }
     }
 
     @Input
@@ -62,8 +76,13 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
-    @Input
-    var processConfigurations: List<Any?> = arrayListOf("compile")
+
+
+    @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks not suitable for you")
+    @Input var processConfigurations: List<Any?> = emptyList()
+
+    @Input var classpath: List<File> = arrayListOf()
+
     @Input
     var includes: List<Any?> = arrayListOf()
     @Input
@@ -92,7 +111,16 @@ open class DokkaTask : DefaultTask() {
 
     @Optional @Input var cacheRoot: String? = null
 
-    protected open val sdkProvider: SdkProvider? = null
+    @get:Input
+    internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
+
+
+    private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
+    private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
+
+    fun kotlinTasks(closure: Closure<Any?>) {
+        kotlinTasksConfigurator = { closure.call() as? List<Any?> }
+    }
 
     fun linkMapping(closure: Closure<Any?>) {
         val mapping = LinkMapping()
@@ -151,6 +179,58 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
+    internal data class ClasspathAndSourceRoots(val classpath: List<File>, val sourceRoots: List<File>) : Serializable
+
+    private fun extractKotlinCompileTasks(): List<Task> {
+        val inputList = (kotlinTasksConfigurator.invoke() ?: emptyList()).filterNotNull()
+        val (paths, other) = inputList.partition { it is String }
+
+        val taskContainer = project.tasks
+
+        val tasksByPath = paths.map { taskContainer.findByPath(it as String) }
+
+        other
+                .filter { it !is Task || it isNotInstance getAbstractKotlinCompileFor(it) }
+                .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
+
+        tasksByPath
+                .filter { it == null || it isNotInstance getAbstractKotlinCompileFor(it) }
+                .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
+
+
+        return (tasksByPath + other) as List<Task>
+    }
+
+    private fun extractClasspathAndSourceRootsFromKotlinTasks(): ClasspathAndSourceRoots = with(ReflectDsl) {
+
+        val allTasks = kotlinTasks
+
+        val allClasspath = mutableSetOf<File>()
+        val allSourceRoots = mutableSetOf<File>()
+
+        allTasks.forEach {
+
+            println("Task ======")
+
+            println(it)
+            val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
+
+            val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
+
+            val taskClasspath: Iterable<File> =
+                    (it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v() ?:
+                            it["getClasspath", abstractKotlinCompileClz]())
+
+            println("End ======")
+
+            allClasspath += taskClasspath.filter { it.exists() }
+            allSourceRoots += taskSourceRoots.filter { it.exists() }
+        }
+
+        ClasspathAndSourceRoots(allClasspath.toList(), allSourceRoots.toList())
+    }
+
+    private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }
 
     @TaskAction
     fun generate() {
@@ -159,16 +239,18 @@ open class DokkaTask : DefaultTask() {
         try {
             loadFatJar()
 
-            val project = project
-            val sdkProvider = sdkProvider
-            val sourceRoots = collectSourceRoots()
-            val allConfigurations = project.configurations
+            val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
 
-            val classpath =
-                    if (sdkProvider != null && sdkProvider.isValid) sdkProvider.classpath else emptyList<File>() +
-                            processConfigurations
-                                    .map { allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found") }
-                                    .flatMap { it }
+            val project = project
+            val sourceRoots = collectSourceRoots() + tasksSourceRoots.toSourceRoots()
+
+            val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
+
+            println("=== $name config ===")
+            println(fullClasspath)
+            println(sourceRoots)
+            println("====================")
+
 
             if (sourceRoots.isEmpty()) {
                 logger.warn("No source directories found: skipping dokka generation")
@@ -183,7 +265,7 @@ open class DokkaTask : DefaultTask() {
 
             val configuration = SerializeOnlyDokkaConfiguration(
                     moduleName,
-                    classpath.map { it.absolutePath },
+                    fullClasspath.map { it.absolutePath },
                     sourceRoots,
                     samples.filterNotNull().map { project.file(it).absolutePath },
                     includes.filterNotNull().map { project.file(it).absolutePath },
@@ -222,28 +304,40 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    fun collectSourceRoots(): List<SourceRoot> {
-        val provider = sdkProvider
+    private fun collectClasspathFromOldSources(): List<File> {
+
+        val allConfigurations = project.configurations
+
+        val fromConfigurations =
+                processConfigurations.map {
+                    allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found")
+                }.flatten()
+
+        return fromConfigurations
+    }
+
+    private fun collectSourceRoots(): List<SourceRoot> {
         val sourceDirs = if (sourceDirs.any()) {
             logger.info("Dokka: Taking source directories provided by the user")
             sourceDirs.toSet()
-        } else if (provider != null && provider.isValid) {
-            logger.info("Dokka: Taking source directories from ${provider.name} sdk provider")
-            provider.sourceDirs
-        } else {
+        } else if (kotlinTasks.isEmpty()) {
             logger.info("Dokka: Taking source directories from default java plugin")
             val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
             val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
             sourceSets?.allSource?.srcDirs
+        } else {
+            emptySet()
         }
 
-        return sourceRoots + (sourceDirs?.filter { it.exists() }?.map { SourceRoot().apply { path = it.path } } ?: emptyList())
+        return sourceRoots + (sourceDirs?.toSourceRoots() ?: emptyList())
     }
 
-    @InputFiles
+
     @SkipWhenEmpty
+    @InputFiles
     fun getInputFiles(): FileCollection =
-            project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
+            project.files(kotlinCompileBasedClasspathAndSourceRoots.sourceRoots.map { project.fileTree(File(it.path)) }) +
+                    project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
                     project.files(includes) +
                     project.files(samples.map { project.fileTree(it) })
 
@@ -252,6 +346,13 @@ open class DokkaTask : DefaultTask() {
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
+        const val ABSTRACT_KOTLIN_COMPILE = "org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile"
+
+        private fun getAbstractKotlinCompileFor(task: Task) = try {
+            task.project.buildscript.classLoader.loadClass(ABSTRACT_KOTLIN_COMPILE)
+        } catch (e: ClassNotFoundException) {
+            null
+        }
     }
 }
 
@@ -262,6 +363,10 @@ class SourceRoot : DokkaConfiguration.SourceRoot {
         }
 
     override var platforms: List<String> = arrayListOf()
+
+    override fun toString(): String {
+        return "${platforms.joinToString()}::$path"
+    }
 }
 
 open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
@@ -314,37 +419,4 @@ class PackageOptions : DokkaConfiguration.PackageOptions {
     override var includeNonPublic: Boolean = false
     override var reportUndocumented: Boolean = true
     override var skipDeprecated: Boolean = false
-}
-/**
- * A provider for SDKs that can be used if a project uses classes that live outside the JDK or uses a
- * different method to determine the source directories.
- *
- * For example an Android library project configures its sources through the Android extension instead
- * of the basic java convention. Also it has its custom classes located in the SDK installation directory.
- */
-interface SdkProvider {
-    /**
-     * The name of this provider. Only used for logging purposes.
-     */
-    val name: String
-
-    /**
-     * Checks whether this provider has everything it needs to provide the source directories.
-     */
-    val isValid: Boolean
-
-    /**
-     * Provides additional classpath files where Dokka should search for external classes.
-     * The file list is injected **after** JDK Jars and **before** project dependencies.
-     *
-     * This is only called if [isValid] returns `true`.
-     */
-    val classpath: List<File>
-
-    /**
-     * Provides a list of directories where Dokka should search for source files.
-     *
-     * This is only called if [isValid] returns `true`.
-     */
-    val sourceDirs: Set<File>?
 }
