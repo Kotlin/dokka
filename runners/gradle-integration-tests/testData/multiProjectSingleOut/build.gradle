@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.dokka'
+}
+
+subprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+            jcenter()
+            maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+            maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+        }
+        dependencies {
+            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+        }
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+}
+
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    kotlinTasks {
+        [":subA:compileKotlin", ":subB:compileKotlin"]
+    }
+    dokkaFatJar = new File(dokka_fatjar)
+}

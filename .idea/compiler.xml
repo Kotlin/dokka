@@ -20,10 +20,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="__main" target="1.8" />
-      <module name="__test" target="1.8" />
-      <module name="all_main" target="1.8" />
-      <module name="all_test" target="1.8" />
       <module name="android-gradle-plugin_main" target="1.6" />
       <module name="android-gradle-plugin_test" target="1.6" />
       <module name="ant_main" target="1.5" />
@@ -34,15 +30,10 @@
       <module name="cli_test" target="1.5" />
       <module name="core_main" target="1.5" />
       <module name="core_test" target="1.5" />
-      <module name="dokka-android-gradle-plugin_main" target="1.6" />
-      <module name="dokka-android-gradle-plugin_test" target="1.6" />
-      <module name="dokka-gradle-plugin_main" target="1.6" />
-      <module name="dokka-gradle-plugin_test" target="1.6" />
-      <module name="dokka-maven-plugin" target="1.5" />
-      <module name="farjar_main" target="1.8" />
-      <module name="farjar_test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
+      <module name="gradle-integration-tests_main" target="1.8" />
+      <module name="gradle-integration-tests_test" target="1.8" />
       <module name="gradle-plugin_main" target="1.6" />
       <module name="gradle-plugin_test" target="1.6" />
       <module name="integration_main" target="1.8" />
@@ -50,8 +41,6 @@
       <module name="maven-plugin" target="1.5" />
       <module name="maven-plugin_main" target="1.8" />
       <module name="maven-plugin_test" target="1.8" />
-      <module name="runners_main" target="1.8" />
-      <module name="runners_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

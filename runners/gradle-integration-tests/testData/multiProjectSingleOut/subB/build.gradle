@@ -1,0 +1,7 @@
+apply plugin: 'kotlin'
+
+dependencies {
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: test_kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: test_kotlin_version
+    compile project(":subA")
+}

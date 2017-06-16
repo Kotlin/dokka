@@ -26,8 +26,6 @@ dependencies {
 
     provided gradleApi()
     provided localGroovy()
-
-    provided 'com.android.tools.build:gradle:2.3.0'
 }
 
 task sourceJar(type: Jar) {
