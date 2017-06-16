@@ -25,7 +25,7 @@ dependencies {
     shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
 }
 
-task generatePom << {
+task ("generatePom") doLast {
     final pomTemplate = new File(projectDir, "pom.tpl.xml")
     final pom = new File(buildDir, "pom.xml")
     pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
@@ -42,7 +42,6 @@ task helpMojo(type: CrossPlatformExec) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
 }
-
 
 helpMojo.dependsOn generatePom
 sourceSets.main.java.srcDir("$buildDir/generated-sources/plugin")
