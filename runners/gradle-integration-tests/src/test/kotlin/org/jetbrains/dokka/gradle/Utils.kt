@@ -18,7 +18,7 @@ fun File.writeStructure(builder: StringBuilder, relativeTo: File = this, spaces:
     builder.append(out)
     if (this.isDirectory) {
         builder.appendln(":")
-        this.listFiles().forEach { it.writeStructure(builder, this, spaces + 4) }
+        this.listFiles().sortedBy { it.name }.forEach { it.writeStructure(builder, this, spaces + 4) }
     } else {
         builder.appendln()
     }

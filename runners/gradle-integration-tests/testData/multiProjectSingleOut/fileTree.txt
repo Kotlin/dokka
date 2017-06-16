@@ -1,31 +1,31 @@
 :
-    package-list
-    index-outline.html
     alltypes:
         index.html
-    s2:
-        -superful:
-            bar.html
-            -init-.html
-            index.html
-        -cooler:
-            coolest.html
-            a.html
-            my-class.html
-            -init-.html
-            index.html
-        main.html
-        index.html
+    index-outline.html
+    index.html
+    package-list
     s1:
+        -my-class:
+            -init-.html
+            index.html
+            otherworks.html
         -super:
+            -init-.html
             bar.html
             foo.html
-            -init-.html
             index.html
-        -my-class:
-            otherworks.html
-            -init-.html
-            index.html
-        some-cool-thing.html
         index.html
-    index.html
+        some-cool-thing.html
+    s2:
+        -cooler:
+            -init-.html
+            a.html
+            coolest.html
+            index.html
+            my-class.html
+        -superful:
+            -init-.html
+            bar.html
+            index.html
+        index.html
+        main.html

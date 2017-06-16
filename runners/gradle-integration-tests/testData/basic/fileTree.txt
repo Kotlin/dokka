@@ -1,13 +1,17 @@
 :
-    package-list
-    index-outline.html
     alltypes:
         index.html
     demo:
         -a:
-            p.html
             -init-.html
             index.html
+            p.html
+        -greeter:
+            -init-.html
+            greet.html
+            index.html
+            name.html
+        -some-interface.html
         -some-sub-type:
             -init-.html
             index.html
@@ -15,14 +19,10 @@
             -init-.html
             index.html
         constructor.html
-        -some-interface.html
-        x.html
-        str.html
-        main.html
-        -greeter:
-            name.html
-            greet.html
-            -init-.html
-            index.html
         index.html
+        main.html
+        str.html
+        x.html
+    index-outline.html
     index.html
+    package-list
