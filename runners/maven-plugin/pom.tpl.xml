@@ -21,6 +21,6 @@
             </plugin>
         </plugins>
         <directory>./</directory>
-        <outputDirectory>classes/main</outputDirectory>
+        <outputDirectory>./classes/java/main</outputDirectory>
     </build>
 </project>
