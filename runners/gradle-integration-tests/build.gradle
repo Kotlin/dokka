@@ -1,0 +1,36 @@
+
+
+apply plugin: 'kotlin'
+
+
+dependencies {
+
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version: kotlin_for_gradle_version
+
+    runtimeClasspath project(path: ':runners:gradle-plugin', configuration: 'shadow')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile gradleTestKit()
+}
+
+
+
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+        file("$outputDir/fatjar.txt").text = project(":runners:fatjar").shadowJar.archivePath
+    }
+}
+
+
+createClasspathManifest.mustRunAfter project(":runners:fatjar").shadowJar
+testClasses.dependsOn project(":runners:fatjar").shadowJar
+testClasses.dependsOn createClasspathManifest
