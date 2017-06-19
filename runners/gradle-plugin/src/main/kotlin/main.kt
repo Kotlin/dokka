@@ -188,7 +188,7 @@ open class DokkaTask : DefaultTask() {
 
         val taskContainer = project.tasks
 
-        val tasksByPath = paths.map { taskContainer.findByPath(it as String) }
+        val tasksByPath = paths.map { taskContainer.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found") }
 
         other
                 .filter { it !is Task || it isNotInstance getAbstractKotlinCompileFor(it) }
@@ -196,7 +196,7 @@ open class DokkaTask : DefaultTask() {
 
         tasksByPath
                 .filter { it == null || it isNotInstance getAbstractKotlinCompileFor(it) }
-                .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
+                .forEach { throw IllegalArgumentException("Illegal task path in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE, but was $it") }
 
 
         return (tasksByPath + other) as List<Task>
@@ -211,9 +211,7 @@ open class DokkaTask : DefaultTask() {
 
         allTasks.forEach {
 
-            println("Task ======")
-
-            println(it)
+            logger.info("Dokka found AbstractKotlinCompile task: $it")
             val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
 
             val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
@@ -221,8 +219,6 @@ open class DokkaTask : DefaultTask() {
             val taskClasspath: Iterable<File> =
                     (it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v() ?:
                             it["getClasspath", abstractKotlinCompileClz]())
-
-            println("End ======")
 
             allClasspath += taskClasspath.filter { it.exists() }
             allSourceRoots += taskSourceRoots.filter { it.exists() }
@@ -245,18 +241,12 @@ open class DokkaTask : DefaultTask() {
             val project = project
             val sourceRoots = collectSourceRoots() + tasksSourceRoots.toSourceRoots()
 
-            val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
-
-            println("=== $name config ===")
-            println(fullClasspath)
-            println(sourceRoots)
-            println("====================")
-
-
             if (sourceRoots.isEmpty()) {
                 logger.warn("No source directories found: skipping dokka generation")
                 return
             }
+
+            val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
 
             val bootstrapClass = fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
 
