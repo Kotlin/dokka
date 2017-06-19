@@ -17,6 +17,8 @@ val androidPluginClasspathData = pluginClasspathData.resolveSibling("android-dok
 
 val dokkaFatJarPathData = pluginClasspathData.resolveSibling("fatjar.txt")
 
+val androidLocalProperties = testDataFolder.resolve("android.local.properties").let { if (Files.exists(it)) it else null }
+
 abstract class AbstractDokkaGradleTest {
     @get:Rule val testProjectDir = TemporaryFolder()
 
