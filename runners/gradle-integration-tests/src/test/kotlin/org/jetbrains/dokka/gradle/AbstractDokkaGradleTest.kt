@@ -7,44 +7,20 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.stream.Collectors
 
 
 val testDataFolder = Paths.get("testData")
 
-val pluginClasspathData = Paths.get("build", "createClasspathManifest", "plugin-classpath.txt")
+val pluginClasspathData = Paths.get("build", "createClasspathManifest", "dokka-plugin-classpath.txt")
+val androidPluginClasspathData = pluginClasspathData.resolveSibling("android-dokka-plugin-classpath.txt")
 
 val dokkaFatJarPathData = pluginClasspathData.resolveSibling("fatjar.txt")
 
-abstract class AbstractBasicDokkaGradleTest {
+abstract class AbstractDokkaGradleTest {
     @get:Rule val testProjectDir = TemporaryFolder()
 
-    fun checkExpectedOutput(root: String, actualSubpath: String) {
-        val rootPath = testDataFolder.resolve(root)
-        val tmpRoot = testProjectDir.root.toPath().resolve(actualSubpath).normalize()
-
-        val actualFiles = Files.walk(tmpRoot).filter { Files.isRegularFile(it) }.collect(Collectors.toList()) as List<Path>
-        val expectedFiles = Files.walk(rootPath).filter { Files.isRegularFile(it) }.collect(Collectors.toList()) as List<Path>
-
-        val matchedActualFiles = mutableListOf<Path>()
-
-        expectedFiles
-                .map { expected: Path -> Pair(expected, actualFiles.find { it.endsWith(expected.relativize(rootPath)) }) }
-                .forEach { p ->
-                    val expected = p.first
-                    val actual = p.second
-                    assertEqualsIgnoringSeparators(expected.toFile(), actual?.toFile())
-                    matchedActualFiles.add(actual!!)
-                }
-
-
-        actualFiles.filter { it !in matchedActualFiles }.forEach { actual ->
-            val expected = rootPath.resolve(actual.relativize(tmpRoot))
-            assertEqualsIgnoringSeparators(expected.toFile(), actual.toFile())
-        }
-    }
+    open val pluginClasspath: List<File> = pluginClasspathData.toFile().readLines().map { File(it) }
 
     fun checkOutputStructure(expected: String, actualSubpath: String) {
         val expectedPath = testDataFolder.resolve(expected)
@@ -89,10 +65,37 @@ abstract class AbstractBasicDokkaGradleTest {
         println("$checked files checked for unresolved links")
     }
 
+    fun checkExternalLink(actualSubpath: String, linkBody: String, fullLink: String, extension: String = "html") {
+        val match = "!!match!!"
+        val notMatch = "!!not-match!!"
+
+        val actualPath = testProjectDir.root.toPath().resolve(actualSubpath).normalize()
+        var checked = 0
+        var totalEntries = 0
+        Files.walk(actualPath).filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".$extension") }.forEach {
+            val text = it.toFile().readText()
+
+            val textWithoutMatches = text.replace(fullLink, match)
+
+            val textWithoutNonMatches = textWithoutMatches.replace(linkBody, notMatch)
+
+            if (textWithoutNonMatches != textWithoutMatches) {
+
+                val expected = textWithoutNonMatches.replace(notMatch, fullLink).replace(match, fullLink)
+                val actual = textWithoutMatches.replace(match, fullLink)
+
+                throw FileComparisonFailure("", expected, actual, null)
+            }
+            if (text != textWithoutMatches)
+                totalEntries++
+
+            checked++
+        }
+        println("$checked files checked for valid external links '$linkBody', found $totalEntries links")
+    }
 
     fun configure(gradleVersion: String = "3.5", kotlinVersion: String = "1.1.2", arguments: Array<String>): GradleRunner {
         val fatjar = dokkaFatJarPathData.toFile().readText()
-        val pluginClasspath = pluginClasspathData.toFile().readLines().map { File(it) }
 
         return GradleRunner.create().withProjectDir(testProjectDir.root)
                 .withArguments("-Pdokka_fatjar=$fatjar", "-Ptest_kotlin_version=$kotlinVersion", *arguments)
@@ -100,6 +103,4 @@ abstract class AbstractBasicDokkaGradleTest {
                 .withGradleVersion(gradleVersion)
                 .withDebug(true)
     }
-
-
 }

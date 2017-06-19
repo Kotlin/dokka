@@ -2,10 +2,9 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
-import java.io.File
 import kotlin.test.assertEquals
 
-class MultiProjectSingleOutTest : AbstractBasicDokkaGradleTest() {
+class MultiProjectSingleOutTest : AbstractDokkaGradleTest() {
 
     fun prepareTestData(testDataRootPath: String) {
         val testDataRoot = testDataFolder.resolve(testDataRootPath)
@@ -23,21 +22,21 @@ class MultiProjectSingleOutTest : AbstractBasicDokkaGradleTest() {
 
         prepareTestData("multiProjectSingleOut")
 
-        testProjectDir.root.printStructure()
         val result = configure(gradleVersion, kotlinVersion, arguments = arrayOf("dokka", "--stacktrace")).build()
 
         println(result.output)
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":dokka")?.outcome)
 
-        File(testProjectDir.root, "build/dokka").printStructure()
-
-        val docsOutput = "build/dokka/${testProjectDir.root.name}"
+        val docsOutput = "build/dokka"
 
         checkOutputStructure("multiProjectSingleOut/fileTree.txt", docsOutput)
 
         checkNoErrorClasses(docsOutput)
         checkNoUnresolvedLinks(docsOutput)
+
+        checkExternalLink(docsOutput, "<span class=\"identifier\">String</span>",
+                """<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>""")
     }
 
     @Test fun `test kotlin 1_1_2 and gradle 3_5`() {

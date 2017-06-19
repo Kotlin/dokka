@@ -1,31 +1,33 @@
-:
-    alltypes:
+/
+    multi-project-root/
+        alltypes/
+            index.html
+        index-outline.html
         index.html
-    index-outline.html
-    index.html
-    package-list
-    s1:
-        -my-class:
-            -init-.html
+        package-list
+        s1/
+            -my-class/
+                -init-.html
+                index.html
+                otherworks.html
+            -super/
+                -init-.html
+                bar.html
+                foo.html
+                index.html
             index.html
-            otherworks.html
-        -super:
-            -init-.html
-            bar.html
-            foo.html
+            some-cool-thing.html
+        s2/
+            -cooler/
+                -init-.html
+                a.html
+                coolest.html
+                index.html
+                my-class.html
+            -superful/
+                -init-.html
+                bar.html
+                index.html
             index.html
-        index.html
-        some-cool-thing.html
-    s2:
-        -cooler:
-            -init-.html
-            a.html
-            coolest.html
-            index.html
-            my-class.html
-        -superful:
-            -init-.html
-            bar.html
-            index.html
-        index.html
-        main.html
+            main.html
+    style.css

@@ -11,21 +11,16 @@ import java.nio.file.attribute.BasicFileAttributes
 
 
 fun File.writeStructure(builder: StringBuilder, relativeTo: File = this, spaces: Int = 0) {
-
     builder.append(" ".repeat(spaces))
     val out = if (this != relativeTo) this.relativeTo(relativeTo) else this
 
     builder.append(out)
     if (this.isDirectory) {
-        builder.appendln(":")
+        builder.appendln("/")
         this.listFiles().sortedBy { it.name }.forEach { it.writeStructure(builder, this, spaces + 4) }
     } else {
         builder.appendln()
     }
-}
-
-fun File.printStructure() {
-    print(buildString { this@printStructure.writeStructure(this) })
 }
 
 fun assertEqualsIgnoringSeparators(expectedFile: File, output: String) {
@@ -36,13 +31,6 @@ fun assertEqualsIgnoringSeparators(expectedFile: File, output: String) {
     if (expectedText != actualText)
         throw FileComparisonFailure("", expectedText, actualText, expectedFile.canonicalPath)
 }
-
-
-fun assertEqualsIgnoringSeparators(expectedFile: File, actualFile: File?) {
-    val actualText = if (actualFile != null && actualFile.exists()) actualFile.readText() else ""
-    assertEqualsIgnoringSeparators(expectedFile, actualText)
-}
-
 
 class CopyFileVisitor(private var sourcePath: Path?, private val targetPath: Path) : SimpleFileVisitor<Path>() {
 
