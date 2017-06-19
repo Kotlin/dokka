@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url 'https://maven.google.com' }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$abt_plugin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+}
