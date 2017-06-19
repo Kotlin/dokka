@@ -23,6 +23,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     shadow project(path: ':runners:gradle-plugin', configuration: 'shadow')
+    compileOnly project(':integration')
 
     provided gradleApi()
     provided localGroovy()
