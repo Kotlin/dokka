@@ -21,6 +21,7 @@ import java.io.InputStream
 import java.io.Serializable
 import java.net.URLClassLoader
 import java.util.*
+import java.util.concurrent.Callable
 import java.util.function.BiConsumer
 
 open class DokkaPlugin : Plugin<Project> {
@@ -53,10 +54,10 @@ object ClassloaderContainer {
 open class DokkaTask : DefaultTask() {
 
     fun defaultKotlinTasks() = with(ReflectDsl) {
-
         val abstractKotlinCompileClz = try {
             project.buildscript.classLoader.loadClass(ABSTRACT_KOTLIN_COMPILE)
         } catch (cnfe: ClassNotFoundException) {
+            logger.warn("$ABSTRACT_KOTLIN_COMPILE class not found, default kotlin tasks ignored")
             return@with emptyList<Task>()
         }
 
@@ -66,9 +67,9 @@ open class DokkaTask : DefaultTask() {
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
         description = "Generates dokka documentation for Kotlin"
-        project.afterEvaluate {
-            this.dependsOn(kotlinTasks.flatMap { it.dependsOn })
-        }
+
+        @Suppress("LeakingThis")
+        dependsOn(Callable { kotlinTasks.flatMap { it.dependsOn } })
     }
 
     @Input
