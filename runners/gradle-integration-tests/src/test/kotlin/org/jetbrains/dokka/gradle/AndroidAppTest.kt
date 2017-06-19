@@ -61,7 +61,7 @@ class AndroidAppTest : AbstractDokkaGradleTest() {
         doTest("3.5", "1.1.2", AndroidPluginParams("2.3.0", "25.0.0", 24))
     }
 
-    @Test fun `test kotlin 1_0_7 and gradle 3_5 and abt 2_2_3`() {
-        doTest("3.5", "1.0.7", AndroidPluginParams("2.2.3", "25.0.0", 24))
+    @Test fun `test kotlin 1_0_7 and gradle 2_14_1 and abt 2_2_3`() {
+        doTest("2.14.1", "1.0.7", AndroidPluginParams("2.2.3", "25.0.0", 24))
     }
 }
