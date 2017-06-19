@@ -1,0 +1,19 @@
+/
+    app/
+        alltypes/
+            index.html
+        index-outline.html
+        index.html
+        org.example.kotlin.mixed/
+            -java-activity/
+                -init-.html
+                index.html
+                on-create-options-menu.html
+            -kotlin-activity/
+                -init-.html
+                index.html
+                on-create-options-menu.html
+                on-create.html
+            index.html
+        package-list
+    style.css

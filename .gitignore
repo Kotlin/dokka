@@ -87,3 +87,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 !lib/*.jar
+
+local.properties
