@@ -103,8 +103,8 @@ dokka {
     // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
     // Repeat for multiple links
     externalDocumentationLink {
-        // URL of the generated documentation 
-        url = new URL("https://example.com/docs")
+        // Root URL of the generated documentation to link with. The trailing slash is required!
+        url = new URL("https://example.com/docs/")
         
         // If package-list file located in non-standard location
         // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
@@ -287,8 +287,8 @@ The available configuration options are shown below:
         <!-- Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka) -->
         <externalDocumentationLinks>
             <link>
-                <!-- URL of the generated documentation -->
-                <url>https://example.com/docs</url>
+                <!-- Root URL of the generated documentation to link with. The trailing slash is required! -->
+                <url>https://example.com/docs/</url>
                 <!-- If package-list file located in non-standard location -->
                 <!-- <packageListUrl>file:///home/user/localdocs/package-list</packageListUrl> -->
             </link>
@@ -344,7 +344,7 @@ The Ant task supports the following attributes:
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
   * `noStdlibLink` - No default documentation link to kotlin-stdlib
-  * `<externalDocumentationLink url="https://example.com/docs" packageListUrl="file:///home/user/localdocs/package-list"/>` -
+  * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
     
 
