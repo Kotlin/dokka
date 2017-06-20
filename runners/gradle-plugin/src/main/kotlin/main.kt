@@ -79,7 +79,7 @@ open class DokkaTask : DefaultTask() {
     var outputDirectory: String = ""
 
 
-    @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks not suitable for you")
+    @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
 
     @Input var classpath: List<File> = arrayListOf()
@@ -202,7 +202,7 @@ open class DokkaTask : DefaultTask() {
         return (tasksByPath + other) as List<Task>
     }
 
-    private fun extractClasspathAndSourceRootsFromKotlinTasks(): ClasspathAndSourceRoots = with(ReflectDsl) {
+    private fun extractClasspathAndSourceRootsFromKotlinTasks(): ClasspathAndSourceRoots {
 
         val allTasks = kotlinTasks
 
@@ -211,20 +211,22 @@ open class DokkaTask : DefaultTask() {
 
         allTasks.forEach {
 
-            logger.info("Dokka found AbstractKotlinCompile task: $it")
-            val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
+            logger.debug("Dokka found AbstractKotlinCompile task: $it")
+            with(ReflectDsl) {
+                val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
 
-            val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
+                val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
 
-            val taskClasspath: Iterable<File> =
-                    (it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v() ?:
-                            it["getClasspath", abstractKotlinCompileClz]())
+                val taskClasspath: Iterable<File> =
+                        (it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v() ?:
+                                it["getClasspath", abstractKotlinCompileClz]())
 
-            allClasspath += taskClasspath.filter { it.exists() }
-            allSourceRoots += taskSourceRoots.filter { it.exists() }
+                allClasspath += taskClasspath.filter { it.exists() }
+                allSourceRoots += taskSourceRoots.filter { it.exists() }
+            }
         }
 
-        ClasspathAndSourceRoots(allClasspath.toList(), allSourceRoots.toList())
+        return ClasspathAndSourceRoots(allClasspath.toList(), allSourceRoots.toList())
     }
 
     private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }

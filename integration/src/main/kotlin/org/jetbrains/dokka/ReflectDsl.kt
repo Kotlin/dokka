@@ -45,9 +45,7 @@ object ReflectDsl {
 
         @Suppress("UNCHECKED_CAST")
         fun v(x: Any?) {
-            val prop = prop
-            prop as KMutableProperty
-            prop.setter.apply { isAccessible = true }.call(receiver, x)
+            (prop as KMutableProperty).setter.apply { isAccessible = true }.call(receiver, x)
         }
 
 
