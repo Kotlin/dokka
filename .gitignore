@@ -89,3 +89,4 @@ gradle-app.setting
 !lib/*.jar
 
 local.properties
+android.local.properties

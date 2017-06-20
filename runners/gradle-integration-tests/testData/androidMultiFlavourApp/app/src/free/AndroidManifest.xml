@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="org.example.kotlin.mixed.free.AdActivity"
+            android:label="@string/title_activity_ad"
+            android:theme="@style/AppTheme"></activity>
+    </application>
+</manifest>

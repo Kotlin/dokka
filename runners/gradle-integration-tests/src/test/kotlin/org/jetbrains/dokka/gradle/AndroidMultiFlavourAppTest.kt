@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.gradle.AndroidAppTest.AndroidPluginParams
 import org.junit.Test
 import java.io.File
-import java.nio.file.Files
 import kotlin.test.assertEquals
 
-class AndroidAppTest : AbstractDokkaGradleTest() {
+class AndroidMultiFlavourAppTest : AbstractDokkaGradleTest() {
     override val pluginClasspath: List<File> = androidPluginClasspathData.toFile().readLines().map { File(it) }
 
     fun prepareTestData(testDataRootPath: String) {
@@ -20,30 +20,21 @@ class AndroidAppTest : AbstractDokkaGradleTest() {
         androidLocalProperties?.copy(tmpRoot.resolve("local.properties"))
     }
 
-
-    data class AndroidPluginParams(val pluginVersion: String, val buildToolsVersion: String, val compileSdk: Int) {
-        fun asArguments(): List<String> = listOf(
-                "-Pabt_plugin_version=$pluginVersion",
-                "-Pabt_version=$buildToolsVersion",
-                "-Psdk_version=$compileSdk"
-        )
-    }
-
-
     private fun doTest(gradleVersion: String, kotlinVersion: String, androidPluginParams: AndroidPluginParams) {
-        prepareTestData("androidApp")
+        prepareTestData("androidMultiFlavourApp")
 
         val result = configure(gradleVersion, kotlinVersion,
-                arguments = arrayOf("dokka", "--stacktrace") + androidPluginParams.asArguments())
+                arguments = arrayOf("dokka", "dokkaFullFlavourOnly", "--stacktrace") + androidPluginParams.asArguments())
                 .build()
 
         println(result.output)
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":app:dokka")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":app:dokkaFullFlavourOnly")?.outcome)
 
         val docsOutput = "app/build/dokka"
 
-        checkOutputStructure("androidApp/fileTree.txt", docsOutput)
+        checkOutputStructure("androidMultiFlavourApp/fileTree.txt", docsOutput)
 
         checkNoErrorClasses(docsOutput)
         checkNoUnresolvedLinks(docsOutput)
@@ -63,4 +54,5 @@ class AndroidAppTest : AbstractDokkaGradleTest() {
     @Test fun `test kotlin 1_0_7 and gradle 2_14_1 and abt 2_2_3`() {
         doTest("2.14.1", "1.0.7", AndroidPluginParams("2.2.3", "25.0.0", 24))
     }
+
 }
