@@ -24,7 +24,7 @@ data class FileLocation(val file: File): Location {
             throw IllegalArgumentException("$other is not a FileLocation")
         }
         if (file.path.substringBeforeLast(".") == other.file.path.substringBeforeLast(".") && anchor == null) {
-            return "."
+            return "./${file.name}"
         }
         val ownerFolder = file.parentFile!!
         val relativePath = ownerFolder.toPath().relativize(other.file.toPath()).toString().replace(File.separatorChar, '/')
