@@ -100,7 +100,10 @@ abstract class AbstractDokkaGradleTest {
         val fatjar = dokkaFatJarPathData.toFile().readText()
 
         return GradleRunner.create().withProjectDir(testProjectDir.root)
-                .withArguments("-Pdokka_fatjar=$fatjar", "-Ptest_kotlin_version=$kotlinVersion", *arguments)
+                .withArguments("-Pdokka_fatjar=$fatjar",
+                        "-Ptest_kotlin_version=$kotlinVersion",
+                        "-Dkotlin.compiler.execution.strategy=\"in-process\"",
+                        *arguments)
                 .withPluginClasspath(pluginClasspath)
                 .withGradleVersion(gradleVersion)
                 .withDebug(true)
