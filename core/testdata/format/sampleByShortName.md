@@ -8,6 +8,8 @@
 
 `fun use(): Unit`
 
+**Samples**
+
 ``` kotlin
 println("sample")
 ```

@@ -156,7 +156,7 @@ line two""", toTestString())
         verifyModel("testdata/comments/directive.kt") { model ->
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())
-                with (content.description) {
+                with (content.sections[0]) {
                     assertEqualsIgnoringSeparators("""
                         |[code lang=kotlin]
                         |if (true) {
