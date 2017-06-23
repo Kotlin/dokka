@@ -231,6 +231,8 @@ open class DokkaTask : DefaultTask() {
 
     private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }
 
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
+
     @TaskAction
     fun generate() {
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
@@ -276,7 +278,8 @@ open class DokkaTask : DefaultTask() {
                     perPackageOptions,
                     externalDocumentationLinks,
                     noStdlibLink,
-                    cacheRoot)
+                    cacheRoot,
+                    collectSuppressedFiles(sourceRoots))
 
 
             bootstrapProxy.configure(
@@ -326,11 +329,9 @@ open class DokkaTask : DefaultTask() {
     }
 
 
-    @SkipWhenEmpty
     @InputFiles
     fun getInputFiles(): FileCollection =
-            project.files(kotlinCompileBasedClasspathAndSourceRoots.sourceRoots.map { project.fileTree(File(it.path)) }) +
-                    project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
+            project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
                     project.files(includes) +
                     project.files(samples.map { project.fileTree(it) })
 
