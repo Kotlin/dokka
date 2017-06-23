@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -29,6 +30,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import com.google.inject.name.Named as GuiceNamed
@@ -48,7 +50,8 @@ class DocumentationOptions(val outputDir: String,
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
-                           cacheRoot: String? = null) {
+                           cacheRoot: String? = null,
+                           val suppressedFiles: List<File> = emptyList()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -783,7 +786,7 @@ fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
             || this.visibility in visibleToDocumentation) &&
-            !isDocumentationSuppressed() &&
+            !isDocumentationSuppressed(options) &&
             (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
@@ -852,7 +855,13 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
     return annotationClass.isDocumentedAnnotation()
 }
 
-fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
+fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOptions): Boolean {
+
+    val path = this.findPsi()?.containingFile?.virtualFile?.path
+    if (path != null) {
+        if (File(path).absoluteFile in options.suppressedFiles) return true
+    }
+
     val doc = findKDoc()
     if (doc is KDocSection && doc.findTagByName("suppress") != null) return true
 
