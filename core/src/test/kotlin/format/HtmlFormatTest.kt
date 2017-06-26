@@ -71,8 +71,8 @@ class HtmlFormatTest {
     }
 
     @Test fun javaSupertypeLink() {
-        verifyJavaHtmlNodes("javaSupertype") { model ->
-            model.members.single().members.single { it.name == "C" }.members.filter { it.name == "Bar" }
+        verifyJavaHtmlNodes("JavaSupertype") { model ->
+            model.members.single().members.single { it.name == "JavaSupertype" }.members.filter { it.name == "Bar" }
         }
     }
 

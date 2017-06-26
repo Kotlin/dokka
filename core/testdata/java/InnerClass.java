@@ -1,4 +1,4 @@
-class Test {
+class InnerClass {
     public class D {
     }
 }
