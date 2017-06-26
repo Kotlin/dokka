@@ -1,10 +1,10 @@
 package org.jetbrains.dokka
 
 
+import com.sampullara.cli.Args
+import com.sampullara.cli.Argument
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import org.jetbrains.kotlin.cli.common.arguments.ValueDescription
-import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Args
-import org.jetbrains.kotlin.cli.common.parser.com.sampullara.cli.Argument
+
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
@@ -12,35 +12,27 @@ import java.net.URLClassLoader
 
 class DokkaArguments {
     @set:Argument(value = "src", description = "Source file or directory (allows many paths separated by the system path separator)")
-    @ValueDescription("<path>")
     var src: String = ""
 
     @set:Argument(value = "srcLink", description = "Mapping between a source directory and a Web site for browsing the code")
-    @ValueDescription("<path>=<url>[#lineSuffix]")
     var srcLink: String = ""
 
     @set:Argument(value = "include", description = "Markdown files to load (allows many paths separated by the system path separator)")
-    @ValueDescription("<path>")
     var include: String = ""
 
     @set:Argument(value = "samples", description = "Source root for samples")
-    @ValueDescription("<path>")
     var samples: String = ""
 
     @set:Argument(value = "output", description = "Output directory path")
-    @ValueDescription("<path>")
     var outputDir: String = "out/doc/"
 
     @set:Argument(value = "format", description = "Output format (text, html, markdown, jekyll, kotlin-website)")
-    @ValueDescription("<name>")
     var outputFormat: String = "html"
 
     @set:Argument(value = "module", description = "Name of the documentation module")
-    @ValueDescription("<name>")
     var moduleName: String = ""
 
     @set:Argument(value = "classpath", description = "Classpath for symbol resolution")
-    @ValueDescription("<path>")
     var classpath: String = ""
 
     @set:Argument(value = "nodeprecated", description = "Exclude deprecated members from documentation")
@@ -90,7 +82,7 @@ object MainKt {
     @JvmStatic
     fun entry(args: Array<String>) {
         val arguments = DokkaArguments()
-        val freeArgs: List<String> = Args.parse(arguments, args, false) ?: listOf()
+        val freeArgs: List<String> = Args.parse(arguments, args) ?: listOf()
         val sources = if (arguments.src.isNotEmpty()) arguments.src.split(File.pathSeparatorChar).toList() + freeArgs else freeArgs
         val samples = if (arguments.samples.isNotEmpty()) arguments.samples.split(File.pathSeparatorChar).toList() else listOf()
         val includes = if (arguments.include.isNotEmpty()) arguments.include.split(File.pathSeparatorChar).toList() else listOf()
@@ -166,7 +158,7 @@ object MainKt {
     @JvmStatic
     fun main(args: Array<String>) {
         val arguments = DokkaArguments()
-        Args.parse(arguments, args, false)
+        Args.parse(arguments, args)
 
         if (arguments.outputFormat == "javadoc")
             startWithToolsJar(args)
