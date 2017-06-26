@@ -4,4 +4,5 @@ sourceCompatibility = 1.6
 
 dependencies {
     compile project(":core")
+    compile "com.github.spullara.cli-parser:cli-parser:1.1.1"
 }
