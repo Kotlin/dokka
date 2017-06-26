@@ -110,7 +110,7 @@ public class JavaTest {
     }
 
     @Test fun innerClass() {
-        verifyJavaPackageMember("testdata/java/innerClass.java") { cls ->
+        verifyJavaPackageMember("testdata/java/InnerClass.java") { cls ->
             val innerClass = cls.members(NodeKind.Class).single()
             assertEquals("D", innerClass.name)
         }
@@ -199,7 +199,7 @@ public class JavaTest {
     }
 
     @Test fun inheritorLinks() {
-        verifyJavaPackageMember("testdata/java/inheritorLinks.java") { cls ->
+        verifyJavaPackageMember("testdata/java/InheritorLinks.java") { cls ->
             val fooClass = cls.members.single { it.name == "Foo" }
             val inheritors = fooClass.references(RefKind.Inheritor)
             assertEquals(1, inheritors.size)
