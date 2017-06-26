@@ -8,7 +8,7 @@ buildscript {
 
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.6
 
 configurations {
     provided
@@ -40,7 +40,7 @@ dependencies {
 
     runtime files("../lib/trove4j.jar")
     runtime files("../lib/jdom.jar")
-    runtime files("../lib/protobuf-2.5.0-lite.jar")
+    runtime files("../lib/protobuf-2.6.1-lite.jar")
     runtime files("../lib/asm-all.jar")
     runtime files("../lib/jps-model.jar")
 

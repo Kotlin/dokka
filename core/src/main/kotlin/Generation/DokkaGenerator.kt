@@ -86,7 +86,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
 
         environment.apply {
-            addClasspath(PathUtil.getJdkClassesRoots())
+            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
             for (element in this@DokkaGenerator.classpath) {
                 addClasspath(File(element))
@@ -116,7 +116,7 @@ class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
 
     private var seenErrors = false
 
-    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
         if (severity == CompilerMessageSeverity.ERROR) {
             seenErrors = true
         }

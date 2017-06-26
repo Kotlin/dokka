@@ -14,10 +14,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.kotlin.analyzer.AnalysisResult
-import org.jetbrains.kotlin.analyzer.ModuleContent
-import org.jetbrains.kotlin.analyzer.ModuleInfo
-import org.jetbrains.kotlin.analyzer.ResolverForModule
+import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -111,10 +108,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
 
         val builtIns = JvmBuiltIns(projectContext.storageManager)
-        val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(
+
+        val resolverForProject = AnalyzerFacade.setupResolverForProject(
                 "Dokka",
                 projectContext,
                 listOf(library, module),
+                { JvmAnalyzerFacade },
                 {
                     when (it) {
                         library -> ModuleContent(emptyList(), GlobalSearchScope.notScope(sourcesScope))

@@ -56,8 +56,9 @@ fun appendDocumentation(documentation: DocumentationModule,
 
         }
 
-        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
             when (severity) {
+                CompilerMessageSeverity.STRONG_WARNING,
                 CompilerMessageSeverity.WARNING,
                 CompilerMessageSeverity.LOGGING,
                 CompilerMessageSeverity.OUTPUT,
