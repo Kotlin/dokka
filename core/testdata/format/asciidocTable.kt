@@ -1,14 +1,18 @@
 /**
- * [cols="2*", options="header"]
+ * Function that is documented using a _asciidoc_ *table*.
+ *
+ * NOTE: This should translate to a two column table.
+ *
+ * [cols="2*"]
  * |===
- * |Name of Column 1
- * |Name of Column 2
+ * |Firefox
+ * |Web Browser
  *
- * |Cell in column 1, row 1
- * |Cell in column 2, row 1
+ * |Ruby
+ * |Programming Language
  *
- * |Cell in column 1, row 2
- * |Cell in column 2, row 2
+ * |TorqueBox
+ * |Application Server
  * |===
  */
 fun asciidocTable() {

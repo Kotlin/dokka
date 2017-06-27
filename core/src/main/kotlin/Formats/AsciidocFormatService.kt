@@ -11,6 +11,21 @@ import org.asciidoctor.OptionsBuilder
 import org.asciidoctor.AttributesBuilder
 
 
+/**
+ * Selects the correct stylesheet depending on the
+ * _java.version_ system property.
+ */
+fun selectStylesheet() : String {
+  val version = System.getProperty("java.version") ?: "";
+  if (version.matches("^1\\.[56]\\D.*".toRegex()))
+    return "/dokka/styles/stylesheet6.css"
+  if (version.matches("^1\\.[78]\\D.*".toRegex()))
+    return "/dokka/styles/stylesheet8.css"
+
+  return "/dokka/styles/stylesheet8.css"
+}
+
+const val CodeRayStyleSheet = "/dokka/styles/coderay-asciidoctor.css"
 
 
 private fun defaultOptions(): OptionsBuilder {
@@ -92,7 +107,7 @@ class AsciidocFormatService @Inject constructor(@Named("folders") locationServic
   val asciidoctor : Asciidoctor = Asciidoctor.Factory.create()
 
   override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
-    callback("/dokka/styles/style.css", "style.css")
+    callback(selectStylesheet(), "style.css")
   }
 
   override fun createOutputBuilder(to: StringBuilder, location: Location) =

@@ -13,9 +13,17 @@ import java.nio.file.Files
  * @author Mario Toffia
  */
 class JavaAsciidocTest {
-  @Test fun javaAsciidocTableGetsRendered() {
+  @Test fun javaAsciidocJavaSourceGetsRendered() {
     val str = generate("testdata/format/asciidocJavaSource.kt","AsciidocJavaSourceKt.html")
-    System.out.println(str)
+    assert(str.contains("<pre class=\"CodeRay highlight\"><code data-lang=\"java\"><span class=\"directive\">public</span>" +
+        " <span class=\"type\">class</span> <span class=\"class\">SvenneSvensson</span>"))
+  }
+
+  @Test fun javaAsciidocTableGetsRendered() {
+    val str = generate("testdata/format/asciidocTable.kt","AsciidocTableKt.html")
+    assert(str.contains("<table class=\"tableblock frame-all grid-all spread\">"))
+    assert(str.contains("<col style=\"width: 50%;\">"))
+    assert(str.contains("<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Firefox</p></td>"))
   }
 
   private fun generate(file : String, htmlFile : String) : String {

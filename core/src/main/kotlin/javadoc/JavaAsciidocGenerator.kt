@@ -1,11 +1,15 @@
 package org.jetbrains.dokka.javadoc
 
 import Formats.AsciidocFormatService
+import Formats.CodeRayStyleSheet
+import Formats.selectStylesheet
 import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.reflect.KClass
 
 
@@ -30,6 +34,13 @@ class JavaAsciidocGenerator @Inject constructor(val options: DocumentationOption
   }
 
   override fun buildSupportFiles() {
+    FileOutputStream(File(options.outputDir,"stylesheet.css"), false).use {
+      javaClass.getResourceAsStream(selectStylesheet()).copyTo(it)
+    }
+
+    FileOutputStream(File(options.outputDir,"coderay-asciidoctor.css"), false).use {
+      javaClass.getResourceAsStream(CodeRayStyleSheet).copyTo(it)
+    }
   }
 
   override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
