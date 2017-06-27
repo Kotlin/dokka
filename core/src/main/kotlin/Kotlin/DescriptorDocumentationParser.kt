@@ -54,6 +54,19 @@ class DescriptorDocumentationParser
         if (kdocText.endsWith("```") || kdocText.endsWith("~~~")) {
             kdocText += "\n"
         }
+
+        // since this class is not injected - I added a check against the config instead
+
+        if (options.outputFormat == "html-as-asciidoc" ||
+            options.outputFormat == "java-asciidoc") {
+            val head = ContentParagraph()
+            val descr = ContentParagraph()
+            descr.append(ContentText(kdocText))
+
+            val asciidoc = Content.of(head, descr)
+            return asciidoc to { node -> };
+        }
+
         val tree = parseMarkdown(kdocText)
         val linkMap = LinkMap.buildLinkMap(tree.node, kdocText)
         val content = buildContent(tree, LinkResolver(linkMap, { href -> linkResolver.resolveContentLink(descriptor, href) }), inline)

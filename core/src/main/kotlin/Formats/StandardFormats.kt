@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.Formats
 
+import Formats.AsciidocFormatService
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 import org.jetbrains.dokka.Samples.KotlinWebsiteSampleProcessingService
@@ -24,6 +25,16 @@ class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
 class HtmlAsJavaFormatDescriptor : FormatDescriptor {
     override val formatServiceClass = HtmlFormatService::class
     override val outlineServiceClass = HtmlFormatService::class
+    override val generatorServiceClass = FileGenerator::class
+    override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
+    override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
+    override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
+    override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
+}
+
+class HtmlAsAsciidocFormatDescriptor : FormatDescriptor {
+    override val formatServiceClass = AsciidocFormatService::class
+    override val outlineServiceClass = AsciidocFormatService::class
     override val generatorServiceClass = FileGenerator::class
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class

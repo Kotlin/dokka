@@ -1,8 +1,12 @@
 import javax.tools.ToolProvider
 
 buildscript {
+    ext.kotlin_version = '1.1.2-5'
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+    repositories {
+        mavenCentral()
     }
 }
 
@@ -23,6 +27,8 @@ tasks.withType(Test) {
 }
 
 dependencies {
+    compile 'org.asciidoctor:asciidoctorj:1.5.4'
+
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
 
@@ -52,5 +58,9 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
 

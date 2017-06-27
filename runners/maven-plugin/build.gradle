@@ -23,6 +23,7 @@ dependencies {
     shadow "org.codehaus.plexus:plexus-utils:$plexus_utils_version"
     shadow "org.codehaus.plexus:plexus-archiver:$plexus_archiver_version"
     shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
 task ("generatePom") doLast {
@@ -131,3 +132,15 @@ tasks.withType(GenerateMavenPom) { Task generatePom ->
 }
 
 bintrayPublication(project, ['dokkaMavenPlugin'])
+buildscript {
+    ext.kotlin_version = '1.1.2-5'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
+}

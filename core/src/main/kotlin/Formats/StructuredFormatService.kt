@@ -119,7 +119,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     open fun appendIndentedSoftLineBreak() {
     }
 
-    fun appendContent(content: List<ContentNode>) {
+    open fun appendContent(content: List<ContentNode>) {
         for (contentNode in content) {
             appendContent(contentNode)
         }

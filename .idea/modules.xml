@@ -17,7 +17,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dokka.iml" filepath="$PROJECT_DIR$/dokka.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar.iml" group="runners/fatjar" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_main.iml" group="runners/fatjar" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_test.iml" group="runners/fatjar" />

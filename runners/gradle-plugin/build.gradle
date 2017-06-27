@@ -25,6 +25,7 @@ dependencies {
 
     provided gradleApi()
     provided localGroovy()
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
 task sourceJar(type: Jar) {
@@ -85,4 +86,16 @@ pluginBundle {
         groupId = "org.jetbrains.dokka"
         artifactId = "dokka-gradle-plugin"
     }
+}
+buildscript {
+    ext.kotlin_version = '1.1.2-5'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
 }
