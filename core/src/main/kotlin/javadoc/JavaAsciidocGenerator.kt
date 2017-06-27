@@ -19,9 +19,10 @@ class JavaAsciidocGenerator @Inject constructor(val options: DocumentationOption
 
   override fun buildPages(nodes: Iterable<DocumentationNode>) {
     val module = nodes.single() as DocumentationModule
+    val fs = formatService as StructuredFormatService
 
     DokkaConsoleLogger.report()
-    HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir, formatService))
+    HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir, fs))
   }
 
   override fun buildOutlines(nodes: Iterable<DocumentationNode>) {

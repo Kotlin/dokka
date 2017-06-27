@@ -15,7 +15,7 @@ private interface HasDocumentationNode {
 }
 
 open class DocumentationNodeBareAdapter(override val node: DocumentationNode, protected val formatService:
-FormatService?) : Doc, HasDocumentationNode {
+StructuredFormatService?) : Doc, HasDocumentationNode {
     private var rawCommentText_: String? = null
 
     override fun name(): String = node.name
@@ -61,7 +61,7 @@ FormatService?) : Doc, HasDocumentationNode {
 
 // TODO think of source position instead of null
 // TODO tags
-open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) :
+open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) :
     DocumentationNodeBareAdapter(node, formatService), HasModule {
     override fun inlineTags(): Array<out Tag> = buildInlineTags(module, this, node.content, formatService).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = buildInlineTags(module, this, node.summary, formatService).toTypedArray()
@@ -87,14 +87,14 @@ open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node
 }
 
 // should be extension property but can't because of KT-8745
-private fun <T> nodeAnnotations(self: T,formatService : FormatService?): List<AnnotationDescAdapter> where T : HasModule, T : HasDocumentationNode
+private fun <T> nodeAnnotations(self: T,formatService : StructuredFormatService?): List<AnnotationDescAdapter> where T : HasModule, T : HasDocumentationNode
     = self.node.annotations.map { AnnotationDescAdapter(self.module, it, formatService) }
 
 private fun DocumentationNode.hasAnnotation(klass: KClass<*>) = klass.qualifiedName in annotations.map { it.qualifiedName() }
 private fun DocumentationNode.hasModifier(name: String) = details(NodeKind.Modifier).any { it.name == name }
 
 
-class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : DocumentationNodeAdapter(module, node,
+class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : DocumentationNodeAdapter(module, node,
     formatService), PackageDoc {
     private val allClasses = listOf(node).collectAllTypesRecursively()
 
@@ -114,18 +114,18 @@ class PackageAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatS
     override fun isIncluded(): Boolean = node.name in module.allPackages
 }
 
-class AnnotationTypeDocAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : FormatService?)
+class AnnotationTypeDocAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : StructuredFormatService?)
     : ClassDocumentationNodeAdapter(module, node, formatService), AnnotationTypeDoc {
     override fun elements(): Array<out AnnotationTypeElementDoc>? = emptyArray() // TODO
 }
 
-class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode, protected val formatService : FormatService?) : AnnotationDesc {
+class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode, protected val formatService : StructuredFormatService?) : AnnotationDesc {
     override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node, formatService) // TODO ?????
     override fun isSynthesized(): Boolean = false
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
 
-open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) :
+open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) :
     DocumentationNodeAdapter(module, node, formatService), ProgramElementDoc {
     override fun isPublic(): Boolean = true
     override fun isPackagePrivate(): Boolean = false
@@ -175,7 +175,7 @@ open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationN
 }
 
 open class TypeAdapter(override val module: ModuleNodeAdapter, override val node: DocumentationNode,protected val
-formatService: FormatService?) : Type,
+formatService: StructuredFormatService?) : Type,
     HasDocumentationNode, HasModule {
     private val javaLanguageService = JavaLanguageService()
 
@@ -220,19 +220,19 @@ class NotAnnotatedTypeAdapter(typeAdapter: AnnotatedTypeAdapter) : Type by typeA
     override fun asAnnotatedType() = null
 }
 
-class AnnotatedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : TypeAdapter(module, node,
+class AnnotatedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : TypeAdapter(module, node,
     formatService), AnnotatedType {
     override fun underlyingType(): Type? = NotAnnotatedTypeAdapter(this)
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this, formatService).toTypedArray()
 }
 
-class WildcardTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) :
+class WildcardTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) :
     TypeAdapter(module, node, formatService), WildcardType {
     override fun extendsBounds(): Array<out Type> = node.details(NodeKind.UpperBound).map { TypeAdapter(module, it, formatService) }.toTypedArray()
     override fun superBounds(): Array<out Type> = node.details(NodeKind.LowerBound).map { TypeAdapter(module, it, formatService) }.toTypedArray()
 }
 
-class TypeVariableAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : TypeAdapter(module, node,
+class TypeVariableAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : TypeAdapter(module, node,
     formatService),
     TypeVariable {
     override fun owner(): ProgramElementDoc = node.owner!!.let<DocumentationNode, ProgramElementDoc> { owner ->
@@ -261,7 +261,7 @@ class TypeVariableAdapter(module: ModuleNodeAdapter, node: DocumentationNode, fo
     override fun asTypeVariable(): TypeVariableAdapter = this
 }
 
-class ParameterizedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : TypeAdapter(module, node,
+class ParameterizedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : TypeAdapter(module, node,
     formatService), ParameterizedType {
     override fun typeArguments(): Array<out Type> = node.details(NodeKind.Type).map { TypeVariableAdapter(module, it, formatService) }.toTypedArray()
     override fun superclassType(): Type? =
@@ -286,7 +286,7 @@ class ParameterizedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNod
     }
 }
 
-class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : DocumentationNodeAdapter(module, node,
+class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : DocumentationNodeAdapter(module, node,
     formatService), Parameter {
     override fun typeName(): String? = JavaLanguageService().renderType(node.detail(NodeKind.Type))
     override fun type(): Type? = TypeAdapter(module, node.detail(NodeKind.Type), formatService)
@@ -294,7 +294,7 @@ class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode, forma
 }
 
 class ReceiverParameterAdapter(module: ModuleNodeAdapter, val receiverType: DocumentationNode, val parent:
-ExecutableMemberAdapter, formatService: FormatService?) : DocumentationNodeAdapter(module, receiverType, formatService), Parameter {
+ExecutableMemberAdapter, formatService: StructuredFormatService?) : DocumentationNodeAdapter(module, receiverType, formatService), Parameter {
     override fun typeName(): String? = receiverType.name
     override fun type(): Type? = TypeAdapter(module, receiverType, formatService)
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this, formatService).toTypedArray()
@@ -319,7 +319,7 @@ private fun DocumentationNode.hasNonEmptyContent() =
         this.content.summary !is ContentEmpty || this.content.description !is ContentEmpty || this.content.sections.isNotEmpty()
 
 
-open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : ProgramElementAdapter
+open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : ProgramElementAdapter
 (module, node, formatService), ExecutableMemberDoc {
 
     override fun isSynthetic(): Boolean = false
@@ -362,7 +362,7 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
     }
 }
 
-class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: FormatService?) : ExecutableMemberAdapter(module, node,
+class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : ExecutableMemberAdapter(module, node,
     formatService), ConstructorDoc {
     override fun name(): String = node.owner?.name ?: throw IllegalStateException("No owner for $node")
 
@@ -371,7 +371,7 @@ class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode, for
     }
 }
 
-class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : FormatService?) :
+class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : StructuredFormatService?) :
     ExecutableMemberAdapter(module, node,
     formatService), MethodDoc {
     override fun overrides(meth: MethodDoc?): Boolean = false // TODO
@@ -399,7 +399,7 @@ class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatSe
     }
 }
 
-class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : FormatService?) : ProgramElementAdapter(module, node,
+class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : StructuredFormatService?) : ProgramElementAdapter(module, node,
     formatService), FieldDoc {
     override fun isSynthetic(): Boolean = false
 
@@ -412,7 +412,7 @@ class FieldAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatSer
 
     override fun isVolatile(): Boolean = node.hasAnnotation(Volatile::class)
 }
-open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode, formatService : FormatService?)
+open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNode: DocumentationNode, formatService : StructuredFormatService?)
     : ProgramElementAdapter(module, classNode, formatService),
       Type by TypeAdapter(module, classNode, formatService),
         ClassDoc {
@@ -509,7 +509,7 @@ fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, Documentat
 }
 
 class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String,
-                        formatService: FormatService? = null) :
+                        formatService: StructuredFormatService? = null) :
     DocumentationNodeBareAdapter(module, formatService), DocErrorReporter by reporter, RootDoc {
     val allPackages = module.members(NodeKind.Package).associateBy { it.name }
     val allTypes = module.members(NodeKind.Package).collectAllTypesRecursively()
@@ -534,7 +534,7 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
     override fun specifiedClasses(): Array<out ClassDoc> = classes()
 }
 
-private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, formatService: FormatService?, sectionFilter: (ContentSection) -> Boolean) =
+private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, formatService: StructuredFormatService?, sectionFilter: (ContentSection) -> Boolean) =
         (node.details(kind)
                 .filter(DocumentationNode::hasNonEmptyContent)
                 .map { ParamTagAdapter(module, this, it.name, true, it.content.children, formatService) }

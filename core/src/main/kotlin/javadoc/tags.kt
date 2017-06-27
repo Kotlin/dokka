@@ -10,7 +10,7 @@ private object NoopLocation : Location {
 
     override fun relativePathTo(other: Location, anchor: String?): String = ""
 }
-fun String.serviceFormat(formatService: FormatService?) : String? {
+fun String.serviceFormat(formatService: StructuredFormatService?) : String? {
     if (null == formatService || this.isNullOrEmpty()) {
         return this
     }
@@ -23,7 +23,7 @@ fun String.serviceFormat(formatService: FormatService?) : String? {
     }
 }
 
-class TagImpl(val holder: Doc, val name: String, val text: String, private val formatService: FormatService?): Tag {
+class TagImpl(val holder: Doc, val name: String, val text: String, private val formatService: StructuredFormatService?): Tag {
     override fun text(): String? = text.serviceFormat(formatService)
 
     override fun holder(): Doc = holder
@@ -36,7 +36,7 @@ class TagImpl(val holder: Doc, val name: String, val text: String, private val f
     override fun position(): SourcePosition = holder.position()
 }
 
-class TextTag(val holder: Doc, val content: ContentText, private val formatService: FormatService?) : Tag {
+class TextTag(val holder: Doc, val content: ContentText, private val formatService: StructuredFormatService?) : Tag {
     val plainText: String
         get() = content.text.serviceFormat(formatService) ?: ""
 
@@ -113,10 +113,10 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
                       val parameterName: String,
                       val typeParameter: Boolean,
                       val content: List<ContentNode>,
-                      private val formatService: FormatService?
+                      private val formatService: StructuredFormatService?
                       ) : ParamTag {
 
-    constructor(module: ModuleNodeAdapter, holder: Doc, parameterName: String, isTypeParameter: Boolean, content: ContentNode, formatService: FormatService?)
+    constructor(module: ModuleNodeAdapter, holder: Doc, parameterName: String, isTypeParameter: Boolean, content: ContentNode, formatService: StructuredFormatService?)
         : this(module, holder, parameterName, isTypeParameter, listOf(content), formatService) {
     }
 
@@ -136,7 +136,7 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
 
 
 class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter, val content: List<ContentNode>,
-                       private val formatService: FormatService?) :
+                       private val formatService: StructuredFormatService?) :
     ThrowsTag {
     override fun name(): String = "@throws"
     override fun kind(): String = name()
@@ -154,7 +154,7 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter,
 }
 
 class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val content: List<ContentNode>,
-                       private val formatService: FormatService?) : Tag {
+                       private val formatService: StructuredFormatService?) : Tag {
     override fun name(): String = "@return"
     override fun kind() = name()
     override fun holder() = holder
@@ -165,18 +165,18 @@ class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val conte
     override fun firstSentenceTags(): Array<Tag> = inlineTags()
 }
 
-fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, tags: List<ContentNode>, formatService: FormatService?): List<Tag> = ArrayList<Tag>().apply { tags.forEach { buildInlineTags(module, holder, it, this, formatService) } }
+fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, tags: List<ContentNode>, formatService: StructuredFormatService?): List<Tag> = ArrayList<Tag>().apply { tags.forEach { buildInlineTags(module, holder, it, this, formatService) } }
 
-fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode, formatService: FormatService?): List<Tag> = ArrayList<Tag>().apply { buildInlineTags(module, holder, root, this, formatService) }
+fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, root: ContentNode, formatService: StructuredFormatService?): List<Tag> = ArrayList<Tag>().apply { buildInlineTags(module, holder, root, this, formatService) }
 
-private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, nodes: List<ContentNode>, result: MutableList<Tag>, formatService: FormatService?) {
+private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, nodes: List<ContentNode>, result: MutableList<Tag>, formatService: StructuredFormatService?) {
     nodes.forEach {
         buildInlineTags(module, holder, it, result, formatService)
     }
 }
 
 
-private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: ContentNode, result: MutableList<Tag>, formatService: FormatService?) {
+private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: ContentNode, result: MutableList<Tag>, formatService: StructuredFormatService?) {
     fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentBlock, result: MutableList<Tag>) {
         if (node.children.isNotEmpty()) {
             val open = TextTag(holder, ContentText(prefix), null)
@@ -193,7 +193,7 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         }
     }
 
-    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>, formatService: FormatService?) {
+    fun surroundWith(module: ModuleNodeAdapter, holder: Doc, prefix: String, postfix: String, node: ContentNode, result: MutableList<Tag>, formatService: StructuredFormatService?) {
         if (node !is ContentEmpty) {
             val open = TextTag(holder, ContentText(prefix), null)
             val close = TextTag(holder, ContentText(postfix), null)

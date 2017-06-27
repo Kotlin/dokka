@@ -1,0 +1,732 @@
+/* Asciidoclet Java 7/8 javadoc stylesheet
+ * 
+ * Javadoc stylesheet based on http://docs.oracle.com/javase/8/docs/api/stylesheet.css
+ * with additional styles from Asciidoctor.
+ */
+
+@import url('coderay-asciidoctor.css'); 
+
+/* Javadoc style sheet */
+/*
+Overall document style
+*/
+
+/* Asciidoclet
+@import url('resources/fonts/dejavu.css'); 
+*/
+
+body {
+    background-color:#ffffff;
+    color:#353833;
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size:14px;
+    margin:0;
+}
+a:link, a:visited {
+    text-decoration:none;
+    color:#4A6782;
+}
+a:hover, a:focus {
+    text-decoration:none;
+    color:#bb7a2a;
+}
+a:active {
+    text-decoration:none;
+    color:#4A6782;
+}
+a[name] {
+    color:#353833;
+}
+a[name]:hover {
+    text-decoration:none;
+    color:#353833;
+}
+pre {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:14px;
+}
+h1 {
+    font-size:20px;
+}
+h2 {
+    font-size:18px;
+}
+h3 {
+    font-size:16px;
+    font-style:italic;
+}
+h4 {
+    font-size:13px;
+}
+h5 {
+    font-size:12px;
+}
+h6 {
+    font-size:11px;
+}
+ul {
+    list-style-type:disc;
+}
+code, tt, dt code, table tr td dt code {
+    color:rgba(0,0,0,.9);
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:13px;
+    line-height:1.4;
+}
+pre > code {
+    font-size: 14px !important;
+}
+table tr td dt code {
+    vertical-align:top;
+}
+sup {
+    font-size:8px;
+}
+/*
+Document title and Copyright styles
+*/
+.clear {
+    clear:both;
+    height:0px;
+    overflow:hidden;
+}
+.aboutLanguage {
+    float:right;
+    padding:0px 21px;
+    font-size:11px;
+    z-index:200;
+    margin-top:-9px;
+}
+.legalCopy {
+    margin:.5em;
+    float:left;
+}
+.bar a, .bar a:link, .bar a:visited, .bar a:active {
+    color:#FFFFFF;
+    text-decoration:none;
+}
+.bar a:hover, .bar a:focus {
+    color:#bb7a2a;
+}
+.tab {
+    background-color:#0066FF;
+    color:#ffffff;
+    padding:8px;
+    width:5em;
+    font-weight:bold;
+}
+/*
+Navigation bar styles
+*/
+.bar {
+    background-color:#4D7A97;
+    color:#FFFFFF;
+    padding:.8em .5em .4em .8em;
+    height:auto;/*height:1.8em;*/
+    font-size:11px;
+    margin:0;
+}
+.topNav {
+    background-color:#4D7A97;
+    color:#FFFFFF;
+    float:left;
+    padding:0;
+    width:100%;
+    clear:right;
+    height:2.8em;
+    padding-top:10px;
+    overflow:hidden;
+    font-size:12px; 
+}
+.bottomNav {
+    margin-top:10px;
+    background-color:#4D7A97;
+    color:#FFFFFF;
+    float:left;
+    padding:0;
+    width:100%;
+    clear:right;
+    height:2.8em;
+    padding-top:10px;
+    overflow:hidden;
+    font-size:12px;
+}
+.subNav {
+    background-color:#dee3e9;
+    float:left;
+    width:100%;
+    overflow:hidden;
+    font-size:12px;
+}
+.subNav div {
+    clear:left;
+    float:left;
+    padding:0 0 5px 6px;
+    text-transform:uppercase;
+}
+ul.navList, ul.subNavList {
+    float:left;
+    margin:0 25px 0 0;
+    padding:0;
+}
+ul.navList li{
+    list-style:none;
+    float:left;
+    padding: 5px 6px;
+    text-transform:uppercase;
+}
+ul.subNavList li{
+    list-style:none;
+    float:left;
+}
+.topNav a:link, .topNav a:active, .topNav a:visited, .bottomNav a:link, .bottomNav a:active, .bottomNav a:visited {
+    color:#FFFFFF;
+    text-decoration:none;
+    text-transform:uppercase;
+}
+.topNav a:hover, .bottomNav a:hover {
+    text-decoration:none;
+    color:#bb7a2a;
+    text-transform:uppercase;
+}
+.navBarCell1Rev {
+    background-color:#F8981D;
+    color:#253441;
+    margin: auto 5px;
+}
+.skipNav {
+    position:absolute;
+    top:auto;
+    left:-9999px;
+    overflow:hidden;
+}
+/*
+Page header and footer styles
+*/
+.header, .footer {
+    clear:both;
+    margin:0 20px;
+    padding:5px 0 0 0;
+}
+.indexHeader {
+    margin:10px;
+    position:relative;
+}
+.indexHeader span{
+    margin-right:15px;
+}
+.indexHeader h1 {
+    font-size:13px;
+}
+.title {
+    color:#2c4557;
+    margin:10px 0;
+}
+.subTitle {
+    margin:5px 0 0 0;
+}
+.header ul {
+    margin:0 0 15px 0;
+    padding:0;
+}
+.footer ul {
+    margin:20px 0 5px 0;
+}
+.header ul li, .footer ul li {
+    list-style:none;
+    font-size:13px;
+}
+/*
+Heading styles
+*/
+div.details ul.blockList ul.blockList ul.blockList li.blockList h4, div.details ul.blockList ul.blockList ul.blockListLast li.blockList h4 {
+    background-color:#dee3e9;
+    border:1px solid #d0d9e0;
+    margin:0 0 6px -8px;
+    padding:7px 5px;
+}
+ul.blockList ul.blockList ul.blockList li.blockList h3 {
+    background-color:#dee3e9;
+    border:1px solid #d0d9e0;
+    margin:0 0 6px -8px;
+    padding:7px 5px;
+}
+ul.blockList ul.blockList li.blockList h3 {
+    padding:0;
+    margin:15px 0;
+}
+ul.blockList li.blockList h2 {
+    padding:0px 0 20px 0;
+}
+/*
+Page layout container styles
+*/
+.contentContainer, .sourceContainer, .classUseContainer, .serializedFormContainer, .constantValuesContainer {
+    clear:both;
+    padding:10px 20px;
+    position:relative;
+}
+.indexContainer {
+    margin:10px;
+    position:relative;
+    font-size:12px;
+}
+.indexContainer h2 {
+    font-size:13px;
+    padding:0 0 3px 0;
+}
+.indexContainer ul {
+    margin:0;
+    padding:0;
+}
+.indexContainer ul li {
+    list-style:none;
+    padding-top:2px;
+}
+/*.contentContainer dl dt, .contentContainer .description dl dt, .contentContainer .details dl dt, .serializedFormContainer dl dt { */
+.contentContainer dl dt, .serializedFormContainer dl dt, .dlist dl dt {
+    font-size:13px;
+    font-weight:bold;
+    margin:10px 0 0 0;
+}
+
+/*.contentContainer .description dl dd, .contentContainer .details dl dd, .serializedFormContainer dl dd { */
+.contentContainer dl dd, .serializedFormContainer dl dd {
+    margin:5px 0 10px 0px;
+    font-size:14px;
+    font-family:'DejaVu Sans Mono',monospace;
+}
+
+.serializedFormContainer dl.nameValue dt {
+    margin-left:1px;
+    font-size:1.1em;
+    display:inline;
+    font-weight:bold;
+}
+.serializedFormContainer dl.nameValue dd {
+    margin:0 0 0 1px;
+    font-size:1.1em;
+    display:inline;
+}
+/*
+List styles
+*/
+ul.horizontal li {
+    display:inline;
+    font-size:0.9em;
+}
+ul.inheritance {
+    margin:0;
+    padding:0;
+}
+ul.inheritance li {
+    display:inline;
+    list-style:none;
+}
+ul.inheritance li ul.inheritance {
+    margin-left:15px;
+    padding-left:15px;
+    padding-top:1px;
+}
+ul.blockList, ul.blockListLast {
+    margin:10px 0 10px 0;
+    padding:0;
+}
+ul.blockList li.blockList, ul.blockListLast li.blockList {
+    list-style:none;
+    margin-bottom:15px;
+    line-height:1.4;
+}
+ul.blockList ul.blockList li.blockList, ul.blockList ul.blockListLast li.blockList {
+    padding:0px 20px 5px 10px;
+    border:1px solid #ededed; 
+    background-color:#f8f8f8;
+}
+ul.blockList ul.blockList ul.blockList li.blockList, ul.blockList ul.blockList ul.blockListLast li.blockList {
+    padding:0 0 5px 8px;
+    background-color:#ffffff;
+    border:none;
+}
+ul.blockList ul.blockList ul.blockList ul.blockList li.blockList {
+    margin-left:0;
+    padding-left:0;
+    padding-bottom:15px;
+    border:none;
+}
+ul.blockList ul.blockList ul.blockList ul.blockList li.blockListLast {
+    list-style:none;
+    border-bottom:none;
+    padding-bottom:0;
+}
+table tr td dl, table tr td dl dt, table tr td dl dd {
+    margin-top:0;
+    margin-bottom:1px;
+}
+/*
+Table styles
+- Asciidoclet - added .packageSummary to table styles below, used by Java 7 output.
+*/
+.overviewSummary, .memberSummary, .typeSummary, .useSummary, .constantsSummary, .deprecatedSummary, .packageSummary {
+    width:100%;
+    border-left:1px solid #EEE; 
+    border-right:1px solid #EEE; 
+    border-bottom:1px solid #EEE; 
+}
+.overviewSummary, .memberSummary  {
+    padding:0px;
+}
+.overviewSummary caption, .memberSummary caption, .typeSummary caption, .packageSummary caption,
+.useSummary caption, .constantsSummary caption, .deprecatedSummary caption {
+    position:relative;
+    text-align:left;
+    background-repeat:no-repeat;
+    color:#253441;
+    font-weight:bold;
+    clear:none;
+    overflow:hidden;
+    padding:0px;
+    padding-top:10px;
+    padding-left:1px;
+    margin:0px;
+    white-space:pre;
+}
+.overviewSummary caption a:link, .memberSummary caption a:link, .typeSummary caption a:link, .packageSummary caption a:link,
+.useSummary caption a:link, .constantsSummary caption a:link, .deprecatedSummary caption a:link,
+.overviewSummary caption a:hover, .memberSummary caption a:hover, .typeSummary caption a:hover, .packageSummary caption a:hover,
+.useSummary caption a:hover, .constantsSummary caption a:hover, .deprecatedSummary caption a:hover,
+.overviewSummary caption a:active, .memberSummary caption a:active, .typeSummary caption a:active, .packageSummary caption a:active,
+.useSummary caption a:active, .constantsSummary caption a:active, .deprecatedSummary caption a:active,
+.overviewSummary caption a:visited, .memberSummary caption a:visited, .typeSummary caption a:visited, .packageSummary caption a:visited,
+.useSummary caption a:visited, .constantsSummary caption a:visited, .deprecatedSummary caption a:visited {
+    color:#FFFFFF;
+}
+.overviewSummary caption span, .memberSummary caption span, .typeSummary caption span, .packageSummary caption span,
+.useSummary caption span, .constantsSummary caption span, .deprecatedSummary caption span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:7px;
+    display:inline-block;
+    float:left;
+    background-color:#F8981D;
+    border: none;
+    height:16px;
+}
+.memberSummary caption span.activeTableTab span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-right:3px;
+    display:inline-block;
+    float:left;
+    background-color:#F8981D;
+    height:16px;
+}
+.memberSummary caption span.tableTab span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-right:3px;
+    display:inline-block;
+    float:left;
+    background-color:#4D7A97;
+    height:16px;
+}
+.memberSummary caption span.tableTab, .memberSummary caption span.activeTableTab {
+    padding-top:0px;
+    padding-left:0px;
+    padding-right:0px;
+    background-image:none;
+    float:none;
+    display:inline;
+}
+.overviewSummary .tabEnd, .memberSummary .tabEnd, .typeSummary .tabEnd, .packageSummary .tabEnd,
+.useSummary .tabEnd, .constantsSummary .tabEnd, .deprecatedSummary .tabEnd {
+    display:none;
+    width:5px;
+    position:relative;
+    float:left;
+    background-color:#F8981D;
+}
+.memberSummary .activeTableTab .tabEnd {
+    display:none;
+    width:5px;
+    margin-right:3px;
+    position:relative; 
+    float:left;
+    background-color:#F8981D;
+}
+.memberSummary .tableTab .tabEnd {
+    display:none;
+    width:5px;
+    margin-right:3px;
+    position:relative;
+    background-color:#4D7A97;
+    float:left;
+
+}
+.overviewSummary td, .memberSummary td, .typeSummary td, .packageSummary td,
+.useSummary td, .constantsSummary td, .deprecatedSummary td {
+    text-align:left;
+    padding:0px 0px 12px 10px;
+    width:100%;
+}
+th.colOne, th.colFirst, th.colLast, .useSummary th, .constantsSummary th,
+td.colOne, td.colFirst, td.colLast, .useSummary td, .constantsSummary td{
+    vertical-align:top;
+    padding-right:0px;
+    padding-top:8px;
+    padding-bottom:3px;
+}
+th.colFirst, th.colLast, th.colOne, .constantsSummary th {
+    background:#dee3e9;
+    text-align:left;
+    padding:8px 3px 3px 7px;
+}
+td.colFirst, th.colFirst {
+    white-space:nowrap;
+    font-size:13px;
+}
+td.colLast, th.colLast {
+    font-size:13px;
+}
+td.colOne, th.colOne {
+    font-size:13px;
+}
+.overviewSummary td.colFirst, .overviewSummary th.colFirst,
+.overviewSummary td.colOne, .overviewSummary th.colOne,
+.memberSummary td.colFirst, .memberSummary th.colFirst,
+.memberSummary td.colOne, .memberSummary th.colOne,
+.typeSummary td.colFirst, .packageSummary td.colFirst{
+    width:25%;
+    vertical-align:top;
+}
+td.colOne a:link, td.colOne a:active, td.colOne a:visited, td.colOne a:hover, td.colFirst a:link, td.colFirst a:active, td.colFirst a:visited, td.colFirst a:hover, td.colLast a:link, td.colLast a:active, td.colLast a:visited, td.colLast a:hover, .constantValuesContainer td a:link, .constantValuesContainer td a:active, .constantValuesContainer td a:visited, .constantValuesContainer td a:hover {
+    font-weight:bold;
+}
+.tableSubHeadingColor {
+    background-color:#EEEEFF;
+}
+.altColor {
+    background-color:#FFFFFF;
+}
+.rowColor {
+    background-color:#EEEEEF;
+}
+/*
+Content styles
+*/
+.description pre {
+    margin-top:0;
+}
+.deprecatedContent {
+    margin:0;
+    padding:10px 0;
+}
+.docSummary {
+    padding:0;
+}
+
+ul.blockList ul.blockList ul.blockList li.blockList h3 {
+    font-style:normal;
+}
+
+div.block {
+    font-size:14px;
+    font-family:'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
+}
+
+td.colLast div {
+    padding-top:0px;
+}
+
+
+td.colLast a {
+    padding-bottom:3px;
+}
+/*
+Formatting effect styles
+*/
+.sourceLineNo {
+    color:green;
+    padding:0 30px 0 0;
+}
+h1.hidden {
+    visibility:hidden;
+    overflow:hidden;
+    font-size:10px;
+}
+div.block {
+    display:block;
+    margin:3px 10px 2px 0px;
+    color:rgba(0,0,0,.8);
+}
+
+div.block h1, div.block h2, div.block h3, div.block h4, div.block h5, div.block h6 {
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-weight:300;
+    font-style: normal;
+    color:#7a4a0e;
+}
+div.block *:not(pre) > code {
+    font-weight: normal;
+    padding: 2px 4px;
+    background-color: #f7f7f7;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+div.block a {
+    text-decoration: underline;
+}
+.deprecatedLabel, .descfrmTypeLabel, .memberNameLabel, .memberNameLink,
+.overrideSpecifyLabel, .packageHierarchyLabel, .paramLabel, .returnLabel,
+.seeLabel, .simpleTagLabel, .throwsLabel, .typeNameLabel, .typeNameLink {
+    font-weight:bold;
+}
+.deprecationComment, .emphasizedPhrase, .interfaceName {
+    font-style:italic;
+}
+
+div.block div.block span.deprecationComment, div.block div.block span.emphasizedPhrase,
+div.block div.block span.interfaceName {
+    font-style:normal;
+}
+
+div.contentContainer ul.blockList li.blockList h2{
+    padding-bottom:0px;
+}
+
+/* Asciidoclet styles - adapted from
+ * https://github.com/asciidoctor/asciidoctor/blob/master/data/stylesheets/asciidoctor-default.css
+ */
+
+/* Asciidoclet - reset to normal paragraph font in description text, javadoc wants monospace for some reason */
+.contentContainer dl dd {
+    font-family: 'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
+}
+
+span.strong { font-weight: bold; }
+
+/* select on .ulist, .olist */
+.ulist ul, .olist ol { margin-left: 1.5em; padding: inherit; }
+ul.no-bullet, ol.no-bullet { margin-left: 1.5em; }
+.ulist ul li ul, .ulist ul li ol { margin-left: 1.25em; margin-bottom: 0; font-size: 1em; }
+ul.square li ul, ul.circle li ul, ul.disc li ul { list-style: inherit; }
+ul.square { list-style-type: square; }
+ul.circle { list-style-type: circle; }
+ul.disc { list-style-type: disc; }
+ul.no-bullet { list-style: none; }
+.olist ol li ul, .olist ol li ol { margin-left: 1.25em; margin-bottom: 0; }
+
+blockquote { margin: 0 0 1.25em; padding: 0.5625em 1.25em 0 1.1875em; border-left: 3px solid #487c58; }
+blockquote cite { display: block; font-size: inherit; color: #454545; }
+blockquote cite:before { content: "\2014 \0020"; }
+blockquote cite a, blockquote cite a:visited { color: #454545; }
+blockquote, blockquote p { line-height: 1.6; color: #6e6e6e; }
+
+/* Added div.block */
+div.block table { background: white; margin-bottom: 1.25em; border: solid 1px #dddddd; }
+div.block table thead, div.block table tfoot { background: whitesmoke; font-weight: bold; }
+div.block table thead tr th, div.block table thead tr td, div.block table tfoot tr th, div.block table tfoot tr td { padding: 0.5em 0.625em 0.625em; font-size: inherit; color: #333333; text-align: left; }
+div.block table tr th, div.block table tr td { padding: 0.5625em 0.625em; font-size: inherit; color: #333333; }
+div.block table tr.even, div.block table tr.alt, div.block table tr:nth-of-type(even) { background: #f9f9f9; }
+
+.subheader, #content #toctitle, .admonitionblock td.content > .title, .exampleblock > .title, .imageblock > .title, .listingblock > .title, .literalblock > .title, .mathblock > .title, .openblock > .title, .paragraph > .title, .quoteblock > .title, .tableblock > .title, .verseblock > .title, .videoblock > .title, .dlist > .title, .olist > .title, .ulist > .title, .qlist > .title, .hdlist > .title, .tableblock > caption { line-height: 1.4; color: #7a4a0e; font-weight: 300; margin-top: 0.5em; margin-bottom: 0.25em; }
+
+.imageblock, .literalblock, .listingblock, .mathblock, .verseblock, .videoblock { margin-bottom: 1.25em; }
+.admonitionblock td.content > .title, .exampleblock > .title, .imageblock > .title, .listingblock > .title, .literalblock > .title, .mathblock > .title, .openblock > .title, .paragraph > .title, .quoteblock > .title, .tableblock > .title, .verseblock > .title, .videoblock > .title, .dlist > .title, .olist > .title, .ulist > .title, .qlist > .title, .hdlist > .title { text-align: left; font-family: "DejaVu Sans", Arial, Helvetica; font-weight: 300; font-style: italic; }
+.tableblock > caption { text-align: left; font-family: "DejaVu Sans", Arial, Helvetica; font-weight: 300; font-style: italic; white-space: nowrap; overflow: visible; max-width: 0; }
+table.tableblock #preamble > .sectionbody > .paragraph:first-of-type p { font-size: inherit; }
+div.block .admonitionblock > table { border: 0; background: none; width: 100%; }
+.admonitionblock > table td.icon { text-align: center; width: 80px; }
+.admonitionblock > table td.icon img { max-width: none; }
+.admonitionblock > table td.icon .title { font-weight: 300; text-transform: uppercase; }
+.admonitionblock > table td.content { padding-left: 1.125em; padding-right: 1.25em; border-left: 1px solid #d8d8d8; color: #6e6e6e; }
+.admonitionblock > table td.content > :last-child > :last-child { margin-bottom: 0; }
+.exampleblock > .content { border-style: solid; border-width: 1px; border-color: #e6e6e6; margin-bottom: 1.25em; padding: 1.25em; background: white; -webkit-border-radius: 4px; border-radius: 4px; }
+.exampleblock > .content > :first-child { margin-top: 0; }
+.exampleblock > .content > :last-child { margin-bottom: 0; }
+.exampleblock > .content h1, .exampleblock > .content h2, .exampleblock > .content h3, .exampleblock > .content #toctitle, .sidebarblock.exampleblock > .content > .title, .exampleblock > .content h4, .exampleblock > .content h5, .exampleblock > .content h6, .exampleblock > .content p { color: #333333; }
+.exampleblock > .content h1, .exampleblock > .content h2, .exampleblock > .content h3, .exampleblock > .content #toctitle, .sidebarblock.exampleblock > .content > .title, .exampleblock > .content h4, .exampleblock > .content h5, .exampleblock > .content h6 { line-height: 1; margin-bottom: 0.625em; }
+.exampleblock > .content h1.subheader, .exampleblock > .content h2.subheader, .exampleblock > .content h3.subheader, .exampleblock > .content .subheader#toctitle, .sidebarblock.exampleblock > .content > .subheader.title, .exampleblock > .content h4.subheader, .exampleblock > .content h5.subheader, .exampleblock > .content h6.subheader { line-height: 1.4; }
+.exampleblock.result > .content { -webkit-box-shadow: 0 1px 8px #e3e3dd; box-shadow: 0 1px 8px #e3e3dd; }
+.sidebarblock { border-style: solid; border-width: 1px; border-color: #e3e3dd; margin-bottom: 1.25em; padding: 1.25em; background: #fafaf9; -webkit-border-radius: 4px; border-radius: 4px; }
+.sidebarblock > :first-child { margin-top: 0; }
+.sidebarblock > :last-child { margin-bottom: 0; }
+.sidebarblock h1, .sidebarblock h2, .sidebarblock h3, .sidebarblock #toctitle, .sidebarblock > .content > .title, .sidebarblock h4, .sidebarblock h5, .sidebarblock h6, .sidebarblock p { color: #333333; }
+.sidebarblock h1, .sidebarblock h2, .sidebarblock h3, .sidebarblock #toctitle, .sidebarblock > .content > .title, .sidebarblock h4, .sidebarblock h5, .sidebarblock h6 { line-height: 1; margin-bottom: 0.625em; }
+.sidebarblock h1.subheader, .sidebarblock h2.subheader, .sidebarblock h3.subheader, .sidebarblock .subheader#toctitle, .sidebarblock > .content > .subheader.title, .sidebarblock h4.subheader, .sidebarblock h5.subheader, .sidebarblock h6.subheader { line-height: 1.4; }
+.sidebarblock > .content > .title { color: #7a4a0e; margin-top: 0; line-height: 1.6; }
+.exampleblock > .content > :last-child > :last-child, .exampleblock > .content .olist > ol > li:last-child > :last-child, .exampleblock > .content .ulist > ul > li:last-child > :last-child, .exampleblock > .content .qlist > ol > li:last-child > :last-child, .sidebarblock > .content > :last-child > :last-child, .sidebarblock > .content .olist > ol > li:last-child > :last-child, .sidebarblock > .content .ulist > ul > li:last-child > :last-child, .sidebarblock > .content .qlist > ol > li:last-child > :last-child { margin-bottom: 0; }
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay{ background: #f7f7f7 }
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]:before{display:block}
+.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+
+.quoteblock { margin: 0 0 1.25em 0; padding: 0.5625em 1.25em 0 1.1875em; border-left: 3px solid #487c58; }
+.quoteblock blockquote { margin: 0 0 1.25em 0; padding: 0 0 0.625em 0; border: 0; }
+.quoteblock blockquote > .paragraph:last-child p { margin-bottom: 0; }
+.quoteblock .attribution { margin-top: -0.625em; padding-bottom: 0.625em; font-size: inherit; color: #454545; line-height: 1.6; }
+.quoteblock .attribution br { display: none; }
+.quoteblock .attribution cite { display: block; }
+
+table.tableblock{max-width:100%;border-collapse:separate;border-spacing:0}
+table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
+table.spread{width:100%}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all th.tableblock,table.grid-all td.tableblock{border-width:0 1px 1px 0}
+table.grid-all tfoot>tr>th.tableblock,table.grid-all tfoot>tr>td.tableblock{border-width:1px 1px 0 0}
+table.grid-cols th.tableblock,table.grid-cols td.tableblock{border-width:0 1px 0 0}
+table.grid-all *>tr>.tableblock:last-child,table.grid-cols *>tr>.tableblock:last-child{border-right-width:0}
+table.grid-rows th.tableblock,table.grid-rows td.tableblock{border-width:0 0 1px 0}
+table.grid-all tbody>tr:last-child>th.tableblock,table.grid-all tbody>tr:last-child>td.tableblock,table.grid-all thead:last-child>tr>th.tableblock,table.grid-rows tbody>tr:last-child>th.tableblock,table.grid-rows tbody>tr:last-child>td.tableblock,table.grid-rows thead:last-child>tr>th.tableblock{border-bottom-width:0}
+table.grid-rows tfoot>tr>th.tableblock,table.grid-rows tfoot>tr>td.tableblock{border-width:1px 0 0 0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot{border-width:1px 0}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+
+.dlist dl dd, .contentContainer .description .dlist dl dd, .contentContainer .details .dlist dl dd { margin-left: 1.125em; }
+
+.contentContainer hr {
+  border: 0 solid #ddddd8;
+  border-top-width: 1px;
+  height: 0;
+  margin: 1em 0 1.25em 0;
+}
+
+.contentContainer hr + br {
+  display: none;
+}
+
+p.tableblock {
+    margin-top: .5em;
+    margin-bottom: 0;
+}
+
+/* Javadoc puts its output inside a <ul> element which confuses nested ul, ol styles in user text.
+ * Select on asciidoctor's div.ulist & div.olist to get correct nested bullet styles. */
+.ulist > ul {
+    list-style-type: disc;
+}
+
+.ulist > ul .ulist > ul, .olist > ol .ulist > ul {
+    list-style-type: circle;
+}
+
+.olist > ol .olist > ol .ulist > ul, .olist > ol .ulist > ul .ulist > ul, .ulist > ul .olist > ol .ulist > ul, .ulist > ul .ulist > ul .ulist > ul {
+    list-style-type: square;
+}
+
