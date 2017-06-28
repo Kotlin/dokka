@@ -51,6 +51,7 @@ class DocumentationOptions(val outputDir: String,
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
                            cacheRoot: String? = null,
+                           val additionalParams: String? = null,
                            val suppressedFiles: List<File> = emptyList()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })

@@ -8,6 +8,7 @@ import org.jetbrains.dokka.tests.appendDocumentation
 import org.junit.Test
 import java.io.File
 import java.nio.file.Files
+import kotlin.test.assertTrue
 
 /**
  * @author Mario Toffia
@@ -15,15 +16,40 @@ import java.nio.file.Files
 class JavaAsciidocTest {
   @Test fun javaAsciidocJavaSourceGetsRendered() {
     val str = generate("testdata/format/asciidocJavaSource.kt","AsciidocJavaSourceKt.html")
-    assert(str.contains("<pre class=\"CodeRay highlight\"><code data-lang=\"java\"><span class=\"directive\">public</span>" +
-        " <span class=\"type\">class</span> <span class=\"class\">SvenneSvensson</span>"))
+
+    assertTrue { str.contains("<pre class=\"CodeRay highlight\"><code data-lang=\"java\"><span " +
+        "class=\"directive\">public</span>" +
+        " <span class=\"type\">class</span> <span class=\"class\">SvenneSvensson</span>") }
   }
 
   @Test fun javaAsciidocTableGetsRendered() {
     val str = generate("testdata/format/asciidocTable.kt","AsciidocTableKt.html")
-    assert(str.contains("<table class=\"tableblock frame-all grid-all spread\">"))
-    assert(str.contains("<col style=\"width: 50%;\">"))
-    assert(str.contains("<td class=\"tableblock halign-left valign-top\"><p class=\"tableblock\">Firefox</p></td>"))
+
+    assertTrue { str.contains("<table class=\"tableblock frame-all grid-all spread\">") }
+    assertTrue {str.contains("<col style=\"width: 50%;\">") }
+    assertTrue {str.contains("<td class=\"tableblock halign-left valign-top\"><p " +
+        "class=\"tableblock\">Firefox</p></td>") }
+  }
+
+  @Test fun javaAsciidocAttributesGetsPassed() {
+    val str = generate("testdata/format/asciidocTable.kt","AsciidocTableKt.html")
+
+    assertTrue { str.contains("<table class=\"tableblock frame-all grid-all spread\">") }
+    assertTrue {str.contains("<col style=\"width: 50%;\">") }
+    assertTrue {str.contains("<td class=\"tableblock halign-left valign-top\"><p " +
+        "class=\"tableblock\">Firefox</p></td>") }
+  }
+
+  @Test fun javaAsciidocLinksIsRenderedCorrectly() {
+    val str = generate("testdata/format/asciidocLinks.kt","AsciidocLinksKt.html")
+    println(str)
+  }
+
+  @Test fun javaAsciidocParameterAttributesFormattedCorrectly() {
+    val str = generate("testdata/format/asciidocAttributes.kt","AsciidocAttributesKt.html")
+    assertTrue { str.contains("The project name") }
+    assertTrue { str.contains("A project description") }
+    assertTrue { str.contains("1.5.2-SNAPSHOT") }
   }
 
   private fun generate(file : String, htmlFile : String) : String {
@@ -38,7 +64,12 @@ class JavaAsciidocTest {
         sourceLinks = listOf<DokkaConfiguration.SourceLinkDefinition>(),
         generateIndexPages = false,
         noStdlibLink = true,
-        cacheRoot = "default")
+        cacheRoot = "default",
+        additionalParams = """
+        --attribute project_name=The project name
+        --attribute project_desc="A project description"
+        --attribute project_version=1.5.2-SNAPSHOT
+        """)
 
     appendDocumentation(documentation, cr,
         withJdk = false,

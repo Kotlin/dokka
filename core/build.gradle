@@ -27,7 +27,7 @@ tasks.withType(Test) {
 }
 
 dependencies {
-    compile 'org.asciidoctor:asciidoctorj:1.5.4'
+    compileOnly group: 'org.asciidoctor', name: 'asciidoctorj', version:'1.5.4'
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
