@@ -235,7 +235,13 @@ class AsciidocFormatService @Inject constructor(@Named("folders") locationServic
       }
 
       val asciidoctor : Asciidoctor by lazy {
-        Asciidoctor.Factory.create(formatterOptions.singleOption("gem-path"))
+        var ad = Asciidoctor.Factory.create(formatterOptions.singleOption("gem-path"))
+
+        for(req in formatterOptions.multipleOption("require")) {
+          ad.rubyExtensionRegistry().requireLibrary(req.b)
+        }
+
+        ad
       }
 
       override fun enumerateSupportFiles(callback: (String, String) -> Unit) {

@@ -8,6 +8,7 @@ import org.jetbrains.dokka.tests.appendDocumentation
 import org.junit.Test
 import java.io.File
 import java.nio.file.Files
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -46,13 +47,27 @@ class JavaAsciidocTest {
   }
 
   @Test fun javaAsciidocParameterAttributesFormattedCorrectly() {
-    val str = generate("testdata/format/asciidocAttributes.kt","AsciidocAttributesKt.html")
+    val str = generate("testdata/format/asciidocAttributes.kt","AsciidocAttributesKt.html", """
+        --attribute project_name=The project name
+        --attribute project_desc="A project description"
+        --attribute project_version=1.5.2-SNAPSHOT
+        """)
+
     assertTrue { str.contains("The project name") }
     assertTrue { str.contains("A project description") }
     assertTrue { str.contains("1.5.2-SNAPSHOT") }
   }
 
-  private fun generate(file : String, htmlFile : String) : String {
+  @Test fun javaAsciidocInvalidRequireShallNotWork() {
+    val str = generate("testdata/format/asciidocAttributes.kt","AsciidocAttributesKt.html", """
+        --attribute project_version=1.5.2-SNAPSHOT
+        --require kalle-gem
+        """)
+
+    assertEquals("", str,"Empty String since asciidoc failed to load kalle-gem")
+  }
+
+  private fun generate(file : String, htmlFile : String, additionalParams :String? = null) : String {
     val cr = contentRootFromPath(file)
     val documentation = DocumentationModule("test")
     val tmpDir = Files.createTempDirectory("test-")
@@ -65,11 +80,7 @@ class JavaAsciidocTest {
         generateIndexPages = false,
         noStdlibLink = true,
         cacheRoot = "default",
-        additionalParams = """
-        --attribute project_name=The project name
-        --attribute project_desc="A project description"
-        --attribute project_version=1.5.2-SNAPSHOT
-        """)
+        additionalParams = additionalParams)
 
     appendDocumentation(documentation, cr,
         withJdk = false,
