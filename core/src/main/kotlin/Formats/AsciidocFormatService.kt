@@ -224,7 +224,7 @@ class AsciidocFormatService @Inject constructor(@Named("folders") locationServic
                                                  @Named(impliedPlatformsName) impliedPlatforms: List<String>)
   :HtmlFormatService(locationService,signatureGenerator, templateService, impliedPlatforms) {
 
-      @set:Inject(optional = true) lateinit var docOptions: DocumentationOptions
+      @set:Inject lateinit var docOptions: DocumentationOptions
 
       val formatterOptions : FormatterOptions by lazy {
         parseOptions(docOptions.additionalParams ?: "")

@@ -19,8 +19,8 @@ class JavaAsciidocTest {
     val str = generate("testdata/format/asciidocJavaSource.kt","AsciidocJavaSourceKt.html")
 
     assertTrue { str.contains("<pre class=\"CodeRay highlight\"><code data-lang=\"java\"><span " +
-        "class=\"directive\">public</span>" +
-        " <span class=\"type\">class</span> <span class=\"class\">SvenneSvensson</span>") }
+                              "class=\"directive\">public</span>" +
+                              " <span class=\"type\">class</span> <span class=\"class\">SvenneSvensson</span>") }
   }
 
   @Test fun javaAsciidocTableGetsRendered() {
@@ -29,7 +29,12 @@ class JavaAsciidocTest {
     assertTrue { str.contains("<table class=\"tableblock frame-all grid-all spread\">") }
     assertTrue {str.contains("<col style=\"width: 50%;\">") }
     assertTrue {str.contains("<td class=\"tableblock halign-left valign-top\"><p " +
-        "class=\"tableblock\">Firefox</p></td>") }
+                             "class=\"tableblock\">Firefox</p></td>") }
+  }
+
+  @Test fun javaAsciidocTagsGetsRendered() {
+    val str = generate("testdata/format/asciidocTags.kt","AsciidocTags.html")
+    println(str)
   }
 
   @Test fun javaAsciidocAttributesGetsPassed() {
@@ -38,11 +43,11 @@ class JavaAsciidocTest {
     assertTrue { str.contains("<table class=\"tableblock frame-all grid-all spread\">") }
     assertTrue {str.contains("<col style=\"width: 50%;\">") }
     assertTrue {str.contains("<td class=\"tableblock halign-left valign-top\"><p " +
-        "class=\"tableblock\">Firefox</p></td>") }
+                             "class=\"tableblock\">Firefox</p></td>") }
   }
 
   @Test fun javaAsciidocLinksIsRenderedCorrectly() {
-    val str = generate("testdata/format/asciidocLinks.kt","AsciidocLinksKt.html")
+    val str = generate("testdata/format/AsciidocJavaLinks.java","AsciidocJavaLinks.html")
     println(str)
   }
 
@@ -92,8 +97,12 @@ class JavaAsciidocTest {
     val outputInjector = Guice.createInjector(DokkaOutputModule(options, DokkaConsoleLogger))
     outputInjector.getInstance(Generator::class.java).buildAll(documentation)
 
-    val str = File(tmpDir.toString(), htmlFile).readText()
-    tmpDir.delete()
-    return str
+    try {
+      val str = File(tmpDir.toString(), htmlFile).readText()
+      tmpDir.delete()
+      return str
+    } catch(t: Throwable) {
+      return ""
+    }
   }
 }

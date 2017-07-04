@@ -6,6 +6,7 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.parser.LinkMap
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.asciidoctor.AsciidocDescriptorDocumentationParser
 import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -32,10 +33,19 @@ class DescriptorDocumentationParser
                              val refGraph: NodeReferenceGraph,
                              val sampleService: SampleProcessingService)
 {
+    val asciidoc = AsciidocDescriptorDocumentationParser(options, logger, linkResolver, resolutionFacade, refGraph,
+                                                         sampleService);
+
     fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
             parseDocumentationAndDetails(descriptor, inline).first
 
     fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor, inline: Boolean = false): Pair<Content, (DocumentationNode) -> Unit> {
+        // since this class is not injected - I added a check against the config instead
+        if (options.outputFormat == "html-as-asciidoc" ||
+            options.outputFormat == "java-asciidoc") {
+            return asciidoc.parseDocumentationAndDetails(descriptor)
+        }
+
         if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
             return parseJavadoc(descriptor)
         }
@@ -53,18 +63,6 @@ class DescriptorDocumentationParser
         // workaround for code fence parsing problem in IJ markdown parser
         if (kdocText.endsWith("```") || kdocText.endsWith("~~~")) {
             kdocText += "\n"
-        }
-
-        // since this class is not injected - I added a check against the config instead
-
-        if (options.outputFormat == "html-as-asciidoc" ||
-            options.outputFormat == "java-asciidoc") {
-            val head = ContentParagraph()
-            val descr = ContentParagraph()
-            descr.append(ContentText(kdocText))
-
-            val asciidoc = Content.of(head, descr)
-            return asciidoc to { node -> };
         }
 
         val tree = parseMarkdown(kdocText)

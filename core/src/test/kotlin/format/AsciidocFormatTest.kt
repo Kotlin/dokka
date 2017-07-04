@@ -1,7 +1,9 @@
 package format
 
 import Formats.*
+import com.google.inject.Guice
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.dokka.tests.InMemoryLocationService
 import org.jetbrains.dokka.tests.appendDocumentation
 import org.jetbrains.dokka.tests.tempLocation
@@ -12,9 +14,6 @@ import kotlin.test.assertEquals
  * @author Mario Toffia
  */
 class AsciidocFormatTest {
-  val asciidocService = AsciidocFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService
-      .default(), listOf())
-
   @Test fun asciidocOptionsGetParsedCorrectly() {
     var options = """
 								--base-dir the-base-dir
@@ -58,8 +57,6 @@ class AsciidocFormatTest {
   private fun generate(file : String) : String {
     val sb = StringBuilder()
     val cr = contentRootFromPath(file)
-    val hs = asciidocService.createOutputBuilder(sb, tempLocation)
-
     val documentation = DocumentationModule("test")
 
     val options = DocumentationOptions("", "html-as-asciidoc",
@@ -78,7 +75,9 @@ class AsciidocFormatTest {
 
     val memb = documentation.members.single().members.single().members
     documentation.prepareForGeneration(options)
-    hs.appendNodes(memb)
+
+    val outputInjector = Guice.createInjector(DokkaOutputModule(options, DokkaConsoleLogger))
+    outputInjector.getInstance(FormatService::class.java).createOutputBuilder(sb, tempLocation).appendNodes(memb);
 
     return sb.toString()
   }
