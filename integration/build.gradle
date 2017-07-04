@@ -1,11 +1,6 @@
 buildscript {
-    ext.kotlin_version = '1.1.2-5'
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_for_gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-    repositories {
-        mavenCentral()
     }
 }
 
@@ -15,8 +10,4 @@ dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
     compile 'com.github.yole:jkid:7d9c529c87'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-}
-repositories {
-    mavenCentral()
 }

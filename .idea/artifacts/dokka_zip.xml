@@ -1,0 +1,27 @@
+<component name="ArtifactManager">
+  <artifact name="dokka:zip">
+    <output-path>$PROJECT_DIR$/out/artifacts</output-path>
+    <root id="root">
+      <element id="archive" name="dokka.zip">
+        <element id="directory" name="lib">
+          <element id="artifact" artifact-name="dokka:jar" />
+          <element id="library" level="project" name="trove4j" />
+          <element id="library" level="project" name="jps-model" />
+          <element id="library" level="project" name="asm" />
+          <element id="library" level="project" name="protobuf" />
+          <element id="library" level="project" name="picocontainer" />
+          <element id="library" level="project" name="intellij-core-analysis" />
+          <element id="library" level="project" name="markdown" />
+          <element id="library" level="project" name="kotlin-for-upsource" />
+          <element id="library" level="project" name="jsoup" />
+          <element id="library" level="project" name="jdom" />
+          <element id="library" level="project" name="ant-1.9.4" />
+          <element id="library" level="project" name="cli-parser" />
+          <element id="library" level="project" name="guava" />
+          <element id="library" level="project" name="com.google.inject:guice:4.0" />
+          <element id="artifact" artifact-name="javadoc:jar" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
