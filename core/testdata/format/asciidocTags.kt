@@ -1,4 +1,3 @@
-
 import java.io.Serializable
 
 /**
@@ -12,10 +11,10 @@ import java.io.Serializable
  * @constructor Creates an empty group.
  */
 class AsciidocTags<T>(val name: String) {
-  /**
-   * Adds a *member* to this group.
-   *
-   * @return the new size of the group.
-   */
-  fun add(member: T): Int = 0
+    /**
+     * Adds a *member* to this group.
+     *
+     * @return the new size of the group.
+     */
+    fun add(member: T): Int = 0
 }

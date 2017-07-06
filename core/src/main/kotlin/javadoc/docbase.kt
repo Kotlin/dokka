@@ -15,7 +15,7 @@ private interface HasDocumentationNode {
 }
 
 open class DocumentationNodeBareAdapter(override val node: DocumentationNode, protected val formatService:
-StructuredFormatService?) : Doc, HasDocumentationNode {
+    StructuredFormatService?) : Doc, HasDocumentationNode {
     private var rawCommentText_: String? = null
 
     override fun name(): String = node.name
@@ -175,8 +175,7 @@ open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationN
 }
 
 open class TypeAdapter(override val module: ModuleNodeAdapter, override val node: DocumentationNode,protected val
-formatService: StructuredFormatService?) : Type,
-    HasDocumentationNode, HasModule {
+    formatService: StructuredFormatService?) : Type, HasDocumentationNode, HasModule {
     private val javaLanguageService = JavaLanguageService()
 
     override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
@@ -232,9 +231,7 @@ class WildcardTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNode, fo
     override fun superBounds(): Array<out Type> = node.details(NodeKind.LowerBound).map { TypeAdapter(module, it, formatService) }.toTypedArray()
 }
 
-class TypeVariableAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : TypeAdapter(module, node,
-    formatService),
-    TypeVariable {
+class TypeVariableAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : TypeAdapter(module, node, formatService), TypeVariable {
     override fun owner(): ProgramElementDoc = node.owner!!.let<DocumentationNode, ProgramElementDoc> { owner ->
         when (owner.kind) {
             NodeKind.Function,
@@ -294,7 +291,7 @@ class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode, forma
 }
 
 class ReceiverParameterAdapter(module: ModuleNodeAdapter, val receiverType: DocumentationNode, val parent:
-ExecutableMemberAdapter, formatService: StructuredFormatService?) : DocumentationNodeAdapter(module, receiverType, formatService), Parameter {
+    ExecutableMemberAdapter, formatService: StructuredFormatService?) : DocumentationNodeAdapter(module, receiverType, formatService), Parameter {
     override fun typeName(): String? = receiverType.name
     override fun type(): Type? = TypeAdapter(module, receiverType, formatService)
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this, formatService).toTypedArray()
@@ -320,7 +317,7 @@ private fun DocumentationNode.hasNonEmptyContent() =
 
 
 open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService: StructuredFormatService?) : ProgramElementAdapter
-(module, node, formatService), ExecutableMemberDoc {
+    (module, node, formatService), ExecutableMemberDoc {
 
     override fun isSynthetic(): Boolean = false
     override fun isNative(): Boolean = node.annotations.any { it.name == "native" }
@@ -372,8 +369,7 @@ class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode, for
 }
 
 class MethodAdapter(module: ModuleNodeAdapter, node: DocumentationNode, formatService : StructuredFormatService?) :
-    ExecutableMemberAdapter(module, node,
-    formatService), MethodDoc {
+    ExecutableMemberAdapter(module, node, formatService), MethodDoc {
     override fun overrides(meth: MethodDoc?): Boolean = false // TODO
 
     override fun overriddenType(): Type? = node.overrides.firstOrNull()?.owner?.let { owner -> TypeAdapter(module, owner, formatService) }
