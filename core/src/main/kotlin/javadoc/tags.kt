@@ -10,7 +10,7 @@ private object NoopLocation : Location {
 
     override fun relativePathTo(other: Location, anchor: String?): String = ""
 }
-fun String.serviceFormat(formatService: StructuredFormatService?) : String? {
+fun String.formatWithStructuredFormatService(formatService: StructuredFormatService?) : String? {
     if (null == formatService || this.isNullOrEmpty()) {
         return this
     }
@@ -18,13 +18,13 @@ fun String.serviceFormat(formatService: StructuredFormatService?) : String? {
     with(StringBuilder()) {
         val builder = formatService.createOutputBuilder(this, NoopLocation) as StructuredOutputBuilder
 
-        builder.appendText(this@serviceFormat)
+        builder.appendText(this@formatWithStructuredFormatService)
         return toString()
     }
 }
 
 class TagImpl(val holder: Doc, val name: String, val text: String, private val formatService: StructuredFormatService?): Tag {
-    override fun text(): String? = text.serviceFormat(formatService)
+    override fun text(): String? = text.formatWithStructuredFormatService(formatService)
 
     override fun holder(): Doc = holder
     override fun firstSentenceTags(): Array<out Tag>? = arrayOf()
@@ -38,7 +38,7 @@ class TagImpl(val holder: Doc, val name: String, val text: String, private val f
 
 class TextTag(val holder: Doc, val content: ContentText, private val formatService: StructuredFormatService?) : Tag {
     val plainText: String
-        get() = content.text.serviceFormat(formatService) ?: ""
+        get() = content.text.formatWithStructuredFormatService(formatService) ?: ""
 
     override fun name(): String = "Text"
     override fun kind(): String = name()

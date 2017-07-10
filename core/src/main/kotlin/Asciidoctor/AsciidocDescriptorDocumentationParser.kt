@@ -12,11 +12,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.intellij.markdown.parser.LinkMap
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.SampleProcessingService
-import org.jetbrains.dokka.javadoc.asText
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
-import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
@@ -76,7 +74,7 @@ class AsciidocDescriptorDocumentationParser
         descr.append(ContentText(res))
 
         val asciidoc = Content.of(head, descr)
-        return asciidoc to { node -> };
+        return asciidoc to { node -> }
     }
 
     private fun DeclarationDescriptor.isSuppressWarning(): Boolean {

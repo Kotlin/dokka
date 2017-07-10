@@ -176,7 +176,7 @@ class AsciidocOutputBuilder(to: StringBuilder,
     }
 
     private fun flushBuffer() {
-        if (sb.length > 0) {
+        if (sb.isNotEmpty()) {
             to.append(render(sb.toString(), false))
             sb = StringBuilder()
         }
@@ -234,7 +234,7 @@ class AsciidocFormatService @Inject constructor(@Named("folders") locationServic
     }
 
     val asciidoctor: Asciidoctor by lazy {
-        var ad = Asciidoctor.Factory.create(formatterOptions.singleOption("gem-path"))
+        val ad = Asciidoctor.Factory.create(formatterOptions.singleOption("gem-path"))
 
         for (req in formatterOptions.multipleOption("require")) {
             ad.rubyExtensionRegistry().requireLibrary(req.b)

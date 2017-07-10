@@ -50,11 +50,11 @@ class AsciidocFormatTest {
                             withKotlinRuntime = false,
                             options = options)
 
-        val memb = documentation.members.single().members.single().members
+        val members = documentation.members.single().members.single().members
         documentation.prepareForGeneration(options)
 
         val outputInjector = Guice.createInjector(DokkaOutputModule(options, DokkaConsoleLogger))
-        outputInjector.getInstance(FormatService::class.java).createOutputBuilder(sb, tempLocation).appendNodes(memb)
+        outputInjector.getInstance(FormatService::class.java).createOutputBuilder(sb, tempLocation).appendNodes(members)
 
         return sb.toString()
     }
