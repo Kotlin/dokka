@@ -1,7 +1,9 @@
+import java.io.Serializable
+
 /**
  * Support for linkage.
  *
- * Uses {@link java.io.Serializable} internally.
+ * Uses [Serializable] internally.
  */
 fun asciidocLinks() {
 }

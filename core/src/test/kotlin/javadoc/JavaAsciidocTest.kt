@@ -1,4 +1,4 @@
-package javadoc
+package org.jetbrains.dokka.tests.javadoc
 
 import com.google.inject.Guice
 import com.intellij.util.io.delete
@@ -38,7 +38,7 @@ class JavaAsciidocTest {
 
     @Test fun javaAsciidocTagsGetsRendered() {
         val str = generate("testdata/format/asciidocTags.kt", "AsciidocTags.html")
-        println(str)
+        assertTrue { str.contains("<p>the <strong>name</strong> of this group.</p>")}
     }
 
     @Test fun javaAsciidocAttributesGetsPassed() {
@@ -50,11 +50,6 @@ class JavaAsciidocTest {
             str.contains("<td class=\"tableblock halign-left valign-top\"><p " +
                          "class=\"tableblock\">Firefox</p></td>")
         }
-    }
-
-    @Test fun javaAsciidocLinksIsRenderedCorrectly() {
-        val str = generate("testdata/format/AsciidocJavaLinks.java", "AsciidocJavaLinks.html")
-        println(str)
     }
 
     @Test fun javaAsciidocParameterAttributesFormattedCorrectly() {
@@ -87,15 +82,14 @@ class JavaAsciidocTest {
                                            includeNonPublic = true,
                                            skipEmptyPackages = false,
                                            includeRootPackage = true,
-                                           sourceLinks = listOf<DokkaConfiguration.SourceLinkDefinition>(),
                                            generateIndexPages = false,
                                            noStdlibLink = true,
                                            cacheRoot = "default",
                                            additionalParams = additionalParams)
 
         appendDocumentation(documentation, cr,
-                            withJdk = false,
-                            withKotlinRuntime = false,
+                            withJdk = true,
+                            withKotlinRuntime = true,
                             options = options)
 
         documentation.prepareForGeneration(options)

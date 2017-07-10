@@ -135,16 +135,14 @@ class ParamTagAdapter(val module: ModuleNodeAdapter,
 }
 
 
-class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter, val content: List<ContentNode>,
-                       private val formatService: StructuredFormatService?) :
-    ThrowsTag {
+class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter, val content: List<ContentNode>) : ThrowsTag {
     override fun name(): String = "@throws"
     override fun kind(): String = name()
     override fun holder(): Doc = holder
     override fun position(): SourcePosition? = holder.position()
 
     override fun text(): String = "${name()} ${exceptionName()} ${exceptionComment()}"
-    override fun inlineTags(): Array<out Tag> = buildInlineTags(type.module, holder, content, formatService).toTypedArray()
+    override fun inlineTags(): Array<out Tag> = buildInlineTags(type.module, holder, content, type.module.formatService).toTypedArray()
     override fun firstSentenceTags(): Array<out Tag> = emptyArray()
 
     override fun exceptionComment(): String = content.toString()
@@ -153,15 +151,14 @@ class ThrowsTagAdapter(val holder: Doc, val type: ClassDocumentationNodeAdapter,
     override fun exceptionName(): String = type.qualifiedTypeName()
 }
 
-class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val content: List<ContentNode>,
-                       private val formatService: StructuredFormatService?) : Tag {
+class ReturnTagAdapter(val module: ModuleNodeAdapter, val holder: Doc, val content: List<ContentNode>) : Tag {
     override fun name(): String = "@return"
     override fun kind() = name()
     override fun holder() = holder
     override fun position(): SourcePosition? = holder.position()
 
     override fun text(): String = "@return $content" // Seems has no effect, so used for debug
-    override fun inlineTags(): Array<Tag> = buildInlineTags(module, holder, content, formatService).toTypedArray()
+    override fun inlineTags(): Array<Tag> = buildInlineTags(module, holder, content, module.formatService).toTypedArray()
     override fun firstSentenceTags(): Array<Tag> = inlineTags()
 }
 
@@ -213,9 +210,9 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         is ContentNodeLink -> {
             val target = node.node
             when (target?.kind) {
-                NodeKind.Function -> result.add(SeeMethodTagAdapter(holder, MethodAdapter(module, node.node!!, formatService), node))
+                NodeKind.Function -> result.add(SeeMethodTagAdapter(holder, MethodAdapter(module, node.node!!), node))
 
-                in NodeKind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!, formatService), node))
+                in NodeKind.classLike -> result.add(SeeClassTagAdapter(holder, ClassDocumentationNodeAdapter(module, node.node!!), node))
 
                 else -> buildInlineTags(module, holder, node.children, result, formatService)
             }
