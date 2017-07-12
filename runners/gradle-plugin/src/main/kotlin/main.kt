@@ -408,7 +408,7 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     }
 }
 
-class PackageOptions : DokkaConfiguration.PackageOptions {
+class PackageOptions : Serializable, DokkaConfiguration.PackageOptions {
     override var prefix: String = ""
     override var includeNonPublic: Boolean = false
     override var reportUndocumented: Boolean = true
