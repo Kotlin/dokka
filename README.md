@@ -64,6 +64,9 @@ dokka {
     // When set to default, caches stored in $USER_HOME/.cache/dokka
     cacheRoot = 'default' 
     
+    // Use to include or exclude non public members.
+    includeNonPublic = false
+    
     // Do not output deprecated members. Applies globally, can be overridden by packageOptions
     skipDeprecated = false 
    
