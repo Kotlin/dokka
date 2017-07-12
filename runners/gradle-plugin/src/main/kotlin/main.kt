@@ -100,6 +100,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
 
+    @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
     @Input var reportNotDocumented = true
@@ -266,7 +267,7 @@ open class DokkaTask : DefaultTask() {
                     includes.filterNotNull().map { project.file(it).absolutePath },
                     outputDirectory,
                     outputFormat,
-                    false,
+                    includeNonPublic,
                     false,
                     reportNotDocumented,
                     skipEmptyPackages,
