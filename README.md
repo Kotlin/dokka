@@ -1,4 +1,5 @@
-dokka  [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
+dokka  [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 =====
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
