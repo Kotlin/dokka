@@ -28,7 +28,8 @@ class AntPackageOptions(
         override var prefix: String = "",
         override var includeNonPublic: Boolean = false,
         override var reportUndocumented: Boolean = true,
-        override var skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
+        override var skipDeprecated: Boolean = false,
+        override var suppress: Boolean = false) : DokkaConfiguration.PackageOptions
 
 
 class DokkaAntTask: Task() {

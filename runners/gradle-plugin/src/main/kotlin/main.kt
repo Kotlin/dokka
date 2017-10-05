@@ -414,4 +414,5 @@ class PackageOptions : Serializable, DokkaConfiguration.PackageOptions {
     override var includeNonPublic: Boolean = false
     override var reportUndocumented: Boolean = true
     override var skipDeprecated: Boolean = false
+    override var suppress: Boolean = false
 }
