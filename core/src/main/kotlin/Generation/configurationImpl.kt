@@ -32,7 +32,8 @@ class SourceRootImpl(path: String, override val platforms: List<String> = emptyL
 data class PackageOptionsImpl(override val prefix: String,
                               override val includeNonPublic: Boolean = false,
                               override val reportUndocumented: Boolean = true,
-                              override val skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
+                              override val skipDeprecated: Boolean = false,
+                              override val suppress: Boolean = false) : DokkaConfiguration.PackageOptions
 
 data class DokkaConfigurationImpl(override val moduleName: String,
                                   override val classpath: List<String>,

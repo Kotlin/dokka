@@ -44,7 +44,7 @@ class DokkaArguments {
     @set:Argument(value = "impliedPlatforms", description = "List of implied platforms (comma-separated)")
     var impliedPlatforms: String = ""
 
-    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented;...\" ")
+    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" ")
     var packageOptions: String = ""
 
     @set:Argument(value = "links", description = "External documentation links in format url^packageListUrl^^url2...")
