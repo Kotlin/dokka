@@ -786,7 +786,7 @@ fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
             || this.visibility in visibleToDocumentation) &&
-            !isDocumentationSuppressed(options) &&
+            !isDocumentationSuppressed(options) && !options.effectivePackageOptions(fqNameSafe).suppress &&
             (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 

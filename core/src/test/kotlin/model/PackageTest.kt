@@ -2,10 +2,10 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.junit.Assert.*
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 
 public class PackageTest {
     @Test fun rootPackage() {
@@ -76,6 +76,35 @@ public class PackageTest {
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)
                 assertEquals("simple", name)
+                assertEquals(Content.Empty, content)
+                assertTrue(details.none())
+                assertTrue(members.none())
+                assertTrue(links.none())
+            }
+        }
+    }
+
+    @Test fun classAtPackageLevel() {
+        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt")) { model ->
+            assertEquals(1, model.members.count())
+            with(model.members.elementAt(0)) {
+                assertEquals(NodeKind.Package, kind)
+                assertEquals("simple.name", name)
+                assertEquals(Content.Empty, content)
+                assertTrue(details.none())
+                assertEquals(1, members.size)
+                assertTrue(links.none())
+            }
+        }
+    }
+
+    @Test fun suppressAtPackageLevel() {
+        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt"),
+                perPackageOptions = listOf(PackageOptionsImpl(prefix = "simple.name", suppress = true))) { model ->
+            assertEquals(1, model.members.count())
+            with(model.members.elementAt(0)) {
+                assertEquals(NodeKind.Package, kind)
+                assertEquals("simple.name", name)
                 assertEquals(Content.Empty, content)
                 assertTrue(details.none())
                 assertTrue(members.none())
