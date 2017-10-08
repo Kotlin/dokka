@@ -6,12 +6,7 @@ sourceCompatibility = 1.8
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "com.gradle.plugin-publish"
 
-configurations {
-    provided
-}
-
 tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
     classpath += configurations.shadow
 }
 
@@ -25,8 +20,8 @@ dependencies {
     shadow project(path: ':runners:gradle-plugin', configuration: 'shadow')
     compileOnly project(':integration')
 
-    provided gradleApi()
-    provided localGroovy()
+    compileOnly gradleApi()
+    compileOnly localGroovy()
 }
 
 task sourceJar(type: Jar) {
