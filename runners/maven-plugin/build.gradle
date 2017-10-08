@@ -5,12 +5,7 @@ apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 
-configurations {
-    provided
-}
-
 tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
     classpath += configurations.shadow
 }
 

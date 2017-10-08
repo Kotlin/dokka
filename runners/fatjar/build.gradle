@@ -20,7 +20,7 @@ shadowJar {
     classifier = ''
 
     configurations {
-        exclude provided
+        exclude compileOnly
     }
 
     transform(ServiceFileTransformer)

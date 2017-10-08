@@ -10,18 +10,6 @@ apply plugin: 'kotlin'
 
 sourceCompatibility = 1.6
 
-configurations {
-    provided
-}
-
-tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
-}
-
-tasks.withType(Test) {
-    classpath += configurations.provided
-}
-
 dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
@@ -45,7 +33,9 @@ dependencies {
     runtime files("../lib/jps-model.jar")
 
     //tools.jar
-    provided files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
+    def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
+    compileOnly toolsJar
+    testCompile toolsJar
 
     compile project(":integration")
 
