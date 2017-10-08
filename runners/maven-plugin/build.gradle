@@ -60,8 +60,7 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaMavenPlugin(MavenPublication) {
-            from components.shadow
+        dokkaMavenPlugin(MavenPublication) { publication ->
             artifactId = 'dokka-maven-plugin'
 
             artifact sourceJar {
@@ -115,6 +114,8 @@ publishing {
                 ''')
                 root.append(profiles)
             }
+
+            project.shadow.component(publication)
         }
     }
 }
