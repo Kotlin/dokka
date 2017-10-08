@@ -47,13 +47,13 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaAndroidGradlePlugin(MavenPublication) {
-            from components.shadow
+        dokkaAndroidGradlePlugin(MavenPublication) { publication ->
             artifactId = 'dokka-android-gradle-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
+            project.shadow.component(publication)
         }
     }
 }

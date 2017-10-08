@@ -45,13 +45,15 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaGradlePlugin(MavenPublication) {
-            from components.shadow
+        dokkaGradlePlugin(MavenPublication) { publication ->
+
             artifactId = 'dokka-gradle-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
+
+            project.shadow.component(publication)
         }
     }
 }

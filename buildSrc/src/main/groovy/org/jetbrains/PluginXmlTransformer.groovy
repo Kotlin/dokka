@@ -2,10 +2,11 @@ package org.jetbrains
 
 import com.github.jengelman.gradle.plugins.shadow.relocation.Relocator
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
 import groovy.xml.XmlUtil
-import org.apache.tools.zip.ZipEntry
-import org.apache.tools.zip.ZipOutputStream
 import org.gradle.api.file.FileTreeElement
+import shadow.org.apache.tools.zip.ZipEntry
+import shadow.org.apache.tools.zip.ZipOutputStream
 
 public class PluginXmlTransformer implements Transformer {
     private Map<String, Node> transformedPluginXmlFiles = new HashMap<>();
@@ -16,10 +17,12 @@ public class PluginXmlTransformer implements Transformer {
     }
 
     @Override
-    void transform(String path, InputStream inputStream, List<Relocator> relocators) {
+    void transform(TransformerContext context) {
+        def path = context.path
+        def inputStream = context.is
         System.out.println(path)
         Node node = new XmlParser().parse(inputStream)
-        relocateXml(node, relocators)
+        relocateXml(node, context.relocators)
         transformedPluginXmlFiles.put(path, node)
     }
 

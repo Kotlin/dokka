@@ -36,9 +36,9 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaFatJar(MavenPublication) {
-            from components.shadow
+        dokkaFatJar(MavenPublication) { publication ->
             artifactId = 'dokka-fatjar'
+            project.shadow.component(publication)
         }
     }
 }
