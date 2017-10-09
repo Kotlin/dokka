@@ -23,15 +23,6 @@ dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version
     compile files("../lib/kotlin-ide-common.jar")
     compile files("../lib/markdown.jar")
-    compile files("../lib/picocontainer.jar")
-
-    runtime "org.fusesource.jansi:jansi:1.11"
-
-    runtime files("../lib/trove4j.jar")
-    runtime files("../lib/jdom.jar")
-    runtime files("../lib/protobuf-2.6.1-lite.jar")
-    runtime files("../lib/asm-all.jar")
-    runtime files("../lib/jps-model.jar")
 
     //tools.jar
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
