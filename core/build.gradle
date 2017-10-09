@@ -11,15 +11,16 @@ apply plugin: 'kotlin'
 sourceCompatibility = 1.6
 
 dependencies {
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
 
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile "org.jsoup:jsoup:1.8.3"
 
     compile files("../lib/intellij-core-analysis.jar")
-    compile files("../lib/kotlin-compiler.jar")
-    compile files("../lib/kotlin-script-runtime.jar")
+
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version
     compile files("../lib/kotlin-ide-common.jar")
     compile files("../lib/markdown.jar")
     compile files("../lib/picocontainer.jar")

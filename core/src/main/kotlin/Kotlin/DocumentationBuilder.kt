@@ -755,11 +755,10 @@ class DocumentationBuilder
             return null
         }
         val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, NodeKind.Annotation)
-        val arguments = allValueArguments.toList().sortedBy { it.first.index }
-        arguments.forEach {
-            val valueNode = it.second.toDocumentationNode()
+        allValueArguments.forEach { (name, value) ->
+            val valueNode = value.toDocumentationNode()
             if (valueNode != null) {
-                val paramNode = DocumentationNode(it.first.name.asString(), Content.Empty, NodeKind.Parameter)
+                val paramNode = DocumentationNode(name.asString(), Content.Empty, NodeKind.Parameter)
                 paramNode.append(valueNode, RefKind.Detail)
                 node.append(paramNode, RefKind.Detail)
             }
