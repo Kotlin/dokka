@@ -16,7 +16,7 @@ Why did the token cross the road?
 
 ##### So many lame code "puns" (in) [The.house](test/-the/house)
 
-###### End of the?? [Bar.line](test/-the/line)! - we need to go back!
+###### End of the?? [Bar.line](#)! - we need to go back!
 
 ### Types
 
