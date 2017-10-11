@@ -30,6 +30,10 @@ class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentatio
     override var url: URL? = null
     @Parameter(name = "packageListUrl", required = true)
     override var packageListUrl: URL? = null
+    @Parameter(name = "useDashAsParameterSeparator", required = false)
+    override var useDashAsParameterSeparator: Boolean = false
+    @Parameter(name = "useDotAsSubclassSeparator", required = false)
+    override var useDotAsSubclassSeparator: Boolean = false
 }
 
 abstract class AbstractDokkaMojo : AbstractMojo() {

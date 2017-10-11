@@ -16,7 +16,7 @@ open class DokkaAndroidPlugin : Plugin<Project> {
     }
 }
 
-private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
+private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/", null, false, true).build()
 
 open class DokkaAndroidTask : DokkaTask() {
 

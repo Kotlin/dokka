@@ -95,7 +95,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                 .toMap()
 
         val resolver = if (format == "javadoc") {
-            InboundExternalLinkResolutionService.Javadoc()
+            InboundExternalLinkResolutionService.Javadoc(link.useDashAsParameterSeparator, link.useDotAsSubclassSeparator)
         } else {
             val linkExtension = paramsMap["linkExtension"]?.singleOrNull() ?:
                     throw RuntimeException("Failed to parse package list from $packageListUrl")
@@ -142,10 +142,17 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 interface InboundExternalLinkResolutionService {
     fun getPath(symbol: DeclarationDescriptor): String?
 
-    class Javadoc : InboundExternalLinkResolutionService {
+    class Javadoc(val useDashAsParameterSeparator: Boolean = false, val useDotAsSubclassSeparator: Boolean = false) : InboundExternalLinkResolutionService {
         override fun getPath(symbol: DeclarationDescriptor): String? {
             if (symbol is JavaClassDescriptor) {
-                return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
+                if (useDotAsSubclassSeparator && !DescriptorUtils.isTopLevelDeclaration(symbol)) {
+                    val fullPath = DescriptorUtils.getFqName(symbol).asString()
+                    val topLevel = DescriptorUtils.getFqNameFromTopLevelClass(symbol).asString()
+                    val parent = fullPath.substring(0, fullPath.length - topLevel.length)
+                    return parent.replace(".", "/") + topLevel + ".html"
+                } else {
+                    return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
+                }
             } else if (symbol is JavaCallableMemberDescriptor) {
                 val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
                 val containingClassLink = getPath(containingClass)
@@ -153,8 +160,13 @@ interface InboundExternalLinkResolutionService {
                     if (symbol is JavaMethodDescriptor) {
                         val psi = symbol.sourcePsi() as? PsiMethod
                         if (psi != null) {
-                            val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
-                            return containingClassLink + "#" + symbol.name + "(" + params + ")"
+                            var params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
+                            if (useDashAsParameterSeparator) {
+                                params = "-" + params.replace(", ", "-") + "-"
+                            } else {
+                                params = "(" + params + ")"
+                            }
+                            return containingClassLink + "#" + symbol.name + params
                         }
                     } else if (symbol is JavaPropertyDescriptor) {
                         return "$containingClassLink#${symbol.name}"

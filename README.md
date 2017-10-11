@@ -121,6 +121,12 @@ dokka {
         
         // If package-list file located in non-standard location
         // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
+
+        // If the external documentation uses the dot as separator between a class and its inner class instead of a slash
+        // useDotAsSubclassSeparator = true
+
+        // If the external documentation uses the dash as separator between parameters
+        // useDashAsParameterSeparator = true
     }
     
     // Allows to customize documentation generation options on a per-package basis
@@ -308,6 +314,12 @@ The available configuration options are shown below:
                 <url>https://example.com/docs/</url>
                 <!-- If package-list file located in non-standard location -->
                 <!-- <packageListUrl>file:///home/user/localdocs/package-list</packageListUrl> -->
+                
+                <!-- If the external documentation uses the dot as separator between a class and its inner class instead of a slash -->
+                <!-- useDotAsSubclassSeparator = true -->
+
+                <!-- If the external documentation uses the dash as separator between parameters -->
+                <!-- useDashAsParameterSeparator = true -->
             </link>
         </externalDocumentationLinks>
 
@@ -361,8 +373,8 @@ The Ant task supports the following attributes:
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
   * `noStdlibLink` - No default documentation link to kotlin-stdlib
-  * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
-    linking to external documentation, packageListUrl should be used if package-list located not in standard location
+  * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list" useDotAsSubclassSeparator="true" useDashAsParameterSeparator="true" />` -
+    linking to external documentation, packageListUrl should be used if package-list located not in standard location, useDotAsSubclassSeparator should be used if the external documentation uses the dot as separator between a class and its inner, useDashAsParameterSeparator should be used if the external documentation uses the dash as separator between parameters
   * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
     
 

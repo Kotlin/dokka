@@ -61,17 +61,21 @@ interface DokkaConfiguration {
     interface ExternalDocumentationLink {
         @CustomSerializer(UrlSerializer::class) val url: URL
         @CustomSerializer(UrlSerializer::class) val packageListUrl: URL
+        val useDashAsParameterSeparator: Boolean
+        val useDotAsSubclassSeparator: Boolean
 
         open class Builder(open var url: URL? = null,
-                           open var packageListUrl: URL? = null) {
+                           open var packageListUrl: URL? = null,
+                           open var useDashAsParameterSeparator: Boolean = false,
+                           open var useDotAsSubclassSeparator: Boolean = false) {
 
-            constructor(root: String, packageList: String? = null) : this(URL(root), packageList?.let { URL(it) })
+            constructor(root: String, packageList: String? = null, dash: Boolean = false, dot: Boolean = false) : this(URL(root), packageList?.let { URL(it) }, dash, dot)
 
             fun build(): DokkaConfiguration.ExternalDocumentationLink =
                     if (packageListUrl != null && url != null)
-                        ExternalDocumentationLinkImpl(url!!, packageListUrl!!)
+                        ExternalDocumentationLinkImpl(url!!, packageListUrl!!, useDashAsParameterSeparator, useDotAsSubclassSeparator)
                     else if (url != null)
-                        ExternalDocumentationLinkImpl(url!!, URL(url!!, "package-list"))
+                        ExternalDocumentationLinkImpl(url!!, URL(url!!, "package-list"), useDashAsParameterSeparator, useDotAsSubclassSeparator)
                     else
                         throw IllegalArgumentException("url or url && packageListUrl must not be null for external documentation link")
         }
@@ -102,4 +106,6 @@ data class SerializeOnlyDokkaConfiguration(override val moduleName: String,
 
 
 data class ExternalDocumentationLinkImpl(@CustomSerializer(UrlSerializer::class) override val url: URL,
-                                         @CustomSerializer(UrlSerializer::class) override val packageListUrl: URL) : Serializable, DokkaConfiguration.ExternalDocumentationLink
+                                         @CustomSerializer(UrlSerializer::class) override val packageListUrl: URL,
+                                         override val useDashAsParameterSeparator: Boolean,
+                                         override val useDotAsSubclassSeparator: Boolean) : Serializable, DokkaConfiguration.ExternalDocumentationLink
