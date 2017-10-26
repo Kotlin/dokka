@@ -35,14 +35,18 @@ open class KotlinWebsiteSampleProcessingService
             }
         }
 
-        fun convertAssertTrue(expression: KtCallExpression) {
+        fun convertAssertTrueFalse(expression: KtCallExpression, expectedResult: Boolean) {
             val (argument) = expression.valueArguments
             builder.apply {
+                expression.valueArguments.getOrNull(1)?.let {
+                    appendln("// ${it.extractStringArgumentValue()}")
+                    // TODO: append same amount of whitespace indentation
+                }
                 append("println(\"")
                 append(argument.text)
                 append(" is \${")
                 append(argument.text)
-                append("}\") // true")
+                append("}\") // $expectedResult")
             }
         }
 
@@ -77,7 +81,8 @@ open class KotlinWebsiteSampleProcessingService
         override fun visitCallExpression(expression: KtCallExpression) {
             when (expression.calleeExpression?.text) {
                 "assertPrints" -> convertAssertPrints(expression)
-                "assertTrue" -> convertAssertTrue(expression)
+                "assertTrue" -> convertAssertTrueFalse(expression, expectedResult = true)
+                "assertFalse" -> convertAssertTrueFalse(expression, expectedResult = false)
                 "assertFails" -> convertAssertFails(expression)
                 "assertFailsWith" -> convertAssertFailsWith(expression)
                 else -> super.visitCallExpression(expression)
