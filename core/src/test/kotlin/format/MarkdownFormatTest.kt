@@ -376,6 +376,10 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("newlineInTableCell")
     }
 
+    @Test fun indentedCodeBlock() {
+        verifyMarkdownNode("indentedCodeBlock")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
