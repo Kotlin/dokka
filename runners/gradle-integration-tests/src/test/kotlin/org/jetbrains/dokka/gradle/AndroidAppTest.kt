@@ -3,10 +3,9 @@ package org.jetbrains.dokka.gradle
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
 import java.io.File
-import java.nio.file.Files
 import kotlin.test.assertEquals
 
-class AndroidAppTest : AbstractDokkaGradleTest() {
+class AndroidAppTest : AbstractDokkaAndroidGradleTest() {
     override val pluginClasspath: List<File> = androidPluginClasspathData.toFile().readLines().map { File(it) }
 
     fun prepareTestData(testDataRootPath: String) {

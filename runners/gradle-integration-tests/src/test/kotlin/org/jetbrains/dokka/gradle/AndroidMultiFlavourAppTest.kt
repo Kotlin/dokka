@@ -6,7 +6,7 @@ import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-class AndroidMultiFlavourAppTest : AbstractDokkaGradleTest() {
+class AndroidMultiFlavourAppTest : AbstractDokkaAndroidGradleTest() {
     override val pluginClasspath: List<File> = androidPluginClasspathData.toFile().readLines().map { File(it) }
 
     fun prepareTestData(testDataRootPath: String) {

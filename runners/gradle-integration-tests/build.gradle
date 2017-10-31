@@ -43,3 +43,7 @@ task createClasspathManifest {
 createClasspathManifest.mustRunAfter project(":runners:fatjar").shadowJar
 testClasses.dependsOn project(":runners:fatjar").shadowJar
 testClasses.dependsOn createClasspathManifest
+
+test {
+    systemProperty "android.licenses.overwrite", project.findProperty("android.licenses.overwrite") ?: ""
+}
