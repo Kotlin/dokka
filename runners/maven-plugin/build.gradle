@@ -24,12 +24,16 @@ dependencies {
     shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
 }
 
-task ("generatePom") doLast {
-    final pomTemplate = new File(projectDir, "pom.tpl.xml")
-    final pom = new File(buildDir, "pom.xml")
-    pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
-            .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
-            .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+task generatePom() {
+    inputs.file(new File(projectDir, "pom.tpl.xml"))
+    outputs.file(new File(buildDir, "pom.xml"))
+    doLast {
+        final pomTemplate = new File(projectDir, "pom.tpl.xml")
+        final pom = new File(buildDir, "pom.xml")
+        pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
+                .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
+                .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+    }
 }
 
 task mergeClassOutputs doLast {
