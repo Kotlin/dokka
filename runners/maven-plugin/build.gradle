@@ -1,13 +1,17 @@
-import groovy.xml.QName
+import groovy.io.FileType
 import org.jetbrains.CrossPlatformExec
+import shadow.org.apache.commons.io.FileUtils
+
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.BasicFileAttributes
+
 
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-
-tasks.withType(AbstractCompile) {
-    classpath += configurations.shadow
-}
 
 dependencies {
     shadow project(":runners:fatjar")
@@ -32,14 +36,33 @@ task generatePom() {
     }
 }
 
+task mergeClassOutputs doLast {
+    def sourceDir = new File(buildDir, "classes/kotlin")
+    def targetDir = new File(buildDir, "classes/java")
+
+    sourceDir.eachFileRecurse FileType.ANY, {
+        def filePath = it.toPath()
+        def targetFilePath = targetDir.toPath().resolve(sourceDir.toPath().relativize(filePath))
+        if (it.isFile()) {
+            Files.move(filePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING)
+        } else if (it.isDirectory()) {
+            targetFilePath.toFile().mkdirs()
+        }
+    }
+}
+
 task pluginDescriptor(type: CrossPlatformExec) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+
+    dependsOn mergeClassOutputs
 }
 
 task helpMojo(type: CrossPlatformExec) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
+
+    dependsOn mergeClassOutputs
 }
 
 helpMojo.dependsOn generatePom
@@ -71,6 +94,8 @@ publishing {
                 classifier "sources"
             }
 
+            project.shadow.component(publication)
+
             pom.withXml {
                 Node root = asNode()
 
@@ -85,7 +110,7 @@ publishing {
                 ''')
 
                 root.children().find {
-                    return ((QName) it.name()).qualifiedName == "dependencies"
+                    return it.name() == "dependencies"
                 }.append(dependency)
 
                 def profiles = new XmlParser().parseText('''
@@ -119,14 +144,8 @@ publishing {
                 root.append(profiles)
             }
 
-            project.shadow.component(publication)
+
         }
-    }
-}
-
-tasks.withType(GenerateMavenPom) { Task generatePom ->
-    generatePom.doLast {
-
     }
 }
 
