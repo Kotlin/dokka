@@ -82,7 +82,7 @@ open class DokkaTask : DefaultTask() {
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
 
-    @Input var classpath: List<File> = arrayListOf()
+    @InputFiles var classpath: Iterable<File> = arrayListOf()
 
     @Input
     var includes: List<Any?> = arrayListOf()
