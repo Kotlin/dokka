@@ -95,7 +95,8 @@ open class DokkaTask : DefaultTask() {
     @Input
     var sourceDirs: Iterable<File> = emptyList()
 
-    @Input var sourceRoots: MutableList<SourceRoot> = arrayListOf()
+    @Input
+    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
 
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
@@ -331,10 +332,17 @@ open class DokkaTask : DefaultTask() {
 
 
     @InputFiles
-    fun getInputFiles(): FileCollection =
-            project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
-                    project.files(includes) +
-                    project.files(samples.map { project.fileTree(it) })
+    fun getInputFiles(): FileCollection {
+        val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
+
+        val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
+
+        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
+                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
+                project.files(fullClasspath.map { project.fileTree(it) }) +
+                project.files(includes) +
+                project.files(samples.map { project.fileTree(it) })
+    }
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
