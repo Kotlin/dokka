@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
+import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
@@ -131,13 +132,19 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
     }
 
-    private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressDocTag(element)
+    private fun skipElement(element: Any) =
+            skipElementByVisibility(element) ||
+                    hasSuppressDocTag(element) ||
+                    skipElementBySuppressedFiles(element)
 
     private fun skipElementByVisibility(element: Any): Boolean = element is PsiModifierListOwner &&
             !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
             (element.hasModifierProperty(PsiModifier.PRIVATE) ||
                     element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
                     element.isInternal())
+
+    private fun skipElementBySuppressedFiles(element: Any): Boolean =
+            element is PsiElement && File(element.containingFile.virtualFile.path).absoluteFile in options.suppressedFiles
 
     private fun PsiElement.isInternal(): Boolean {
         val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false
