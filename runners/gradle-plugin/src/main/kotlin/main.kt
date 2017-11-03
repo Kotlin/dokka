@@ -333,7 +333,7 @@ open class DokkaTask : DefaultTask() {
 
     @InputFiles
     fun getInputFiles(): FileCollection {
-        val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
+        val (tasksClasspath, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
 
         val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
 
