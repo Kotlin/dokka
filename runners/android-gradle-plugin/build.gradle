@@ -1,3 +1,5 @@
+import org.jetbrains.CorrectShadowPublishing
+
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
@@ -47,13 +49,14 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaAndroidGradlePlugin(MavenPublication) { publication ->
+        dokkaAndroidGradlePlugin(MavenPublication) { MavenPublication publication ->
             artifactId = 'dokka-android-gradle-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
-            project.shadow.component(publication)
+
+            CorrectShadowPublishing.configure(publication, project)
         }
     }
 }
