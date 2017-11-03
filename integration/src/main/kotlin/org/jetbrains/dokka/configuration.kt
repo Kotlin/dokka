@@ -56,6 +56,7 @@ interface DokkaConfiguration {
         val includeNonPublic: Boolean
         val reportUndocumented: Boolean
         val skipDeprecated: Boolean
+        val suppress: Boolean
     }
 
     interface ExternalDocumentationLink {

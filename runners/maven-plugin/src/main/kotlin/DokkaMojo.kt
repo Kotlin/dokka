@@ -50,6 +50,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var reportUndocumented: Boolean = true
         @Parameter
         override var skipDeprecated: Boolean = false
+        @Parameter
+        override var suppress: Boolean = false
     }
 
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")

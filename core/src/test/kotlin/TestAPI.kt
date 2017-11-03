@@ -24,6 +24,7 @@ fun verifyModel(vararg roots: ContentRoot,
                 withKotlinRuntime: Boolean = false,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
+                perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
@@ -32,6 +33,7 @@ fun verifyModel(vararg roots: ContentRoot,
             skipEmptyPackages = false,
             includeRootPackage = true,
             sourceLinks = listOf<SourceLinkDefinition>(),
+            perPackageOptions = perPackageOptions,
             generateIndexPages = false,
             noStdlibLink = true,
             cacheRoot = "default")

@@ -57,7 +57,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
-        if (file.classes.all { skipElement(it) }) {
+        if (skipFile(file) || file.classes.all { skipElement(it) }) {
             return
         }
         val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap(), refGraph)
@@ -130,6 +130,8 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             }
         }
     }
+
+    private fun skipFile(javaFile: PsiJavaFile): Boolean = options.effectivePackageOptions(javaFile.packageName).suppress
 
     private fun skipElement(element: Any) = skipElementByVisibility(element) || hasSuppressDocTag(element)
 
