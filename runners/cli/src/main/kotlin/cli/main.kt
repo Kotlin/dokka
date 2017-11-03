@@ -139,8 +139,10 @@ object MainKt {
 
     fun createClassLoaderWithTools(): ClassLoader {
         val toolsJar = findToolsJar().canonicalFile.toURI().toURL()
+        val originalUrls = (javaClass.classLoader as? URLClassLoader)?.urLs
         val dokkaJar = javaClass.protectionDomain.codeSource.location
-        return URLClassLoader(arrayOf(toolsJar, dokkaJar), ClassLoader.getSystemClassLoader().parent)
+        val urls = if (originalUrls != null) arrayOf(toolsJar, *originalUrls) else arrayOf(toolsJar, dokkaJar)
+        return URLClassLoader(urls, ClassLoader.getSystemClassLoader().parent)
     }
 
     fun startWithToolsJar(args: Array<String>) {

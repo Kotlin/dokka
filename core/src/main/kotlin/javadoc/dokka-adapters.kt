@@ -4,6 +4,8 @@ import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Kotlin.KotlinAsJavaDescriptorSignatureProvider
+import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 import kotlin.reflect.KClass
 
@@ -36,4 +38,5 @@ class JavadocFormatDescriptor : FormatDescriptor {
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = null
+    override val descriptorSignatureProvider = KotlinAsJavaDescriptorSignatureProvider::class
 }
