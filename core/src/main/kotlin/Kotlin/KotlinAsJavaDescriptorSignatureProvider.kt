@@ -9,9 +9,14 @@ import org.jetbrains.kotlin.psi.KtElement
 
 class KotlinAsJavaDescriptorSignatureProvider : DescriptorSignatureProvider {
     override fun signature(forDesc: DeclarationDescriptor): String {
+        val sourcePsi = forDesc.sourcePsi()
+        val javaLikePsi = if (sourcePsi is KtElement) {
+            sourcePsi.toLightElements().firstOrNull()
+        } else {
+            sourcePsi
+        }
 
-        val sourcePsi = forDesc.sourcePsi() as? KtElement
-        return getSignature(sourcePsi?.toLightElements().orEmpty().firstOrNull()) ?:
+        return getSignature(javaLikePsi) ?:
                 throw UnsupportedOperationException("Don't know how to calculate signature for $forDesc")
     }
 }
