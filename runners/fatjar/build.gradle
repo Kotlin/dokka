@@ -30,6 +30,8 @@ shadowJar {
     exclude 'fileTemplates/**'
     exclude 'inspectionDescriptions/**'
     exclude 'intentionDescriptions/**'
+
+    relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
 apply plugin: 'maven-publish'
