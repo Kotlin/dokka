@@ -5,8 +5,6 @@ allprojects {
     version dokka_version
 
     def repo = {
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/maven/org/jetbrains/kotlin/[module]/[revision]/[module]-[revision](.[ext])")
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/maven/org/jetbrains/kotlin/[module]/[revision]/[module]-[revision]-source.jar")
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
     }
 
@@ -35,6 +33,7 @@ allprojects {
         maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
+        maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$kotlin_compiler_version/maven" }
         ivy(repo)
     }
 }

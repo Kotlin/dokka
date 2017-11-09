@@ -18,8 +18,8 @@ dependencies {
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile "org.jsoup:jsoup:1.8.3"
 
-    compile "teamcity:kotlin-compiler:$kotlin_compiler_version"
-    compile "teamcity:kotlin-script-runtime:$kotlin_compiler_version"
+    compile "org.jetbrains.kotlin:kotlin-compiler:$kotlin_compiler_version"
+    compile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_compiler_version"
 
     compile "teamcity:kotlin-ide-common:$kotlin_compiler_version"
     compile "teamcity:markdown:$kotlin_compiler_version"
