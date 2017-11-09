@@ -6,4 +6,5 @@ include 'core',
         'runners:maven-plugin',
         'runners:gradle-plugin',
         'runners:android-gradle-plugin',
-        'runners:gradle-integration-tests'
+        'runners:gradle-integration-tests',
+        'strippedIdeaJar'

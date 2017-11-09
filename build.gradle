@@ -1,3 +1,5 @@
+import org.jetbrains.DependenciesVersionGetter
+
 allprojects {
     group 'org.jetbrains.dokka'
     version dokka_version
@@ -15,6 +17,8 @@ allprojects {
             maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
             maven { url "https://plugins.gradle.org/m2/" }
+            maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+            maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
             ivy(repo)
         }
         dependencies {
@@ -65,3 +69,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.2.1'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
+
+def versions = DependenciesVersionGetter.getVersions(project, kotlin_compiler_version)
+
+ext.ideaVersion = versions["idea.build.id"]

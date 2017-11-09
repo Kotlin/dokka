@@ -3,6 +3,7 @@ import javax.tools.ToolProvider
 buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_compiler_to_compile_core_version"
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:$gradle_intellij_plugin_version"
     }
 }
 
@@ -16,8 +17,6 @@ dependencies {
 
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile "org.jsoup:jsoup:1.8.3"
-
-    compile files("../lib/intellij-core-analysis.jar")
 
     compile "teamcity:kotlin-compiler:$kotlin_compiler_version"
     compile "teamcity:kotlin-script-runtime:$kotlin_compiler_version"
@@ -33,7 +32,32 @@ dependencies {
     compile project(":integration")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_compiler_to_compile_core_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }
 
+apply plugin: 'org.jetbrains.intellij'
+
+{ ->
+    intellij {
+        version = ideaVersion
+        instrumentCode = false
+        configureDefaultDependencies = false
+        extraDependencies 'intellij-core'
+    }
+
+    ["patchPluginXml", "prepareSandbox", "prepareTestingSandbox",
+     "verifyPlugin", "runIde", "buildPlugin", "publishPlugin"].each {
+        tasks.remove(tasks.findByName(it))
+    }
+}()
+
+afterEvaluate {
+    dependencies {
+        compile intellij {
+            include("openapi.jar")
+        }
+        compile intellijExtra("intellij-core") { include("intellij-core.jar") }
+        compile project(path: ":strippedIdeaJar", configuration: "proguardOut")
+    }
+}
