@@ -31,6 +31,8 @@ shadowJar {
     exclude 'inspectionDescriptions/**'
     exclude 'intentionDescriptions/**'
 
+    exclude 'src/**'
+
     relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
