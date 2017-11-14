@@ -22,6 +22,11 @@ fun readSomeFile(f: File) {
 fun sample() {
     assertPrints(a(), "Hello, Work")
     assertTrue(a() == b())
+    assertTrue(a() == b(), "A eq B")
     assertFails("reading file now") { readSomeFile(File("some.txt")) }
     assertFailsWith<FileNotFoundException> { readSomeFile(File("some.txt")) }
+
+    fun indented() {
+        assertFalse(a() != b(), "A neq B")
+    }
 }

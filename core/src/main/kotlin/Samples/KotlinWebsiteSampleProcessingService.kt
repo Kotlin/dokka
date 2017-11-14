@@ -2,11 +2,13 @@ package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.allChildren
+import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.resolve.ImportPath
 
 open class KotlinWebsiteSampleProcessingService
@@ -39,8 +41,9 @@ open class KotlinWebsiteSampleProcessingService
             val (argument) = expression.valueArguments
             builder.apply {
                 expression.valueArguments.getOrNull(1)?.let {
-                    appendln("// ${it.extractStringArgumentValue()}")
-                    // TODO: append same amount of whitespace indentation
+                    append("// ${it.extractStringArgumentValue()}")
+                    val ws = expression.prevLeaf { it is PsiWhiteSpace }
+                    append(ws?.text ?: "\n")
                 }
                 append("println(\"")
                 append(argument.text)
