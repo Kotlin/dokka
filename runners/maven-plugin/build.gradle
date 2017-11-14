@@ -1,17 +1,22 @@
 import groovy.io.FileType
 import org.jetbrains.CrossPlatformExec
-import shadow.org.apache.commons.io.FileUtils
 
-import java.nio.file.FileVisitResult
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.BasicFileAttributes
-
 
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = languageVersion
+        jvmTarget = "1.8"
+    }
+}
 
 dependencies {
     shadow project(":runners:fatjar")

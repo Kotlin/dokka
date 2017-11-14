@@ -3,13 +3,19 @@ import org.jetbrains.CorrectShadowPublishing
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.8
 
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "com.gradle.plugin-publish"
 
-tasks.withType(AbstractCompile) {
-    classpath += configurations.shadow
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = "1.0"
+        jvmTarget = "1.8"
+    }
 }
 
 repositories {

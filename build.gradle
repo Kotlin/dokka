@@ -31,7 +31,7 @@ allprojects {
         maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
-        maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$kotlin_compiler_version/maven" }
+        maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
         ivy(repo)
     }
 }
@@ -67,7 +67,7 @@ task wrapper(type: Wrapper) {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-def versions = DependenciesVersionGetter.getVersions(project, kotlin_compiler_version)
+def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
 
