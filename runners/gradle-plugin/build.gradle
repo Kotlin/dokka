@@ -10,6 +10,14 @@ tasks.withType(AbstractCompile) {
     classpath += configurations.shadow
 }
 
+
+compileKotlin {
+
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305-annotations=strict"
+    }
+
+}
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 

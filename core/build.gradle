@@ -3,13 +3,21 @@ import javax.tools.ToolProvider
 buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_compiler_to_compile_core_version"
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:$gradle_intellij_plugin_version"
     }
 }
 
 apply plugin: 'kotlin'
 
 sourceCompatibility = 1.6
+
+repositories {
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+}
+
+configurations {
+    intellijCore
+}
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_compiler_version"
@@ -34,30 +42,15 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_compiler_to_compile_core_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
+
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
 }
 
-apply plugin: 'org.jetbrains.intellij'
-
-{ ->
-    intellij {
-        version = ideaVersion
-        instrumentCode = false
-        configureDefaultDependencies = false
-        extraDependencies 'intellij-core'
-    }
-
-    ["patchPluginXml", "prepareSandbox", "prepareTestingSandbox",
-     "verifyPlugin", "runIde", "buildPlugin", "publishPlugin"].each {
-        tasks.remove(tasks.findByName(it))
-    }
-}()
 
 afterEvaluate {
     dependencies {
-        compile intellij {
-            include("openapi.jar")
-        }
-        compile intellijExtra("intellij-core") { include("intellij-core.jar") }
-        compile project(path: ":strippedIdeaJar", configuration: "proguardOut")
+        compile zipTree(configurations.intellijCore.singleFile).matching ({
+            include("intellij-core-analysis.jar")
+        })
     }
 }

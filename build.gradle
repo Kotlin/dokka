@@ -15,8 +15,6 @@ allprojects {
             maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
             maven { url "https://plugins.gradle.org/m2/" }
-            maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-            maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
             ivy(repo)
         }
         dependencies {
