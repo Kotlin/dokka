@@ -746,6 +746,7 @@ class DocumentationBuilder
 
         val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
         node.appendType(type)
+        register(this, node)
         return node
     }
 
@@ -915,6 +916,7 @@ fun DeclarationDescriptor.signature(): String = when (this) {
     is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
     is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
     is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
+    is ReceiverParameterDescriptor -> containingDeclaration.signature() + "*" + name
     else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
 }
 

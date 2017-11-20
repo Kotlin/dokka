@@ -380,6 +380,10 @@ class MarkdownFormatTest {
         verifyMarkdownNode("indentedCodeBlock")
     }
 
+    @Test fun receiverReference() {
+        verifyMarkdownNode("receiverReference")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
