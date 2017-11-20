@@ -32,7 +32,16 @@ class DeclarationLinkResolver
                 return ContentExternalLink(externalHref)
             }
             val signature = descriptorSignatureProvider.signature(symbol)
-            return ContentNodeLazyLink(href, { -> refGraph.lookupOrWarn(signature, logger) })
+            val referencedAt = fromDescriptor.sourceLocation()?.let { ", referenced at $it" }.orEmpty()
+
+            return ContentNodeLazyLink(href, { ->
+                val target = refGraph.lookup(signature)
+
+                if (target == null) {
+                    logger.warn("Can't find node by signature $signature$referencedAt")
+                }
+                target
+            })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
