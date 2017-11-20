@@ -69,6 +69,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
 
         val projectFileIndex = CoreProjectFileIndex(environment.project,
                 environment.configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
+        environment.configuration.put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl.DEFAULT)
 
         val moduleManager = object : CoreModuleManager(environment.project, this) {
             override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
