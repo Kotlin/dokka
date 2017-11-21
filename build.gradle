@@ -70,3 +70,30 @@ task wrapper(type: Wrapper) {
 def versions = DependenciesVersionGetter.getVersions(project, kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
+
+configurations {
+    ideaIC
+    intellijCore
+}
+
+repositories {
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+}
+
+dependencies {
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
+    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
+}
+
+def intellijCoreAnalysis() {
+    return zipTree(configurations.intellijCore.singleFile).matching ({
+        include("intellij-core-analysis.jar")
+    })
+}
+
+def ideaRT() {
+    return zipTree(project.configurations.ideaIC.singleFile).matching ({
+        include("lib/idea_rt.jar")
+    })
+}

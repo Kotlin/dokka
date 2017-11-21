@@ -10,15 +10,6 @@ apply plugin: 'kotlin'
 
 sourceCompatibility = 1.6
 
-repositories {
-    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
-    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
-}
-
-configurations {
-    intellijCore
-}
-
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_compiler_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_compiler_version"
@@ -32,6 +23,8 @@ dependencies {
     compile "teamcity:kotlin-ide-common:$kotlin_compiler_version"
     compile "teamcity:markdown:$kotlin_compiler_version"
 
+    compile intellijCoreAnalysis()
+
     //tools.jar
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
     compileOnly toolsJar
@@ -43,14 +36,5 @@ dependencies {
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_compiler_to_compile_core_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 
-    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
-}
-
-
-afterEvaluate {
-    dependencies {
-        compile zipTree(configurations.intellijCore.singleFile).matching ({
-            include("intellij-core-analysis.jar")
-        })
-    }
+    testCompile ideaRT()
 }
