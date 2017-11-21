@@ -906,18 +906,21 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     return null
 }
 
-fun DeclarationDescriptor.signature(): String = when (this) {
-    is ClassDescriptor,
-    is PackageFragmentDescriptor,
-    is PackageViewDescriptor,
-    is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
+fun DeclarationDescriptor.signature(): String {
+    if (this != original) return original.signature()
+    return when (this) {
+        is ClassDescriptor,
+        is PackageFragmentDescriptor,
+        is PackageViewDescriptor,
+        is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
-    is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-    is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
-    is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
-    is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
-    is ReceiverParameterDescriptor -> containingDeclaration.signature() + "*" + name
-    else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+        is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
+        is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
+        is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
+        is ReceiverParameterDescriptor -> containingDeclaration.signature() + "*" + name
+        else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+    }
 }
 
 fun PropertyDescriptor.receiverSignature(): String {
@@ -934,7 +937,7 @@ fun CallableMemberDescriptor.parameterSignature(): String {
     if (extensionReceiver != null) {
         params.add(0, extensionReceiver.type)
     }
-    return "(" + params.map { it.signature() }.joinToString() + ")"
+    return params.joinToString(prefix = "(", postfix = ")") { it.signature() }
 }
 
 fun KotlinType.signature(): String {
