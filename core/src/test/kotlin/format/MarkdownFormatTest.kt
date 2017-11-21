@@ -396,6 +396,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", includeNonPublic = false)
     }
 
+    @Test fun companionImplements() {
+        verifyMarkdownNodeByName("companionImplements", "Foo")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)

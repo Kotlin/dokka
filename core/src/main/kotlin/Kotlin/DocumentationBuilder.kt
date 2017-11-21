@@ -575,7 +575,8 @@ class DocumentationBuilder
                 ClassMember(it, inheritedLinkKind = RefKind.InheritedCompanionObjectMember)
             }
 
-            if (companionObjectDescriptor.getAllSuperclassesWithoutAny().isNotEmpty()) {
+            if (companionObjectDescriptor.getAllSuperclassesWithoutAny().isNotEmpty()
+                    || companionObjectDescriptor.getSuperInterfaces().isNotEmpty()) {
                 result += ClassMember(companionObjectDescriptor)
             }
         }
