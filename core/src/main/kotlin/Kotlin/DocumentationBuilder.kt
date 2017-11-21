@@ -20,9 +20,7 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
+import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -575,6 +573,10 @@ class DocumentationBuilder
             val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
             descriptorsToDocument.mapTo(result) {
                 ClassMember(it, inheritedLinkKind = RefKind.InheritedCompanionObjectMember)
+            }
+
+            if (companionObjectDescriptor.getAllSuperclassesWithoutAny().isNotEmpty()) {
+                result += ClassMember(companionObjectDescriptor)
             }
         }
         return result
