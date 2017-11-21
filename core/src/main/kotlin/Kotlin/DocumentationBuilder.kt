@@ -726,6 +726,7 @@ class DocumentationBuilder
             }
             node.appendType(constraint, NodeKind.UpperBound)
         }
+        register(this, node)
         return node
     }
 

@@ -388,6 +388,10 @@ class MarkdownFormatTest {
         verifyMarkdownNodeByName("extensionScope", "test")
     }
 
+    @Test fun typeParameterReference() {
+        verifyMarkdownNode("typeParameterReference")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)

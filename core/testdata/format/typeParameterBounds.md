@@ -2,7 +2,7 @@
 
 # generic
 
-`fun <T : R, R> generic(): Unit`
+`fun <T : `[`R`](test/generic#R)`, R> generic(): Unit`
 
 generic function
 
