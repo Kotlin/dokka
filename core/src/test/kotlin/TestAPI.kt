@@ -151,8 +151,15 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, format = format) {
+    verifyModel(
+            *roots,
+            withJdk = withJdk,
+            withKotlinRuntime = withKotlinRuntime,
+            format = format,
+            includeNonPublic = includeNonPublic
+    ) {
         verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
 }
@@ -173,8 +180,17 @@ fun verifyOutput(path: String,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, format, outputGenerator)
+    verifyOutput(
+            arrayOf(contentRootFromPath(path)),
+            outputExtension,
+            withJdk,
+            withKotlinRuntime,
+            format,
+            includeNonPublic,
+            outputGenerator
+    )
 }
 
 fun verifyJavaOutput(path: String,

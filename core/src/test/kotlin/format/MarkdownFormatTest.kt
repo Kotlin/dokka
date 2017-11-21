@@ -392,6 +392,10 @@ class MarkdownFormatTest {
         verifyMarkdownNode("typeParameterReference")
     }
 
+    @Test fun notPublishedTypeAliasAutoExpansion() {
+        verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", includeNonPublic = false)
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
@@ -428,8 +432,18 @@ class MarkdownFormatTest {
         verifyMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }
 
-    private fun verifyMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+    private fun verifyMarkdownNodes(
+            fileName: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true,
+            nodeFilter: (DocumentationModule) -> List<DocumentationNode>
+    ) {
+        verifyOutput(
+                "testdata/format/$fileName.kt",
+                ".md",
+                withKotlinRuntime = withKotlinRuntime,
+                includeNonPublic = includeNonPublic
+        ) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
         }
     }
@@ -444,8 +458,13 @@ class MarkdownFormatTest {
         }
     }
 
-    private fun verifyMarkdownNodeByName(fileName: String, name: String, withKotlinRuntime: Boolean = false) {
-        verifyMarkdownNodes(fileName, withKotlinRuntime) { model->
+    private fun verifyMarkdownNodeByName(
+            fileName: String,
+            name: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true
+    ) {
+        verifyMarkdownNodes(fileName, withKotlinRuntime, includeNonPublic) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")
