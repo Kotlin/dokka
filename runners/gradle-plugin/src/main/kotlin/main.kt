@@ -341,7 +341,7 @@ open class DokkaTask : DefaultTask() {
                 project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
                 project.files(fullClasspath.map { project.fileTree(it) }) +
                 project.files(includes) +
-                project.files(samples.map { project.fileTree(it) })
+                project.files(samples.filterNotNull().map { project.fileTree(it) })
     }
 
     @OutputDirectory
