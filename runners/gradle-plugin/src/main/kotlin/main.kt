@@ -307,9 +307,7 @@ open class DokkaTask : DefaultTask() {
         val allConfigurations = project.configurations
 
         val fromConfigurations =
-                processConfigurations.map {
-                    allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found")
-                }.flatten()
+                processConfigurations.flatMap { allConfigurations.getByName(it.toString()) }
 
         return fromConfigurations
     }
@@ -319,10 +317,11 @@ open class DokkaTask : DefaultTask() {
             logger.info("Dokka: Taking source directories provided by the user")
             sourceDirs.toSet()
         } else if (kotlinTasks.isEmpty()) {
-            logger.info("Dokka: Taking source directories from default java plugin")
-            val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            sourceSets?.allSource?.srcDirs
+            project.convention.findPlugin(JavaPluginConvention::class.java)?.let { javaPluginConvention ->
+                logger.info("Dokka: Taking source directories from default java plugin")
+                val sourceSets = javaPluginConvention.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                sourceSets?.allSource?.srcDirs
+            }
         } else {
             emptySet()
         }
