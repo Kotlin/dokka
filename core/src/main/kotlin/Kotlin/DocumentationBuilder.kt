@@ -789,9 +789,9 @@ val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
 fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
-            || this.visibility in visibleToDocumentation) &&
-            !isDocumentationSuppressed(options) && !options.effectivePackageOptions(fqNameSafe).suppress &&
-            (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
+            || this.visibility in visibleToDocumentation)
+            && !isDocumentationSuppressed(options)
+            && (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
 private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION
@@ -860,6 +860,8 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
 }
 
 fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOptions): Boolean {
+
+    if (options.effectivePackageOptions(fqNameSafe).suppress) return true
 
     val path = this.findPsi()?.containingFile?.virtualFile?.path
     if (path != null) {
