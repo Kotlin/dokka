@@ -43,6 +43,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     fun URL.doOpenConnectionToReadContent(timeout: Int = 10000, redirectsAllowed: Int = 16): URLConnection {
         val connection = this.openConnection()
         connection.connectTimeout = timeout
+        connection.readTimeout = timeout
 
         when (connection) {
             is HttpURLConnection -> {
