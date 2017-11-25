@@ -124,7 +124,7 @@ open class DokkaTask : DefaultTask() {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
-    fun linkMapping(closure: Closure<Any?>) {
+    fun linkMapping(closure: Closure<Unit>) {
         val mapping = LinkMapping()
         closure.delegate = mapping
         closure.call()
@@ -139,21 +139,21 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
-    fun sourceRoot(closure: Closure<Any?>) {
+    fun sourceRoot(closure: Closure<Unit>) {
         val sourceRoot = SourceRoot()
         closure.delegate = sourceRoot
         closure.call()
         sourceRoots.add(sourceRoot)
     }
 
-    fun packageOptions(closure: Closure<Any?>) {
+    fun packageOptions(closure: Closure<Unit>) {
         val packageOptions = PackageOptions()
         closure.delegate = packageOptions
         closure.call()
         perPackageOptions.add(packageOptions)
     }
 
-    fun externalDocumentationLink(closure: Closure<Any?>) {
+    fun externalDocumentationLink(closure: Closure<Unit>) {
         val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
         closure.delegate = builder
         closure.call()
