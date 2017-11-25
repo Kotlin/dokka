@@ -72,7 +72,7 @@ dokka {
     skipDeprecated = false 
    
     // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-    reportNotDocumented = true 
+    reportUndocumented = true 
     
     skipEmptyPackages = true // Do not create index pages for empty packages
  
