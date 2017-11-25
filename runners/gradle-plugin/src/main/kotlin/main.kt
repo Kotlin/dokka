@@ -104,7 +104,7 @@ open class DokkaTask : DefaultTask() {
     @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
-    @Input var reportNotDocumented = true
+    @Input var reportUndocumented = true
     @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
     @Input var impliedPlatforms: MutableList<String> = arrayListOf()
 
@@ -278,7 +278,7 @@ open class DokkaTask : DefaultTask() {
                     outputFormat,
                     includeNonPublic,
                     false,
-                    reportNotDocumented,
+                    reportUndocumented,
                     skipEmptyPackages,
                     skipDeprecated,
                     jdkVersion,
