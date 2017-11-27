@@ -112,7 +112,15 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
-    @Optional @Input var cacheRoot: String? = null
+    @Optional @Input
+    var cacheRoot: String? = null
+
+
+    @Optional @Input
+    var languageVersion: String? = null
+
+    @Optional @Input
+    var apiVersion: String? = null
 
     @get:Input
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
@@ -281,7 +289,9 @@ open class DokkaTask : DefaultTask() {
                     externalDocumentationLinks,
                     noStdlibLink,
                     cacheRoot,
-                    collectSuppressedFiles(sourceRoots))
+                    collectSuppressedFiles(sourceRoots),
+                    languageVersion,
+                    apiVersion)
 
 
             bootstrapProxy.configure(

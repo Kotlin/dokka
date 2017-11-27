@@ -48,6 +48,8 @@ class DocumentationOptions(val outputDir: String,
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
+                           val languageVersion: String?,
+                           val apiVersion: String?,
                            cacheRoot: String? = null,
                            val suppressedFiles: List<File> = emptyList()) {
     init {

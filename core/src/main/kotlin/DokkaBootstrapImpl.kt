@@ -66,6 +66,8 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                         perPackageOptions,
                         externalDocumentationLinks,
                         noStdlibLink,
+                        languageVersion,
+                        apiVersion,
                         cacheRoot,
                         suppressedFiles.map { File(it) }
                 )

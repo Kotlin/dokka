@@ -69,7 +69,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
 
         val projectFileIndex = CoreProjectFileIndex(environment.project,
                 environment.configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
-        environment.configuration.put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl.DEFAULT)
 
         val moduleManager = object : CoreModuleManager(environment.project, this) {
             override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
@@ -142,7 +141,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                 },
                 CompilerEnvironment,
                 packagePartProviderFactory = { info, content ->
-                    JvmPackagePartProvider(LanguageVersionSettingsImpl.DEFAULT, content.moduleContentScope).apply {
+                    JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
                         addRoots(javaRoots)
                     }
                 },
@@ -155,6 +154,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
         builtIns.initialize(moduleDescriptor, true)
         return DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
+    }
+
+    fun loadLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?) {
+        val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
+        val apiVersion = apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+        configuration.languageVersionSettings = LanguageVersionSettingsImpl(languageVersion, apiVersion)
     }
 
     /**

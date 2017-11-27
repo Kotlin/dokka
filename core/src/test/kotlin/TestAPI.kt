@@ -28,15 +28,20 @@ fun verifyModel(vararg roots: ContentRoot,
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
-    val options = DocumentationOptions("", format,
+    val options = DocumentationOptions(
+            "",
+            format,
             includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
             includeRootPackage = true,
-            sourceLinks = listOf<SourceLinkDefinition>(),
+            sourceLinks = listOf(),
             perPackageOptions = perPackageOptions,
             generateIndexPages = false,
             noStdlibLink = true,
-            cacheRoot = "default")
+            cacheRoot = "default",
+            languageVersion = null,
+            apiVersion = null
+    )
 
     appendDocumentation(documentation, *roots,
             withJdk = withJdk,
@@ -88,6 +93,8 @@ fun appendDocumentation(documentation: DocumentationModule,
             addClasspath(File(kotlinStrictfpRoot))
         }
         addRoots(roots.toList())
+
+        loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
     }
     val defaultPlatformsProvider = object : DefaultPlatformsProvider {
         override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = defaultPlatforms

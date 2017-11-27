@@ -55,6 +55,13 @@ class DokkaArguments {
 
     @set:Argument(value = "cacheRoot", description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled")
     var cacheRoot: String? = null
+
+    @set:Argument(value = "languageVersion", description = "Language Version to pass to Kotlin Analysis")
+    var languageVersion: String? = null
+
+    @set:Argument(value = "apiVersion", description = "Kotlin Api Version to pass to Kotlin Analysis")
+    var apiVersion: String? = null
+
 }
 
 
@@ -108,7 +115,9 @@ object MainKt {
                 jdkVersion = arguments.jdkVersion,
                 externalDocumentationLinks = parseLinks(arguments.links),
                 noStdlibLink = arguments.noStdlibLink,
-                cacheRoot = arguments.cacheRoot
+                cacheRoot = arguments.cacheRoot,
+                languageVersion = arguments.languageVersion,
+                apiVersion = arguments.apiVersion
         )
 
         val generator = DokkaGenerator(
