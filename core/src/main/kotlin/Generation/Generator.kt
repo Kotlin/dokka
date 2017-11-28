@@ -5,6 +5,7 @@ interface Generator {
     fun buildOutlines(nodes: Iterable<DocumentationNode>)
     fun buildSupportFiles()
     fun buildPackageList(nodes: Iterable<DocumentationNode>)
+    fun buildExtraOutlines(nodes: Iterable<DocumentationNode>)
 }
 
 fun Generator.buildAll(nodes: Iterable<DocumentationNode>) {
@@ -12,6 +13,7 @@ fun Generator.buildAll(nodes: Iterable<DocumentationNode>) {
     buildOutlines(nodes)
     buildSupportFiles()
     buildPackageList(nodes)
+    buildExtraOutlines(nodes)
 }
 
 fun Generator.buildPage(node: DocumentationNode): Unit = buildPages(listOf(node))

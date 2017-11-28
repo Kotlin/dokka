@@ -6,8 +6,8 @@ import java.io.File
  * Service for building the outline of the package contents.
  */
 interface OutlineFormatService {
-    fun getOutlineFileName(location: Location): File
-
+    fun getOutlineFile(location: Location): File
+    fun getOutlineFileName(): String
     fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder)
     fun appendOutlineLevel(to: StringBuilder, body: () -> Unit)
 

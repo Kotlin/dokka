@@ -286,7 +286,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 singleNode.appendPlatforms()
                 appendContent(singleNode.content)
             } else {
-                val breakdownByName = nodes.groupBy { node -> node.name }
+                val breakdownByName = nodes.groupBy { node -> getNameForHeader(node) }
                 for ((name, items) in breakdownByName) {
                     if (!noHeader)
                         appendHeader { appendText(name) }
@@ -295,7 +295,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun appendDocumentation(overloads: Iterable<DocumentationNode>, isSingleNode: Boolean) {
+        open fun getNameForHeader(node: DocumentationNode): String {
+            return node.name
+        }
+
+        fun appendDocumentation(overloads: Iterable<DocumentationNode>, isSingleNode: Boolean) {
             val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
 
             if (breakdownBySummary.size == 1) {
@@ -311,7 +315,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
+        fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
             for ((index, item) in items.withIndex()) {
                 if (index > 0) appendLine()
                 val rendered = languageService.render(item)
@@ -377,7 +381,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun DocumentationNode.appendPlatforms() {
+        fun DocumentationNode.appendPlatforms() {
             val platforms = if (isModuleOrPackage())
                 platformsToShow.toSet() + platformsOfItems(members)
             else
@@ -437,7 +441,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    inner class GroupNodePageBuilder(val node: DocumentationNode) : PageBuilder(listOf(node)) {
+    open inner class GroupNodePageBuilder(val node: DocumentationNode) : PageBuilder(listOf(node)) {
 
         override fun build() {
             val breakdownByLocation = node.path.filterNot { it.name.isEmpty() }.map { link(node, it) }
@@ -467,7 +471,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false)
+    open inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false)
         : PageBuilder(listOf(node), noHeader) {
 
         override fun build() {
@@ -612,7 +616,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    inner class AllTypesNodeBuilder(val node: DocumentationNode)
+    open inner class AllTypesNodeBuilder(val node: DocumentationNode)
         : PageBuilder(listOf(node)) {
 
         override fun build() {

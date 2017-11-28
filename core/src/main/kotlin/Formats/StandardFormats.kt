@@ -10,10 +10,11 @@ abstract class KotlinFormatDescriptorBase : FormatDescriptor {
     override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
     override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
 
-    override val generatorServiceClass = FileGenerator::class
+    override val generatorServiceClass: KClass<out Generator> = FileGenerator::class
     override val outlineServiceClass: KClass<out OutlineFormatService>? = null
     override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
+    override val extraOutlineServices: KClass<out ExtraOutlineServices>? = null
 }
 
 class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
@@ -29,6 +30,7 @@ class HtmlAsJavaFormatDescriptor : FormatDescriptor {
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
+    override val extraOutlineServices: KClass<out ExtraOutlineServices>? = null
 }
 
 class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {

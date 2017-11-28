@@ -253,8 +253,8 @@ class InMemoryLocation(override val path: String): Location {
 }
 
 object InMemoryLocationService: LocationService {
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean) =
-            InMemoryLocation(relativePathToNode(qualifiedName, hasMembers))
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean, fileName: String) =
+            InMemoryLocation(relativePathToNode(qualifiedName, hasMembers, fileName))
 
     override val root: Location
         get() = InMemoryLocation("")

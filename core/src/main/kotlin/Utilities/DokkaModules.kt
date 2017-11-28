@@ -76,7 +76,9 @@ class DokkaOutputModule(val options: DocumentationOptions,
         descriptor.formatServiceClass?.let { clazz ->
             binder.bind(FormatService::class.java).to(clazz.java)
         }
-
+        descriptor.extraOutlineServices?.let { clazz ->
+            binder.bind(ExtraOutlineServices::class.java).to(clazz.java)
+        }
         binder.bind<Generator>().to(descriptor.generatorServiceClass.java)
 
         descriptor.packageListServiceClass?.let { binder.bind<PackageListService>().to(it.java) }

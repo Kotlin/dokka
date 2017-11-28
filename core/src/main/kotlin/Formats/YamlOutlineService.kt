@@ -5,7 +5,7 @@ import java.io.File
 
 class YamlOutlineService @Inject constructor(val locationService: LocationService,
                          val languageService: LanguageService) : OutlineFormatService {
-    override fun getOutlineFileName(location: Location): File = File("${location.path}.yml")
+    override fun getOutlineFile(location: Location): File = File("${location.path}.yml")
 
     var outlineLevel = 0
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
@@ -21,4 +21,6 @@ class YamlOutlineService @Inject constructor(val locationService: LocationServic
         body()
         outlineLevel--
     }
+
+    override fun getOutlineFileName(): String = "index"
 }

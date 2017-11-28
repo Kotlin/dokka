@@ -44,13 +44,15 @@ data class FileLocation(val file: File): Location {
 interface LocationService {
     fun withExtension(newExtension: String) = this
 
-    fun location(node: DocumentationNode): Location = location(node.path.map { it.name }, node.members.any())
+    fun location(node: DocumentationNode, fileName: String = "index"): Location =
+            location(node.path.map { it.name }, node.members.any(), fileName)
 
     /**
      * Calculates a location corresponding to the specified [qualifiedName].
      * @param hasMembers if true, the node for which the location is calculated has member nodes.
      */
-    fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
+    fun location(qualifiedName: List<String>, hasMembers: Boolean,
+            fileName: String = "index"): Location
 
     val root: Location
 }
@@ -59,8 +61,9 @@ interface LocationService {
 interface FileLocationService: LocationService {
     override fun withExtension(newExtension: String): FileLocationService = this
 
-    override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation
+    override fun location(node: DocumentationNode, fileName: String): FileLocation =
+            location(node.path.map { it.name }, node.members.any(), fileName)
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean, fileName: String): FileLocation
 }
 
 
