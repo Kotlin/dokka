@@ -251,6 +251,10 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("sinceKotlin")
     }
 
+    @Test fun sinceKotlinWide() {
+        verifyMarkdownPackage("sinceKotlinWide")
+    }
+
     @Test fun dynamicType() {
         verifyMarkdownNode("dynamicType")
     }
