@@ -61,3 +61,9 @@ class MarkdownFormatDescriptor : KotlinFormatDescriptorBase() {
 class GFMFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = GFMFormatService::class
 }
+
+class DacFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = DacHtmlFormatService::class
+    override val outlineServiceClass = DacOutlineService::class
+    override val extraOutlineServices: KClass<out ExtraOutlineServices>? = DacExtraOutlineServices::class
+}

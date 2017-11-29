@@ -31,6 +31,8 @@ class DacOutlineService @Inject constructor(val locationService: LocationService
         }
     }
 
+    override fun getOutlineFileName() = "_toc"
+
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
         if (node is DocumentationModule) {
             to.appendln("- title: Package Index")
