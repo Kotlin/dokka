@@ -1,7 +1,11 @@
-package org.jetbrains.dokka.formats
+package org.jetbrains.dokka.Formats
 
+import com.google.inject.Inject
+import kotlinx.html.li
+import kotlinx.html.stream.appendHTML
+import kotlinx.html.ul
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.Formats.KotlinFormatDescriptorBase
+import java.io.File
 
 
 class JavaLayoutHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
@@ -22,24 +26,53 @@ class JavaLayoutHtmlFormatService : FormatService {
 
 class JavaLayoutHtmlFormatOutputBuilder : FormattedOutputBuilder {
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
-        TODO("not implemented")
+
     }
 }
 
-class JavaLayoutHtmlFormatGenerator : Generator {
+
+class JavaLayoutHtmlFormatNavListBuilder @Inject constructor(private val locationService: LocationService) : OutlineFormatService {
+    override fun getOutlineFileName(location: Location): File {
+        TODO()
+    }
+
+    override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
+        with(to.appendHTML()) {
+            //a(href = )
+            li {
+                when {
+                    node.kind == NodeKind.Package -> appendOutline(location, to, node.members)
+                }
+            }
+        }
+    }
+
+    override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {
+        with(to.appendHTML()) {
+            ul { body() }
+        }
+    }
+
+}
+
+class JavaLayoutHtmlFormatGenerator @Inject constructor(
+        private val outlineFormatService: OutlineFormatService
+) : Generator {
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
-        TODO("not implemented")
+
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
-        TODO("not implemented")
+        for (node in nodes) {
+            if (node.kind == NodeKind.Module) {
+                //outlineFormatService.formatOutline()
+            }
+        }
     }
 
-    override fun buildSupportFiles() {
-        TODO("not implemented")
-    }
+    override fun buildSupportFiles() {}
 
     override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
-        TODO("not implemented")
+
     }
 }
