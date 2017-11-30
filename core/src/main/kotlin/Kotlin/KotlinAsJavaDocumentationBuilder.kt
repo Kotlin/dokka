@@ -6,6 +6,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
@@ -14,7 +15,8 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 
 class KotlinAsJavaDocumentationBuilder
-        @Inject constructor(val kotlinAsJavaDocumentationParser: KotlinAsJavaDocumentationParser) : PackageDocumentationBuilder
+        @Inject constructor(val kotlinAsJavaDocumentationParser: KotlinAsJavaDocumentationParser,
+                            val environment: KotlinCoreEnvironment) : PackageDocumentationBuilder
 {
     override fun buildPackageDocumentation(documentationBuilder: DocumentationBuilder,
                                            packageName: FqName,
@@ -30,7 +32,9 @@ class KotlinAsJavaDocumentationBuilder
 
         val javaDocumentationBuilder = JavaPsiDocumentationBuilder(documentationBuilder.options,
                 documentationBuilder.refGraph,
-                kotlinAsJavaDocumentationParser)
+                documentationBuilder.resolutionFacade,
+                kotlinAsJavaDocumentationParser,
+                documentationBuilder.linkResolver.externalDocumentationLinkResolver)
 
         psiPackage.classes.filter { it is KtLightElement<*, *> }.filter { it.isVisibleInDocumentation() }.forEach {
             javaDocumentationBuilder.appendClasses(packageNode, arrayOf(it))

@@ -4,13 +4,16 @@ import com.google.inject.Inject
 import com.intellij.psi.*
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
@@ -40,22 +43,28 @@ interface JavaDocumentationBuilder {
     fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>)
 }
 
-class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
-    private val options: DocumentationOptions
-    private val refGraph: NodeReferenceGraph
-    private val docParser: JavaDocumentationParser
+class JavaPsiDocumentationBuilder constructor(
+        private val options: DocumentationOptions,
+        private val refGraph: NodeReferenceGraph,
+        private val resolutionFacade: DokkaResolutionFacade,
+        private val docParser: JavaDocumentationParser,
+        private val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+) : JavaDocumentationBuilder {
 
-    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger) {
-        this.options = options
-        this.refGraph = refGraph
-        this.docParser = JavadocParser(refGraph, logger)
-    }
-
-    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
-        this.options = options
-        this.refGraph = refGraph
-        this.docParser = docParser
-    }
+    @Inject
+    constructor(
+            options: DocumentationOptions,
+            refGraph: NodeReferenceGraph,
+            logger: DokkaLogger,
+            resolutionFacade: DokkaResolutionFacade,
+            externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+    ) : this(
+            options,
+            refGraph,
+            resolutionFacade,
+            JavadocParser(refGraph, logger),
+            externalDocumentationLinkResolver
+    )
 
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         if (skipFile(file) || file.classes.all { skipElement(it) }) {
@@ -161,6 +170,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
+            isExternalClass() -> NodeKind.ExternalClass
             isInterface -> NodeKind.Interface
             isEnum -> NodeKind.Enum
             isAnnotationType -> NodeKind.AnnotationClass
@@ -168,6 +178,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             else -> NodeKind.Class
         }
         val node = nodeForElement(this, kind)
+        register(this, node)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
             node.appendType(it, NodeKind.Supertype)
             val superClass = it.resolve()
@@ -179,8 +190,22 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         node.appendMembers(methods) { build() }
         node.appendMembers(fields) { build() }
         node.appendMembers(innerClasses) { build() }
-        register(this, node)
+
         return node
+    }
+
+
+    fun PsiClass.isExternalClass(): Boolean {
+        val descriptor = if (this is KtLightClass) {
+            this.kotlinOrigin ?. let {
+                resolutionFacade.resolveToDescriptor(it)
+            }
+        } else {
+            resolutionFacade.getFrontendService(JavaDescriptorResolver::class.java).resolveClass(JavaClassImpl(this))
+        }
+        descriptor ?: return false
+
+        return externalDocumentationLinkResolver.buildExternalDocumentationLink(descriptor) != null
     }
 
     fun PsiClass.isException() = InheritanceUtil.isInheritor(this, "java.lang.Throwable")
@@ -265,8 +290,15 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         val name = mapTypeName(this)
         val node = DocumentationNode(name, Content.Empty, kind)
         if (this is PsiClassType) {
+            val element = resolve()
+            link(node, element)
+            if (element != null && element !is PsiTypeParameter) {
+                val e = getSignature(element)?.let { refGraph.lookup(it) }
+                if(e == null) {
+                    element.build()
+                }
+            }
             node.appendDetails(parameters) { build(NodeKind.Type) }
-            link(node, resolve())
         }
         if (this is PsiArrayType && this !is PsiEllipsisType) {
             node.append(componentType.build(NodeKind.Type), RefKind.Detail)

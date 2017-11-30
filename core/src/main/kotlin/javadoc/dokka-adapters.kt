@@ -9,13 +9,18 @@ import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 import kotlin.reflect.KClass
 
-class JavadocGenerator @Inject constructor(val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
+class JavadocGenerator @Inject constructor(
+        val options: DocumentationOptions,
+        val logger: DokkaLogger,
+        val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+) : Generator {
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single() as DocumentationModule
 
         DokkaConsoleLogger.report()
-        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir))
+        val packageLists = externalDocumentationLinkResolver.writeOutTemporaryPackageListsForJavaDoc()
+        HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir, packageLists))
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {

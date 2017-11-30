@@ -2,7 +2,9 @@ package org.jetbrains.dokka.javadoc
 
 import com.sun.javadoc.*
 import org.jetbrains.dokka.*
+import java.io.File
 import java.lang.reflect.Modifier
+import java.net.URL
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -489,7 +491,12 @@ fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, Documentat
     return result
 }
 
-class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
+class ModuleNodeAdapter(
+        val module: DocumentationModule,
+        val reporter: DocErrorReporter,
+        val outputPath: String,
+        val packageLists: List<Pair<URL, URL>>
+) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
     val allPackages = module.members(NodeKind.Package).associateBy { it.name }
     val allTypes = module.members(NodeKind.Package).collectAllTypesRecursively()
 
@@ -502,7 +509,10 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
             arrayOf("-d", outputPath),
             arrayOf("-docencoding", "UTF-8"),
             arrayOf("-charset", "UTF-8"),
-            arrayOf("-keywords")
+            arrayOf("-keywords"),
+            *packageLists.map { (url, packageListDir) ->
+                arrayOf("-linkoffline", url.toString(), packageListDir.toString())
+            }.toTypedArray()
     )
 
     override fun specifiedPackages(): Array<out PackageDoc>? = module.members(NodeKind.Package).map { PackageAdapter(this, it) }.toTypedArray()

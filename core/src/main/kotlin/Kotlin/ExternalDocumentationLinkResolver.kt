@@ -14,10 +14,12 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.PrintWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
+import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
 
@@ -164,6 +166,24 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                 externalLocation.resolver.getPath(symbol) ?: return null
 
         return URL(externalLocation.rootUrl, path).toExternalForm()
+    }
+
+    fun writeOutTemporaryPackageListsForJavaDoc(): List<Pair<URL, URL>> {
+        return packageFqNameToLocation
+                .entries
+                .groupBy({ (_, root) -> root.rootUrl }, { (fqn) -> fqn })
+                .toList()
+                .map { (url, packages) ->
+                    val digest = MessageDigest.getInstance("SHA-256")
+                    val hash = digest.digest(url.toString().toByteArray(Charsets.UTF_8)).toHexString()
+                    val dir = Files.createTempDirectory(hash)
+                    val file = Files.createFile(dir.resolve("package-list")).toFile()
+                    file.writer().use {
+                        packages.joinTo(it, separator = "\n")
+                    }
+
+                    url to dir.toUri().toURL()
+                }
     }
 
     companion object {
