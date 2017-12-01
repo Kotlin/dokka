@@ -19,3 +19,8 @@ fun Generator.buildPage(node: DocumentationNode): Unit = buildPages(listOf(node)
 fun Generator.buildOutline(node: DocumentationNode): Unit = buildOutlines(listOf(node))
 
 fun Generator.buildAll(node: DocumentationNode): Unit = buildAll(listOf(node))
+
+
+interface NodeLocationAwareGenerator: Generator {
+    fun location(node: DocumentationNode): Location
+}

@@ -14,13 +14,14 @@ private object EmptyHtmlTemplateService : HtmlTemplateService {
 }
 
 
-open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
-                                          location: Location,
-                                          locationService: LocationService,
-                                          languageService: LanguageService,
-                                          extension: String,
-                                          impliedPlatforms: List<String>)
-    : HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, EmptyHtmlTemplateService) {
+open class KotlinWebsiteHtmlOutputBuilder(
+        to: StringBuilder,
+        location: Location,
+        generator: NodeLocationAwareGenerator,
+        languageService: LanguageService,
+        extension: String,
+        impliedPlatforms: List<String>
+) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, EmptyHtmlTemplateService) {
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
@@ -169,14 +170,15 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
     }
 }
 
-class KotlinWebsiteHtmlFormatService @Inject constructor(locationService: LocationService,
-                                                         signatureGenerator: LanguageService,
-                                                         @Named(impliedPlatformsName) impliedPlatforms: List<String>)
-    : HtmlFormatService(locationService, signatureGenerator, EmptyHtmlTemplateService, impliedPlatforms) {
+class KotlinWebsiteHtmlFormatService @Inject constructor(
+        generator: NodeLocationAwareGenerator,
+        signatureGenerator: LanguageService,
+        @Named(impliedPlatformsName) impliedPlatforms: List<String>
+) : HtmlFormatService(generator, signatureGenerator, EmptyHtmlTemplateService, impliedPlatforms) {
 
     override fun enumerateSupportFiles(callback: (String, String) -> Unit) {}
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-            KotlinWebsiteHtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+            KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 }
 

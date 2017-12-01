@@ -32,37 +32,51 @@ data class FileLocation(val file: File): Location {
     }
 }
 
-/**
- * Provides means of retrieving locations for [DocumentationNode](documentation nodes)
- *
- * `LocationService` determines where documentation for particular node should be generated
- *
- * * [FoldersLocationService] – represent packages and types as folders, members as files in those folders.
- * * [SingleFolderLocationService] – all documentation is generated into single folder using fully qualified names
- * for file names.
- */
-interface LocationService {
-    fun withExtension(newExtension: String) = this
 
-    fun location(node: DocumentationNode): Location = location(node.path.map { it.name }, node.members.any())
 
-    /**
-     * Calculates a location corresponding to the specified [qualifiedName].
-     * @param hasMembers if true, the node for which the location is calculated has member nodes.
-     */
-    fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
-
-    val root: Location
+fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String {
+    val parts = qualifiedName.map { identifierToFilename(it) }.filterNot { it.isEmpty() }
+    return if (!hasMembers) {
+        // leaf node, use file in owner's folder
+        parts.joinToString("/")
+    } else {
+        parts.joinToString("/") + (if (parts.none()) "" else "/") + "index"
+    }
 }
 
 
-interface FileLocationService: LocationService {
-    override fun withExtension(newExtension: String): FileLocationService = this
 
-    override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation
-}
-
+//
+///**
+// * Provides means of retrieving locations for [DocumentationNode](documentation nodes)
+// *
+// * `LocationService` determines where documentation for particular node should be generated
+// *
+// * * [FoldersLocationService] – represent packages and types as folders, members as files in those folders.
+// * * [SingleFolderLocationService] – all documentation is generated into single folder using fully qualified names
+// * for file names.
+// */
+//interface LocationService {
+//    fun withExtension(newExtension: String) = this
+//
+//    fun location(node: DocumentationNode): Location = location(node.path.map { it.name }, node.members.any())
+//
+//    /**
+//     * Calculates a location corresponding to the specified [qualifiedName].
+//     * @param hasMembers if true, the node for which the location is calculated has member nodes.
+//     */
+//    fun location(qualifiedName: List<String>, hasMembers: Boolean): Location
+//
+//    val root: Location
+//}
+//
+//
+//interface FileLocationService: LocationService {
+//    override fun withExtension(newExtension: String): FileLocationService = this
+//
+//    override fun location(node: DocumentationNode): FileLocation = location(node.path.map { it.name }, node.members.any())
+//    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation
+//}
 
 fun identifierToFilename(path: String): String {
     val escaped = path.replace('<', '-').replace('>', '-')
@@ -70,9 +84,14 @@ fun identifierToFilename(path: String): String {
     return if (lowercase == "index") "--index--" else lowercase
 }
 
-/**
- * Returns relative location between two nodes. Used for relative links in documentation.
- */
-fun LocationService.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
+///**
+// * Returns relative location between two nodes. Used for relative links in documentation.
+// */
+//fun LocationService.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
+//    return location(owner).relativePathTo(location(node), null)
+//}
+
+
+fun NodeLocationAwareGenerator.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
     return location(owner).relativePathTo(location(node), null)
 }

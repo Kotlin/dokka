@@ -1,16 +1,30 @@
 package org.jetbrains.dokka.Formats
 
+import com.google.inject.Binder
 import com.google.inject.Inject
 import kotlinx.html.li
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.ul
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Kotlin.KotlinDescriptorSignatureProvider
+import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
+import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.toType
 import java.io.File
 
 
-class JavaLayoutHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
-    override val formatServiceClass = JavaLayoutHtmlFormatService::class
-    override val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
+class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, FormatDescriptorAnalysisComponentProvider {
+    override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
+    override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
+    override val sampleProcessingService = DefaultSampleProcessingService::class
+    override val descriptorSignatureProvider = KotlinDescriptorSignatureProvider::class
+
+    override fun configureOutput(binder: Binder): Unit = with(binder) {
+        bind<Generator>() toType generatorServiceClass
+    }
+
+    val formatServiceClass = JavaLayoutHtmlFormatService::class
+    val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
 }
 
 
@@ -31,7 +45,7 @@ class JavaLayoutHtmlFormatOutputBuilder : FormattedOutputBuilder {
 }
 
 
-class JavaLayoutHtmlFormatNavListBuilder @Inject constructor(private val locationService: LocationService) : OutlineFormatService {
+class JavaLayoutHtmlFormatNavListBuilder @Inject constructor() : OutlineFormatService {
     override fun getOutlineFileName(location: Location): File {
         TODO()
     }

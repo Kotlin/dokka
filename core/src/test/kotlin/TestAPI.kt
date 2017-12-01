@@ -270,21 +270,6 @@ fun ContentNode.toTestString(): String {
     }.toString()
 }
 
-class InMemoryLocation(override val path: String): Location {
-    override fun relativePathTo(other: Location, anchor: String?): String =
-            if (anchor != null) other.path + "#" + anchor else other.path
-}
-
-object InMemoryLocationService: LocationService {
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean) =
-            InMemoryLocation(relativePathToNode(qualifiedName, hasMembers))
-
-    override val root: Location
-        get() = InMemoryLocation("")
-}
-
-val tempLocation = InMemoryLocation("")
-
 val ContentRoot.path: String
     get() = when(this) {
         is KotlinSourceRoot -> path
