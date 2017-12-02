@@ -2,8 +2,6 @@ package org.jetbrains.dokka.Formats
 
 import com.google.inject.Binder
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.Model.DescriptorSignatureProvider
-import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.dokka.Utilities.bind
 import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
@@ -18,16 +16,17 @@ interface FormatDescriptorOutputComponent {
     fun configureOutput(binder: Binder)
 }
 
-interface FormatDescriptor: FormatDescriptorAnalysisComponent, FormatDescriptorOutputComponent
+interface FormatDescriptor : FormatDescriptorAnalysisComponent, FormatDescriptorOutputComponent
 
 
 abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor {
 
     override fun configureOutput(binder: Binder): Unit = with(binder) {
+        bind<Generator>() toType NodeLocationAwareGenerator::class
+
         bind<OutlineFormatService>() toOptional (outlineServiceClass)
         bind<FormatService>() toOptional formatServiceClass
-        bind<FileGenerator>() toType generatorServiceClass
-        //bind<Generator>() toType  generatorServiceClass
+        bind<NodeLocationAwareGenerator>() toType generatorServiceClass
         bind<PackageListService>() toOptional packageListServiceClass
     }
 
