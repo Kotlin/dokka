@@ -17,11 +17,14 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
     override val root: File = rootFile
 
     override fun location(node: DocumentationNode): FileLocation {
-        return FileLocation(File(rootFile, relativePathToNode(node.path.map { it.name }, node.members.any())).appendExtension(formatService.extension))
+        return locationWithoutExtension(node).let { it.copy(file = it.file.appendExtension(formatService.linkExtension)) }
+    }
+
+    fun locationWithoutExtension(node: DocumentationNode): FileLocation {
+        return FileLocation(File(rootFile, relativePathToNode(node.path.map { it.name }, node.members.any())))
     }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
-        //val specificLocationService = locationService.withExtension(formatService.extension)
 
         for ((location, items) in nodes.groupBy { location(it) }) {
             val file = location.file
@@ -41,7 +44,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
         val outlineService = this.outlineService ?: return
-        for ((location, items) in nodes.groupBy { location(it) }) {
+        for ((location, items) in nodes.groupBy { locationWithoutExtension(it) }) {
             val file = outlineService.getOutlineFileName(location)
             file.parentFile?.mkdirsOrFail()
             FileOutputStream(file).use {
@@ -54,7 +57,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
 
     override fun buildSupportFiles() {
         formatService.enumerateSupportFiles { resource, targetPath ->
-            FileOutputStream(relativePathToNode(listOf(targetPath), false)).use {
+            FileOutputStream(File(root, relativePathToNode(listOf(targetPath), false))).use {
                 javaClass.getResourceAsStream(resource).copyTo(it)
             }
         }
