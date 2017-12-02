@@ -1,9 +1,9 @@
 package org.jetbrains.dokka
 
-import java.nio.file.Path
+import java.io.File
 
 interface HtmlTemplateService {
-    fun appendHeader(to: StringBuilder, title: String?, basePath: Path)
+    fun appendHeader(to: StringBuilder, title: String?, basePath: File)
     fun appendFooter(to: StringBuilder)
 
     companion object {
@@ -16,7 +16,7 @@ interface HtmlTemplateService {
                     to.appendln("</BODY>")
                     to.appendln("</HTML>")
                 }
-                override fun appendHeader(to: StringBuilder, title: String?, relativePathToRoot: String) {
+                override fun appendHeader(to: StringBuilder, title: String?, basePath: File) {
                     to.appendln("<HTML>")
                     to.appendln("<HEAD>")
                     to.appendln("<meta charset=\"UTF-8\">")

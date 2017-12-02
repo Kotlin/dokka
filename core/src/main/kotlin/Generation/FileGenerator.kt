@@ -14,6 +14,8 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
     @set:Inject(optional = true) lateinit var options: DocumentationOptions
     @set:Inject(optional = true) var packageListService: PackageListService? = null
 
+    override val root: File = rootFile
+
     override fun location(node: DocumentationNode): FileLocation {
         return FileLocation(File(rootFile, relativePathToNode(node.path.map { it.name }, node.members.any())).appendExtension(formatService.extension))
     }

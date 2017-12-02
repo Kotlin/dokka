@@ -4,13 +4,13 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
-import java.nio.file.Path
+import java.io.File
 
 
 object EmptyHtmlTemplateService : HtmlTemplateService {
     override fun appendFooter(to: StringBuilder) {}
 
-    override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {}
+    override fun appendHeader(to: StringBuilder, title: String?, basePath: File) {}
 }
 
 

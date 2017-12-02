@@ -95,3 +95,9 @@ fun identifierToFilename(path: String): String {
 fun NodeLocationAwareGenerator.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
     return location(owner).relativePathTo(location(node), null)
 }
+
+
+fun NodeLocationAwareGenerator.relativeToRoot(from: Location): File {
+    val file = File(from.path)
+    return file.relativeTo(root)
+}

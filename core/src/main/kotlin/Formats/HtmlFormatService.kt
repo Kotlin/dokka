@@ -80,7 +80,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     }
 
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, getPageTitle(nodes), locationService.calcPathToRoot(location))
+        templateService.appendHeader(to, getPageTitle(nodes), generator.relativeToRoot(location))
         super.appendNodes(nodes)
         templateService.appendFooter(to)
     }
@@ -108,7 +108,7 @@ open class HtmlFormatService @Inject constructor(generator: NodeLocationAwareGen
         HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, "Module Contents", locationService.calcPathToRoot(location))
+        templateService.appendHeader(to, "Module Contents", generator.relativeToRoot(location))
         super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }
@@ -130,11 +130,6 @@ open class HtmlFormatService @Inject constructor(generator: NodeLocationAwareGen
         body()
         to.appendln("</ul>")
     }
-}
-
-private fun LocationService.calcPathToRoot(location: Location): Path {
-    val path = Paths.get(location.path)
-    return path.parent?.relativize(Paths.get(root.path + '/')) ?: path
 }
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {
