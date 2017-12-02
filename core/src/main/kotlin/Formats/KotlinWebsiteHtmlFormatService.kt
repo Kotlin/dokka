@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.nio.file.Path
 
 
-private object EmptyHtmlTemplateService : HtmlTemplateService {
+object EmptyHtmlTemplateService : HtmlTemplateService {
     override fun appendFooter(to: StringBuilder) {}
 
     override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {}
@@ -20,8 +20,9 @@ open class KotlinWebsiteHtmlOutputBuilder(
         generator: NodeLocationAwareGenerator,
         languageService: LanguageService,
         extension: String,
-        impliedPlatforms: List<String>
-) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, EmptyHtmlTemplateService) {
+        impliedPlatforms: List<String>,
+        templateService: HtmlTemplateService
+) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService) {
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
@@ -173,12 +174,13 @@ open class KotlinWebsiteHtmlOutputBuilder(
 class KotlinWebsiteHtmlFormatService @Inject constructor(
         generator: NodeLocationAwareGenerator,
         signatureGenerator: LanguageService,
-        @Named(impliedPlatformsName) impliedPlatforms: List<String>
-) : HtmlFormatService(generator, signatureGenerator, EmptyHtmlTemplateService, impliedPlatforms) {
+        @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+        templateService: HtmlTemplateService
+) : HtmlFormatService(generator, signatureGenerator, templateService, impliedPlatforms) {
 
     override fun enumerateSupportFiles(callback: (String, String) -> Unit) {}
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-            KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
+            KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 }
 

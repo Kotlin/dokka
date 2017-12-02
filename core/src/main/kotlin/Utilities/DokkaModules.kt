@@ -49,11 +49,6 @@ class DokkaOutputModule(val options: DocumentationOptions,
                         val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
         binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
-
-        binder.bind(HtmlTemplateService::class.java).toProvider(object : Provider<HtmlTemplateService> {
-            override fun get(): HtmlTemplateService = HtmlTemplateService.default("style.css")
-        })
-
         binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(options.outputDir))
 
 //        binder.bindNameAnnotated<LocationService, SingleFolderLocationService>("singleFolder")

@@ -9,33 +9,24 @@ import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import kotlin.reflect.KClass
 
-interface FormatDescriptor {
+
+interface FormatDescriptorAnalysisComponent {
     fun configureAnalysis(binder: Binder)
+}
+
+interface FormatDescriptorOutputComponent {
     fun configureOutput(binder: Binder)
 }
 
-interface FormatDescriptorAnalysisComponentProvider : FormatDescriptor {
-
-    val packageDocumentationBuilderClass: KClass<out PackageDocumentationBuilder>
-    val javaDocumentationBuilderClass: KClass<out JavaDocumentationBuilder>
-    val sampleProcessingService: KClass<out SampleProcessingService>
-    val descriptorSignatureProvider: KClass<out DescriptorSignatureProvider>
+interface FormatDescriptor: FormatDescriptorAnalysisComponent, FormatDescriptorOutputComponent
 
 
-    override fun configureAnalysis(binder: Binder): Unit = with(binder) {
-        bind<DescriptorSignatureProvider>() toType descriptorSignatureProvider
-        bind<PackageDocumentationBuilder>() toType packageDocumentationBuilderClass
-        bind<JavaDocumentationBuilder>() toType javaDocumentationBuilderClass
-        bind<SampleProcessingService>() toType sampleProcessingService
-    }
-}
-
-abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor, FormatDescriptorAnalysisComponentProvider {
+abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor {
 
     override fun configureOutput(binder: Binder): Unit = with(binder) {
         bind<OutlineFormatService>() toOptional (outlineServiceClass)
         bind<FormatService>() toOptional formatServiceClass
-        bind<FileGenerator>() toType  generatorServiceClass
+        bind<FileGenerator>() toType generatorServiceClass
         //bind<Generator>() toType  generatorServiceClass
         bind<PackageListService>() toOptional packageListServiceClass
     }
