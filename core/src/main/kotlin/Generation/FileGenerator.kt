@@ -21,7 +21,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
     }
 
     fun locationWithoutExtension(node: DocumentationNode): FileLocation {
-        return FileLocation(File(rootFile, relativePathToNode(node.path.map { it.name }, node.members.any())))
+        return FileLocation(File(rootFile, relativePathToNode(node)))
     }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {

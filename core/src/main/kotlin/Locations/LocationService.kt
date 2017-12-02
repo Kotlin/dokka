@@ -44,6 +44,7 @@ fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String
     }
 }
 
+fun relativePathToNode(node: DocumentationNode) = relativePathToNode(node.path.map { it.name }, node.members.any())
 
 
 //
