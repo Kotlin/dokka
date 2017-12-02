@@ -1,12 +1,16 @@
 package org.jetbrains.dokka.javadoc
 
+import com.google.inject.Binder
 import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Formats.FormatDescriptorAnalysisComponentProvider
 import org.jetbrains.dokka.Kotlin.KotlinAsJavaDescriptorSignatureProvider
 import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
+import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.toType
 import kotlin.reflect.KClass
 
 class JavadocGenerator @Inject constructor(val options: DocumentationOptions, val logger: DokkaLogger) : Generator {
@@ -30,13 +34,13 @@ class JavadocGenerator @Inject constructor(val options: DocumentationOptions, va
     }
 }
 
-class JavadocFormatDescriptor : FormatDescriptor {
-    override val formatServiceClass = null
-    override val outlineServiceClass = null
-    override val generatorServiceClass = JavadocGenerator::class
+class JavadocFormatDescriptor : FormatDescriptor, FormatDescriptorAnalysisComponentProvider {
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
-    override val packageListServiceClass: KClass<out PackageListService>? = null
     override val descriptorSignatureProvider = KotlinAsJavaDescriptorSignatureProvider::class
+
+    override fun configureOutput(binder: Binder): Unit = with(binder) {
+        bind<Generator>() toType JavadocGenerator::class
+    }
 }
