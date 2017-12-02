@@ -51,19 +51,6 @@ class DokkaOutputModule(val options: DocumentationOptions,
         binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
         binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(options.outputDir))
 
-//        binder.bindNameAnnotated<LocationService, SingleFolderLocationService>("singleFolder")
-//        binder.bindNameAnnotated<FileLocationService, SingleFolderLocationService>("singleFolder")
-//        binder.bindNameAnnotated<LocationService, FoldersLocationService>("folders")
-//        binder.bindNameAnnotated<FileLocationService, FoldersLocationService>("folders")
-
-        // defaults
-//        binder.bind(LocationService::class.java).to(FoldersLocationService::class.java)
-//        binder.bind(FileLocationService::class.java).to(FoldersLocationService::class.java)
-
-        binder.registerCategory<OutlineFormatService>("outline")
-        binder.registerCategory<FormatService>("format")
-        binder.registerCategory<Generator>("generator")
-
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
         binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(options.impliedPlatforms)
