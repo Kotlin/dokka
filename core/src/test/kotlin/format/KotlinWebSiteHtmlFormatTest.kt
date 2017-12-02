@@ -1,11 +1,16 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Before
 import org.junit.Test
 
 class KotlinWebSiteHtmlFormatTest {
-    private val kwsService = KotlinWebsiteHtmlFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
+    private val kwsService = KotlinWebsiteHtmlFormatService(TestFileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
 
+    @Before
+    fun prepareFileGenerator() {
+        TestFileGenerator.formatService = kwsService
+    }
 
     @Test fun dropImport() {
         verifyKWSNodeByName("dropImport", "foo")
@@ -44,14 +49,17 @@ class KotlinWebSiteHtmlFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
+            TestFileGenerator.buildPagesAndReadInto(
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
+                    output
+            )
         }
         verifyMultiplatformPackage(module, path)
     }
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website-html/$fileName.kt", ".html", format = "kotlin-website-html") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
+            TestFileGenerator.buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
         }
     }
 
@@ -73,7 +81,7 @@ class KotlinWebSiteHtmlFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            TestFileGenerator.buildPagesAndReadInto(model.members, output)
         }
     }
 

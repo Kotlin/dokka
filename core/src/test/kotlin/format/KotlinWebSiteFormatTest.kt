@@ -1,12 +1,19 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
 @Ignore
 class KotlinWebSiteFormatTest {
-    private val kwsService = KotlinWebsiteFormatService(InMemoryLocationService, KotlinLanguageService(), listOf(), DokkaConsoleLogger)
+    private val kwsService = KotlinWebsiteFormatService(TestFileGenerator, KotlinLanguageService(), listOf(), DokkaConsoleLogger)
+
+    @Before
+    fun prepareFileGenerator() {
+        TestFileGenerator.formatService = kwsService
+    }
+
 
     @Test fun sample() {
         verifyKWSNodeByName("sample", "foo")
@@ -29,14 +36,20 @@ class KotlinWebSiteFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/website/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
+            TestFileGenerator.buildPagesAndReadInto(
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
+                    output
+            )
         }
         verifyMultiplatformPackage(module, path)
     }
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website/$fileName.kt", ".md", format = "kotlin-website") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
+            TestFileGenerator.buildPagesAndReadInto(
+                    model.members.single().members.filter { it.name == name },
+                    output
+            )
         }
     }
 
@@ -58,7 +71,7 @@ class KotlinWebSiteFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.md", "testdata/format/website/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            TestFileGenerator.buildPagesAndReadInto(model.members, output)
         }
     }
 
