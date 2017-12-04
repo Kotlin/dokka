@@ -4,13 +4,8 @@ import org.jetbrains.dokka.*
 import org.junit.Before
 import org.junit.Test
 
-class MarkdownFormatTest {
-    private val markdownService = MarkdownFormatService(TestFileGenerator, KotlinLanguageService(), listOf())
-
-    @Before
-    fun prepareFileGenerator() {
-        TestFileGenerator.formatService = markdownService
-    }
+class MarkdownFormatTest: FileGeneratorTestCase() {
+    override val formatService = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf())
 
     @Test fun emptyDescription() {
         verifyMarkdownNode("emptyDescription")
@@ -40,20 +35,20 @@ class MarkdownFormatTest {
 
     @Test fun extensions() {
         verifyOutput("testdata/format/extensions.kt", ".package.md") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members, output)
+            buildPagesAndReadInto(model.members, output)
         }
         verifyOutput("testdata/format/extensions.kt", ".class.md") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members.single().members, output)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun enumClass() {
         verifyOutput("testdata/format/enumClass.kt", ".md") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members.single().members, output)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
         verifyOutput("testdata/format/enumClass.kt", ".value.md") { model, output ->
             val enumClassNode = model.members.single().members[0]
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" },
                     output
             )
@@ -290,14 +285,14 @@ class MarkdownFormatTest {
     @Test fun multiplePlatformsMergeMembers() {
         val module = buildMultiplePlatforms("multiplatform/mergeMembers")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/mergeMembers/foo.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members.single().members, output)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun multiplePlatformsOmitRedundant() {
         val module = buildMultiplePlatforms("multiplatform/omitRedundant")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/omitRedundant/foo.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members.single().members, output)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
@@ -336,7 +331,7 @@ class MarkdownFormatTest {
         val path = "multiplatform/groupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
                     output
             )
@@ -348,7 +343,7 @@ class MarkdownFormatTest {
         val path = "multiplatform/breadcrumbsInMemberOfMemberOfGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Class)?.member(NodeKind.Function)),
                     output
             )
@@ -440,7 +435,7 @@ class MarkdownFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members, output)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 
@@ -458,7 +453,7 @@ class MarkdownFormatTest {
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members, output)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 
@@ -478,7 +473,7 @@ class MarkdownFormatTest {
                 withKotlinRuntime = withKotlinRuntime,
                 includeNonPublic = includeNonPublic
         ) { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(nodeFilter(model), output)
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
@@ -488,7 +483,7 @@ class MarkdownFormatTest {
 
     private fun verifyJavaMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
         verifyJavaOutput("testdata/format/$fileName.java", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(nodeFilter(model), output)
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 

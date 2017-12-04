@@ -5,7 +5,6 @@ import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.tests.TestFileGenerator
 import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.junit.Assert.assertEquals
@@ -37,11 +36,13 @@ class PackageDocsTest {
 
     fun checkMarkdownOutput(docs: PackageDocs, expectedFilePrefix: String) {
 
+        val generator = FileGenerator(File(""))
+
         val out = StringBuilder()
         val outputBuilder = MarkdownOutputBuilder(
                 out,
-                FileLocation(TestFileGenerator.root),
-                TestFileGenerator,
+                FileLocation(generator.root),
+                generator,
                 KotlinLanguageService(),
                 ".md",
                 emptyList()

@@ -2,16 +2,10 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.GFMFormatService
 import org.jetbrains.dokka.KotlinLanguageService
-import org.junit.Before
 import org.junit.Test
 
-class GFMFormatTest {
-    private val gfmService = GFMFormatService(TestFileGenerator, KotlinLanguageService(), listOf())
-
-    @Before
-    fun prepareFileGenerator() {
-        TestFileGenerator.formatService = gfmService
-    }
+class GFMFormatTest : FileGeneratorTestCase() {
+    override val formatService = GFMFormatService(fileGenerator, KotlinLanguageService(), listOf())
 
     @Test
     fun sample() {
@@ -25,7 +19,7 @@ class GFMFormatTest {
 
     private fun verifyGFMNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/gfm/$fileName.kt", ".md") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     model.members.single().members.filter { it.name == name },
                     output
             )

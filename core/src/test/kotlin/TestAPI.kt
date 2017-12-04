@@ -276,14 +276,3 @@ val ContentRoot.path: String
         is JavaSourceRoot -> file.path
         else -> throw UnsupportedOperationException()
     }
-
-
-val TestFileGenerator = FileGenerator(createTempDir())
-
-fun FileGenerator.buildPagesAndReadInto(nodes: List<DocumentationNode>, sb: StringBuilder) {
-    buildPages(nodes)
-    nodes.forEach {
-        val fileForNode = TestFileGenerator.location(it).file
-        sb.append(fileForNode.readText())
-    }
-}

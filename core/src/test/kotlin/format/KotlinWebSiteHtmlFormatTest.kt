@@ -4,13 +4,8 @@ import org.jetbrains.dokka.*
 import org.junit.Before
 import org.junit.Test
 
-class KotlinWebSiteHtmlFormatTest {
-    private val kwsService = KotlinWebsiteHtmlFormatService(TestFileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
-
-    @Before
-    fun prepareFileGenerator() {
-        TestFileGenerator.formatService = kwsService
-    }
+class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
+    override val formatService = KotlinWebsiteHtmlFormatService(fileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
 
     @Test fun dropImport() {
         verifyKWSNodeByName("dropImport", "foo")
@@ -49,7 +44,7 @@ class KotlinWebSiteHtmlFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
                     output
             )
@@ -59,7 +54,7 @@ class KotlinWebSiteHtmlFormatTest {
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website-html/$fileName.kt", ".html", format = "kotlin-website-html") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
+            buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
         }
     }
 
@@ -81,7 +76,7 @@ class KotlinWebSiteHtmlFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members, output)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 

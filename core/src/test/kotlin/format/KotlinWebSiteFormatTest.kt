@@ -6,14 +6,8 @@ import org.junit.Ignore
 import org.junit.Test
 
 @Ignore
-class KotlinWebSiteFormatTest {
-    private val kwsService = KotlinWebsiteFormatService(TestFileGenerator, KotlinLanguageService(), listOf(), DokkaConsoleLogger)
-
-    @Before
-    fun prepareFileGenerator() {
-        TestFileGenerator.formatService = kwsService
-    }
-
+class KotlinWebSiteFormatTest: FileGeneratorTestCase() {
+    override val formatService = KotlinWebsiteFormatService(fileGenerator, KotlinLanguageService(), listOf(), DokkaConsoleLogger)
 
     @Test fun sample() {
         verifyKWSNodeByName("sample", "foo")
@@ -36,7 +30,7 @@ class KotlinWebSiteFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/website/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
                     output
             )
@@ -46,7 +40,7 @@ class KotlinWebSiteFormatTest {
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website/$fileName.kt", ".md", format = "kotlin-website") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(
+            buildPagesAndReadInto(
                     model.members.single().members.filter { it.name == name },
                     output
             )
@@ -71,7 +65,7 @@ class KotlinWebSiteFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.md", "testdata/format/website/$path/multiplatform.kt") { model, output ->
-            TestFileGenerator.buildPagesAndReadInto(model.members, output)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 
