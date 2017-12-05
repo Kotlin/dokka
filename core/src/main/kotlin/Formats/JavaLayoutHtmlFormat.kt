@@ -13,7 +13,7 @@ import org.jetbrains.dokka.Utilities.toType
 import java.io.File
 
 
-class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, FormatDescriptorAnalysisComponentProvider {
+class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, DefaultAnalysisComponent {
     override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
     override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class

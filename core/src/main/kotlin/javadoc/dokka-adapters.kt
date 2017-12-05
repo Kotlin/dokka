@@ -4,9 +4,7 @@ import com.google.inject.Binder
 import com.google.inject.Inject
 import com.sun.tools.doclets.formats.html.HtmlDoclet
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.Formats.FormatDescriptor
-import org.jetbrains.dokka.Formats.FormatDescriptorAnalysisComponent
-import org.jetbrains.dokka.Formats.KotlinAsJava
+import org.jetbrains.dokka.Formats.*
 import org.jetbrains.dokka.Utilities.bind
 import org.jetbrains.dokka.Utilities.toType
 
@@ -31,7 +29,10 @@ class JavadocGenerator @Inject constructor(val options: DocumentationOptions, va
     }
 }
 
-class JavadocFormatDescriptor : FormatDescriptor, FormatDescriptorAnalysisComponent by KotlinAsJava {
+class JavadocFormatDescriptor :
+        FormatDescriptor,
+        DefaultAnalysisComponent,
+        DefaultAnalysisComponentServices by KotlinAsJava {
 
     override fun configureOutput(binder: Binder): Unit = with(binder) {
         bind<Generator>() toType JavadocGenerator::class

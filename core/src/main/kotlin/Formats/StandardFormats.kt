@@ -1,19 +1,21 @@
 package org.jetbrains.dokka.Formats
 
 import com.google.inject.Binder
-import com.google.inject.Provider
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.KotlinWebsiteSampleProcessingService
 import org.jetbrains.dokka.Utilities.bind
 import kotlin.reflect.KClass
 
-abstract class KotlinFormatDescriptorBase : FileGeneratorBasedFormatDescriptor(), FormatDescriptorAnalysisComponentProvider by KotlinAsKotlin {
+abstract class KotlinFormatDescriptorBase
+    : FileGeneratorBasedFormatDescriptor(),
+        DefaultAnalysisComponent,
+        DefaultAnalysisComponentServices by KotlinAsKotlin {
     override val generatorServiceClass = FileGenerator::class
     override val outlineServiceClass: KClass<out OutlineFormatService>? = null
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
 }
 
-abstract class HtmlFormatDescriptorBase : FileGeneratorBasedFormatDescriptor() {
+abstract class HtmlFormatDescriptorBase : FileGeneratorBasedFormatDescriptor(), DefaultAnalysisComponent {
     override val formatServiceClass = HtmlFormatService::class
     override val outlineServiceClass = HtmlFormatService::class
     override val generatorServiceClass = FileGenerator::class
@@ -21,13 +23,13 @@ abstract class HtmlFormatDescriptorBase : FileGeneratorBasedFormatDescriptor() {
 
     override fun configureOutput(binder: Binder): Unit = with(binder) {
         super.configureOutput(binder)
-        bind<HtmlTemplateService>().toProvider(Provider { HtmlTemplateService.default("style.css") })
+        bind<HtmlTemplateService>().toProvider { HtmlTemplateService.default("style.css") }
     }
 }
 
-class HtmlFormatDescriptor : HtmlFormatDescriptorBase(), FormatDescriptorAnalysisComponent by KotlinAsKotlin
+class HtmlFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin
 
-class HtmlAsJavaFormatDescriptor : HtmlFormatDescriptorBase(), FormatDescriptorAnalysisComponent by KotlinAsJava
+class HtmlAsJavaFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava
 
 class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteFormatService::class
@@ -44,6 +46,10 @@ class KotlinWebsiteHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteHtmlFormatService::class
     override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
     override val outlineServiceClass = YamlOutlineService::class
+
+    override fun configureAnalysis(binder: Binder) {
+        super.configureAnalysis(binder)
+    }
 
     override fun configureOutput(binder: Binder) = with(binder) {
         super.configureOutput(binder)

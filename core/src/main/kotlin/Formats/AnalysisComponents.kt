@@ -12,14 +12,14 @@ import org.jetbrains.dokka.Utilities.toType
 import kotlin.reflect.KClass
 
 
-interface FormatDescriptorAnalysisComponentProvider : FormatDescriptorAnalysisComponent {
-
+interface DefaultAnalysisComponentServices {
     val packageDocumentationBuilderClass: KClass<out PackageDocumentationBuilder>
     val javaDocumentationBuilderClass: KClass<out JavaDocumentationBuilder>
     val sampleProcessingService: KClass<out SampleProcessingService>
     val descriptorSignatureProvider: KClass<out DescriptorSignatureProvider>
+}
 
-
+interface DefaultAnalysisComponent : FormatDescriptorAnalysisComponent, DefaultAnalysisComponentServices {
     override fun configureAnalysis(binder: Binder): Unit = with(binder) {
         bind<DescriptorSignatureProvider>() toType descriptorSignatureProvider
         bind<PackageDocumentationBuilder>() toType packageDocumentationBuilderClass
@@ -29,7 +29,7 @@ interface FormatDescriptorAnalysisComponentProvider : FormatDescriptorAnalysisCo
 }
 
 
-object KotlinAsJava: FormatDescriptorAnalysisComponentProvider {
+object KotlinAsJava : DefaultAnalysisComponentServices {
     override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
@@ -37,7 +37,7 @@ object KotlinAsJava: FormatDescriptorAnalysisComponentProvider {
 }
 
 
-object KotlinAsKotlin: FormatDescriptorAnalysisComponentProvider {
+object KotlinAsKotlin : DefaultAnalysisComponentServices {
     override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
     override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
