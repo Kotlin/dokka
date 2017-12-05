@@ -8,8 +8,9 @@ interface PackageListService {
 }
 
 class DefaultPackageListService @Inject constructor(
-        val generator: FileGenerator,
-        val formatService: FormatService) : PackageListService {
+        val generator: NodeLocationAwareGenerator,
+        val formatService: FormatService
+) : PackageListService {
 
     override fun formatPackageList(module: DocumentationModule): String {
         val packages = mutableSetOf<String>()
