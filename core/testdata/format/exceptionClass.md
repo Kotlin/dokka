@@ -1,4 +1,4 @@
-[test](test/index) / [MyException](test/-my-exception/index)
+[test](../index.md) / [MyException](./index.md)
 
 # MyException
 
@@ -6,5 +6,5 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-my-exception/-init-) | `MyException()` |
+| [&lt;init&gt;](-init-.md) | `MyException()` |
 

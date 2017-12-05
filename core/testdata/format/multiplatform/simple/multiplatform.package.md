@@ -1,9 +1,9 @@
-[test](test/index) / [foo](test/foo/index)
+[test](../index.md) / [foo](./index.md)
 
 ## Package foo
 
 ### Types
 
-| [Bar](test/foo/-bar/index)<br>(JS) | `class Bar`<br>This is a bar. |
-| [Foo](test/foo/-foo/index)<br>(JVM) | `class Foo`<br>This is a foo. |
+| [Bar](-bar/index.md)<br>(JS) | `class Bar`<br>This is a bar. |
+| [Foo](-foo/index.md)<br>(JVM) | `class Foo`<br>This is a foo. |
 

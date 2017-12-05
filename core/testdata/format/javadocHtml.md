@@ -1,4 +1,4 @@
-[test](test/index) / [C](test/-c/index)
+[test](../index.md) / [C](./index.md)
 
 # C
 
@@ -18,7 +18,7 @@ Block code
 
 ### Constructors
 
-| [&lt;init&gt;](test/-c/-init-) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized* <br>Paragraph ~~Strikethrough~~ ~~Deleted~~ `Code`
+| [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized* <br>Paragraph ~~Strikethrough~~ ~~Deleted~~ `Code`
 
 ```
 Block code<br>```

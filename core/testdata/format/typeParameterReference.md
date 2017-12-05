@@ -1,8 +1,8 @@
-[test](test/index) / [tt](test/tt)
+[test](index.md) / [tt](./tt.md)
 
 # tt
 
-`fun <T> `[`T`](test/tt#T)`.tt(): Unit`
+`fun <T> `[`T`](tt.md#T)`.tt(): Unit`
 
-Correct ref to [T](test/tt#T)
+Correct ref to [T](tt.md#T)
 

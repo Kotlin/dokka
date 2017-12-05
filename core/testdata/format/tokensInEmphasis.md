@@ -1,4 +1,4 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
@@ -6,15 +6,15 @@
 
 Another emphasised class.
 
-*This class, [Bar](test/-bar/index) is just meh.*
+*This class, [Bar](./index.md) is just meh.*
 
-*For a semicolon; [Bar.foo](test/-bar/foo) is for you!.*
+*For a semicolon; [Bar.foo](foo.md) is for you!.*
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()`<br>Another emphasised class. |
+| [&lt;init&gt;](-init-.md) | `Bar()`<br>Another emphasised class. |
 
 ### Functions
 
-| [foo](test/-bar/foo) | `fun foo(): String` |
+| [foo](foo.md) | `fun foo(): String` |
 
