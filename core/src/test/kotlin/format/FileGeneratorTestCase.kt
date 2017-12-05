@@ -27,6 +27,9 @@ abstract class FileGeneratorTestCase {
         val byLocations = nodes.groupBy { location(it) }
         byLocations.forEach { (loc, _) ->
             if (byLocations.size > 1) {
+                if (sb.isNotBlank() && !sb.endsWith('\n')) {
+                    sb.appendln()
+                }
                 sb.appendln("<!-- File: ${relativeToRoot(loc)} -->")
             }
             sb.append(loc.file.readText())
