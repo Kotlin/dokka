@@ -299,8 +299,9 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     @Test fun multiplePlatformsImplied() {
         val module = buildMultiplePlatforms("multiplatform/implied")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/implied/foo.kt") { model, output ->
-//            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf("JVM", "JS"))
-//                    .createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            val service = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf("JVM", "JS"))
+            fileGenerator.formatService = service
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
@@ -442,8 +443,9 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     private fun verifyMultiplatformIndex(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.index.kt") {
             model, output ->
-//            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
-//                    .createOutputBuilder(output, tempLocation).appendNodes(listOf(model))
+            val service = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf())
+            fileGenerator.formatService = service
+            buildPagesAndReadInto(listOf(model), output)
         }
     }
 
