@@ -47,10 +47,6 @@ class KotlinWebsiteHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
     override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
     override val outlineServiceClass = YamlOutlineService::class
 
-    override fun configureAnalysis(binder: Binder) {
-        super.configureAnalysis(binder)
-    }
-
     override fun configureOutput(binder: Binder) = with(binder) {
         super.configureOutput(binder)
         bind<HtmlTemplateService>().toInstance(EmptyHtmlTemplateService)

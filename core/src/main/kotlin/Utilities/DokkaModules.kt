@@ -24,8 +24,6 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
     override fun configure(binder: Binder) {
         binder.bind<DokkaLogger>().toInstance(logger)
 
-        binder.registerCategory<LanguageService>("language")
-
         val coreEnvironment = environment.createCoreEnvironment()
         binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
 
