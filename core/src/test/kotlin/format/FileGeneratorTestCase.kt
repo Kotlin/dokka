@@ -3,6 +3,7 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.FileGenerator
 import org.jetbrains.dokka.FormatService
+import org.jetbrains.dokka.relativeToRoot
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -23,9 +24,12 @@ abstract class FileGeneratorTestCase {
 
     fun buildPagesAndReadInto(nodes: List<DocumentationNode>, sb: StringBuilder) = with(fileGenerator) {
         buildPages(nodes)
-        nodes.forEach {
-            val fileForNode = location(it).file
-            sb.append(fileForNode.readText())
+        val byLocations = nodes.groupBy { location(it) }
+        byLocations.forEach { (loc, _) ->
+            if (byLocations.size > 1) {
+                sb.appendln("<!-- File: ${relativeToRoot(loc)} -->")
+            }
+            sb.append(loc.file.readText())
         }
     }
 }
