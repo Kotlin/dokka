@@ -63,9 +63,9 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
     private fun TBODY.formatFunctionSummaryRow(node: DocumentationNode) = tr {
         td {
             for (modifier in node.details(NodeKind.Modifier)) {
-                metaMarkup(languageService.render(modifier, SUMMARY))
+                renderedSignature(modifier, SUMMARY)
             }
-            metaMarkup(languageService.render(node.detail(NodeKind.Type), SUMMARY))
+            renderedSignature(node.detail(NodeKind.Type), SUMMARY)
         }
         td {
             div {
@@ -76,10 +76,14 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
         }
     }
 
+    private fun FlowContent.renderedSignature(node: DocumentationNode, mode: LanguageService.RenderMode = SUMMARY) {
+        metaMarkup(languageService.render(node, mode))
+    }
+
     private fun FlowContent.fullFunctionDocs(node: DocumentationNode) {
         div {
             h3 { +node.name }
-            pre { metaMarkup(languageService.render(node, FULL)) }
+            pre { renderedSignature(node, FULL) }
             metaMarkup(node.content)
             for ((name, sections) in node.content.sections.groupBy { it.tag }) {
                 table {
@@ -125,7 +129,18 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
     }
 
     fun appendClassLike(node: DocumentationNode) = with(htmlConsumer) {
+        html {
+            head {}
+            body {
+                h1 { +node.name }
+                pre { renderedSignature(node, FULL) }
+                metaMarkup(node.content)
 
+                h2 { +"Summary" }
+                hr()
+
+            }
+        }
     }
 }
 
@@ -154,7 +169,6 @@ class ContentToHtmlBuilder {
             }
 
             is ContentHeading -> hN(level = content.level) { appendContent(content.children) }
-            is ContentBlock -> appendContent(content.children)
 
             is ContentEntity -> +content.text
 
@@ -172,8 +186,8 @@ class ContentToHtmlBuilder {
 
 
             is ContentCode -> pre { code { appendContent(content.children) } }
-            is ContentBlockCode -> pre { code {} }
             is ContentBlockSampleCode -> pre { code {} }
+            is ContentBlockCode -> pre { code {} }
 
 
             is ContentNonBreakingSpace -> +nbsp
@@ -186,8 +200,10 @@ class ContentToHtmlBuilder {
                 a(href = "#local") { appendContent(content.children) }
             }
             is ContentExternalLink -> {
-                a(href = "#external") { appendContent(content.children) }
+                a(href = content.href) { appendContent(content.children) }
             }
+
+            is ContentBlock -> appendContent(content.children)
         }
     }
 }
@@ -196,26 +212,24 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
 
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
-
+        val fileForClass = parentDir.resolve(node.simpleName() + ".html")
+        fileForClass.bufferedWriter().use {
+            JavaLayoutHtmlFormatOutputBuilder(it, languageService).appendClassLike(node)
+        }
     }
 
     fun buildPackage(node: DocumentationNode, parentDir: File) {
         assert(node.kind == NodeKind.Package)
         val members = node.members
-        val directoryForPackage = parentDir.resolve(node.name)
+        val directoryForPackage = parentDir.resolve(node.name.replace('.', File.separatorChar))
         directoryForPackage.mkdirsOrFail()
 
         directoryForPackage.resolve("package-summary.html").bufferedWriter().use {
             JavaLayoutHtmlFormatOutputBuilder(it, languageService).appendPackage(node)
         }
 
-        for (member in members) {
-            when (member.kind) {
-                NodeKind.Package -> buildPackage(member, directoryForPackage)
-                in classLike -> buildClass(node, directoryForPackage)
-                else -> {
-                }
-            }
+        members.filter { it.kind in classLike }.forEach {
+            buildClass(it, directoryForPackage)
         }
     }
 
@@ -223,7 +237,8 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single()
 
-        module.members.filter { it.kind == NodeKind.Package }.forEach { buildPackage(it, root.resolve(module.name)) }
+        val moduleRoot = root.resolve(module.name)
+        module.members.filter { it.kind == NodeKind.Package }.forEach { buildPackage(it, moduleRoot) }
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
