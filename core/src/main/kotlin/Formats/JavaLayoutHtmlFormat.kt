@@ -10,10 +10,13 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.LanguageService.RenderMode.FULL
 import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
+import org.jetbrains.dokka.NodeKind.Companion.memberLike
 import org.jetbrains.dokka.Utilities.bind
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import java.io.File
+import java.net.URI
+import java.net.URLEncoder
 
 
 class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, DefaultAnalysisComponent, DefaultAnalysisComponentServices by KotlinAsKotlin {
@@ -27,11 +30,11 @@ class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, DefaultAnalysisComponen
     val kotlinLanguageService = KotlinLanguageService::class
 }
 
-class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageService: LanguageService) {
+class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageService: LanguageService, val generator: JavaLayoutHtmlFormatGenerator, val uri: URI) {
 
     val htmlConsumer = output.appendHTML()
 
-    val contentToHtmlBuilder = ContentToHtmlBuilder()
+    val contentToHtmlBuilder = ContentToHtmlBuilder(generator, uri)
 
     private fun FlowContent.summaryNodeGroup(nodes: Iterable<DocumentationNode>, header: String, headerAsRow: Boolean = false, row: TBODY.(DocumentationNode) -> Unit) {
         if (nodes.none()) return
@@ -58,7 +61,7 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
     }
 
     private fun TBODY.formatClassLikeRow(node: DocumentationNode) = tr {
-        td { a(href = "#classLocation") { +node.simpleName() } }
+        td { a(href = generator.linkTo(node, uri)) { +node.simpleName() } }
         td { metaMarkup(node.summary) }
     }
 
@@ -71,7 +74,7 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
         }
         td {
             div {
-                a(href = "#${node.signature()}") { +node.name }
+                a(href = generator.linkTo(node, uri)) { +node.name }
             }
 
             metaMarkup(node.summary)
@@ -103,7 +106,7 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
                 }
             }
         }
-        a(name = node.signature())
+        a { id = node.signature() }
     }
 
     fun appendPackage(node: DocumentationNode) = with(htmlConsumer) {
@@ -155,7 +158,7 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
     }
 }
 
-class ContentToHtmlBuilder {
+class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri: URI) {
     fun FlowContent.appendContent(content: List<ContentNode>): Unit = content.forEach { appendContent(it) }
 
     private fun FlowContent.hN(level: Int, classes: String? = null, block: CommonAttributeGroupFacadeFlowHeadingPhrasingContent.() -> Unit) {
@@ -208,7 +211,7 @@ class ContentToHtmlBuilder {
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
-                a(href = "#local") { appendContent(content.children) }
+                a(href = generator.linkTo(content.node!!, uri)) { appendContent(content.children) }
             }
             is ContentExternalLink -> {
                 a(href = content.href) { appendContent(content.children) }
@@ -222,10 +225,32 @@ class ContentToHtmlBuilder {
 class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val root: File, val languageService: LanguageService) : Generator {
 
 
+    fun containerUriOfNode(node: DocumentationNode): URI {
+        return when (node.kind) {
+            NodeKind.Module -> URI("/").resolve(node.name)
+            NodeKind.Package -> containerUriOfNode(node.owner!!).resolve(node.name.replace('.', '/') + '/')
+            in classLike -> containerUriOfNode(node.owner!!).resolve("${node.name}.html")
+            else -> error("Can't contain nested")
+        }
+    }
+
+    fun mainUriForNode(node: DocumentationNode): URI {
+        return when (node.kind) {
+            NodeKind.Package -> containerUriOfNode(node).resolve("package-summary.html")
+            NodeKind.Class -> containerUriOfNode(node).resolve("#")
+            in memberLike -> mainUriForNode(node.owner!!).resolve("#${node.signatureUrlEncoded()}")
+            else -> error("Not supported")
+        }
+    }
+
+    fun linkTo(to: DocumentationNode, from: URI): String {
+        return from.relative(mainUriForNode(to)).toString()
+    }
+
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.simpleName() + ".html")
         fileForClass.bufferedWriter().use {
-            JavaLayoutHtmlFormatOutputBuilder(it, languageService).appendClassLike(node)
+            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, mainUriForNode(node)).appendClassLike(node)
         }
     }
 
@@ -236,7 +261,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
         directoryForPackage.mkdirsOrFail()
 
         directoryForPackage.resolve("package-summary.html").bufferedWriter().use {
-            JavaLayoutHtmlFormatOutputBuilder(it, languageService).appendPackage(node)
+            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, mainUriForNode(node)).appendPackage(node)
         }
 
         members.filter { it.kind in classLike }.forEach {
@@ -263,7 +288,44 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
     }
 }
 
-
-fun FlowOrInteractiveOrPhrasingContent.a(href: String? = null, target: String? = null, classes: String? = null, name: String? = null, block: A.() -> Unit = {}): Unit = A(attributesMapOf("href", href, "target", target, "class", classes, "name", name), consumer).visit(block)
-
 fun DocumentationNode.signature() = detail(NodeKind.Signature).name
+fun DocumentationNode.signatureUrlEncoded() = URLEncoder.encode(detail(NodeKind.Signature).name, "UTF-8")
+
+
+fun URI.relative(child: URI): URI {
+    var base = this
+    var child = child
+    // Normalize paths to remove . and .. segments
+    base = base.normalize()
+    child = child.normalize()
+
+    // Split paths into segments
+    var bParts = base.path.split('/').dropLastWhile { it.isEmpty() }
+    val cParts = child.path.split('/').dropLastWhile { it.isEmpty() }
+
+    // Discard trailing segment of base path
+    if (bParts.isNotEmpty() && !base.path.endsWith("/")) {
+        bParts = bParts.dropLast(1)
+    }
+
+    // Remove common prefix segments
+    var i = 0
+    while (i < bParts.size && i < cParts.size && bParts[i] == cParts[i]) {
+        i++
+    }
+
+
+    // Construct the relative path
+    val sb = StringBuilder()
+    for (j in 0 until bParts.size - i) {
+        sb.append("../")
+    }
+    for (j in i until cParts.size) {
+        if (j != i) {
+            sb.append("/")
+        }
+        sb.append(cParts[j])
+    }
+
+    return URI.create(sb.toString())
+}
