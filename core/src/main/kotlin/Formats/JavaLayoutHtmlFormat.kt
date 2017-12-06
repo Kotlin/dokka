@@ -35,8 +35,10 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
 
     private fun FlowContent.summaryNodeGroup(nodes: Iterable<DocumentationNode>, header: String, headerAsRow: Boolean = false, row: TBODY.(DocumentationNode) -> Unit) {
         if (nodes.none()) return
-        if (!headerAsRow) h2 { +header }
-        hr()
+        if (!headerAsRow) {
+            h2 { +header }
+            hr()
+        }
         table {
             if (headerAsRow) thead { tr { td { h3 { +header } } } }
             tbody {
@@ -139,6 +141,15 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
                 h2 { +"Summary" }
                 hr()
 
+                val functionsToDisplay = node.members(NodeKind.Function) + node.members(NodeKind.CompanionObjectFunction)
+
+                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { formatFunctionSummaryRow(it) }
+
+                h2 { +"Functions" }
+                hr()
+                for (function in functionsToDisplay) {
+                    fullFunctionDocs(function)
+                }
             }
         }
     }
