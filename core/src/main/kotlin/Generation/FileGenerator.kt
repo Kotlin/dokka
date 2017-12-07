@@ -6,13 +6,12 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 
-open class FileGenerator @Inject constructor(val locationService: FileLocationService) : Generator {
+class FileGenerator @Inject constructor(val locationService: FileLocationService) : Generator {
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService
     @set:Inject(optional = true) lateinit var options: DocumentationOptions
     @set:Inject(optional = true) var packageListService: PackageListService? = null
-    @set:Inject(optional = true) var extraOutlineServices: ExtraOutlineServices? = null
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val specificLocationService = locationService.withExtension(formatService.extension)
@@ -35,29 +34,12 @@ open class FileGenerator @Inject constructor(val locationService: FileLocationSe
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
         val outlineService = this.outlineService ?: return
-        for ((location, items) in nodes.groupBy {
-            locationService.location(it, outlineService.getOutlineFileName())
-        }) {
-            val file = outlineService.getOutlineFile(location)
+        for ((location, items) in nodes.groupBy { locationService.location(it) }) {
+            val file = outlineService.getOutlineFileName(location)
             file.parentFile?.mkdirsOrFail()
             FileOutputStream(file).use {
                 OutputStreamWriter(it, Charsets.UTF_8).use {
                     it.write(outlineService.formatOutline(location, items))
-                }
-            }
-        }
-    }
-
-    override fun buildExtraOutlines(nodes: Iterable<DocumentationNode>) {
-        val extraOutlinesServices = this.extraOutlineServices ?: return
-        if (extraOutlinesServices.services.isEmpty()) return
-        val rootNode = nodes.first()
-        for (service in extraOutlinesServices.services) {
-            val file = service.getFile(locationService.location(rootNode, service.getFileName()))
-            file.parentFile?.mkdirsOrFail()
-            FileOutputStream(file).use {
-                OutputStreamWriter(it, Charsets.UTF_8).use {
-                    it.write(service.format(rootNode))
                 }
             }
         }

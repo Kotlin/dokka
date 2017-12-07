@@ -105,8 +105,6 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         callback("/dokka/styles/style.css", "style.css")
     }
 
-    override fun getOutlineFileName(): String = "index"
-
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
         HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, templateService)
 
@@ -116,7 +114,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         templateService.appendFooter(to)
     }
 
-    override fun getOutlineFile(location: Location): File {
+    override fun getOutlineFileName(location: Location): File {
         return File("${location.path}-outline.html")
     }
 
@@ -135,7 +133,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
     }
 }
 
-fun LocationService.calcPathToRoot(location: Location): Path {
+private fun LocationService.calcPathToRoot(location: Location): Path {
     val path = Paths.get(location.path)
     return path.parent?.relativize(Paths.get(root.path + '/')) ?: path
 }

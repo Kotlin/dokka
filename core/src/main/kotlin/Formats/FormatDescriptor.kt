@@ -12,5 +12,4 @@ interface FormatDescriptor {
     val javaDocumentationBuilderClass: KClass<out JavaDocumentationBuilder>
     val sampleProcessingService: KClass<out SampleProcessingService>
     val packageListServiceClass: KClass<out PackageListService>?
-    val extraOutlineServices: KClass<out ExtraOutlineServices>?
 }

@@ -10,7 +10,7 @@ class SingleFolderLocationService @Inject constructor(@Named("outputDir") val ro
     override fun withExtension(newExtension: String): FileLocationService =
         SingleFolderLocationService(rootFile, newExtension)
 
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean, fileName: String): FileLocation {
+    override fun location(qualifiedName: List<String>, hasMembers: Boolean): FileLocation {
         val filename = qualifiedName.map { identifierToFilename(it) }.joinToString("-")
         return FileLocation(File(rootFile, filename).appendExtension(extension))
     }

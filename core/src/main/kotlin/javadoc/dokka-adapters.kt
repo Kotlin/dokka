@@ -26,9 +26,6 @@ class JavadocGenerator @Inject constructor(val options: DocumentationOptions, va
     override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
         // handled by javadoc itself
     }
-
-    override fun buildExtraOutlines(nodes: Iterable<DocumentationNode>) {
-    }
 }
 
 class JavadocFormatDescriptor : FormatDescriptor {
@@ -39,5 +36,4 @@ class JavadocFormatDescriptor : FormatDescriptor {
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = null
-    override val extraOutlineServices: KClass<out ExtraOutlineServices>? = null
 }
