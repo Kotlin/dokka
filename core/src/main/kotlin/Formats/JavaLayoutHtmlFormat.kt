@@ -12,6 +12,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import org.jetbrains.dokka.NodeKind.Companion.memberLike
 import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import java.io.BufferedWriter
@@ -27,6 +28,8 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
         bind<Generator>() toType generatorServiceClass
         bind<LanguageService>() toType languageServiceClass
         bind<JavaLayoutHtmlTemplateService>() toType templateServiceClass
+        bind<JavaLayoutHtmlUriProvider>() toType generatorServiceClass
+        bind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
     }
 
     val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
@@ -72,14 +75,14 @@ interface JavaLayoutHtmlFormatOutlineFactoryService {
 class JavaLayoutHtmlFormatOutputBuilder(
         val output: Appendable,
         val languageService: LanguageService,
-        val generator: JavaLayoutHtmlFormatGenerator,
+        val uriProvider: JavaLayoutHtmlUriProvider,
         val templateService: JavaLayoutHtmlTemplateService,
         val uri: URI
 ) {
 
     val htmlConsumer = output.appendHTML()
 
-    val contentToHtmlBuilder = ContentToHtmlBuilder(generator, uri)
+    val contentToHtmlBuilder = ContentToHtmlBuilder(uriProvider, uri)
 
     private fun FlowContent.summaryNodeGroup(nodes: Iterable<DocumentationNode>, header: String, headerAsRow: Boolean = false, row: TBODY.(DocumentationNode) -> Unit) {
         if (nodes.none()) return
@@ -106,7 +109,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     private fun TBODY.formatClassLikeRow(node: DocumentationNode) = tr {
-        td { a(href = generator.linkTo(node, uri)) { +node.simpleName() } }
+        td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
         td { metaMarkup(node.summary) }
     }
 
@@ -119,7 +122,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
         td {
             div {
-                a(href = generator.linkTo(node, uri)) { +node.name }
+                a(href = uriProvider.linkTo(node, uri)) { +node.name }
             }
 
             metaMarkup(node.summary)
@@ -208,7 +211,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
     )
 }
 
-class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri: URI) {
+class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: URI) {
     fun FlowContent.appendContent(content: List<ContentNode>): Unit = content.forEach { appendContent(it) }
 
     private fun FlowContent.hN(level: Int, classes: String? = null, block: CommonAttributeGroupFacadeFlowHeadingPhrasingContent.() -> Unit) {
@@ -261,7 +264,7 @@ class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
-                a(href = generator.linkTo(content.node!!, uri)) { appendContent(content.children) }
+                a(href = uriProvider.linkTo(content.node!!, uri)) { appendContent(content.children) }
             }
             is ContentExternalLink -> {
                 a(href = content.href) { appendContent(content.children) }
@@ -272,36 +275,43 @@ class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri
     }
 }
 
+
+interface JavaLayoutHtmlUriProvider {
+    fun containerUriOfNode(node: DocumentationNode): URI
+    fun mainUriForNode(node: DocumentationNode): URI
+
+    fun linkTo(to: DocumentationNode, from: URI): String {
+        return mainUriForNode(to).relativeTo(from).toString()
+    }
+}
+
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val languageService: LanguageService,
         val templateService: JavaLayoutHtmlTemplateService,
         val outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService
-) : Generator {
+) : Generator, JavaLayoutHtmlUriProvider {
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
             = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUriForNode(node))
 
-    fun containerUriOfNode(node: DocumentationNode): URI {
+    override fun containerUriOfNode(node: DocumentationNode): URI {
         return when (node.kind) {
-            NodeKind.Module -> URI("/").resolve(node.name)
+            NodeKind.Module -> URI("/").resolve(node.name + "/")
             NodeKind.Package -> containerUriOfNode(node.owner!!).resolve(node.name.replace('.', '/') + '/')
             in classLike -> containerUriOfNode(node.owner!!).resolve("${node.name}.html")
             else -> error("Can't contain nested")
         }
     }
 
-    fun mainUriForNode(node: DocumentationNode): URI {
+    override fun mainUriForNode(node: DocumentationNode): URI {
         return when (node.kind) {
             NodeKind.Package -> containerUriOfNode(node).resolve("package-summary.html")
             NodeKind.Class -> containerUriOfNode(node).resolve("#")
             in memberLike -> mainUriForNode(node.owner!!).resolve("#${node.signatureUrlEncoded()}")
-            else -> error("Not supported")
+            NodeKind.AllTypes -> containerUriOfNode(node.owner!!).resolve("allclasses.html")
+            else -> error("Not supported ${node.kind}")
         }
-    }
-
-    fun linkTo(to: DocumentationNode, from: URI): String {
-        return mainUriForNode(to).relativeTo(from).toString()
     }
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
