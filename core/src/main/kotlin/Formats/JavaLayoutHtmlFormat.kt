@@ -277,11 +277,17 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
 
 
 interface JavaLayoutHtmlUriProvider {
-    fun containerUriOfNode(node: DocumentationNode): URI
-    fun mainUriForNode(node: DocumentationNode): URI
+    fun tryGetContainerUri(node: DocumentationNode): URI?
+    fun tryGetMainUri(node: DocumentationNode): URI?
+    fun containerUri(node: DocumentationNode): URI = tryGetContainerUri(node) ?: error("Unsupported ${node.kind}")
+    fun mainUri(node: DocumentationNode): URI = tryGetMainUri(node) ?: error("Unsupported ${node.kind}")
 
     fun linkTo(to: DocumentationNode, from: URI): String {
-        return mainUriForNode(to).relativeTo(from).toString()
+        return mainUri(to).relativeTo(from).toString()
+    }
+
+    fun mainUriOrWarn(node: DocumentationNode): URI? = tryGetMainUri(node) ?: (null).also {
+        AssertionError("Not implemented mainUri for ${node.kind}").printStackTrace()
     }
 }
 
@@ -293,24 +299,24 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
 ) : Generator, JavaLayoutHtmlUriProvider {
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
-            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUriForNode(node))
+            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUri(node))
 
-    override fun containerUriOfNode(node: DocumentationNode): URI {
+    override fun tryGetContainerUri(node: DocumentationNode): URI? {
         return when (node.kind) {
             NodeKind.Module -> URI("/").resolve(node.name + "/")
-            NodeKind.Package -> containerUriOfNode(node.owner!!).resolve(node.name.replace('.', '/') + '/')
-            in classLike -> containerUriOfNode(node.owner!!).resolve("${node.name}.html")
-            else -> error("Can't contain nested")
+            NodeKind.Package -> tryGetContainerUri(node.owner!!)?.resolve(node.name.replace('.', '/') + '/')
+            in classLike -> tryGetContainerUri(node.owner!!)?.resolve("${node.name}.html")
+            else -> null
         }
     }
 
-    override fun mainUriForNode(node: DocumentationNode): URI {
+    override fun tryGetMainUri(node: DocumentationNode): URI? {
         return when (node.kind) {
-            NodeKind.Package -> containerUriOfNode(node).resolve("package-summary.html")
-            NodeKind.Class -> containerUriOfNode(node).resolve("#")
-            in memberLike -> mainUriForNode(node.owner!!).resolve("#${node.signatureUrlEncoded()}")
-            NodeKind.AllTypes -> containerUriOfNode(node.owner!!).resolve("allclasses.html")
-            else -> error("Not supported ${node.kind}")
+            NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
+            NodeKind.Class -> tryGetContainerUri(node)?.resolve("#")
+            in memberLike -> tryGetMainUri(node.owner!!)?.resolve("#${node.signatureUrlEncoded()}")
+            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
+            else -> null
         }
     }
 
