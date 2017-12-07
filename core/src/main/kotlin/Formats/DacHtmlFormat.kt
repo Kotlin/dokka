@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.Formats
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
+import java.io.File
 import kotlin.reflect.KClass
 
 /**
@@ -14,7 +16,7 @@ val nodeToFamilyMap = HashMap<DocumentationNode, List<DocumentationNode>>()
  * On Devsite, certain headers and footers are needed for generating Devsite metadata.
  */
 class DevsiteHtmlTemplateService @Inject constructor(
-        val uriProvider: JavaLayoutHtmlUriProvider
+        val uriProvider: JavaLayoutHtmlUriProvider, @Named("outputDir") val rootFile: File
 ) : JavaLayoutHtmlTemplateService {
     override fun composePage(
             nodes: List<DocumentationNode>,
@@ -29,8 +31,8 @@ class DevsiteHtmlTemplateService @Inject constructor(
                 meta(name = "top_category") { attributes["value"] = "develop" }
                 meta(name = "subcategory") { attributes["value"] = "reference" }
                 meta(name = "hide_page_heading") { attributes["value"] = "true" }
-                meta(name = "book_path") { attributes["value"] = "/reference/kotlin/_toc.yaml" }
-                meta(name = "project_path") { attributes["value"] = "/reference/_project.yaml" }
+                meta(name = "book_path") { attributes["value"] = "/$rootFile/_toc.yaml" }
+                meta(name = "project_path") { attributes["value"] = "/${rootFile.parent}/_project.yaml" }
             }
             body {
                 bodyContent()
