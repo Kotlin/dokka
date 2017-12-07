@@ -313,7 +313,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     override fun tryGetMainUri(node: DocumentationNode): URI? {
         return when (node.kind) {
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
-            NodeKind.Class -> tryGetContainerUri(node)?.resolve("#")
+            in classLike -> tryGetContainerUri(node)?.resolve("#")
             in memberLike -> tryGetMainUri(node.owner!!)?.resolve("#${node.signatureUrlEncoded()}")
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
             else -> null
