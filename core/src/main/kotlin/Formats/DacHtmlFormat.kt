@@ -104,7 +104,7 @@ class DevsiteHtmlTemplateService @Inject constructor(
         for (node in family) {
             val selected = if (node == selectedNode) "selected " else ""
             appendln("          <li class=\"${selected}api apilevel-\">" +
-                    "<a href=\"/${uriProvider.mainUriForNode(node)}\">${node.nameWithOuterClass()}</a></li>")
+                    "<a href=\"/${uriProvider.mainUriOrWarn(node)}\">${node.nameWithOuterClass()}</a></li>")
         }
         appendln("      </ul>")
     }

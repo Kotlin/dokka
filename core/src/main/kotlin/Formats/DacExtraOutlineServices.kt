@@ -11,7 +11,7 @@ class DacNavOutlineService constructor(
         val languageService: LanguageService
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI =
-            uriProvider.containerUriOfNode(node).resolve("navtree_data.js")
+            uriProvider.containerUri(node).resolve("navtree_data.js")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         to.append("var NAVTREE_DATA = ").appendNavTree(node.members).append(";")
@@ -30,7 +30,7 @@ class DacNavOutlineService constructor(
             val enums = node.getMembersOfKinds(NodeKind.Enum)
             val exceptions = node.getMembersOfKinds(NodeKind.Exception)
 
-            append("[ \"${node.name}\", \"${uriProvider.mainUriForNode(node)}\", [ ")
+            append("[ \"${node.name}\", \"${uriProvider.mainUriOrWarn(node)}\", [ ")
             var needComma = false
             if (interfaces.firstOrNull() != null) {
                 appendNavTreePagesOfKind("Interfaces", interfaces)
@@ -79,7 +79,7 @@ class DacNavOutlineService constructor(
     }
 
     private fun Appendable.appendNavTreeChild(node: DocumentationNode): Appendable {
-        append("[ \"${node.nameWithOuterClass()}\", \"${uriProvider.mainUriForNode(node)}\"")
+        append("[ \"${node.nameWithOuterClass()}\", \"${uriProvider.tryGetMainUri(node)}\"")
         append(", null, null, null ]")
         return this
     }
@@ -91,7 +91,7 @@ class DacSearchOutlineService(
 ) : DacOutlineFormatService {
 
     override fun computeOutlineURI(node: DocumentationNode): URI =
-            uriProvider.containerUriOfNode(node).resolve("lists.js")
+            uriProvider.containerUri(node).resolve("lists.js")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         val pageNodes = node.getAllPageNodes()
@@ -104,7 +104,7 @@ class DacSearchOutlineService(
             to.append(" { " +
                     "id:$id, " +
                     "label:\"${pageNode.qualifiedName()}\", " +
-                    "link:\"${uriProvider.mainUriForNode(node)}\", " +
+                    "link:\"${uriProvider.mainUriOrWarn(node)}\", " +
                     "type:\"${pageNode.getClassOrPackage()}\", " +
                     "deprecated:\"false\" }")
             id++

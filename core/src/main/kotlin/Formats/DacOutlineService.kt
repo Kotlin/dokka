@@ -12,7 +12,7 @@ class DacOutlineService(
         val uriProvider: JavaLayoutHtmlUriProvider,
         val languageService: LanguageService
 ) : DacOutlineFormatService {
-    override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.containerUriOfNode(node).resolve("_toc.yaml")
+    override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.containerUri(node).resolve("_toc.yaml")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         appendOutline(uri, to, listOf(node))
@@ -41,11 +41,11 @@ class DacOutlineService(
     fun appendOutlineHeader(uri: URI, node: DocumentationNode, to: Appendable) {
         if (node is DocumentationModule) {
             to.appendln("- title: Package Index")
-            to.appendln("  path: ${uriProvider.mainUriForNode(node)}")
+            to.appendln("  path: ${uriProvider.mainUriOrWarn(node)}")
             to.appendln("  status_text: no-toggle")
         } else {
             to.appendln("- title: ${languageService.renderName(node)}")
-            to.appendln("  path: ${uriProvider.mainUriForNode(node)}")
+            to.appendln("  path: ${uriProvider.mainUriOrWarn(node)}")
             to.appendln("  status_text: apilevel-")
         }
     }
