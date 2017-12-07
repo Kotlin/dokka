@@ -1,4 +1,4 @@
-[test](test/index) / [kotlin.String](test/kotlin.-string/index) / [fn](test/kotlin.-string/fn)
+[test](../index.md) / [kotlin.String](index.md) / [fn](./fn.md)
 
 # fn
 

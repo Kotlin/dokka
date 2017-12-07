@@ -82,7 +82,7 @@ open class DokkaTask : DefaultTask() {
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
 
-    @Input var classpath: List<File> = arrayListOf()
+    @InputFiles var classpath: Iterable<File> = arrayListOf()
 
     @Input
     var includes: List<Any?> = arrayListOf()
@@ -95,11 +95,13 @@ open class DokkaTask : DefaultTask() {
     @Input
     var sourceDirs: Iterable<File> = emptyList()
 
-    @Input var sourceRoots: MutableList<SourceRoot> = arrayListOf()
+    @Input
+    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
 
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
 
+    @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
     @Input var reportNotDocumented = true
@@ -110,7 +112,15 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
-    @Optional @Input var cacheRoot: String? = null
+    @Optional @Input
+    var cacheRoot: String? = null
+
+
+    @Optional @Input
+    var languageVersion: String? = null
+
+    @Optional @Input
+    var apiVersion: String? = null
 
     @get:Input
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
@@ -231,6 +241,8 @@ open class DokkaTask : DefaultTask() {
 
     private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }
 
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
+
     @TaskAction
     fun generate() {
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
@@ -264,7 +276,7 @@ open class DokkaTask : DefaultTask() {
                     includes.filterNotNull().map { project.file(it).absolutePath },
                     outputDirectory,
                     outputFormat,
-                    false,
+                    includeNonPublic,
                     false,
                     reportNotDocumented,
                     skipEmptyPackages,
@@ -276,7 +288,10 @@ open class DokkaTask : DefaultTask() {
                     perPackageOptions,
                     externalDocumentationLinks,
                     noStdlibLink,
-                    cacheRoot)
+                    cacheRoot,
+                    collectSuppressedFiles(sourceRoots),
+                    languageVersion,
+                    apiVersion)
 
 
             bootstrapProxy.configure(
@@ -302,9 +317,7 @@ open class DokkaTask : DefaultTask() {
         val allConfigurations = project.configurations
 
         val fromConfigurations =
-                processConfigurations.map {
-                    allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found")
-                }.flatten()
+                processConfigurations.flatMap { allConfigurations.getByName(it.toString()) }
 
         return fromConfigurations
     }
@@ -314,10 +327,11 @@ open class DokkaTask : DefaultTask() {
             logger.info("Dokka: Taking source directories provided by the user")
             sourceDirs.toSet()
         } else if (kotlinTasks.isEmpty()) {
-            logger.info("Dokka: Taking source directories from default java plugin")
-            val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            sourceSets?.allSource?.srcDirs
+            project.convention.findPlugin(JavaPluginConvention::class.java)?.let { javaPluginConvention ->
+                logger.info("Dokka: Taking source directories from default java plugin")
+                val sourceSets = javaPluginConvention.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                sourceSets?.allSource?.srcDirs
+            }
         } else {
             emptySet()
         }
@@ -326,13 +340,18 @@ open class DokkaTask : DefaultTask() {
     }
 
 
-    @SkipWhenEmpty
     @InputFiles
-    fun getInputFiles(): FileCollection =
-            project.files(kotlinCompileBasedClasspathAndSourceRoots.sourceRoots.map { project.fileTree(File(it.path)) }) +
-                    project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
-                    project.files(includes) +
-                    project.files(samples.map { project.fileTree(it) })
+    fun getInputFiles(): FileCollection {
+        val (tasksClasspath, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
+
+        val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
+
+        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
+                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
+                project.files(fullClasspath.map { project.fileTree(it) }) +
+                project.files(includes) +
+                project.files(samples.filterNotNull().map { project.fileTree(it) })
+    }
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
@@ -407,9 +426,10 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     }
 }
 
-class PackageOptions : DokkaConfiguration.PackageOptions {
+class PackageOptions : Serializable, DokkaConfiguration.PackageOptions {
     override var prefix: String = ""
     override var includeNonPublic: Boolean = false
     override var reportUndocumented: Boolean = true
     override var skipDeprecated: Boolean = false
+    override var suppress: Boolean = false
 }

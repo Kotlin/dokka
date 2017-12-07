@@ -6,12 +6,11 @@ import org.jetbrains.dokka.Utilities.impliedPlatformsName
 
 open class JekyllOutputBuilder(to: StringBuilder,
                                location: Location,
-                               locationService: LocationService,
+                               generator: NodeLocationAwareGenerator,
                                languageService: LanguageService,
                                extension: String,
                                impliedPlatforms: List<String>)
-    : MarkdownOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
-{
+    : MarkdownOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms) {
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
         to.appendln("---")
         appendFrontMatter(nodes, to)
@@ -26,17 +25,20 @@ open class JekyllOutputBuilder(to: StringBuilder,
 }
 
 
-open class JekyllFormatService(locationService: LocationService,
-                               signatureGenerator: LanguageService,
-                               linkExtension: String,
-                               impliedPlatforms: List<String>)
-: MarkdownFormatService(locationService, signatureGenerator, linkExtension, impliedPlatforms) {
+open class JekyllFormatService(
+        generator: NodeLocationAwareGenerator,
+        signatureGenerator: LanguageService,
+        linkExtension: String,
+        impliedPlatforms: List<String>
+) : MarkdownFormatService(generator, signatureGenerator, linkExtension, impliedPlatforms) {
 
-    @Inject constructor(locationService: LocationService,
-                        signatureGenerator: LanguageService,
-                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "html", impliedPlatforms)
+    @Inject constructor(
+            generator: NodeLocationAwareGenerator,
+            signatureGenerator: LanguageService,
+            @Named(impliedPlatformsName) impliedPlatforms: List<String>
+    ) : this(generator, signatureGenerator, "html", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
-        JekyllOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+            JekyllOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 
 }

@@ -1,18 +1,21 @@
+import org.jetbrains.CorrectShadowPublishing
+
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.6
 
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "com.gradle.plugin-publish"
 
-configurations {
-    provided
-}
+sourceCompatibility = 1.8
 
-tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
-    classpath += configurations.shadow
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = "1.0"
+        jvmTarget = "1.8"
+    }
 }
 
 repositories {
@@ -25,8 +28,8 @@ dependencies {
     shadow project(path: ':runners:gradle-plugin', configuration: 'shadow')
     compileOnly project(':integration')
 
-    provided gradleApi()
-    provided localGroovy()
+    compileOnly gradleApi()
+    compileOnly localGroovy()
 }
 
 task sourceJar(type: Jar) {
@@ -52,13 +55,14 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaAndroidGradlePlugin(MavenPublication) {
-            from components.shadow
+        dokkaAndroidGradlePlugin(MavenPublication) { MavenPublication publication ->
             artifactId = 'dokka-android-gradle-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
+
+            CorrectShadowPublishing.configure(publication, project)
         }
     }
 }

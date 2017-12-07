@@ -1,4 +1,4 @@
-[test](test/index) / [foo](test/foo/index) / [Foo](test/foo/-foo/index)
+[test](../../index.md) / [foo](../index.md) / [Foo](./index.md)
 
 # Foo
 
@@ -10,13 +10,13 @@ This is a foo.
 
 ### Constructors
 
-| [&lt;init&gt;](test/foo/-foo/-init-) | `Foo()`<br>This is a foo. |
+| [&lt;init&gt;](-init-.md) | `Foo()`<br>This is a foo. |
 
 ### Properties
 
-| [propJvm](test/foo/-foo/prop-jvm) | `val propJvm: String` |
+| [propJvm](prop-jvm.md) | `val propJvm: String` |
 
 ### Functions
 
-| [jvm](test/foo/-foo/jvm) | `fun jvm(): Unit` |
+| [jvm](jvm.md) | `fun jvm(): Unit` |
 

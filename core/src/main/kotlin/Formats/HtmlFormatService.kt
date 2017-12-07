@@ -5,16 +5,15 @@ import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import java.io.File
 import java.nio.file.Path
-import java.nio.file.Paths
 
 open class HtmlOutputBuilder(to: StringBuilder,
                              location: Location,
-                             locationService: LocationService,
+                             generator: NodeLocationAwareGenerator,
                              languageService: LanguageService,
                              extension: String,
                              impliedPlatforms: List<String>,
                              val templateService: HtmlTemplateService)
-    : StructuredOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+    : StructuredOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 {
     override fun appendText(text: String) {
         to.append(text.htmlEscape())
@@ -46,7 +45,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     override fun appendParagraph(body: () -> Unit) =
         wrapInTag("p", body, newlineBeforeOpen = true, newlineAfterClose = true)
 
-    override fun appendSoftParagraph(body: () -> Unit) = body()
+    override fun appendSoftParagraph(body: () -> Unit) = appendParagraph(body)
 
     override fun appendLine() {
         to.appendln("<br/>")
@@ -81,7 +80,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     }
 
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, getPageTitle(nodes), locationService.calcPathToRoot(location))
+        templateService.appendHeader(to, getPageTitle(nodes), generator.relativeToRoot(location))
         super.appendNodes(nodes)
         templateService.appendFooter(to)
     }
@@ -95,21 +94,21 @@ open class HtmlOutputBuilder(to: StringBuilder,
     }
 }
 
-open class HtmlFormatService @Inject constructor(@Named("folders") locationService: LocationService,
+open class HtmlFormatService @Inject constructor(generator: NodeLocationAwareGenerator,
                                                  signatureGenerator: LanguageService,
                                                  val templateService: HtmlTemplateService,
                                                  @Named(impliedPlatformsName) val impliedPlatforms: List<String>)
-: StructuredFormatService(locationService, signatureGenerator, "html"), OutlineFormatService {
+: StructuredFormatService(generator, signatureGenerator, "html"), OutlineFormatService {
 
     override fun enumerateSupportFiles(callback: (String, String) -> Unit) {
         callback("/dokka/styles/style.css", "style.css")
     }
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-        HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, templateService)
+        HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, "Module Contents", locationService.calcPathToRoot(location))
+        templateService.appendHeader(to, "Module Contents", generator.relativeToRoot(location))
         super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }
@@ -123,7 +122,7 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         link.append(languageService.render(node, LanguageService.RenderMode.FULL))
         val tempBuilder = StringBuilder()
         createOutputBuilder(tempBuilder, location).appendContent(link)
-        to.appendln("<a href=\"${location.path}\">${tempBuilder.toString()}</a><br/>")
+        to.appendln("<a href=\"${location.path}\">$tempBuilder</a><br/>")
     }
 
     override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {
@@ -131,11 +130,6 @@ open class HtmlFormatService @Inject constructor(@Named("folders") locationServi
         body()
         to.appendln("</ul>")
     }
-}
-
-private fun LocationService.calcPathToRoot(location: Location): Path {
-    val path = Paths.get(location.path)
-    return path.parent?.relativize(Paths.get(root.path + '/')) ?: path
 }
 
 fun getPageTitle(nodes: Iterable<DocumentationNode>): String? {

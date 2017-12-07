@@ -1,22 +1,32 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.google.inject.name.Named
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 
-class FileGenerator @Inject constructor(val locationService: FileLocationService) : Generator {
+class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) : NodeLocationAwareGenerator {
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService
     @set:Inject(optional = true) lateinit var options: DocumentationOptions
     @set:Inject(optional = true) var packageListService: PackageListService? = null
 
-    override fun buildPages(nodes: Iterable<DocumentationNode>) {
-        val specificLocationService = locationService.withExtension(formatService.extension)
+    override val root: File = rootFile
 
-        for ((location, items) in nodes.groupBy { specificLocationService.location(it) }) {
+    override fun location(node: DocumentationNode): FileLocation {
+        return locationWithoutExtension(node).let { it.copy(file = it.file.appendExtension(formatService.linkExtension)) }
+    }
+
+    fun locationWithoutExtension(node: DocumentationNode): FileLocation {
+        return FileLocation(File(rootFile, relativePathToNode(node)))
+    }
+
+    override fun buildPages(nodes: Iterable<DocumentationNode>) {
+
+        for ((location, items) in nodes.groupBy { location(it) }) {
             val file = location.file
             file.parentFile?.mkdirsOrFail()
             try {
@@ -34,7 +44,7 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
         val outlineService = this.outlineService ?: return
-        for ((location, items) in nodes.groupBy { locationService.location(it) }) {
+        for ((location, items) in nodes.groupBy { locationWithoutExtension(it) }) {
             val file = outlineService.getOutlineFileName(location)
             file.parentFile?.mkdirsOrFail()
             FileOutputStream(file).use {
@@ -47,7 +57,7 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
 
     override fun buildSupportFiles() {
         formatService.enumerateSupportFiles { resource, targetPath ->
-            FileOutputStream(locationService.location(listOf(targetPath), false).file).use {
+            FileOutputStream(File(root, relativePathToNode(listOf(targetPath), false))).use {
                 javaClass.getResourceAsStream(resource).copyTo(it)
             }
         }
@@ -58,7 +68,7 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
 
         for (module in nodes) {
 
-            val moduleRoot = locationService.location(module).file.parentFile
+            val moduleRoot = location(module).file.parentFile
             val packageListFile = File(moduleRoot, "package-list")
 
             packageListFile.writeText("\$dokka.format:${options.outputFormat}\n" +

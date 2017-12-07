@@ -28,7 +28,8 @@ class AntPackageOptions(
         override var prefix: String = "",
         override var includeNonPublic: Boolean = false,
         override var reportUndocumented: Boolean = true,
-        override var skipDeprecated: Boolean = false) : DokkaConfiguration.PackageOptions
+        override var skipDeprecated: Boolean = false,
+        override var suppress: Boolean = false) : DokkaConfiguration.PackageOptions
 
 
 class DokkaAntTask: Task() {
@@ -43,6 +44,9 @@ class DokkaAntTask: Task() {
     var skipDeprecated: Boolean = false
 
     var cacheRoot: String? = null
+
+    var languageVersion: String? = null
+    var apiVersion: String? = null
 
     val compileClasspath: Path by lazy { Path(getProject()) }
     val sourcePath: Path by lazy { Path(getProject()) }
@@ -117,7 +121,9 @@ class DokkaAntTask: Task() {
                 samplesPath.list().toList(),
                 includesPath.list().toList(),
                 moduleName!!,
-                DocumentationOptions(outputDir!!, outputFormat,
+                DocumentationOptions(
+                        outputDir!!,
+                        outputFormat,
                         skipDeprecated = skipDeprecated,
                         sourceLinks = sourceLinks,
                         jdkVersion = jdkVersion,
@@ -125,7 +131,9 @@ class DokkaAntTask: Task() {
                         perPackageOptions = antPackageOptions,
                         externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
-                        cacheRoot = cacheRoot
+                        cacheRoot = cacheRoot,
+                        languageVersion = languageVersion,
+                        apiVersion = apiVersion
                 )
         )
         generator.generate()

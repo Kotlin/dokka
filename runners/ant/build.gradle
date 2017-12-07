@@ -1,18 +1,18 @@
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.8
 
-configurations {
-    provided
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = languageVersion
+        jvmTarget = "1.8"
+    }
 }
-
-tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
-}
-
 
 dependencies {
     compile project(":core")
-    provided group: 'org.apache.ant', name: 'ant', version: ant_version
+    compileOnly group: 'org.apache.ant', name: 'ant', version: ant_version
 }
 

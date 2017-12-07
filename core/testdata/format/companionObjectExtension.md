@@ -1,4 +1,4 @@
-[test](test/index) / [Foo](test/-foo/index)
+[test](../index.md) / [Foo](./index.md)
 
 # Foo
 
@@ -6,9 +6,9 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
+| [&lt;init&gt;](-init-.md) | `Foo()` |
 
 ### Companion Object Extension Properties
 
-| [x](test/x) | `val Foo.Default.x: Int`<br>The default object property. |
+| [x](../x.md) | `val Foo.Default.x: Int`<br>The default object property. |
 

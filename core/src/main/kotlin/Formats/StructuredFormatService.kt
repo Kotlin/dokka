@@ -7,10 +7,12 @@ data class FormatLink(val text: String, val href: String)
 
 abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val location: Location,
-                                       val locationService: LocationService,
+                                       val generator: NodeLocationAwareGenerator,
                                        val languageService: LanguageService,
                                        val extension: String,
                                        val impliedPlatforms: List<String>) : FormattedOutputBuilder {
+
+    protected fun DocumentationNode.location() = generator.location(this)
 
     protected fun wrap(prefix: String, suffix: String, body: () -> Unit) {
         to.append(prefix)
@@ -204,16 +206,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         if (from.owner?.kind == NodeKind.GroupNode)
             return link(from.owner!!, to, extension, name)
 
-        return FormatLink(name(to), locationService.relativePathToLocation(from, to))
+        return FormatLink(name(to), from.location().relativePathTo(to.location()))
     }
 
     fun locationHref(from: Location, to: DocumentationNode): String {
         val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
         if (topLevelPage != null) {
             val signature = to.detailOrNull(NodeKind.Signature)
-            return from.relativePathTo(locationService.location(topLevelPage), signature?.name ?: to.name)
+            return from.relativePathTo(topLevelPage.location(), signature?.name ?: to.name)
         }
-        return from.relativePathTo(locationService.location(to))
+        return from.relativePathTo(to.location())
     }
 
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
@@ -349,7 +351,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             overrides.forEach {
                 appendParagraph {
                     to.append("Overrides ")
-                    val location = locationService.relativePathToLocation(this, it)
+                    val location = location().relativePathTo(it.location())
+
                     appendLink(FormatLink(it.owner!!.name + "." + it.name, location))
                 }
             }
@@ -383,7 +386,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             else
                 platformsToShow
 
-            if(platforms.isEmpty()) return
+            if (platforms.isEmpty()) return
 
             appendParagraph {
                 appendStrong { to.append("Platform and version requirements:") }
@@ -398,10 +401,29 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     else -> it.platformsToShow.toSet()
                 }
             }
+
+            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+
             // Calculating common platforms for items
-            return platforms.fold(platforms.first()) {
-                result, platforms ->
-                result.intersect(platforms)
+            return platforms.reduce { result, platformsOfItem ->
+                val otherKotlinVersion = result.find { it.isKotlinVersion() }
+                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
+
+                // When no Kotlin version specified, it means that version is 1.0
+                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
+                    val allKotlinVersions = (kotlinVersions + otherKotlinVersion).distinct()
+
+                    val minVersion = allKotlinVersions.min()!!
+                    val resultVersion = when {
+                        allKotlinVersions.size == 1 -> allKotlinVersions.single()
+                        minVersion.endsWith("+") -> minVersion
+                        else -> minVersion + "+"
+                    }
+
+                    result.intersect(otherPlatforms) + resultVersion
+                } else {
+                    result.intersect(platformsOfItem)
+                }
             }
         }
 
@@ -655,9 +677,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     }
 }
 
-abstract class StructuredFormatService(locationService: LocationService,
+abstract class StructuredFormatService(val generator: NodeLocationAwareGenerator,
                                        val languageService: LanguageService,
                                        override val extension: String,
                                        override final val linkExtension: String = extension) : FormatService {
-    val locationService: LocationService = locationService.withExtension(linkExtension)
+
 }

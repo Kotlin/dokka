@@ -1,10 +1,10 @@
-[test](test/index)
+[test](./index.md)
 
 **Platform and version requirements:** JVM
 
 ### Packages
 
-| [some](test/some/index)<br>(JVM) |  |
+| [some](some/index.md)<br>(JVM) |  |
 
 ### Index
 

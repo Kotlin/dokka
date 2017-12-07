@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.jetbrains.PluginXmlTransformer
 
-apply plugin: 'kotlin'
+apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
@@ -20,7 +20,7 @@ shadowJar {
     classifier = ''
 
     configurations {
-        exclude provided
+        exclude compileOnly
     }
 
     transform(ServiceFileTransformer)
@@ -30,15 +30,19 @@ shadowJar {
     exclude 'fileTemplates/**'
     exclude 'inspectionDescriptions/**'
     exclude 'intentionDescriptions/**'
+
+    exclude 'src/**'
+
+    relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
 apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaFatJar(MavenPublication) {
-            from components.shadow
+        dokkaFatJar(MavenPublication) { publication ->
             artifactId = 'dokka-fatjar'
+            project.shadow.component(publication)
         }
     }
 }

@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Before
 import org.junit.Test
 
-class KotlinWebSiteHtmlFormatTest {
-    private val kwsService = KotlinWebsiteHtmlFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
-
+class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
+    override val formatService = KotlinWebsiteHtmlFormatService(fileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
 
     @Test fun dropImport() {
         verifyKWSNodeByName("dropImport", "foo")
@@ -44,20 +44,30 @@ class KotlinWebSiteHtmlFormatTest {
         val path = "dataTagsInGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
+            buildPagesAndReadInto(
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
+                    output
+            )
         }
         verifyMultiplatformPackage(module, path)
     }
 
     private fun verifyKWSNodeByName(fileName: String, name: String) {
         verifyOutput("testdata/format/website-html/$fileName.kt", ".html", format = "kotlin-website-html") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == name })
+            buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
         }
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "kotlin-website-html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jre7.kt"), defaultPlatforms = listOf("JVM", "JRE7"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
@@ -66,7 +76,7 @@ class KotlinWebSiteHtmlFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.html", "testdata/format/website-html/$path/multiplatform.kt") { model, output ->
-            kwsService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 

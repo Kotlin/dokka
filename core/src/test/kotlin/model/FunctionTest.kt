@@ -5,6 +5,7 @@ import org.jetbrains.dokka.NodeKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.test.assertNotNull
 
 class FunctionTest {
     @Test fun function() {
@@ -83,9 +84,10 @@ class FunctionTest {
                 assertEquals(NodeKind.Function, kind)
                 assertEquals("generic function", content.summary.toTestString())
 
-                assertEquals("public", details.elementAt(0).name)
-                assertEquals("final", details.elementAt(1).name)
-                with(details.elementAt(3)) {
+                val functionDetails = details
+                assertEquals("public", functionDetails.elementAt(0).name)
+                assertEquals("final", functionDetails.elementAt(1).name)
+                with(functionDetails.elementAt(3)) {
                     assertEquals("T", name)
                     assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
@@ -95,19 +97,19 @@ class FunctionTest {
                         assertEquals(Content.Empty, content)
                         assertTrue(details.none())
                         assertTrue(members.none())
-                        assertTrue(links.none())
+                        assertTrue(links.singleOrNull() == functionDetails.elementAt(4))
                     }
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                with(details.elementAt(4)) {
+                with(functionDetails.elementAt(4)) {
                     assertEquals("R", name)
                     assertEquals(NodeKind.TypeParameter, kind)
                     assertEquals(Content.Empty, content)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
-                assertEquals("Unit", details.elementAt(5).name)
+                assertEquals("Unit", functionDetails.elementAt(5).name)
 
                 assertTrue(members.none())
                 assertTrue(links.none())

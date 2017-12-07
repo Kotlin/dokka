@@ -1,4 +1,4 @@
-[test](test/index) / [foo](test/foo)
+[test](index.md) / [foo](./foo.md)
 
 # foo
 

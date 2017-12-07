@@ -1,4 +1,4 @@
-[test](test/index) / [Since1.1](test/-since1.1/index)
+[test](../index.md) / [Since1.1](./index.md)
 
 # Since1.1
 
@@ -10,5 +10,5 @@ Useful
 
 ### Constructors
 
-| [&lt;init&gt;](test/-since1.1/-init-) | `Since1.1()`<br>Useful |
+| [&lt;init&gt;](-init-.md) | `Since1.1()`<br>Useful |
 

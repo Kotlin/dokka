@@ -1,17 +1,21 @@
-import groovy.xml.QName
+import groovy.io.FileType
 import org.jetbrains.CrossPlatformExec
+
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 apply plugin: 'kotlin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+sourceCompatibility = 1.8
 
-configurations {
-    provided
-}
-
-tasks.withType(AbstractCompile) {
-    classpath += configurations.provided
-    classpath += configurations.shadow
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = languageVersion
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -25,22 +29,45 @@ dependencies {
     shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
 }
 
-task ("generatePom") doLast {
-    final pomTemplate = new File(projectDir, "pom.tpl.xml")
-    final pom = new File(buildDir, "pom.xml")
-    pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
-            .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
-            .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+task generatePom() {
+    inputs.file(new File(projectDir, "pom.tpl.xml"))
+    outputs.file(new File(buildDir, "pom.xml"))
+    doLast {
+        final pomTemplate = new File(projectDir, "pom.tpl.xml")
+        final pom = new File(buildDir, "pom.xml")
+        pom.text = pomTemplate.text.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
+                .replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
+                .replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+    }
+}
+
+task mergeClassOutputs doLast {
+    def sourceDir = new File(buildDir, "classes/kotlin")
+    def targetDir = new File(buildDir, "classes/java")
+
+    sourceDir.eachFileRecurse FileType.ANY, {
+        def filePath = it.toPath()
+        def targetFilePath = targetDir.toPath().resolve(sourceDir.toPath().relativize(filePath))
+        if (it.isFile()) {
+            Files.move(filePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING)
+        } else if (it.isDirectory()) {
+            targetFilePath.toFile().mkdirs()
+        }
+    }
 }
 
 task pluginDescriptor(type: CrossPlatformExec) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
+
+    dependsOn mergeClassOutputs
 }
 
 task helpMojo(type: CrossPlatformExec) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
+
+    dependsOn mergeClassOutputs
 }
 
 helpMojo.dependsOn generatePom
@@ -65,13 +92,14 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaMavenPlugin(MavenPublication) {
-            from components.shadow
+        dokkaMavenPlugin(MavenPublication) { publication ->
             artifactId = 'dokka-maven-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
+
+            project.shadow.component(publication)
 
             pom.withXml {
                 Node root = asNode()
@@ -87,7 +115,7 @@ publishing {
                 ''')
 
                 root.children().find {
-                    return ((QName) it.name()).qualifiedName == "dependencies"
+                    return it.name() == "dependencies"
                 }.append(dependency)
 
                 def profiles = new XmlParser().parseText('''
@@ -120,13 +148,9 @@ publishing {
                 ''')
                 root.append(profiles)
             }
+
+
         }
-    }
-}
-
-tasks.withType(GenerateMavenPom) { Task generatePom ->
-    generatePom.doLast {
-
     }
 }
 

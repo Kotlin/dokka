@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
@@ -19,9 +20,7 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
+import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -29,6 +28,7 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import com.google.inject.name.Named as GuiceNamed
@@ -48,7 +48,10 @@ class DocumentationOptions(val outputDir: String,
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
-                           cacheRoot: String? = null) {
+                           val languageVersion: String?,
+                           val apiVersion: String?,
+                           cacheRoot: String? = null,
+                           val suppressedFiles: List<File> = emptyList()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -573,6 +576,11 @@ class DocumentationBuilder
             descriptorsToDocument.mapTo(result) {
                 ClassMember(it, inheritedLinkKind = RefKind.InheritedCompanionObjectMember)
             }
+
+            if (companionObjectDescriptor.getAllSuperclassesWithoutAny().isNotEmpty()
+                    || companionObjectDescriptor.getSuperInterfaces().isNotEmpty()) {
+                result += ClassMember(companionObjectDescriptor)
+            }
         }
         return result
     }
@@ -723,6 +731,7 @@ class DocumentationBuilder
             }
             node.appendType(constraint, NodeKind.UpperBound)
         }
+        register(this, node)
         return node
     }
 
@@ -743,6 +752,7 @@ class DocumentationBuilder
 
         val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
         node.appendType(type)
+        register(this, node)
         return node
     }
 
@@ -752,11 +762,10 @@ class DocumentationBuilder
             return null
         }
         val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, NodeKind.Annotation)
-        val arguments = allValueArguments.toList().sortedBy { it.first.index }
-        arguments.forEach {
-            val valueNode = it.second.toDocumentationNode()
+        allValueArguments.forEach { (name, value) ->
+            val valueNode = value.toDocumentationNode()
             if (valueNode != null) {
-                val paramNode = DocumentationNode(it.first.name.asString(), Content.Empty, NodeKind.Parameter)
+                val paramNode = DocumentationNode(name.asString(), Content.Empty, NodeKind.Parameter)
                 paramNode.append(valueNode, RefKind.Detail)
                 node.append(paramNode, RefKind.Detail)
             }
@@ -782,9 +791,9 @@ val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
 fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
-            || this.visibility in visibleToDocumentation) &&
-            !isDocumentationSuppressed() &&
-            (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
+            || this.visibility in visibleToDocumentation)
+            && !isDocumentationSuppressed(options)
+            && (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
 private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION
@@ -852,7 +861,15 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
     return annotationClass.isDocumentedAnnotation()
 }
 
-fun DeclarationDescriptor.isDocumentationSuppressed(): Boolean {
+fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOptions): Boolean {
+
+    if (options.effectivePackageOptions(fqNameSafe).suppress) return true
+
+    val path = this.findPsi()?.containingFile?.virtualFile?.path
+    if (path != null) {
+        if (File(path).absoluteFile in options.suppressedFiles) return true
+    }
+
     val doc = findKDoc()
     if (doc is KDocSection && doc.findTagByName("suppress") != null) return true
 
@@ -897,17 +914,21 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     return null
 }
 
-fun DeclarationDescriptor.signature(): String = when (this) {
-    is ClassDescriptor,
-    is PackageFragmentDescriptor,
-    is PackageViewDescriptor,
-    is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
+fun DeclarationDescriptor.signature(): String {
+    if (this != original) return original.signature()
+    return when (this) {
+        is ClassDescriptor,
+        is PackageFragmentDescriptor,
+        is PackageViewDescriptor,
+        is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
-    is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-    is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
-    is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
-    is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
-    else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+        is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
+        is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
+        is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
+        is ReceiverParameterDescriptor -> containingDeclaration.signature() + "/" + name
+        else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+    }
 }
 
 fun PropertyDescriptor.receiverSignature(): String {
@@ -924,7 +945,7 @@ fun CallableMemberDescriptor.parameterSignature(): String {
     if (extensionReceiver != null) {
         params.add(0, extensionReceiver.type)
     }
-    return "(" + params.map { it.signature() }.joinToString() + ")"
+    return params.joinToString(prefix = "(", postfix = ")") { it.signature() }
 }
 
 fun KotlinType.signature(): String {

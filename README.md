@@ -1,4 +1,5 @@
-dokka  [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
+dokka  [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 =====
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
@@ -45,9 +46,10 @@ dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
     
-    // The list of configurations the dependencies of which 
-    // are included in Dokka's classpath for code analysis 
-    processConfigurations = ['compile', 'extra']
+    // These tasks will be used to determine source directories and classpath 
+    kotlinTasks {
+        defaultKotlinTasks() + [':some:otherCompileKotlin', project("another").compileKotlin]
+    }
     
     // List of files with module and package documentation
     // http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
@@ -57,6 +59,14 @@ dokka {
     samples = ['samples/basic.kt', 'samples/advanced.kt']
     
     jdkVersion = 6 // Used for linking to JDK
+
+    // Use default or set to custom path to cache directory
+    // to enable package-list caching
+    // When set to default, caches stored in $USER_HOME/.cache/dokka
+    cacheRoot = 'default' 
+    
+    // Use to include or exclude non public members.
+    includeNonPublic = false
     
     // Do not output deprecated members. Applies globally, can be overridden by packageOptions
     skipDeprecated = false 
@@ -68,13 +78,16 @@ dokka {
  
     impliedPlatforms = ["JVM"] // See platforms section of documentation 
     
-    // By default, sourceRoots is taken from processConfigurations
+    // Manual adding files to classpath
+    // This property not overrides classpath collected from kotlinTasks but appends to it
+    classpath = [new File("$buildDir/other.jar")]
+
+    // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
     // Short form sourceRoots
     sourceDirs = files('src/main/kotlin')
     
-    // By default, sourceRoots is taken from processConfigurations
+    // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
     // Full form sourceRoot declaration
-    // If specified, processConfigurations are NOT ignored, and sourceRoots are appended
     // Repeat for multiple sourceRoots
     sourceRoot {
         // Path to source root
@@ -227,6 +240,10 @@ The available configuration options are shown below:
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
         
+        <!-- Use default or set to custom path to cache directory to enable package-list caching. -->
+        <!-- When set to default, caches stored in $USER_HOME/.cache/dokka -->
+        <cacheRoot>default</cacheRoot>
+
         <!-- List of '.md' files with package and module docs -->
         <!-- http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
         <includes>
@@ -346,6 +363,7 @@ The Ant task supports the following attributes:
   * `noStdlibLink` - No default documentation link to kotlin-stdlib
   * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
+  * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
     
 
 ### Using the Command Line
@@ -368,6 +386,8 @@ Dokka supports the following command line arguments:
   * `-packageOptions` - List of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
   * `-links` - External documentation links in format `url^packageListUrl^^url2...`
   * `-noStdlibLink` - Disable documentation link to stdlib
+  * `-cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
+
 
 ### Output formats<a name="output_formats"></a>
 

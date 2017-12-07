@@ -24,17 +24,24 @@ fun verifyModel(vararg roots: ContentRoot,
                 withKotlinRuntime: Boolean = false,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
+                perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
-    val options = DocumentationOptions("", format,
+    val options = DocumentationOptions(
+            "",
+            format,
             includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
             includeRootPackage = true,
-            sourceLinks = listOf<SourceLinkDefinition>(),
+            sourceLinks = listOf(),
+            perPackageOptions = perPackageOptions,
             generateIndexPages = false,
             noStdlibLink = true,
-            cacheRoot = "default")
+            cacheRoot = "default",
+            languageVersion = null,
+            apiVersion = null
+    )
 
     appendDocumentation(documentation, *roots,
             withJdk = withJdk,
@@ -56,8 +63,9 @@ fun appendDocumentation(documentation: DocumentationModule,
 
         }
 
-        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
             when (severity) {
+                CompilerMessageSeverity.STRONG_WARNING,
                 CompilerMessageSeverity.WARNING,
                 CompilerMessageSeverity.LOGGING,
                 CompilerMessageSeverity.OUTPUT,
@@ -81,13 +89,12 @@ fun appendDocumentation(documentation: DocumentationModule,
             addClasspath(File(stringRoot))
         }
         if (withKotlinRuntime) {
-            val kotlinPairRoot = PathManager.getResourceRoot(Pair::class.java, "/kotlin/Pair.class")
-            addClasspath(File(kotlinPairRoot))
-
             val kotlinStrictfpRoot = PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
             addClasspath(File(kotlinStrictfpRoot))
         }
         addRoots(roots.toList())
+
+        loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
     }
     val defaultPlatformsProvider = object : DefaultPlatformsProvider {
         override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = defaultPlatforms
@@ -153,8 +160,15 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, format = format) {
+    verifyModel(
+            *roots,
+            withJdk = withJdk,
+            withKotlinRuntime = withKotlinRuntime,
+            format = format,
+            includeNonPublic = includeNonPublic
+    ) {
         verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
 }
@@ -175,8 +189,17 @@ fun verifyOutput(path: String,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, format, outputGenerator)
+    verifyOutput(
+            arrayOf(contentRootFromPath(path)),
+            outputExtension,
+            withJdk,
+            withKotlinRuntime,
+            format,
+            includeNonPublic,
+            outputGenerator
+    )
 }
 
 fun verifyJavaOutput(path: String,
@@ -246,21 +269,6 @@ fun ContentNode.toTestString(): String {
         appendNode(node)
     }.toString()
 }
-
-class InMemoryLocation(override val path: String): Location {
-    override fun relativePathTo(other: Location, anchor: String?): String =
-            if (anchor != null) other.path + "#" + anchor else other.path
-}
-
-object InMemoryLocationService: LocationService {
-    override fun location(qualifiedName: List<String>, hasMembers: Boolean) =
-            InMemoryLocation(relativePathToNode(qualifiedName, hasMembers))
-
-    override val root: Location
-        get() = InMemoryLocation("")
-}
-
-val tempLocation = InMemoryLocation("")
 
 val ContentRoot.path: String
     get() = when(this) {

@@ -4,23 +4,25 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
-import java.nio.file.Path
+import java.io.File
 
 
-private object EmptyHtmlTemplateService : HtmlTemplateService {
+object EmptyHtmlTemplateService : HtmlTemplateService {
     override fun appendFooter(to: StringBuilder) {}
 
-    override fun appendHeader(to: StringBuilder, title: String?, basePath: Path) {}
+    override fun appendHeader(to: StringBuilder, title: String?, basePath: File) {}
 }
 
 
-open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
-                                          location: Location,
-                                          locationService: LocationService,
-                                          languageService: LanguageService,
-                                          extension: String,
-                                          impliedPlatforms: List<String>)
-    : HtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms, EmptyHtmlTemplateService) {
+open class KotlinWebsiteHtmlOutputBuilder(
+        to: StringBuilder,
+        location: Location,
+        generator: NodeLocationAwareGenerator,
+        languageService: LanguageService,
+        extension: String,
+        impliedPlatforms: List<String>,
+        templateService: HtmlTemplateService
+) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService) {
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
@@ -169,14 +171,16 @@ open class KotlinWebsiteHtmlOutputBuilder(to: StringBuilder,
     }
 }
 
-class KotlinWebsiteHtmlFormatService @Inject constructor(locationService: LocationService,
-                                                         signatureGenerator: LanguageService,
-                                                         @Named(impliedPlatformsName) impliedPlatforms: List<String>)
-    : HtmlFormatService(locationService, signatureGenerator, EmptyHtmlTemplateService, impliedPlatforms) {
+class KotlinWebsiteHtmlFormatService @Inject constructor(
+        generator: NodeLocationAwareGenerator,
+        signatureGenerator: LanguageService,
+        @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+        templateService: HtmlTemplateService
+) : HtmlFormatService(generator, signatureGenerator, templateService, impliedPlatforms) {
 
     override fun enumerateSupportFiles(callback: (String, String) -> Unit) {}
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-            KotlinWebsiteHtmlOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+            KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 }
 

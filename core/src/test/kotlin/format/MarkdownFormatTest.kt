@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Before
 import org.junit.Test
 
-class MarkdownFormatTest {
-    private val markdownService = MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
+class MarkdownFormatTest: FileGeneratorTestCase() {
+    override val formatService = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf())
 
     @Test fun emptyDescription() {
         verifyMarkdownNode("emptyDescription")
@@ -34,21 +35,23 @@ class MarkdownFormatTest {
 
     @Test fun extensions() {
         verifyOutput("testdata/format/extensions.kt", ".package.md") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            buildPagesAndReadInto(model.members, output)
         }
         verifyOutput("testdata/format/extensions.kt", ".class.md") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun enumClass() {
         verifyOutput("testdata/format/enumClass.kt", ".md") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
         verifyOutput("testdata/format/enumClass.kt", ".value.md") { model, output ->
             val enumClassNode = model.members.single().members[0]
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(
-                    enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" })
+            buildPagesAndReadInto(
+                    enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" },
+                    output
+            )
         }
     }
 
@@ -247,6 +250,10 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("sinceKotlin")
     }
 
+    @Test fun sinceKotlinWide() {
+        verifyMarkdownPackage("sinceKotlinWide")
+    }
+
     @Test fun dynamicType() {
         verifyMarkdownNode("dynamicType")
     }
@@ -274,29 +281,37 @@ class MarkdownFormatTest {
     @Test fun multiplePlatformsMergeMembers() {
         val module = buildMultiplePlatforms("multiplatform/mergeMembers")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/mergeMembers/foo.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun multiplePlatformsOmitRedundant() {
         val module = buildMultiplePlatforms("multiplatform/omitRedundant")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/omitRedundant/foo.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun multiplePlatformsImplied() {
         val module = buildMultiplePlatforms("multiplatform/implied")
         verifyModelOutput(module, ".md", "testdata/format/multiplatform/implied/foo.kt") { model, output ->
-            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf("JVM", "JS"))
-                    .createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            val service = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf("JVM", "JS"))
+            fileGenerator.formatService = service
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), withKotlinRuntime = true, options = options)
         verifyMultiplatformIndex(module, path)
         verifyMultiplatformPackage(module, path)
@@ -313,8 +328,10 @@ class MarkdownFormatTest {
         val path = "multiplatform/groupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation)
-                    .appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }))
+            buildPagesAndReadInto(
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }),
+                    output
+            )
         }
         verifyMultiplatformPackage(module, path)
     }
@@ -323,8 +340,10 @@ class MarkdownFormatTest {
         val path = "multiplatform/breadcrumbsInMemberOfMemberOfGroupNode"
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation)
-                    .appendNodes(listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Class)?.member(NodeKind.Function)))
+            buildPagesAndReadInto(
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Class)?.member(NodeKind.Function)),
+                    output
+            )
         }
     }
 
@@ -372,9 +391,40 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("newlineInTableCell")
     }
 
+    @Test fun indentedCodeBlock() {
+        verifyMarkdownNode("indentedCodeBlock")
+    }
+
+    @Test fun receiverReference() {
+        verifyMarkdownNode("receiverReference")
+    }
+
+    @Test fun extensionScope() {
+        verifyMarkdownNodeByName("extensionScope", "test")
+    }
+
+    @Test fun typeParameterReference() {
+        verifyMarkdownNode("typeParameterReference")
+    }
+
+    @Test fun notPublishedTypeAliasAutoExpansion() {
+        verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", includeNonPublic = false)
+    }
+
+    @Test fun companionImplements() {
+        verifyMarkdownNodeByName("companionImplements", "Foo")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
         return module
@@ -382,15 +432,16 @@ class MarkdownFormatTest {
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".package.md", "testdata/format/$path/multiplatform.kt") { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 
     private fun verifyMultiplatformIndex(module: DocumentationModule, path: String) {
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.index.kt") {
             model, output ->
-            MarkdownFormatService(InMemoryLocationService, KotlinLanguageService(), listOf())
-                    .createOutputBuilder(output, tempLocation).appendNodes(listOf(model))
+            val service = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf())
+            fileGenerator.formatService = service
+            buildPagesAndReadInto(listOf(model), output)
         }
     }
 
@@ -400,7 +451,7 @@ class MarkdownFormatTest {
 
     private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            buildPagesAndReadInto(model.members, output)
         }
     }
 
@@ -408,9 +459,19 @@ class MarkdownFormatTest {
         verifyMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }
 
-    private fun verifyMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
+    private fun verifyMarkdownNodes(
+            fileName: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true,
+            nodeFilter: (DocumentationModule) -> List<DocumentationNode>
+    ) {
+        verifyOutput(
+                "testdata/format/$fileName.kt",
+                ".md",
+                withKotlinRuntime = withKotlinRuntime,
+                includeNonPublic = includeNonPublic
+        ) { model, output ->
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
@@ -420,12 +481,17 @@ class MarkdownFormatTest {
 
     private fun verifyJavaMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
         verifyJavaOutput("testdata/format/$fileName.java", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
-    private fun verifyMarkdownNodeByName(fileName: String, name: String, withKotlinRuntime: Boolean = false) {
-        verifyMarkdownNodes(fileName, withKotlinRuntime) { model->
+    private fun verifyMarkdownNodeByName(
+            fileName: String,
+            name: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true
+    ) {
+        verifyMarkdownNodes(fileName, withKotlinRuntime, includeNonPublic) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")

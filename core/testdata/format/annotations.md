@@ -1,4 +1,4 @@
-[test](test/index) / [Foo](test/-foo/index)
+[test](../index.md) / [Foo](./index.md)
 
 # Foo
 
@@ -6,13 +6,13 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
+| [&lt;init&gt;](-init-.md) | `Foo()` |
 
 ### Properties
 
-| [x](test/-foo/x) | `val x: Int` |
+| [x](x.md) | `val x: Int` |
 
 ### Functions
 
-| [bar](test/-foo/bar) | `fun bar(notInlined: () -> Unit): Unit` |
+| [bar](bar.md) | `fun bar(notInlined: () -> Unit): Unit` |
 

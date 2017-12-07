@@ -1,4 +1,4 @@
-[test](test/index) / [C](test/-c/index)
+[test](../index.md) / [C](./index.md)
 
 # C
 
@@ -10,5 +10,5 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](-init-.md) | `C()` |
 

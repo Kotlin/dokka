@@ -1,4 +1,4 @@
-[test](test/index) / [foo](test/foo/index) / [Foo](test/foo/-foo/index)
+[test](../../index.md) / [foo](../index.md) / [Foo](./index.md)
 
 # Foo
 
@@ -8,17 +8,17 @@ This is a foo.
 
 ### Constructors
 
-| [&lt;init&gt;](test/foo/-foo/-init-) | `Foo()`<br>This is a foo. |
+| [&lt;init&gt;](-init-.md) | `Foo()`<br>This is a foo. |
 
 ### Properties
 
-| [propJs](test/foo/-foo/prop-js)<br>(JS) | `val propJs: String` |
-| [propJvm](test/foo/-foo/prop-jvm)<br>(JVM) | `val propJvm: String` |
-| [propJvmAndJs](test/foo/-foo/prop-jvm-and-js) | `val propJvmAndJs: Int` |
+| [propJs](prop-js.md)<br>(JS) | `val propJs: String` |
+| [propJvm](prop-jvm.md)<br>(JVM) | `val propJvm: String` |
+| [propJvmAndJs](prop-jvm-and-js.md) | `val propJvmAndJs: Int` |
 
 ### Functions
 
-| [bothJvmAndJs](test/foo/-foo/both-jvm-and-js) | `fun bothJvmAndJs(): Unit` |
-| [js](test/foo/-foo/js)<br>(JS) | `fun js(): Unit` |
-| [jvm](test/foo/-foo/jvm)<br>(JVM) | `fun jvm(): Unit` |
+| [bothJvmAndJs](both-jvm-and-js.md) | `fun bothJvmAndJs(): Unit` |
+| [js](js.md)<br>(JS) | `fun js(): Unit` |
+| [jvm](jvm.md)<br>(JVM) | `fun jvm(): Unit` |
 
