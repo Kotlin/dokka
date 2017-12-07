@@ -1,24 +1,23 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.Formats
 
-import com.google.inject.Inject
-import java.io.File
+import org.jetbrains.dokka.DocumentationNode
+import org.jetbrains.dokka.LanguageService
+import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.qualifiedName
+import java.net.URI
 
-class DacExtraOutlineServices @Inject constructor(val locationService: LocationService,
-                                                  languageService: LanguageService) :
-        ExtraOutlineServices(DacNavOutlineService(locationService, languageService),
-                DacSearchOutlineService(locationService, languageService))
+class DacNavOutlineService constructor(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService
+) : DacOutlineFormatService {
+    override fun computeOutlineURI(node: DocumentationNode): URI =
+            uriProvider.containerUriOfNode(node).resolve("navtree_data.js")
 
-class DacNavOutlineService @Inject constructor(val locationService: LocationService,
-                                               val languageService: LanguageService) : ExtraOutlineService {
-    override fun getFile(location: Location): File  = File("${location.path}.js")
+    override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
+        to.append("var NAVTREE_DATA = ").appendNavTree(node.members).append(";")
+    }
 
-    override fun getFileName(): String = "navtree_data"
-
-    override fun format(node: DocumentationNode): String =
-            StringBuilder("var NAVTREE_DATA = ")
-                    .appendNavTree(node.members).append(";").toString()
-
-    private fun StringBuilder.appendNavTree(nodes: Iterable<DocumentationNode>): StringBuilder {
+    private fun Appendable.appendNavTree(nodes: Iterable<DocumentationNode>): Appendable {
         append("[ ")
         var first = true
         for (node in nodes) {
@@ -31,7 +30,7 @@ class DacNavOutlineService @Inject constructor(val locationService: LocationServ
             val enums = node.getMembersOfKinds(NodeKind.Enum)
             val exceptions = node.getMembersOfKinds(NodeKind.Exception)
 
-            append("[ \"${node.name}\", \"${locationService.location(node).path}.html\", [ ")
+            append("[ \"${node.name}\", \"${uriProvider.mainUriForNode(node)}\", [ ")
             var needComma = false
             if (interfaces.firstOrNull() != null) {
                 appendNavTreePagesOfKind("Interfaces", interfaces)
@@ -66,8 +65,8 @@ class DacNavOutlineService @Inject constructor(val locationService: LocationServ
         return this
     }
 
-    private fun StringBuilder.appendNavTreePagesOfKind(kindTitle: String,
-                                                       nodesOfKind: Iterable<DocumentationNode>): StringBuilder {
+    private fun Appendable.appendNavTreePagesOfKind(kindTitle: String,
+                                                    nodesOfKind: Iterable<DocumentationNode>): Appendable {
         append("[ \"$kindTitle\", null, [ ")
         var started = false
         for (node in nodesOfKind) {
@@ -79,37 +78,38 @@ class DacNavOutlineService @Inject constructor(val locationService: LocationServ
         return this
     }
 
-    private fun StringBuilder.appendNavTreeChild(node: DocumentationNode): StringBuilder {
-        append("[ \"${node.nameWithOuterClass()}\", \"${locationService.location(node).path}.html\"")
+    private fun Appendable.appendNavTreeChild(node: DocumentationNode): Appendable {
+        append("[ \"${node.nameWithOuterClass()}\", \"${uriProvider.mainUriForNode(node)}\"")
         append(", null, null, null ]")
         return this
     }
 }
 
-class DacSearchOutlineService @Inject constructor(val locationService: LocationService,
-                                                  val languageService: LanguageService) : ExtraOutlineService {
-    override fun getFile(location: Location): File = File("${location.path}.js")
+class DacSearchOutlineService(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService
+) : DacOutlineFormatService {
 
-    override fun getFileName(): String = "lists"
+    override fun computeOutlineURI(node: DocumentationNode): URI =
+            uriProvider.containerUriOfNode(node).resolve("lists.js")
 
-    override fun format(node: DocumentationNode): String {
+    override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         val pageNodes = node.getAllPageNodes()
         var id = 0
-        val stringBuilder = StringBuilder("var ARCH_DATA = [\n")
+        to.append("var ARCH_DATA = [\n")
         var first = true
         for (pageNode in pageNodes) {
-            if (!first) stringBuilder.append(", \n")
+            if (!first) to.append(", \n")
             first = false
-            stringBuilder.append(" { " +
+            to.append(" { " +
                     "id:$id, " +
                     "label:\"${pageNode.qualifiedName()}\", " +
-                    "link:\"${locationService.location(node).path}.html\", " +
+                    "link:\"${uriProvider.mainUriForNode(node)}\", " +
                     "type:\"${pageNode.getClassOrPackage()}\", " +
                     "deprecated:\"false\" }")
             id++
         }
-        stringBuilder.append("\n];")
-        return stringBuilder.toString()
+        to.append("\n];")
     }
 
     private fun DocumentationNode.getClassOrPackage(): String =
@@ -151,7 +151,7 @@ fun DocumentationNode.getMembersOfKinds(vararg kinds: NodeKind): MutableList<Doc
 }
 
 private fun DocumentationNode.recursiveSetMembersOfKinds(kinds: Array<out NodeKind>,
-        membersOfKind: MutableList<DocumentationNode>) {
+                                                         membersOfKind: MutableList<DocumentationNode>) {
     for (member in members) {
         if (member.kind in kinds) {
             membersOfKind.add(member)
