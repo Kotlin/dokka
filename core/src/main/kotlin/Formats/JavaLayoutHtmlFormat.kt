@@ -14,23 +14,68 @@ import org.jetbrains.dokka.NodeKind.Companion.memberLike
 import org.jetbrains.dokka.Utilities.bind
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
+import java.io.BufferedWriter
 import java.io.File
 import java.net.URI
 import java.net.URLEncoder
+import kotlin.reflect.KClass
 
 
-class JavaLayoutHtmlFormatDescriptor : FormatDescriptor, DefaultAnalysisComponent, DefaultAnalysisComponentServices by KotlinAsKotlin {
+abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAnalysisComponent {
 
     override fun configureOutput(binder: Binder): Unit = with(binder) {
         bind<Generator>() toType generatorServiceClass
-        bind<LanguageService>() toType kotlinLanguageService
+        bind<LanguageService>() toType languageServiceClass
+        bind<JavaLayoutHtmlTemplateService>() toType templateServiceClass
     }
 
     val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
-    val kotlinLanguageService = KotlinLanguageService::class
+    abstract val languageServiceClass: KClass<out LanguageService>
+    abstract val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService>
+    abstract val outlineFactoryClass: KClass<out JavaLayoutHtmlFormatOutlineFactoryService>?
 }
 
-class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageService: LanguageService, val generator: JavaLayoutHtmlFormatGenerator, val uri: URI) {
+class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
+    override val languageServiceClass = KotlinLanguageService::class
+    override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class
+    override val outlineFactoryClass = null
+}
+
+
+interface JavaLayoutHtmlTemplateService {
+    fun composePage(
+            nodes: List<DocumentationNode>,
+            tagConsumer: TagConsumer<Appendable>,
+            headContent: HEAD.() -> Unit,
+            bodyContent: BODY.() -> Unit
+    )
+
+    class Default : JavaLayoutHtmlTemplateService {
+        override fun composePage(
+                nodes: List<DocumentationNode>,
+                tagConsumer: TagConsumer<Appendable>,
+                headContent: HEAD.() -> Unit,
+                bodyContent: BODY.() -> Unit
+        ) {
+            tagConsumer.html {
+                head(headContent)
+                body(block = bodyContent)
+            }
+        }
+    }
+}
+
+interface JavaLayoutHtmlFormatOutlineFactoryService {
+    fun generateOutlines(outputProvider: (URI) -> Appendable, nodes: Iterable<DocumentationNode>)
+}
+
+class JavaLayoutHtmlFormatOutputBuilder(
+        val output: Appendable,
+        val languageService: LanguageService,
+        val generator: JavaLayoutHtmlFormatGenerator,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val uri: URI
+) {
 
     val htmlConsumer = output.appendHTML()
 
@@ -109,10 +154,13 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
         a { id = node.signature() }
     }
 
-    fun appendPackage(node: DocumentationNode) = with(htmlConsumer) {
-        html {
-            head {}
-            body {
+    fun appendPackage(node: DocumentationNode) = templateService.composePage(
+            listOf(node),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
                 h1 { +node.name }
                 metaMarkup(node.content)
                 summaryNodeGroup(node.members(NodeKind.Class), "Classes") { formatClassLikeRow(it) }
@@ -130,13 +178,16 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
                     fullFunctionDocs(function)
                 }
             }
-        }
-    }
+    )
 
-    fun appendClassLike(node: DocumentationNode) = with(htmlConsumer) {
-        html {
-            head {}
-            body {
+
+    fun appendClassLike(node: DocumentationNode) = templateService.composePage(
+            listOf(node),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
                 h1 { +node.name }
                 pre { renderedSignature(node, FULL) }
                 metaMarkup(node.content)
@@ -154,8 +205,7 @@ class JavaLayoutHtmlFormatOutputBuilder(val output: Appendable, val languageServ
                     fullFunctionDocs(function)
                 }
             }
-        }
-    }
+    )
 }
 
 class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri: URI) {
@@ -222,8 +272,15 @@ class ContentToHtmlBuilder(val generator: JavaLayoutHtmlFormatGenerator, val uri
     }
 }
 
-class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val root: File, val languageService: LanguageService) : Generator {
+class JavaLayoutHtmlFormatGenerator @Inject constructor(
+        @Named("outputDir") val root: File,
+        val languageService: LanguageService,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService
+) : Generator {
 
+    fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
+            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUriForNode(node))
 
     fun containerUriOfNode(node: DocumentationNode): URI {
         return when (node.kind) {
@@ -244,13 +301,13 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
     }
 
     fun linkTo(to: DocumentationNode, from: URI): String {
-        return from.relative(mainUriForNode(to)).toString()
+        return mainUriForNode(to).relativeTo(from).toString()
     }
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.simpleName() + ".html")
         fileForClass.bufferedWriter().use {
-            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, mainUriForNode(node)).appendClassLike(node)
+            createOutputBuilderForNode(node, it).appendClassLike(node)
         }
     }
 
@@ -261,7 +318,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
         directoryForPackage.mkdirsOrFail()
 
         directoryForPackage.resolve("package-summary.html").bufferedWriter().use {
-            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, mainUriForNode(node)).appendPackage(node)
+            createOutputBuilderForNode(node, it).appendPackage(node)
         }
 
         members.filter { it.kind in classLike }.forEach {
@@ -278,7 +335,20 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(@Named("outputDir") val 
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
+        val uriToWriter = mutableMapOf<URI, BufferedWriter>()
 
+        fun provideOutput(uri: URI): BufferedWriter {
+            val normalized = uri.normalize()
+            uriToWriter[normalized]?.let { return it }
+            val file = root.resolve(normalized.path.removePrefix("/"))
+            val writer = file.bufferedWriter()
+            uriToWriter[normalized] = writer
+            return writer
+        }
+
+        outlineFactoryService.generateOutlines(::provideOutput, nodes)
+
+        uriToWriter.values.forEach { it.close() }
     }
 
     override fun buildSupportFiles() {}
@@ -292,9 +362,9 @@ fun DocumentationNode.signature() = detail(NodeKind.Signature).name
 fun DocumentationNode.signatureUrlEncoded() = URLEncoder.encode(detail(NodeKind.Signature).name, "UTF-8")
 
 
-fun URI.relative(child: URI): URI {
-    var base = this
-    var child = child
+fun URI.relativeTo(base: URI): URI {
+    var base = base
+    var child = this
     // Normalize paths to remove . and .. segments
     base = base.normalize()
     child = child.normalize()
