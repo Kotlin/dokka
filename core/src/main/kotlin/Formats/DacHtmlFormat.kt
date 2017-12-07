@@ -35,7 +35,7 @@ class DevsiteHtmlTemplateService @Inject constructor(
             body {
                 bodyContent()
                 // TODO Refactor appendDataReferenceResourceWrapper to use KotlinX.HTML
-                unsafe { raw(StringBuilder().appendDataReferenceResourceWrapper(nodes).toString()) }
+                unsafe { raw(buildString { appendDataReferenceResourceWrapper(nodes) }) }
             }
         }
     }
