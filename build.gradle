@@ -20,7 +20,7 @@ allprojects {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
             classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
 
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.6"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.9"
         }
     }
 
