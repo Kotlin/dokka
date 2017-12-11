@@ -16,6 +16,7 @@ import org.jetbrains.dokka.Utilities.lazyBind
 import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.BufferedWriter
 import java.io.File
 import java.net.URI
@@ -289,7 +290,8 @@ interface JavaLayoutHtmlUriProvider {
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val languageService: LanguageService,
-        val templateService: JavaLayoutHtmlTemplateService
+        val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
     @set:Inject(optional = true) var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
@@ -310,7 +312,8 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         return when (node.kind) {
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
             in classLike -> tryGetContainerUri(node)?.resolve("#")
-            in memberLike -> tryGetMainUri(node.owner!!)?.resolve("#${node.signatureUrlEncoded()}")
+            in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
+            NodeKind.TypeParameter -> node.path.firstNotNullResult(this::tryGetContainerUri)?.also { logger.warn("Not implemented mainUri for $node") }
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
             else -> null
         }
@@ -405,5 +408,4 @@ fun URI.relativeTo(uri: URI): URI {
     })
 }
 
-    return URI.create(sb.toString())
-}
+fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureUrlEncoded()}")
