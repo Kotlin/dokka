@@ -374,12 +374,10 @@ fun DocumentationNode.signature() = detail(NodeKind.Signature).name
 fun DocumentationNode.signatureUrlEncoded() = URLEncoder.encode(detail(NodeKind.Signature).name, "UTF-8")
 
 
-fun URI.relativeTo(base: URI): URI {
-    var base = base
-    var child = this
+fun URI.relativeTo(uri: URI): URI {
     // Normalize paths to remove . and .. segments
-    base = base.normalize()
-    child = child.normalize()
+    val base = uri.normalize()
+    val child = this.normalize()
 
     // Split paths into segments
     var bParts = base.path.split('/').dropLastWhile { it.isEmpty() }
@@ -390,24 +388,22 @@ fun URI.relativeTo(base: URI): URI {
         bParts = bParts.dropLast(1)
     }
 
-    // Remove common prefix segments
-    var i = 0
-    while (i < bParts.size && i < cParts.size && bParts[i] == cParts[i]) {
-        i++
-    }
+    // Compute common prefix
+    val commonPartsSize = bParts.zip(cParts).count { (basePart, childPart) -> basePart == childPart }
 
-
-    // Construct the relative path
-    val sb = StringBuilder()
-    for (j in 0 until bParts.size - i) {
-        sb.append("../")
-    }
-    for (j in i until cParts.size) {
-        if (j != i) {
-            sb.append("/")
+    return URI.create(buildString {
+        bParts.drop(commonPartsSize).joinTo(this, separator = "") { "../" }
+        cParts.drop(commonPartsSize).joinTo(this, separator = "/")
+        child.rawQuery?.let {
+            append("?")
+            append(it)
         }
-        sb.append(cParts[j])
-    }
+        child.rawFragment?.let {
+            append("#")
+            append(it)
+        }
+    })
+}
 
     return URI.create(sb.toString())
 }
