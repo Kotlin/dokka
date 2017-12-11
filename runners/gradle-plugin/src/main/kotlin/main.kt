@@ -51,6 +51,8 @@ object ClassloaderContainer {
     var fatJarClassLoader: ClassLoader? = null
 }
 
+const val `deprecationMessage reportNotDocumented` = "Will be removed in 0.9.17, see dokka#243"
+
 open class DokkaTask : DefaultTask() {
 
     fun defaultKotlinTasks() = with(ReflectDsl) {
@@ -104,6 +106,15 @@ open class DokkaTask : DefaultTask() {
     @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
+
+    @Deprecated(`deprecationMessage reportNotDocumented`, replaceWith = ReplaceWith("reportUndocumented"))
+    var reportNotDocumented
+        get() = reportUndocumented
+        set(value) {
+            logger.warn("Dokka: reportNotDocumented is deprecated and " + `deprecationMessage reportNotDocumented`.decapitalize())
+            reportUndocumented = value
+        }
+
     @Input var reportUndocumented = true
     @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
     @Input var impliedPlatforms: MutableList<String> = arrayListOf()
