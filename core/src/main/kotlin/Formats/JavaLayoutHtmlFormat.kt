@@ -12,6 +12,7 @@ import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import org.jetbrains.dokka.NodeKind.Companion.memberLike
 import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.lazyBind
 import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
@@ -29,7 +30,7 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
         bind<LanguageService>() toType languageServiceClass
         bind<JavaLayoutHtmlTemplateService>() toType templateServiceClass
         bind<JavaLayoutHtmlUriProvider>() toType generatorServiceClass
-        bind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
+        lazyBind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
     }
 
     val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
@@ -294,9 +295,10 @@ interface JavaLayoutHtmlUriProvider {
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val languageService: LanguageService,
-        val templateService: JavaLayoutHtmlTemplateService,
-        val outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService
+        val templateService: JavaLayoutHtmlTemplateService
 ) : Generator, JavaLayoutHtmlUriProvider {
+
+    @set:Inject(optional = true) var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
             = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUri(node))
@@ -362,7 +364,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             return writer
         }
 
-        outlineFactoryService.generateOutlines(::provideOutput, nodes)
+        outlineFactoryService?.generateOutlines(::provideOutput, nodes)
 
         uriToWriter.values.forEach { it.close() }
     }
