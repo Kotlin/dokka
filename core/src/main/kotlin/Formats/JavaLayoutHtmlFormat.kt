@@ -136,6 +136,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     private fun FlowContent.fullFunctionDocs(node: DocumentationNode) {
         div {
+            id = node.signature()
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
             metaMarkup(node.content)
@@ -155,7 +156,6 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
         }
-        a { id = node.signature() }
     }
 
     fun appendPackage(node: DocumentationNode) = templateService.composePage(
