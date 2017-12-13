@@ -11,6 +11,7 @@ class BasicTest : AbstractDokkaGradleTest() {
         val tmpRoot = testProjectDir.root.toPath()
 
         testDataRoot.resolve("src").copy(tmpRoot.resolve("src"))
+        testDataRoot.resolve("classDir").copy(tmpRoot.resolve("classDir"))
         testDataRoot.resolve("build.gradle").copy(tmpRoot.resolve("build.gradle"))
         testDataRoot.resolve("settings.gradle").copy(tmpRoot.resolve("settings.gradle"))
     }

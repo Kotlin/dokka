@@ -13,7 +13,6 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
@@ -114,11 +113,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val builtIns = JvmBuiltIns(projectContext.storageManager)
 
 
-        val javaRoots = run {
-            val jvfs = VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.JAR_PROTOCOL)
+        val javaRoots = classpath
+                .map {
+                    val rootFile = when {
+                        it.extension == "jar" ->
+                            StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")!!
+                        else ->
+                            StandardFileSystems.local().findFileByPath(it.absolutePath)!!
+                    }
 
-            classpath.map { JavaRoot(jvfs.findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")!!, JavaRoot.RootType.BINARY) }
-        }
+                    JavaRoot(rootFile, JavaRoot.RootType.BINARY)
+                }
 
         val resolverForProject = ResolverForProjectImpl(
                 "Dokka",
