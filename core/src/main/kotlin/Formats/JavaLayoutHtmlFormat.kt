@@ -86,7 +86,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     val contentToHtmlBuilder = ContentToHtmlBuilder(uriProvider, uri)
 
-    private fun FlowContent.summaryNodeGroup(nodes: Iterable<DocumentationNode>, header: String, headerAsRow: Boolean = false, row: TBODY.(DocumentationNode) -> Unit) {
+    private fun <T> FlowContent.summaryNodeGroup(nodes: Iterable<T>, header: String, headerAsRow: Boolean = false, row: TBODY.(T) -> Unit) {
         if (nodes.none()) return
         if (!headerAsRow) {
             h2 { +header }
@@ -114,7 +114,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         td { metaMarkup(node.summary) }
     }
 
-    private fun TBODY.formatFunctionSummaryRow(node: DocumentationNode) = tr {
+    private fun TBODY.functionSummaryRow(node: DocumentationNode) = tr {
         td {
             for (modifier in node.details(NodeKind.Modifier)) {
                 renderedSignature(modifier, SUMMARY)
@@ -127,6 +127,21 @@ class JavaLayoutHtmlFormatOutputBuilder(
             }
 
             metaMarkup(node.summary)
+        }
+    }
+
+    private fun TBODY.formatInheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>) = tr {
+        td {
+            val (from, nodes) = entry
+            +"From class "
+            a(href = uriProvider.linkTo(from.owner!!, uri)) { +from.qualifiedName() }
+            table {
+                tbody {
+                    for (node in nodes) {
+                        functionSummaryRow(node)
+                    }
+                }
+            }
         }
     }
 
@@ -158,6 +173,10 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    private fun FlowContent.fullPropertyDocs(node: DocumentationNode) {
+        fullFunctionDocs(node)
+    }
+
     fun appendPackage(node: DocumentationNode) = templateService.composePage(
             listOf(node),
             htmlConsumer,
@@ -173,13 +192,12 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { formatClassLikeRow(it) }
                 summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { formatClassLikeRow(it) }
 
-                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { formatFunctionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { functionSummaryRow(it) }
 
 
-                h2 { +"Top-level functions" }
-                for (function in node.members(NodeKind.Function)) {
-                    fullFunctionDocs(function)
-                }
+                fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { fullFunctionDocs(it) }
+                fullDocs(node.members(NodeKind.Property), { h2 { +"Top-level properties" } }) { fullPropertyDocs(it) }
             }
     )
 
@@ -196,15 +214,46 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 metaMarkup(node.content)
 
                 h2 { +"Summary" }
-                val functionsToDisplay = node.members(NodeKind.Function) + node.members(NodeKind.CompanionObjectFunction)
-                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { formatFunctionSummaryRow(it) }
 
-                h2 { +"Functions" }
-                for (function in functionsToDisplay) {
-                    fullFunctionDocs(function)
-                }
+                fun DocumentationNode.isFunction() = kind == NodeKind.Function || kind == NodeKind.CompanionObjectFunction
+                fun DocumentationNode.isProperty() = kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
+
+                val functionsToDisplay = node.members.filter(DocumentationNode::isFunction)
+                val properties = node.members.filter(DocumentationNode::isProperty)
+                val inheritedFunctionsByReceiver = node.inheritedMembers.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val inheritedPropertiesByReceiver = node.inheritedMembers.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
+                val extensionProperties = node.extensions.filter(DocumentationNode::isProperty)
+                val extensionFunctions = node.extensions.filter(DocumentationNode::isFunction)
+
+
+                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { formatInheritRow(it) }
+                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { functionSummaryRow(it) }
+
+
+                summaryNodeGroup(properties, "Properties", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { formatInheritRow(it) }
+                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { functionSummaryRow(it) }
+
+
+                fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
+                fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { fullFunctionDocs(it) }
+                fullDocs(properties, { h2 { +"Properties" } }) { fullPropertyDocs(it) }
+                fullDocs(extensionProperties, { h2 { +"Extension properties" } }) { fullPropertyDocs(it) }
             }
     )
+
+    private fun FlowContent.fullDocs(
+            nodes: List<DocumentationNode>,
+            header: FlowContent.() -> Unit,
+            renderNode: FlowContent.(DocumentationNode) -> Unit
+    ) {
+        if (nodes.none()) return
+        header()
+        for (node in nodes) {
+            renderNode(node)
+        }
+    }
 }
 
 class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: URI) {
@@ -294,7 +343,8 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
-    @set:Inject(optional = true) var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
+    @set:Inject(optional = true)
+    var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
             = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUri(node))
