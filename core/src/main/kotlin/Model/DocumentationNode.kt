@@ -104,6 +104,12 @@ open class DocumentationNode(val name: String,
     val platforms: List<String>
         get() = references(RefKind.Platform).map { it.to.name }
 
+    val supertypes: List<DocumentationNode>
+        get() = references(RefKind.Superclass).map { it.to }
+
+    val superclass: DocumentationNode?
+        get() = supertypes.find { it.kind == NodeKind.Class }
+
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
         references.add(DocumentationReference(this, to, kind))
