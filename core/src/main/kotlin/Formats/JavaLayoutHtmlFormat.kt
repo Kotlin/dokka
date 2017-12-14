@@ -201,6 +201,19 @@ class JavaLayoutHtmlFormatOutputBuilder(
             }
     )
 
+    fun FlowContent.classHierarchy(node: DocumentationNode) {
+
+        val superclassSequence = generateSequence(node) { it.superclass }
+        table {
+            superclassSequence.toList().asReversed().forEach {
+                tr {
+                    td {
+                        a(href = uriProvider.linkTo(it, uri)) { +it.qualifiedName() }
+                    }
+                }
+            }
+        }
+    }
 
     fun appendClassLike(node: DocumentationNode) = templateService.composePage(
             listOf(node),
@@ -211,6 +224,8 @@ class JavaLayoutHtmlFormatOutputBuilder(
             bodyContent = {
                 h1 { +node.name }
                 pre { renderedSignature(node, FULL) }
+                classHierarchy(node)
+
                 metaMarkup(node.content)
 
                 h2 { +"Summary" }
