@@ -209,6 +209,9 @@ class JavaLayoutHtmlFormatOutputBuilder(
             superclassSequence.toList().asReversed().forEach {
                 tr {
                     td {
+                        +"   ↳"
+                    }
+                    td {
                         a(href = uriProvider.linkTo(it, uri)) { +it.qualifiedName() }
                     }
                 }
