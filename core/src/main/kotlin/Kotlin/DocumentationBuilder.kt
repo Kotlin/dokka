@@ -234,6 +234,7 @@ class DocumentationBuilder
             val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(classifierDescriptor)
             if (externalLink != null) {
                 node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+                node.append(DocumentationNode(classifierDescriptor.fqNameUnsafe.asString(), Content.Empty, NodeKind.QualifiedName), RefKind.Detail)
             } else {
                 link(node, classifierDescriptor,
                         if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)

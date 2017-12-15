@@ -48,6 +48,7 @@ enum class NodeKind {
     Signature,
 
     ExternalLink,
+    QualifiedName,
     Platform,
 
     AllTypes,
