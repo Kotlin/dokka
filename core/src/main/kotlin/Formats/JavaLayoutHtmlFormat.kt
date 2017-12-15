@@ -63,7 +63,10 @@ interface JavaLayoutHtmlTemplateService {
                 bodyContent: BODY.() -> Unit
         ) {
             tagConsumer.html {
-                head(headContent)
+                head {
+                    meta(charset = "UTF-8")
+                    headContent()
+                }
                 body(block = bodyContent)
             }
         }
@@ -204,12 +207,14 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     fun FlowContent.classHierarchy(node: DocumentationNode) {
 
-        val superclassSequence = generateSequence(node) { it.superclass }
+        val superclasses = generateSequence(node) { it.superclass }.toList().asReversed()
         table {
-            superclassSequence.toList().asReversed().forEach {
+            superclasses.forEach {
                 tr {
-                    td {
-                        +"   ↳"
+                    if (it != superclasses.first()) {
+                        td {
+                            +"   ↳"
+                        }
                     }
                     td {
                         a(href = uriProvider.linkTo(it, uri)) { +it.qualifiedName() }
