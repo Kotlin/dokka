@@ -79,6 +79,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         val languageService: LanguageService,
         val uriProvider: JavaLayoutHtmlUriProvider,
         val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger,
         val uri: URI
 ) {
 
@@ -151,7 +152,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     private fun FlowContent.fullFunctionDocs(node: DocumentationNode) {
         div {
-            id = node.signature()
+            id = node.signatureForAnchor(logger)
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
             metaMarkup(node.content)
@@ -362,7 +363,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
-            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUri(node))
+            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, logger, mainUri(node))
 
     override fun tryGetContainerUri(node: DocumentationNode): URI? {
         return when (node.kind) {
@@ -378,11 +379,13 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
             in classLike -> tryGetContainerUri(node)?.resolve("#")
             in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
-            NodeKind.TypeParameter -> node.path.firstNotNullResult(this::tryGetContainerUri)?.also { logger.warn("Not implemented mainUri for $node") }
+            NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
             else -> null
         }
     }
+
+    fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureUrlEncoded(logger)}")
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.simpleName() + ".html")
@@ -438,8 +441,23 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     }
 }
 
-fun DocumentationNode.signature() = detail(NodeKind.Signature).name
-fun DocumentationNode.signatureUrlEncoded() = URLEncoder.encode(detail(NodeKind.Signature).name, "UTF-8")
+fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
+    NodeKind.Function -> buildString {
+        detailOrNull(NodeKind.Receiver)?.let {
+            append("(")
+            append(it.detail(NodeKind.Type).qualifiedNameFromType())
+            append(").")
+        }
+        append(name)
+        details(NodeKind.Parameter).joinTo(this, prefix = "(", postfix = ")") { it.detail(NodeKind.Type).qualifiedNameFromType() }
+    }
+    NodeKind.Property ->
+        "$name:${detail(NodeKind.Type).qualifiedNameFromType()}"
+    NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
+    else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
+}
+
+fun DocumentationNode.signatureUrlEncoded(logger: DokkaLogger) = URLEncoder.encode(signatureForAnchor(logger), "UTF-8")
 
 
 fun URI.relativeTo(uri: URI): URI {
@@ -472,5 +490,3 @@ fun URI.relativeTo(uri: URI): URI {
         }
     })
 }
-
-fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureUrlEncoded()}")
