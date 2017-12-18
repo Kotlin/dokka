@@ -185,7 +185,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
             listOf(node),
             htmlConsumer,
             headContent = {
-
+                title(node.nameWithOuterClass())
             },
             bodyContent = {
                 h1 { +node.name }
@@ -228,7 +228,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
             listOf(node),
             htmlConsumer,
             headContent = {
-
+                title(node.nameWithOuterClass())
             },
             bodyContent = {
                 h1 { +node.name }
