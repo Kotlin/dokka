@@ -73,7 +73,9 @@ private inline fun <reified Base : Any, reified T : Base> Binder.bindNameAnnotat
 
 inline fun <reified T: Any> Binder.bind(): AnnotatedBindingBuilder<T> = bind(T::class.java)
 
-inline infix fun <reified T: Any, TKClass: KClass<out T>> AnnotatedBindingBuilder<T>.toOptional(kClass: TKClass?) =
-        kClass?.let { to(it.java) }
+inline fun <reified T: Any> Binder.lazyBind(): Lazy<AnnotatedBindingBuilder<T>> = lazy { bind(T::class.java) }
+
+inline infix fun <reified T: Any, TKClass: KClass<out T>> Lazy<AnnotatedBindingBuilder<T>>.toOptional(kClass: TKClass?) =
+        kClass?.let { value toType it }
 
 inline infix fun <reified T: Any, TKClass: KClass<out T>> AnnotatedBindingBuilder<T>.toType(kClass: TKClass) = to(kClass.java)

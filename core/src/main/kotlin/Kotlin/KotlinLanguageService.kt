@@ -47,8 +47,7 @@ class KotlinLanguageService : LanguageService {
             val typeParameter = functionWithTypeParameter.details(NodeKind.TypeParameter).first()
             if (functionWithTypeParameter.kind == NodeKind.Function) {
                 renderFunction(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
-            }
-            else {
+            } else {
                 renderProperty(functionWithTypeParameter, RenderMode.SUMMARY, SummarizingMapper(receiverKind, typeParameter.name))
             }
         }
@@ -102,7 +101,7 @@ class KotlinLanguageService : LanguageService {
         fun renderReceiver(receiver: DocumentationNode, to: ContentBlock)
     }
 
-    private class SummarizingMapper(val kind: ReceiverKind, val typeParameterName: String): SignatureMapper {
+    private class SummarizingMapper(val kind: ReceiverKind, val typeParameterName: String) : SignatureMapper {
         override fun renderReceiver(receiver: DocumentationNode, to: ContentBlock) {
             to.append(ContentIdentifier(kind.receiverName, IdentifierKind.SummarizedTypeName))
             to.text("<$typeParameterName>")
@@ -116,7 +115,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun <T> ContentBlock.renderList(nodes: List<T>, separator: String = ", ",
-                                        noWrap: Boolean = false, renderItem: (T) -> Unit) {
+                                            noWrap: Boolean = false, renderItem: (T) -> Unit) {
         if (nodes.none())
             return
         renderItem(nodes.first())
@@ -131,7 +130,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun ContentBlock.renderLinked(node: DocumentationNode, body: ContentBlock.(DocumentationNode)->Unit) {
+    private fun ContentBlock.renderLinked(node: DocumentationNode, body: ContentBlock.(DocumentationNode) -> Unit) {
         val to = node.links.firstOrNull()
         if (to == null)
             body(node)
@@ -215,13 +214,13 @@ class KotlinLanguageService : LanguageService {
 
     private fun ContentBlock.renderModifier(node: DocumentationNode, nowrap: Boolean = false) {
         when (node.name) {
-            "final", "public", "var" -> {}
+            "final", "public", "var" -> {
+            }
             else -> {
                 keyword(node.name)
                 if (nowrap) {
                     nbsp()
-                }
-                else {
+                } else {
                     text(" ")
                 }
             }
@@ -238,11 +237,12 @@ class KotlinLanguageService : LanguageService {
             nbsp()
             symbol(":")
             nbsp()
-            renderList(constraints, noWrap=true) {
+            renderList(constraints, noWrap = true) {
                 renderType(it, renderMode)
             }
         }
     }
+
     private fun ContentBlock.renderParameter(node: DocumentationNode, renderMode: RenderMode) {
         if (renderMode == RenderMode.FULL) {
             renderAnnotationsForNode(node)
@@ -401,8 +401,7 @@ class KotlinLanguageService : LanguageService {
             symbol(")")
             symbol(": ")
             renderType(node.detail(NodeKind.Type), renderMode)
-        }
-        else {
+        } else {
             symbol(")")
         }
         renderExtraTypeParameterConstraints(node, renderMode)
@@ -428,7 +427,7 @@ class KotlinLanguageService : LanguageService {
         }
     }
 
-    private fun needReturnType(node: DocumentationNode) = when(node.kind) {
+    private fun needReturnType(node: DocumentationNode) = when (node.kind) {
         NodeKind.Constructor -> false
         else -> !node.isUnitReturnType()
     }
@@ -475,4 +474,7 @@ class KotlinLanguageService : LanguageService {
     }
 }
 
-fun DocumentationNode.qualifiedNameFromType() = (links.firstOrNull() ?: hiddenLinks.firstOrNull())?.qualifiedName() ?: name
+fun DocumentationNode.qualifiedNameFromType() =
+        details.firstOrNull { it.kind == NodeKind.QualifiedName }?.name
+                ?: (links.firstOrNull() ?: hiddenLinks.firstOrNull())?.qualifiedName()
+                ?: name

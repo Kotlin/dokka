@@ -12,9 +12,11 @@ import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import org.jetbrains.dokka.NodeKind.Companion.memberLike
 import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.lazyBind
 import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.BufferedWriter
 import java.io.File
 import java.net.URI
@@ -29,7 +31,7 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
         bind<LanguageService>() toType languageServiceClass
         bind<JavaLayoutHtmlTemplateService>() toType templateServiceClass
         bind<JavaLayoutHtmlUriProvider>() toType generatorServiceClass
-        bind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
+        lazyBind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
     }
 
     val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
@@ -61,7 +63,10 @@ interface JavaLayoutHtmlTemplateService {
                 bodyContent: BODY.() -> Unit
         ) {
             tagConsumer.html {
-                head(headContent)
+                head {
+                    meta(charset = "UTF-8")
+                    headContent()
+                }
                 body(block = bodyContent)
             }
         }
@@ -77,6 +82,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         val languageService: LanguageService,
         val uriProvider: JavaLayoutHtmlUriProvider,
         val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger,
         val uri: URI
 ) {
 
@@ -84,11 +90,10 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     val contentToHtmlBuilder = ContentToHtmlBuilder(uriProvider, uri)
 
-    private fun FlowContent.summaryNodeGroup(nodes: Iterable<DocumentationNode>, header: String, headerAsRow: Boolean = false, row: TBODY.(DocumentationNode) -> Unit) {
+    private fun <T> FlowContent.summaryNodeGroup(nodes: Iterable<T>, header: String, headerAsRow: Boolean = false, row: TBODY.(T) -> Unit) {
         if (nodes.none()) return
         if (!headerAsRow) {
             h2 { +header }
-            hr()
         }
         table {
             if (headerAsRow) thead { tr { td { h3 { +header } } } }
@@ -113,7 +118,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         td { metaMarkup(node.summary) }
     }
 
-    private fun TBODY.formatFunctionSummaryRow(node: DocumentationNode) = tr {
+    private fun TBODY.functionSummaryRow(node: DocumentationNode) = tr {
         td {
             for (modifier in node.details(NodeKind.Modifier)) {
                 renderedSignature(modifier, SUMMARY)
@@ -129,12 +134,28 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    private fun TBODY.formatInheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>) = tr {
+        td {
+            val (from, nodes) = entry
+            +"From class "
+            a(href = uriProvider.linkTo(from.owner!!, uri)) { +from.qualifiedName() }
+            table {
+                tbody {
+                    for (node in nodes) {
+                        functionSummaryRow(node)
+                    }
+                }
+            }
+        }
+    }
+
     private fun FlowContent.renderedSignature(node: DocumentationNode, mode: LanguageService.RenderMode = SUMMARY) {
         metaMarkup(languageService.render(node, mode))
     }
 
     private fun FlowContent.fullFunctionDocs(node: DocumentationNode) {
         div {
+            id = node.signatureForAnchor(logger)
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
             metaMarkup(node.content)
@@ -154,7 +175,10 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
         }
-        a { id = node.signature() }
+    }
+
+    private fun FlowContent.fullPropertyDocs(node: DocumentationNode) {
+        fullFunctionDocs(node)
     }
 
     fun appendPackage(node: DocumentationNode) = templateService.composePage(
@@ -172,17 +196,33 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { formatClassLikeRow(it) }
                 summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { formatClassLikeRow(it) }
 
-                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { formatFunctionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { functionSummaryRow(it) }
 
 
-                h2 { +"Top-level functions" }
-                hr()
-                for (function in node.members(NodeKind.Function)) {
-                    fullFunctionDocs(function)
-                }
+                fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { fullFunctionDocs(it) }
+                fullDocs(node.members(NodeKind.Property), { h2 { +"Top-level properties" } }) { fullPropertyDocs(it) }
             }
     )
 
+    fun FlowContent.classHierarchy(node: DocumentationNode) {
+
+        val superclasses = generateSequence(node) { it.superclass }.toList().asReversed()
+        table {
+            superclasses.forEach {
+                tr {
+                    if (it != superclasses.first()) {
+                        td {
+                            +"   ↳"
+                        }
+                    }
+                    td {
+                        a(href = uriProvider.linkTo(it, uri)) { +it.qualifiedName() }
+                    }
+                }
+            }
+        }
+    }
 
     fun appendClassLike(node: DocumentationNode) = templateService.composePage(
             listOf(node),
@@ -193,22 +233,116 @@ class JavaLayoutHtmlFormatOutputBuilder(
             bodyContent = {
                 h1 { +node.name }
                 pre { renderedSignature(node, FULL) }
+                classHierarchy(node)
+
                 metaMarkup(node.content)
 
                 h2 { +"Summary" }
-                hr()
 
-                val functionsToDisplay = node.members(NodeKind.Function) + node.members(NodeKind.CompanionObjectFunction)
+                fun DocumentationNode.isFunction() = kind == NodeKind.Function || kind == NodeKind.CompanionObjectFunction
+                fun DocumentationNode.isProperty() = kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
 
-                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { formatFunctionSummaryRow(it) }
+                val functionsToDisplay = node.members.filter(DocumentationNode::isFunction)
+                val properties = node.members.filter(DocumentationNode::isProperty)
+                val inheritedFunctionsByReceiver = node.inheritedMembers.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val inheritedPropertiesByReceiver = node.inheritedMembers.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
+                val extensionProperties = node.extensions.filter(DocumentationNode::isProperty)
+                val extensionFunctions = node.extensions.filter(DocumentationNode::isFunction)
 
-                h2 { +"Functions" }
-                hr()
-                for (function in functionsToDisplay) {
-                    fullFunctionDocs(function)
+
+                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { formatInheritRow(it) }
+                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { functionSummaryRow(it) }
+
+
+                summaryNodeGroup(properties, "Properties", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { formatInheritRow(it) }
+                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { functionSummaryRow(it) }
+
+
+                fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
+                fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { fullFunctionDocs(it) }
+                fullDocs(properties, { h2 { +"Properties" } }) { fullPropertyDocs(it) }
+                fullDocs(extensionProperties, { h2 { +"Extension properties" } }) { fullPropertyDocs(it) }
+            }
+    )
+
+    fun generateClassesIndex(allTypesNode: DocumentationNode) = templateService.composePage(
+            listOf(allTypesNode),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Class Index" }
+                val classesByFirstLetter = allTypesNode.members.groupBy {
+                    it.name.first().toString()
+                }.entries.sortedBy { (letter) -> letter }
+
+                ul {
+                    classesByFirstLetter.forEach { (letter) ->
+                        li { a(href = "#letter_$letter") { +letter } }
+                    }
+                }
+
+                classesByFirstLetter.forEach { (letter, nodes) ->
+                    h2 {
+                        id = "letter_$letter"
+                        +letter
+                    }
+                    table {
+                        tbody {
+                            for (node in nodes) {
+                                tr {
+                                    td {
+                                        a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                    }
+                                    td {
+                                        metaMarkup(node.content)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
     )
+
+    fun generatePackageIndex(nodes: List<DocumentationNode>) = templateService.composePage(nodes,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Package Index" }
+                table {
+                    tbody {
+                        for (node in nodes.sortedBy { it.name }) {
+                            tr {
+                                td {
+                                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                }
+                                td {
+                                    metaMarkup(node.content)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
+    private fun FlowContent.fullDocs(
+            nodes: List<DocumentationNode>,
+            header: FlowContent.() -> Unit,
+            renderNode: FlowContent.(DocumentationNode) -> Unit
+    ) {
+        if (nodes.none()) return
+        header()
+        for (node in nodes) {
+            renderNode(node)
+        }
+    }
 }
 
 class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: URI) {
@@ -295,11 +429,14 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val languageService: LanguageService,
         val templateService: JavaLayoutHtmlTemplateService,
-        val outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService
+        val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
+    @set:Inject(optional = true)
+    var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
+
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
-            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, mainUri(node))
+            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, logger, mainUri(node))
 
     override fun tryGetContainerUri(node: DocumentationNode): URI? {
         return when (node.kind) {
@@ -314,11 +451,14 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         return when (node.kind) {
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
             in classLike -> tryGetContainerUri(node)?.resolve("#")
-            in memberLike -> tryGetMainUri(node.owner!!)?.resolve("#${node.signatureUrlEncoded()}")
-            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
+            in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
+            NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
+            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
         }
     }
+
+    fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureUrlEncoded(logger)}")
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.simpleName() + ".html")
@@ -342,12 +482,30 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         }
     }
 
+    fun buildClassIndex(node: DocumentationNode, parentDir: File) {
+        val file = parentDir.resolve("classes.html")
+        file.bufferedWriter().use {
+            createOutputBuilderForNode(node, it).generateClassesIndex(node)
+        }
+    }
+
+    fun buildPackageIndex(nodes: List<DocumentationNode>, parentDir: File) {
+        val file = parentDir.resolve("packages.html")
+        file.bufferedWriter().use {
+            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, templateService, logger, containerUri(nodes.first().owner!!).resolve("packages.html"))
+                    .generatePackageIndex(nodes)
+        }
+    }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single()
 
         val moduleRoot = root.resolve(module.name)
-        module.members.filter { it.kind == NodeKind.Package }.forEach { buildPackage(it, moduleRoot) }
+        val packages = module.members.filter { it.kind == NodeKind.Package }
+        packages.forEach { buildPackage(it, moduleRoot) }
+
+        buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+        buildPackageIndex(packages, moduleRoot)
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
@@ -362,7 +520,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             return writer
         }
 
-        outlineFactoryService.generateOutlines(::provideOutput, nodes)
+        outlineFactoryService?.generateOutlines(::provideOutput, nodes)
 
         uriToWriter.values.forEach { it.close() }
     }
@@ -374,44 +532,57 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     }
 }
 
-fun DocumentationNode.signature() = detail(NodeKind.Signature).name
-fun DocumentationNode.signatureUrlEncoded() = URLEncoder.encode(detail(NodeKind.Signature).name, "UTF-8")
-
-
-fun URI.relativeTo(base: URI): URI {
-    var base = base
-    var child = this
-    // Normalize paths to remove . and .. segments
-    base = base.normalize()
-    child = child.normalize()
-
-    // Split paths into segments
-    var bParts = base.path.split('/').dropLastWhile { it.isEmpty() }
-    val cParts = child.path.split('/').dropLastWhile { it.isEmpty() }
-
-    // Discard trailing segment of base path
-    if (bParts.isNotEmpty() && !base.path.endsWith("/")) {
-        bParts = bParts.dropLast(1)
-    }
-
-    // Remove common prefix segments
-    var i = 0
-    while (i < bParts.size && i < cParts.size && bParts[i] == cParts[i]) {
-        i++
-    }
-
-
-    // Construct the relative path
-    val sb = StringBuilder()
-    for (j in 0 until bParts.size - i) {
-        sb.append("../")
-    }
-    for (j in i until cParts.size) {
-        if (j != i) {
-            sb.append("/")
+fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
+    NodeKind.Function -> buildString {
+        detailOrNull(NodeKind.Receiver)?.let {
+            append("(")
+            append(it.detail(NodeKind.Type).qualifiedNameFromType())
+            append(").")
         }
-        sb.append(cParts[j])
+        append(name)
+        details(NodeKind.Parameter).joinTo(this, prefix = "(", postfix = ")") { it.detail(NodeKind.Type).qualifiedNameFromType() }
+    }
+    NodeKind.Property ->
+        "$name:${detail(NodeKind.Type).qualifiedNameFromType()}"
+    NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
+    else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
+}
+
+fun DocumentationNode.signatureUrlEncoded(logger: DokkaLogger) = URLEncoder.encode(signatureForAnchor(logger), "UTF-8")
+
+
+fun URI.relativeTo(uri: URI): URI {
+    // Normalize paths to remove . and .. segments
+    val base = uri.normalize()
+    val child = this.normalize()
+
+    fun StringBuilder.appendRelativePath() {
+        // Split paths into segments
+        var bParts = base.path.split('/').dropLastWhile { it.isEmpty() }
+        val cParts = child.path.split('/').dropLastWhile { it.isEmpty() }
+
+        // Discard trailing segment of base path
+        if (bParts.isNotEmpty() && !base.path.endsWith("/")) {
+            bParts = bParts.dropLast(1)
+        }
+
+        // Compute common prefix
+        val commonPartsSize = bParts.zip(cParts).count { (basePart, childPart) -> basePart == childPart }
+        bParts.drop(commonPartsSize).joinTo(this, separator = "") { "../" }
+        cParts.drop(commonPartsSize).joinTo(this, separator = "/")
     }
 
-    return URI.create(sb.toString())
+    return URI.create(buildString {
+        if (base.path != child.path) {
+            appendRelativePath()
+        }
+        child.rawQuery?.let {
+            append("?")
+            append(it)
+        }
+        child.rawFragment?.let {
+            append("#")
+            append(it)
+        }
+    })
 }
