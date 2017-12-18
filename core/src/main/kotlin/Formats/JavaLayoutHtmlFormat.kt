@@ -275,9 +275,13 @@ class JavaLayoutHtmlFormatOutputBuilder(
             },
             bodyContent = {
                 h1 { +"Class Index" }
-                val classesByFirstLetter = allTypesNode.members.groupBy {
-                    it.name.first().toString()
-                }.entries.sortedBy { (letter) -> letter }
+                val classesByFirstLetter = allTypesNode.members
+                        .filterNot { it.kind == NodeKind.ExternalClass }
+                        .groupBy {
+                            it.name.first().toString()
+                        }
+                        .entries
+                        .sortedBy { (letter) -> letter }
 
                 ul {
                     classesByFirstLetter.forEach { (letter) ->
@@ -398,6 +402,8 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
+                ""
+
                 a(href = uriProvider.linkTo(content.node!!, uri)) { appendContent(content.children) }
             }
             is ContentExternalLink -> {
