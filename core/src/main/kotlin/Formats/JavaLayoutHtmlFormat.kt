@@ -267,6 +267,71 @@ class JavaLayoutHtmlFormatOutputBuilder(
             }
     )
 
+    fun generateClassesIndex(allTypesNode: DocumentationNode) = templateService.composePage(
+            listOf(allTypesNode),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Class Index" }
+                val classesByFirstLetter = allTypesNode.members.groupBy {
+                    it.name.first().toString()
+                }.entries.sortedBy { (letter) -> letter }
+
+                ul {
+                    classesByFirstLetter.forEach { (letter) ->
+                        li { a(href = "#letter_$letter") { +letter } }
+                    }
+                }
+
+                classesByFirstLetter.forEach { (letter, nodes) ->
+                    h2 {
+                        id = "letter_$letter"
+                        +letter
+                    }
+                    table {
+                        tbody {
+                            for (node in nodes) {
+                                tr {
+                                    td {
+                                        a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                    }
+                                    td {
+                                        metaMarkup(node.content)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
+    fun generatePackageIndex(nodes: List<DocumentationNode>) = templateService.composePage(nodes,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Package Index" }
+                table {
+                    tbody {
+                        for (node in nodes.sortedBy { it.name }) {
+                            tr {
+                                td {
+                                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                }
+                                td {
+                                    metaMarkup(node.content)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
     private fun FlowContent.fullDocs(
             nodes: List<DocumentationNode>,
             header: FlowContent.() -> Unit,
@@ -388,7 +453,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             in classLike -> tryGetContainerUri(node)?.resolve("#")
             in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
             NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
-            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("allclasses.html")
+            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
         }
     }
@@ -417,12 +482,30 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         }
     }
 
+    fun buildClassIndex(node: DocumentationNode, parentDir: File) {
+        val file = parentDir.resolve("classes.html")
+        file.bufferedWriter().use {
+            createOutputBuilderForNode(node, it).generateClassesIndex(node)
+        }
+    }
+
+    fun buildPackageIndex(nodes: List<DocumentationNode>, parentDir: File) {
+        val file = parentDir.resolve("packages.html")
+        file.bufferedWriter().use {
+            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, templateService, logger, containerUri(nodes.first().owner!!).resolve("packages.html"))
+                    .generatePackageIndex(nodes)
+        }
+    }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single()
 
         val moduleRoot = root.resolve(module.name)
-        module.members.filter { it.kind == NodeKind.Package }.forEach { buildPackage(it, moduleRoot) }
+        val packages = module.members.filter { it.kind == NodeKind.Package }
+        packages.forEach { buildPackage(it, moduleRoot) }
+
+        buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+        buildPackageIndex(packages, moduleRoot)
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
