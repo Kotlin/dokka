@@ -402,7 +402,7 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
-                a(href = uriProvider.linkTo(content.node!!, uri)) { appendContent(content.children) }
+                a(href = content.node?.let { uriProvider.linkTo(it, uri) } ?: "#unresolved") { appendContent(content.children) }
             }
             is ContentExternalLink -> {
                 a(href = content.href) { appendContent(content.children) }
