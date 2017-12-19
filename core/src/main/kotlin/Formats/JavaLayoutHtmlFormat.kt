@@ -455,7 +455,10 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         return when (node.kind) {
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
             in classLike -> tryGetContainerUri(node)?.resolve("#")
-            in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
+            in memberLike -> {
+                val owner = if (node.owner?.kind != NodeKind.ExternalClass) node.owner else node.owner?.owner
+                tryGetMainUri(owner!!)?.resolveInPage(node)
+            }
             NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
