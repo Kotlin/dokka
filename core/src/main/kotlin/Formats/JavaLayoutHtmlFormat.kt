@@ -402,9 +402,7 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
-                ""
-
-                a(href = uriProvider.linkTo(content.node!!, uri)) { appendContent(content.children) }
+                a(href = content.node?.let { uriProvider.linkTo(it, uri) } ?: "#unresolved") { appendContent(content.children) }
             }
             is ContentExternalLink -> {
                 a(href = content.href) { appendContent(content.children) }
@@ -457,7 +455,10 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         return when (node.kind) {
             NodeKind.Package -> tryGetContainerUri(node)?.resolve("package-summary.html")
             in classLike -> tryGetContainerUri(node)?.resolve("#")
-            in memberLike -> tryGetMainUri(node.owner!!)?.resolveInPage(node)
+            in memberLike -> {
+                val owner = if (node.owner?.kind != NodeKind.ExternalClass) node.owner else node.owner?.owner
+                tryGetMainUri(owner!!)?.resolveInPage(node)
+            }
             NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
