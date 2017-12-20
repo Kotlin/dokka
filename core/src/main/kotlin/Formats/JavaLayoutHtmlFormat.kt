@@ -127,7 +127,16 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
         td {
             div {
-                a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                    val params = node.details(NodeKind.Parameter)
+                            .map { languageService.render(it, FULL) }
+                            .run {
+                                drop(1)
+                                .fold(listOfNotNull(firstOrNull())) { acc, node -> acc + ContentText(", ") + node }
+                            }
+                    metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
+                }
             }
 
             metaMarkup(node.summary)
