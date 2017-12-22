@@ -379,7 +379,7 @@ open class DokkaTask : DefaultTask() {
     }
 }
 
-class SourceRoot : DokkaConfiguration.SourceRoot {
+class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
     override var path: String = ""
         set(value) {
             field = File(value).absolutePath
