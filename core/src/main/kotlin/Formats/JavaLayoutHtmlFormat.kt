@@ -134,8 +134,8 @@ class JavaLayoutHtmlFormatOutputBuilder(
                     val params = node.details(NodeKind.Parameter)
                             .map { languageService.render(it, FULL) }
                             .run {
-                                drop(1).fold(listOfNotNull(firstOrNull())) {
-                                    acc, node -> acc + ContentText(", ") + node
+                                drop(1).fold(listOfNotNull(firstOrNull())) { acc, node ->
+                                    acc + ContentText(", ") + node
                                 }
                             }
                     metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
@@ -273,7 +273,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) }
                 summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { summaryRow(it) }
 
-
+                fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { fullFunctionDocs(it) }
                 fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
                 fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { fullFunctionDocs(it) }
                 fullDocs(properties, { h2 { +"Properties" } }) { fullPropertyDocs(it) }
@@ -554,7 +554,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
 }
 
 fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
-    NodeKind.Function -> buildString {
+    NodeKind.Function, NodeKind.Constructor -> buildString {
         detailOrNull(NodeKind.Receiver)?.let {
             append("(")
             append(it.detail(NodeKind.Type).qualifiedNameFromType())
