@@ -118,12 +118,28 @@ class JavaLayoutHtmlFormatOutputBuilder(
         td { metaMarkup(node.summary) }
     }
 
-    private fun TBODY.summaryRow(node: DocumentationNode) = tr {
+    private fun FlowContent.modifiers(node: DocumentationNode) {
+        for (modifier in node.details(NodeKind.Modifier)) {
+            renderedSignature(modifier, SUMMARY)
+        }
+    }
+
+    private fun FlowContent.shortFunctionParametersList(func: DocumentationNode) {
+        val params = func.details(NodeKind.Parameter)
+                .map { languageService.render(it, FULL) }
+                .run {
+                    drop(1).fold(listOfNotNull(firstOrNull())) { acc, node ->
+                        acc + ContentText(", ") + node
+                    }
+                }
+        metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
+    }
+
+
+    private fun TBODY.functionLikeSummaryRow(node: DocumentationNode) = tr {
         if (node.kind != NodeKind.Constructor) {
             td {
-                for (modifier in node.details(NodeKind.Modifier)) {
-                    renderedSignature(modifier, SUMMARY)
-                }
+                modifiers(node)
                 renderedSignature(node.detail(NodeKind.Type), SUMMARY)
             }
         }
@@ -131,14 +147,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
             div {
                 code {
                     a(href = uriProvider.linkTo(node, uri)) { +node.name }
-                    val params = node.details(NodeKind.Parameter)
-                            .map { languageService.render(it, FULL) }
-                            .run {
-                                drop(1).fold(listOfNotNull(firstOrNull())) { acc, node ->
-                                    acc + ContentText(", ") + node
-                                }
-                            }
-                    metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
+                    shortFunctionParametersList(node)
                 }
             }
 
@@ -146,7 +155,38 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>) = tr {
+    private fun TBODY.propertyLikeSummaryRow(node: DocumentationNode) = tr {
+        td {
+            modifiers(node)
+            renderedSignature(node.detail(NodeKind.Type), SUMMARY)
+        }
+        td {
+            div {
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                }
+            }
+
+            metaMarkup(node.summary)
+        }
+    }
+
+    private fun TBODY.nestedClassSummaryRow(node: DocumentationNode) = tr {
+        td {
+            modifiers(node)
+        }
+        td {
+            div {
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                }
+            }
+
+            metaMarkup(node.summary)
+        }
+    }
+
+    private fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
         td {
             val (from, nodes) = entry
             +"From class "
@@ -208,8 +248,8 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { formatClassLikeRow(it) }
                 summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { formatClassLikeRow(it) }
 
-                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { summaryRow(it) }
-                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { summaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionLikeSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { propertyLikeSummaryRow(it) }
 
 
                 fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { fullFunctionDocs(it) }
@@ -261,17 +301,18 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 val extensionProperties = node.extensions.filter(DocumentationNode::isProperty)
                 val extensionFunctions = node.extensions.filter(DocumentationNode::isFunction)
 
+                summaryNodeGroup(node.members.filter { it.kind in NodeKind.classLike }, "Nested classes", headerAsRow = true) { nestedClassSummaryRow(it) }
 
-                summaryNodeGroup(node.members(NodeKind.Constructor), "Constructors", headerAsRow = true) { summaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Constructor), "Constructors", headerAsRow = true) { functionLikeSummaryRow(it) }
 
-                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { summaryRow(it) }
-                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) }
-                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { summaryRow(it) }
+                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) { functionLikeSummaryRow(it) } }
+                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { functionLikeSummaryRow(it) }
 
 
-                summaryNodeGroup(properties, "Properties", headerAsRow = true) { summaryRow(it) }
-                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) }
-                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { summaryRow(it) }
+                summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) { propertyLikeSummaryRow(it) } }
+                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
 
                 fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { fullFunctionDocs(it) }
                 fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
@@ -460,7 +501,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         return when (node.kind) {
             NodeKind.Module -> URI("/").resolve(node.name + "/")
             NodeKind.Package -> tryGetContainerUri(node.owner!!)?.resolve(node.name.replace('.', '/') + '/')
-            in classLike -> tryGetContainerUri(node.owner!!)?.resolve("${node.name}.html")
+            in classLike -> tryGetContainerUri(node.owner!!)?.resolve("${node.classNodeNameWithOuterClass()}.html")
             else -> null
         }
     }
@@ -482,9 +523,12 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureUrlEncoded(logger)}")
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
-        val fileForClass = parentDir.resolve(node.simpleName() + ".html")
+        val fileForClass = parentDir.resolve(node.classNodeNameWithOuterClass() + ".html")
         fileForClass.bufferedWriter().use {
             createOutputBuilderForNode(node, it).appendClassLike(node)
+        }
+        for (memberClass in node.members.filter { it.kind in classLike }) {
+            buildClass(memberClass, parentDir)
         }
     }
 
@@ -571,6 +615,10 @@ fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (ki
 
 fun DocumentationNode.signatureUrlEncoded(logger: DokkaLogger) = URLEncoder.encode(signatureForAnchor(logger), "UTF-8")
 
+fun DocumentationNode.classNodeNameWithOuterClass(): String {
+    assert(kind in NodeKind.classLike)
+    return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
+}
 
 fun URI.relativeTo(uri: URI): URI {
     // Normalize paths to remove . and .. segments
