@@ -114,15 +114,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
 
 
         val javaRoots = classpath
-                .map {
+                .mapNotNull {
                     val rootFile = when {
                         it.extension == "jar" ->
-                            StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")!!
+                            StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")
                         else ->
-                            StandardFileSystems.local().findFileByPath(it.absolutePath)!!
+                            StandardFileSystems.local().findFileByPath(it.absolutePath)
                     }
 
-                    JavaRoot(rootFile, JavaRoot.RootType.BINARY)
+                    rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
                 }
 
         val resolverForProject = ResolverForProjectImpl(
