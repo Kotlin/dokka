@@ -118,23 +118,35 @@ class JavaLayoutHtmlFormatOutputBuilder(
         td { metaMarkup(node.summary) }
     }
 
-    private fun TBODY.functionSummaryRow(node: DocumentationNode) = tr {
-        td {
-            for (modifier in node.details(NodeKind.Modifier)) {
-                renderedSignature(modifier, SUMMARY)
+    private fun TBODY.summaryRow(node: DocumentationNode) = tr {
+        if (node.kind != NodeKind.Constructor) {
+            td {
+                for (modifier in node.details(NodeKind.Modifier)) {
+                    renderedSignature(modifier, SUMMARY)
+                }
+                renderedSignature(node.detail(NodeKind.Type), SUMMARY)
             }
-            renderedSignature(node.detail(NodeKind.Type), SUMMARY)
         }
         td {
             div {
-                a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                    val params = node.details(NodeKind.Parameter)
+                            .map { languageService.render(it, FULL) }
+                            .run {
+                                drop(1).fold(listOfNotNull(firstOrNull())) { acc, node ->
+                                    acc + ContentText(", ") + node
+                                }
+                            }
+                    metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
+                }
             }
 
             metaMarkup(node.summary)
         }
     }
 
-    private fun TBODY.formatInheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>) = tr {
+    private fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>) = tr {
         td {
             val (from, nodes) = entry
             +"From class "
@@ -142,7 +154,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
             table {
                 tbody {
                     for (node in nodes) {
-                        functionSummaryRow(node)
+                        summaryRow(node)
                     }
                 }
             }
@@ -196,8 +208,8 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { formatClassLikeRow(it) }
                 summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { formatClassLikeRow(it) }
 
-                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionSummaryRow(it) }
-                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { functionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { summaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { summaryRow(it) }
 
 
                 fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { fullFunctionDocs(it) }
@@ -250,16 +262,18 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 val extensionFunctions = node.extensions.filter(DocumentationNode::isFunction)
 
 
-                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionSummaryRow(it) }
-                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { formatInheritRow(it) }
-                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Constructor), "Constructors", headerAsRow = true) { summaryRow(it) }
+
+                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { summaryRow(it) }
+                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) }
+                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { summaryRow(it) }
 
 
-                summaryNodeGroup(properties, "Properties", headerAsRow = true) { functionSummaryRow(it) }
-                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { formatInheritRow(it) }
-                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { functionSummaryRow(it) }
+                summaryNodeGroup(properties, "Properties", headerAsRow = true) { summaryRow(it) }
+                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) }
+                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { summaryRow(it) }
 
-
+                fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { fullFunctionDocs(it) }
                 fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
                 fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { fullFunctionDocs(it) }
                 fullDocs(properties, { h2 { +"Properties" } }) { fullPropertyDocs(it) }
@@ -459,7 +473,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
                 val owner = if (node.owner?.kind != NodeKind.ExternalClass) node.owner else node.owner?.owner
                 tryGetMainUri(owner!!)?.resolveInPage(node)
             }
-            NodeKind.TypeParameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
+            NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
         }
@@ -540,7 +554,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
 }
 
 fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
-    NodeKind.Function -> buildString {
+    NodeKind.Function, NodeKind.Constructor -> buildString {
         detailOrNull(NodeKind.Receiver)?.let {
             append("(")
             append(it.detail(NodeKind.Type).qualifiedNameFromType())
