@@ -19,14 +19,10 @@ class FileGenerator @Inject constructor(val locationService: FileLocationService
         for ((location, items) in nodes.groupBy { specificLocationService.location(it) }) {
             val file = location.file
             file.parentFile?.mkdirsOrFail()
-            try {
-                FileOutputStream(file).use {
-                    OutputStreamWriter(it, Charsets.UTF_8).use {
-                        it.write(formatService.format(location, items))
-                    }
+            FileOutputStream(file).use {
+                OutputStreamWriter(it, Charsets.UTF_8).use {
+                    it.write(formatService.format(location, items))
                 }
-            } catch (e: Throwable) {
-                println(e)
             }
             buildPages(items.flatMap { it.members })
         }
