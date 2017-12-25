@@ -20,6 +20,7 @@ class KotlinAsJavaDocumentationBuilder
                                            packageName: FqName,
                                            packageNode: DocumentationNode,
                                            declarations: List<DeclarationDescriptor>,
+                                           externalClassNodes: MutableMap<FqName, DocumentationNode>,
                                            allFqNames: Collection<FqName>) {
         val project = documentationBuilder.resolutionFacade.project
         val psiPackage = JavaPsiFacade.getInstance(project).findPackage(packageName.asString())

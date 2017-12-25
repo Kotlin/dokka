@@ -94,6 +94,7 @@ interface PackageDocumentationBuilder {
                                   packageName: FqName,
                                   packageNode: DocumentationNode,
                                   declarations: List<DeclarationDescriptor>,
+                                  externalClassNodes: MutableMap<FqName, DocumentationNode>,
                                   allFqNames: Collection<FqName>)
 }
 
@@ -403,9 +404,9 @@ class DocumentationBuilder
 
     fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
                                             packageContent: Map<String, Content>,
-                                            packageDocumentationBuilder: PackageDocumentationBuilder) {
+                                            packageDocumentationBuilder: PackageDocumentationBuilder,
+                                            externalClassNodes: MutableMap<FqName, DocumentationNode>) {
         val allFqNames = fragments.map { it.fqName }.distinct()
-
         for (packageName in allFqNames) {
             if (packageName.isRoot && !options.includeRootPackage) continue
             val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getContributedDescriptors() }
@@ -414,7 +415,7 @@ class DocumentationBuilder
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent, this@DocumentationBuilder.refGraph)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
-                    declarations, allFqNames)
+                declarations, externalClassNodes, allFqNames)
         }
 
         propagateExtensionFunctionsToSubclasses(fragments)
@@ -803,8 +804,8 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
                                            packageName: FqName,
                                            packageNode: DocumentationNode,
                                            declarations: List<DeclarationDescriptor>,
+                                           externalClassNodes: MutableMap<FqName, DocumentationNode>,
                                            allFqNames: Collection<FqName>) {
-        val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
         declarations.forEach { descriptor ->
             with(documentationBuilder) {
                 if (descriptor.isDocumented(options)) {

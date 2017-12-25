@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
@@ -36,8 +37,9 @@ class DokkaGenerator(val logger: DokkaLogger,
 
     fun generate() {
         val sourcesGroupedByPlatform = sources.groupBy { it.platforms.firstOrNull() }
+        val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
         for ((platform, roots) in sourcesGroupedByPlatform) {
-            appendSourceModule(platform, roots)
+            appendSourceModule(platform, roots, externalClassNodes)
         }
         documentationModule.prepareForGeneration(options)
 
@@ -49,7 +51,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(defaultPlatform: String?, sourceRoots: List<SourceRoot>) {
+    private fun appendSourceModule(defaultPlatform: String?, sourceRoots: List<SourceRoot>, externalClassNodes: MutableMap<FqName, DocumentationNode>) {
         val sourcePaths = sourceRoots.map { it.path }
         val environment = createAnalysisEnvironment(sourcePaths)
 
@@ -74,7 +76,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val injector = Guice.createInjector(
                 DokkaAnalysisModule(environment, options, defaultPlatformsProvider, documentationModule.nodeRefGraph, logger))
 
-        buildDocumentationModule(injector, documentationModule, { isNotSample(it) }, includes)
+        buildDocumentationModule(injector, documentationModule, { isNotSample(it) }, includes, externalClassNodes)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -131,7 +133,8 @@ class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
 fun buildDocumentationModule(injector: Injector,
                              documentationModule: DocumentationModule,
                              filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
-                             includes: List<String> = listOf()) {
+                             includes: List<String> = listOf(),
+                             externalClassNodes: MutableMap<FqName, DocumentationNode> = mutableMapOf()) {
 
     val coreEnvironment = injector.getInstance(KotlinCoreEnvironment::class.java)
     val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
@@ -159,7 +162,7 @@ fun buildDocumentationModule(injector: Injector,
 
     with(injector.getInstance(DocumentationBuilder::class.java)) {
         documentationModule.appendFragments(fragments, packageDocs.packageContent,
-                injector.getInstance(PackageDocumentationBuilder::class.java))
+                injector.getInstance(PackageDocumentationBuilder::class.java), externalClassNodes)
     }
 
     val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
