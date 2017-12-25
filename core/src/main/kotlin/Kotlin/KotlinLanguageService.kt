@@ -1,11 +1,14 @@
 package org.jetbrains.dokka
 
+import com.google.inject.Inject
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : LanguageService {
+    @set:Inject(optional = true) var options: DocumentationOptions? = null
+
     private val fullOnlyModifiers = setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reified")
 
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
@@ -312,6 +315,8 @@ class KotlinLanguageService : LanguageService {
             if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
                 continue
             }
+            if (options?.suppressedModifiers?.contains(it.name) == true)
+                continue
             renderModifier(it, nowrap)
         }
     }

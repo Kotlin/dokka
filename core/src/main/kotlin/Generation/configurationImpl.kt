@@ -57,6 +57,7 @@ data class DokkaConfigurationImpl(
         override val noStdlibLink: Boolean,
         override val cacheRoot: String?,
         override val suppressedFiles: List<String>,
+        override val suppressedModifiers: List<String>,
         override val languageVersion: String?,
         override val apiVersion: String?
 ) : DokkaConfiguration

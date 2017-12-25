@@ -126,6 +126,7 @@ open class DokkaTask : DefaultTask() {
     @Optional @Input
     var cacheRoot: String? = null
 
+    @Input var suppressedModifiers: MutableList<String> = arrayListOf()
 
     @Optional @Input
     var languageVersion: String? = null
@@ -301,6 +302,7 @@ open class DokkaTask : DefaultTask() {
                     noStdlibLink,
                     cacheRoot,
                     collectSuppressedFiles(sourceRoots),
+                    suppressedModifiers,
                     languageVersion,
                     apiVersion)
 
