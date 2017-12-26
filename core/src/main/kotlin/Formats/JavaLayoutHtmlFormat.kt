@@ -330,10 +330,15 @@ class JavaLayoutHtmlFormatOutputBuilder(
             },
             bodyContent = {
                 h1 { +"Class Index" }
+
+                fun DocumentationNode.classWithNestedClasses(): List<DocumentationNode> =
+                        members.filter { it.kind in classLike }.flatMap(DocumentationNode::classWithNestedClasses) + this
+
                 val classesByFirstLetter = allTypesNode.members
                         .filterNot { it.kind == NodeKind.ExternalClass }
+                        .flatMap(DocumentationNode::classWithNestedClasses)
                         .groupBy {
-                            it.name.first().toString()
+                            it.classNodeNameWithOuterClass().first().toString()
                         }
                         .entries
                         .sortedBy { (letter) -> letter }
@@ -351,10 +356,10 @@ class JavaLayoutHtmlFormatOutputBuilder(
                     }
                     table {
                         tbody {
-                            for (node in nodes) {
+                            for (node in nodes.sortedBy { it.classNodeNameWithOuterClass() }) {
                                 tr {
                                     td {
-                                        a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                        a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                     }
                                     td {
                                         metaMarkup(node.content)
