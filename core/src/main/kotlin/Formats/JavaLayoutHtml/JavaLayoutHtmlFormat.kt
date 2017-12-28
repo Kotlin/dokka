@@ -31,8 +31,7 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
 }
 
 class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
-    override val packageListServiceClass: KClass<out PackageListService>
-        get() = TODO("not implemented")
+    override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
     override val languageServiceClass = KotlinLanguageService::class
     override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class
     override val outlineFactoryClass = null

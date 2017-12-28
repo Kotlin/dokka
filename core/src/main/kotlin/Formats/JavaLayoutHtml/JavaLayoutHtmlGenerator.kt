@@ -14,6 +14,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val languageService: LanguageService,
         val templateService: JavaLayoutHtmlTemplateService,
+        val packageListService: PackageListService,
         val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
@@ -119,6 +120,10 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     override fun buildSupportFiles() {}
 
     override fun buildPackageList(nodes: Iterable<DocumentationNode>) {
-
+        nodes.filter { it.kind == NodeKind.Module }.forEach { module ->
+            val moduleRoot = root.resolve(module.name)
+            val packageListFile = moduleRoot.resolve("package-list")
+            packageListFile.writeText(packageListService.formatPackageList(module as DocumentationModule))
+        }
     }
 }
