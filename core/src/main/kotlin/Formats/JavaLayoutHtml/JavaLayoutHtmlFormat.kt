@@ -1,0 +1,111 @@
+package org.jetbrains.dokka.Formats
+
+import com.google.inject.Binder
+import kotlinx.html.*
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Utilities.bind
+import org.jetbrains.dokka.Utilities.lazyBind
+import org.jetbrains.dokka.Utilities.toOptional
+import org.jetbrains.dokka.Utilities.toType
+import java.net.URI
+import java.net.URLEncoder
+import kotlin.reflect.KClass
+
+
+abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAnalysisComponent {
+
+    override fun configureOutput(binder: Binder): Unit = with(binder) {
+        bind<Generator>() toType generatorServiceClass
+        bind<LanguageService>() toType languageServiceClass
+        bind<JavaLayoutHtmlTemplateService>() toType templateServiceClass
+        bind<JavaLayoutHtmlUriProvider>() toType generatorServiceClass
+        lazyBind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
+        bind<PackageListService>() toType packageListServiceClass
+    }
+
+    val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
+    abstract val languageServiceClass: KClass<out LanguageService>
+    abstract val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService>
+    abstract val outlineFactoryClass: KClass<out JavaLayoutHtmlFormatOutlineFactoryService>?
+    abstract val packageListServiceClass: KClass<out PackageListService>
+}
+
+class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
+    override val packageListServiceClass: KClass<out PackageListService>
+        get() = TODO("not implemented")
+    override val languageServiceClass = KotlinLanguageService::class
+    override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class
+    override val outlineFactoryClass = null
+}
+
+interface JavaLayoutHtmlFormatOutlineFactoryService {
+    fun generateOutlines(outputProvider: (URI) -> Appendable, nodes: Iterable<DocumentationNode>)
+}
+
+
+interface JavaLayoutHtmlUriProvider {
+    fun tryGetContainerUri(node: DocumentationNode): URI?
+    fun tryGetMainUri(node: DocumentationNode): URI?
+    fun containerUri(node: DocumentationNode): URI = tryGetContainerUri(node) ?: error("Unsupported ${node.kind}")
+    fun mainUri(node: DocumentationNode): URI = tryGetMainUri(node) ?: error("Unsupported ${node.kind}")
+
+    fun linkTo(to: DocumentationNode, from: URI): String {
+        return mainUri(to).relativeTo(from).toString()
+    }
+
+    fun mainUriOrWarn(node: DocumentationNode): URI? = tryGetMainUri(node) ?: (null).also {
+        AssertionError("Not implemented mainUri for ${node.kind}").printStackTrace()
+    }
+}
+
+
+interface JavaLayoutHtmlTemplateService {
+    fun composePage(
+            nodes: List<DocumentationNode>,
+            tagConsumer: TagConsumer<Appendable>,
+            headContent: HEAD.() -> Unit,
+            bodyContent: BODY.() -> Unit
+    )
+
+    class Default : JavaLayoutHtmlTemplateService {
+        override fun composePage(
+                nodes: List<DocumentationNode>,
+                tagConsumer: TagConsumer<Appendable>,
+                headContent: HEAD.() -> Unit,
+                bodyContent: BODY.() -> Unit
+        ) {
+            tagConsumer.html {
+                head {
+                    meta(charset = "UTF-8")
+                    headContent()
+                }
+                body(block = bodyContent)
+            }
+        }
+    }
+}
+
+
+fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
+    NodeKind.Function, NodeKind.Constructor -> buildString {
+        detailOrNull(NodeKind.Receiver)?.let {
+            append("(")
+            append(it.detail(NodeKind.Type).qualifiedNameFromType())
+            append(").")
+        }
+        append(name)
+        details(NodeKind.Parameter).joinTo(this, prefix = "(", postfix = ")") { it.detail(NodeKind.Type).qualifiedNameFromType() }
+    }
+    NodeKind.Property ->
+        "$name:${detail(NodeKind.Type).qualifiedNameFromType()}"
+    NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
+    else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
+}
+
+
+fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
+
+fun DocumentationNode.classNodeNameWithOuterClass(): String {
+    assert(kind in NodeKind.classLike)
+    return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
+}
