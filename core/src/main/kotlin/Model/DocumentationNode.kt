@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 enum class NodeKind {
@@ -106,10 +107,10 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Platform).map { it.to.name }
 
     val supertypes: List<DocumentationNode>
-        get() = references(RefKind.Superclass).map { it.to }
+        get() = details(NodeKind.Supertype)
 
     val superclass: DocumentationNode?
-        get() = supertypes.find { it.kind == NodeKind.Class }
+        get() = supertypes.firstNotNullResult { it.links.firstOrNull { it.kind in NodeKind.classLike } }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
