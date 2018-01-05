@@ -5,7 +5,7 @@ import org.jetbrains.dokka.ExternalDocumentationLinkResolver.Companion.DOKKA_PAR
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.PackageListService
 
-class JavaLayoutHtmlPackageListService: PackageListService {
+class JavaLayoutHtmlPackageListService : PackageListService {
 
     private fun StringBuilder.appendParam(name: String, value: String) {
         append(DOKKA_PARAM_PREFIX)

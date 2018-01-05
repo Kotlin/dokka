@@ -8,7 +8,6 @@ import org.jetbrains.dokka.LanguageService.RenderMode.FULL
 import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import java.net.URI
-import java.net.URLEncoder
 
 
 class JavaLayoutHtmlFormatOutputBuilder(
@@ -210,6 +209,36 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    private fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
+        if (inheritors.isEmpty()) return
+        div {
+            table {
+                thead {
+                    tr {
+                        td {
+                            if (direct)
+                                +"Known Direct Subclasses"
+                            else
+                                +"Known Indirect Subclasses"
+                        }
+                    }
+                }
+                tbody {
+                    inheritors.forEach {
+                        tr {
+                            td {
+                                a(href = uriProvider.linkTo(it, uri)) { +it.classNodeNameWithOuterClass() }
+                            }
+                            td {
+                                metaMarkup(it.summary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun appendClassLike(node: DocumentationNode) = templateService.composePage(
             listOf(node),
             htmlConsumer,
@@ -220,6 +249,15 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 h1 { +node.name }
                 pre { renderedSignature(node, FULL) }
                 classHierarchy(node)
+
+                val inheritors = generateSequence(node.inheritors) { inheritors ->
+                    inheritors
+                            .flatMap { it.inheritors }
+                            .takeUnless { it.isEmpty() }
+                }
+                subclasses(inheritors.first(), true)
+                subclasses(inheritors.drop(1).flatten().toList(), false)
+
 
                 metaMarkup(node.content)
 
@@ -396,7 +434,8 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
             is ContentParagraph -> p { appendContent(content.children) }
 
             is ContentNodeLink -> {
-                a(href = content.node?.let { uriProvider.linkTo(it, uri) } ?: "#unresolved") { appendContent(content.children) }
+                a(href = content.node?.let { uriProvider.linkTo(it, uri) }
+                        ?: "#unresolved") { appendContent(content.children) }
             }
             is ContentExternalLink -> {
                 a(href = content.href) { appendContent(content.children) }
