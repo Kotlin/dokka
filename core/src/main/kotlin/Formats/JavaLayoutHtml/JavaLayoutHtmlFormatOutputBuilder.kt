@@ -190,9 +190,45 @@ class JavaLayoutHtmlFormatOutputBuilder(
             }
     )
 
+    fun FlowContent.qualifiedTypeReference(node: DocumentationNode) {
+        if (node.kind in classLike) {
+            a(href = uriProvider.linkTo(node, uri)) {
+                +node.qualifiedName()
+            }
+            return
+        }
+
+        val targetLink = node.links.single()
+
+        if (targetLink.kind == NodeKind.TypeParameter) {
+            +node.name
+            return
+        }
+
+        val href = if (targetLink.kind == NodeKind.ExternalLink)
+            targetLink.name
+        else
+            uriProvider.linkTo(targetLink, uri)
+
+        a(href = href) {
+            +node.qualifiedNameFromType()
+        }
+        val typeParameters = node.details(NodeKind.Type)
+        if (typeParameters.isNotEmpty()) {
+            +"<"
+            typeParameters.forEach {
+                if (it != typeParameters.first()) {
+                    +", "
+                }
+                qualifiedTypeReference(it)
+            }
+            +">"
+        }
+    }
+
     fun FlowContent.classHierarchy(node: DocumentationNode) {
 
-        val superclasses = generateSequence(node) { it.superclass }.toList().asReversed()
+        val superclasses = generateSequence(node.superclass) { it.links.single().superclass }.toList().asReversed() + node
         table {
             superclasses.forEach {
                 tr {
@@ -202,7 +238,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
                         }
                     }
                     td {
-                        a(href = uriProvider.linkTo(it, uri)) { +it.qualifiedName() }
+                        qualifiedTypeReference(it)
                     }
                 }
             }
