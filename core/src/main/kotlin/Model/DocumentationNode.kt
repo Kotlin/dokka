@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 enum class NodeKind {
@@ -110,7 +109,7 @@ open class DocumentationNode(val name: String,
         get() = details(NodeKind.Supertype)
 
     val superclass: DocumentationNode?
-        get() = supertypes.firstNotNullResult { it.links.firstOrNull { it.kind in NodeKind.classLike } }
+        get() = supertypes.firstOrNull { it.links.any { it.kind in NodeKind.classLike } }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
@@ -163,7 +162,7 @@ val DocumentationNode.path: List<DocumentationNode>
     }
 
 fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val existingNode = members(NodeKind.Package).firstOrNull { it.name  == packageName }
+    val existingNode = members(NodeKind.Package).firstOrNull { it.name == packageName }
     if (existingNode != null) {
         return existingNode
     }
@@ -181,7 +180,8 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
         RefKind.Detail -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Member -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Owner -> child.addReferenceTo(this, RefKind.Member)
-        else -> { /* Do not add any links back for other types */ }
+        else -> { /* Do not add any links back for other types */
+        }
     }
 }
 
