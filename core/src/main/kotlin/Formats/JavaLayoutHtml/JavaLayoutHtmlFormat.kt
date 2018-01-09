@@ -87,23 +87,41 @@ interface JavaLayoutHtmlTemplateService {
     }
 }
 
+val DocumentationNode.companion get() = members(NodeKind.Object).find { it.details(NodeKind.Modifier).any { it.name == "companion" } }
 
-fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String = when (kind) {
-    NodeKind.Function, NodeKind.Constructor -> buildString {
+fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String {
+
+    fun StringBuilder.appendReceiverIfSo() {
         detailOrNull(NodeKind.Receiver)?.let {
             append("(")
             append(it.detail(NodeKind.Type).qualifiedNameFromType())
             append(").")
         }
-        append(name)
-        details(NodeKind.Parameter).joinTo(this, prefix = "(", postfix = ")") { it.detail(NodeKind.Type).qualifiedNameFromType() }
     }
-    NodeKind.Property ->
-        "$name:${detail(NodeKind.Type).qualifiedNameFromType()}"
-    NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
-    else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
-}
 
+    return when (kind) {
+        NodeKind.Function, NodeKind.Constructor, NodeKind.CompanionObjectFunction -> buildString {
+            if (kind == NodeKind.CompanionObjectFunction) {
+                append("Companion.")
+            }
+            appendReceiverIfSo()
+            append(name)
+            details(NodeKind.Parameter).joinTo(this, prefix = "(", postfix = ")") { it.detail(NodeKind.Type).qualifiedNameFromType() }
+        }
+        NodeKind.Property, NodeKind.CompanionObjectProperty -> buildString {
+            if (kind == NodeKind.CompanionObjectProperty) {
+                append("Companion.")
+            }
+            appendReceiverIfSo()
+            append(name)
+            append(":")
+            append(detail(NodeKind.Type).qualifiedNameFromType())
+        }
+        NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
+        else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
+    }
+
+}
 
 fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
 

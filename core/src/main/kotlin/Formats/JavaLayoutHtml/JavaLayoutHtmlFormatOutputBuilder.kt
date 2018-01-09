@@ -202,8 +202,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { propertyLikeSummaryRow(it) }
 
 
-                fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { memberDocs(it) }
-                fullDocs(node.members(NodeKind.Property), { h2 { +"Top-level properties" } }) { memberDocs(it) }
+                fullDocs(node.members(NodeKind.Function), "Top-level functions") { memberDocs(it) }
+                fullDocs(node.members(NodeKind.Property), "Top-level properties") { memberDocs(it) }
             }
     )
 
@@ -316,42 +316,62 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
                 h2 { +"Summary" }
 
-                fun DocumentationNode.isFunction() = kind == NodeKind.Function || kind == NodeKind.CompanionObjectFunction
-                fun DocumentationNode.isProperty() = kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
+                val isCompanion = node.details(NodeKind.Modifier).any { it.name == "companion" }
+                val hasMeaningfulCompanion = !isCompanion && node.companion != null
 
                 fun DocumentationNode.thisTypeExtension() = detail(NodeKind.Receiver).detail(NodeKind.Type).links.any { it == node }
 
-                val functionsToDisplay = node.members.filter(DocumentationNode::isFunction)
-                val properties = node.members.filter(DocumentationNode::isProperty)
-                val inheritedFunctionsByReceiver = node.inheritedMembers.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
-                val inheritedPropertiesByReceiver = node.inheritedMembers.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
-                val (extensions, inheritedExtensions) = node.extensions.partition {
-                    it.thisTypeExtension()
-                }
+                val functionKind = if (!isCompanion) NodeKind.Function else NodeKind.CompanionObjectFunction
+                val propertyKind = if (!isCompanion) NodeKind.Property else NodeKind.CompanionObjectProperty
+
+                fun DocumentationNode.isFunction() = kind == functionKind
+                fun DocumentationNode.isProperty() = kind == propertyKind
+
+                val functions = node.members(functionKind)
+                val properties = node.members(propertyKind)
+                val inheritedFunctionsByReceiver = node.inheritedMembers(functionKind).groupBy { it.owner!! }
+                val inheritedPropertiesByReceiver = node.inheritedMembers(propertyKind).groupBy { it.owner!! }
+
+
+                val originalExtensions = if (!isCompanion) node.extensions else node.owner!!.extensions
+                val (extensions, inheritedExtensions) = originalExtensions.partition { it.thisTypeExtension() }
                 val extensionFunctions = extensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
                 val extensionProperties = extensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
                 val inheritedExtensionFunctions = inheritedExtensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
                 val inheritedExtensionProperties = inheritedExtensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
 
+                val companionFunctions = node.members(NodeKind.CompanionObjectFunction)
+                val companionProperties = node.members(NodeKind.CompanionObjectProperty)
+
                 summaryNodeGroup(node.members.filter { it.kind in NodeKind.classLike }, "Nested classes", headerAsRow = true) { nestedClassSummaryRow(it) }
 
                 summaryNodeGroup(node.members(NodeKind.Constructor), "Constructors", headerAsRow = true) { functionLikeSummaryRow(it) }
 
-                summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                if (!isCompanion) {
+                    summaryNodeGroup(companionFunctions, "Companion functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                }
                 summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) { functionLikeSummaryRow(it) } }
                 summaryNodeGroup(extensionFunctions.entries, "Extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
                 summaryNodeGroup(inheritedExtensionFunctions.entries, "Inherited extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
 
 
                 summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                if (!isCompanion) {
+                    summaryNodeGroup(companionProperties, "Companion properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                }
                 summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) { propertyLikeSummaryRow(it) } }
                 summaryNodeGroup(extensionProperties.entries, "Extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
                 summaryNodeGroup(inheritedExtensionProperties.entries, "Inherited extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
 
 
-                fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { memberDocs(it) }
-                fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { memberDocs(it) }
-                fullDocs(properties, { h2 { +"Properties" } }) { memberDocs(it) }
+                fullDocs(node.members(NodeKind.Constructor), "Constructors") { memberDocs(it) }
+                fullDocs(functions, "Functions") { memberDocs(it) }
+                fullDocs(properties, "Properties") { memberDocs(it) }
+                if (!isCompanion && !hasMeaningfulCompanion) {
+                    fullDocs(companionFunctions, "Companion functions") { memberDocs(it) }
+                    fullDocs(companionProperties, "Companion properties") { memberDocs(it) }
+                }
             }
     )
 
@@ -431,11 +451,13 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
     private fun FlowContent.fullDocs(
             nodes: List<DocumentationNode>,
-            header: FlowContent.() -> Unit,
+            header: String,
             renderNode: FlowContent.(DocumentationNode) -> Unit
     ) {
         if (nodes.none()) return
-        header()
+        h2 {
+            +header
+        }
         for (node in nodes) {
             renderNode(node)
         }

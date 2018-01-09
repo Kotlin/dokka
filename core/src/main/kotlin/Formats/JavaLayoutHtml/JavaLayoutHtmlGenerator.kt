@@ -3,6 +3,7 @@ package org.jetbrains.dokka.Formats
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.NodeKind.Companion.classLike
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.BufferedWriter
@@ -40,7 +41,16 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             in NodeKind.classLike -> tryGetContainerUri(node)?.resolve("#")
             in NodeKind.memberLike -> {
                 val owner = if (node.owner?.kind != NodeKind.ExternalClass) node.owner else node.owner?.owner
-                tryGetMainUri(owner!!)?.resolveInPage(node)
+                if (owner!!.kind in classLike &&
+                        (node.kind == NodeKind.CompanionObjectProperty || node.kind == NodeKind.CompanionObjectFunction) &&
+                        owner.companion != null
+                ) {
+                    val signature = node.detail(NodeKind.Signature)
+                    val originalFunction = owner.companion!!.members.first { it.detailOrNull(NodeKind.Signature)?.name == signature.name }
+                    tryGetMainUri(owner.companion!!)?.resolveInPage(originalFunction)
+                } else {
+                    tryGetMainUri(owner)?.resolveInPage(node)
+                }
             }
             NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
             NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
