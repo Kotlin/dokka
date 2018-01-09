@@ -24,7 +24,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
 
     fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
-            = JavaLayoutHtmlFormatOutputBuilder(output, languageService, this, templateService, logger, mainUri(node))
+            = outputBuilderFactoryService.createOutputBuilder(output, node)
 
     override fun tryGetContainerUri(node: DocumentationNode): URI? {
         return when (node.kind) {
@@ -95,7 +95,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun buildPackageIndex(nodes: List<DocumentationNode>, parentDir: File) {
         val file = parentDir.resolve("packages.html")
         file.bufferedWriter().use {
-            JavaLayoutHtmlFormatOutputBuilder(it, languageService, this, templateService, logger, containerUri(nodes.first().owner!!).resolve("packages.html"))
+            outputBuilderFactoryService.createOutputBuilder(it, containerUri(nodes.first().owner!!).resolve("packages.html"))
                     .generatePackageIndex(nodes)
         }
     }
