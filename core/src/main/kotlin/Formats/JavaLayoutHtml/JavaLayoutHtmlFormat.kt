@@ -21,6 +21,7 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
         bind<JavaLayoutHtmlUriProvider>() toType generatorServiceClass
         lazyBind<JavaLayoutHtmlFormatOutlineFactoryService>() toOptional outlineFactoryClass
         bind<PackageListService>() toType packageListServiceClass
+        bind<JavaLayoutHtmlFormatOutputBuilderFactory>() toType outputBuilderFactoryClass
     }
 
     val generatorServiceClass = JavaLayoutHtmlFormatGenerator::class
@@ -28,9 +29,11 @@ abstract class JavaLayoutHtmlFormatDescriptorBase : FormatDescriptor, DefaultAna
     abstract val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService>
     abstract val outlineFactoryClass: KClass<out JavaLayoutHtmlFormatOutlineFactoryService>?
     abstract val packageListServiceClass: KClass<out PackageListService>
+    abstract val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory>
 }
 
 class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
+    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = JavaLayoutHtmlFormatOutputBuilderFactoryImpl::class
     override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
     override val languageServiceClass = KotlinLanguageService::class
     override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class

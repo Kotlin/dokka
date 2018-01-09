@@ -8,9 +8,10 @@ import org.jetbrains.dokka.LanguageService.RenderMode.FULL
 import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import java.net.URI
+import javax.inject.Inject
 
 
-class JavaLayoutHtmlFormatOutputBuilder(
+open class JavaLayoutHtmlFormatOutputBuilder(
         val output: Appendable,
         val languageService: LanguageService,
         val uriProvider: JavaLayoutHtmlUriProvider,
@@ -23,7 +24,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
 
     val contentToHtmlBuilder = ContentToHtmlBuilder(uriProvider, uri)
 
-    private fun <T> FlowContent.summaryNodeGroup(nodes: Iterable<T>, header: String, headerAsRow: Boolean = false, row: TBODY.(T) -> Unit) {
+    open fun <T> FlowContent.summaryNodeGroup(nodes: Iterable<T>, header: String, headerAsRow: Boolean = false, row: TBODY.(T) -> Unit) {
         if (nodes.none()) return
         if (!headerAsRow) {
             h2 { +header }
@@ -46,18 +47,18 @@ class JavaLayoutHtmlFormatOutputBuilder(
         appendContent(content)
     }
 
-    private fun TBODY.formatClassLikeRow(node: DocumentationNode) = tr {
+    open fun TBODY.classLikeRow(node: DocumentationNode) = tr {
         td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
         td { metaMarkup(node.summary) }
     }
 
-    private fun FlowContent.modifiers(node: DocumentationNode) {
+    fun FlowContent.modifiers(node: DocumentationNode) {
         for (modifier in node.details(NodeKind.Modifier)) {
             renderedSignature(modifier, SUMMARY)
         }
     }
 
-    private fun FlowContent.shortFunctionParametersList(func: DocumentationNode) {
+    fun FlowContent.shortFunctionParametersList(func: DocumentationNode) {
         val params = func.details(NodeKind.Parameter)
                 .map { languageService.render(it, FULL) }
                 .run {
@@ -69,7 +70,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
     }
 
 
-    private fun TBODY.functionLikeSummaryRow(node: DocumentationNode) = tr {
+    open fun TBODY.functionLikeSummaryRow(node: DocumentationNode) = tr {
         if (node.kind != NodeKind.Constructor) {
             td {
                 modifiers(node)
@@ -88,7 +89,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun TBODY.propertyLikeSummaryRow(node: DocumentationNode) = tr {
+    open fun TBODY.propertyLikeSummaryRow(node: DocumentationNode) = tr {
         td {
             modifiers(node)
             renderedSignature(node.detail(NodeKind.Type), SUMMARY)
@@ -104,7 +105,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun TBODY.nestedClassSummaryRow(node: DocumentationNode) = tr {
+    open fun TBODY.nestedClassSummaryRow(node: DocumentationNode) = tr {
         td {
             modifiers(node)
         }
@@ -119,7 +120,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
+    open fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
         td {
             val (from, nodes) = entry
             +"From class "
@@ -138,7 +139,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         metaMarkup(languageService.render(node, mode))
     }
 
-    private fun FlowContent.fullFunctionDocs(node: DocumentationNode) {
+    open fun FlowContent.memberDocs(node: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
             h3 { +node.name }
@@ -162,10 +163,6 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun FlowContent.fullPropertyDocs(node: DocumentationNode) {
-        fullFunctionDocs(node)
-    }
-
     fun appendPackage(node: DocumentationNode) = templateService.composePage(
             listOf(node),
             htmlConsumer,
@@ -175,18 +172,18 @@ class JavaLayoutHtmlFormatOutputBuilder(
             bodyContent = {
                 h1 { +node.name }
                 metaMarkup(node.content)
-                summaryNodeGroup(node.members(NodeKind.Class), "Classes") { formatClassLikeRow(it) }
-                summaryNodeGroup(node.members(NodeKind.Exception), "Exceptions") { formatClassLikeRow(it) }
-                summaryNodeGroup(node.members(NodeKind.TypeAlias), "Type-aliases") { formatClassLikeRow(it) }
-                summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { formatClassLikeRow(it) }
-                summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { formatClassLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Class), "Classes") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Exception), "Exceptions") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.TypeAlias), "Type-aliases") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { classLikeRow(it) }
 
                 summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionLikeSummaryRow(it) }
                 summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { propertyLikeSummaryRow(it) }
 
 
-                fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { fullFunctionDocs(it) }
-                fullDocs(node.members(NodeKind.Property), { h2 { +"Top-level properties" } }) { fullPropertyDocs(it) }
+                fullDocs(node.members(NodeKind.Function), { h2 { +"Top-level functions" } }) { memberDocs(it) }
+                fullDocs(node.members(NodeKind.Property), { h2 { +"Top-level properties" } }) { memberDocs(it) }
             }
     )
 
@@ -226,7 +223,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    fun FlowContent.classHierarchy(node: DocumentationNode) {
+    open fun FlowContent.classHierarchy(node: DocumentationNode) {
 
         val superclasses = generateSequence(node.superclass) { it.links.single().superclass }.toList().asReversed() + node
         table {
@@ -245,7 +242,7 @@ class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    private fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
+    open fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
         if (inheritors.isEmpty()) return
         div {
             table {
@@ -322,11 +319,11 @@ class JavaLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) { propertyLikeSummaryRow(it) } }
                 summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
 
-                fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { fullFunctionDocs(it) }
-                fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { fullFunctionDocs(it) }
-                fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { fullFunctionDocs(it) }
-                fullDocs(properties, { h2 { +"Properties" } }) { fullPropertyDocs(it) }
-                fullDocs(extensionProperties, { h2 { +"Extension properties" } }) { fullPropertyDocs(it) }
+                fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { memberDocs(it) }
+                fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { memberDocs(it) }
+                fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { memberDocs(it) }
+                fullDocs(properties, { h2 { +"Properties" } }) { memberDocs(it) }
+                fullDocs(extensionProperties, { h2 { +"Extension properties" } }) { memberDocs(it) }
             }
     )
 
@@ -479,5 +476,20 @@ class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: 
 
             is ContentBlock -> appendContent(content.children)
         }
+    }
+}
+
+class JavaLayoutHtmlFormatOutputBuilderFactoryImpl @Inject constructor(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger
+) : JavaLayoutHtmlFormatOutputBuilderFactory {
+    override fun createOutputBuilder(output: Appendable, node: DocumentationNode): JavaLayoutHtmlFormatOutputBuilder {
+        return createOutputBuilder(output, uriProvider.mainUri(node))
+    }
+
+    override fun createOutputBuilder(output: Appendable, uri: URI): JavaLayoutHtmlFormatOutputBuilder {
+        return JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri)
     }
 }

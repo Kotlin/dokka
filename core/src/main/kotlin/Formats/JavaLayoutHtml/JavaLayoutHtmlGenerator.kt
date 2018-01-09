@@ -15,6 +15,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val languageService: LanguageService,
         val templateService: JavaLayoutHtmlTemplateService,
         val packageListService: PackageListService,
+        val outputBuilderFactoryService: JavaLayoutHtmlFormatOutputBuilderFactory,
         val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
@@ -126,4 +127,9 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
             packageListFile.writeText(packageListService.formatPackageList(module as DocumentationModule))
         }
     }
+}
+
+interface JavaLayoutHtmlFormatOutputBuilderFactory {
+    fun createOutputBuilder(output: Appendable, uri: URI): JavaLayoutHtmlFormatOutputBuilder
+    fun createOutputBuilder(output: Appendable, node: DocumentationNode): JavaLayoutHtmlFormatOutputBuilder
 }
