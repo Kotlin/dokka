@@ -80,6 +80,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         td {
             div {
                 code {
+                    val receiver = node.detailOrNull(NodeKind.Receiver)
+                    if (receiver != null) {
+                        renderedSignature(receiver.detail(NodeKind.Type), SUMMARY)
+                        +"."
+                    }
                     a(href = uriProvider.linkTo(node, uri)) { +node.name }
                     shortFunctionParametersList(node)
                 }
@@ -125,6 +130,21 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val (from, nodes) = entry
             +"From class "
             a(href = uriProvider.linkTo(from.owner!!, uri)) { +from.qualifiedName() }
+            table {
+                tbody {
+                    for (node in nodes) {
+                        summaryRow(node)
+                    }
+                }
+            }
+        }
+    }
+
+    open fun TBODY.extensionRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
+        td {
+            val (from, nodes) = entry
+            +"From "
+            a(href = uriProvider.linkTo(from, uri)) { +from.qualifiedName() }
             table {
                 tbody {
                     for (node in nodes) {
@@ -299,12 +319,19 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 fun DocumentationNode.isFunction() = kind == NodeKind.Function || kind == NodeKind.CompanionObjectFunction
                 fun DocumentationNode.isProperty() = kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
 
+                fun DocumentationNode.thisTypeExtension() = detail(NodeKind.Receiver).detail(NodeKind.Type).links.any { it == node }
+
                 val functionsToDisplay = node.members.filter(DocumentationNode::isFunction)
                 val properties = node.members.filter(DocumentationNode::isProperty)
                 val inheritedFunctionsByReceiver = node.inheritedMembers.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
                 val inheritedPropertiesByReceiver = node.inheritedMembers.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
-                val extensionProperties = node.extensions.filter(DocumentationNode::isProperty)
-                val extensionFunctions = node.extensions.filter(DocumentationNode::isFunction)
+                val (extensions, inheritedExtensions) = node.extensions.partition {
+                    it.thisTypeExtension()
+                }
+                val extensionFunctions = extensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val extensionProperties = extensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
+                val inheritedExtensionFunctions = inheritedExtensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val inheritedExtensionProperties = inheritedExtensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
 
                 summaryNodeGroup(node.members.filter { it.kind in NodeKind.classLike }, "Nested classes", headerAsRow = true) { nestedClassSummaryRow(it) }
 
@@ -312,18 +339,19 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
                 summaryNodeGroup(functionsToDisplay, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
                 summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) { functionLikeSummaryRow(it) } }
-                summaryNodeGroup(extensionFunctions, "Extension functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                summaryNodeGroup(extensionFunctions.entries, "Extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
+                summaryNodeGroup(inheritedExtensionFunctions.entries, "Inherited extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
 
 
                 summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
                 summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) { propertyLikeSummaryRow(it) } }
-                summaryNodeGroup(extensionProperties, "Extension properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                summaryNodeGroup(extensionProperties.entries, "Extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
+                summaryNodeGroup(inheritedExtensionProperties.entries, "Inherited extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
+
 
                 fullDocs(node.members(NodeKind.Constructor), { h2 { +"Constructors" } }) { memberDocs(it) }
                 fullDocs(functionsToDisplay, { h2 { +"Functions" } }) { memberDocs(it) }
-                fullDocs(extensionFunctions, { h2 { +"Extension functions" } }) { memberDocs(it) }
                 fullDocs(properties, { h2 { +"Properties" } }) { memberDocs(it) }
-                fullDocs(extensionProperties, { h2 { +"Extension properties" } }) { memberDocs(it) }
             }
     )
 
