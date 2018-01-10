@@ -132,6 +132,11 @@ dokka {
         reportUndocumented = true // Emit warnings about not documented members 
         includeNonPublic = false
     }
+    // Suppress a package
+    packageOptions {
+        prefix = "kotlin.internal" // will match kotlin.internal and all sub-packages of it
+        suppress = true
+    }
 }
 ```
 
