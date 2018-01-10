@@ -1,15 +1,18 @@
 package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.ImportPath
+import java.io.PrintWriter
+import java.io.StringWriter
+
 
 open class KotlinWebsiteSampleProcessingService
 @Inject constructor(dokkaConfiguration: DokkaConfiguration,
@@ -21,6 +24,10 @@ open class KotlinWebsiteSampleProcessingService
         val builder = StringBuilder()
         val text: String
             get() = builder.toString()
+
+        val errors = mutableListOf<ConvertError>()
+
+        data class ConvertError(val e: Exception, val text: String, val loc: String)
 
         fun KtValueArgument.extractStringArgumentValue() =
                 (getArgumentExpression() as KtStringTemplateExpression)
@@ -92,16 +99,51 @@ open class KotlinWebsiteSampleProcessingService
             }
         }
 
+        private fun reportProblemConvertingElement(element: PsiElement, e: Exception) {
+            val text = element.text
+            val document = PsiDocumentManager.getInstance(element.project).getDocument(element.containingFile)
+
+            val lineInfo = if (document != null) {
+                val lineNumber = document.getLineNumber(element.startOffset)
+                "$lineNumber, ${element.startOffset - document.getLineStartOffset(lineNumber)}"
+            } else {
+                "offset: ${element.startOffset}"
+            }
+            errors += ConvertError(e, text, lineInfo)
+        }
+
         override fun visitElement(element: PsiElement) {
             if (element is LeafPsiElement)
                 builder.append(element.text)
-            super.visitElement(element)
+
+            element.acceptChildren(object : PsiElementVisitor() {
+                override fun visitElement(element: PsiElement) {
+                    try {
+                        element.accept(this@SampleBuilder)
+                    } catch (e: Exception) {
+                        try {
+                            reportProblemConvertingElement(element, e)
+                        } finally {
+                            builder.append(element.text) //recover
+                        }
+                    }
+                }
+            })
         }
+
     }
 
     private fun PsiElement.buildSampleText(): String {
         val sampleBuilder = SampleBuilder()
         this.accept(sampleBuilder)
+
+        sampleBuilder.errors.forEach {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            it.e.printStackTrace(pw)
+
+            logger.error("${containingFile.name}: (${it.loc}): Exception thrown while converting \n```\n${it.text}\n```\n$sw")
+        }
         return sampleBuilder.text
     }
 
