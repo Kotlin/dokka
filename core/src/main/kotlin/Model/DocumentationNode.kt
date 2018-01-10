@@ -106,10 +106,10 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Platform).map { it.to.name }
 
     val supertypes: List<DocumentationNode>
-        get() = references(RefKind.Superclass).map { it.to }
+        get() = details(NodeKind.Supertype)
 
     val superclass: DocumentationNode?
-        get() = supertypes.find { it.kind == NodeKind.Class }
+        get() = supertypes.firstOrNull { it.links.any { it.kind in NodeKind.classLike } }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
@@ -162,7 +162,7 @@ val DocumentationNode.path: List<DocumentationNode>
     }
 
 fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val existingNode = members(NodeKind.Package).firstOrNull { it.name  == packageName }
+    val existingNode = members(NodeKind.Package).firstOrNull { it.name == packageName }
     if (existingNode != null) {
         return existingNode
     }
@@ -180,7 +180,8 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
         RefKind.Detail -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Member -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Owner -> child.addReferenceTo(this, RefKind.Member)
-        else -> { /* Do not add any links back for other types */ }
+        else -> { /* Do not add any links back for other types */
+        }
     }
 }
 

@@ -1,0 +1,545 @@
+package org.jetbrains.dokka.Formats
+
+import kotlinx.html.*
+import kotlinx.html.Entities.nbsp
+import kotlinx.html.stream.appendHTML
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.LanguageService.RenderMode.FULL
+import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
+import org.jetbrains.dokka.NodeKind.Companion.classLike
+import java.net.URI
+import javax.inject.Inject
+
+
+open class JavaLayoutHtmlFormatOutputBuilder(
+        val output: Appendable,
+        val languageService: LanguageService,
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger,
+        val uri: URI
+) {
+
+    val htmlConsumer = output.appendHTML()
+
+    val contentToHtmlBuilder = ContentToHtmlBuilder(uriProvider, uri)
+
+    open fun <T> FlowContent.summaryNodeGroup(nodes: Iterable<T>, header: String, headerAsRow: Boolean = false, row: TBODY.(T) -> Unit) {
+        if (nodes.none()) return
+        if (!headerAsRow) {
+            h2 { +header }
+        }
+        table {
+            if (headerAsRow) thead { tr { td { h3 { +header } } } }
+            tbody {
+                nodes.forEach { node ->
+                    row(node)
+                }
+            }
+        }
+    }
+
+    fun FlowContent.metaMarkup(content: ContentNode) = with(contentToHtmlBuilder) {
+        appendContent(content)
+    }
+
+    fun FlowContent.metaMarkup(content: List<ContentNode>) = with(contentToHtmlBuilder) {
+        appendContent(content)
+    }
+
+    open fun TBODY.classLikeRow(node: DocumentationNode) = tr {
+        td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
+        td { metaMarkup(node.summary) }
+    }
+
+    fun FlowContent.modifiers(node: DocumentationNode) {
+        for (modifier in node.details(NodeKind.Modifier)) {
+            renderedSignature(modifier, SUMMARY)
+        }
+    }
+
+    fun FlowContent.shortFunctionParametersList(func: DocumentationNode) {
+        val params = func.details(NodeKind.Parameter)
+                .map { languageService.render(it, FULL) }
+                .run {
+                    drop(1).fold(listOfNotNull(firstOrNull())) { acc, node ->
+                        acc + ContentText(", ") + node
+                    }
+                }
+        metaMarkup(listOf(ContentText("(")) + params + listOf(ContentText(")")))
+    }
+
+
+    open fun TBODY.functionLikeSummaryRow(node: DocumentationNode) = tr {
+        if (node.kind != NodeKind.Constructor) {
+            td {
+                modifiers(node)
+                renderedSignature(node.detail(NodeKind.Type), SUMMARY)
+            }
+        }
+        td {
+            div {
+                code {
+                    val receiver = node.detailOrNull(NodeKind.Receiver)
+                    if (receiver != null) {
+                        renderedSignature(receiver.detail(NodeKind.Type), SUMMARY)
+                        +"."
+                    }
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                    shortFunctionParametersList(node)
+                }
+            }
+
+            metaMarkup(node.summary)
+        }
+    }
+
+    open fun TBODY.propertyLikeSummaryRow(node: DocumentationNode) = tr {
+        td {
+            modifiers(node)
+            renderedSignature(node.detail(NodeKind.Type), SUMMARY)
+        }
+        td {
+            div {
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                }
+            }
+
+            metaMarkup(node.summary)
+        }
+    }
+
+    open fun TBODY.nestedClassSummaryRow(node: DocumentationNode) = tr {
+        td {
+            modifiers(node)
+        }
+        td {
+            div {
+                code {
+                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                }
+            }
+
+            metaMarkup(node.summary)
+        }
+    }
+
+    open fun TBODY.inheritRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
+        td {
+            val (from, nodes) = entry
+            +"From class "
+            a(href = uriProvider.linkTo(from.owner!!, uri)) { +from.qualifiedName() }
+            table {
+                tbody {
+                    for (node in nodes) {
+                        summaryRow(node)
+                    }
+                }
+            }
+        }
+    }
+
+    open fun TBODY.extensionRow(entry: Map.Entry<DocumentationNode, List<DocumentationNode>>, summaryRow: TBODY.(DocumentationNode) -> Unit) = tr {
+        td {
+            val (from, nodes) = entry
+            +"From "
+            a(href = uriProvider.linkTo(from, uri)) { +from.qualifiedName() }
+            table {
+                tbody {
+                    for (node in nodes) {
+                        summaryRow(node)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun FlowContent.renderedSignature(node: DocumentationNode, mode: LanguageService.RenderMode = SUMMARY) {
+        metaMarkup(languageService.render(node, mode))
+    }
+
+    open fun FlowContent.memberDocs(node: DocumentationNode) {
+        div {
+            id = node.signatureForAnchor(logger)
+            h3 { +node.name }
+            pre { renderedSignature(node, FULL) }
+            metaMarkup(node.content)
+            for ((name, sections) in node.content.sections.groupBy { it.tag }) {
+                table {
+                    thead { tr { td { h3 { +name } } } }
+                    tbody {
+                        sections.forEach {
+                            tr {
+                                td { it.subjectName?.let { +it } }
+                                td {
+                                    metaMarkup(it.children)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun appendPackage(node: DocumentationNode) = templateService.composePage(
+            listOf(node),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +node.name }
+                metaMarkup(node.content)
+                summaryNodeGroup(node.members(NodeKind.Class), "Classes") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Exception), "Exceptions") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.TypeAlias), "Type-aliases") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.AnnotationClass), "Annotations") { classLikeRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Enum), "Enums") { classLikeRow(it) }
+
+                summaryNodeGroup(node.members(NodeKind.Function), "Top-level functions summary") { functionLikeSummaryRow(it) }
+                summaryNodeGroup(node.members(NodeKind.Property), "Top-level properties summary") { propertyLikeSummaryRow(it) }
+
+
+                fullDocs(node.members(NodeKind.Function), "Top-level functions") { memberDocs(it) }
+                fullDocs(node.members(NodeKind.Property), "Top-level properties") { memberDocs(it) }
+            }
+    )
+
+    fun FlowContent.qualifiedTypeReference(node: DocumentationNode) {
+        if (node.kind in classLike) {
+            a(href = uriProvider.linkTo(node, uri)) {
+                +node.qualifiedName()
+            }
+            return
+        }
+
+        val targetLink = node.links.single()
+
+        if (targetLink.kind == NodeKind.TypeParameter) {
+            +node.name
+            return
+        }
+
+        val href = if (targetLink.kind == NodeKind.ExternalLink)
+            targetLink.name
+        else
+            uriProvider.linkTo(targetLink, uri)
+
+        a(href = href) {
+            +node.qualifiedNameFromType()
+        }
+        val typeParameters = node.details(NodeKind.Type)
+        if (typeParameters.isNotEmpty()) {
+            +"<"
+            typeParameters.forEach {
+                if (it != typeParameters.first()) {
+                    +", "
+                }
+                qualifiedTypeReference(it)
+            }
+            +">"
+        }
+    }
+
+    open fun FlowContent.classHierarchy(node: DocumentationNode) {
+
+        val superclasses = generateSequence(node.superclass) { it.links.single().superclass }.toList().asReversed() + node
+        table {
+            superclasses.forEach {
+                tr {
+                    if (it != superclasses.first()) {
+                        td {
+                            +"   ↳"
+                        }
+                    }
+                    td {
+                        qualifiedTypeReference(it)
+                    }
+                }
+            }
+        }
+    }
+
+    open fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
+        if (inheritors.isEmpty()) return
+        div {
+            table {
+                thead {
+                    tr {
+                        td {
+                            if (direct)
+                                +"Known Direct Subclasses"
+                            else
+                                +"Known Indirect Subclasses"
+                        }
+                    }
+                }
+                tbody {
+                    inheritors.forEach {
+                        tr {
+                            td {
+                                a(href = uriProvider.linkTo(it, uri)) { +it.classNodeNameWithOuterClass() }
+                            }
+                            td {
+                                metaMarkup(it.summary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun appendClassLike(node: DocumentationNode) = templateService.composePage(
+            listOf(node),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +node.name }
+                pre { renderedSignature(node, FULL) }
+                classHierarchy(node)
+
+                val inheritors = generateSequence(node.inheritors) { inheritors ->
+                    inheritors
+                            .flatMap { it.inheritors }
+                            .takeUnless { it.isEmpty() }
+                }
+                subclasses(inheritors.first(), true)
+                subclasses(inheritors.drop(1).flatten().toList(), false)
+
+
+                metaMarkup(node.content)
+
+                h2 { +"Summary" }
+
+                val isCompanion = node.details(NodeKind.Modifier).any { it.name == "companion" }
+                val hasMeaningfulCompanion = !isCompanion && node.companion != null
+
+                fun DocumentationNode.thisTypeExtension() = detail(NodeKind.Receiver).detail(NodeKind.Type).links.any { it == node }
+
+                val functionKind = if (!isCompanion) NodeKind.Function else NodeKind.CompanionObjectFunction
+                val propertyKind = if (!isCompanion) NodeKind.Property else NodeKind.CompanionObjectProperty
+
+                fun DocumentationNode.isFunction() = kind == functionKind
+                fun DocumentationNode.isProperty() = kind == propertyKind
+
+                val functions = node.members(functionKind)
+                val properties = node.members(propertyKind)
+                val inheritedFunctionsByReceiver = node.inheritedMembers(functionKind).groupBy { it.owner!! }
+                val inheritedPropertiesByReceiver = node.inheritedMembers(propertyKind).groupBy { it.owner!! }
+
+
+                val originalExtensions = if (!isCompanion) node.extensions else node.owner!!.extensions
+                val (extensions, inheritedExtensions) = originalExtensions.partition { it.thisTypeExtension() }
+                val extensionFunctions = extensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val extensionProperties = extensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
+                val inheritedExtensionFunctions = inheritedExtensions.filter(DocumentationNode::isFunction).groupBy { it.owner!! }
+                val inheritedExtensionProperties = inheritedExtensions.filter(DocumentationNode::isProperty).groupBy { it.owner!! }
+
+                val companionFunctions = node.members(NodeKind.CompanionObjectFunction)
+                val companionProperties = node.members(NodeKind.CompanionObjectProperty)
+
+                summaryNodeGroup(node.members.filter { it.kind in NodeKind.classLike }, "Nested classes", headerAsRow = true) { nestedClassSummaryRow(it) }
+
+                summaryNodeGroup(node.members(NodeKind.Constructor), "Constructors", headerAsRow = true) { functionLikeSummaryRow(it) }
+
+                summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                if (!isCompanion) {
+                    summaryNodeGroup(companionFunctions, "Companion functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+                }
+                summaryNodeGroup(inheritedFunctionsByReceiver.entries, "Inherited functions", headerAsRow = true) { inheritRow(it) { functionLikeSummaryRow(it) } }
+                summaryNodeGroup(extensionFunctions.entries, "Extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
+                summaryNodeGroup(inheritedExtensionFunctions.entries, "Inherited extension functions", headerAsRow = true) { extensionRow(it) { functionLikeSummaryRow(it) } }
+
+
+                summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                if (!isCompanion) {
+                    summaryNodeGroup(companionProperties, "Companion properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+                }
+                summaryNodeGroup(inheritedPropertiesByReceiver.entries, "Inherited properties", headerAsRow = true) { inheritRow(it) { propertyLikeSummaryRow(it) } }
+                summaryNodeGroup(extensionProperties.entries, "Extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
+                summaryNodeGroup(inheritedExtensionProperties.entries, "Inherited extension properties", headerAsRow = true) { extensionRow(it) { propertyLikeSummaryRow(it) } }
+
+
+                fullDocs(node.members(NodeKind.Constructor), "Constructors") { memberDocs(it) }
+                fullDocs(functions, "Functions") { memberDocs(it) }
+                fullDocs(properties, "Properties") { memberDocs(it) }
+                if (!isCompanion && !hasMeaningfulCompanion) {
+                    fullDocs(companionFunctions, "Companion functions") { memberDocs(it) }
+                    fullDocs(companionProperties, "Companion properties") { memberDocs(it) }
+                }
+            }
+    )
+
+    fun generateClassesIndex(allTypesNode: DocumentationNode) = templateService.composePage(
+            listOf(allTypesNode),
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Class Index" }
+
+                fun DocumentationNode.classWithNestedClasses(): List<DocumentationNode> =
+                        members.filter { it.kind in classLike }.flatMap(DocumentationNode::classWithNestedClasses) + this
+
+                val classesByFirstLetter = allTypesNode.members
+                        .filterNot { it.kind == NodeKind.ExternalClass }
+                        .flatMap(DocumentationNode::classWithNestedClasses)
+                        .groupBy {
+                            it.classNodeNameWithOuterClass().first().toString()
+                        }
+                        .entries
+                        .sortedBy { (letter) -> letter }
+
+                ul {
+                    classesByFirstLetter.forEach { (letter) ->
+                        li { a(href = "#letter_$letter") { +letter } }
+                    }
+                }
+
+                classesByFirstLetter.forEach { (letter, nodes) ->
+                    h2 {
+                        id = "letter_$letter"
+                        +letter
+                    }
+                    table {
+                        tbody {
+                            for (node in nodes.sortedBy { it.classNodeNameWithOuterClass() }) {
+                                tr {
+                                    td {
+                                        a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
+                                    }
+                                    td {
+                                        metaMarkup(node.content)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
+    fun generatePackageIndex(nodes: List<DocumentationNode>) = templateService.composePage(nodes,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Package Index" }
+                table {
+                    tbody {
+                        for (node in nodes.sortedBy { it.name }) {
+                            tr {
+                                td {
+                                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                }
+                                td {
+                                    metaMarkup(node.content)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
+    private fun FlowContent.fullDocs(
+            nodes: List<DocumentationNode>,
+            header: String,
+            renderNode: FlowContent.(DocumentationNode) -> Unit
+    ) {
+        if (nodes.none()) return
+        h2 {
+            +header
+        }
+        for (node in nodes) {
+            renderNode(node)
+        }
+    }
+}
+
+class ContentToHtmlBuilder(val uriProvider: JavaLayoutHtmlUriProvider, val uri: URI) {
+    fun FlowContent.appendContent(content: List<ContentNode>): Unit = content.forEach { appendContent(it) }
+
+    private fun FlowContent.hN(level: Int, classes: String? = null, block: CommonAttributeGroupFacadeFlowHeadingPhrasingContent.() -> Unit) {
+        when (level) {
+            1 -> h1(classes, block)
+            2 -> h2(classes, block)
+            3 -> h3(classes, block)
+            4 -> h4(classes, block)
+            5 -> h5(classes, block)
+            6 -> h6(classes, block)
+        }
+    }
+
+    fun FlowContent.appendContent(content: ContentNode) {
+        when (content) {
+            is ContentText -> +content.text
+            is ContentSymbol -> span("symbol") { +content.text }
+            is ContentKeyword -> span("keyword") { +content.text }
+            is ContentIdentifier -> span("identifier") {
+                content.signature?.let { id = it }
+                +content.text
+            }
+
+            is ContentHeading -> hN(level = content.level) { appendContent(content.children) }
+
+            is ContentEntity -> +content.text
+
+            is ContentStrong -> strong { appendContent(content.children) }
+            is ContentStrikethrough -> del { appendContent(content.children) }
+            is ContentEmphasis -> em { appendContent(content.children) }
+
+            is ContentOrderedList -> ol { appendContent(content.children) }
+            is ContentUnorderedList -> ul { appendContent(content.children) }
+            is ContentListItem -> consumer.li {
+                (content.children.singleOrNull() as? ContentParagraph)
+                        ?.let { paragraph -> appendContent(paragraph.children) }
+                        ?: appendContent(content.children)
+            }
+
+
+            is ContentCode -> pre { code { appendContent(content.children) } }
+            is ContentBlockSampleCode -> pre { code {} }
+            is ContentBlockCode -> pre { code {} }
+
+
+            is ContentNonBreakingSpace -> +nbsp
+            is ContentSoftLineBreak, is ContentIndentedSoftLineBreak -> {
+            }
+
+            is ContentParagraph -> p { appendContent(content.children) }
+
+            is ContentNodeLink -> {
+                a(href = content.node?.let { uriProvider.linkTo(it, uri) }
+                        ?: "#unresolved") { appendContent(content.children) }
+            }
+            is ContentExternalLink -> {
+                a(href = content.href) { appendContent(content.children) }
+            }
+
+            is ContentBlock -> appendContent(content.children)
+        }
+    }
+}
+
+class JavaLayoutHtmlFormatOutputBuilderFactoryImpl @Inject constructor(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger
+) : JavaLayoutHtmlFormatOutputBuilderFactory {
+    override fun createOutputBuilder(output: Appendable, node: DocumentationNode): JavaLayoutHtmlFormatOutputBuilder {
+        return createOutputBuilder(output, uriProvider.mainUri(node))
+    }
+
+    override fun createOutputBuilder(output: Appendable, uri: URI): JavaLayoutHtmlFormatOutputBuilder {
+        return JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri)
+    }
+}
