@@ -1,7 +1,10 @@
 package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
-import com.intellij.psi.*
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.*
@@ -61,27 +64,42 @@ open class KotlinWebsiteSampleProcessingService
         }
 
         fun convertAssertFails(expression: KtCallExpression) {
-            val (message, funcArgument) = expression.valueArguments
+            val valueArguments = expression.valueArguments
+
+            val funcArgument: KtValueArgument
+            val message: KtValueArgument?
+
+            if (valueArguments.size == 1) {
+                message = null
+                funcArgument = valueArguments.first()
+            } else {
+                message = valueArguments.first()
+                funcArgument = valueArguments.last()
+            }
+
             builder.apply {
-                val argument = if (funcArgument.getArgumentExpression() is KtLambdaExpression)
-                    PsiTreeUtil.findChildOfType(funcArgument, KtBlockExpression::class.java)?.text ?: ""
-                else
-                    funcArgument.text
+                val argument = funcArgument.extractFunctionalArgumentText()
                 append(argument.lines().joinToString(separator = "\n") { "// $it" })
                 append(" // ")
-                append(message.extractStringArgumentValue())
+                if (message != null) {
+                    append(message.extractStringArgumentValue())
+                }
                 append(" will fail")
             }
+        }
+
+        private fun KtValueArgument.extractFunctionalArgumentText(): String {
+            return if (getArgumentExpression() is KtLambdaExpression)
+                PsiTreeUtil.findChildOfType(this, KtBlockExpression::class.java)?.text ?: ""
+            else
+                text
         }
 
         fun convertAssertFailsWith(expression: KtCallExpression) {
             val (funcArgument) = expression.valueArguments
             val (exceptionType) = expression.typeArguments
             builder.apply {
-                val argument = if (funcArgument.firstChild is KtLambdaExpression)
-                    PsiTreeUtil.findChildOfType(funcArgument, KtBlockExpression::class.java)?.text ?: ""
-                else
-                    funcArgument.text
+                val argument = funcArgument.extractFunctionalArgumentText()
                 append(argument.lines().joinToString(separator = "\n") { "// $it" })
                 append(" // will fail with ")
                 append(exceptionType.text)
