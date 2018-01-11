@@ -6,7 +6,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -25,6 +24,7 @@ fun verifyModel(vararg roots: ContentRoot,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
                 perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
+                noStdlibLink: Boolean = true,
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
@@ -37,7 +37,7 @@ fun verifyModel(vararg roots: ContentRoot,
             sourceLinks = listOf(),
             perPackageOptions = perPackageOptions,
             generateIndexPages = false,
-            noStdlibLink = true,
+            noStdlibLink = noStdlibLink,
             cacheRoot = "default",
             languageVersion = null,
             apiVersion = null
@@ -161,13 +161,15 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
                  includeNonPublic: Boolean = true,
+                 noStdlibLink: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(
-            *roots,
-            withJdk = withJdk,
-            withKotlinRuntime = withKotlinRuntime,
-            format = format,
-            includeNonPublic = includeNonPublic
+        *roots,
+        withJdk = withJdk,
+        withKotlinRuntime = withKotlinRuntime,
+        format = format,
+        includeNonPublic = includeNonPublic,
+        noStdlibLink = noStdlibLink
     ) {
         verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
@@ -184,21 +186,25 @@ fun verifyModelOutput(it: DocumentationModule,
     assertEqualsIgnoringSeparators(expectedFile, output.toString())
 }
 
-fun verifyOutput(path: String,
-                 outputExtension: String,
-                 withJdk: Boolean = false,
-                 withKotlinRuntime: Boolean = false,
-                 format: String = "html",
-                 includeNonPublic: Boolean = true,
-                 outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
+fun verifyOutput(
+    path: String,
+    outputExtension: String,
+    withJdk: Boolean = false,
+    withKotlinRuntime: Boolean = false,
+    format: String = "html",
+    includeNonPublic: Boolean = true,
+    noStdlibLink: Boolean = true,
+    outputGenerator: (DocumentationModule, StringBuilder) -> Unit
+) {
     verifyOutput(
-            arrayOf(contentRootFromPath(path)),
-            outputExtension,
-            withJdk,
-            withKotlinRuntime,
-            format,
-            includeNonPublic,
-            outputGenerator
+        arrayOf(contentRootFromPath(path)),
+        outputExtension,
+        withJdk,
+        withKotlinRuntime,
+        format,
+        includeNonPublic,
+        noStdlibLink,
+        outputGenerator
     )
 }
 

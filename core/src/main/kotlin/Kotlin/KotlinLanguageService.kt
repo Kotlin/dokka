@@ -291,7 +291,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun ContentBlock.renderSupertypesForNode(node: DocumentationNode, renderMode: RenderMode) {
-        val supertypes = node.details(NodeKind.Supertype)
+        val supertypes = node.details(NodeKind.Supertype).filterNot { it.qualifiedNameFromType() in ignoredSupertypes }
         if (supertypes.any()) {
             nbsp()
             symbol(":")

@@ -103,6 +103,10 @@ interface DefaultPlatformsProvider {
     fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String>
 }
 
+val ignoredSupertypes = setOf(
+    "kotlin.Annotation", "kotlin.Enum", "kotlin.Any"
+)
+
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
@@ -173,21 +177,12 @@ class DocumentationBuilder
         val unwrappedType = superType.unwrap()
         if (unwrappedType is AbbreviatedType) {
             appendSupertype(descriptor, unwrappedType.abbreviation)
-        } else if (!ignoreSupertype(unwrappedType)) {
+        } else {
             appendType(unwrappedType, NodeKind.Supertype)
             val superclass = unwrappedType.constructor.declarationDescriptor
             link(superclass, descriptor, RefKind.Inheritor)
             link(descriptor, superclass, RefKind.Superclass)
         }
-    }
-
-    private fun ignoreSupertype(superType: KotlinType): Boolean {
-        val superClass = superType.constructor.declarationDescriptor as? ClassDescriptor
-        if (superClass != null) {
-            val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
-            return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
-        }
-        return false
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: NodeKind = NodeKind.Type) {
@@ -233,13 +228,24 @@ class DocumentationBuilder
         if (classifierDescriptor != null) {
             val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(classifierDescriptor)
             if (externalLink != null) {
+                val targetNode = refGraph.lookup(classifierDescriptor.signature()) ?: classifierDescriptor.build(true)
                 node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
-                node.append(DocumentationNode(classifierDescriptor.fqNameUnsafe.asString(), Content.Empty, NodeKind.QualifiedName), RefKind.Detail)
+                node.append(targetNode, RefKind.ExternalType)
             } else {
                 link(node, classifierDescriptor,
                         if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
             }
+            if (classifierDescriptor !is TypeParameterDescriptor) {
+                node.append(
+                    DocumentationNode(
+                        classifierDescriptor.fqNameUnsafe.asString(),
+                        Content.Empty,
+                        NodeKind.QualifiedName
+                    ), RefKind.Detail
+                )
+            }
         }
+
 
         append(node, RefKind.Detail)
         node.appendAnnotations(kotlinType)
@@ -496,34 +502,42 @@ class DocumentationBuilder
     }
 
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
-        is ClassDescriptor -> build()
+        is ClassifierDescriptor -> build()
         is ConstructorDescriptor -> build()
         is PropertyDescriptor -> build()
         is FunctionDescriptor -> build()
-        is TypeParameterDescriptor -> build()
         is ValueParameterDescriptor -> build()
         is ReceiverParameterDescriptor -> build()
-        is TypeAliasDescriptor -> build()
         else -> throw IllegalStateException("Descriptor $this is not known")
     }
 
-    fun TypeAliasDescriptor.build(): DocumentationNode {
+    fun ClassifierDescriptor.build(external: Boolean = false): DocumentationNode = when (this) {
+        is ClassDescriptor -> build(external)
+        is TypeAliasDescriptor -> build(external)
+        is TypeParameterDescriptor -> build()
+        else -> throw IllegalStateException("Descriptor $this is not known")
+    }
+
+    fun TypeAliasDescriptor.build(external: Boolean = false): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.TypeAlias)
 
-        node.appendAnnotations(this)
+        if (!external) {
+            node.appendAnnotations(this)
+        }
         node.appendModifiers(this)
         node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
 
         node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
 
-        node.appendSourceLink(source)
-        node.appendDefaultPlatforms(this)
-
+        if (!external) {
+            node.appendSourceLink(source)
+            node.appendDefaultPlatforms(this)
+        }
         register(this, node)
         return node
     }
 
-    fun ClassDescriptor.build(): DocumentationNode {
+    fun ClassDescriptor.build(external: Boolean = false): DocumentationNode {
         val kind = when {
             kind == ClassKind.OBJECT -> NodeKind.Object
             kind == ClassKind.INTERFACE -> NodeKind.Interface
@@ -534,20 +548,24 @@ class DocumentationBuilder
             else -> NodeKind.Class
         }
         val node = nodeForDescriptor(this, kind)
+        register(this, node)
         typeConstructor.supertypes.forEach {
             node.appendSupertype(this, it)
         }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
         }
-        for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
-            node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
+        if (!external) {
+            for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
+                node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
+            }
+            node.appendAnnotations(this)
         }
-        node.appendAnnotations(this)
         node.appendModifiers(this)
-        node.appendSourceLink(source)
-        node.appendDefaultPlatforms(this)
-        register(this, node)
+        if (!external) {
+            node.appendSourceLink(source)
+            node.appendDefaultPlatforms(this)
+        }
         return node
     }
 
