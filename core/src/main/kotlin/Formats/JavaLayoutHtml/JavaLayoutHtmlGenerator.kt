@@ -13,10 +13,9 @@ import java.net.URI
 
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
-        val languageService: LanguageService,
-        val templateService: JavaLayoutHtmlTemplateService,
         val packageListService: PackageListService,
         val outputBuilderFactoryService: JavaLayoutHtmlFormatOutputBuilderFactory,
+        private val options: DocumentationOptions,
         val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
@@ -107,8 +106,10 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val packages = module.members.filter { it.kind == NodeKind.Package }
         packages.forEach { buildPackage(it, moduleRoot) }
 
-        buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
-        buildPackageIndex(packages, moduleRoot)
+        if (options.generateIndexPages) {
+            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+            buildPackageIndex(packages, moduleRoot)
+        }
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
