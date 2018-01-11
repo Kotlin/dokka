@@ -245,7 +245,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
     open fun FlowContent.classHierarchy(node: DocumentationNode) {
 
-        val superclasses = generateSequence(node.superclass) { it.links.single().superclass }.toList().asReversed() + node
+        val superclasses = (sequenceOf(node) + node.superclassTypeSequence).toList().asReversed()
         table {
             superclasses.forEach {
                 tr {

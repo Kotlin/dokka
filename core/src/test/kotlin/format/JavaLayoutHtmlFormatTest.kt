@@ -17,16 +17,27 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
     }
 
     private fun verifyNode(fileName: String) {
-        verifyOutput("testdata/format/java-layout-html/$fileName", ".html", format = "java-layout-html") { model, output ->
+        verifyOutput(
+            "testdata/format/java-layout-html/$fileName",
+            ".html",
+            format = "java-layout-html",
+            withKotlinRuntime = true,
+            noStdlibLink = false
+        ) { model, output ->
             buildPagesAndReadInto(
-                    model,
-                    listOf(model.members.single().members.single()),
-                    output
+                model,
+                listOf(model.members.single().members.single()),
+                output
             )
         }
     }
+
     private fun verifyPackageNode(fileName: String) {
-        verifyOutput("testdata/format/java-layout-html/$fileName", ".package-summary.html", format = "java-layout-html") { model, output ->
+        verifyOutput(
+            "testdata/format/java-layout-html/$fileName",
+            ".package-summary.html",
+            format = "java-layout-html"
+        ) { model, output ->
             buildPagesAndReadInto(
                 model,
                 listOf(model.members.single()),
