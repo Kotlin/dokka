@@ -30,7 +30,8 @@ abstract class JavaLayoutHtmlFormatTestCase {
             apiVersion = null,
             languageVersion = null,
             generateIndexPages = false,
-            noStdlibLink = false
+            noStdlibLink = false,
+            collectInheritedExtensionsFromLibraries = true
         )
 
     val injector: Injector by lazy {
@@ -58,7 +59,7 @@ abstract class JavaLayoutHtmlFormatTestCase {
     }
 
 
-    fun buildPagesAndReadInto(model: DocumentationNode, nodes: List<DocumentationNode>, sb: StringBuilder) =
+    protected fun buildPagesAndReadInto(model: DocumentationNode, nodes: List<DocumentationNode>, sb: StringBuilder) =
         with(injector.getInstance(Generator::class.java)) {
             this as JavaLayoutHtmlFormatGenerator
             buildPages(listOf(model))
@@ -69,4 +70,34 @@ abstract class JavaLayoutHtmlFormatTestCase {
             }
         }
 
+    protected fun verifyNode(fileName: String) {
+        verifyOutput(
+            "testdata/format/java-layout-html/$fileName",
+            ".html",
+            format = "java-layout-html",
+            withKotlinRuntime = true,
+            noStdlibLink = false,
+            collectInheritedExtensionsFromLibraries = true
+        ) { model, output ->
+            buildPagesAndReadInto(
+                model,
+                listOf(model.members.single().members.single()),
+                output
+            )
+        }
+    }
+
+    protected fun verifyPackageNode(fileName: String) {
+        verifyOutput(
+            "testdata/format/java-layout-html/$fileName",
+            ".package-summary.html",
+            format = "java-layout-html"
+        ) { model, output ->
+            buildPagesAndReadInto(
+                model,
+                listOf(model.members.single()),
+                output
+            )
+        }
+    }
 }

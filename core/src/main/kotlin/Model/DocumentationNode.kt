@@ -209,6 +209,8 @@ fun DocumentationNode.appendTextNode(text: String,
 fun DocumentationNode.qualifiedName(): String {
     if (kind == NodeKind.Type) {
         return qualifiedNameFromType()
+    } else if (kind == NodeKind.Package) {
+        return name
     }
     return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
 }

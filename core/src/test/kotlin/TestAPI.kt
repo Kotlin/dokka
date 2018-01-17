@@ -25,22 +25,24 @@ fun verifyModel(vararg roots: ContentRoot,
                 includeNonPublic: Boolean = true,
                 perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
                 noStdlibLink: Boolean = true,
+                collectInheritedExtensionsFromLibraries: Boolean = false,
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
     val options = DocumentationOptions(
-            "",
-            format,
-            includeNonPublic = includeNonPublic,
-            skipEmptyPackages = false,
-            includeRootPackage = true,
-            sourceLinks = listOf(),
-            perPackageOptions = perPackageOptions,
-            generateIndexPages = false,
-            noStdlibLink = noStdlibLink,
-            cacheRoot = "default",
-            languageVersion = null,
-            apiVersion = null
+        "",
+        format,
+        includeNonPublic = includeNonPublic,
+        skipEmptyPackages = false,
+        includeRootPackage = true,
+        sourceLinks = listOf(),
+        perPackageOptions = perPackageOptions,
+        generateIndexPages = false,
+        noStdlibLink = noStdlibLink,
+        cacheRoot = "default",
+        languageVersion = null,
+        apiVersion = null,
+        collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
     )
 
     appendDocumentation(documentation, *roots,
@@ -162,6 +164,7 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  format: String = "html",
                  includeNonPublic: Boolean = true,
                  noStdlibLink: Boolean = true,
+                 collectInheritedExtensionsFromLibraries: Boolean = false,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyModel(
         *roots,
@@ -169,7 +172,8 @@ fun verifyOutput(roots: Array<ContentRoot>,
         withKotlinRuntime = withKotlinRuntime,
         format = format,
         includeNonPublic = includeNonPublic,
-        noStdlibLink = noStdlibLink
+        noStdlibLink = noStdlibLink,
+        collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
     ) {
         verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
@@ -194,6 +198,7 @@ fun verifyOutput(
     format: String = "html",
     includeNonPublic: Boolean = true,
     noStdlibLink: Boolean = true,
+    collectInheritedExtensionsFromLibraries: Boolean = false,
     outputGenerator: (DocumentationModule, StringBuilder) -> Unit
 ) {
     verifyOutput(
@@ -204,6 +209,7 @@ fun verifyOutput(
         format,
         includeNonPublic,
         noStdlibLink,
+        collectInheritedExtensionsFromLibraries,
         outputGenerator
     )
 }

@@ -52,6 +52,10 @@ interface JavaLayoutHtmlUriProvider {
     fun mainUri(node: DocumentationNode): URI = tryGetMainUri(node) ?: error("Unsupported ${node.kind}")
 
     fun linkTo(to: DocumentationNode, from: URI): String {
+        to.links(NodeKind.ExternalLink).firstOrNull()?.let {
+            return it.name
+        }
+
         return mainUri(to).relativeTo(from).toString()
     }
 
