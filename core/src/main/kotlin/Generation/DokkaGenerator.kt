@@ -160,6 +160,8 @@ fun buildDocumentationModule(injector: Injector,
     with(injector.getInstance(DocumentationBuilder::class.java)) {
         documentationModule.appendFragments(fragments, packageDocs.packageContent,
                 injector.getInstance(PackageDocumentationBuilder::class.java))
+
+        propagateExtensionFunctionsToSubclasses(fragments, resolutionFacade)
     }
 
     val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)

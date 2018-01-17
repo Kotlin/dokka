@@ -62,6 +62,9 @@ class DokkaArguments {
     @set:Argument(value = "apiVersion", description = "Kotlin Api Version to pass to Kotlin Analysis")
     var apiVersion: String? = null
 
+    @set:Argument(value = "collectInheritedExtensionsFromLibraries", description = "Search for applicable extensions in libraries")
+    var collectInheritedExtensionsFromLibraries: Boolean = false
+
 }
 
 
@@ -106,18 +109,19 @@ object MainKt {
         val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
 
         val documentationOptions = DocumentationOptions(
-                arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
-                arguments.outputFormat,
-                skipDeprecated = arguments.nodeprecated,
-                sourceLinks = sourceLinks,
-                impliedPlatforms = arguments.impliedPlatforms.split(','),
-                perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
-                jdkVersion = arguments.jdkVersion,
-                externalDocumentationLinks = parseLinks(arguments.links),
-                noStdlibLink = arguments.noStdlibLink,
-                cacheRoot = arguments.cacheRoot,
-                languageVersion = arguments.languageVersion,
-                apiVersion = arguments.apiVersion
+            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+            arguments.outputFormat,
+            skipDeprecated = arguments.nodeprecated,
+            sourceLinks = sourceLinks,
+            impliedPlatforms = arguments.impliedPlatforms.split(','),
+            perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
+            jdkVersion = arguments.jdkVersion,
+            externalDocumentationLinks = parseLinks(arguments.links),
+            noStdlibLink = arguments.noStdlibLink,
+            cacheRoot = arguments.cacheRoot,
+            languageVersion = arguments.languageVersion,
+            apiVersion = arguments.apiVersion,
+            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries
         )
 
         val generator = DokkaGenerator(

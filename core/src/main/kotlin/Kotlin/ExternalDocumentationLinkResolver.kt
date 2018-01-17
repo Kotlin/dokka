@@ -155,8 +155,8 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     fun buildExternalDocumentationLink(symbol: DeclarationDescriptor): String? {
         val packageFqName: FqName =
                 when (symbol) {
-                    is DeclarationDescriptorNonRoot -> symbol.parents.firstOrNull { it is PackageFragmentDescriptor }?.fqNameSafe ?: return null
                     is PackageFragmentDescriptor -> symbol.fqName
+                    is DeclarationDescriptorNonRoot -> symbol.parents.firstOrNull { it is PackageFragmentDescriptor }?.fqNameSafe ?: return null
                     else -> return null
                 }
 
