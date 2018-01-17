@@ -134,6 +134,9 @@ open class DokkaTask : DefaultTask() {
     @Optional @Input
     var apiVersion: String? = null
 
+    @Input
+    var collectInheritedExtensionsFromLibraries: Boolean = false
+
     @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
 
@@ -287,29 +290,31 @@ open class DokkaTask : DefaultTask() {
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
             val configuration = SerializeOnlyDokkaConfiguration(
-                    moduleName,
-                    fullClasspath.map { it.absolutePath },
-                    sourceRoots,
-                    samples.filterNotNull().map { project.file(it).absolutePath },
-                    includes.filterNotNull().map { project.file(it).absolutePath },
-                    outputDirectory,
-                    outputFormat,
-                    includeNonPublic,
-                    false,
-                    reportUndocumented,
-                    skipEmptyPackages,
-                    skipDeprecated,
-                    jdkVersion,
-                    true,
-                    linkMappings,
-                    impliedPlatforms,
-                    perPackageOptions,
-                    externalDocumentationLinks,
-                    noStdlibLink,
-                    cacheRoot,
-                    collectSuppressedFiles(sourceRoots),
-                    languageVersion,
-                    apiVersion)
+                moduleName,
+                fullClasspath.map { it.absolutePath },
+                sourceRoots,
+                samples.filterNotNull().map { project.file(it).absolutePath },
+                includes.filterNotNull().map { project.file(it).absolutePath },
+                outputDirectory,
+                outputFormat,
+                includeNonPublic,
+                false,
+                reportUndocumented,
+                skipEmptyPackages,
+                skipDeprecated,
+                jdkVersion,
+                true,
+                linkMappings,
+                impliedPlatforms,
+                perPackageOptions,
+                externalDocumentationLinks,
+                noStdlibLink,
+                cacheRoot,
+                collectSuppressedFiles(sourceRoots),
+                languageVersion,
+                apiVersion,
+                collectInheritedExtensionsFromLibraries
+            )
 
 
             bootstrapProxy.configure(
