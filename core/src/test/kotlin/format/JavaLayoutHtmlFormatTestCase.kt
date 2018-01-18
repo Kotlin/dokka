@@ -70,7 +70,7 @@ abstract class JavaLayoutHtmlFormatTestCase {
             }
         }
 
-    protected fun verifyNode(fileName: String) {
+    protected fun verifyNode(fileName: String, select: (model: DocumentationNode) -> List<DocumentationNode>) {
         verifyOutput(
             "testdata/format/java-layout-html/$fileName",
             ".html",
@@ -81,10 +81,14 @@ abstract class JavaLayoutHtmlFormatTestCase {
         ) { model, output ->
             buildPagesAndReadInto(
                 model,
-                listOf(model.members.single().members.single()),
+                select(model),
                 output
             )
         }
+    }
+
+    protected fun verifyNode(fileName: String) {
+        verifyNode(fileName, { model -> listOf(model.members.single().members.single()) })
     }
 
     protected fun verifyPackageNode(fileName: String) {

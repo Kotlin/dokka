@@ -16,5 +16,10 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
         verifyPackageNode("topLevel.kt")
     }
 
-
+    @Test
+    fun codeBlocks() {
+        verifyNode("codeBlocks.kt") { model ->
+            listOf(model.members.single().members.single { it.name == "foo" })
+        }
+    }
 }

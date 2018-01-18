@@ -38,8 +38,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    fun FlowContent.metaMarkup(content: List<ContentNode>): Unit = content.forEach { metaMarkup(it) }
-    fun FlowContent.metaMarkup(content: ContentNode) {
+    protected open fun FlowContent.metaMarkup(content: List<ContentNode>) = contentNodesToMarkup(content)
+    protected open fun FlowContent.metaMarkup(content: ContentNode) = contentNodeToMarkup(content)
+
+    private fun FlowContent.contentNodesToMarkup(content: List<ContentNode>): Unit = content.forEach { contentNodeToMarkup(it) }
+    private fun FlowContent.contentNodeToMarkup(content: ContentNode) {
         when (content) {
             is ContentText -> +content.text
             is ContentSymbol -> span("symbol") { +content.text }
@@ -49,46 +52,75 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 +content.text
             }
 
-            is ContentHeading -> hN(level = content.level) { metaMarkup(content.children) }
+            is ContentHeading -> hN(level = content.level) { contentNodesToMarkup(content.children) }
 
             is ContentEntity -> +content.text
 
-            is ContentStrong -> strong { metaMarkup(content.children) }
-            is ContentStrikethrough -> del { metaMarkup(content.children) }
-            is ContentEmphasis -> em { metaMarkup(content.children) }
+            is ContentStrong -> strong { contentNodesToMarkup(content.children) }
+            is ContentStrikethrough -> del { contentNodesToMarkup(content.children) }
+            is ContentEmphasis -> em { contentNodesToMarkup(content.children) }
 
-            is ContentOrderedList -> ol { metaMarkup(content.children) }
-            is ContentUnorderedList -> ul { metaMarkup(content.children) }
+            is ContentOrderedList -> ol { contentNodesToMarkup(content.children) }
+            is ContentUnorderedList -> ul { contentNodesToMarkup(content.children) }
             is ContentListItem -> consumer.li {
                 (content.children.singleOrNull() as? ContentParagraph)
-                    ?.let { paragraph -> metaMarkup(paragraph.children) }
-                        ?: metaMarkup(content.children)
+                    ?.let { paragraph -> contentNodesToMarkup(paragraph.children) }
+                        ?: contentNodesToMarkup(content.children)
             }
 
 
-            is ContentCode -> pre { code { metaMarkup(content.children) } }
-            is ContentBlockSampleCode -> pre { code {} }
-            is ContentBlockCode -> pre { code {} }
+            is ContentCode -> contentInlineCode(content)
+            is ContentBlockSampleCode -> contentBlockSampleCode(content)
+            is ContentBlockCode -> contentBlockCode(content)
 
 
-            is ContentNonBreakingSpace -> +nbsp
-            is ContentSoftLineBreak, is ContentIndentedSoftLineBreak -> {
-            }
+            ContentNonBreakingSpace -> +nbsp
+            ContentSoftLineBreak, ContentIndentedSoftLineBreak -> {}
+            ContentHardLineBreak -> br
 
-            is ContentParagraph -> p { metaMarkup(content.children) }
+            is ContentParagraph -> p { contentNodesToMarkup(content.children) }
 
             is ContentNodeLink -> {
-                val href = content.node?.let { uriProvider.linkTo(it, uri) } ?: "#"
-                a(href = href) { metaMarkup(content.children) }
+                val node = content.node
+                if (node != null) {
+                    a(href = node) { contentNodesToMarkup(content.children) }
+                } else {
+                    contentNodesToMarkup(content.children)
+                }
             }
-            is ContentExternalLink -> {
-                a(href = content.href) { metaMarkup(content.children) }
-            }
-
-            is ContentBlock -> metaMarkup(content.children)
+            is ContentExternalLink -> contentExternalLink(content)
+            is ContentSection -> {}
+            is ContentBlock -> contentNodesToMarkup(content.children)
         }
     }
 
+    protected open fun FlowContent.contentInlineCode(content: ContentCode) {
+        code { contentNodesToMarkup(content.children) }
+    }
+
+    protected open fun FlowContent.contentBlockSampleCode(content: ContentBlockSampleCode) {
+        pre {
+            code {
+                attributes["data-language"] = content.language
+                contentNodesToMarkup(content.importsBlock.children)
+                +"\n\n"
+                contentNodesToMarkup(content.children)
+            }
+        }
+    }
+
+    protected open fun FlowContent.contentBlockCode(content: ContentBlockCode) {
+        pre {
+            code {
+                attributes["data-language"] = content.language
+                contentNodesToMarkup(content.children)
+            }
+        }
+    }
+
+    protected open fun FlowContent.contentExternalLink(content: ContentExternalLink) {
+        a(href = content.href) { contentNodesToMarkup(content.children) }
+    }
 
     protected open fun <T> FlowContent.summaryNodeGroup(
         nodes: Iterable<T>,
@@ -113,7 +145,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
     protected open fun TBODY.classLikeRow(node: DocumentationNode) = tr {
         td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
-        td { metaMarkup(node.summary) }
+        td { contentNodeToMarkup(node.summary) }
     }
 
     protected fun FlowContent.modifiers(node: DocumentationNode) {
@@ -154,7 +186,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            metaMarkup(node.summary)
+            contentNodeToMarkup(node.summary)
         }
     }
 
@@ -170,7 +202,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            metaMarkup(node.summary)
+            contentNodeToMarkup(node.summary)
         }
     }
 
@@ -185,7 +217,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            metaMarkup(node.summary)
+            contentNodeToMarkup(node.summary)
         }
     }
 
@@ -234,7 +266,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected open fun FlowContent.renderedSignature(node: DocumentationNode, mode: LanguageService.RenderMode = SUMMARY) {
-        metaMarkup(languageService.render(node, mode))
+        contentNodeToMarkup(languageService.render(node, mode))
     }
 
     protected open fun generatePackage(page: Page.PackagePage) = templateService.composePage(
@@ -245,7 +277,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         },
         bodyContent = {
             h1 { +page.node.name }
-            metaMarkup(page.node.content)
+            contentNodeToMarkup(page.node.content)
             summaryNodeGroup(page.classes, "Classes", headerAsRow = false) { classLikeRow(it) }
             summaryNodeGroup(page.exceptions, "Exceptions", headerAsRow = false) { classLikeRow(it) }
             summaryNodeGroup(page.typeAliases, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
@@ -336,7 +368,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
                             }
                             td {
-                                metaMarkup(inheritor.summary)
+                                contentNodeToMarkup(inheritor.summary)
                             }
                         }
                     }
@@ -463,7 +495,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 subclasses(page.directInheritors, true)
                 subclasses(page.indirectInheritors, false)
 
-                metaMarkup(node.content)
+                contentNodeToMarkup(node.content)
 
                 h2 { +"Summary" }
                 classLikeSummaries(page)
@@ -502,7 +534,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                     a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                 }
                                 td {
-                                    metaMarkup(node.content)
+                                    contentNodeToMarkup(node.content)
                                 }
                             }
                         }
@@ -528,7 +560,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 a(href = uriProvider.linkTo(node, uri)) { +node.name }
                             }
                             td {
-                                metaMarkup(node.content)
+                                contentNodeToMarkup(node.content)
                             }
                         }
                     }
@@ -564,7 +596,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             id = node.signatureForAnchor(logger)
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
-            metaMarkup(node.content)
+            contentNodeToMarkup(node.content)
             for ((name, sections) in node.content.sections.groupBy { it.tag }) {
                 table {
                     thead { tr { td { h3 { +name } } } }
