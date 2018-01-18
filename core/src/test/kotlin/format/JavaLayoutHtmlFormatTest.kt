@@ -22,4 +22,16 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
             listOf(model.members.single().members.single { it.name == "foo" })
         }
     }
+
+    @Test
+    fun externalClassExtension() {
+        verifyPackageNode("externalClassExtension.kt")
+    }
+
+    @Test
+    fun unresolvedExternalClass() {
+        verifyNode("unresolvedExternalClass.kt", noStdlibLink = true) { model ->
+            listOf(model.members.single().members.single { it.name == "MyException" })
+        }
+    }
 }

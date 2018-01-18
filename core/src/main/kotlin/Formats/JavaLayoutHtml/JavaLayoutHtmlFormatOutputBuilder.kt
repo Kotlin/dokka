@@ -258,10 +258,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected open fun FlowContent.a(href: DocumentationNode, classes: String? = null, block: A.() -> Unit) {
-        val hrefText = if (href.kind == NodeKind.ExternalLink)
-            href.name
-        else
-            uriProvider.linkTo(href, uri)
+        val hrefText =
+            href.name.takeIf { href.kind == NodeKind.ExternalLink }
+                    ?: href.links.firstOrNull { it.kind == NodeKind.ExternalLink }?.name
+                    ?: "#".takeIf { href.kind == NodeKind.ExternalClass } // When external class unresolved
+                    ?: uriProvider.linkTo(href, uri)
+
         a(href = hrefText, classes = classes, block = block)
     }
 
@@ -730,8 +732,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val annotations = node.members(NodeKind.AnnotationClass)
             val enums = node.members(NodeKind.Enum)
 
-            val functions = node.members(NodeKind.Function)
-            val properties = node.members(NodeKind.Property)
+            val functions = node.members(NodeKind.Function) +
+                    node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Function) }
+            val properties = node.members(NodeKind.Property) +
+                    node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Property) }
         }
     }
 }

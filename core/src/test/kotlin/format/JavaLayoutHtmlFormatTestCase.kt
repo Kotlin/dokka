@@ -70,13 +70,13 @@ abstract class JavaLayoutHtmlFormatTestCase {
             }
         }
 
-    protected fun verifyNode(fileName: String, select: (model: DocumentationNode) -> List<DocumentationNode>) {
+    protected fun verifyNode(fileName: String, noStdlibLink: Boolean = false, select: (model: DocumentationNode) -> List<DocumentationNode>) {
         verifyOutput(
             "testdata/format/java-layout-html/$fileName",
             ".html",
             format = "java-layout-html",
             withKotlinRuntime = true,
-            noStdlibLink = false,
+            noStdlibLink = noStdlibLink,
             collectInheritedExtensionsFromLibraries = true
         ) { model, output ->
             buildPagesAndReadInto(
@@ -88,14 +88,16 @@ abstract class JavaLayoutHtmlFormatTestCase {
     }
 
     protected fun verifyNode(fileName: String) {
-        verifyNode(fileName, { model -> listOf(model.members.single().members.single()) })
+        verifyNode(fileName) { model -> listOf(model.members.single().members.single()) }
     }
 
-    protected fun verifyPackageNode(fileName: String) {
+    protected fun verifyPackageNode(fileName: String, noStdlibLink: Boolean = false) {
         verifyOutput(
             "testdata/format/java-layout-html/$fileName",
             ".package-summary.html",
-            format = "java-layout-html"
+            format = "java-layout-html",
+            withKotlinRuntime = true,
+            noStdlibLink = noStdlibLink
         ) { model, output ->
             buildPagesAndReadInto(
                 model,
