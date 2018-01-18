@@ -67,7 +67,7 @@ interface JavaLayoutHtmlUriProvider {
 
 interface JavaLayoutHtmlTemplateService {
     fun composePage(
-            nodes: List<DocumentationNode>,
+            page: JavaLayoutHtmlFormatOutputBuilder.Page,
             tagConsumer: TagConsumer<Appendable>,
             headContent: HEAD.() -> Unit,
             bodyContent: BODY.() -> Unit
@@ -75,7 +75,7 @@ interface JavaLayoutHtmlTemplateService {
 
     class Default : JavaLayoutHtmlTemplateService {
         override fun composePage(
-                nodes: List<DocumentationNode>,
+                page: JavaLayoutHtmlFormatOutputBuilder.Page,
                 tagConsumer: TagConsumer<Appendable>,
                 headContent: HEAD.() -> Unit,
                 bodyContent: BODY.() -> Unit
