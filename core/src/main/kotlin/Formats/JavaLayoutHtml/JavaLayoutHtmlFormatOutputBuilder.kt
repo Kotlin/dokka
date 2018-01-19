@@ -81,12 +81,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             is ContentParagraph -> p { contentNodesToMarkup(content.children) }
 
             is ContentNodeLink -> {
-                val node = content.node
-                if (node != null) {
-                    a(href = node) { contentNodesToMarkup(content.children) }
-                } else {
-                    contentNodesToMarkup(content.children)
-                }
+                a(href = content.node) { contentNodesToMarkup(content.children) }
             }
             is ContentExternalLink -> contentExternalLink(content)
             is ContentSection -> {}
@@ -257,7 +252,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun FlowContent.a(href: DocumentationNode, classes: String? = null, block: A.() -> Unit) {
+    protected open fun FlowContent.a(href: DocumentationNode?, classes: String? = null, block: A.() -> Unit) {
+        if (href == null) {
+            return a(href = "#", classes = classes, block = block)
+        }
+
         val hrefText =
             href.name.takeIf { href.kind == NodeKind.ExternalLink }
                     ?: href.links.firstOrNull { it.kind == NodeKind.ExternalLink }?.name
@@ -309,9 +308,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             return
         }
 
-        val targetLink = node.links.single()
+        val targetLink = node.links.singleOrNull()
 
-        if (targetLink.kind == NodeKind.TypeParameter) {
+        if (targetLink?.kind == NodeKind.TypeParameter) {
             +node.name
             return
         }
