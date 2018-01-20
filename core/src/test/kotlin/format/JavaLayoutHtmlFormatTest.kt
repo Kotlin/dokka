@@ -43,4 +43,11 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
             listOf(model.members.single().members.single { it.name == "MyException" })
         }
     }
+
+    @Test
+    fun genericExtension() {
+        verifyNode("genericExtension.kt", noStdlibLink = true) { model ->
+            model.members.single().members(NodeKind.Class)
+        }
+    }
 }
