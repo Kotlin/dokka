@@ -70,10 +70,16 @@ abstract class JavaLayoutHtmlFormatTestCase {
             }
         }
 
-    protected fun verifyNode(fileName: String, noStdlibLink: Boolean = false, select: (model: DocumentationNode) -> List<DocumentationNode>) {
+
+    protected fun verifyNode(
+        fileName: String,
+        noStdlibLink: Boolean = false,
+        fileExtension: String = ".html",
+        select: (model: DocumentationNode) -> List<DocumentationNode>
+    ) {
         verifyOutput(
             "testdata/format/java-layout-html/$fileName",
-            ".html",
+            fileExtension,
             format = "java-layout-html",
             withKotlinRuntime = true,
             noStdlibLink = noStdlibLink,

@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Formats.JavaLayoutHtmlFormatDescriptor
+import org.jetbrains.dokka.NodeKind
 import org.junit.Test
 
 class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
@@ -20,6 +21,14 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
     fun codeBlocks() {
         verifyNode("codeBlocks.kt") { model ->
             listOf(model.members.single().members.single { it.name == "foo" })
+        }
+    }
+
+    @Test
+    fun const() {
+        verifyPackageNode("const.kt", noStdlibLink = true)
+        verifyNode("const.kt", noStdlibLink = true) { model ->
+            model.members.single().members.filter { it.kind in NodeKind.classLike }
         }
     }
 

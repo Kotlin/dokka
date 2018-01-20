@@ -286,17 +286,31 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             summaryNodeGroup(page.enums, "Enums", headerAsRow = false) { classLikeRow(it) }
 
             summaryNodeGroup(
+                page.constants,
+                "Top-level constants summary",
+                headerAsRow = false
+            ) {
+                propertyLikeSummaryRow(it)
+            }
+
+            summaryNodeGroup(
                 page.functions,
                 "Top-level functions summary",
                 headerAsRow = false
-            ) { functionLikeSummaryRow(it) }
+            ) {
+                functionLikeSummaryRow(it)
+            }
+
             summaryNodeGroup(
                 page.properties,
                 "Top-level properties summary",
                 headerAsRow = false
-            ) { propertyLikeSummaryRow(it) }
+            ) {
+                propertyLikeSummaryRow(it)
+            }
 
 
+            fullMemberDocs(page.constants, "Top-level constants")
             fullMemberDocs(page.functions, "Top-level functions")
             fullMemberDocs(page.properties, "Top-level properties")
         }
@@ -387,6 +401,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             nestedClassSummaryRow(it)
         }
 
+        summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
+
         summaryNodeGroup(
             constructors,
             "Constructors",
@@ -471,6 +487,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected open fun FlowContent.classLikeFullMemberDocs(page: Page.ClassPage) = with(page) {
+        fullMemberDocs(constants, "Constants")
         fullMemberDocs(constructors, "Constructors")
         fullMemberDocs(functions, "Functions")
         fullMemberDocs(properties, "Properties")
@@ -689,9 +706,14 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
 
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike }
+
+            val constants =
+                node.members(NodeKind.CompanionObjectProperty)
+                    .filter { it.details(NodeKind.Modifier).any { it.name == "const" } }
+
             val constructors = node.members(NodeKind.Constructor)
             val functions = node.members(functionKind)
-            val properties = node.members(propertyKind)
+            val properties = node.members(propertyKind) - constants
             val inheritedFunctionsByReceiver = node.inheritedMembers(functionKind).groupBy { it.owner!! }
             val inheritedPropertiesByReceiver = node.inheritedMembers(propertyKind).groupBy { it.owner!! }
 
@@ -714,7 +736,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val companionFunctions = node.members(NodeKind.CompanionObjectFunction).takeUnless { isCompanion }.orEmpty()
             val companionProperties =
-                node.members(NodeKind.CompanionObjectProperty).takeUnless { isCompanion }.orEmpty()
+                node.members(NodeKind.CompanionObjectProperty).takeUnless { isCompanion }.orEmpty() - constants
 
 
         }
@@ -731,10 +753,22 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val annotations = node.members(NodeKind.AnnotationClass)
             val enums = node.members(NodeKind.Enum)
 
-            val functions = node.members(NodeKind.Function) +
-                    node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Function) }
-            val properties = node.members(NodeKind.Property) +
-                    node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Property) }
+            private val externalClassExtensionFunctions =
+                node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Function) }
+            private val externalClassExtensionProperties =
+                node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Property) }
+
+            val constants = node.members(NodeKind.Property)
+                .filter {
+                    it.details(NodeKind.Modifier).any {
+                        it.name == "const"
+                    }
+                }
+
+            val functions = node.members(NodeKind.Function) + externalClassExtensionFunctions
+
+            val properties = node.members(NodeKind.Property) - constants + externalClassExtensionProperties
+
         }
     }
 }
