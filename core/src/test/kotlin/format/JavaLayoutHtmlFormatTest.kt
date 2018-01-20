@@ -50,4 +50,9 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
             model.members.single().members(NodeKind.Class)
         }
     }
+
+    @Test
+    fun constJava() {
+        verifyNode("ConstJava.java", noStdlibLink = true)
+    }
 }

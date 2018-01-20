@@ -93,8 +93,8 @@ abstract class JavaLayoutHtmlFormatTestCase {
         }
     }
 
-    protected fun verifyNode(fileName: String) {
-        verifyNode(fileName) { model -> listOf(model.members.single().members.single()) }
+    protected fun verifyNode(fileName: String, noStdlibLink: Boolean = false) {
+        verifyNode(fileName, noStdlibLink) { model -> listOf(model.members.single().members.single()) }
     }
 
     protected fun verifyPackageNode(fileName: String, noStdlibLink: Boolean = false) {

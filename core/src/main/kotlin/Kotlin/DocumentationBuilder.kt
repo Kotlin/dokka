@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
@@ -780,11 +781,17 @@ class DocumentationBuilder
             if (isVar) {
                 node.appendTextNode("var", NodeKind.Modifier)
             }
+
             if (isConst) {
-                val psi = sourcePsi() as? KtVariableDeclaration
-                val text = psi?.initializer?.text
-                text?.let { node.appendTextNode(it, NodeKind.Value) }
+                val psi = sourcePsi()
+                val valueText = when (psi) {
+                    is KtVariableDeclaration -> psi.initializer?.text
+                    is PsiField -> psi.initializer?.text
+                    else -> null
+                }
+                valueText?.let { node.appendTextNode(it, NodeKind.Value) }
             }
+
 
             getter?.let {
                 if (!it.isDefault) {

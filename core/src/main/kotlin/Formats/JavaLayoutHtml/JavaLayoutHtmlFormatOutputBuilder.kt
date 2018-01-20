@@ -609,11 +609,6 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    fun DocumentationNode.constantValue(): String? =
-        detailOrNull(NodeKind.Value)?.name.takeIf {
-            kind == NodeKind.Property
-        }
-
     protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
@@ -718,9 +713,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike }
 
-            val constants =
-                node.members(NodeKind.CompanionObjectProperty)
-                    .filter { it.details(NodeKind.Modifier).any { it.name == "const" } }
+            val constants = node.members.filter { it.constantValue() != null }
 
             val constructors = node.members(NodeKind.Constructor)
             val functions = node.members(functionKind)
@@ -769,12 +762,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             private val externalClassExtensionProperties =
                 node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Property) }
 
-            val constants = node.members(NodeKind.Property)
-                .filter {
-                    it.details(NodeKind.Modifier).any {
-                        it.name == "const"
-                    }
-                }
+            val constants = node.members(NodeKind.Property).filter { it.constantValue() != null }
 
             val functions = node.members(NodeKind.Function) + externalClassExtensionFunctions
 
@@ -798,3 +786,8 @@ class JavaLayoutHtmlFormatOutputBuilderFactoryImpl @Inject constructor(
         return JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri)
     }
 }
+
+fun DocumentationNode.constantValue(): String? =
+    detailOrNull(NodeKind.Value)?.name.takeIf {
+        kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
+    }
