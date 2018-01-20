@@ -609,12 +609,23 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    fun DocumentationNode.constantValue(): String? =
+        detailOrNull(NodeKind.Value)?.name.takeIf {
+            kind == NodeKind.Property
+        }
+
     protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
             contentNodeToMarkup(node.content)
+            node.constantValue()?.let { value ->
+                pre {
+                    +"Value: "
+                    code { +value }
+                }
+            }
             for ((name, sections) in node.content.sections.groupBy { it.tag }) {
                 table {
                     thead { tr { td { h3 { +name } } } }

@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtVariableDeclaration
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
@@ -778,6 +779,11 @@ class DocumentationBuilder
             node.appendSourceLink(source)
             if (isVar) {
                 node.appendTextNode("var", NodeKind.Modifier)
+            }
+            if (isConst) {
+                val psi = sourcePsi() as? KtVariableDeclaration
+                val text = psi?.initializer?.text
+                text?.let { node.appendTextNode(it, NodeKind.Value) }
             }
 
             getter?.let {
