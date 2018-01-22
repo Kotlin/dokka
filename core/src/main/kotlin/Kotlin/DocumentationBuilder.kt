@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
@@ -11,6 +12,9 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.util.fuzzyExtensionReceiverType
+import org.jetbrains.kotlin.idea.util.makeNotNullable
+import org.jetbrains.kotlin.idea.util.toFuzzyType
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -18,15 +22,17 @@ import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtVariableDeclaration
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
+import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import java.io.File
 import java.nio.file.Path
@@ -51,7 +57,8 @@ class DocumentationOptions(val outputDir: String,
                            val languageVersion: String?,
                            val apiVersion: String?,
                            cacheRoot: String? = null,
-                           val suppressedFiles: List<File> = emptyList()) {
+                           val suppressedFiles: List<File> = emptyList(),
+                           val collectInheritedExtensionsFromLibraries: Boolean = false) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -101,6 +108,10 @@ interface DefaultPlatformsProvider {
     fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String>
 }
 
+val ignoredSupertypes = setOf(
+    "kotlin.Annotation", "kotlin.Enum", "kotlin.Any"
+)
+
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
@@ -132,8 +143,20 @@ class DocumentationBuilder
         refGraph.register(descriptor.signature(), node)
     }
 
-    fun <T> nodeForDescriptor(descriptor: T, kind: NodeKind): DocumentationNode where T : DeclarationDescriptor, T : Named {
-        val (doc, callback) = descriptorDocumentationParser.parseDocumentationAndDetails(descriptor, kind == NodeKind.Parameter)
+    fun <T> nodeForDescriptor(
+        descriptor: T,
+        kind: NodeKind,
+        external: Boolean = false
+    ): DocumentationNode where T : DeclarationDescriptor, T : Named {
+        val (doc, callback) =
+                if (external) {
+                    Content.Empty to { node -> }
+                } else {
+                    descriptorDocumentationParser.parseDocumentationAndDetails(
+                        descriptor,
+                        kind == NodeKind.Parameter
+                    )
+                }
         val node = DocumentationNode(descriptor.name.asString(), doc, kind).withModifiers(descriptor)
         node.appendSignature(descriptor)
         callback(node)
@@ -171,21 +194,12 @@ class DocumentationBuilder
         val unwrappedType = superType.unwrap()
         if (unwrappedType is AbbreviatedType) {
             appendSupertype(descriptor, unwrappedType.abbreviation)
-        } else if (!ignoreSupertype(unwrappedType)) {
+        } else {
             appendType(unwrappedType, NodeKind.Supertype)
             val superclass = unwrappedType.constructor.declarationDescriptor
             link(superclass, descriptor, RefKind.Inheritor)
             link(descriptor, superclass, RefKind.Superclass)
         }
-    }
-
-    private fun ignoreSupertype(superType: KotlinType): Boolean {
-        val superClass = superType.constructor.declarationDescriptor as? ClassDescriptor
-        if (superClass != null) {
-            val fqName = DescriptorUtils.getFqNameSafe(superClass).asString()
-            return fqName == "kotlin.Annotation" || fqName == "kotlin.Enum" || fqName == "kotlin.Any"
-        }
-        return false
     }
 
     fun DocumentationNode.appendProjection(projection: TypeProjection, kind: NodeKind = NodeKind.Type) {
@@ -229,15 +243,32 @@ class DocumentationBuilder
             node.appendTextNode("?", NodeKind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
-            val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(classifierDescriptor)
+            val externalLink =
+                linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(classifierDescriptor)
             if (externalLink != null) {
-                node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
-                node.append(DocumentationNode(classifierDescriptor.fqNameUnsafe.asString(), Content.Empty, NodeKind.QualifiedName), RefKind.Detail)
+                if (classifierDescriptor !is TypeParameterDescriptor) {
+                    val targetNode =
+                        refGraph.lookup(classifierDescriptor.signature()) ?: classifierDescriptor.build(true)
+                    node.append(targetNode, RefKind.ExternalType)
+                    node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+                }
             } else {
-                link(node, classifierDescriptor,
-                        if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link)
+                link(
+                    node, classifierDescriptor,
+                    if (classifierDescriptor.isBoringBuiltinClass()) RefKind.HiddenLink else RefKind.Link
+                )
+            }
+            if (classifierDescriptor !is TypeParameterDescriptor) {
+                node.append(
+                    DocumentationNode(
+                        classifierDescriptor.fqNameUnsafe.asString(),
+                        Content.Empty,
+                        NodeKind.QualifiedName
+                    ), RefKind.Detail
+                )
             }
         }
+
 
         append(node, RefKind.Detail)
         node.appendAnnotations(kotlinType)
@@ -269,6 +300,17 @@ class DocumentationBuilder
                 }
 
             }
+        }
+    }
+
+    fun DocumentationNode.appendExternalLink(externalLink: String) {
+        append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+    }
+
+    fun DocumentationNode.appendExternalLink(descriptor: DeclarationDescriptor) {
+        val target = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(descriptor)
+        if (target != null) {
+            appendExternalLink(target)
         }
     }
 
@@ -418,15 +460,44 @@ class DocumentationBuilder
                     declarations, allFqNames)
         }
 
-        propagateExtensionFunctionsToSubclasses(fragments)
     }
 
-    private fun propagateExtensionFunctionsToSubclasses(fragments: Collection<PackageFragmentDescriptor>) {
-        val allDescriptors = fragments.flatMap { it.getMemberScope().getContributedDescriptors() }
-        val allClasses = allDescriptors.filterIsInstance<ClassDescriptor>()
-        val classHierarchy = buildClassHierarchy(allClasses)
+    fun propagateExtensionFunctionsToSubclasses(
+        fragments: Collection<PackageFragmentDescriptor>,
+        resolutionFacade: DokkaResolutionFacade
+    ) {
 
-        val allExtensionFunctions = allDescriptors
+        val moduleDescriptor = resolutionFacade.moduleDescriptor
+
+        // Wide-collect all view descriptors
+        val allPackageViewDescriptors = generateSequence(listOf(moduleDescriptor.getPackage(FqName.ROOT))) { packages ->
+            packages
+                .flatMap { pkg ->
+                    moduleDescriptor.getSubPackagesOf(pkg.fqName) { true }
+                }.map { fqName ->
+                    moduleDescriptor.getPackage(fqName)
+                }.takeUnless { it.isEmpty() }
+        }.flatten()
+
+        val allDescriptors =
+            if (options.collectInheritedExtensionsFromLibraries) {
+                allPackageViewDescriptors.map { it.memberScope }
+            } else {
+                fragments.asSequence().map { it.getMemberScope() }
+            }.flatMap {
+                it.getDescriptorsFiltered(
+                    DescriptorKindFilter.CALLABLES
+                ).asSequence()
+            }
+
+
+        val documentingDescriptors = fragments.flatMap { it.getMemberScope().getContributedDescriptors() }
+        val documentingClasses = documentingDescriptors.filterIsInstance<ClassDescriptor>()
+
+        val classHierarchy = buildClassHierarchy(documentingClasses)
+
+        val allExtensionFunctions =
+            allDescriptors
                 .filterIsInstance<CallableMemberDescriptor>()
                 .filter { it.extensionReceiverParameter != null }
         val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
@@ -434,15 +505,31 @@ class DocumentationBuilder
         for (extensionFunction in allExtensionFunctions) {
             if (extensionFunction.dispatchReceiverParameter != null) continue
             val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
-                    ?.filter { fn -> fn.canShadow(extensionFunction) }
+                ?.filter { fn -> fn.canShadow(extensionFunction) }
                     ?: emptyList()
 
             if (extensionFunction.extensionReceiverParameter?.type?.isDynamic() == true) continue
-            val classDescriptor = extensionFunction.getExtensionClassDescriptor() ?: continue
-            val subclasses = classHierarchy[classDescriptor] ?: continue
-            subclasses.forEach { subclass ->
+            val subclasses =
+                classHierarchy.filter { (key) -> key.isExtensionApplicable(extensionFunction) }
+            if (subclasses.isEmpty()) continue
+            subclasses.values.flatten().forEach { subclass ->
                 if (subclass.isExtensionApplicable(extensionFunction) &&
-                        possiblyShadowingFunctions.none { subclass.isExtensionApplicable(it) }) {
+                    possiblyShadowingFunctions.none { subclass.isExtensionApplicable(it) }) {
+
+                    val hasExternalLink =
+                        linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(
+                            extensionFunction
+                        ) != null
+                    if (hasExternalLink) {
+                        val containerDesc =
+                            extensionFunction.containingDeclaration as? PackageFragmentDescriptor
+                        if (containerDesc != null) {
+                            val container = refGraph.lookup(containerDesc.signature())
+                                    ?: containerDesc.buildExternal()
+                            container.append(extensionFunction.buildExternal(), RefKind.Member)
+                        }
+                    }
+
                     refGraph.link(subclass.signature(), extensionFunction.signature(), RefKind.Extension)
                 }
             }
@@ -450,12 +537,9 @@ class DocumentationBuilder
     }
 
     private fun ClassDescriptor.isExtensionApplicable(extensionFunction: CallableMemberDescriptor): Boolean {
-        val receiverType = extensionFunction.extensionReceiverParameter!!.type
-        if (receiverType.arguments.any { it.type.constructor.declarationDescriptor is TypeParameterDescriptor }) {
-            val receiverClass = receiverType.constructor.declarationDescriptor
-            return receiverClass is ClassDescriptor && DescriptorUtils.isSubclass(this, receiverClass)
-        }
-        return defaultType.isSubtypeOf(receiverType)
+        val receiverType = extensionFunction.fuzzyExtensionReceiverType()?.makeNotNullable()
+        val classType = defaultType.toFuzzyType(declaredTypeParameters)
+        return receiverType != null && classType.checkIsSubtypeOf(receiverType) != null
     }
 
     private fun buildClassHierarchy(classes: List<ClassDescriptor>): Map<ClassDescriptor, List<ClassDescriptor>> {
@@ -494,34 +578,60 @@ class DocumentationBuilder
     }
 
     fun DeclarationDescriptor.build(): DocumentationNode = when (this) {
-        is ClassDescriptor -> build()
+        is ClassifierDescriptor -> build()
         is ConstructorDescriptor -> build()
         is PropertyDescriptor -> build()
         is FunctionDescriptor -> build()
-        is TypeParameterDescriptor -> build()
         is ValueParameterDescriptor -> build()
         is ReceiverParameterDescriptor -> build()
-        is TypeAliasDescriptor -> build()
         else -> throw IllegalStateException("Descriptor $this is not known")
     }
 
-    fun TypeAliasDescriptor.build(): DocumentationNode {
+    fun PackageFragmentDescriptor.buildExternal(): DocumentationNode {
+        val node = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.Package)
+
+        val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(this)
+        if (externalLink != null) {
+            node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+        }
+        register(this, node)
+        return node
+    }
+
+    fun CallableDescriptor.buildExternal(): DocumentationNode = when(this) {
+        is FunctionDescriptor -> build(true)
+        is PropertyDescriptor -> build(true)
+        else -> throw IllegalStateException("Descriptor $this is not known")
+    }
+
+
+    fun ClassifierDescriptor.build(external: Boolean = false): DocumentationNode = when (this) {
+        is ClassDescriptor -> build(external)
+        is TypeAliasDescriptor -> build(external)
+        is TypeParameterDescriptor -> build()
+        else -> throw IllegalStateException("Descriptor $this is not known")
+    }
+
+    fun TypeAliasDescriptor.build(external: Boolean = false): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.TypeAlias)
 
-        node.appendAnnotations(this)
+        if (!external) {
+            node.appendAnnotations(this)
+        }
         node.appendModifiers(this)
         node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
 
         node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
 
-        node.appendSourceLink(source)
-        node.appendDefaultPlatforms(this)
-
+        if (!external) {
+            node.appendSourceLink(source)
+            node.appendDefaultPlatforms(this)
+        }
         register(this, node)
         return node
     }
 
-    fun ClassDescriptor.build(): DocumentationNode {
+    fun ClassDescriptor.build(external: Boolean = false): DocumentationNode {
         val kind = when {
             kind == ClassKind.OBJECT -> NodeKind.Object
             kind == ClassKind.INTERFACE -> NodeKind.Interface
@@ -531,21 +641,25 @@ class DocumentationBuilder
             isSubclassOfThrowable() -> NodeKind.Exception
             else -> NodeKind.Class
         }
-        val node = nodeForDescriptor(this, kind)
+        val node = nodeForDescriptor(this, kind, external)
+        register(this, node)
         typeConstructor.supertypes.forEach {
             node.appendSupertype(this, it)
         }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
         }
-        for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
-            node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
+        if (!external) {
+            for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
+                node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
+            }
+            node.appendAnnotations(this)
         }
-        node.appendAnnotations(this)
         node.appendModifiers(this)
-        node.appendSourceLink(source)
-        node.appendDefaultPlatforms(this)
-        register(this, node)
+        if (!external) {
+            node.appendSourceLink(source)
+            node.appendDefaultPlatforms(this)
+        }
         return node
     }
 
@@ -612,12 +726,12 @@ class DocumentationBuilder
         return (receiver?.type?.constructor?.declarationDescriptor as? ClassDescriptor)?.isCompanionObject ?: false
     }
 
-    fun FunctionDescriptor.build(): DocumentationNode {
+    fun FunctionDescriptor.build(external: Boolean = false): DocumentationNode {
         if (ErrorUtils.containsErrorType(this)) {
             logger.warn("Found an unresolved type in ${signatureWithSourceLocation()}")
         }
 
-        val node = nodeForDescriptor(this, if (inCompanionObject()) NodeKind.CompanionObjectFunction else NodeKind.Function)
+        val node = nodeForDescriptor(this, if (inCompanionObject()) NodeKind.CompanionObjectFunction else NodeKind.Function, external)
 
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
@@ -625,8 +739,12 @@ class DocumentationBuilder
         node.appendType(returnType)
         node.appendAnnotations(this)
         node.appendModifiers(this)
-        node.appendSourceLink(source)
-        node.appendDefaultPlatforms(this)
+        if (!external) {
+            node.appendSourceLink(source)
+            node.appendDefaultPlatforms(this)
+        } else {
+            node.appendExternalLink(this)
+        }
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
@@ -647,32 +765,53 @@ class DocumentationBuilder
         }
     }
 
-    fun PropertyDescriptor.build(): DocumentationNode {
-        val node = nodeForDescriptor(this, if (inCompanionObject()) NodeKind.CompanionObjectProperty else NodeKind.Property)
+    fun PropertyDescriptor.build(external: Boolean = false): DocumentationNode {
+        val node = nodeForDescriptor(
+            this,
+            if (inCompanionObject()) NodeKind.CompanionObjectProperty else NodeKind.Property,
+            external
+        )
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendType(returnType)
         node.appendAnnotations(this)
         node.appendModifiers(this)
-        node.appendSourceLink(source)
-        if (isVar) {
-            node.appendTextNode("var", NodeKind.Modifier)
-        }
-        getter?.let {
-            if (!it.isDefault) {
-                node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Getter")
+        if (!external) {
+            node.appendSourceLink(source)
+            if (isVar) {
+                node.appendTextNode("var", NodeKind.Modifier)
             }
-        }
-        setter?.let {
-            if (!it.isDefault) {
-                node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Setter")
+
+            if (isConst) {
+                val psi = sourcePsi()
+                val valueText = when (psi) {
+                    is KtVariableDeclaration -> psi.initializer?.text
+                    is PsiField -> psi.initializer?.text
+                    else -> null
+                }
+                valueText?.let { node.appendTextNode(it, NodeKind.Value) }
             }
+
+
+            getter?.let {
+                if (!it.isDefault) {
+                    node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Getter")
+                }
+            }
+            setter?.let {
+                if (!it.isDefault) {
+                    node.addAccessorDocumentation(descriptorDocumentationParser.parseDocumentation(it), "Setter")
+                }
+            }
+            node.appendDefaultPlatforms(this)
+        }
+        if (external) {
+            node.appendExternalLink(this)
         }
 
         overriddenDescriptors.forEach {
             addOverrideLink(it, this)
         }
-        node.appendDefaultPlatforms(this)
 
         register(this, node)
         return node

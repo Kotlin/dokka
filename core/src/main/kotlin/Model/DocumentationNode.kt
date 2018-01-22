@@ -104,12 +104,27 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Deprecation).singleOrNull()?.to
     val platforms: List<String>
         get() = references(RefKind.Platform).map { it.to.name }
+    val externalType: DocumentationNode?
+        get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
 
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)
 
-    val superclass: DocumentationNode?
-        get() = supertypes.firstOrNull { it.links.any { it.kind in NodeKind.classLike } }
+    val superclassType: DocumentationNode?
+        get() = when (kind) {
+            NodeKind.Supertype -> (links.firstOrNull { it.kind in NodeKind.classLike } ?: externalType)?.superclassType
+            NodeKind.Interface -> null
+            in NodeKind.classLike -> supertypes.firstOrNull {
+                it.links.any { it.kind in NodeKind.classLike } ||
+                        it.externalType != null
+            }
+            else -> null
+        }
+
+    val superclassTypeSequence: Sequence<DocumentationNode>
+        get() = generateSequence(superclassType) {
+            it.superclassType
+        }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
@@ -194,6 +209,8 @@ fun DocumentationNode.appendTextNode(text: String,
 fun DocumentationNode.qualifiedName(): String {
     if (kind == NodeKind.Type) {
         return qualifiedNameFromType()
+    } else if (kind == NodeKind.Package) {
+        return name
     }
     return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
 }

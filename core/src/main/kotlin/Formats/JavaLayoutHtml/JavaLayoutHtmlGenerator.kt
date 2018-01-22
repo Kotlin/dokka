@@ -3,6 +3,7 @@ package org.jetbrains.dokka.Formats
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Formats.JavaLayoutHtmlFormatOutputBuilder.Page
 import org.jetbrains.dokka.NodeKind.Companion.classLike
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
@@ -13,10 +14,9 @@ import java.net.URI
 
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
-        val languageService: LanguageService,
-        val templateService: JavaLayoutHtmlTemplateService,
         val packageListService: PackageListService,
         val outputBuilderFactoryService: JavaLayoutHtmlFormatOutputBuilderFactory,
+        private val options: DocumentationOptions,
         val logger: DokkaLogger
 ) : Generator, JavaLayoutHtmlUriProvider {
 
@@ -63,7 +63,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.classNodeNameWithOuterClass() + ".html")
         fileForClass.bufferedWriter().use {
-            createOutputBuilderForNode(node, it).appendClassLike(node)
+            createOutputBuilderForNode(node, it).generatePage(Page.ClassPage(node))
         }
         for (memberClass in node.members.filter { it.kind in NodeKind.classLike }) {
             buildClass(memberClass, parentDir)
@@ -77,7 +77,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         directoryForPackage.mkdirsOrFail()
 
         directoryForPackage.resolve("package-summary.html").bufferedWriter().use {
-            createOutputBuilderForNode(node, it).appendPackage(node)
+            createOutputBuilderForNode(node, it).generatePage(Page.PackagePage(node))
         }
 
         members.filter { it.kind in NodeKind.classLike }.forEach {
@@ -88,15 +88,16 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun buildClassIndex(node: DocumentationNode, parentDir: File) {
         val file = parentDir.resolve("classes.html")
         file.bufferedWriter().use {
-            createOutputBuilderForNode(node, it).generateClassesIndex(node)
+            createOutputBuilderForNode(node, it).generatePage(Page.ClassIndex(node))
         }
     }
 
-    fun buildPackageIndex(nodes: List<DocumentationNode>, parentDir: File) {
+    fun buildPackageIndex(module: DocumentationNode, nodes: List<DocumentationNode>, parentDir: File) {
         val file = parentDir.resolve("packages.html")
         file.bufferedWriter().use {
-            outputBuilderFactoryService.createOutputBuilder(it, containerUri(nodes.first().owner!!).resolve("packages.html"))
-                    .generatePackageIndex(nodes)
+            val uri = containerUri(module).resolve("packages.html")
+            outputBuilderFactoryService.createOutputBuilder(it, uri)
+                .generatePage(Page.PackageIndex(nodes))
         }
     }
 
@@ -107,8 +108,10 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val packages = module.members.filter { it.kind == NodeKind.Package }
         packages.forEach { buildPackage(it, moduleRoot) }
 
-        buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
-        buildPackageIndex(packages, moduleRoot)
+        if (options.generateIndexPages) {
+            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+            buildPackageIndex(module, packages, moduleRoot)
+        }
     }
 
     override fun buildOutlines(nodes: Iterable<DocumentationNode>) {
