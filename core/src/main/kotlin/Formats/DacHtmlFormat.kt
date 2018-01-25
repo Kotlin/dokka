@@ -18,14 +18,12 @@ val nodeToFamilyMap = HashMap<DocumentationNode, List<DocumentationNode>>()
 class DevsiteHtmlTemplateService @Inject constructor(
         val uriProvider: JavaLayoutHtmlUriProvider, @Named("outputDir") val rootFile: File
 ) : JavaLayoutHtmlTemplateService {
-    override fun composePage(
-            nodes: List<DocumentationNode>,
-            tagConsumer: TagConsumer<Appendable>,
-            headContent: HEAD.() -> Unit,
-            bodyContent: BODY.() -> Unit
-    ) {
+    override fun composePage(page: JavaLayoutHtmlFormatOutputBuilder.Page, tagConsumer: TagConsumer<Appendable>, headContent: HEAD.() -> Unit, bodyContent: BODY.() -> Unit) {
         tagConsumer.html {
             attributes["devsite"] = "true"
+            run {
+                val x = 0
+            }
             head {
                 headContent()
                 meta(name = "top_category") { attributes["value"] = "develop" }
@@ -37,11 +35,15 @@ class DevsiteHtmlTemplateService @Inject constructor(
             body {
                 bodyContent()
                 // TODO Refactor appendDataReferenceResourceWrapper to use KotlinX.HTML
-                unsafe { raw(buildString { appendDataReferenceResourceWrapper(nodes) }) }
+                unsafe { raw(buildString { appendDataReferenceResourceWrapper(when(page) {
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> page.classes
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> listOf(page.node)
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> page.packages
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> listOf(page.node)
+                }) }) }
             }
         }
     }
-
 
     /**
      * Appends `data-reference-resources-wrapper` data to the body of the page. This is required
@@ -117,4 +119,6 @@ class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysi
 
     override val outlineFactoryClass = DacOutlineFormatter::class
     override val languageServiceClass = KotlinLanguageService::class
+    override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
+    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = JavaLayoutHtmlFormatOutputBuilderFactoryImpl::class
 }

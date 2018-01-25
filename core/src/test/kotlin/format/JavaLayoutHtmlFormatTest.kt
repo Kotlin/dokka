@@ -12,10 +12,10 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
         verifyNode("simple.kt")
     }
 
-    @Test
-    fun topLevel() {
-        verifyPackageNode("topLevel.kt")
-    }
+//    @Test
+//    fun topLevel() {
+//        verifyPackageNode("topLevel.kt")
+//    }
 
     @Test
     fun codeBlocks() {
