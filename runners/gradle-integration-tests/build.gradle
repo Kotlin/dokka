@@ -21,8 +21,7 @@ configurations {
 
 dependencies {
 
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_runtime_version
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_runtime_version
+    testCompileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version: kotlin_for_gradle_runtime_version
     testCompile ideaRT()
 

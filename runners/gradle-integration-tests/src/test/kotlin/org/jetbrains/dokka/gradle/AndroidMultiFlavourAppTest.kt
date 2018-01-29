@@ -53,4 +53,8 @@ class AndroidMultiFlavourAppTest : AbstractDokkaAndroidGradleTest() {
         doTest("2.14.1", "1.0.7", AndroidPluginParams("2.2.3", "25.0.0", 24))
     }
 
+    @Test fun `test kotlin 1_2_20 and gradle 4_5 and abt 3_0_1`() {
+        doTest("4.5", "1.2.20", AndroidPluginParams("3.0.1", "27.0.0", 27))
+    }
+
 }

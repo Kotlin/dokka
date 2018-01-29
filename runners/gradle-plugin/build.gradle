@@ -11,7 +11,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
         freeCompilerArgs += "-Xjsr305=strict"
         languageVersion = "1.2"
-        apiVersion = "1.0"
+        apiVersion = "1.1"
         jvmTarget = "1.8"
     }
 }
