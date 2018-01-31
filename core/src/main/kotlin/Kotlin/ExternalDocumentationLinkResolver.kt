@@ -4,6 +4,10 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.intellij.psi.PsiMethod
 import com.intellij.util.io.*
+import org.jetbrains.dokka.Formats.FileGeneratorBasedFormatDescriptor
+import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Utilities.ServiceLocator
+import org.jetbrains.dokka.Utilities.lookup
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
@@ -20,6 +24,7 @@ import java.net.URL
 import java.net.URLConnection
 import java.nio.file.Path
 import java.security.MessageDigest
+import kotlin.reflect.full.findAnnotation
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
 
@@ -128,13 +133,22 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                 .map { (key, value) -> key to value }
                 .toMap()
 
-        val resolver = if (format == "javadoc") {
-            InboundExternalLinkResolutionService.Javadoc()
-        } else {
-            val linkExtension = paramsMap["linkExtension"]?.singleOrNull() ?:
-                    throw RuntimeException("Failed to parse package list from $packageListUrl")
-            InboundExternalLinkResolutionService.Dokka(linkExtension)
-        }
+
+        val defaultResolverDesc = services["dokka-default"]!!
+        val resolverDesc = services[format]
+                ?: defaultResolverDesc.takeIf { format in formatsWithDefaultResolver }
+                ?: defaultResolverDesc.also {
+                    logger.warn("Couldn't find InboundExternalLinkResolutionService(format = `$format`) for $link, using Dokka default")
+                }
+
+
+        val resolverClass = javaClass.classLoader.loadClass(resolverDesc.className).kotlin
+
+        val constructors = resolverClass.constructors
+
+        val constructor = constructors.singleOrNull()
+                ?: constructors.first { it.findAnnotation<Inject>() != null }
+        val resolver = constructor.call(paramsMap) as InboundExternalLinkResolutionService
 
         val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
 
@@ -169,6 +183,15 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
     companion object {
         const val DOKKA_PARAM_PREFIX = "\$dokka."
+        val services = ServiceLocator.allServices("inbound-link-resolver").associateBy { it.name }
+        private val formatsWithDefaultResolver =
+            ServiceLocator
+                .allServices("format")
+                .filter {
+                    val desc = ServiceLocator.lookup<FormatDescriptor>(it) as? FileGeneratorBasedFormatDescriptor
+                    desc?.generatorServiceClass == FileGenerator::class
+                }.map { it.name }
+                .toSet()
     }
 }
 
@@ -176,7 +199,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 interface InboundExternalLinkResolutionService {
     fun getPath(symbol: DeclarationDescriptor): String?
 
-    class Javadoc : InboundExternalLinkResolutionService {
+    class Javadoc(paramsMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
         override fun getPath(symbol: DeclarationDescriptor): String? {
             if (symbol is JavaClassDescriptor) {
                 return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
@@ -200,7 +223,9 @@ interface InboundExternalLinkResolutionService {
         }
     }
 
-    class Dokka(val extension: String) : InboundExternalLinkResolutionService {
+    class Dokka(val paramsMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
+        val extension = paramsMap["linkExtension"]?.singleOrNull() ?: error("linkExtension not provided for Dokka resolver")
+
         override fun getPath(symbol: DeclarationDescriptor): String? {
             val leafElement = when (symbol) {
                 is CallableDescriptor, is TypeAliasDescriptor -> true
