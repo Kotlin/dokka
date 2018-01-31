@@ -71,7 +71,7 @@ open class DokkaTask : DefaultTask() {
         description = "Generates dokka documentation for Kotlin"
 
         @Suppress("LeakingThis")
-        dependsOn(Callable { kotlinTasks.flatMap { it.dependsOn } })
+        dependsOn(Callable { kotlinTasks.map { it.taskDependencies } })
     }
 
     @Input
