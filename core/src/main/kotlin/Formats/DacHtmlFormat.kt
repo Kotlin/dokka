@@ -21,9 +21,6 @@ class DevsiteHtmlTemplateService @Inject constructor(
     override fun composePage(page: JavaLayoutHtmlFormatOutputBuilder.Page, tagConsumer: TagConsumer<Appendable>, headContent: HEAD.() -> Unit, bodyContent: BODY.() -> Unit) {
         tagConsumer.html {
             attributes["devsite"] = "true"
-            run {
-                val x = 0
-            }
             head {
                 headContent()
                 meta(name = "top_category") { attributes["value"] = "develop" }
@@ -50,6 +47,9 @@ class DevsiteHtmlTemplateService @Inject constructor(
      * for highlighting the current page in the left nav of DAC.
      */
     private fun Appendable.appendDataReferenceResourceWrapper(nodes: Iterable<DocumentationNode>) {
+        if (nodes.none()) {
+            return
+        }
         val node = nodes.first()
         if (node.isPackage()) {
             val children = node.getMembersOfKinds(NodeKind.Class, NodeKind.Interface, NodeKind.Enum,
