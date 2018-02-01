@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.JavaLayoutHtmlFormatDescriptor
-import org.jetbrains.dokka.NodeKind
 import org.junit.Test
+import java.io.File
+import java.net.URL
 
 class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
     override val formatDescriptor = JavaLayoutHtmlFormatDescriptor()
@@ -54,5 +56,50 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
     @Test
     fun constJava() {
         verifyNode("ConstJava.java", noStdlibLink = true)
+    }
+
+    @Test
+    fun inboundLinksInKotlinMode() {
+        val root = "./testdata/format/java-layout-html"
+
+        val options = DocumentationOptions(
+            "",
+            "java-layout-html",
+            sourceLinks = listOf(),
+            generateIndexPages = false,
+            noStdlibLink = true,
+            apiVersion = null,
+            languageVersion = null,
+            perPackageOptions = listOf(PackageOptionsImpl("foo", suppress = true)),
+            externalDocumentationLinks =
+            listOf(
+                DokkaConfiguration.ExternalDocumentationLink.Builder(
+                    URL("file:///"),
+                    File(root, "inboundLinksTestPackageList").toURI().toURL()
+                ).build()
+            )
+        )
+
+
+        val sourcePath = "$root/inboundLinksInKotlinMode.kt"
+        val documentation = DocumentationModule("test")
+
+        appendDocumentation(
+            documentation,
+            contentRootFromPath(sourcePath),
+            contentRootFromPath("$root/inboundLinksInKotlinMode.Dep.kt"),
+            withJdk = false,
+            withKotlinRuntime = false,
+            options = options
+        )
+        documentation.prepareForGeneration(options)
+
+        verifyModelOutput(documentation, ".html", sourcePath) { model, output ->
+            buildPagesAndReadInto(
+                model,
+                model.members.single { it.name == "bar" }.members,
+                output
+            )
+        }
     }
 }
