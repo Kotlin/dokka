@@ -241,7 +241,7 @@ The available configuration options are shown below:
         <!-- Default: ${project.artifactId} -->
         <moduleName>data</moduleName>
         <!-- See list of possible formats below -->
-        <outFormat>html</outFormat>
+        <outputFormat>html</outputFormat>
         <!-- Default: ${project.basedir}/target/dokka -->
         <outputDir>some/out/dir</outputDir>
         
