@@ -1,4 +1,5 @@
 import groovy.io.FileType
+import org.jetbrains.CorrectShadowPublishing
 import org.jetbrains.CrossPlatformExec
 
 import java.nio.file.Files
@@ -92,14 +93,14 @@ apply plugin: 'maven-publish'
 
 publishing {
     publications {
-        dokkaMavenPlugin(MavenPublication) { publication ->
+        dokkaMavenPlugin(MavenPublication) { MavenPublication publication ->
             artifactId = 'dokka-maven-plugin'
 
             artifact sourceJar {
                 classifier "sources"
             }
 
-            project.shadow.component(publication)
+            CorrectShadowPublishing.configure(publication, project)
 
             pom.withXml {
                 Node root = asNode()
