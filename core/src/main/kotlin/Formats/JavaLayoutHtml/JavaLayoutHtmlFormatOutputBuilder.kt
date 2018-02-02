@@ -614,6 +614,59 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    protected open fun FlowContent.seeAlsoSection(links: List<List<ContentNode>>) {
+        p { b { +"See Also" } }
+        ul {
+            links.forEach { linkParts ->
+                li { code { metaMarkup(linkParts) } }
+            }
+        }
+    }
+
+    protected open fun FlowContent.regularSection(name: String, entries: List<ContentSection>) {
+        table {
+            thead {
+                tr {
+                    th {
+                        colSpan = "2"
+                        +name
+                    }
+                }
+            }
+            tbody {
+                entries.forEach {
+                    tr {
+                        if (it.subjectName != null) {
+                            td { +it.subjectName }
+                        }
+                        td {
+                            metaMarkup(it.children)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    protected open fun FlowContent.section(name: String, sectionParts: List<ContentSection>) {
+        when(name) {
+            ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as ContentParagraph).children } })
+            else -> regularSection(name, sectionParts)
+        }
+    }
+
+    protected open fun FlowContent.sections(content: Content) {
+        val sectionsByTag = content.sections.groupByTo(mutableMapOf()) { it.tag }
+
+        val seeAlso = sectionsByTag.remove(ContentTags.SeeAlso)
+
+        for ((name, entries) in sectionsByTag) {
+            section(name, entries)
+        }
+
+        seeAlso?.let { section(ContentTags.SeeAlso, it) }
+    }
+
     protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
@@ -627,41 +680,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            val sectionsByTag = node.content.sections.groupByTo(mutableMapOf()) { it.tag }
-
-            sectionsByTag.remove(ContentTags.SeeAlso)?.let { subjects ->
-                p { b { +"See Also" } }
-                ul {
-                    subjects.forEach {
-                        li { code { metaMarkup(it.children.flatMap { (it as ContentParagraph).children }) } }
-                    }
-                }
-            }
-
-            for ((name, sections) in sectionsByTag) {
-                table {
-                    thead {
-                        tr {
-                            th {
-                                colSpan = "2"
-                                +name
-                            }
-                        }
-                    }
-                    tbody {
-                        sections.forEach {
-                            tr {
-                                if (it.subjectName != null) {
-                                    td { +it.subjectName }
-                                }
-                                td {
-                                    metaMarkup(it.children)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            sections(node.content)
         }
     }
 
