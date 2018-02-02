@@ -53,6 +53,14 @@ class JavaLayoutHtmlFormatTest : JavaLayoutHtmlFormatTestCase() {
         }
     }
 
+
+    @Test
+    fun sections() {
+        verifyNode("sections.kt", noStdlibLink = true) { model ->
+            model.members.single().members.filter { it.name == "sectionsTest" }
+        }
+    }
+
     @Test
     fun constJava() {
         verifyNode("ConstJava.java", noStdlibLink = true)

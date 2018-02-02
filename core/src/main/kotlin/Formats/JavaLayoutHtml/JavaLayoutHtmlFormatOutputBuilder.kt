@@ -626,13 +626,34 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                     code { +value }
                 }
             }
-            for ((name, sections) in node.content.sections.groupBy { it.tag }) {
+
+            val sectionsByTag = node.content.sections.groupByTo(mutableMapOf()) { it.tag }
+
+            sectionsByTag.remove(ContentTags.SeeAlso)?.let { subjects ->
+                p { b { +"See Also" } }
+                ul {
+                    subjects.forEach {
+                        li { code { metaMarkup(it.children.flatMap { (it as ContentParagraph).children }) } }
+                    }
+                }
+            }
+
+            for ((name, sections) in sectionsByTag) {
                 table {
-                    thead { tr { td { h3 { +name } } } }
+                    thead {
+                        tr {
+                            th {
+                                colSpan = "2"
+                                +name
+                            }
+                        }
+                    }
                     tbody {
                         sections.forEach {
                             tr {
-                                td { it.subjectName?.let { +it } }
+                                if (it.subjectName != null) {
+                                    td { +it.subjectName }
+                                }
                                 td {
                                     metaMarkup(it.children)
                                 }
