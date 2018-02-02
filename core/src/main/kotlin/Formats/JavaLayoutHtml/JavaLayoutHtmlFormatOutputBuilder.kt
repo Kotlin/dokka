@@ -81,7 +81,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             is ContentParagraph -> p { contentNodesToMarkup(content.children) }
 
             is ContentNodeLink -> {
-                a(href = content.node) { contentNodesToMarkup(content.children) }
+                fun FlowContent.body() = contentNodesToMarkup(content.children)
+
+                when (content.node?.kind) {
+                    NodeKind.TypeParameter -> body()
+                    else -> a(href = content.node, block = FlowContent::body)
+                }
             }
             is ContentExternalLink -> contentExternalLink(content)
             is ContentSection -> {}
