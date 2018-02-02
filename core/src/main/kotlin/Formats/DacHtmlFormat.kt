@@ -23,11 +23,13 @@ class DevsiteHtmlTemplateService @Inject constructor(
             attributes["devsite"] = "true"
             head {
                 headContent()
-                meta(name = "top_category") { attributes["value"] = "develop" }
-                meta(name = "subcategory") { attributes["value"] = "reference" }
-                meta(name = "hide_page_heading") { attributes["value"] = "true" }
-                meta(name = "book_path") { attributes["value"] = "/$rootFile/_toc.yaml" }
-                meta(name = "project_path") { attributes["value"] = "/${rootFile.parent}/_project.yaml" }
+                title {+when(page) {
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> "Class Index | Android Developers"
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> page.node.nameWithOuterClass()
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index | Android Developers"
+                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
+                }}
+                unsafe {+"{% setvar book_path %}/reference/android/arch/_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n"}
             }
             body {
                 bodyContent()

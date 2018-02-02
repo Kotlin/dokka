@@ -14,7 +14,7 @@ class DacNavOutlineService constructor(
             uriProvider.containerUri(node).resolve("navtree_data.js")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
-        to.append("var NAVTREE_DATA = ").appendNavTree(node.members).append(";")
+        to.append("var NAVTREE_DATA_KT = ").appendNavTree(node.members).append(";")
     }
 
     private fun Appendable.appendNavTree(nodes: Iterable<DocumentationNode>): Appendable {
@@ -99,6 +99,7 @@ class DacSearchOutlineService(
         to.append("var ARCH_DATA = [\n")
         var first = true
         for (pageNode in pageNodes) {
+            if (pageNode.kind == NodeKind.Module) continue
             if (!first) to.append(", \n")
             first = false
             to.append(" { " +
