@@ -5,6 +5,7 @@ import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
 import java.io.File
+import java.net.URI
 import kotlin.reflect.KClass
 
 /**
@@ -116,11 +117,65 @@ class DevsiteHtmlTemplateService @Inject constructor(
     }
 }
 
+class DevsiteLayoutHtmlFormatOutputBuilderFactoryImpl @javax.inject.Inject constructor(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService,
+        val templateService: JavaLayoutHtmlTemplateService,
+        val logger: DokkaLogger
+) : JavaLayoutHtmlFormatOutputBuilderFactory {
+    override fun createOutputBuilder(output: Appendable, node: DocumentationNode): JavaLayoutHtmlFormatOutputBuilder {
+        return createOutputBuilder(output, uriProvider.mainUri(node))
+    }
+
+    override fun createOutputBuilder(output: Appendable, uri: URI): JavaLayoutHtmlFormatOutputBuilder {
+        return DevsiteLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri)
+    }
+}
+
+class DevsiteLayoutHtmlFormatOutputBuilder(
+        output: Appendable,
+        languageService: LanguageService,
+        uriProvider: JavaLayoutHtmlUriProvider,
+        templateService: JavaLayoutHtmlTemplateService,
+        logger: DokkaLogger,
+        uri: URI
+) : JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri) {
+    override fun FlowContent.fullMemberDocs(node: DocumentationNode) {
+        div {
+            id = node.signatureForAnchor(logger)
+            h3(classes = "api-name") { +node.name }
+            pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
+            contentNodeToMarkup(node.content)
+            node.constantValue()?.let { value ->
+                pre {
+                    +"Value: "
+                    code { +value }
+                }
+            }
+            for ((name, sections) in node.content.sections.groupBy { it.tag }) {
+                table(classes = "responsive") {
+                    thead { tr { td { h3 { +name } } } }
+                    tbody {
+                        sections.forEach {
+                            tr {
+                                td { it.subjectName?.let { +it } }
+                                td {
+                                    metaMarkup(it.children)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
     override val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService> = DevsiteHtmlTemplateService::class
 
     override val outlineFactoryClass = DacOutlineFormatter::class
     override val languageServiceClass = KotlinLanguageService::class
     override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
-    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = JavaLayoutHtmlFormatOutputBuilderFactoryImpl::class
+    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = DevsiteLayoutHtmlFormatOutputBuilderFactoryImpl::class
 }

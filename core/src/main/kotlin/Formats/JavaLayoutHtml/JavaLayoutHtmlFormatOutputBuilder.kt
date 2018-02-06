@@ -42,7 +42,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     protected open fun FlowContent.metaMarkup(content: ContentNode) = contentNodeToMarkup(content)
 
     private fun FlowContent.contentNodesToMarkup(content: List<ContentNode>): Unit = content.forEach { contentNodeToMarkup(it) }
-    private fun FlowContent.contentNodeToMarkup(content: ContentNode) {
+    protected fun FlowContent.contentNodeToMarkup(content: ContentNode) {
         when (content) {
             is ContentText -> +content.text
             is ContentSymbol -> span("symbol") { +content.text }
