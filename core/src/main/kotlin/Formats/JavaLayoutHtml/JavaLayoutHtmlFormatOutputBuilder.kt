@@ -81,7 +81,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             is ContentParagraph -> p { contentNodesToMarkup(content.children) }
 
             is ContentNodeLink -> {
-                a(href = content.node) { contentNodesToMarkup(content.children) }
+                fun FlowContent.body() = contentNodesToMarkup(content.children)
+
+                when (content.node?.kind) {
+                    NodeKind.TypeParameter -> body()
+                    else -> a(href = content.node, block = FlowContent::body)
+                }
             }
             is ContentExternalLink -> contentExternalLink(content)
             is ContentSection -> {}
@@ -609,6 +614,59 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    protected open fun FlowContent.seeAlsoSection(links: List<List<ContentNode>>) {
+        p { b { +"See Also" } }
+        ul {
+            links.forEach { linkParts ->
+                li { code { metaMarkup(linkParts) } }
+            }
+        }
+    }
+
+    protected open fun FlowContent.regularSection(name: String, entries: List<ContentSection>) {
+        table {
+            thead {
+                tr {
+                    th {
+                        colSpan = "2"
+                        +name
+                    }
+                }
+            }
+            tbody {
+                entries.forEach {
+                    tr {
+                        if (it.subjectName != null) {
+                            td { +it.subjectName }
+                        }
+                        td {
+                            metaMarkup(it.children)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    protected open fun FlowContent.section(name: String, sectionParts: List<ContentSection>) {
+        when(name) {
+            ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as ContentParagraph).children } })
+            else -> regularSection(name, sectionParts)
+        }
+    }
+
+    protected open fun FlowContent.sections(content: Content) {
+        val sectionsByTag = content.sections.groupByTo(mutableMapOf()) { it.tag }
+
+        val seeAlso = sectionsByTag.remove(ContentTags.SeeAlso)
+
+        for ((name, entries) in sectionsByTag) {
+            section(name, entries)
+        }
+
+        seeAlso?.let { section(ContentTags.SeeAlso, it) }
+    }
+
     protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
@@ -621,21 +679,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                     code { +value }
                 }
             }
-            for ((name, sections) in node.content.sections.groupBy { it.tag }) {
-                table {
-                    thead { tr { td { h3 { +name } } } }
-                    tbody {
-                        sections.forEach {
-                            tr {
-                                td { it.subjectName?.let { +it } }
-                                td {
-                                    metaMarkup(it.children)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+
+            sections(node.content)
         }
     }
 
