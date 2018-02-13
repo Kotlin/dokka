@@ -169,7 +169,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android' // You will need this even if all source files are in Java, not in Kotlin
 apply plugin: 'org.jetbrains.dokka-android'
 ```
 
