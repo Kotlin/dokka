@@ -1,3 +1,4 @@
+import com.gradle.publish.DependenciesBuilder
 import org.jetbrains.CorrectShadowPublishing
 
 apply plugin: 'java'
@@ -85,6 +86,12 @@ pluginBundle {
             id = 'org.jetbrains.dokka-android'
             displayName = 'Dokka Android plugin'
         }
+    }
+
+    withDependencies { List<Dependency> list ->
+        list.clear()
+        def builder = new DependenciesBuilder()
+        builder.addUniqueScopedDependencies(list, configurations.shadow, "compile")
     }
 
     mavenCoordinates {
