@@ -19,7 +19,8 @@ enum class RefKind {
     Deprecation,
     TopLevelPage,
     Platform,
-    ExternalType
+    ExternalType,
+    Attribute
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {

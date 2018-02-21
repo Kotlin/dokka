@@ -59,6 +59,8 @@ enum class NodeKind {
      */
     OverloadGroupNote,
 
+    XmlAttribute,
+
     GroupNode;
 
     companion object {
@@ -84,6 +86,8 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
         get() = references(RefKind.Member).map { it.to }
+    val xmlAttributes: List<DocumentationNode>
+        get() = references(RefKind.Attribute).map { it.to }
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
     val inheritedCompanionObjectMembers: List<DocumentationNode>
@@ -125,10 +129,6 @@ open class DocumentationNode(val name: String,
         get() = generateSequence(superclassType) {
             it.superclassType
         }
-
-    val xmlAttributeDescriptions: HashSet<String> = HashSet()
-    val xmlAttributeNames: HashSet<String> = HashSet()
-    val xmlAttributeReferences: HashSet<String> = HashSet()
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {

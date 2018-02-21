@@ -85,32 +85,40 @@ class DescriptorDocumentationParser @Inject constructor(
         return content to { node ->
             if (kdoc is KDocSection) {
                 val tags = kdoc.getTags()
-                tags.forEach {
-                    val name = it.name
-                    if (name?.toLowerCase() == "attr") {
-                        val matcher = TEXT.matcher(it.getContent())
-                        if (matcher.matches()) {
-                            val command = matcher.group(1)
-                            val more = matcher.group(2)
-                            when (command) {
-                                REF_COMMAND -> {
-                                    val attrRef = more.trim()
-                                    node.xmlAttributeReferences.add(attrRef)
-                                }
-                                NAME_COMMAND -> {
-                                    val nameMatcher = NAME_TEXT.matcher(more)
-                                    if (nameMatcher.matches()) {
-                                        val attrName = nameMatcher.group(1)
-                                        node.xmlAttributeNames.add(attrName)
-                                    }
-                                }
-                                DESCRIPTION_COMMAND -> {
-                                    val attrDescription = more
-                                    node.xmlAttributeDescriptions.add(attrDescription)
-                                }
+                node.addAttributes(tags)
+            }
+        }
+    }
+
+    private fun DocumentationNode.addAttributes(tags: Array<KDocTag>) {
+        tags.forEach {
+            val name = it.name
+            if (name?.toLowerCase() == "attr") {
+                val matcher = TEXT.matcher(it.getContent())
+                if (matcher.matches()) {
+                    val command = matcher.group(1)
+                    val more = matcher.group(2)
+                    val attribute: DocumentationNode? = when (command) {
+                        REF_COMMAND -> {
+                            val attrRef = more.trim()
+                            DocumentationNode(attrRef, Content.Empty, NodeKind.XmlAttribute)
+                        }
+                        NAME_COMMAND -> {
+                            val nameMatcher = NAME_TEXT.matcher(more)
+                            if (nameMatcher.matches()) {
+                                val attrName = nameMatcher.group(1)
+                                DocumentationNode(attrName, Content.Empty, NodeKind.XmlAttribute)
+                            } else {
+                                null
                             }
                         }
+                        DESCRIPTION_COMMAND -> {
+                            val attrDescription = more
+                            DocumentationNode(attrDescription, Content.Empty, NodeKind.XmlAttribute)
+                        }
+                        else -> null
                     }
+                    attribute?.let { append(it, RefKind.Attribute) }
                 }
             }
         }
