@@ -81,7 +81,7 @@ class DescriptorDocumentationParser
         val suppressAnnotation = annotations.findAnnotation(FqName(Suppress::class.qualifiedName!!))
         return if (suppressAnnotation != null) {
             @Suppress("UNCHECKED_CAST")
-            (suppressAnnotation.argumentValue("names") as List<StringValue>).any { it.value == "NOT_DOCUMENTED" }
+            (suppressAnnotation.argumentValue("names")?.value as List<StringValue>).any { it.value == "NOT_DOCUMENTED" }
         } else containingDeclaration?.isSuppressWarning() ?: false
     }
 
