@@ -126,6 +126,10 @@ open class DocumentationNode(val name: String,
             it.superclassType
         }
 
+    val xmlAttributeDescriptions: HashSet<String> = HashSet()
+    val xmlAttributeNames: HashSet<String> = HashSet()
+    val xmlAttributeReferences: HashSet<String> = HashSet()
+
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
         references.add(DocumentationReference(this, to, kind))

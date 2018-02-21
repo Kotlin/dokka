@@ -23,15 +23,23 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
+import java.util.regex.Pattern
 
-class DescriptorDocumentationParser
-         @Inject constructor(val options: DocumentationOptions,
-                             val logger: DokkaLogger,
-                             val linkResolver: DeclarationLinkResolver,
-                             val resolutionFacade: DokkaResolutionFacade,
-                             val refGraph: NodeReferenceGraph,
-                             val sampleService: SampleProcessingService)
-{
+private val REF_COMMAND = "ref"
+private val NAME_COMMAND = "name"
+private val DESCRIPTION_COMMAND = "description"
+private val TEXT = Pattern.compile("(\\S+)\\s*(.*)", Pattern.DOTALL)
+private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
+
+class DescriptorDocumentationParser @Inject constructor(
+        val options: DocumentationOptions,
+        val logger: DokkaLogger,
+        val linkResolver: DeclarationLinkResolver,
+        val resolutionFacade: DokkaResolutionFacade,
+        val refGraph: NodeReferenceGraph,
+        val sampleService: SampleProcessingService
+) {
+
     fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
             parseDocumentationAndDetails(descriptor, inline).first
 
@@ -74,10 +82,41 @@ class DescriptorDocumentationParser
                 }
             }
         }
-        return content to { node -> }
+        return content to { node ->
+            if (kdoc is KDocSection) {
+                val tags = kdoc.getTags()
+                tags.forEach {
+                    val name = it.name
+                    if (name?.toLowerCase() == "attr") {
+                        val matcher = TEXT.matcher(it.getContent())
+                        if (matcher.matches()) {
+                            val command = matcher.group(1)
+                            val more = matcher.group(2)
+                            when (command) {
+                                REF_COMMAND -> {
+                                    val attrRef = more.trim()
+                                    node.xmlAttributeReferences.add(attrRef)
+                                }
+                                NAME_COMMAND -> {
+                                    val nameMatcher = NAME_TEXT.matcher(more)
+                                    if (nameMatcher.matches()) {
+                                        val attrName = nameMatcher.group(1)
+                                        node.xmlAttributeNames.add(attrName)
+                                    }
+                                }
+                                DESCRIPTION_COMMAND -> {
+                                    val attrDescription = more
+                                    node.xmlAttributeDescriptions.add(attrDescription)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private fun DeclarationDescriptor.isSuppressWarning() : Boolean {
+    private fun DeclarationDescriptor.isSuppressWarning(): Boolean {
         val suppressAnnotation = annotations.findAnnotation(FqName(Suppress::class.qualifiedName!!))
         return if (suppressAnnotation != null) {
             @Suppress("UNCHECKED_CAST")
@@ -130,17 +169,22 @@ class DescriptorDocumentationParser
         return Content.Empty to { node -> }
     }
 
-    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java) ?: arrayOf()
+    fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java)
+            ?: arrayOf()
 
     private fun MutableContent.addTagToSeeAlso(descriptor: DeclarationDescriptor, seeTag: KDocTag) {
+        addTagToSection(seeTag, descriptor, "See Also")
+    }
+
+    private fun MutableContent.addTagToSection(seeTag: KDocTag, descriptor: DeclarationDescriptor, sectionName: String) {
         val subjectName = seeTag.getSubjectName()
         if (subjectName != null) {
-            val seeSection = findSectionByTag("See Also") ?: addSection("See Also", null)
+            val section = findSectionByTag(sectionName) ?: addSection(sectionName, null)
             val link = linkResolver.resolveContentLink(descriptor, subjectName)
             link.append(ContentText(subjectName))
             val para = ContentParagraph()
             para.append(link)
-            seeSection.append(para)
+            section.append(para)
         }
     }
 
