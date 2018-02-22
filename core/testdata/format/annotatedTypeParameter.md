@@ -2,4 +2,4 @@
 
 # containsAll
 
-`fun <E> containsAll(elements: Collection<@UnsafeVariance E>): @UnsafeVariance E`
+`fun <E> containsAll(elements: Collection<@UnsafeVariance `[`E`](test/contains-all#E)`>): @UnsafeVariance `[`E`](test/contains-all#E)

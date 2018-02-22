@@ -110,9 +110,12 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: LinkR
             }
 
             MarkdownTokenTypes.CODE_LINE -> {
-                val block = ContentBlockCode()
-                block.append(ContentText(node.text))
-                parent.append(block)
+                val content = ContentText(node.text)
+                if (parent is ContentBlockCode) {
+                    parent.append(content)
+                } else {
+                    parent.append(ContentBlockCode().apply { append(content) })
+                }
             }
 
             MarkdownTokenTypes.TEXT -> {

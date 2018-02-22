@@ -32,7 +32,7 @@ class PackageDocs
                         targetContent = findTargetContent(headingText.trimStart())
                     }
                 } else {
-                    buildContentTo(it, targetContent, LinkResolver(linkMap, { resolveContentLink(it, linkResolveContext) }))
+                    buildContentTo(it, targetContent, LinkResolver(linkMap, { resolveContentLink(fileName, it, linkResolveContext) }))
                 }
             }
         } else {
@@ -53,7 +53,7 @@ class PackageDocs
     private fun findOrCreatePackageContent(packageName: String) =
         _packageContent.getOrPut(packageName) { -> MutableContent() }
 
-    private fun resolveContentLink(href: String, linkResolveContext: List<PackageFragmentDescriptor>): ContentBlock {
+    private fun resolveContentLink(fileName: String, href: String, linkResolveContext: List<PackageFragmentDescriptor>): ContentBlock {
         if (linkResolver != null) {
             linkResolveContext
                     .asSequence()
@@ -62,6 +62,7 @@ class PackageDocs
                     .firstOrNull()
                     ?.let { return it }
         }
+        logger.warn("Unresolved link to `$href` in include ($fileName)")
         return ContentExternalLink("#")
     }
 }

@@ -2,11 +2,13 @@ package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.allChildren
+import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.resolve.ImportPath
 
 open class KotlinWebsiteSampleProcessingService
@@ -35,14 +37,19 @@ open class KotlinWebsiteSampleProcessingService
             }
         }
 
-        fun convertAssertTrue(expression: KtCallExpression) {
+        fun convertAssertTrueFalse(expression: KtCallExpression, expectedResult: Boolean) {
             val (argument) = expression.valueArguments
             builder.apply {
+                expression.valueArguments.getOrNull(1)?.let {
+                    append("// ${it.extractStringArgumentValue()}")
+                    val ws = expression.prevLeaf { it is PsiWhiteSpace }
+                    append(ws?.text ?: "\n")
+                }
                 append("println(\"")
                 append(argument.text)
                 append(" is \${")
                 append(argument.text)
-                append("}\") // true")
+                append("}\") // $expectedResult")
             }
         }
 
@@ -77,7 +84,8 @@ open class KotlinWebsiteSampleProcessingService
         override fun visitCallExpression(expression: KtCallExpression) {
             when (expression.calleeExpression?.text) {
                 "assertPrints" -> convertAssertPrints(expression)
-                "assertTrue" -> convertAssertTrue(expression)
+                "assertTrue" -> convertAssertTrueFalse(expression, expectedResult = true)
+                "assertFalse" -> convertAssertTrueFalse(expression, expectedResult = false)
                 "assertFails" -> convertAssertFails(expression)
                 "assertFailsWith" -> convertAssertFailsWith(expression)
                 else -> super.visitCallExpression(expression)

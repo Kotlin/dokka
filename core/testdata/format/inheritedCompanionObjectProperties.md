@@ -4,6 +4,10 @@
 
 `class C : `[`A`](test/-a/index)
 
+### Types
+
+| [Companion](test/-c/-companion/index) | `companion object Companion : `[`B`](test/-b/index) |
+
 ### Constructors
 
 | [&lt;init&gt;](test/-c/-init-) | `C()` |

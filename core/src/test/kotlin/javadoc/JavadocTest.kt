@@ -151,6 +151,16 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun testCompanionMethodReference() {
+        verifyJavadoc("testdata/javadoc/companionMethodReference.kt") { doc ->
+            val classDoc = doc.classNamed("foo.TestClass")!!
+            val tag = classDoc.inlineTags().filterIsInstance<SeeMethodTagAdapter>().first()
+            assertEquals("TestClass.Companion", tag.referencedClassName())
+            assertEquals("test", tag.referencedMemberName())
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,

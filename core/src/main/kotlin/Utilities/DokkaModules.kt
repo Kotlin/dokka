@@ -7,6 +7,7 @@ import com.google.inject.TypeLiteral
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
+import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
@@ -22,7 +23,7 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DokkaLogger>().toInstance(logger)
 
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
-
+        binder.bind<DescriptorSignatureProvider>().to(descriptor.descriptorSignatureProvider.java)
         binder.registerCategory<LanguageService>("language")
         binder.bind<PackageDocumentationBuilder>().to(descriptor.packageDocumentationBuilderClass.java)
         binder.bind<JavaDocumentationBuilder>().to(descriptor.javaDocumentationBuilderClass.java)

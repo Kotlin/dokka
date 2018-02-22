@@ -44,7 +44,7 @@ class DokkaArguments {
     @set:Argument(value = "impliedPlatforms", description = "List of implied platforms (comma-separated)")
     var impliedPlatforms: String = ""
 
-    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented;...\" ")
+    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" ")
     var packageOptions: String = ""
 
     @set:Argument(value = "links", description = "External documentation links in format url^packageListUrl^^url2...")
@@ -55,6 +55,13 @@ class DokkaArguments {
 
     @set:Argument(value = "cacheRoot", description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled")
     var cacheRoot: String? = null
+
+    @set:Argument(value = "languageVersion", description = "Language Version to pass to Kotlin Analysis")
+    var languageVersion: String? = null
+
+    @set:Argument(value = "apiVersion", description = "Kotlin Api Version to pass to Kotlin Analysis")
+    var apiVersion: String? = null
+
 }
 
 
@@ -108,7 +115,9 @@ object MainKt {
                 jdkVersion = arguments.jdkVersion,
                 externalDocumentationLinks = parseLinks(arguments.links),
                 noStdlibLink = arguments.noStdlibLink,
-                cacheRoot = arguments.cacheRoot
+                cacheRoot = arguments.cacheRoot,
+                languageVersion = arguments.languageVersion,
+                apiVersion = arguments.apiVersion
         )
 
         val generator = DokkaGenerator(
@@ -139,8 +148,10 @@ object MainKt {
 
     fun createClassLoaderWithTools(): ClassLoader {
         val toolsJar = findToolsJar().canonicalFile.toURI().toURL()
+        val originalUrls = (javaClass.classLoader as? URLClassLoader)?.urLs
         val dokkaJar = javaClass.protectionDomain.codeSource.location
-        return URLClassLoader(arrayOf(toolsJar, dokkaJar), ClassLoader.getSystemClassLoader().parent)
+        val urls = if (originalUrls != null) arrayOf(toolsJar, *originalUrls) else arrayOf(toolsJar, dokkaJar)
+        return URLClassLoader(urls, ClassLoader.getSystemClassLoader().parent)
     }
 
     fun startWithToolsJar(args: Array<String>) {

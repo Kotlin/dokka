@@ -1,13 +1,26 @@
 buildscript {
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_for_gradle_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 apply plugin: 'kotlin'
 
+
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        languageVersion = "1.2"
+        apiVersion = "1.1"
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
-    compile 'com.github.yole:jkid:7d9c529c87'
+    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
+    compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_runtime_version
+    compile('com.github.yole:jkid:8fc7f12e1a') {
+        transitive = false
+    }
 }

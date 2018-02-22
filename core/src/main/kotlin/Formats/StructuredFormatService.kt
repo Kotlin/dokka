@@ -398,10 +398,29 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     else -> it.platformsToShow.toSet()
                 }
             }
+
+            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+
             // Calculating common platforms for items
-            return platforms.fold(platforms.first()) {
-                result, platforms ->
-                result.intersect(platforms)
+            return platforms.reduce { result, platformsOfItem ->
+                val otherKotlinVersion = result.find { it.isKotlinVersion() }
+                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
+
+                // When no Kotlin version specified, it means that version is 1.0
+                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
+                    val allKotlinVersions = (kotlinVersions + otherKotlinVersion).distinct()
+
+                    val minVersion = allKotlinVersions.min()!!
+                    val resultVersion = when {
+                        allKotlinVersions.size == 1 -> allKotlinVersions.single()
+                        minVersion.endsWith("+") -> minVersion
+                        else -> minVersion + "+"
+                    }
+
+                    result.intersect(otherPlatforms) + resultVersion
+                } else {
+                    result.intersect(platformsOfItem)
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 package org.jetbrains
 
+import com.github.jengelman.gradle.plugins.shadow.relocation.RelocateClassContext
 import com.github.jengelman.gradle.plugins.shadow.relocation.Relocator
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
@@ -22,7 +23,7 @@ public class PluginXmlTransformer implements Transformer {
         def inputStream = context.is
         System.out.println(path)
         Node node = new XmlParser().parse(inputStream)
-        relocateXml(node, context.relocators)
+        relocateXml(node, context)
         transformedPluginXmlFiles.put(path, node)
     }
 
@@ -39,28 +40,32 @@ public class PluginXmlTransformer implements Transformer {
         }
     }
 
-    private static void relocateXml(Node node, List<Relocator> relocators) {
+    private static void relocateXml(Node node, TransformerContext context) {
         Map attributes = node.attributes()
+        RelocateClassContext relocateClassContext = new RelocateClassContext()
+        relocateClassContext.stats = context.stats
         for (Map.Entry entry : attributes.entrySet()) {
-            entry.setValue(relocateClassName((String) entry.getValue(), relocators))
+            relocateClassContext.setClassName((String) entry.getValue())
+            entry.setValue(relocateClassName(relocateClassContext, context))
         }
         List<String> localText = node.localText()
         if (localText.size() == 1) {
-            node.setValue(relocateClassName(localText[0], relocators))
+            relocateClassContext.setClassName(localText[0])
+            node.setValue(relocateClassName(relocateClassContext, context))
         }
         node.children().each {
             if (it instanceof Node) {
-                relocateXml((Node) it, relocators)
+                relocateXml((Node) it, context)
             }
         }
     }
 
-    private static String relocateClassName(String className, List<Relocator> relocators) {
-        for (Relocator relocator : relocators) {
-            if (relocator.canRelocateClass(className)) {
-                return relocator.relocateClass(className)
+    private static String relocateClassName(RelocateClassContext relocateContext, TransformerContext context) {
+        for (Relocator relocator : context.relocators) {
+            if (relocator.canRelocateClass(relocateContext)) {
+                return relocator.relocateClass(relocateContext)
             }
         }
-        return className
+        return relocateContext.className
     }
 }

@@ -50,6 +50,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var reportUndocumented: Boolean = true
         @Parameter
         override var skipDeprecated: Boolean = false
+        @Parameter
+        override var suppress: Boolean = false
     }
 
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
@@ -105,6 +107,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var cacheRoot: String? = null
 
+    @Parameter
+    var languageVersion: String? = null
+
+    @Parameter
+    var apiVersion: String? = null
+
     protected abstract fun getOutDir(): String
     protected abstract fun getOutFormat(): String
 
@@ -131,7 +139,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
-                        cacheRoot = cacheRoot
+                        cacheRoot = cacheRoot,
+                        languageVersion = languageVersion,
+                        apiVersion = apiVersion
                 )
         )
 

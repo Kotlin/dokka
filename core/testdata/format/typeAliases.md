@@ -30,11 +30,11 @@
 
 # H
 
-`typealias H<T> = `[`C`](test/-c/index)`<T>`[test](test/index) / [I](test/-i)
+`typealias H<T> = `[`C`](test/-c/index)`<`[`T`](test/-h#T)`>`[test](test/index) / [I](test/-i)
 
 # I
 
-`typealias I<T> = `[`H`](test/-h)`<T>`[test](test/index) / [J](test/-j)
+`typealias I<T> = `[`H`](test/-h)`<`[`T`](test/-i#T)`>`[test](test/index) / [J](test/-j)
 
 # J
 

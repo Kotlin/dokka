@@ -1,16 +1,21 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPrivateApi
+import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPublicApi
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                             val refGraph: NodeReferenceGraph,
                             val logger: DokkaLogger,
                             val options: DocumentationOptions,
-                            val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver) {
+                            val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver,
+                            val descriptorSignatureProvider: DescriptorSignatureProvider) {
 
 
     fun tryResolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock? {
@@ -29,7 +34,17 @@ class DeclarationLinkResolver
             if (externalHref != null) {
                 return ContentExternalLink(externalHref)
             }
-            return ContentNodeLazyLink(href, { -> refGraph.lookupOrWarn(symbol.signature(), logger) })
+            val signature = descriptorSignatureProvider.signature(symbol)
+            val referencedAt = fromDescriptor.signatureWithSourceLocation()
+
+            return ContentNodeLazyLink(href, { ->
+                val target = refGraph.lookup(signature)
+
+                if (target == null) {
+                    logger.warn("Can't find node by signature $signature, referenced at $referencedAt")
+                }
+                target
+            })
         }
         if ("/" in href) {
             return ContentExternalLink(href)
@@ -50,6 +65,9 @@ class DeclarationLinkResolver
         val symbol = symbols.first()
         if (symbol is CallableMemberDescriptor && symbol.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
             return symbol.overriddenDescriptors.firstOrNull()
+        }
+        if (symbol is TypeAliasDescriptor && !symbol.isDocumented(options)) {
+            return symbol.classDescriptor
         }
         return symbol
     }

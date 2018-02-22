@@ -22,6 +22,9 @@
             constructor.html
             index.html
             main.html
+            p1.-my-binary-class/
+                index.html
+                test.html
             str.html
             x.html
         index-outline.html

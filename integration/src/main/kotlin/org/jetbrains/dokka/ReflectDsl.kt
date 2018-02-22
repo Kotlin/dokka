@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
 import kotlin.reflect.*
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
 object ReflectDsl {

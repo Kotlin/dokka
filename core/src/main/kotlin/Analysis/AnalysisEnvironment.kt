@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.common.collect.ImmutableMap
 import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreModuleManager
 import com.intellij.mock.MockComponentManager
@@ -13,11 +14,11 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
 import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -35,16 +36,19 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JvmBuiltIns
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
+import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
+import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 import java.io.File
 
 /**
@@ -114,11 +118,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val builtIns = JvmBuiltIns(projectContext.storageManager)
 
 
-        val javaRoots = run {
-            val jvfs = VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.JAR_PROTOCOL)
+        val javaRoots = classpath
+                .mapNotNull {
+                    val rootFile = when {
+                        it.extension == "jar" ->
+                            StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")
+                        else ->
+                            StandardFileSystems.local().findFileByPath(it.absolutePath)
+                    }
 
-            classpath.map { JavaRoot(jvfs.findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")!!, JavaRoot.RootType.BINARY) }
-        }
+                    rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
+                }
 
         val resolverForProject = ResolverForProjectImpl(
                 "Dokka",
@@ -141,7 +151,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                 },
                 CompilerEnvironment,
                 packagePartProviderFactory = { info, content ->
-                    JvmPackagePartProvider(LanguageVersionSettingsImpl.DEFAULT, content.moduleContentScope).apply {
+                    JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
                         addRoots(javaRoots)
                     }
                 },
@@ -153,7 +163,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val resolverForModule = resolverForProject.resolverForModule(module)
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
         builtIns.initialize(moduleDescriptor, true)
-        return DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
+        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
+        val projectComponentManager = environment.project as MockComponentManager
+        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
+
+        return created
+    }
+
+    fun loadLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?) {
+        val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
+        val apiVersion = apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+        configuration.languageVersionSettings = LanguageVersionSettingsImpl(languageVersion, apiVersion)
     }
 
     /**
@@ -236,6 +256,42 @@ class DokkaResolutionFacade(override val project: Project,
     val resolveSession: ResolveSession get() = getFrontendService(ResolveSession::class.java)
 
     override fun analyze(element: KtElement, bodyResolveMode: BodyResolveMode): BindingContext {
+        if (element is KtDeclaration) {
+            val descriptor = resolveToDescriptor(element)
+            return object : BindingContext {
+                override fun <K : Any?, V : Any?> getKeys(p0: WritableSlice<K, V>?): Collection<K> {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun getType(p0: KtExpression): KotlinType? {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun <K : Any?, V : Any?> get(slice: ReadOnlySlice<K, V>?, key: K): V? {
+                    if (key != element) {
+                        throw UnsupportedOperationException()
+                    }
+                    return when {
+                        slice == BindingContext.DECLARATION_TO_DESCRIPTOR -> descriptor as V
+                        slice == BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER && (element as KtParameter).hasValOrVar() -> descriptor as V
+                        else -> null
+                    }
+                }
+
+                override fun getDiagnostics(): Diagnostics {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun addOwnDataTo(p0: BindingTrace, p1: Boolean) {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun <K : Any?, V : Any?> getSliceContents(p0: ReadOnlySlice<K, V>): ImmutableMap<K, V> {
+                    throw UnsupportedOperationException()
+                }
+
+            }
+        }
         throw UnsupportedOperationException()
     }
 

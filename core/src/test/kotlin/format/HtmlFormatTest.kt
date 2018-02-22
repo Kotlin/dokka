@@ -146,6 +146,10 @@ class HtmlFormatTest {
         verifyHtmlNode("blankLineInsideCodeBlock")
     }
 
+    @Test fun indentedCodeBlock() {
+        verifyHtmlNode("indentedCodeBlock")
+    }
+
     private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
         verifyHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }

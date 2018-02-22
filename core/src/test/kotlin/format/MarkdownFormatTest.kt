@@ -251,6 +251,10 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("sinceKotlin")
     }
 
+    @Test fun sinceKotlinWide() {
+        verifyMarkdownPackage("sinceKotlinWide")
+    }
+
     @Test fun dynamicType() {
         verifyMarkdownNode("dynamicType")
     }
@@ -300,7 +304,14 @@ class MarkdownFormatTest {
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), withKotlinRuntime = true, options = options)
         verifyMultiplatformIndex(module, path)
         verifyMultiplatformPackage(module, path)
@@ -376,9 +387,40 @@ class MarkdownFormatTest {
         verifyMarkdownPackage("newlineInTableCell")
     }
 
+    @Test fun indentedCodeBlock() {
+        verifyMarkdownNode("indentedCodeBlock")
+    }
+
+    @Test fun receiverReference() {
+        verifyMarkdownNode("receiverReference")
+    }
+
+    @Test fun extensionScope() {
+        verifyMarkdownNodeByName("extensionScope", "test")
+    }
+
+    @Test fun typeParameterReference() {
+        verifyMarkdownNode("typeParameterReference")
+    }
+
+    @Test fun notPublishedTypeAliasAutoExpansion() {
+        verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", includeNonPublic = false)
+    }
+
+    @Test fun companionImplements() {
+        verifyMarkdownNodeByName("companionImplements", "Foo")
+    }
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
         return module
@@ -412,8 +454,18 @@ class MarkdownFormatTest {
         verifyMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
     }
 
-    private fun verifyMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyOutput("testdata/format/$fileName.kt", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+    private fun verifyMarkdownNodes(
+            fileName: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true,
+            nodeFilter: (DocumentationModule) -> List<DocumentationNode>
+    ) {
+        verifyOutput(
+                "testdata/format/$fileName.kt",
+                ".md",
+                withKotlinRuntime = withKotlinRuntime,
+                includeNonPublic = includeNonPublic
+        ) { model, output ->
             markdownService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
         }
     }
@@ -428,8 +480,13 @@ class MarkdownFormatTest {
         }
     }
 
-    private fun verifyMarkdownNodeByName(fileName: String, name: String, withKotlinRuntime: Boolean = false) {
-        verifyMarkdownNodes(fileName, withKotlinRuntime) { model->
+    private fun verifyMarkdownNodeByName(
+            fileName: String,
+            name: String,
+            withKotlinRuntime: Boolean = false,
+            includeNonPublic: Boolean = true
+    ) {
+        verifyMarkdownNodes(fileName, withKotlinRuntime, includeNonPublic) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")

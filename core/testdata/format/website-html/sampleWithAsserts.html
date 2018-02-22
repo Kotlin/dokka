@@ -9,7 +9,14 @@ fun main(args: Array&lt;String&gt;) {
 //sampleStart
 println(a()) // Hello, Work
 println("a() == b() is ${a() == b()}") // true
+// A eq B
+println("a() == b() is ${a() == b()}") // true
 // readSomeFile(File("some.txt")) // reading file now will fail
 // readSomeFile(File("some.txt")) // will fail with FileNotFoundException
+
+fun indented() {
+    // A neq B
+    println("a() != b() is ${a() != b()}") // false
+}
 //sampleEnd
 }</code></pre></div>

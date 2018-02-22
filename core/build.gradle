@@ -8,21 +8,30 @@ buildscript {
 
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        languageVersion = "1.2"
+        apiVersion = languageVersion
+        jvmTarget = "1.8"
+    }
+}
 
 dependencies {
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$bundled_kotlin_compiler_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$bundled_kotlin_compiler_version"
 
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
     compile "org.jsoup:jsoup:1.8.3"
 
-    compile files("../lib/intellij-core-analysis.jar")
+    compile "org.jetbrains.kotlin:kotlin-compiler:$bundled_kotlin_compiler_version"
+    compile "org.jetbrains.kotlin:kotlin-script-runtime:$bundled_kotlin_compiler_version"
 
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler', version: kotlin_version
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version
-    compile files("../lib/kotlin-ide-common.jar")
-    compile files("../lib/markdown.jar")
+    compile "teamcity:kotlin-ide-common:$bundled_kotlin_compiler_version"
+    compile "teamcity:markdown:$markdownVersion"
+
+    compile intellijCoreAnalysis()
 
     //tools.jar
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
@@ -34,5 +43,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
-}
 
+    testCompile ideaRT()
+}

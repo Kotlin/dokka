@@ -11,6 +11,7 @@ class BasicTest : AbstractDokkaGradleTest() {
         val tmpRoot = testProjectDir.root.toPath()
 
         testDataRoot.resolve("src").copy(tmpRoot.resolve("src"))
+        testDataRoot.resolve("classDir").copy(tmpRoot.resolve("classDir"))
         testDataRoot.resolve("build.gradle").copy(tmpRoot.resolve("build.gradle"))
         testDataRoot.resolve("settings.gradle").copy(tmpRoot.resolve("settings.gradle"))
     }
@@ -48,4 +49,7 @@ class BasicTest : AbstractDokkaGradleTest() {
         doTest("4.0", "1.1.2")
     }
 
+    @Test fun `test kotlin 1_2_20 and gradle 4_5`() {
+        doTest("4.5", "1.2.20")
+    }
 }

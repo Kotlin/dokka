@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.dokka-android'
+}
+
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
+
+android {
+    compileSdkVersion Integer.parseInt(sdk_version)
+    buildToolsVersion abt_version
+
+    defaultConfig {
+        applicationId "org.example.kotlin.mixed"
+        minSdkVersion 14
+        targetSdkVersion Integer.parseInt(sdk_version)
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$test_kotlin_version"
+}
+
+
+dokka {
+    outputFormat = "javadoc"
+    dokkaFatJar = new File(dokka_fatjar)
+}

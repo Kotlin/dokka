@@ -1,35 +1,39 @@
+import org.jetbrains.DependenciesVersionGetter
+
 allprojects {
     group 'org.jetbrains.dokka'
     version dokka_version
+
+    def repo = {
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+    }
 
     buildscript {
         repositories {
             mavenCentral()
             jcenter()
-            maven {
-                url  "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-            }
-            maven {
-                url "https://dl.bintray.com/kotlin/kotlin-dev"
-            }
-            maven {
-                url "https://plugins.gradle.org/m2/"
-            }
+            maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+            maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+            maven { url "https://plugins.gradle.org/m2/" }
+            ivy(repo)
         }
         dependencies {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
             classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
 
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.6"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
         }
     }
 
     repositories {
         mavenCentral()
         mavenLocal()
-        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
+        maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
+        ivy(repo)
     }
 }
 
@@ -60,6 +64,38 @@ def bintrayPublication(project, List<String> _publications) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2'
+    gradleVersion = '4.2.1'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
+
+ext.ideaVersion = versions["idea.build.id"]
+ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
+
+configurations {
+    ideaIC
+    intellijCore
+}
+
+repositories {
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+}
+
+dependencies {
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
+    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
+}
+
+def intellijCoreAnalysis() {
+    return zipTree(configurations.intellijCore.singleFile).matching ({
+        include("intellij-core-analysis.jar")
+    })
+}
+
+def ideaRT() {
+    return zipTree(project.configurations.ideaIC.singleFile).matching ({
+        include("lib/idea_rt.jar")
+    })
 }
