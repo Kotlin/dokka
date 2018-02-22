@@ -3,11 +3,12 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class HtmlFormatTest {
-    private val htmlService = HtmlFormatService(InMemoryLocationService, KotlinLanguageService(), HtmlTemplateService.default(), listOf())
+class HtmlFormatTest: FileGeneratorTestCase() {
+    override val formatService = HtmlFormatService(fileGenerator, KotlinLanguageService(), HtmlTemplateService.default(), listOf())
 
     @Test fun classWithCompanionObject() {
         verifyHtmlNode("classWithCompanionObject")
@@ -31,10 +32,10 @@ class HtmlFormatTest {
 
     @Test fun deprecated() {
         verifyOutput("testdata/format/deprecated.kt", ".package.html") { model, output ->
-            htmlService.createOutputBuilder(output, tempLocation).appendNodes(model.members)
+            buildPagesAndReadInto(model.members, output)
         }
         verifyOutput("testdata/format/deprecated.kt", ".class.html") { model, output ->
-            htmlService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members)
+            buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
@@ -102,7 +103,10 @@ class HtmlFormatTest {
         verifyOutput(arrayOf(KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt"),
                 JavaSourceRoot(File("testdata/format/crossLanguage/kotlinExtendsJava"), null)),
                 ".html") { model, output ->
-            htmlService.createOutputBuilder(output, tempLocation).appendNodes(model.members.single().members.filter { it.name == "Bar" })
+            buildPagesAndReadInto(
+                    model.members.single().members.filter { it.name == "Bar" },
+                    output
+            )
         }
     }
 
@@ -158,7 +162,7 @@ class HtmlFormatTest {
                                 withKotlinRuntime: Boolean = false,
                                 nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
         verifyOutput("testdata/format/$fileName.kt", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            htmlService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
@@ -170,7 +174,7 @@ class HtmlFormatTest {
                                     withKotlinRuntime: Boolean = false,
                                     nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
         verifyJavaOutput("testdata/format/$fileName.java", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
-            htmlService.createOutputBuilder(output, tempLocation).appendNodes(nodeFilter(model))
+            buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 }

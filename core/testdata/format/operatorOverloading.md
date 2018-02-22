@@ -1,5 +1,5 @@
-[test](test/index) / [C](test/-c/index) / [plus](test/-c/plus)
+[test](../index.md) / [C](index.md) / [plus](./plus.md)
 
 # plus
 
-`fun plus(other: `[`C`](test/-c/index)`): `[`C`](test/-c/index)
+`fun plus(other: `[`C`](index.md)`): `[`C`](index.md)

@@ -34,6 +34,7 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
         ivy(repo)
+        maven { url "https://dl.bintray.com/kotlin/kotlinx.html" }
     }
 }
 

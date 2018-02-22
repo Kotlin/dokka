@@ -1,6 +1,6 @@
-[test](test/index) / [kotlin.Array](test/kotlin.-array/index)
+[test](../index.md) / [kotlin.Array](./index.md)
 
 ### Extensions for kotlin.Array
 
-| [foo](test/kotlin.-array/foo) | `fun <T> Array<out `[`T`](test/kotlin.-array/foo#T)`>.foo(): Unit` |
+| [foo](foo.md) | `fun <T> Array<out `[`T`](foo.md#T)`>.foo(): Unit` |
 

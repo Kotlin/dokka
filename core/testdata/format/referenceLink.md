@@ -1,14 +1,16 @@
-[test](test/index) / [example](test/example/index) / [a](test/example/a)
+<!-- File: test/example/a.md -->
+[test](../index.md) / [example](index.md) / [a](./a.md)
 
 # a
 
 `fun a(): Unit`
 
-It is link to [example other func](test/example/some-other-func)
+It is link to [example other func](some-other-func.md)
 
-Sure, it is [example](test/example/some-other-func)
+Sure, it is [example](some-other-func.md)
 
-[test](test/index) / [example](test/example/index) / [someOtherFunc](test/example/some-other-func)
+<!-- File: test/example/some-other-func.md -->
+[test](../index.md) / [example](index.md) / [someOtherFunc](./some-other-func.md)
 
 # someOtherFunc
 

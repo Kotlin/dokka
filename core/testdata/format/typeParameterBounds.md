@@ -1,8 +1,8 @@
-[test](test/index) / [generic](test/generic)
+[test](index.md) / [generic](./generic.md)
 
 # generic
 
-`fun <T : `[`R`](test/generic#R)`, R> generic(): Unit`
+`fun <T : `[`R`](generic.md#R)`, R> generic(): Unit`
 
 generic function
 

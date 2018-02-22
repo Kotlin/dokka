@@ -5,14 +5,13 @@ import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.tests.InMemoryLocationService
 import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
-public class PackageDocsTest {
+class PackageDocsTest {
     @Test fun verifyParse() {
         val docs = PackageDocs(null, DokkaConsoleLogger)
         docs.parse("testdata/packagedocs/stdlib.md", emptyList())
@@ -37,8 +36,17 @@ public class PackageDocsTest {
 
     fun checkMarkdownOutput(docs: PackageDocs, expectedFilePrefix: String) {
 
+        val generator = FileGenerator(File(""))
+
         val out = StringBuilder()
-        val outputBuilder = MarkdownOutputBuilder(out, InMemoryLocationService.root, InMemoryLocationService, KotlinLanguageService(), ".md", emptyList())
+        val outputBuilder = MarkdownOutputBuilder(
+                out,
+                FileLocation(generator.root),
+                generator,
+                KotlinLanguageService(),
+                ".md",
+                emptyList()
+        )
         fun checkOutput(content: Content, filePostfix: String) {
             outputBuilder.appendContent(content)
             val expectedFile = File(expectedFilePrefix + filePostfix)
