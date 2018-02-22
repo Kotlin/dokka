@@ -1,5 +1,5 @@
-[test](test/index) / [apply](test/apply)
+[test](index.md) / [apply](./apply.md)
 
 # apply
 
-`inline fun <T> `[`T`](test/apply#T)`.apply(f: `[`T`](test/apply#T)`.() -> Unit): `[`T`](test/apply#T)
+`inline fun <T> `[`T`](apply.md#T)`.apply(f: `[`T`](apply.md#T)`.() -> Unit): `[`T`](apply.md#T)

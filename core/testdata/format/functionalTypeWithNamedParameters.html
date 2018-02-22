@@ -1,25 +1,103 @@
+<!-- File: test/-a/index.html -->
 <HTML>
 <HEAD>
 <meta charset="UTF-8">
+<title>A - test</title>
 </HEAD>
 <BODY>
-<a href="test/index">test</a>&nbsp;/&nbsp;<a href="test/-a/index">A</a><br/>
+<a href="../index.html">test</a>&nbsp;/&nbsp;<a href="./index.html">A</a><br/>
 <br/>
 <h1>A</h1>
-<code><span class="keyword">class </span><span class="identifier">A</span></code><a href="test/index">test</a>&nbsp;/&nbsp;<a href="test/-b/index">B</a><br/>
+<code><span class="keyword">class </span><span class="identifier">A</span></code>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">A</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
+<!-- File: test/-b/index.html -->
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>B - test</title>
+</HEAD>
+<BODY>
+<a href="../index.html">test</a>&nbsp;/&nbsp;<a href="./index.html">B</a><br/>
 <br/>
 <h1>B</h1>
-<code><span class="keyword">class </span><span class="identifier">B</span></code><a href="test/index">test</a>&nbsp;/&nbsp;<a href="test/-c/index">C</a><br/>
+<code><span class="keyword">class </span><span class="identifier">B</span></code>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">B</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
+<!-- File: test/-c/index.html -->
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>C - test</title>
+</HEAD>
+<BODY>
+<a href="../index.html">test</a>&nbsp;/&nbsp;<a href="./index.html">C</a><br/>
 <br/>
 <h1>C</h1>
-<code><span class="keyword">class </span><span class="identifier">C</span></code><a href="test/index">test</a>&nbsp;/&nbsp;<a href="test/f">f</a><br/>
+<code><span class="keyword">class </span><span class="identifier">C</span></code>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">C</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
+<!-- File: test/f.html -->
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>f - test</title>
+</HEAD>
+<BODY>
+<a href="index.html">test</a>&nbsp;/&nbsp;<a href="./f.html">f</a><br/>
 <br/>
 <h1>f</h1>
 <a name="$f"></a>
-<code><span class="keyword">val </span><span class="identifier">f</span><span class="symbol">: </span><span class="symbol">(</span><span class="identifier">a</span><span class="symbol">:</span>&nbsp;<a href="test/-a/index"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">b</span><span class="symbol">:</span>&nbsp;<a href="test/-b/index"><span class="identifier">B</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="test/-c/index"><span class="identifier">C</span></a></code><a href="test/index">test</a>&nbsp;/&nbsp;<a href="test/accept-function-type-with-named-arguments">acceptFunctionTypeWithNamedArguments</a><br/>
+<code><span class="keyword">val </span><span class="identifier">f</span><span class="symbol">: </span><span class="symbol">(</span><span class="identifier">a</span><span class="symbol">:</span>&nbsp;<a href="-a/index.html"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">b</span><span class="symbol">:</span>&nbsp;<a href="-b/index.html"><span class="identifier">B</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-c/index.html"><span class="identifier">C</span></a></code>
+</BODY>
+</HTML>
+<!-- File: test/accept-function-type-with-named-arguments.html -->
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>acceptFunctionTypeWithNamedArguments - test</title>
+</HEAD>
+<BODY>
+<a href="index.html">test</a>&nbsp;/&nbsp;<a href="./accept-function-type-with-named-arguments.html">acceptFunctionTypeWithNamedArguments</a><br/>
 <br/>
 <h1>acceptFunctionTypeWithNamedArguments</h1>
 <a name="$acceptFunctionTypeWithNamedArguments(kotlin.Function2((B, A, C)))"></a>
-<code><span class="keyword">fun </span><span class="identifier">acceptFunctionTypeWithNamedArguments</span><span class="symbol">(</span><span class="identifier" id="$acceptFunctionTypeWithNamedArguments(kotlin.Function2((B, A, C)))/f">f</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">bb</span><span class="symbol">:</span>&nbsp;<a href="test/-b/index"><span class="identifier">B</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">aa</span><span class="symbol">:</span>&nbsp;<a href="test/-a/index"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="test/-c/index"><span class="identifier">C</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Unit</span></code>
+<code><span class="keyword">fun </span><span class="identifier">acceptFunctionTypeWithNamedArguments</span><span class="symbol">(</span><span class="identifier" id="$acceptFunctionTypeWithNamedArguments(kotlin.Function2((B, A, C)))/f">f</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">bb</span><span class="symbol">:</span>&nbsp;<a href="-b/index.html"><span class="identifier">B</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">aa</span><span class="symbol">:</span>&nbsp;<a href="-a/index.html"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-c/index.html"><span class="identifier">C</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Unit</span></code>
 </BODY>
 </HTML>

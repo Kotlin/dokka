@@ -1,4 +1,4 @@
-[test](test/index) / [hackTheArithmetic](test/hack-the-arithmetic)
+[test](index.md) / [hackTheArithmetic](./hack-the-arithmetic.md)
 
 # hackTheArithmetic
 

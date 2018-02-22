@@ -1,4 +1,4 @@
-[test](test/index) / [some](test/some/index)
+[test](../index.md) / [some](./index.md)
 
 ## Package some
 
@@ -6,5 +6,5 @@
 
 ### Extensions for External Classes
 
-| [kotlin.String](test/some/kotlin.-string/index) |  |
+| [kotlin.String](kotlin.-string/index.md) |  |
 

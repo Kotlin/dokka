@@ -1,30 +1,30 @@
-[test](test/index) / [C](test/-c/index)
+[test](../index.md) / [C](./index.md)
 
 # C
 
-`class C : `[`A`](test/-a/index)
+`class C : `[`A`](../-a/index.md)
 
 ### Types
 
-| [Companion](test/-c/-companion/index) | `companion object Companion : `[`B`](test/-b/index) |
+| [Companion](-companion/index.md) | `companion object Companion : `[`B`](../-b/index.md) |
 
 ### Constructors
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](-init-.md) | `C()` |
 
 ### Functions
 
-| [xyzzy](test/-c/xyzzy) | `fun xyzzy(): Unit` |
+| [xyzzy](xyzzy.md) | `fun xyzzy(): Unit` |
 
 ### Inherited Functions
 
-| [foo](test/-a/foo) | `fun foo(): Unit` |
+| [foo](../-a/foo.md) | `fun foo(): Unit` |
 
 ### Companion Object Functions
 
-| [shazam](test/-c/shazam) | `fun shazam(): Unit` |
+| [shazam](shazam.md) | `fun shazam(): Unit` |
 
 ### Inherited Companion Object Functions
 
-| [bar](test/-b/bar) | `fun bar(): Unit` |
+| [bar](../-b/bar.md) | `fun bar(): Unit` |
 

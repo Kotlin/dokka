@@ -1,8 +1,8 @@
-[test](test/index) / [D](test/-d/index) / [f](test/-d/f)
+[test](../index.md) / [D](index.md) / [f](./f.md)
 
 # f
 
 `fun f(): Unit`
 
-Overrides [C.f](test/-c/f)
+Overrides [C.f](../-c/f.md)
 

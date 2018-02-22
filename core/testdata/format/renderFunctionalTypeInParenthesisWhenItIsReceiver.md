@@ -1,6 +1,6 @@
-[test](test/index) / [kotlin.SuspendFunction0](test/kotlin.-suspend-function0/index)
+[test](../index.md) / [kotlin.SuspendFunction0](./index.md)
 
 ### Extensions for kotlin.SuspendFunction0
 
-| [foo](test/kotlin.-suspend-function0/foo) | `fun (suspend () -> Unit).foo(): Unit` |
+| [foo](foo.md) | `fun (suspend () -> Unit).foo(): Unit` |
 

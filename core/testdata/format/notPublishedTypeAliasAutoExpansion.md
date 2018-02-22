@@ -1,9 +1,9 @@
-[test](test/index) / [foo](test/foo)
+[test](index.md) / [foo](./foo.md)
 
 # foo
 
 `fun foo(): Unit`
 
-Correct ref [TA](test/-a/index)
-Correct ref [TB](test/-b/index)
+Correct ref [TA](-a/index.md)
+Correct ref [TB](-b/index.md)
 

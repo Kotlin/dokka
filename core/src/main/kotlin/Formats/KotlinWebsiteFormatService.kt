@@ -6,14 +6,14 @@ import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 
 
-open class KotlinWebsiteOutputBuilder(to: StringBuilder,
-                                      location: Location,
-                                      locationService: LocationService,
-                                      languageService: LanguageService,
-                                      extension: String,
-                                      impliedPlatforms: List<String>)
-    : JekyllOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
-{
+open class KotlinWebsiteOutputBuilder(
+        to: StringBuilder,
+        location: Location,
+        generator: NodeLocationAwareGenerator,
+        languageService: LanguageService,
+        extension: String,
+        impliedPlatforms: List<String>
+) : JekyllOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms) {
     private var needHardLineBreaks = false
     private var insideDiv = 0
 
@@ -70,8 +70,7 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
     override fun appendHeader(level: Int, body: () -> Unit) {
         if (insideDiv > 0) {
             wrapInTag("p", body, newlineAfterClose = true)
-        }
-        else {
+        } else {
             super.appendHeader(level, body)
         }
     }
@@ -79,8 +78,7 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
     override fun appendLine() {
         if (insideDiv > 0) {
             to.appendln("<br/>")
-        }
-        else {
+        } else {
             super.appendLine()
         }
     }
@@ -135,13 +133,14 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
             to.append("<br/>")
 
     }
+
     override fun appendIndentedSoftLineBreak() {
         if (needHardLineBreaks) {
             to.append("<br/>&nbsp;&nbsp;&nbsp;&nbsp;")
         }
     }
 
-    private fun identifierClassName(kind: IdentifierKind) = when(kind) {
+    private fun identifierClassName(kind: IdentifierKind) = when (kind) {
         IdentifierKind.ParameterName -> "parameterName"
         IdentifierKind.SummarizedTypeName -> "summarizedTypeName"
         else -> "identifier"
@@ -172,28 +171,29 @@ open class KotlinWebsiteOutputBuilder(to: StringBuilder,
     }
 }
 
-class KotlinWebsiteFormatService @Inject constructor(locationService: LocationService,
-                                                     signatureGenerator: LanguageService,
-                                                     @Named(impliedPlatformsName) impliedPlatforms: List<String>,
-                                                     logger: DokkaLogger)
-    : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms)
-{
+class KotlinWebsiteFormatService @Inject constructor(
+        generator: NodeLocationAwareGenerator,
+        signatureGenerator: LanguageService,
+        @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+        logger: DokkaLogger
+) : JekyllFormatService(generator, signatureGenerator, "html", impliedPlatforms) {
     init {
         logger.warn("Format kotlin-website deprecated and will be removed in next release")
     }
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-        KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+            KotlinWebsiteOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 }
 
 
-class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
-                                                location: Location,
-                                                locationService: LocationService,
-                                                languageService: LanguageService,
-                                                extension: String,
-                                                impliedPlatforms: List<String>)
-    : KotlinWebsiteOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms) {
+class KotlinWebsiteRunnableSamplesOutputBuilder(
+        to: StringBuilder,
+        location: Location,
+        generator: NodeLocationAwareGenerator,
+        languageService: LanguageService,
+        extension: String,
+        impliedPlatforms: List<String>
+) : KotlinWebsiteOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms) {
 
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
         div(to, "sample", markdown = true) {
@@ -207,17 +207,18 @@ class KotlinWebsiteRunnableSamplesOutputBuilder(to: StringBuilder,
     }
 }
 
-class KotlinWebsiteRunnableSamplesFormatService @Inject constructor(locationService: LocationService,
-                                                                    signatureGenerator: LanguageService,
-                                                                    @Named(impliedPlatformsName) impliedPlatforms: List<String>,
-                                                                    logger: DokkaLogger)
-    : JekyllFormatService(locationService, signatureGenerator, "html", impliedPlatforms) {
+class KotlinWebsiteRunnableSamplesFormatService @Inject constructor(
+        generator: NodeLocationAwareGenerator,
+        signatureGenerator: LanguageService,
+        @Named(impliedPlatformsName) impliedPlatforms: List<String>,
+        logger: DokkaLogger
+) : JekyllFormatService(generator, signatureGenerator, "html", impliedPlatforms) {
 
     init {
         logger.warn("Format kotlin-website-samples deprecated and will be removed in next release")
     }
 
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
-            KotlinWebsiteRunnableSamplesOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+            KotlinWebsiteRunnableSamplesOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 }
 

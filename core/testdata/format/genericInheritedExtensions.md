@@ -1,15 +1,15 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
-`class Bar<T> : `[`Foo`](test/-foo/index)`<`[`T`](test/-bar/index#T)`>`
+`class Bar<T> : `[`Foo`](../-foo/index.md)`<`[`T`](index.md#T)`>`
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
+| [&lt;init&gt;](-init-.md) | `Bar()` |
 
 ### Extension Functions
 
-| [first](test/first) | `fun <T> `[`Foo`](test/-foo/index)`<`[`T`](test/first#T)`>.first(): Unit` |
-| [second](test/second) | `fun <T> `[`Bar`](test/-bar/index)`<`[`T`](test/second#T)`>.second(): Unit` |
+| [first](../first.md) | `fun <T> `[`Foo`](../-foo/index.md)`<`[`T`](../first.md#T)`>.first(): Unit` |
+| [second](../second.md) | `fun <T> `[`Bar`](./index.md)`<`[`T`](../second.md#T)`>.second(): Unit` |
 

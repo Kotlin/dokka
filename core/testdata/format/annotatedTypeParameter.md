@@ -1,5 +1,5 @@
-[test](test/index) / [containsAll](test/contains-all)
+[test](index.md) / [containsAll](./contains-all.md)
 
 # containsAll
 
-`fun <E> containsAll(elements: Collection<@UnsafeVariance `[`E`](test/contains-all#E)`>): @UnsafeVariance `[`E`](test/contains-all#E)
+`fun <E> containsAll(elements: Collection<@UnsafeVariance `[`E`](contains-all.md#E)`>): @UnsafeVariance `[`E`](contains-all.md#E)

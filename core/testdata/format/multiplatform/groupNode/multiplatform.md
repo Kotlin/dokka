@@ -1,4 +1,4 @@
-[test](test/index) / [pack](test/pack/index) / [Some](test/pack/-some/index)
+[test](../../index.md) / [pack](../index.md) / [Some](./index.md)
 
 # Some
 
@@ -12,9 +12,9 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/pack/-some/-some/-init-) | `Some()` |
+| [&lt;init&gt;](-some/-init-.md) | `Some()` |
 
 ### Functions
 
-| [magic](test/pack/-some/-some/magic) | `fun magic(): Unit` |
+| [magic](-some/magic.md) | `fun magic(): Unit` |
 

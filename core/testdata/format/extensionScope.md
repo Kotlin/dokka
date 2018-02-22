@@ -1,8 +1,8 @@
-[test](test/index) / [test](test/test)
+[test](index.md) / [test](./test.md)
 
 # test
 
 `fun test(): Unit`
 
-Correct link: [Foo.ext](test/ext)
+Correct link: [Foo.ext](ext.md)
 

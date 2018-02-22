@@ -1,4 +1,5 @@
-[test](test/index) / [Throws](test/-throws/index)
+<!-- File: test/-throws/index.md -->
+[test](../index.md) / [Throws](./index.md)
 
 # Throws
 
@@ -13,7 +14,12 @@ Throws(IOException::class)
 fun readFile(name: String): String {...}
 ```
 
-[test](test/index) / [ItDoesSomeObfuscatedThing](test/-it-does-some-obfuscated-thing/index)
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `Throws()`<br>This annotation indicates what exceptions should be declared by a function when compiled to a JVM method. |
+
+<!-- File: test/-it-does-some-obfuscated-thing/index.md -->
+[test](../index.md) / [ItDoesSomeObfuscatedThing](./index.md)
 
 # ItDoesSomeObfuscatedThing
 
@@ -24,4 +30,8 @@ Check output of
 ``` brainfuck
 ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
 ```
+
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `ItDoesSomeObfuscatedThing()`<br>Check output of |
 

@@ -1,4 +1,4 @@
-[test](test/index) / [takesSuspendParam](test/takes-suspend-param)
+[test](index.md) / [takesSuspendParam](./takes-suspend-param.md)
 
 # takesSuspendParam
 

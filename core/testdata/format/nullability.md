@@ -1,4 +1,4 @@
-[test](test/index) / [C](test/-c/index)
+[test](../index.md) / [C](./index.md)
 
 # C
 
@@ -6,9 +6,9 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-c/-init-) | `C()` |
+| [&lt;init&gt;](-init-.md) | `C()` |
 
 ### Functions
 
-| [foo](test/-c/foo) | `fun foo(): Comparable<`[`T`](test/-c/index#T)`>?` |
+| [foo](foo.md) | `fun foo(): Comparable<`[`T`](index.md#T)`>?` |
 

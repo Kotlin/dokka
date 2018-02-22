@@ -1,15 +1,15 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
-`class Bar : `[`Foo`](test/-foo/index)
+`class Bar : `[`Foo`](../-foo/index.md)
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
+| [&lt;init&gt;](-init-.md) | `Bar()` |
 
 ### Extension Functions
 
-| [first](test/first) | `fun `[`Foo`](test/-foo/index)`.first(): Unit` |
-| [second](test/second) | `fun `[`Bar`](test/-bar/index)`.second(): Unit` |
+| [first](../first.md) | `fun `[`Foo`](../-foo/index.md)`.first(): Unit` |
+| [second](../second.md) | `fun `[`Bar`](./index.md)`.second(): Unit` |
 

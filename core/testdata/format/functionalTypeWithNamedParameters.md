@@ -1,21 +1,45 @@
-[test](test/index) / [A](test/-a/index)
+<!-- File: test/-a/index.md -->
+[test](../index.md) / [A](./index.md)
 
 # A
 
-`class A`[test](test/index) / [B](test/-b/index)
+`class A`
+
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `A()` |
+
+<!-- File: test/-b/index.md -->
+[test](../index.md) / [B](./index.md)
 
 # B
 
-`class B`[test](test/index) / [C](test/-c/index)
+`class B`
+
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `B()` |
+
+<!-- File: test/-c/index.md -->
+[test](../index.md) / [C](./index.md)
 
 # C
 
-`class C`[test](test/index) / [f](test/f)
+`class C`
+
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `C()` |
+
+<!-- File: test/f.md -->
+[test](index.md) / [f](./f.md)
 
 # f
 
-`val f: (a: `[`A`](test/-a/index)`, b: `[`B`](test/-b/index)`) -> `[`C`](test/-c/index)[test](test/index) / [acceptFunctionTypeWithNamedArguments](test/accept-function-type-with-named-arguments)
+`val f: (a: `[`A`](-a/index.md)`, b: `[`B`](-b/index.md)`) -> `[`C`](-c/index.md)
+<!-- File: test/accept-function-type-with-named-arguments.md -->
+[test](index.md) / [acceptFunctionTypeWithNamedArguments](./accept-function-type-with-named-arguments.md)
 
 # acceptFunctionTypeWithNamedArguments
 
-`fun acceptFunctionTypeWithNamedArguments(f: (bb: `[`B`](test/-b/index)`, aa: `[`A`](test/-a/index)`) -> `[`C`](test/-c/index)`): Unit`
+`fun acceptFunctionTypeWithNamedArguments(f: (bb: `[`B`](-b/index.md)`, aa: `[`A`](-a/index.md)`) -> `[`C`](-c/index.md)`): Unit`

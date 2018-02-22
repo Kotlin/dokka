@@ -1,16 +1,16 @@
-[test](test/index) / [Foo](test/-foo/index)
+[test](../index.md) / [Foo](./index.md)
 
 # Foo
 
 `class Foo`
 
-Correct ref [Foo.Companion](test/-foo/-companion)
+Correct ref [Foo.Companion](-companion.md)
 
 ### Types
 
-| [Companion](test/-foo/-companion) | `companion object Companion : `[`Bar`](test/-bar) |
+| [Companion](-companion.md) | `companion object Companion : `[`Bar`](../-bar.md) |
 
 ### Constructors
 
-| [&lt;init&gt;](test/-foo/-init-) | `Foo()`<br>Correct ref [Foo.Companion](test/-foo/-companion) |
+| [&lt;init&gt;](-init-.md) | `Foo()`<br>Correct ref [Foo.Companion](-companion.md) |
 

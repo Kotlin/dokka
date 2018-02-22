@@ -1,6 +1,6 @@
-[test](test/index) / [kotlin.collections.Iterable](test/kotlin.collections.-iterable/index)
+[test](../index.md) / [kotlin.collections.Iterable](./index.md)
 
 ### Extensions for kotlin.collections.Iterable
 
-| [containsFoo](test/kotlin.collections.-iterable/contains-foo) | `fun Iterable<*>.containsFoo(element: Any?): Boolean` |
+| [containsFoo](contains-foo.md) | `fun Iterable<*>.containsFoo(element: Any?): Boolean` |
 

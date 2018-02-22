@@ -1,8 +1,8 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
 ### Annotations
 
-| [fancy](test/fancy/index) | `annotation class fancy` |
+| [fancy](fancy/index.md) | `annotation class fancy` |
 

@@ -1,8 +1,8 @@
-[test](test/index) / [foo](test/foo/index)
+[test](../index.md) / [foo](./index.md)
 
 ## Package foo
 
 ### Extensions for External Classes
 
-| [kotlin.String](test/foo/kotlin.-string/index) |  |
+| [kotlin.String](kotlin.-string/index.md) |  |
 

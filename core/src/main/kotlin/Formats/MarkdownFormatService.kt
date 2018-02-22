@@ -21,11 +21,11 @@ private val TWO_LINE_BREAKS = System.lineSeparator() + System.lineSeparator()
 
 open class MarkdownOutputBuilder(to: StringBuilder,
                                  location: Location,
-                                 locationService: LocationService,
+                                 generator: NodeLocationAwareGenerator,
                                  languageService: LanguageService,
                                  extension: String,
                                  impliedPlatforms: List<String>)
-    : StructuredOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+    : StructuredOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 {
     private val listStack = ArrayDeque<ListState>()
     protected var inTableCell = false
@@ -225,15 +225,15 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 }
 
-open class MarkdownFormatService(locationService: LocationService,
+open class MarkdownFormatService(generator: NodeLocationAwareGenerator,
                                  signatureGenerator: LanguageService,
                                  linkExtension: String,
                                  val impliedPlatforms: List<String>)
-: StructuredFormatService(locationService, signatureGenerator, "md", linkExtension) {
-    @Inject constructor(locationService: LocationService,
+: StructuredFormatService(generator, signatureGenerator, "md", linkExtension) {
+    @Inject constructor(generator: NodeLocationAwareGenerator,
                         signatureGenerator: LanguageService,
-                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(locationService, signatureGenerator, "md", impliedPlatforms)
+                        @Named(impliedPlatformsName) impliedPlatforms: List<String>): this(generator, signatureGenerator, "md", impliedPlatforms)
 
     override fun createOutputBuilder(to: StringBuilder, location: Location): FormattedOutputBuilder =
-        MarkdownOutputBuilder(to, location, locationService, languageService, extension, impliedPlatforms)
+        MarkdownOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 }

@@ -1,4 +1,4 @@
-[test](test/index) / [Foo](test/-foo/index)
+[test](../index.md) / [Foo](./index.md)
 
 # Foo
 
@@ -8,10 +8,10 @@
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
+| [&lt;init&gt;](-init-.md) | `Foo()` |
 
 ### Functions
 
 | Name | Summary |
 |---|---|
-| [foo](test/-foo/foo) | `fun foo(): Unit`<ol><li>Foo</li><li>Bar</li></ol> |
+| [foo](foo.md) | `fun foo(): Unit`<ol><li>Foo</li><li>Bar</li></ol> |

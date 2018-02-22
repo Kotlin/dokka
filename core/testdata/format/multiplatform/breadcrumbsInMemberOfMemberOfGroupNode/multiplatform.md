@@ -1,4 +1,4 @@
-[test](test/index) / [pack](test/pack/index) / [Some](test/pack/-some/index) / [magic](test/pack/-some/-some/magic)
+[test](../../../index.md) / [pack](../../index.md) / [Some](../index.md) / [magic](./magic.md)
 
 # magic
 

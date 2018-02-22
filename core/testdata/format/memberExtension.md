@@ -1,10 +1,10 @@
-[test](test/index) / [Foo](test/-foo/index)
+[test](../index.md) / [Foo](./index.md)
 
 # Foo
 
-`class Foo : `[`X`](test/-x/index)
+`class Foo : `[`X`](../-x/index.md)
 
 ### Constructors
 
-| [&lt;init&gt;](test/-foo/-init-) | `Foo()` |
+| [&lt;init&gt;](-init-.md) | `Foo()` |
 

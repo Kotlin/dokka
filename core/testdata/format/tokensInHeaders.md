@@ -1,4 +1,4 @@
-[test](test/index) / [The](test/-the/index)
+[test](../index.md) / [The](./index.md)
 
 # The
 
@@ -6,32 +6,32 @@
 
 Why did the token cross the road?
 
-# Because it was Beer o'clock @ [The.bar](test/-the/bar)
+# Because it was Beer o'clock @ [The.bar](bar.md)
 
 ## But **waz *\[sic\]* [it](isitbeeroclock.com)** really?
 
-### [The.bar](test/-the/bar) has? [The.foo](test/-the/foo)est drinks ever!
+### [The.bar](bar.md) has? [The.foo](foo.md)est drinks ever!
 
-#### *[The.kotlinz](test/-the/kotlinz) is [The.bestests](test/-the/bestests), [Bar.none](test/-the/-bar/none)*
+#### *[The.kotlinz](kotlinz.md) is [The.bestests](bestests.md), [Bar.none](-bar/none.md)*
 
-##### So many lame code "puns" (in) [The.house](test/-the/house)
+##### So many lame code "puns" (in) [The.house](house.md)
 
 ###### End of the?? [Bar.line](#)! - we need to go back!
 
 ### Types
 
-| [Bar](test/-the/-bar/index) | `object Bar` |
+| [Bar](-bar/index.md) | `object Bar` |
 
 ### Constructors
 
-| [&lt;init&gt;](test/-the/-init-) | `The()`<br>Why did the token cross the road? |
+| [&lt;init&gt;](-init-.md) | `The()`<br>Why did the token cross the road? |
 
 ### Functions
 
-| [bar](test/-the/bar) | `fun bar(): Unit` |
-| [bestests](test/-the/bestests) | `fun bestests(): Unit` |
-| [foo](test/-the/foo) | `fun foo(): Unit` |
-| [house](test/-the/house) | `fun house(): Unit` |
-| [kotlinz](test/-the/kotlinz) | `fun kotlinz(): Unit` |
-| [line](test/-the/line) | `fun line(): Unit` |
+| [bar](bar.md) | `fun bar(): Unit` |
+| [bestests](bestests.md) | `fun bestests(): Unit` |
+| [foo](foo.md) | `fun foo(): Unit` |
+| [house](house.md) | `fun house(): Unit` |
+| [kotlinz](kotlinz.md) | `fun kotlinz(): Unit` |
+| [line](line.md) | `fun line(): Unit` |
 

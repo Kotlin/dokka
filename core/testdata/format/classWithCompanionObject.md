@@ -1,4 +1,4 @@
-[test](test/index) / [Klass](test/-klass/index)
+[test](../index.md) / [Klass](./index.md)
 
 # Klass
 
@@ -6,13 +6,13 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-klass/-init-) | `Klass()` |
+| [&lt;init&gt;](-init-.md) | `Klass()` |
 
 ### Companion Object Properties
 
-| [x](test/-klass/x) | `val x: Int` |
+| [x](x.md) | `val x: Int` |
 
 ### Companion Object Functions
 
-| [foo](test/-klass/foo) | `fun foo(): Unit` |
+| [foo](foo.md) | `fun foo(): Unit` |
 

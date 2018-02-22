@@ -1,4 +1,4 @@
-[test](test/index) / [XArray](test/-x-array/index)
+[test](../index.md) / [XArray](./index.md)
 
 # XArray
 
@@ -6,9 +6,9 @@
 
 ### Constructors
 
-| [&lt;init&gt;](test/-x-array/-init-) | `XArray()` |
+| [&lt;init&gt;](-init-.md) | `XArray()` |
 
 ### Extension Functions
 
-| [average](test/average) | `fun `[`XArray`](test/-x-array/index)`<out Byte>.average(): Double`<br>`fun `[`XArray`](test/-x-array/index)`<out Double>.average(): Double`<br>`fun `[`XArray`](test/-x-array/index)`<out Float>.average(): Double`<br>`fun `[`XArray`](test/-x-array/index)`<out Int>.average(): Double`<br>`fun `[`XArray`](test/-x-array/index)`<out Long>.average(): Double`<br>`fun `[`XArray`](test/-x-array/index)`<out Short>.average(): Double` |
+| [average](../average.md) | `fun `[`XArray`](./index.md)`<out Byte>.average(): Double`<br>`fun `[`XArray`](./index.md)`<out Double>.average(): Double`<br>`fun `[`XArray`](./index.md)`<out Float>.average(): Double`<br>`fun `[`XArray`](./index.md)`<out Int>.average(): Double`<br>`fun `[`XArray`](./index.md)`<out Long>.average(): Double`<br>`fun `[`XArray`](./index.md)`<out Short>.average(): Double` |
 

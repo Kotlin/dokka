@@ -1,26 +1,26 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
-`class Bar : `[`Foo`](test/-foo/index)
+`class Bar : `[`Foo`](../-foo/index.md)
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()` |
+| [&lt;init&gt;](-init-.md) | `Bar()` |
 
 ### Properties
 
-| [secondProp](test/-bar/second-prop) | `val secondProp: Int` |
+| [secondProp](second-prop.md) | `val secondProp: Int` |
 
 ### Inherited Properties
 
-| [firstProp](test/-foo/first-prop) | `val firstProp: Int` |
+| [firstProp](../-foo/first-prop.md) | `val firstProp: Int` |
 
 ### Functions
 
-| [second](test/-bar/second) | `fun second(): Unit` |
+| [second](second.md) | `fun second(): Unit` |
 
 ### Inherited Functions
 
-| [first](test/-foo/first) | `fun first(): Unit` |
+| [first](../-foo/first.md) | `fun first(): Unit` |
 

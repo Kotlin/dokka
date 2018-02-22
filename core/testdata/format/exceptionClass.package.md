@@ -1,8 +1,8 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
 ### Exceptions
 
-| [MyException](test/-my-exception/index) | `class MyException : Exception` |
+| [MyException](-my-exception/index.md) | `class MyException : Exception` |
 

@@ -1,4 +1,4 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
@@ -11,9 +11,9 @@ Usage summary:
 
 Usage instructions:
 
-* [Bar.rinse](test/-bar/rinse) to rinse
+* [Bar.rinse](rinse.md) to rinse
 * Alter any rinse options *(optional)*
-* To repeat; [Bar.repeat](test/-bar/repeat)
+* To repeat; [Bar.repeat](repeat.md)
   * Can reconfigure options:
       * Soap
       * Elbow Grease
@@ -21,27 +21,27 @@ Usage instructions:
 
 Rinse options:
 
-* [Bar.useSoap](test/-bar/use-soap)
+* [Bar.useSoap](use-soap.md)
   * *recommended*
 
-* [Bar.useElbowGrease](test/-bar/use-elbow-grease)
+* [Bar.useElbowGrease](use-elbow-grease.md)
   * *warning: requires effort*
 
-* [Bar.useBleach](test/-bar/use-bleach)
+* [Bar.useBleach](use-bleach.md)
   * **use with caution**
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()`<br>Usage summary: |
+| [&lt;init&gt;](-init-.md) | `Bar()`<br>Usage summary: |
 
 ### Properties
 
-| [useBleach](test/-bar/use-bleach) | `var useBleach: Boolean` |
-| [useElbowGrease](test/-bar/use-elbow-grease) | `var useElbowGrease: Boolean` |
-| [useSoap](test/-bar/use-soap) | `var useSoap: Boolean` |
+| [useBleach](use-bleach.md) | `var useBleach: Boolean` |
+| [useElbowGrease](use-elbow-grease.md) | `var useElbowGrease: Boolean` |
+| [useSoap](use-soap.md) | `var useSoap: Boolean` |
 
 ### Functions
 
-| [repeat](test/-bar/repeat) | `fun repeat(): Unit` |
-| [rinse](test/-bar/rinse) | `fun rinse(): Unit` |
+| [repeat](repeat.md) | `fun repeat(): Unit` |
+| [rinse](rinse.md) | `fun rinse(): Unit` |
 

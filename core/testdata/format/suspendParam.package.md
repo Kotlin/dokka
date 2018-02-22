@@ -1,8 +1,8 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
 ### Functions
 
-| [takesSuspendParam](test/takes-suspend-param) | `fun takesSuspendParam(func: suspend () -> Unit): Unit` |
+| [takesSuspendParam](takes-suspend-param.md) | `fun takesSuspendParam(func: suspend () -> Unit): Unit` |
 

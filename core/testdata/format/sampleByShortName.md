@@ -1,8 +1,11 @@
-[test](test/index) / [test](test/test/index) / [sample](test/test/sample)
+<!-- File: test/test/sample.md -->
+[test](../index.md) / [test](index.md) / [sample](./sample.md)
 
 # sample
 
-`fun sample(): Unit`[test](test/index) / [test](test/test/index) / [use](test/test/use)
+`fun sample(): Unit`
+<!-- File: test/test/use.md -->
+[test](../index.md) / [test](index.md) / [use](./use.md)
 
 # use
 

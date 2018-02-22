@@ -1,4 +1,4 @@
-[test](test/index) / [fn](test/fn)
+[test](index.md) / [fn](./fn.md)
 
 # fn
 
