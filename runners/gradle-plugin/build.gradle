@@ -1,20 +1,28 @@
+import com.gradle.publish.DependenciesBuilder
+
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.8
 
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "com.gradle.plugin-publish"
 
-tasks.withType(AbstractCompile) {
-    classpath += configurations.shadow
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = "1.1"
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    shadow group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
-    shadow group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
+    shadow group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
+    shadow group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_runtime_version
 
     compile project(":integration")
 
@@ -76,6 +84,12 @@ pluginBundle {
             id = 'org.jetbrains.dokka'
             displayName = 'Dokka plugin'
         }
+    }
+
+    withDependencies { List<Dependency> list ->
+        list.clear()
+        def builder = new DependenciesBuilder()
+        builder.addUniqueScopedDependencies(list, configurations.shadow, "compile")
     }
 
     mavenCoordinates {

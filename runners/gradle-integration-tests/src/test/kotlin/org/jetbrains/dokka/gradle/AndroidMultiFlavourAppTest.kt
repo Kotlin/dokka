@@ -1,13 +1,11 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.dokka.gradle.AndroidAppTest.AndroidPluginParams
+import org.jetbrains.dokka.gradle.AbstractAndroidAppTest.AndroidPluginParams
 import org.junit.Test
-import java.io.File
 import kotlin.test.assertEquals
 
-class AndroidMultiFlavourAppTest : AbstractDokkaGradleTest() {
-    override val pluginClasspath: List<File> = androidPluginClasspathData.toFile().readLines().map { File(it) }
+class AndroidMultiFlavourAppTest : AbstractDokkaAndroidGradleTest() {
 
     fun prepareTestData(testDataRootPath: String) {
         val testDataRoot = testDataFolder.resolve(testDataRootPath)
@@ -53,6 +51,10 @@ class AndroidMultiFlavourAppTest : AbstractDokkaGradleTest() {
 
     @Test fun `test kotlin 1_0_7 and gradle 2_14_1 and abt 2_2_3`() {
         doTest("2.14.1", "1.0.7", AndroidPluginParams("2.2.3", "25.0.0", 24))
+    }
+
+    @Test fun `test kotlin 1_2_20 and gradle 4_5 and abt 3_0_1`() {
+        doTest("4.5", "1.2.20", AndroidPluginParams("3.0.1", "27.0.0", 27))
     }
 
 }

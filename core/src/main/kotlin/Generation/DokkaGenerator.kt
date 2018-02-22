@@ -94,6 +94,8 @@ class DokkaGenerator(val logger: DokkaLogger,
 
             addSources(sourcePaths)
             addSources(this@DokkaGenerator.samples)
+
+            loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
         }
 
         return environment

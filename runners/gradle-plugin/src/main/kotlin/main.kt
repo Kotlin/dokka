@@ -51,6 +51,8 @@ object ClassloaderContainer {
     var fatJarClassLoader: ClassLoader? = null
 }
 
+const val `deprecationMessage reportNotDocumented` = "Will be removed in 0.9.17, see dokka#243"
+
 open class DokkaTask : DefaultTask() {
 
     fun defaultKotlinTasks() = with(ReflectDsl) {
@@ -69,7 +71,7 @@ open class DokkaTask : DefaultTask() {
         description = "Generates dokka documentation for Kotlin"
 
         @Suppress("LeakingThis")
-        dependsOn(Callable { kotlinTasks.flatMap { it.dependsOn } })
+        dependsOn(Callable { kotlinTasks.map { it.taskDependencies } })
     }
 
     @Input
@@ -82,7 +84,7 @@ open class DokkaTask : DefaultTask() {
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
 
-    @Input var classpath: List<File> = arrayListOf()
+    @InputFiles var classpath: Iterable<File> = arrayListOf()
 
     @Input
     var includes: List<Any?> = arrayListOf()
@@ -95,7 +97,8 @@ open class DokkaTask : DefaultTask() {
     @Input
     var sourceDirs: Iterable<File> = emptyList()
 
-    @Input var sourceRoots: MutableList<SourceRoot> = arrayListOf()
+    @Input
+    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
 
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:$version"
@@ -103,7 +106,16 @@ open class DokkaTask : DefaultTask() {
     @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
-    @Input var reportNotDocumented = true
+
+    @Deprecated(`deprecationMessage reportNotDocumented`, replaceWith = ReplaceWith("reportUndocumented"))
+    var reportNotDocumented
+        get() = reportUndocumented
+        set(value) {
+            logger.warn("Dokka: reportNotDocumented is deprecated and " + `deprecationMessage reportNotDocumented`.decapitalize())
+            reportUndocumented = value
+        }
+
+    @Input var reportUndocumented = true
     @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
     @Input var impliedPlatforms: MutableList<String> = arrayListOf()
 
@@ -111,7 +123,15 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
-    @Optional @Input var cacheRoot: String? = null
+    @Optional @Input
+    var cacheRoot: String? = null
+
+
+    @Optional @Input
+    var languageVersion: String? = null
+
+    @Optional @Input
+    var apiVersion: String? = null
 
     @get:Input
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
@@ -124,7 +144,7 @@ open class DokkaTask : DefaultTask() {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
-    fun linkMapping(closure: Closure<Any?>) {
+    fun linkMapping(closure: Closure<Unit>) {
         val mapping = LinkMapping()
         closure.delegate = mapping
         closure.call()
@@ -139,21 +159,21 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
-    fun sourceRoot(closure: Closure<Any?>) {
+    fun sourceRoot(closure: Closure<Unit>) {
         val sourceRoot = SourceRoot()
         closure.delegate = sourceRoot
         closure.call()
         sourceRoots.add(sourceRoot)
     }
 
-    fun packageOptions(closure: Closure<Any?>) {
+    fun packageOptions(closure: Closure<Unit>) {
         val packageOptions = PackageOptions()
         closure.delegate = packageOptions
         closure.call()
         perPackageOptions.add(packageOptions)
     }
 
-    fun externalDocumentationLink(closure: Closure<Any?>) {
+    fun externalDocumentationLink(closure: Closure<Unit>) {
         val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
         closure.delegate = builder
         closure.call()
@@ -269,7 +289,7 @@ open class DokkaTask : DefaultTask() {
                     outputFormat,
                     includeNonPublic,
                     false,
-                    reportNotDocumented,
+                    reportUndocumented,
                     skipEmptyPackages,
                     skipDeprecated,
                     jdkVersion,
@@ -280,7 +300,9 @@ open class DokkaTask : DefaultTask() {
                     externalDocumentationLinks,
                     noStdlibLink,
                     cacheRoot,
-                    collectSuppressedFiles(sourceRoots))
+                    collectSuppressedFiles(sourceRoots),
+                    languageVersion,
+                    apiVersion)
 
 
             bootstrapProxy.configure(
@@ -306,9 +328,7 @@ open class DokkaTask : DefaultTask() {
         val allConfigurations = project.configurations
 
         val fromConfigurations =
-                processConfigurations.map {
-                    allConfigurations?.getByName(it.toString()) ?: throw IllegalArgumentException("No configuration $it found")
-                }.flatten()
+                processConfigurations.flatMap { allConfigurations.getByName(it.toString()) }
 
         return fromConfigurations
     }
@@ -318,10 +338,11 @@ open class DokkaTask : DefaultTask() {
             logger.info("Dokka: Taking source directories provided by the user")
             sourceDirs.toSet()
         } else if (kotlinTasks.isEmpty()) {
-            logger.info("Dokka: Taking source directories from default java plugin")
-            val javaPluginConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            val sourceSets = javaPluginConvention.sourceSets?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            sourceSets?.allSource?.srcDirs
+            project.convention.findPlugin(JavaPluginConvention::class.java)?.let { javaPluginConvention ->
+                logger.info("Dokka: Taking source directories from default java plugin")
+                val sourceSets = javaPluginConvention.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                sourceSets?.allSource?.srcDirs
+            }
         } else {
             emptySet()
         }
@@ -331,10 +352,17 @@ open class DokkaTask : DefaultTask() {
 
 
     @InputFiles
-    fun getInputFiles(): FileCollection =
-            project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
-                    project.files(includes) +
-                    project.files(samples.map { project.fileTree(it) })
+    fun getInputFiles(): FileCollection {
+        val (tasksClasspath, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
+
+        val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
+
+        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
+                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
+                project.files(fullClasspath.map { project.fileTree(it) }) +
+                project.files(includes) +
+                project.files(samples.filterNotNull().map { project.fileTree(it) })
+    }
 
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
@@ -351,7 +379,7 @@ open class DokkaTask : DefaultTask() {
     }
 }
 
-class SourceRoot : DokkaConfiguration.SourceRoot {
+class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
     override var path: String = ""
         set(value) {
             field = File(value).absolutePath
@@ -414,4 +442,5 @@ class PackageOptions : Serializable, DokkaConfiguration.PackageOptions {
     override var includeNonPublic: Boolean = false
     override var reportUndocumented: Boolean = true
     override var skipDeprecated: Boolean = false
+    override var suppress: Boolean = false
 }

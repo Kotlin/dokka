@@ -1,0 +1,21 @@
+/
+    allclasses-frame.html
+    allclasses-noframe.html
+    constant-values.html
+    deprecated-list.html
+    help-doc.html
+    index-all.html
+    index.html
+    org/
+        example/
+            kotlin/
+                mixed/
+                    JavaActivity.html
+                    KotlinActivity.html
+                    package-frame.html
+                    package-summary.html
+                    package-tree.html
+    overview-tree.html
+    package-list
+    script.js
+    stylesheet.css

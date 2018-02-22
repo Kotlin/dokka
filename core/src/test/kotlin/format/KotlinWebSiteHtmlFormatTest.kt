@@ -57,7 +57,14 @@ class KotlinWebSiteHtmlFormatTest {
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions("", "html", generateIndexPages = false, noStdlibLink = true)
+        val options = DocumentationOptions(
+                outputDir = "",
+                outputFormat = "kotlin-website-html",
+                generateIndexPages = false,
+                noStdlibLink = true,
+                languageVersion = null,
+                apiVersion = null
+        )
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jre7.kt"), defaultPlatforms = listOf("JVM", "JRE7"), options = options)
         appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)

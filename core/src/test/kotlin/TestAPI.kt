@@ -24,17 +24,24 @@ fun verifyModel(vararg roots: ContentRoot,
                 withKotlinRuntime: Boolean = false,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
+                perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
-    val options = DocumentationOptions("", format,
+    val options = DocumentationOptions(
+            "",
+            format,
             includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
             includeRootPackage = true,
-            sourceLinks = listOf<SourceLinkDefinition>(),
+            sourceLinks = listOf(),
+            perPackageOptions = perPackageOptions,
             generateIndexPages = false,
             noStdlibLink = true,
-            cacheRoot = "default")
+            cacheRoot = "default",
+            languageVersion = null,
+            apiVersion = null
+    )
 
     appendDocumentation(documentation, *roots,
             withJdk = withJdk,
@@ -86,6 +93,8 @@ fun appendDocumentation(documentation: DocumentationModule,
             addClasspath(File(kotlinStrictfpRoot))
         }
         addRoots(roots.toList())
+
+        loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
     }
     val defaultPlatformsProvider = object : DefaultPlatformsProvider {
         override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = defaultPlatforms
@@ -151,8 +160,15 @@ fun verifyOutput(roots: Array<ContentRoot>,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyModel(*roots, withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, format = format) {
+    verifyModel(
+            *roots,
+            withJdk = withJdk,
+            withKotlinRuntime = withKotlinRuntime,
+            format = format,
+            includeNonPublic = includeNonPublic
+    ) {
         verifyModelOutput(it, outputExtension, roots.first().path, outputGenerator)
     }
 }
@@ -173,8 +189,17 @@ fun verifyOutput(path: String,
                  withJdk: Boolean = false,
                  withKotlinRuntime: Boolean = false,
                  format: String = "html",
+                 includeNonPublic: Boolean = true,
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
-    verifyOutput(arrayOf(contentRootFromPath(path)), outputExtension, withJdk, withKotlinRuntime, format, outputGenerator)
+    verifyOutput(
+            arrayOf(contentRootFromPath(path)),
+            outputExtension,
+            withJdk,
+            withKotlinRuntime,
+            format,
+            includeNonPublic,
+            outputGenerator
+    )
 }
 
 fun verifyJavaOutput(path: String,

@@ -1,5 +1,7 @@
 package demo
 
+import p1.MyBinaryClass
+
 /**
  * This class supports greeting people by name.
  *
@@ -38,4 +40,6 @@ fun SomeType.constructor(): SomeType {
 
 
 annotation class A(val p: String)
+
+val MyBinaryClass.test get() = s()
 

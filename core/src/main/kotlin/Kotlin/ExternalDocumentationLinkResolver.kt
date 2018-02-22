@@ -15,7 +15,9 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
+import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLConnection
 import java.nio.file.Path
 import java.security.MessageDigest
 
@@ -30,11 +32,43 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     val packageFqNameToLocation = mutableMapOf<FqName, ExternalDocumentationRoot>()
     val formats = mutableMapOf<String, InboundExternalLinkResolutionService>()
 
-    class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>)
+    class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>) {
+        override fun toString(): String = rootUrl.toString()
+    }
 
     val cacheDir: Path? = options.cacheRoot?.resolve("packageListCache")?.apply { createDirectories() }
 
     val cachedProtocols = setOf("http", "https", "ftp")
+
+    fun URL.doOpenConnectionToReadContent(timeout: Int = 10000, redirectsAllowed: Int = 16): URLConnection {
+        val connection = this.openConnection()
+        connection.connectTimeout = timeout
+        connection.readTimeout = timeout
+
+        when (connection) {
+            is HttpURLConnection -> {
+                return when (connection.responseCode) {
+                    in 200..299 -> {
+                        connection
+                    }
+                    HttpURLConnection.HTTP_MOVED_PERM,
+                    HttpURLConnection.HTTP_MOVED_TEMP,
+                    HttpURLConnection.HTTP_SEE_OTHER -> {
+                        if (redirectsAllowed > 0) {
+                            val newUrl = connection.getHeaderField("Location")
+                            URL(newUrl).doOpenConnectionToReadContent(timeout, redirectsAllowed - 1)
+                        } else {
+                            throw RuntimeException("Too many redirects")
+                        }
+                    }
+                    else -> {
+                        throw RuntimeException("Unhandled http code: ${connection.responseCode}")
+                    }
+                }
+            }
+            else -> return connection
+        }
+    }
 
     fun loadPackageList(link: DokkaConfiguration.ExternalDocumentationLink) {
 
@@ -50,7 +84,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
             if (cacheEntry.exists()) {
                 try {
-                    val connection = packageListUrl.openConnection()
+                    val connection = packageListUrl.doOpenConnectionToReadContent()
                     val originModifiedDate = connection.date
                     val cacheDate = cacheEntry.lastModified().toMillis()
                     if (originModifiedDate > cacheDate || originModifiedDate == 0L) {
@@ -60,7 +94,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                             logger.info("Renewing package-list from $packageListUrl")
                         connection.getInputStream().copyTo(cacheEntry.outputStream())
                     }
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     logger.error("Failed to update package-list cache for $link")
                     val baos = ByteArrayOutputStream()
                     PrintWriter(baos).use {
@@ -75,7 +109,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
             }
             cacheEntry.inputStream()
         } else {
-            packageListUrl.openStream()
+            packageListUrl.doOpenConnectionToReadContent().getInputStream()
         }
 
         val (params, packages) =

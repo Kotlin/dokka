@@ -1,6 +1,9 @@
 package org.jetbrains.dokka.Formats
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Kotlin.KotlinAsJavaDescriptorSignatureProvider
+import org.jetbrains.dokka.Kotlin.KotlinDescriptorSignatureProvider
+import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 import org.jetbrains.dokka.Samples.KotlinWebsiteSampleProcessingService
 import org.jetbrains.dokka.Samples.SampleProcessingService
@@ -14,6 +17,7 @@ abstract class KotlinFormatDescriptorBase : FormatDescriptor {
     override val outlineServiceClass: KClass<out OutlineFormatService>? = null
     override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
+    override val descriptorSignatureProvider = KotlinDescriptorSignatureProvider::class
 }
 
 class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
@@ -29,6 +33,7 @@ class HtmlAsJavaFormatDescriptor : FormatDescriptor {
     override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
     override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
+    override val descriptorSignatureProvider = KotlinAsJavaDescriptorSignatureProvider::class
 }
 
 class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {

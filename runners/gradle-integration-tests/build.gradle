@@ -2,6 +2,16 @@
 
 apply plugin: 'kotlin'
 
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = "1.0"
+        jvmTarget = "1.8"
+    }
+}
 
 configurations {
     dokkaPlugin
@@ -11,9 +21,9 @@ configurations {
 
 dependencies {
 
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: kotlin_for_gradle_version
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_version
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version: kotlin_for_gradle_version
+    testCompileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_for_gradle_runtime_version
+    testCompile ideaRT()
 
     dokkaPlugin project(path: ':runners:gradle-plugin', configuration: 'shadow')
     dokkaAndroidPlugin project(path: ':runners:android-gradle-plugin', configuration: 'shadow')
@@ -43,3 +53,7 @@ task createClasspathManifest {
 createClasspathManifest.mustRunAfter project(":runners:fatjar").shadowJar
 testClasses.dependsOn project(":runners:fatjar").shadowJar
 testClasses.dependsOn createClasspathManifest
+
+test {
+    systemProperty "android.licenses.overwrite", project.findProperty("android.licenses.overwrite") ?: ""
+}

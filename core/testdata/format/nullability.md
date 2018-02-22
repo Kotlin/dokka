@@ -10,5 +10,5 @@
 
 ### Functions
 
-| [foo](test/-c/foo) | `fun foo(): Comparable<T>?` |
+| [foo](test/-c/foo) | `fun foo(): Comparable<`[`T`](test/-c/index#T)`>?` |
 

@@ -1,6 +1,15 @@
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = "1.2"
+        apiVersion = languageVersion
+        jvmTarget = "1.8"
+    }
+}
 
 dependencies {
     compile project(":core")

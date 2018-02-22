@@ -10,5 +10,5 @@
 
 ### Extension Functions
 
-| [xyzzy](test/xyzzy) | `fun <T : `[`Foo`](test/-foo/index)`> T.xyzzy(): Unit` |
+| [xyzzy](test/xyzzy) | `fun <T : `[`Foo`](test/-foo/index)`> `[`T`](test/xyzzy#T)`.xyzzy(): Unit` |
 

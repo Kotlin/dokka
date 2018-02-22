@@ -15,14 +15,14 @@ import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.isDocumentedAnnotation
+import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -50,6 +50,8 @@ class DocumentationOptions(val outputDir: String,
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
                            noStdlibLink: Boolean,
+                           val languageVersion: String?,
+                           val apiVersion: String?,
                            cacheRoot: String? = null,
                            val suppressedFiles: List<File> = emptyList()) {
     init {
@@ -576,6 +578,11 @@ class DocumentationBuilder
             descriptorsToDocument.mapTo(result) {
                 ClassMember(it, inheritedLinkKind = RefKind.InheritedCompanionObjectMember)
             }
+
+            if (companionObjectDescriptor.getAllSuperclassesWithoutAny().isNotEmpty()
+                    || companionObjectDescriptor.getSuperInterfaces().isNotEmpty()) {
+                result += ClassMember(companionObjectDescriptor)
+            }
         }
         return result
     }
@@ -726,6 +733,7 @@ class DocumentationBuilder
             }
             node.appendType(constraint, NodeKind.UpperBound)
         }
+        register(this, node)
         return node
     }
 
@@ -746,6 +754,7 @@ class DocumentationBuilder
 
         val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
         node.appendType(type)
+        register(this, node)
         return node
     }
 
@@ -772,6 +781,14 @@ class DocumentationBuilder
                 "\"" + StringUtil.escapeStringCharacters(value) + "\""
             is EnumEntrySyntheticClassDescriptor ->
                 value.containingDeclaration.name.asString() + "." + value.name.asString()
+            is Pair<*, *> -> {
+                val (classId, name) = value
+                if (classId is ClassId && name is Name) {
+                    classId.shortClassName.asString() + "." + name.asString()
+                } else {
+                    value.toString()
+                }
+            }
             else -> value.toString()
         }.let { valueString ->
             DocumentationNode(valueString, Content.Empty, NodeKind.Value)
@@ -784,9 +801,9 @@ val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
 fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
-            || this.visibility in visibleToDocumentation) &&
-            !isDocumentationSuppressed(options) &&
-            (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
+            || this.visibility in visibleToDocumentation)
+            && !isDocumentationSuppressed(options)
+            && (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
 private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION
@@ -856,6 +873,8 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
 
 fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOptions): Boolean {
 
+    if (options.effectivePackageOptions(fqNameSafe).suppress) return true
+
     val path = this.findPsi()?.containingFile?.virtualFile?.path
     if (path != null) {
         if (File(path).absoluteFile in options.suppressedFiles) return true
@@ -905,17 +924,21 @@ fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor
     return null
 }
 
-fun DeclarationDescriptor.signature(): String = when (this) {
-    is ClassDescriptor,
-    is PackageFragmentDescriptor,
-    is PackageViewDescriptor,
-    is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
+fun DeclarationDescriptor.signature(): String {
+    if (this != original) return original.signature()
+    return when (this) {
+        is ClassDescriptor,
+        is PackageFragmentDescriptor,
+        is PackageViewDescriptor,
+        is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
-    is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-    is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
-    is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
-    is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
-    else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+        is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
+        is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
+        is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
+        is ReceiverParameterDescriptor -> containingDeclaration.signature() + "/" + name
+        else -> throw UnsupportedOperationException("Don't know how to calculate signature for $this")
+    }
 }
 
 fun PropertyDescriptor.receiverSignature(): String {
@@ -932,7 +955,7 @@ fun CallableMemberDescriptor.parameterSignature(): String {
     if (extensionReceiver != null) {
         params.add(0, extensionReceiver.type)
     }
-    return "(" + params.map { it.signature() }.joinToString() + ")"
+    return params.joinToString(prefix = "(", postfix = ")") { it.signature() }
 }
 
 fun KotlinType.signature(): String {
