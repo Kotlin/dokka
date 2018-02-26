@@ -252,7 +252,10 @@ open class DokkaTask : DefaultTask() {
 
     private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }
 
-    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> {
+        val generatedSubpath = "${project.buildDir}/generated/source".replace("/", File.separator)
+        return sourceRoots.filter { generatedSubpath in it.path }.flatMap { File(it.path).walk().toList() }.map { it.absolutePath }
+    }
 
     @TaskAction
     fun generate() {

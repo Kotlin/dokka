@@ -22,11 +22,6 @@ open class DokkaAndroidTask : DokkaTask() {
 
     @Input var noAndroidSdkLink: Boolean = false
 
-    override fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> {
-        val generatedSubpath = "${project.buildDir}/generated/source".replace("/", File.separator)
-        return sourceRoots.filter { generatedSubpath in it.path }.flatMap { File(it.path).walk().toList() }.map { it.absolutePath }
-    }
-
     init {
         project.afterEvaluate {
             if (!noAndroidSdkLink) externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
