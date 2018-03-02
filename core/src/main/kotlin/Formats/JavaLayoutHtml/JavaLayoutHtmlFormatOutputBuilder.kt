@@ -314,7 +314,6 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 propertyLikeSummaryRow(it)
             }
 
-
             fullMemberDocs(page.constants, "Top-level constants")
             fullMemberDocs(page.functions, "Top-level functions")
             fullMemberDocs(page.properties, "Top-level properties")
@@ -757,6 +756,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
 
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike }
+
+            val attributes = node.members(NodeKind.Attribute)
 
             val constants = node.members.filter { it.constantValue() != null }
 

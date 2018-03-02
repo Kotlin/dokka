@@ -59,7 +59,9 @@ enum class NodeKind {
      */
     OverloadGroupNote,
 
-    XmlAttribute,
+    Attribute,
+
+    ApiLevel,
 
     GroupNode;
 
@@ -86,8 +88,6 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
         get() = references(RefKind.Member).map { it.to }
-    val xmlAttributes: List<DocumentationNode>
-        get() = references(RefKind.Attribute).map { it.to }
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
     val inheritedCompanionObjectMembers: List<DocumentationNode>
@@ -110,6 +110,10 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Platform).map { it.to.name }
     val externalType: DocumentationNode?
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
+    val attributes: List<DocumentationNode>
+        get() = references(RefKind.Attribute).map { it.to }
+    val apiLevel: DocumentationNode?
+        get() = references(RefKind.AvailableSince).map { it.to }.firstOrNull()
 
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)

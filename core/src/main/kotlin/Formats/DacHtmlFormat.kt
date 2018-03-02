@@ -144,6 +144,13 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         div {
             id = node.signatureForAnchor(logger)
             h3(classes = "api-name") { +node.name }
+            div(classes="api-level") {
+                node.apiLevel?.let {
+                    +"added in "
+                    a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels")
+                    +"API level ${it.name}"
+                }
+            }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
             contentNodeToMarkup(node.content)
             node.constantValue()?.let { value ->
@@ -166,6 +173,102 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    override fun FlowContent.classLikeSummaries(page: Page.ClassPage) = with(page) {
+        summaryNodeGroup(
+                nestedClasses,
+                "Nested classes",
+                headerAsRow = true
+        ) {
+            nestedClassSummaryRow(it)
+        }
+
+        summaryNodeGroup(attributes, "XML attributes") { propertyLikeSummaryRow(it) }
+
+        summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
+
+        summaryNodeGroup(
+                constructors,
+                "Constructors",
+                headerAsRow = true
+        ) {
+            functionLikeSummaryRow(it)
+        }
+
+        summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+        summaryNodeGroup(
+                companionFunctions,
+                "Companion functions",
+                headerAsRow = true
+        ) {
+            functionLikeSummaryRow(it)
+        }
+        summaryNodeGroup(
+                inheritedFunctionsByReceiver.entries,
+                "Inherited functions",
+                headerAsRow = true
+        ) {
+            inheritRow(it) {
+                functionLikeSummaryRow(it)
+            }
+        }
+        summaryNodeGroup(
+                extensionFunctions.entries,
+                "Extension functions",
+                headerAsRow = true
+        ) {
+            extensionRow(it) {
+                functionLikeSummaryRow(it)
+            }
+        }
+        summaryNodeGroup(
+                inheritedExtensionFunctions.entries,
+                "Inherited extension functions",
+                headerAsRow = true
+        ) {
+            extensionRow(it) {
+                functionLikeSummaryRow(it)
+            }
+        }
+
+
+        summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
+        summaryNodeGroup(
+                companionProperties,
+                "Companion properties",
+                headerAsRow = true
+        ) {
+            propertyLikeSummaryRow(it)
+        }
+
+        summaryNodeGroup(
+                inheritedPropertiesByReceiver.entries,
+                "Inherited properties",
+                headerAsRow = true
+        ) {
+            inheritRow(it) {
+                propertyLikeSummaryRow(it)
+            }
+        }
+        summaryNodeGroup(
+                extensionProperties.entries,
+                "Extension properties",
+                headerAsRow = true
+        ) {
+            extensionRow(it) {
+                propertyLikeSummaryRow(it)
+            }
+        }
+        summaryNodeGroup(
+                inheritedExtensionProperties.entries,
+                "Inherited extension properties",
+                headerAsRow = true
+        ) {
+            extensionRow(it) {
+                propertyLikeSummaryRow(it)
             }
         }
     }

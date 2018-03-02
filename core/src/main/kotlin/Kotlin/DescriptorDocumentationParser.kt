@@ -9,6 +9,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -85,12 +86,18 @@ class DescriptorDocumentationParser @Inject constructor(
         return content to { node ->
             if (kdoc is KDocSection) {
                 val tags = kdoc.getTags()
-                node.addAttributes(tags)
+                node.addExtraTags(tags, descriptor)
             }
         }
     }
 
-    private fun DocumentationNode.addAttributes(tags: Array<KDocTag>) {
+    /**
+     * For now, this only adds @attr tag. There are 3 types of syntax for this:
+     * @attr ref <android.>R.styleable.<attribute_name>
+     * @attr name <attribute_name>
+     * @attr description <attribute_description>
+     */
+    private fun DocumentationNode.addExtraTags(tags: Array<KDocTag>, descriptor: DeclarationDescriptor) {
         tags.forEach {
             val name = it.name
             if (name?.toLowerCase() == "attr") {
@@ -101,25 +108,34 @@ class DescriptorDocumentationParser @Inject constructor(
                     val attribute: DocumentationNode? = when (command) {
                         REF_COMMAND -> {
                             val attrRef = more.trim()
-                            DocumentationNode(attrRef, Content.Empty, NodeKind.XmlAttribute)
+                            val qualified = attrRef.split('.', '#')
+                            val targetDescriptor = resolveKDocLink(resolutionFacade.resolveSession.bindingContext, resolutionFacade, descriptor, it, qualified)
+                            DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
+                                if (targetDescriptor.isNotEmpty()) {
+                                    refGraph.link(it, targetDescriptor.first().signature(), RefKind.Attribute)
+                                }
+                            }
                         }
                         NAME_COMMAND -> {
                             val nameMatcher = NAME_TEXT.matcher(more)
                             if (nameMatcher.matches()) {
                                 val attrName = nameMatcher.group(1)
-                                DocumentationNode(attrName, Content.Empty, NodeKind.XmlAttribute)
+                                DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
                             } else {
                                 null
                             }
                         }
                         DESCRIPTION_COMMAND -> {
                             val attrDescription = more
-                            DocumentationNode(attrDescription, Content.Empty, NodeKind.XmlAttribute)
+                            DocumentationNode(attrDescription, Content.Empty, NodeKind.Attribute)
                         }
                         else -> null
                     }
                     attribute?.let { append(it, RefKind.Attribute) }
                 }
+            } else if (name?.toLowerCase() == "since") {
+                val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
+                append(apiLevel, RefKind.AvailableSince)
             }
         }
     }
