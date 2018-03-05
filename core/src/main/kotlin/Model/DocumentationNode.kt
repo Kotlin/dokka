@@ -113,7 +113,7 @@ open class DocumentationNode(val name: String,
     val attributes: List<DocumentationNode>
         get() = references(RefKind.Attribute).map { it.to }
     val apiLevel: DocumentationNode?
-        get() = references(RefKind.AvailableSince).map { it.to }.firstOrNull()
+        get() = detailOrNull(NodeKind.ApiLevel)
 
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)

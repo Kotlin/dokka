@@ -135,7 +135,7 @@ class DescriptorDocumentationParser @Inject constructor(
                 }
             } else if (name?.toLowerCase() == "since") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
-                append(apiLevel, RefKind.AvailableSince)
+                append(apiLevel, RefKind.Detail)
             }
         }
     }
