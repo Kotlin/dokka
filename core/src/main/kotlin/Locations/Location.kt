@@ -13,8 +13,8 @@ interface Location {
  * $file: [File] for this location
  * $path: [String] representing path of this location
  */
-data class FileLocation(val file: File): Location {
-    override val path : String
+data class FileLocation(val file: File) : Location {
+    override val path: String
         get() = file.path
 
     override fun relativePathTo(other: Location, anchor: String?): String {
@@ -30,7 +30,6 @@ data class FileLocation(val file: File): Location {
     }
 }
 
-
 fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String {
     val parts = qualifiedName.map { identifierToFilename(it) }.filterNot { it.isEmpty() }
     return if (!hasMembers) {
@@ -40,6 +39,7 @@ fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String
         parts.joinToString("/") + (if (parts.none()) "" else "/") + "index"
     }
 }
+
 
 fun relativePathToNode(node: DocumentationNode) = relativePathToNode(node.path.map { it.name }, node.members.any())
 
@@ -57,3 +57,5 @@ fun NodeLocationAwareGenerator.relativeToRoot(from: Location): File {
     val file = File(from.path)
     return file.relativeTo(root)
 }
+
+fun File.toUnixString() = toString().replace(File.separatorChar, '/')

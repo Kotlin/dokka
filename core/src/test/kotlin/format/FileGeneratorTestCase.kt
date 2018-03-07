@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.dokka.DocumentationNode
-import org.jetbrains.dokka.FileGenerator
-import org.jetbrains.dokka.FormatService
-import org.jetbrains.dokka.relativeToRoot
+import org.jetbrains.dokka.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -30,7 +27,7 @@ abstract class FileGeneratorTestCase {
                 if (sb.isNotBlank() && !sb.endsWith('\n')) {
                     sb.appendln()
                 }
-                sb.appendln("<!-- File: ${relativeToRoot(loc)} -->")
+                sb.appendln("<!-- File: ${relativeToRoot(loc).toUnixString()} -->")
             }
             sb.append(loc.file.readText())
         }

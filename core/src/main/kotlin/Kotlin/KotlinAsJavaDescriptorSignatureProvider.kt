@@ -17,6 +17,6 @@ class KotlinAsJavaDescriptorSignatureProvider : DescriptorSignatureProvider {
         }
 
         return getSignature(javaLikePsi) ?:
-                throw UnsupportedOperationException("Don't know how to calculate signature for $forDesc")
+                "not implemented for $forDesc with psi: $sourcePsi"
     }
 }

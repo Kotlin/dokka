@@ -228,23 +228,25 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
     }
 
     private val moduleSourceOrderEntry = object : ModuleSourceOrderEntry {
-        override fun getFiles(p0: OrderRootType?): Array<out VirtualFile> {
+        override fun getFiles(p0: OrderRootType): Array<VirtualFile> {
             throw UnsupportedOperationException()
         }
+
+        override fun getUrls(p0: OrderRootType): Array<String> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun <R : Any?> accept(p0: RootPolicy<R>, p1: R?): R {
+            throw UnsupportedOperationException()
+        }
+
 
         override fun getPresentableName(): String {
             throw UnsupportedOperationException()
         }
 
-        override fun getUrls(p0: OrderRootType?): Array<out String> {
-            throw UnsupportedOperationException()
-        }
-
         override fun getOwnerModule(): Module = module
 
-        override fun <R : Any?> accept(p0: RootPolicy<R>?, p1: R?): R {
-            throw UnsupportedOperationException()
-        }
 
         override fun isValid(): Boolean {
             throw UnsupportedOperationException()
@@ -262,29 +264,29 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
     }
 
     private val sdkOrderEntry = object : JdkOrderEntry {
+        override fun getFiles(p0: OrderRootType): Array<VirtualFile> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getUrls(p0: OrderRootType): Array<String> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun <R : Any?> accept(p0: RootPolicy<R>, p1: R?): R {
+            throw UnsupportedOperationException()
+        }
+
         override fun getJdkName(): String? {
             throw UnsupportedOperationException()
         }
 
         override fun getJdk(): Sdk = sdk
 
-        override fun getFiles(p0: OrderRootType?): Array<out VirtualFile> {
-            throw UnsupportedOperationException()
-        }
-
         override fun getPresentableName(): String {
             throw UnsupportedOperationException()
         }
 
-        override fun getUrls(p0: OrderRootType?): Array<out String> {
-            throw UnsupportedOperationException()
-        }
-
         override fun getOwnerModule(): Module {
-            throw UnsupportedOperationException()
-        }
-
-        override fun <R : Any?> accept(p0: RootPolicy<R>?, p1: R?): R {
             throw UnsupportedOperationException()
         }
 
@@ -358,7 +360,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
                     override fun getRootModel(p0: Module): ModuleRootModel = this@MyModuleRootManager
                 })
 
-        override fun <T : Any?> getModuleExtension(p0: Class<T>?): T {
+        override fun <T : Any?> getModuleExtension(p0: Class<T>): T {
             throw UnsupportedOperationException()
         }
 

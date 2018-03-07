@@ -19,7 +19,9 @@ import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtVariableDeclaration
@@ -919,6 +921,14 @@ class DocumentationBuilder
                 "\"" + StringUtil.escapeStringCharacters(value) + "\""
             is EnumEntrySyntheticClassDescriptor ->
                 value.containingDeclaration.name.asString() + "." + value.name.asString()
+            is Pair<*, *> -> {
+                val (classId, name) = value
+                if (classId is ClassId && name is Name) {
+                    classId.shortClassName.asString() + "." + name.asString()
+                } else {
+                    value.toString()
+                }
+            }
             else -> value.toString()
         }.let { valueString ->
             DocumentationNode(valueString, Content.Empty, NodeKind.Value)
