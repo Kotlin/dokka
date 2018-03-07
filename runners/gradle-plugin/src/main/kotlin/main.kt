@@ -10,6 +10,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
@@ -133,7 +134,7 @@ open class DokkaTask : DefaultTask() {
     @Optional @Input
     var apiVersion: String? = null
 
-    @get:Input
+    @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
 
 
@@ -201,7 +202,7 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    internal data class ClasspathAndSourceRoots(val classpath: List<File>, val sourceRoots: List<File>) : Serializable
+    internal data class ClasspathAndSourceRoots(val classpathFileCollection: FileCollection, val sourceRoots: List<File>) : Serializable
 
     private fun extractKotlinCompileTasks(): List<Task> {
         val inputList = (kotlinTasksConfigurator.invoke() ?: emptyList()).filterNotNull()
@@ -228,6 +229,7 @@ open class DokkaTask : DefaultTask() {
         val allTasks = kotlinTasks
 
         val allClasspath = mutableSetOf<File>()
+        var allClasspathFileCollection: FileCollection = project.files()
         val allSourceRoots = mutableSetOf<File>()
 
         allTasks.forEach {
@@ -239,15 +241,20 @@ open class DokkaTask : DefaultTask() {
                 val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
 
                 val taskClasspath: Iterable<File> =
-                        (it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v() ?:
-                                it["getClasspath", abstractKotlinCompileClz]())
+                        (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
+                                ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
+                                ?: it["getClasspath", abstractKotlinCompileClz]())
 
-                allClasspath += taskClasspath.filter { it.exists() }
+                if (taskClasspath is FileCollection) {
+                    allClasspathFileCollection += taskClasspath
+                } else {
+                    allClasspath += taskClasspath
+                }
                 allSourceRoots += taskSourceRoots.filter { it.exists() }
             }
         }
 
-        return ClasspathAndSourceRoots(allClasspath.toList(), allSourceRoots.toList())
+        return ClasspathAndSourceRoots(allClasspathFileCollection + project.files(allClasspath), allSourceRoots.toList())
     }
 
     private fun Iterable<File>.toSourceRoots(): List<SourceRoot> = this.filter { it.exists() }.map { SourceRoot().apply { path = it.path } }
@@ -351,15 +358,17 @@ open class DokkaTask : DefaultTask() {
     }
 
 
+    @Classpath
+    fun getInputClasspath(): FileCollection {
+        val (classpathFileCollection) = extractClasspathAndSourceRootsFromKotlinTasks()
+        return project.files(collectClasspathFromOldSources() + classpath) + classpathFileCollection
+    }
+
     @InputFiles
     fun getInputFiles(): FileCollection {
-        val (tasksClasspath, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
-
-        val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
-
+        val (_, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
         return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
                 project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
-                project.files(fullClasspath.map { project.fileTree(it) }) +
                 project.files(includes) +
                 project.files(samples.filterNotNull().map { project.fileTree(it) })
     }

@@ -1,0 +1,39 @@
+buildscript {
+    dependencies {
+        classpath "com.android.tools.build:gradle:$abt_plugin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+    }
+}
+
+
+plugins {
+    id 'org.jetbrains.dokka-android'
+}
+
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
+
+
+android {
+    compileSdkVersion Integer.parseInt(sdk_version)
+    buildToolsVersion abt_version
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    api(project(":jlib"))
+}
+
+dokka {
+    dokkaFatJar = new File(dokka_fatjar)
+
+    externalDocumentationLink {
+        url = new URL("https://example.com")
+        packageListUrl = file("$rootDir/package-list").toURI().toURL()
+    }
+}

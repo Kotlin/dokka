@@ -1,0 +1,20 @@
+subprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+            jcenter()
+            maven { url 'https://maven.google.com' }
+            maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+            maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+        }
+
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url 'https://maven.google.com' }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+}
