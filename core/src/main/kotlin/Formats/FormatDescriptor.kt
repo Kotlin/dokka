@@ -26,6 +26,7 @@ abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor {
         bind<Generator>() toType NodeLocationAwareGenerator::class
         bind<NodeLocationAwareGenerator>() toType generatorServiceClass
 
+        bind<LanguageService>() toType languageServiceClass
 
         lazyBind<OutlineFormatService>() toOptional (outlineServiceClass)
         lazyBind<FormatService>() toOptional formatServiceClass
@@ -36,4 +37,6 @@ abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor {
     abstract val outlineServiceClass: KClass<out OutlineFormatService>?
     abstract val generatorServiceClass: KClass<out FileGenerator>
     abstract val packageListServiceClass: KClass<out PackageListService>?
+
+    open val languageServiceClass: KClass<out LanguageService> = KotlinLanguageService::class
 }
