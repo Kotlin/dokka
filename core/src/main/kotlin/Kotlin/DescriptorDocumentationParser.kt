@@ -131,7 +131,7 @@ class DescriptorDocumentationParser @Inject constructor(
                         }
                         else -> null
                     }
-                    attribute?.let { append(it, RefKind.Attribute) }
+                    attribute?.let { append(it, RefKind.Detail) }
                 }
             } else if (name?.toLowerCase() == "since") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)

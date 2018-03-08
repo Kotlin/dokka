@@ -757,7 +757,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike }
 
-            val attributes = node.members(NodeKind.Attribute)
+            val attributes = node.details(NodeKind.Attribute)
 
             val constants = node.members.filter { it.constantValue() != null }
 

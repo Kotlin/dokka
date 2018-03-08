@@ -110,7 +110,7 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Platform).map { it.to.name }
     val externalType: DocumentationNode?
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
-    val attributes: List<DocumentationNode>
+    val attributesLink: List<DocumentationNode>
         get() = references(RefKind.Attribute).map { it.to }
     val apiLevel: DocumentationNode?
         get() = detailOrNull(NodeKind.ApiLevel)

@@ -24,23 +24,29 @@ class DevsiteHtmlTemplateService @Inject constructor(
             attributes["devsite"] = "true"
             head {
                 headContent()
-                title {+when(page) {
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> "Class Index | Android Developers"
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> page.node.nameWithOuterClass()
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index | Android Developers"
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
-                }}
-                unsafe {+"{% setvar book_path %}/reference/android/arch/_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n"}
+                title {
+                    +when (page) {
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> "Class Index | Android Developers"
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> page.node.nameWithOuterClass()
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index | Android Developers"
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
+                    }
+                }
+                unsafe { +"{% setvar book_path %}/reference/android/arch/_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
             body {
                 bodyContent()
                 // TODO Refactor appendDataReferenceResourceWrapper to use KotlinX.HTML
-                unsafe { raw(buildString { appendDataReferenceResourceWrapper(when(page) {
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> page.classes
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> listOf(page.node)
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> page.packages
-                    is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> listOf(page.node)
-                }) }) }
+                unsafe {
+                    raw(buildString {
+                        appendDataReferenceResourceWrapper(when (page) {
+                            is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> page.classes
+                            is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> listOf(page.node)
+                            is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> page.packages
+                            is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> listOf(page.node)
+                        })
+                    })
+                }
             }
         }
     }
@@ -144,7 +150,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         div {
             id = node.signatureForAnchor(logger)
             h3(classes = "api-name") { +node.name }
-            div(classes="api-level") {
+            div(classes = "api-level") {
                 node.apiLevel?.let {
                     +"added in "
                     a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels")
@@ -177,6 +183,19 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    fun TBODY.xmlAttributeRow(node: DocumentationNode) = tr {
+        td {
+            div {
+                code {
+                    +node.name
+                }
+            }
+
+            val referencedElement = node.attributesLink.first()
+            contentNodeToMarkup(referencedElement.summary)
+        }
+    }
+
     override fun FlowContent.classLikeSummaries(page: Page.ClassPage) = with(page) {
         summaryNodeGroup(
                 nestedClasses,
@@ -186,7 +205,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             nestedClassSummaryRow(it)
         }
 
-        summaryNodeGroup(attributes, "XML attributes") { propertyLikeSummaryRow(it) }
+        summaryNodeGroup(attributes, "XML attributes") { xmlAttributeRow(it) }
 
         summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
 
