@@ -29,7 +29,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-script-runtime:$bundled_kotlin_compiler_version"
 
     compile "teamcity:kotlin-ide-common:$bundled_kotlin_compiler_version"
-    compile "teamcity:markdown:$bundled_kotlin_compiler_version"
+    compile "teamcity:markdown:$markdownVersion"
 
     compile intellijCoreAnalysis()
 

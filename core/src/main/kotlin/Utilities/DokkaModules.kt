@@ -46,7 +46,6 @@ object StringListType : TypeLiteral<@JvmSuppressWildcards List<String>>()
 class DokkaOutputModule(val options: DocumentationOptions,
                         val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
-        binder.bind(LanguageService::class.java).to(KotlinLanguageService::class.java)
         binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(options.outputDir))
 
         binder.bind<DocumentationOptions>().toInstance(options)

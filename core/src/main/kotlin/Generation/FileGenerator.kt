@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import org.jetbrains.kotlin.utils.fileUtils.withReplacedExtensionOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -17,22 +18,26 @@ class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) 
     override val root: File = rootFile
 
     override fun location(node: DocumentationNode): FileLocation {
-        return locationWithoutExtension(node).let { it.copy(file = it.file.appendExtension(formatService.linkExtension)) }
+        return FileLocation(fileForNode(node, formatService.linkExtension))
+    }
+
+    private fun fileForNode(node: DocumentationNode, extension: String = ""): File {
+        return File(root, relativePathToNode(node)).appendExtension(extension)
     }
 
     fun locationWithoutExtension(node: DocumentationNode): FileLocation {
-        return FileLocation(File(rootFile, relativePathToNode(node)))
+        return FileLocation(fileForNode(node))
     }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
 
-        for ((location, items) in nodes.groupBy { location(it) }) {
-            val file = location.file
+        for ((file, items) in nodes.groupBy { fileForNode(it, formatService.extension) }) {
+
             file.parentFile?.mkdirsOrFail()
             try {
                 FileOutputStream(file).use {
                     OutputStreamWriter(it, Charsets.UTF_8).use {
-                        it.write(formatService.format(location, items))
+                        it.write(formatService.format(location(items.first()), items))
                     }
                 }
             } catch (e: Throwable) {

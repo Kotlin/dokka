@@ -51,4 +51,7 @@ class MultiProjectSingleOutTest : AbstractDokkaGradleTest() {
         doTest("4.0", "1.1.2")
     }
 
+    @Test fun `test kotlin 1_2_20 and gradle 4_5`() {
+        doTest("4.5", "1.2.20")
+    }
 }

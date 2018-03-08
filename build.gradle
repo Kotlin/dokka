@@ -6,6 +6,7 @@ allprojects {
 
     def repo = {
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
     }
 
     buildscript {
@@ -21,7 +22,7 @@ allprojects {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
             classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
 
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.6"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
         }
     }
 
@@ -71,6 +72,7 @@ task wrapper(type: Wrapper) {
 def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
+ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
 
 configurations {
     ideaIC

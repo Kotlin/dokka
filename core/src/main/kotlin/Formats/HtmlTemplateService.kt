@@ -24,7 +24,7 @@ interface HtmlTemplateService {
                         to.appendln("<title>$title</title>")
                     }
                     if (css != null) {
-                        val cssPath = basePath.resolve(css)
+                        val cssPath = basePath.resolve(css).toUnixString()
                         to.appendln("<link rel=\"stylesheet\" href=\"$cssPath\">")
                     }
                     to.appendln("</HEAD>")
