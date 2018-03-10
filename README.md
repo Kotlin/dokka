@@ -101,7 +101,7 @@ dokka {
     // Repeat for multiple mappings
     linkMapping {
         // Source directory
-        dir = "src/main/kotlin"
+        dir = file("${project.projectDir}/src/main/kotlin").absolutePath
          
         // URL showing where the source code can be accessed through the web browser
         url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
