@@ -419,6 +419,11 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         verifyMarkdownNodeByName("companionImplements", "Foo")
     }
 
+    @Test fun enumRef() {
+        verifyMarkdownNode("enumRef")
+    }
+
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions(
