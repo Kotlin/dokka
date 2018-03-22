@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import com.intellij.psi.PsiMethod
 import com.intellij.util.io.*
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
@@ -178,7 +179,9 @@ interface InboundExternalLinkResolutionService {
 
     class Javadoc : InboundExternalLinkResolutionService {
         override fun getPath(symbol: DeclarationDescriptor): String? {
-            if (symbol is JavaClassDescriptor) {
+            if (symbol is EnumEntrySyntheticClassDescriptor) {
+                return getPath(symbol.containingDeclaration)?.let { it + "#" + symbol.name.asString() }
+            } else if (symbol is JavaClassDescriptor) {
                 return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
             } else if (symbol is JavaCallableMemberDescriptor) {
                 val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
