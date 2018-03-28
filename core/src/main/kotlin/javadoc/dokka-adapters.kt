@@ -13,7 +13,6 @@ class JavadocGenerator @Inject constructor(val options: DocumentationOptions, va
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
         val module = nodes.single() as DocumentationModule
 
-        DokkaConsoleLogger.report()
         HtmlDoclet.start(ModuleNodeAdapter(module, StandardReporter(logger), options.outputDir))
     }
 
