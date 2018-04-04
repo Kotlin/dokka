@@ -51,7 +51,7 @@ class DokkaOutputModule(val options: DocumentationOptions,
         binder.bind<DocumentationOptions>().toInstance(options)
         binder.bind<DokkaLogger>().toInstance(logger)
         binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(options.impliedPlatforms)
-
+        binder.bind<String>().annotatedWith(Names.named("outlineRoot")).toInstance(options.outlineRoot)
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
 
         descriptor.configureOutput(binder)

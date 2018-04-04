@@ -49,7 +49,8 @@ data class DokkaConfigurationImpl(
     override val skipEmptyPackages: Boolean,
     override val skipDeprecated: Boolean,
     override val jdkVersion: Int,
-    override val generateIndexPages: Boolean,
+    override val generateClassIndexPage: Boolean,
+    override val generatePackageIndexPage: Boolean,
     override val sourceLinks: List<SourceLinkDefinitionImpl>,
     override val impliedPlatforms: List<String>,
     override val perPackageOptions: List<PackageOptionsImpl>,
@@ -59,5 +60,6 @@ data class DokkaConfigurationImpl(
     override val suppressedFiles: List<String>,
     override val languageVersion: String?,
     override val apiVersion: String?,
-    override val collectInheritedExtensionsFromLibraries: Boolean
+    override val collectInheritedExtensionsFromLibraries: Boolean,
+    override val outlineRoot: String
 ) : DokkaConfiguration

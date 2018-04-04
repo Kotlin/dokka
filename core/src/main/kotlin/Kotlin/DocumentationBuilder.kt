@@ -49,7 +49,8 @@ class DocumentationOptions(val outputDir: String,
                            val skipEmptyPackages: Boolean = true,
                            skipDeprecated: Boolean = false,
                            jdkVersion: Int = 6,
-                           val generateIndexPages: Boolean = true,
+                           val generateClassIndexPage: Boolean = true,
+                           val generatePackageIndexPage: Boolean = true,
                            val sourceLinks: List<SourceLinkDefinition> = emptyList(),
                            val impliedPlatforms: List<String> = emptyList(),
                            // Sorted by pattern length
@@ -60,7 +61,8 @@ class DocumentationOptions(val outputDir: String,
                            val apiVersion: String?,
                            cacheRoot: String? = null,
                            val suppressedFiles: List<File> = emptyList(),
-                           val collectInheritedExtensionsFromLibraries: Boolean = false) {
+                           val collectInheritedExtensionsFromLibraries: Boolean = false,
+                           val outlineRoot: String = "") {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
@@ -1135,7 +1137,7 @@ fun DeclarationDescriptor.sourceLocation(): String? {
 }
 
 fun DocumentationModule.prepareForGeneration(options: DocumentationOptions) {
-    if (options.generateIndexPages) {
+    if (options.generateClassIndexPage) {
         generateAllTypesNode()
     }
     nodeRefGraph.resolveReferences()

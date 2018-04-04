@@ -17,10 +17,12 @@ val nodeToFamilyMap = HashMap<DocumentationNode, List<DocumentationNode>>()
  * On Devsite, certain headers and footers are needed for generating Devsite metadata.
  */
 class DevsiteHtmlTemplateService @Inject constructor(
-        val uriProvider: JavaLayoutHtmlUriProvider, @Named("outputDir") val rootFile: File
+        val uriProvider: JavaLayoutHtmlUriProvider, @Named("outputDir") val rootFile: File,
+        @Named("outlineRoot") val outlineRoot: String
 ) : JavaLayoutHtmlTemplateService {
     override fun composePage(page: JavaLayoutHtmlFormatOutputBuilder.Page, tagConsumer: TagConsumer<Appendable>, headContent: HEAD.() -> Unit, bodyContent: BODY.() -> Unit) {
         tagConsumer.html {
+            System.out.println("outlineRoot = ${outlineRoot}")
             attributes["devsite"] = "true"
             head {
                 headContent()
@@ -32,7 +34,7 @@ class DevsiteHtmlTemplateService @Inject constructor(
                         is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
                     }
                 }
-                unsafe { +"{% setvar book_path %}/reference/android/arch/_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
+                unsafe { +"{% setvar book_path %}/reference/kotlin${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
             body {
                 bodyContent()

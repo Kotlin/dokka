@@ -65,6 +65,14 @@ class DokkaArguments {
     @set:Argument(value = "collectInheritedExtensionsFromLibraries", description = "Search for applicable extensions in libraries")
     var collectInheritedExtensionsFromLibraries: Boolean = false
 
+    @set:Argument(value = "generateClassIndexPage", description = "Generate classes.html index page.")
+    var generateClassIndexPage: Boolean = true
+
+    @set:Argument(value = "generatePackageIndexPage", description = "Generate packages.html index page.")
+    var generatePackageIndexPage: Boolean = true
+
+    @set:Argument(value = "outlineRoot", description = "Relative root directory the outline files.")
+    var outlineRoot: String = ""
 }
 
 
@@ -121,7 +129,10 @@ object MainKt {
             cacheRoot = arguments.cacheRoot,
             languageVersion = arguments.languageVersion,
             apiVersion = arguments.apiVersion,
-            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries
+            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries,
+            generateClassIndexPage = arguments.generateClassIndexPage,
+            generatePackageIndexPage = arguments.generatePackageIndexPage,
+            outlineRoot = arguments.outlineRoot
         )
 
         val generator = DokkaGenerator(

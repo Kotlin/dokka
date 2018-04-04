@@ -17,7 +17,8 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val packageListService: PackageListService,
         val outputBuilderFactoryService: JavaLayoutHtmlFormatOutputBuilderFactory,
         private val options: DocumentationOptions,
-        val logger: DokkaLogger
+        val logger: DokkaLogger,
+        @Named("outlineRoot") val outlineRoot: String
 ) : Generator, JavaLayoutHtmlUriProvider {
 
     @set:Inject(optional = true)
@@ -53,9 +54,14 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
                 }
             }
             NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
-            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
+            NodeKind.AllTypes -> tryGetOutlineRootUri(node.owner!!)?.resolve("classes.html")
             else -> null
         }
+    }
+
+    override fun tryGetOutlineRootUri(node: DocumentationNode): URI? {
+        val uri = tryGetContainerUri(node)?.resolve(outlineRoot)
+        return uri
     }
 
     fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureForAnchor(logger).urlEncoded()}")
@@ -105,11 +111,15 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val module = nodes.single()
 
         val moduleRoot = root.resolve(module.name)
+//        val outlineRoot = moduleRoot.resolve(outlineRoot)
         val packages = module.members.filter { it.kind == NodeKind.Package }
         packages.forEach { buildPackage(it, moduleRoot) }
 
-        if (options.generateIndexPages) {
+        if (options.generateClassIndexPage) {
             buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+        }
+
+        if (options.generatePackageIndexPage) {
             buildPackageIndex(module, packages, moduleRoot)
         }
     }

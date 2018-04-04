@@ -48,8 +48,11 @@ interface JavaLayoutHtmlFormatOutlineFactoryService {
 interface JavaLayoutHtmlUriProvider {
     fun tryGetContainerUri(node: DocumentationNode): URI?
     fun tryGetMainUri(node: DocumentationNode): URI?
+    fun tryGetOutlineRootUri(node: DocumentationNode): URI?
     fun containerUri(node: DocumentationNode): URI = tryGetContainerUri(node) ?: error("Unsupported ${node.kind}")
     fun mainUri(node: DocumentationNode): URI = tryGetMainUri(node) ?: error("Unsupported ${node.kind}")
+    fun outlineRootUri(node: DocumentationNode): URI = tryGetOutlineRootUri(node) ?: error("Unsupported ${node.kind}")
+
 
     fun linkTo(to: DocumentationNode, from: URI): String {
         return mainUri(to).relativeTo(from).toString()

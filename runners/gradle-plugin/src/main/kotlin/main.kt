@@ -95,6 +95,13 @@ open class DokkaTask : DefaultTask() {
     var samples: List<Any?> = arrayListOf()
     @Input
     var jdkVersion: Int = 6
+
+    @Input
+    var generateClassIndex = true
+
+    @Input
+    var generatePackageIndex = true
+
     @Input
     var sourceDirs: Iterable<File> = emptyList()
 
@@ -107,6 +114,8 @@ open class DokkaTask : DefaultTask() {
     @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
+
+    @Input var outlineRoot: String = ""
 
     @Deprecated(`deprecationMessage reportNotDocumented`, replaceWith = ReplaceWith("reportUndocumented"))
     var reportNotDocumented
@@ -303,7 +312,8 @@ open class DokkaTask : DefaultTask() {
                     skipEmptyPackages,
                     skipDeprecated,
                     jdkVersion,
-                    true,
+                    generateClassIndex,
+                    generatePackageIndex,
                     linkMappings,
                     impliedPlatforms,
                     perPackageOptions,
@@ -313,7 +323,8 @@ open class DokkaTask : DefaultTask() {
                     collectSuppressedFiles(sourceRoots),
                     languageVersion,
                     apiVersion,
-                collectInheritedExtensionsFromLibraries)
+                    collectInheritedExtensionsFromLibraries,
+                    outlineRoot)
 
 
             bootstrapProxy.configure(

@@ -3,6 +3,7 @@ package org.jetbrains.dokka.Formats
 import com.google.inject.Inject
 import org.jetbrains.dokka.*
 import java.net.URI
+import com.google.inject.name.Named
 
 /**
  * Outline service for generating a _toc.yaml file, responsible for pointing to the paths of each
@@ -12,7 +13,7 @@ class DacOutlineService(
         val uriProvider: JavaLayoutHtmlUriProvider,
         val languageService: LanguageService
 ) : DacOutlineFormatService {
-    override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.containerUri(node).resolve("_toc.yaml")
+    override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.outlineRootUri(node).resolve("_book.yaml")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         appendOutline(uri, to, listOf(node))
@@ -46,7 +47,7 @@ class DacOutlineService(
         } else {
             to.appendln("- title: ${languageService.renderName(node)}")
             to.appendln("  path: ${uriProvider.mainUriOrWarn(node)}")
-            to.appendln("  status_text: apilevel-")
+            to.appendln("  status_text: no-toggle-")
         }
     }
 

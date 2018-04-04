@@ -29,7 +29,8 @@ abstract class JavaLayoutHtmlFormatTestCase {
             "java-layout-html",
             apiVersion = null,
             languageVersion = null,
-            generateIndexPages = false,
+            generateClassIndexPage = false,
+            generatePackageIndexPage = false,
             noStdlibLink = false,
             collectInheritedExtensionsFromLibraries = true
         )

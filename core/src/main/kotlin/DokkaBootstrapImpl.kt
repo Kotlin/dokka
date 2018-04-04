@@ -60,7 +60,8 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                         skipEmptyPackages,
                         skipDeprecated,
                         jdkVersion,
-                        generateIndexPages,
+                        generateClassIndexPage,
+                        generatePackageIndexPage,
                         sourceLinks,
                         impliedPlatforms,
                         perPackageOptions,
@@ -70,7 +71,8 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                         apiVersion,
                         cacheRoot,
                         suppressedFiles.map { File(it) },
-                        collectInheritedExtensionsFromLibraries
+                        collectInheritedExtensionsFromLibraries,
+                        outlineRoot
                 )
         )
     }

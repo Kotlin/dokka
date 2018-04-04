@@ -11,10 +11,10 @@ class DacNavOutlineService constructor(
         val languageService: LanguageService
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI =
-            uriProvider.containerUri(node).resolve("navtree_data.js")
+            uriProvider.outlineRootUri(node).resolve("navtree_data.js")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
-        to.append("var NAVTREE_DATA_KT = ").appendNavTree(node.members).append(";")
+        to.append("var NAVTREE_DATA = ").appendNavTree(node.members).append(";")
     }
 
     private fun Appendable.appendNavTree(nodes: Iterable<DocumentationNode>): Appendable {
@@ -91,12 +91,12 @@ class DacSearchOutlineService(
 ) : DacOutlineFormatService {
 
     override fun computeOutlineURI(node: DocumentationNode): URI =
-            uriProvider.containerUri(node).resolve("lists.js")
+            uriProvider.outlineRootUri(node).resolve("lists.js")
 
     override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
         val pageNodes = node.getAllPageNodes()
         var id = 0
-        to.append("var ARCH_DATA = [\n")
+        to.append("var KTX_CORE_DATA = [\n")
         var first = true
         for (pageNode in pageNodes) {
             if (pageNode.kind == NodeKind.Module) continue

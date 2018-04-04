@@ -52,7 +52,8 @@ class KotlinWebSiteFormatTest: FileGeneratorTestCase() {
         val options = DocumentationOptions(
                 outputDir = "",
                 outputFormat = "html",
-                generateIndexPages = false,
+                generateClassIndexPage = false,
+                generatePackageIndexPage = false,
                 noStdlibLink = true,
                 languageVersion = null,
                 apiVersion = null
