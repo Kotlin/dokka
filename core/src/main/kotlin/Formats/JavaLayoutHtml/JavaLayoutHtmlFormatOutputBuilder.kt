@@ -41,7 +41,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     protected open fun FlowContent.metaMarkup(content: List<ContentNode>) = contentNodesToMarkup(content)
     protected open fun FlowContent.metaMarkup(content: ContentNode) = contentNodeToMarkup(content)
 
-    private fun FlowContent.contentNodesToMarkup(content: List<ContentNode>): Unit = content.forEach { contentNodeToMarkup(it) }
+    private fun FlowContent.contentNodesToMarkup(content: List<ContentNode>): Unit =
+        content.forEach { contentNodeToMarkup(it) }
+
     private fun FlowContent.contentNodeToMarkup(content: ContentNode) {
         when (content) {
             is ContentText -> +content.text
@@ -75,7 +77,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
 
             ContentNonBreakingSpace -> +nbsp
-            ContentSoftLineBreak, ContentIndentedSoftLineBreak -> {}
+            ContentSoftLineBreak, ContentIndentedSoftLineBreak -> {
+            }
             ContentHardLineBreak -> br
 
             is ContentParagraph -> p { contentNodesToMarkup(content.children) }
@@ -89,7 +92,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
             is ContentExternalLink -> contentExternalLink(content)
-            is ContentSection -> {}
+            is ContentSection -> {
+            }
             is ContentBlock -> contentNodesToMarkup(content.children)
         }
     }
@@ -239,14 +243,14 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun TBODY.extensionRow(
+    protected open fun TBODY.groupedRow(
         entry: Map.Entry<DocumentationNode, List<DocumentationNode>>,
+        groupHeader: HtmlBlockTag.(DocumentationNode) -> Unit,
         summaryRow: TBODY.(DocumentationNode) -> Unit
     ) = tr {
         td {
             val (from, nodes) = entry
-            +"From "
-            a(href = from) { +from.qualifiedName() }
+            groupHeader(from)
             table {
                 tbody {
                     for (node in nodes) {
@@ -256,6 +260,23 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             }
         }
     }
+
+    protected open fun TBODY.extensionRow(
+        entry: Map.Entry<DocumentationNode, List<DocumentationNode>>,
+        summaryRow: TBODY.(DocumentationNode) -> Unit
+    ) = groupedRow(entry, { from ->
+        +"From "
+        a(href = from) { +from.qualifiedName() }
+    }, summaryRow)
+
+
+    protected open fun TBODY.extensionByReceiverRow(
+        entry: Map.Entry<DocumentationNode, List<DocumentationNode>>,
+        summaryRow: TBODY.(DocumentationNode) -> Unit
+    ) = groupedRow(entry, { from ->
+        +"For "
+        a(href = from) { +from.name }
+    }, summaryRow)
 
     protected open fun FlowContent.a(href: DocumentationNode?, classes: String? = null, block: A.() -> Unit) {
         if (href == null) {
@@ -271,7 +292,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         a(href = hrefText, classes = classes, block = block)
     }
 
-    protected open fun FlowContent.renderedSignature(node: DocumentationNode, mode: LanguageService.RenderMode = SUMMARY) {
+    protected open fun FlowContent.renderedSignature(
+        node: DocumentationNode,
+        mode: LanguageService.RenderMode = SUMMARY
+    ) {
         contentNodeToMarkup(languageService.render(node, mode))
     }
 
@@ -314,10 +338,33 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 propertyLikeSummaryRow(it)
             }
 
+            summaryNodeGroup(
+                page.extensionFunctions.entries,
+                "Extension functions",
+                headerAsRow = false
+            ) {
+                extensionByReceiverRow(it) {
+                    functionLikeSummaryRow(it)
+                }
+            }
+
+            summaryNodeGroup(
+                page.extensionProperties.entries,
+                "Extension properties",
+                headerAsRow = false
+            ) {
+                extensionByReceiverRow(it) {
+                    functionLikeSummaryRow(it)
+                }
+            }
+
+
 
             fullMemberDocs(page.constants, "Top-level constants")
             fullMemberDocs(page.functions, "Top-level functions")
             fullMemberDocs(page.properties, "Top-level properties")
+            fullMemberDocs(page.extensionFunctions.values.flatten(), "Extension functions")
+            fullMemberDocs(page.extensionProperties.values.flatten(), "Extension properties")
         }
     )
 
@@ -649,7 +696,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected open fun FlowContent.section(name: String, sectionParts: List<ContentSection>) {
-        when(name) {
+        when (name) {
             ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as ContentParagraph).children } })
             else -> regularSection(name, sectionParts)
         }
@@ -802,16 +849,35 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val annotations = node.members(NodeKind.AnnotationClass)
             val enums = node.members(NodeKind.Enum)
 
-            private val externalClassExtensionFunctions =
-                node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Function) }
-            private val externalClassExtensionProperties =
-                node.members(NodeKind.ExternalClass).flatMap { it.members(NodeKind.Property) }
-
             val constants = node.members(NodeKind.Property).filter { it.constantValue() != null }
+            val functions = node.members(NodeKind.Function)
 
-            val functions = node.members(NodeKind.Function) + externalClassExtensionFunctions
+            private fun DocumentationNode.getClassExtensionReceiver() =
+                detailOrNull(NodeKind.Receiver)?.detailOrNull(NodeKind.Type)?.takeIf {
+                    it.links(NodeKind.Class).isNotEmpty()
+                }
 
-            val properties = node.members(NodeKind.Property) - constants + externalClassExtensionProperties
+            private fun List<DocumentationNode>.groupedExtensions() =
+                filter { it.getClassExtensionReceiver() != null }
+                    .groupBy { it.getClassExtensionReceiver()!! }
+                    .mapKeys { (receiverType) ->
+                        receiverType.links(NodeKind.ExternalLink).firstOrNull()
+                                ?: receiverType.links(NodeKind.Class).first()
+                    }
+
+            private fun List<DocumentationNode>.externalExtensions(kind: NodeKind) =
+                associateBy({ it }, { it.members(kind) })
+                    .filterNot { (_, values) -> values.isEmpty() }
+
+            val extensionFunctions =
+                node.members(NodeKind.ExternalClass).externalExtensions(NodeKind.Function) +
+                        node.members(NodeKind.Function).groupedExtensions()
+
+            val extensionProperties =
+                node.members(NodeKind.ExternalClass).externalExtensions(NodeKind.Property) +
+                        node.members(NodeKind.Property).groupedExtensions()
+
+            val properties = node.members(NodeKind.Property) - constants
 
         }
     }
