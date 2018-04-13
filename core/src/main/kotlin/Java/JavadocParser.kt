@@ -20,8 +20,10 @@ interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): JavadocParseResult
 }
 
-class JavadocParser(private val refGraph: NodeReferenceGraph,
-                    private val logger: DokkaLogger) : JavaDocumentationParser {
+class JavadocParser(
+    private val refGraph: NodeReferenceGraph,
+    private val logger: DokkaLogger
+) : JavaDocumentationParser {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
         val docComment = (element as? PsiDocCommentOwner)?.docComment
         if (docComment == null) return JavadocParseResult.Empty
@@ -31,7 +33,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
         result.append(para)
         para.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
         docComment.tags.forEach { tag ->
-            when(tag.name) {
+            when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content()
@@ -50,9 +52,9 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children
-                .dropWhile { it.node?.elementType == JavaDocTokenType.DOC_TAG_NAME }
-                .dropWhile { it is PsiWhiteSpace }
-                .filterNot { it.node?.elementType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS }
+            .dropWhile { it.node?.elementType == JavaDocTokenType.DOC_TAG_NAME }
+            .dropWhile { it is PsiWhiteSpace }
+            .filterNot { it.node?.elementType == JavaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS }
         return if (getSubjectName() != null) tagValueElements.dropWhile { it is PsiDocTagValue } else tagValueElements
     }
 
@@ -83,7 +85,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
         }
     }
 
-    private fun createBlock(element: Element): ContentBlock = when(element.tagName()) {
+    private fun createBlock(element: Element): ContentBlock = when (element.tagName()) {
         "p" -> ContentParagraph()
         "b", "strong" -> ContentStrong()
         "i", "em" -> ContentEmphasis()
@@ -99,28 +101,26 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
     }
 
     private fun createLink(element: Element): ContentBlock {
-        val docref = element.attr("docref")
-        if (docref != null) {
-            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger)})
+        if (element.hasAttr("docref")) {
+            val docref = element.attr("docref")
+            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
         }
-        val href = element.attr("href")
-        if (href != null) {
-            return ContentExternalLink(href)
+        return if (element.hasAttr("href")) {
+            val href = element.attr("href")
+            ContentExternalLink(href)
         } else {
-            return ContentBlock()
+            ContentBlock()
         }
     }
 
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
-        val linkElement = tag.linkElement()
-        if (linkElement == null) {
-            return
-        }
+        val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.text)
         if (linkSignature != null) {
-            val linkNode = ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger)})
+            val linkNode =
+                ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {
@@ -136,8 +136,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
                 val labelText = tag.dataElements.firstOrNull { it is PsiDocToken }?.text ?: valueElement!!.text
                 val link = "<a docref=\"$linkSignature\">${labelText.htmlEscape()}</a>"
                 if (tag.name == "link") "<code>$link</code>" else link
-            }
-            else if (valueElement != null) {
+            } else if (valueElement != null) {
                 valueElement.text
             } else {
                 ""
@@ -153,7 +152,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
     }
 
     private fun PsiDocTag.linkElement(): PsiElement? =
-            valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
+        valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
 
     private fun resolveLink(valueElement: PsiElement?): String? {
         val target = valueElement?.reference?.resolve()
