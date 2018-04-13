@@ -937,6 +937,30 @@ class DocumentationBuilder
             DocumentationNode(valueString, Content.Empty, NodeKind.Value)
         }
     }
+
+
+    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
+                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>,
+                                                    allFqNames: Collection<FqName>): DocumentationNode {
+        if (descriptor is CallableMemberDescriptor) {
+            val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
+            if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
+                !ErrorUtils.isError(extensionClassDescriptor)) {
+                val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
+                return externalClassNodes.getOrPut(fqName, {
+                    val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
+                    val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(extensionClassDescriptor)
+                    if (externalLink != null) {
+                        newNode.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+                    }
+                    append(newNode, RefKind.Member)
+                    newNode
+                })
+            }
+        }
+        return this
+    }
+
 }
 
 val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
@@ -1035,24 +1059,6 @@ fun DeclarationDescriptor.sourcePsi() =
 fun DeclarationDescriptor.isDeprecated(): Boolean = annotations.any {
     DescriptorUtils.getFqName(it.type.constructor.declarationDescriptor!!).asString() == "kotlin.Deprecated"
 } || (this is ConstructorDescriptor && containingDeclaration.isDeprecated())
-
-fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
-                                                externalClassNodes: MutableMap<FqName, DocumentationNode>,
-                                                allFqNames: Collection<FqName>): DocumentationNode {
-    if (descriptor is CallableMemberDescriptor) {
-        val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
-        if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
-                !ErrorUtils.isError(extensionClassDescriptor)) {
-            val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-            return externalClassNodes.getOrPut(fqName, {
-                val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
-                append(newNode, RefKind.Member)
-                newNode
-            })
-        }
-    }
-    return this
-}
 
 fun CallableMemberDescriptor.getExtensionClassDescriptor(): ClassifierDescriptor? {
     val extensionReceiver = extensionReceiverParameter

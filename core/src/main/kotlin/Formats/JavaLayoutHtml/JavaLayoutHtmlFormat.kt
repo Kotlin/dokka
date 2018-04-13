@@ -40,6 +40,14 @@ class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), Def
     override val outlineFactoryClass = null
 }
 
+class JavaLayoutHtmlAsJavaFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava {
+    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = JavaLayoutHtmlFormatOutputBuilderFactoryImpl::class
+    override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
+    override val languageServiceClass = JavaLanguageService::class
+    override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class
+    override val outlineFactoryClass = null
+}
+
 interface JavaLayoutHtmlFormatOutlineFactoryService {
     fun generateOutlines(outputProvider: (URI) -> Appendable, nodes: Iterable<DocumentationNode>)
 }

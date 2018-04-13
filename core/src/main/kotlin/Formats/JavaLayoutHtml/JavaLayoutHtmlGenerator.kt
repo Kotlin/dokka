@@ -101,7 +101,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun buildPackageIndex(module: DocumentationNode, nodes: List<DocumentationNode>, parentDir: File) {
         val file = parentDir.resolve("packages.html")
         file.bufferedWriter().use {
-            val uri = outlineRootUri(module).resolve("packages.html")
+            val uri = containerUri(module).resolve("packages.html")
             outputBuilderFactoryService.createOutputBuilder(it, uri)
                 .generatePage(Page.PackageIndex(nodes))
         }
@@ -116,11 +116,11 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val outlineRootFile = moduleRoot.resolve(outlineRoot)
 //        if (!outlineRootFile.exists()) outlineRootFile.mkdir()
         if (options.generateClassIndexPage) {
-            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, outlineRootFile)
+            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
         }
 
         if (options.generatePackageIndexPage) {
-            buildPackageIndex(module, packages, outlineRootFile)
+            buildPackageIndex(module, packages, moduleRoot)
         }
     }
 
