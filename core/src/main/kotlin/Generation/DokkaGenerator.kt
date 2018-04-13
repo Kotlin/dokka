@@ -86,7 +86,7 @@ class DokkaGenerator(val logger: DokkaLogger,
         val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
 
         environment.apply {
-            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            //addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
             for (element in this@DokkaGenerator.classpath) {
                 addClasspath(File(element))

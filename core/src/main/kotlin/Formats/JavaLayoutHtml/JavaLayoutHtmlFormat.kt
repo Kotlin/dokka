@@ -43,7 +43,7 @@ class JavaLayoutHtmlFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), Def
 class JavaLayoutHtmlAsJavaFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava {
     override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = JavaLayoutHtmlFormatOutputBuilderFactoryImpl::class
     override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
-    override val languageServiceClass = JavaLanguageService::class
+    override val languageServiceClass = NewJavaLanguageService::class
     override val templateServiceClass = JavaLayoutHtmlTemplateService.Default::class
     override val outlineFactoryClass = null
 }
@@ -126,6 +126,8 @@ fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String {
             append(detail(NodeKind.Type).qualifiedNameFromType())
         }
         NodeKind.TypeParameter, NodeKind.Parameter -> owner!!.signatureForAnchor(logger) + "/" + name
+        NodeKind.Field -> name
+        NodeKind.EnumItem -> "ENUM_VALUE:$name"
         else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
     }
 
