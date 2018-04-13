@@ -54,7 +54,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
                 }
             }
             NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
-            NodeKind.AllTypes -> tryGetOutlineRootUri(node.owner!!)?.resolve("classes.html")
+            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
             else -> null
         }
     }
@@ -101,7 +101,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     fun buildPackageIndex(module: DocumentationNode, nodes: List<DocumentationNode>, parentDir: File) {
         val file = parentDir.resolve("packages.html")
         file.bufferedWriter().use {
-            val uri = containerUri(module).resolve("packages.html")
+            val uri = outlineRootUri(module).resolve("packages.html")
             outputBuilderFactoryService.createOutputBuilder(it, uri)
                 .generatePage(Page.PackageIndex(nodes))
         }
@@ -111,16 +111,16 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         val module = nodes.single()
 
         val moduleRoot = root.resolve(module.name)
-//        val outlineRoot = moduleRoot.resolve(outlineRoot)
         val packages = module.members.filter { it.kind == NodeKind.Package }
         packages.forEach { buildPackage(it, moduleRoot) }
-
+        val outlineRootFile = moduleRoot.resolve(outlineRoot)
+//        if (!outlineRootFile.exists()) outlineRootFile.mkdir()
         if (options.generateClassIndexPage) {
-            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, moduleRoot)
+            buildClassIndex(module.members.single { it.kind == NodeKind.AllTypes }, outlineRootFile)
         }
 
         if (options.generatePackageIndexPage) {
-            buildPackageIndex(module, packages, moduleRoot)
+            buildPackageIndex(module, packages, outlineRootFile)
         }
     }
 

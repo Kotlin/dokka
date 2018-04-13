@@ -51,6 +51,7 @@ class DokkaAntTask: Task() {
     var generateClassIndexPage: Boolean = true
     var generatePackageIndexPage: Boolean = true
     var outlineRoot: String = ""
+    var dacRoot: String = ""
 
     val compileClasspath: Path by lazy { Path(getProject()) }
     val sourcePath: Path by lazy { Path(getProject()) }
@@ -140,7 +141,8 @@ class DokkaAntTask: Task() {
                         apiVersion = apiVersion,
                         generatePackageIndexPage = generatePackageIndexPage,
                         generateClassIndexPage = generateClassIndexPage,
-                        outlineRoot = outlineRoot
+                        outlineRoot = outlineRoot,
+                        dacRoot = dacRoot
                 )
         )
         generator.generate()

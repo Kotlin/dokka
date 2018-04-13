@@ -97,10 +97,10 @@ open class DokkaTask : DefaultTask() {
     var jdkVersion: Int = 6
 
     @Input
-    var generateClassIndex = true
+    var generateClassIndexPage = true
 
     @Input
-    var generatePackageIndex = true
+    var generatePackageIndexPage = true
 
     @Input
     var sourceDirs: Iterable<File> = emptyList()
@@ -116,6 +116,7 @@ open class DokkaTask : DefaultTask() {
     @Input var skipEmptyPackages = true
 
     @Input var outlineRoot: String = ""
+    @Input var dacRoot: String = ""
 
     @Deprecated(`deprecationMessage reportNotDocumented`, replaceWith = ReplaceWith("reportUndocumented"))
     var reportNotDocumented
@@ -312,8 +313,8 @@ open class DokkaTask : DefaultTask() {
                     skipEmptyPackages,
                     skipDeprecated,
                     jdkVersion,
-                    generateClassIndex,
-                    generatePackageIndex,
+                    generateClassIndexPage,
+                    generatePackageIndexPage,
                     linkMappings,
                     impliedPlatforms,
                     perPackageOptions,
@@ -324,7 +325,8 @@ open class DokkaTask : DefaultTask() {
                     languageVersion,
                     apiVersion,
                     collectInheritedExtensionsFromLibraries,
-                    outlineRoot)
+                    outlineRoot,
+                    dacRoot)
 
 
             bootstrapProxy.configure(

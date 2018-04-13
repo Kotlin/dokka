@@ -58,6 +58,10 @@ interface JavaLayoutHtmlUriProvider {
         return mainUri(to).relativeTo(from).toString()
     }
 
+    fun linkToFromOutline(to: DocumentationNode, from: URI): String {
+        return outlineRootUri(to).relativeTo(from).toString()
+    }
+
     fun mainUriOrWarn(node: DocumentationNode): URI? = tryGetMainUri(node) ?: (null).also {
         AssertionError("Not implemented mainUri for ${node.kind}").printStackTrace()
     }

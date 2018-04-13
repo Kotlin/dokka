@@ -71,8 +71,11 @@ class DokkaArguments {
     @set:Argument(value = "generatePackageIndexPage", description = "Generate packages.html index page.")
     var generatePackageIndexPage: Boolean = true
 
-    @set:Argument(value = "outlineRoot", description = "Relative root directory the outline files.")
+    @set:Argument(value = "outlineRoot", description = "Relative root directory the outline files. I.e. /androidx/core/")
     var outlineRoot: String = ""
+
+    @set:Argument(value = "dacRoot", description = "Root directory in DAC of this library. I.e: /reference/kotlin")
+    var dacRoot: String = ""
 }
 
 
@@ -132,7 +135,8 @@ object MainKt {
             collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries,
             generateClassIndexPage = arguments.generateClassIndexPage,
             generatePackageIndexPage = arguments.generatePackageIndexPage,
-            outlineRoot = arguments.outlineRoot
+            outlineRoot = arguments.outlineRoot,
+            dacRoot = arguments.dacRoot
         )
 
         val generator = DokkaGenerator(

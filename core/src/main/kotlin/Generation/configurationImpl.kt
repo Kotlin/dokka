@@ -61,5 +61,6 @@ data class DokkaConfigurationImpl(
     override val languageVersion: String?,
     override val apiVersion: String?,
     override val collectInheritedExtensionsFromLibraries: Boolean,
-    override val outlineRoot: String
+    override val outlineRoot: String,
+    override val dacRoot: String
 ) : DokkaConfiguration
