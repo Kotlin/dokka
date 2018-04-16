@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Metalava" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.jetbrains.dokka.MainKt" />
+    <module name="cli_main" />
+    <option name="PROGRAM_PARAMETERS" value="-module android ../dokka/src-metalava -format dac-as-java -include test/Module.md -output out/metalava" />
+    <option name="ENABLE_SWING_INSPECTOR" value="true" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <method />
+  </configuration>
+</component>
