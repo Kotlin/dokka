@@ -278,7 +278,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         a(href = from) { +from.name }
     }, summaryRow)
 
-    protected open fun FlowContent.a(href: DocumentationNode?, classes: String? = null, block: A.() -> Unit) {
+    protected open fun FlowContent.a(href: DocumentationNode?, classes: String? = null, block: HtmlBlockInlineTag.() -> Unit) {
         if (href == null) {
             return a(href = "#", classes = classes, block = block)
         }
@@ -451,6 +451,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             nestedClassSummaryRow(it)
         }
 
+        summaryNodeGroup(enumValues, "Enum values") {
+            propertyLikeSummaryRow(it)
+        }
+
         summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
 
         summaryNodeGroup(
@@ -537,6 +541,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected open fun FlowContent.classLikeFullMemberDocs(page: Page.ClassPage) = with(page) {
+        fullMemberDocs(enumValues, "Enum values")
         fullMemberDocs(constants, "Constants")
         fullMemberDocs(constructors, "Constructors")
         fullMemberDocs(functions, "Functions")
@@ -695,7 +700,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
     protected open fun FlowContent.section(name: String, sectionParts: List<ContentSection>) {
         when (name) {
-            ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as ContentParagraph).children } })
+            ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as? ContentParagraph)?.children ?: listOf(it) } })
             else -> regularSection(name, sectionParts)
         }
     }
@@ -773,6 +778,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val superclasses = (sequenceOf(node) + node.superclassTypeSequence).toList().asReversed()
 
+            val enumValues = node.members(NodeKind.EnumItem)
 
             val directInheritors: List<DocumentationNode>
             val indirectInheritors: List<DocumentationNode>
@@ -801,7 +807,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             private fun DocumentationNode.isProperty() = kind == propertyKind
 
 
-            val nestedClasses = node.members.filter { it.kind in NodeKind.classLike }
+            val nestedClasses = node.members.filter { it.kind in NodeKind.classLike } - enumValues
 
             val attributes = node.details(NodeKind.Attribute)
 
