@@ -340,7 +340,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             summaryNodeGroup(
                 page.extensionFunctions.entries,
-                "Extension functions",
+                "Extension functions summary",
                 headerAsRow = false
             ) {
                 extensionByReceiverRow(it) {
@@ -350,7 +350,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             summaryNodeGroup(
                 page.extensionProperties.entries,
-                "Extension properties",
+                "Extension properties summary",
                 headerAsRow = false
             ) {
                 extensionByReceiverRow(it) {
