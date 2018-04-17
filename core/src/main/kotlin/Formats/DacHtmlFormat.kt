@@ -305,3 +305,13 @@ class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysi
     override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
     override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = DevsiteLayoutHtmlFormatOutputBuilderFactoryImpl::class
 }
+
+
+class DacAsJavaFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava {
+    override val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService> = DevsiteHtmlTemplateService::class
+
+    override val outlineFactoryClass = DacOutlineFormatter::class
+    override val languageServiceClass = NewJavaLanguageService::class
+    override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
+    override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = DevsiteLayoutHtmlFormatOutputBuilderFactoryImpl::class
+}
