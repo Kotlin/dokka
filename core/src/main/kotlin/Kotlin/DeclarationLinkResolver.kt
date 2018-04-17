@@ -41,7 +41,7 @@ class DeclarationLinkResolver
                 val target = refGraph.lookup(signature)
 
                 if (target == null) {
-                    logger.warn("Can't find node by signature $signature, referenced at $referencedAt")
+                    logger.warn("Can't find node by signature `$signature`, referenced at $referencedAt")
                 }
                 target
             })
