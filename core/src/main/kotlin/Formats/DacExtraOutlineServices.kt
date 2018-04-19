@@ -13,7 +13,7 @@ class DacNavOutlineService constructor(
     override fun computeOutlineURI(node: DocumentationNode): URI =
             uriProvider.outlineRootUri(node).resolve("navtree_data.js")
 
-    override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
+    override fun format(to: Appendable, node: DocumentationNode) {
         to.append("var NAVTREE_DATA = ").appendNavTree(node.members).append(";")
     }
 
@@ -93,7 +93,7 @@ class DacSearchOutlineService(
     override fun computeOutlineURI(node: DocumentationNode): URI =
             uriProvider.outlineRootUri(node).resolve("lists.js")
 
-    override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
+    override fun format(to: Appendable, node: DocumentationNode) {
         val pageNodes = node.getAllPageNodes()
         var id = 0
         to.append("var KTX_CORE_DATA = [\n")

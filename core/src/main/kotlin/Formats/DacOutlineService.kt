@@ -15,31 +15,31 @@ class DacOutlineService(
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.outlineRootUri(node).resolve("_book.yaml")
 
-    override fun format(uri: URI, to: Appendable, node: DocumentationNode) {
-        appendOutline(uri, to, listOf(node))
+    override fun format(to: Appendable, node: DocumentationNode) {
+        appendOutline(to, listOf(node))
     }
 
     var outlineLevel = 0
 
     /** Appends formatted outline to [StringBuilder](to) using specified [location] */
-    fun appendOutline(uri: URI, to: Appendable, nodes: Iterable<DocumentationNode>) {
+    fun appendOutline(to: Appendable, nodes: Iterable<DocumentationNode>) {
         if (outlineLevel == 0) to.appendln("reference:")
         for (node in nodes) {
-            appendOutlineHeader(uri, node, to)
+            appendOutlineHeader(node, to)
             val subPackages = node.members.filter {
                 it.kind == NodeKind.Package
             }
             if (subPackages.any()) {
                 val sortedMembers = subPackages.sortedBy { it.name }
                 appendOutlineLevel(to) {
-                    appendOutline(uri, to, sortedMembers)
+                    appendOutline(to, sortedMembers)
                 }
             }
 
         }
     }
 
-    fun appendOutlineHeader(uri: URI, node: DocumentationNode, to: Appendable) {
+    fun appendOutlineHeader(node: DocumentationNode, to: Appendable) {
         if (node is DocumentationModule) {
             to.appendln("- title: Package Index")
             to.appendln("  path: ${uriProvider.outlineRootUri(node).resolve("packages.html")}")
@@ -61,7 +61,7 @@ class DacOutlineService(
 
 interface DacOutlineFormatService {
     fun computeOutlineURI(node: DocumentationNode): URI
-    fun format(uri: URI, to: Appendable, node: DocumentationNode)
+    fun format(to: Appendable, node: DocumentationNode)
 }
 
 class DacOutlineFormatter @Inject constructor(
@@ -79,7 +79,7 @@ class DacOutlineFormatter @Inject constructor(
             for (outline in outlines) {
                 val uri = outline.computeOutlineURI(node)
                 val output = outputProvider(uri)
-                outline.format(uri, output, node)
+                outline.format(output, node)
             }
         }
     }
