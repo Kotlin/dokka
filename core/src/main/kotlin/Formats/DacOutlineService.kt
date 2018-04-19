@@ -11,7 +11,8 @@ import com.google.inject.name.Named
  */
 class DacOutlineService(
         val uriProvider: JavaLayoutHtmlUriProvider,
-        val languageService: LanguageService
+        val languageService: LanguageService,
+        val dacRoot: String
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.outlineRootUri(node).resolve("_book.yaml")
 
@@ -42,11 +43,11 @@ class DacOutlineService(
     fun appendOutlineHeader(node: DocumentationNode, to: Appendable) {
         if (node is DocumentationModule) {
             to.appendln("- title: Package Index")
-            to.appendln("  path: ${uriProvider.outlineRootUri(node).resolve("packages.html")}")
+            to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("packages.html")}")
             to.appendln("  status_text: no-toggle")
         } else {
             to.appendln("- title: ${languageService.renderName(node)}")
-            to.appendln("  path: ${uriProvider.mainUriOrWarn(node)}")
+            to.appendln("  path: $dacRoot${uriProvider.mainUriOrWarn(node)}")
             to.appendln("  status_text: no-toggle-")
         }
     }
@@ -66,10 +67,11 @@ interface DacOutlineFormatService {
 
 class DacOutlineFormatter @Inject constructor(
         uriProvider: JavaLayoutHtmlUriProvider,
-        languageService: LanguageService
+        languageService: LanguageService,
+        @Named("dacRoot") dacRoot: String
 ) : JavaLayoutHtmlFormatOutlineFactoryService {
-    val baseOutline = DacOutlineService(uriProvider, languageService)
-    val navOutline = DacNavOutlineService(uriProvider, languageService)
+    val baseOutline = DacOutlineService(uriProvider, languageService, dacRoot)
+    val navOutline = DacNavOutlineService(uriProvider, languageService, dacRoot)
     val searchOutline = DacSearchOutlineService(uriProvider, languageService)
 
     val outlines = listOf(baseOutline, navOutline, searchOutline)

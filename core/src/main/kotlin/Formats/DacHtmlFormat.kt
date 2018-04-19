@@ -34,7 +34,7 @@ class DevsiteHtmlTemplateService @Inject constructor(
                         is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
                     }
                 }
-                unsafe { +"{% setvar book_path %}${dacRoot}${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
+                unsafe { +"{% setvar book_path %}${dacRoot}/${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
             body {
                 bodyContent()

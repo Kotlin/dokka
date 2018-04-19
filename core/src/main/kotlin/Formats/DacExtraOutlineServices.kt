@@ -8,7 +8,8 @@ import java.net.URI
 
 class DacNavOutlineService constructor(
         val uriProvider: JavaLayoutHtmlUriProvider,
-        val languageService: LanguageService
+        val languageService: LanguageService,
+        val dacRoot: String
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI =
             uriProvider.outlineRootUri(node).resolve("navtree_data.js")
@@ -30,7 +31,7 @@ class DacNavOutlineService constructor(
             val enums = node.getMembersOfKinds(NodeKind.Enum)
             val exceptions = node.getMembersOfKinds(NodeKind.Exception)
 
-            append("[ \"${node.name}\", \"${uriProvider.mainUriOrWarn(node)}\", [ ")
+            append("[ \"${node.name}\", \"$dacRoot${uriProvider.mainUriOrWarn(node)}\", [ ")
             var needComma = false
             if (interfaces.firstOrNull() != null) {
                 appendNavTreePagesOfKind("Interfaces", interfaces)
