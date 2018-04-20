@@ -155,11 +155,9 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 +node.name
             }
             div(classes = "api-level") {
-                node.apiLevel?.let {
-                    +"added in "
-                    a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels")
-                    +"API level ${it.name}"
-                }
+                +"added in "
+                a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels")
+                +"API level ${node.apiLevel.name}"
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
             contentNodeToMarkup(node.content)
@@ -170,14 +168,89 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
             for ((name, sections) in node.content.sections.groupBy { it.tag }) {
-                table(classes = "responsive") {
-                    thead { tr { td { h3 { +name } } } }
-                    tbody {
-                        sections.forEach {
-                            tr {
-                                td { it.subjectName?.let { +it } }
-                                td {
-                                    metaMarkup(it.children)
+                when (name) {
+                    ContentTags.Return -> {
+                        table(classes = "responsive") {
+                            tbody {
+                                tr {
+                                    th {
+                                        colSpan = "2"
+                                        +name
+                                    }
+                                }
+                                sections.forEach {
+                                    tr {
+                                        td {
+                                            colSpan = "2"
+                                            metaMarkup(it.children)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ContentTags.Parameters -> {
+                        table(classes = "responsive") {
+                            tbody {
+                                tr {
+                                    th {
+                                        colSpan = "2"
+                                        +name
+                                    }
+                                }
+                                sections.forEach {
+                                    tr {
+                                        td {
+                                            code {
+                                                it.subjectName?.let { +it }
+                                            }
+                                        }
+                                        td {
+                                            metaMarkup(it.children)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ContentTags.SeeAlso -> {
+                        div {
+                            p {
+                                b {
+                                    +name
+                                }
+                            }
+                            ul(classes = "nolist") {
+                                sections.forEach {
+                                    li {
+                                        code {
+                                            metaMarkup(it.children)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ContentTags.Exceptions -> {
+                        table(classes = "responsive") {
+                            tbody {
+                                tr {
+                                    th {
+                                        colSpan = "2"
+                                        +name
+                                    }
+                                }
+                                sections.forEach {
+                                    tr {
+                                        td {
+                                            code {
+                                                it.subjectName?.let { +it }
+                                            }
+                                        }
+                                        td {
+                                            metaMarkup(it.children)
+                                        }
+                                    }
                                 }
                             }
                         }

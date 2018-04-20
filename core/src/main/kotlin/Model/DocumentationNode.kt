@@ -112,8 +112,8 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
     val attributesLink: List<DocumentationNode>
         get() = references(RefKind.Attribute).map { it.to }
-    val apiLevel: DocumentationNode?
-        get() = detailOrNull(NodeKind.ApiLevel)
+    val apiLevel: DocumentationNode
+        get() = detailOrNull(NodeKind.ApiLevel) ?: DocumentationNode("1", Content.Empty, NodeKind.ApiLevel)
 
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)

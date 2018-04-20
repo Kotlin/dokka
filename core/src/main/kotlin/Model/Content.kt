@@ -139,6 +139,7 @@ object ContentTags {
     val SeeAlso = "See Also"
     val Return = "Return"
     val Exceptions = "Exceptions"
+    val Parameters = "Parameters"
 }
 
 fun content(body: ContentBlock.() -> Unit): ContentBlock {
