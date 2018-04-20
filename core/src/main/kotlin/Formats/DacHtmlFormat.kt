@@ -152,7 +152,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         div(classes = "api apilevel-${node.apiLevel.name}") {
             attributes["data-version-added"] = node.apiLevel.name
             h3(classes = "api-name") {
-                id = node.signatureForAnchor(logger)
+                id = node.signatureForAnchor(logger).urlEncoded()
                 +node.name
             }
             div(classes = "api-level") {
