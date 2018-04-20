@@ -149,7 +149,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         uri: URI
 ) : JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri) {
     override fun FlowContent.fullMemberDocs(node: DocumentationNode) {
-        div {
+        div(classes = "api apilevel-${node.apiLevel.name}") {
+            attributes["data-version-added"] = node.apiLevel.name
             h3(classes = "api-name") {
                 id = node.signatureForAnchor(logger)
                 +node.name
