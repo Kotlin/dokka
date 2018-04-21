@@ -278,7 +278,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         a(href = from) { +from.name }
     }, summaryRow)
 
-    protected open fun FlowContent.a(href: DocumentationNode?, classes: String? = null, block: HtmlBlockInlineTag.() -> Unit) {
+    protected open fun FlowOrInteractiveOrPhrasingContent.a(href: DocumentationNode?, classes: String? = null, block: HtmlBlockInlineTag.() -> Unit) {
         if (href == null) {
             return a(href = "#", classes = classes, block = block)
         }

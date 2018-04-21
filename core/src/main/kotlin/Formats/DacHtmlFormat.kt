@@ -373,6 +373,102 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
     }
+
+    override fun generatePackage(page: Page.PackagePage) = templateService.composePage(
+            page,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +page.node.name }
+                contentNodeToMarkup(page.node.content)
+                summaryNodeGroup(page.classes, "Classes", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.exceptions, "Exceptions", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.typeAliases, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.annotations, "Annotations", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.enums, "Enums", headerAsRow = false) { classLikeRow(it) }
+
+                summaryNodeGroup(
+                        page.constants,
+                        "Top-level constants summary",
+                        headerAsRow = false
+                ) {
+                    propertyLikeSummaryRow(it)
+                }
+
+                summaryNodeGroup(
+                        page.functions,
+                        "Top-level functions summary",
+                        headerAsRow = false
+                ) {
+                    functionLikeSummaryRow(it)
+                }
+
+                summaryNodeGroup(
+                        page.properties,
+                        "Top-level properties summary",
+                        headerAsRow = false
+                ) {
+                    propertyLikeSummaryRow(it)
+                }
+
+                summaryNodeGroupForExtensions("Extension functions summary", page.extensionFunctions.entries)
+                summaryNodeGroupForExtensions("Extension properties summary", page.extensionProperties.entries)
+
+                fullMemberDocs(page.constants, "Top-level constants")
+                fullMemberDocs(page.functions, "Top-level functions")
+                fullMemberDocs(page.properties, "Top-level properties")
+                fullMemberDocs(page.extensionFunctions.values.flatten(), "Extension functions")
+                fullMemberDocs(page.extensionProperties.values.flatten(), "Extension properties")
+            }
+    )
+
+    private fun FlowContent.summaryNodeGroupForExtensions(
+            header: String,
+            receivers: Set<Map.Entry<DocumentationNode, List<DocumentationNode>>>
+    ) {
+        if (receivers.none()) return
+        h2 { +header }
+        div {
+            receivers.forEach {
+                table {
+                    tr {
+                        td {
+                            attributes["colSpan"] = "2"
+                            +"For "
+                            a(href = it.key) { +it.key.name }
+                        }
+                    }
+                    it.value.forEach { node ->
+                        tr {
+                            if (node.kind != NodeKind.Constructor) {
+                                td {
+                                    modifiers(node)
+                                    renderedSignature(node.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                }
+                            }
+                            td {
+                                div {
+                                    code {
+                                        val receiver = node.detailOrNull(NodeKind.Receiver)
+                                        if (receiver != null) {
+                                            renderedSignature(receiver.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                            +"."
+                                        }
+                                        a(href = node) { +node.name }
+                                        shortFunctionParametersList(node)
+                                    }
+                                }
+
+                                contentNodeToMarkup(node.summary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
