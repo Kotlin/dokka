@@ -469,6 +469,29 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
     }
+
+
+    override fun generatePackageIndex(page: Page.PackageIndex) = templateService.composePage(
+            page,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Package Index" }
+                table {
+                    tbody {
+                        for (node in page.packages) {
+                            tr {
+                                td {
+                                    a(href = uriProvider.linkTo(node, uri)) { +node.name }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
 }
 
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
