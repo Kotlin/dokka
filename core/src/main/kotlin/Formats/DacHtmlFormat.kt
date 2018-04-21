@@ -5,6 +5,7 @@ import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
 import java.io.File
+import java.lang.Math.max
 import java.net.URI
 import kotlin.reflect.KClass
 
@@ -112,13 +113,12 @@ class DevsiteHtmlTemplateService @Inject constructor(
 
     /**
      * Formats the `family` of the node for the `data-reference-resources-wrapper`.
-     * TODO: investigate expressing apilevel.
      */
     private fun Appendable.appendFamily(selectedNode: DocumentationNode, family: List<DocumentationNode>) {
         appendln("      <ul>")
         for (node in family) {
             val selected = if (node == selectedNode) "selected " else ""
-            appendln("          <li class=\"${selected}api apilevel-\">" +
+            appendln("          <li class=\"${selected}api apilevel-${node.apiLevel.name}\">" +
                     "<a href=\"/${uriProvider.mainUriOrWarn(node)}\">${node.nameWithOuterClass()}</a></li>")
         }
         appendln("      </ul>")
@@ -492,6 +492,79 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
     )
+
+    override fun generateClassIndex(page: Page.ClassIndex) = templateService.composePage(
+            page,
+            htmlConsumer,
+            headContent = {
+
+            },
+            bodyContent = {
+                h1 { +"Class Index" }
+
+                p {
+                    +"These are all the API classes. See all "
+                    a(href="https://developer.android.com/reference/packages.html") {
+                        +"API packages."
+                    }
+                }
+
+                div(classes = "jd-letterlist") {
+                    page.classesByFirstLetter.forEach { (letter) ->
+                        a(href = "#letter_$letter") { +letter }
+                        +"&nbsp;&nbsp;"
+                    }
+                }
+
+                page.classesByFirstLetter.forEach { (letter, classes) ->
+                    h2 {
+                        id = "letter_$letter"
+                        +letter
+                    }
+                    table {
+                        tbody {
+                            for (node in classes) {
+                                tr {
+                                    td {
+                                        a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
+                                    }
+                                    td {
+                                        contentNodeToMarkup(node.content)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    )
+
+    override fun FlowContent.classHierarchy(superclasses: List<DocumentationNode>) {
+        table(classes = "jd-inheritance-table") {
+            var level = superclasses.size
+            superclasses.forEach {
+                tr {
+                    var spaceColumns = max(4 - level, 0)
+                    while (spaceColumns > 0) {
+                        td(classes = "jd-inheritance-space") {
+                            +" "
+                        }
+                        spaceColumns--
+                    }
+                    if (it != superclasses.first()) {
+                        td(classes = "jd-inheritance-space") {
+                            +"   ↳"
+                        }
+                    }
+                    td(classes = "jd-inheritance-class-cell") {
+                        attributes["colSpan"] = "$level"
+                        qualifiedTypeReference(it)
+                    }
+                }
+                level--
+            }
+        }
+    }
 }
 
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
