@@ -31,7 +31,7 @@ class DacNavOutlineService constructor(
             val enums = node.getMembersOfKinds(NodeKind.Enum)
             val exceptions = node.getMembersOfKinds(NodeKind.Exception)
 
-            append("[ \"${node.name}\", \"$dacRoot${uriProvider.mainUriOrWarn(node)}\", [ ")
+            append("[ \"${node.name}\", \"$dacRoot${uriProvider.tryGetMainUri(node)}\", [ ")
             var needComma = false
             if (interfaces.firstOrNull() != null) {
                 appendNavTreePagesOfKind("Interfaces", interfaces)
@@ -80,7 +80,7 @@ class DacNavOutlineService constructor(
     }
 
     private fun Appendable.appendNavTreeChild(node: DocumentationNode): Appendable {
-        append("[ \"${node.nameWithOuterClass()}\", \"${uriProvider.tryGetMainUri(node)}\"")
+        append("[ \"${node.nameWithOuterClass()}\", \"${dacRoot}${uriProvider.tryGetMainUri(node)}\"")
         append(", null, null, null ]")
         return this
     }
@@ -88,7 +88,8 @@ class DacNavOutlineService constructor(
 
 class DacSearchOutlineService(
         val uriProvider: JavaLayoutHtmlUriProvider,
-        val languageService: LanguageService
+        val languageService: LanguageService,
+        val dacRoot: String
 ) : DacOutlineFormatService {
 
     override fun computeOutlineURI(node: DocumentationNode): URI =
@@ -106,7 +107,7 @@ class DacSearchOutlineService(
             to.append(" { " +
                     "id:$id, " +
                     "label:\"${pageNode.qualifiedName()}\", " +
-                    "link:\"${uriProvider.mainUriOrWarn(node)}\", " +
+                    "link:\"${dacRoot}${uriProvider.tryGetMainUri(pageNode)}\", " +
                     "type:\"${pageNode.getClassOrPackage()}\", " +
                     "deprecated:\"false\" }")
             id++

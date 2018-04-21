@@ -149,16 +149,20 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         uri: URI
 ) : JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri) {
     override fun FlowContent.fullMemberDocs(node: DocumentationNode) {
+        a {
+            attributes["name"] = node.signatureForAnchor(logger).urlEncoded()
+        }
         div(classes = "api apilevel-${node.apiLevel.name}") {
             attributes["data-version-added"] = node.apiLevel.name
             h3(classes = "api-name") {
-                id = node.signatureForAnchor(logger).urlEncoded()
+//                id = node.signatureForAnchor(logger).urlEncoded()
                 +node.name
             }
             div(classes = "api-level") {
                 +"added in "
-                a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels")
-                +"API level ${node.apiLevel.name}"
+                a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {
+                    +"API level ${node.apiLevel.name}"
+                }
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
             contentNodeToMarkup(node.content)

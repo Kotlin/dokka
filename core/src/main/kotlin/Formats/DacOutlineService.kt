@@ -48,7 +48,7 @@ class DacOutlineService(
         } else {
             to.appendln("- title: ${languageService.renderName(node)}")
             to.appendln("  path: $dacRoot${uriProvider.mainUriOrWarn(node)}")
-            to.appendln("  status_text: no-toggle-")
+            to.appendln("  status_text: no-toggle")
         }
     }
 
@@ -72,7 +72,7 @@ class DacOutlineFormatter @Inject constructor(
 ) : JavaLayoutHtmlFormatOutlineFactoryService {
     val baseOutline = DacOutlineService(uriProvider, languageService, dacRoot)
     val navOutline = DacNavOutlineService(uriProvider, languageService, dacRoot)
-    val searchOutline = DacSearchOutlineService(uriProvider, languageService)
+    val searchOutline = DacSearchOutlineService(uriProvider, languageService, dacRoot)
 
     val outlines = listOf(baseOutline, navOutline, searchOutline)
 

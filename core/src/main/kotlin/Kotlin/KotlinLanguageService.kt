@@ -459,7 +459,8 @@ class KotlinLanguageService : CommonLanguageService() {
     }
 }
 
-fun DocumentationNode.qualifiedNameFromType() =
-    details.firstOrNull { it.kind == NodeKind.QualifiedName }?.name
+fun DocumentationNode.qualifiedNameFromType(): String {
+    return details.firstOrNull { it.kind == NodeKind.QualifiedName }?.name
             ?: (links.firstOrNull() ?: hiddenLinks.firstOrNull())?.qualifiedName()
             ?: name
+}

@@ -137,7 +137,6 @@ fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String {
         NodeKind.EnumItem -> "ENUM_VALUE:$name"
         else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
     }
-
 }
 
 fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
