@@ -281,19 +281,23 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     override fun FlowContent.classLikeSummaries(page: Page.ClassPage) = with(page) {
         summaryNodeGroup(
                 nestedClasses,
-                "Nested classes",
+                header = "Nested classes",
+                summaryId = "nestedclasses",
                 headerAsRow = true
         ) {
             nestedClassSummaryRow(it)
         }
 
-        summaryNodeGroup(attributes, "XML attributes") { xmlAttributeRow(it) }
+        summaryNodeGroup(attributes, header="XML attributes", summaryId="lattrs", headerAsRow = true) { xmlAttributeRow(it) }
 
-        summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
+        summaryNodeGroup(attributes, header="Inherited XML attributes", summaryId="inhattrs", headerAsRow = true) { xmlAttributeRow(it) }
+
+        summaryNodeGroup(constants, header = "Constants", summaryId = "constants", headerAsRow = true) { propertyLikeSummaryRow(it) }
 
         summaryNodeGroup(
                 constructors,
-                "Constructors",
+                header = "Constructors",
+                summaryId = "pubctors",
                 headerAsRow = true
         ) {
             functionLikeSummaryRow(it)
@@ -302,14 +306,16 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
         summaryNodeGroup(
                 companionFunctions,
-                "Companion functions",
+                header = "Companion functions",
+                summaryId = "compmethods",
                 headerAsRow = true
         ) {
             functionLikeSummaryRow(it)
         }
         summaryNodeGroup(
                 inheritedFunctionsByReceiver.entries,
-                "Inherited functions",
+                header = "Inherited functions",
+                summaryId = "inhmethods",
                 headerAsRow = true
         ) {
             inheritRow(it) {
@@ -318,7 +324,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
         summaryNodeGroup(
                 extensionFunctions.entries,
-                "Extension functions",
+                header = "Extension functions",
+                summaryId = "extmethods",
                 headerAsRow = true
         ) {
             extensionRow(it) {
@@ -327,7 +334,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
         summaryNodeGroup(
                 inheritedExtensionFunctions.entries,
-                "Inherited extension functions",
+                header = "Inherited extension functions",
+                summaryId = "inhextmethods",
                 headerAsRow = true
         ) {
             extensionRow(it) {
@@ -370,6 +378,34 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         ) {
             extensionRow(it) {
                 propertyLikeSummaryRow(it)
+            }
+        }
+    }
+
+    fun <T> FlowContent.summaryNodeGroup(
+            nodes: Iterable<T>,
+            header: String,
+            headerAsRow: Boolean,
+            summaryId: String,
+            row: TBODY.(T) -> Unit
+    ) {
+        if (nodes.none()) return
+        if (!headerAsRow) {
+            h2 { +header }
+        }
+        table(classes = "responsive") {
+            id = summaryId
+            tbody {
+            if (headerAsRow)
+                tr {
+                    th {
+                        attributes["colSpan"] = "2"
+                        +header
+                    }
+                }
+                nodes.forEach { node ->
+                    row(node)
+                }
             }
         }
     }
@@ -512,7 +548,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 div(classes = "jd-letterlist") {
                     page.classesByFirstLetter.forEach { (letter) ->
                         a(href = "#letter_$letter") { +letter }
-                        +"&nbsp;&nbsp;"
+                        +"  "
                     }
                 }
 
@@ -544,7 +580,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             var level = superclasses.size
             superclasses.forEach {
                 tr {
-                    var spaceColumns = max(4 - level, 0)
+                    var spaceColumns = max(superclasses.size - 1 - level, 0)
                     while (spaceColumns > 0) {
                         td(classes = "jd-inheritance-space") {
                             +" "
