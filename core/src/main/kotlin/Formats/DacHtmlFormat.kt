@@ -565,6 +565,52 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
     }
+
+    override fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
+        if (inheritors.isEmpty()) return
+        table(classes = "jd-sumtable jd-sumtable-subclasses") {
+            tbody {
+                tr {
+                    td {
+                        div(classes = "expandable") {
+                            span(classes = "expand-control") {
+                                if (direct)
+                                    +"Known Direct Subclasses"
+                                else
+                                    +"Known Indirect Subclasses"
+                            }
+                            div(classes = "showalways") {
+                                attributes["id"] = if (direct) "subclasses-direct" else "subclasses-indirect"
+                                inheritors.forEach { inheritor ->
+                                    a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
+                                    if (inheritor != inheritors.last()) +", "
+                                }
+                            }
+                            div(classes = "exw-expanded-content") {
+                                attributes["id"] = if (direct) "subclasses-direct-summary" else "subclasses-indirect-summary"
+                                table(classes = "jd-sumtable-expando") {
+                                    inheritors.forEach { inheritor ->
+                                        tr(classes = "api api-level-${inheritor.apiLevel.name}") {
+                                            attributes["data-version-added"] = inheritor.apiLevel.name
+                                            td(classes = "jd-linkcol") {
+                                                a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
+                                            }
+                                            td(classes = "jd-descrcol") {
+                                                attributes["width"] = "100%"
+                                                var content = (inheritor.content.children.firstOrNull() as? ContentBlock)?.children?.firstOrNull() ?: ContentEmpty
+                                                if ((content is ContentText).not()) content = (content as? ContentBlock)?.children?.firstOrNull() ?: ContentEmpty
+                                                contentNodeToMarkup(content)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
