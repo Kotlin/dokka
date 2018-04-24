@@ -1,13 +1,10 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
-import org.jetbrains.dokka.Model.DescriptorSignatureProvider
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPrivateApi
-import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPublicApi
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
@@ -15,7 +12,7 @@ class DeclarationLinkResolver
                             val logger: DokkaLogger,
                             val options: DocumentationOptions,
                             val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver,
-                            val descriptorSignatureProvider: DescriptorSignatureProvider) {
+                            val elementSignatureProvider: ElementSignatureProvider) {
 
 
     fun tryResolveContentLink(fromDescriptor: DeclarationDescriptor, href: String): ContentBlock? {
@@ -34,7 +31,7 @@ class DeclarationLinkResolver
             if (externalHref != null) {
                 return ContentExternalLink(externalHref)
             }
-            val signature = descriptorSignatureProvider.signature(symbol)
+            val signature = elementSignatureProvider.signature(symbol)
             val referencedAt = fromDescriptor.signatureWithSourceLocation()
 
             return ContentNodeLazyLink(href, { ->
