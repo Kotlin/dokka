@@ -296,6 +296,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         node: DocumentationNode,
         mode: LanguageService.RenderMode = SUMMARY
     ) {
+        if (node.name.contains("AnimatorListener")) {
+            val x = 0
+        }
         contentNodeToMarkup(languageService.render(node, mode))
     }
 
