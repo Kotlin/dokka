@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.Formats
 
+import com.google.common.base.Throwables
 import kotlinx.html.*
 import kotlinx.html.Entities.nbsp
 import kotlinx.html.stream.appendHTML
@@ -283,11 +284,17 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             return a(href = "#", classes = classes, block = block)
         }
 
-        val hrefText =
+        val hrefText = try {
             href.name.takeIf { href.kind == NodeKind.ExternalLink }
                     ?: href.links.firstOrNull { it.kind == NodeKind.ExternalLink }?.name
                     ?: "#".takeIf { href.kind == NodeKind.ExternalClass } // When external class unresolved
                     ?: uriProvider.linkTo(href, uri)
+        } catch (e: Exception) {
+            val owners = generateSequence(href) { it.owner }.toList().reversed()
+            logger.warn("Exception while resolving link to ${owners.joinToString(separator = " ")}\n"
+                    + Throwables.getStackTraceAsString(e))
+            "#"
+        }
 
         a(href = hrefText, classes = classes, block = block)
     }

@@ -24,14 +24,17 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
     @set:Inject(optional = true)
     var outlineFactoryService: JavaLayoutHtmlFormatOutlineFactoryService? = null
 
-    fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable)
-            = outputBuilderFactoryService.createOutputBuilder(output, node)
+    fun createOutputBuilderForNode(node: DocumentationNode, output: Appendable) = outputBuilderFactoryService.createOutputBuilder(output, node)
+
+    fun DocumentationNode.getOwnerOrReport() = owner ?: run {
+        error("Owner not found for $this")
+    }
 
     override fun tryGetContainerUri(node: DocumentationNode): URI? {
         return when (node.kind) {
             NodeKind.Module -> URI("/").resolve(node.name + "/")
-            NodeKind.Package -> tryGetContainerUri(node.owner!!)?.resolve(node.name.replace('.', '/') + '/')
-            in NodeKind.classLike -> tryGetContainerUri(node.owner!!)?.resolve("${node.classNodeNameWithOuterClass()}.html")
+            NodeKind.Package -> tryGetContainerUri(node.getOwnerOrReport())?.resolve(node.name.replace('.', '/') + '/')
+            in NodeKind.classLike -> tryGetContainerUri(node.getOwnerOrReport())?.resolve("${node.classNodeNameWithOuterClass()}.html")
             else -> null
         }
     }
@@ -54,7 +57,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
                 }
             }
             NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
-            NodeKind.AllTypes -> tryGetContainerUri(node.owner!!)?.resolve("classes.html")
+            NodeKind.AllTypes -> tryGetContainerUri(node.getOwnerOrReport())?.resolve("classes.html")
             else -> null
         }
     }
