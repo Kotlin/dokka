@@ -158,10 +158,12 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 //                id = node.signatureForAnchor(logger).urlEncoded()
                 +node.name
             }
-            div(classes = "api-level") {
-                +"added in "
-                a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {
-                    +"API level ${node.apiLevel.name}"
+            if (node.apiLevel.name != "") {
+                div(classes = "api-level") {
+                    +"added in "
+                    a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {
+                        +"API level ${node.apiLevel.name}"
+                    }
                 }
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
