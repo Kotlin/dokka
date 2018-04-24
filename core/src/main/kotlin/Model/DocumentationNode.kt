@@ -184,16 +184,17 @@ val DocumentationNode.path: List<DocumentationNode>
         return parent.path + this
     }
 
-fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val existingNode = members(NodeKind.Package).firstOrNull { it.name == packageName }
+fun findOrCreatePackageNode(module: DocumentationNode?, packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
+    val existingNode = refGraph.lookup(packageName)
     if (existingNode != null) {
         return existingNode
     }
     val newNode = DocumentationNode(packageName,
             packageContent.getOrElse(packageName) { Content.Empty },
             NodeKind.Package)
-    append(newNode, RefKind.Member)
+
     refGraph.register(packageName, newNode)
+    module?.append(newNode, RefKind.Member)
     return newNode
 }
 
