@@ -964,12 +964,10 @@ class DocumentationBuilder
 
 }
 
-val visibleToDocumentation = setOf(Visibilities.PROTECTED, Visibilities.PUBLIC)
-
 fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
     return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
-            || this.visibility in visibleToDocumentation)
+            || this.visibility.isPublicAPI)
             && !isDocumentationSuppressed(options)
             && (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
