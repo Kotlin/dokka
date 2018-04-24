@@ -22,7 +22,8 @@ interface JavaDocumentationParser {
 
 class JavadocParser(
     private val refGraph: NodeReferenceGraph,
-    private val logger: DokkaLogger
+    private val logger: DokkaLogger,
+    private val signatureProvider: ElementSignatureProvider
 ) : JavaDocumentationParser {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
         val docComment = (element as? PsiDocCommentOwner)?.docComment
@@ -157,7 +158,7 @@ class JavadocParser(
     private fun resolveLink(valueElement: PsiElement?): String? {
         val target = valueElement?.reference?.resolve()
         if (target != null) {
-            return getSignature(target)
+            return signatureProvider.signature(target)
         }
         return null
     }

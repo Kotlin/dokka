@@ -45,10 +45,10 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
 
-    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger) {
+    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger, signatureProvider: ElementSignatureProvider) {
         this.options = options
         this.refGraph = refGraph
-        this.docParser = JavadocParser(refGraph, logger)
+        this.docParser = JavadocParser(refGraph, logger, signatureProvider)
     }
 
     constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
@@ -61,7 +61,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (skipFile(file) || file.classes.all { skipElement(it) }) {
             return
         }
-        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap(), refGraph)
+        val packageNode = findOrCreatePackageNode(module, file.packageName, emptyMap(), refGraph)
         appendClasses(packageNode, file.classes)
     }
 
