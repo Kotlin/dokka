@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.idea.util.toFuzzyType
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -29,7 +28,6 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.findTopMostOverriddenDescriptors
-import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
@@ -192,14 +190,16 @@ class DocumentationBuilder
         appendTextNode(modifier, NodeKind.Modifier)
     }
 
-    fun DocumentationNode.appendSupertype(descriptor: ClassDescriptor, superType: KotlinType) {
+    fun DocumentationNode.appendSupertype(descriptor: ClassDescriptor, superType: KotlinType, backref: Boolean) {
         val unwrappedType = superType.unwrap()
         if (unwrappedType is AbbreviatedType) {
-            appendSupertype(descriptor, unwrappedType.abbreviation)
+            appendSupertype(descriptor, unwrappedType.abbreviation, backref)
         } else {
             appendType(unwrappedType, NodeKind.Supertype)
             val superclass = unwrappedType.constructor.declarationDescriptor
-            link(superclass, descriptor, RefKind.Inheritor)
+            if (backref) {
+                link(superclass, descriptor, RefKind.Inheritor)
+            }
             link(descriptor, superclass, RefKind.Superclass)
         }
     }
@@ -457,7 +457,7 @@ class DocumentationBuilder
 
             if (options.skipEmptyPackages && declarations.none { it.isDocumented(options) }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
-            val packageNode = findOrCreatePackageNode(packageName.asString(), packageContent, this@DocumentationBuilder.refGraph)
+            val packageNode = findOrCreatePackageNode(this, packageName.asString(), packageContent, this@DocumentationBuilder.refGraph)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
                     declarations, allFqNames)
         }
@@ -646,7 +646,7 @@ class DocumentationBuilder
         val node = nodeForDescriptor(this, kind, external)
         register(this, node)
         typeConstructor.supertypes.forEach {
-            node.appendSupertype(this, it)
+            node.appendSupertype(this, it, !external)
         }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
             node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
@@ -997,16 +997,11 @@ class KotlinJavaDocumentationBuilder
                     val logger: DokkaLogger) : JavaDocumentationBuilder {
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         val classDescriptors = file.classes.map {
-            val javaDescriptorResolver = resolutionFacade.getFrontendService(JavaDescriptorResolver::class.java)
-
-            javaDescriptorResolver.resolveClass(JavaClassImpl(it)) ?: run {
-                logger.warn("Cannot find descriptor for Java class ${it.qualifiedName}")
-                null
-            }
+            it.getJavaClassDescriptor(resolutionFacade)
         }
 
         if (classDescriptors.any { it != null && it.isDocumented(options) }) {
-            val packageNode = module.findOrCreatePackageNode(file.packageName, packageContent, documentationBuilder.refGraph)
+            val packageNode = findOrCreatePackageNode(module, file.packageName, packageContent, documentationBuilder.refGraph)
 
             for (descriptor in classDescriptors.filterNotNull()) {
                 with(documentationBuilder) {
