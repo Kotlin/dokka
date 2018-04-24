@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import org.jetbrains.dokka.*
 import java.net.URI
 import com.google.inject.name.Named
+import org.jetbrains.kotlin.cfg.pseudocode.AllTypes
 
 
 interface DacOutlineFormatService {
@@ -14,13 +15,16 @@ interface DacOutlineFormatService {
 class DacOutlineFormatter @Inject constructor(
         uriProvider: JavaLayoutHtmlUriProvider,
         languageService: LanguageService,
-        @Named("dacRoot") dacRoot: String
+        @Named("dacRoot") dacRoot: String,
+        @Named("generateClassIndex") generateClassIndex: Boolean,
+        @Named("generatePackageIndex") generatePackageIndex: Boolean
 ) : JavaLayoutHtmlFormatOutlineFactoryService {
-    val bookOutline = DacOutlineService(uriProvider, languageService, dacRoot)
+    val bookOutline = BookOutlineService(uriProvider, languageService, dacRoot, generateClassIndex, generatePackageIndex)
+    val tocOutline = TocOutlineService(uriProvider, languageService, dacRoot, generateClassIndex, generatePackageIndex)
     val navOutline = DacNavOutlineService(uriProvider, languageService, dacRoot)
     val searchOutline = DacSearchOutlineService(uriProvider, languageService, dacRoot)
 
-    val outlines = listOf(bookOutline, navOutline, searchOutline)
+    val outlines = listOf(bookOutline, tocOutline, navOutline, searchOutline)
 
     override fun generateOutlines(outputProvider: (URI) -> Appendable, nodes: Iterable<DocumentationNode>) {
         for (node in nodes) {
@@ -37,10 +41,12 @@ class DacOutlineFormatter @Inject constructor(
  * Outline service for generating a _toc.yaml file, responsible for pointing to the paths of each
  * index.html file in the doc tree.
  */
-class DacOutlineService(
+class BookOutlineService(
         val uriProvider: JavaLayoutHtmlUriProvider,
         val languageService: LanguageService,
-        val dacRoot: String
+        val dacRoot: String,
+        val generateClassIndex: Boolean,
+        val generatePackageIndex: Boolean
 ) : DacOutlineFormatService {
     override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.outlineRootUri(node).resolve("_book.yaml")
 
@@ -81,6 +87,81 @@ class DacOutlineService(
     }
 
     fun appendOutlineLevel(to: Appendable, body: () -> Unit) {
+        outlineLevel++
+        body()
+        outlineLevel--
+    }
+}
+
+/**
+ * Outline service for generating a _toc.yaml file, responsible for pointing to the paths of each
+ * index.html file in the doc tree.
+ */
+class TocOutlineService(
+        val uriProvider: JavaLayoutHtmlUriProvider,
+        val languageService: LanguageService,
+        val dacRoot: String,
+        val generateClassIndex: Boolean,
+        val generatePackageIndex: Boolean
+) : DacOutlineFormatService {
+    override fun computeOutlineURI(node: DocumentationNode): URI = uriProvider.outlineRootUri(node).resolve("_toc.yaml")
+
+    override fun format(to: Appendable, node: DocumentationNode) {
+        appendOutline(to, listOf(node))
+    }
+
+    var outlineLevel = 0
+
+    /** Appends formatted outline to [StringBuilder](to) using specified [location] */
+    fun appendOutline(to: Appendable, nodes: Iterable<DocumentationNode>) {
+        if (outlineLevel == 0) to.appendln("toc:")
+        for (node in nodes) {
+            appendOutlineHeader(node, to)
+            val subPackages = node.members.filter {
+                it.kind == NodeKind.Package
+            }
+            if (subPackages.any()) {
+                val sortedMembers = subPackages.sortedBy { it.name }
+                appendOutlineLevel {
+                    appendOutline(to, sortedMembers)
+                }
+            }
+
+        }
+    }
+
+    fun appendOutlineHeader(node: DocumentationNode, to: Appendable) {
+        if (node.kind == NodeKind.AllTypes && generateClassIndex) {
+            to.appendln("- title: Class Index")
+            to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("classes.html")}")
+            to.appendln()
+        } else if (node is DocumentationModule && generatePackageIndex) {
+            to.appendln("- title: Package Index")
+            to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("packages.html")}")
+            to.appendln()
+        } else if (node.kind != NodeKind.AllTypes && !(node is DocumentationModule)) {
+            to.appendln("- title: ${languageService.renderName(node)}")
+            to.appendln("  path: $dacRoot${uriProvider.mainUriOrWarn(node)}")
+            to.appendln()
+            to.appendln("  section:")
+            for (kind in NodeKind.classLike) {
+                val members = node.getMembersOfKinds(kind)
+                if (members.isNotEmpty()) {
+                    to.appendln("  - title: ${kind.pluralizedName()}")
+                    to.appendln()
+                    to.appendln("    section:")
+                    members.forEach { member ->
+                        to.appendln("    - title: ${languageService.renderName(member)}")
+                        to.appendln("      path: $dacRoot${uriProvider.mainUriOrWarn(member)}")
+                        to.appendln()
+                    }
+                }
+            }
+            to.appendln().appendln()
+        }
+    }
+
+    fun appendOutlineLevel(body: () -> Unit) {
         outlineLevel++
         body()
         outlineLevel--
@@ -296,4 +377,15 @@ fun DocumentationNode.pageOwner(): DocumentationNode {
         }
         return parent
     }
+}
+
+fun NodeKind.pluralizedName() = when(this) {
+    NodeKind.Class -> "Classes"
+    NodeKind.Interface -> "Interfaces"
+    NodeKind.AnnotationClass -> "Annotations"
+    NodeKind.Enum -> "Enums"
+    NodeKind.Exception -> "Exceptions"
+    NodeKind.Object -> "Objects"
+    NodeKind.TypeAlias -> "TypeAliases"
+    else -> "${name}s"
 }

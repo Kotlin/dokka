@@ -53,6 +53,8 @@ class DokkaOutputModule(val options: DocumentationOptions,
         binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(options.impliedPlatforms)
         binder.bind<String>().annotatedWith(Names.named("outlineRoot")).toInstance(options.outlineRoot)
         binder.bind<String>().annotatedWith(Names.named("dacRoot")).toInstance(options.dacRoot)
+        binder.bind<Boolean>().annotatedWith(Names.named("generateClassIndex")).toInstance(options.generateClassIndexPage)
+        binder.bind<Boolean>().annotatedWith(Names.named("generatePackageIndex")).toInstance(options.generatePackageIndexPage)
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", options.outputFormat)
 
         descriptor.configureOutput(binder)
