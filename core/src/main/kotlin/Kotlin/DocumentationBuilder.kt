@@ -74,8 +74,8 @@ class DocumentationOptions(val outputDir: String,
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
 
     val defaultLinks = run {
-        val links = mutableListOf(ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build())
-        links += ExternalDocumentationLink.Builder("https://developer.android.com/reference/").build()
+        val links = mutableListOf<ExternalDocumentationLink>(/*ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()*/)
+        //links += ExternalDocumentationLink.Builder("https://developer.android.com/reference/").build()
         if (!noStdlibLink)
             links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
         links
