@@ -549,9 +549,13 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
                 div(classes = "jd-letterlist") {
                     page.classesByFirstLetter.forEach { (letter) ->
+                        +"\n        "
                         a(href = "#letter_$letter") { +letter }
-                        +"  "
+                        unsafe {
+                            raw("&nbsp;&nbsp;")
+                        }
                     }
+                    +"\n    "
                 }
 
                 page.classesByFirstLetter.forEach { (letter, classes) ->
