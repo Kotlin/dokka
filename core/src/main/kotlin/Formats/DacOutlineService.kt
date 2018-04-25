@@ -143,10 +143,14 @@ class TocOutlineService(
             to.appendln("- title: ${languageService.renderName(node)}")
             to.appendln("  path: $dacRoot${uriProvider.mainUriOrWarn(node)}")
             to.appendln()
-            to.appendln("  section:")
+            var addedSectionHeader = false
             for (kind in NodeKind.classLike) {
                 val members = node.getMembersOfKinds(kind)
                 if (members.isNotEmpty()) {
+                    if (!addedSectionHeader) {
+                        to.appendln("  section:")
+                        addedSectionHeader = true
+                    }
                     to.appendln("  - title: ${kind.pluralizedName()}")
                     to.appendln()
                     to.appendln("    section:")

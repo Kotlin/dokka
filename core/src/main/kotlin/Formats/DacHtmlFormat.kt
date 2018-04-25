@@ -22,7 +22,6 @@ class DevsiteHtmlTemplateService @Inject constructor(
         @Named("outlineRoot") val outlineRoot: String, @Named("dacRoot") val dacRoot: String
 ) : JavaLayoutHtmlTemplateService {
     override fun composePage(page: JavaLayoutHtmlFormatOutputBuilder.Page, tagConsumer: TagConsumer<Appendable>, headContent: HEAD.() -> Unit, bodyContent: BODY.() -> Unit) {
-//        System.out.println("dacRoot=$dacRoot")
         tagConsumer.html {
             attributes["devsite"] = "true"
             head {
