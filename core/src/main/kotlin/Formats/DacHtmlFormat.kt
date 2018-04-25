@@ -284,21 +284,41 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 nestedClasses,
                 header = "Nested classes",
                 summaryId = "nestedclasses",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             nestedClassSummaryRow(it)
         }
 
-        summaryNodeGroup(attributes, header="XML attributes", summaryId="lattrs", headerAsRow = true) { xmlAttributeRow(it) }
+        summaryNodeGroup(attributes, header="XML attributes", summaryId="lattrs", tableClass = "responsive", headerAsRow = true) { xmlAttributeRow(it) }
 
-        summaryNodeGroup(attributes, header="Inherited XML attributes", summaryId="inhattrs", headerAsRow = true) { xmlAttributeRow(it) }
+        summaryNodeGroup(attributes, header="Inherited XML attributes", summaryId="inhattrs", tableClass = "responsive", headerAsRow = true) { xmlAttributeRow(it) }
 
-        summaryNodeGroup(constants, header = "Constants", summaryId = "constants", headerAsRow = true) { propertyLikeSummaryRow(it) }
+        summaryNodeGroup(
+                constants,
+                header = "Constants",
+                summaryId = "constants",
+                tableClass = "responsive constants",
+                headerAsRow = true
+        ) { propertyLikeSummaryRow(it) }
+
+        summaryNodeGroup(
+                inheritedConstants.entries,
+                header = "Inherited constants",
+                summaryId = "inhconstants",
+                tableClass = "responsive constants inhtable",
+                headerAsRow = true
+        ) {
+            inheritRow(it) {
+                propertyLikeSummaryRow(it)
+            }
+        }
 
         summaryNodeGroup(
                 constructors,
                 header = "Constructors",
                 summaryId = "pubctors",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             functionLikeSummaryRow(it)
@@ -309,6 +329,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 companionFunctions,
                 header = "Companion functions",
                 summaryId = "compmethods",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             functionLikeSummaryRow(it)
@@ -317,6 +338,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 inheritedFunctionsByReceiver.entries,
                 header = "Inherited functions",
                 summaryId = "inhmethods",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             inheritRow(it) {
@@ -327,6 +349,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 extensionFunctions.entries,
                 header = "Extension functions",
                 summaryId = "extmethods",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             extensionRow(it) {
@@ -337,6 +360,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 inheritedExtensionFunctions.entries,
                 header = "Inherited extension functions",
                 summaryId = "inhextmethods",
+                tableClass = "responsive",
                 headerAsRow = true
         ) {
             extensionRow(it) {
@@ -388,6 +412,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             header: String,
             headerAsRow: Boolean,
             summaryId: String,
+            tableClass: String,
             row: TBODY.(T) -> Unit
     ) {
         if (nodes.none()) return

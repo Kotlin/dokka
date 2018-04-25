@@ -820,14 +820,14 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike } - enumValues
 
             val attributes = node.details(NodeKind.Attribute)
-
+            val allInheritedMembers = node.allInheritedMembers
             val constants = node.members.filter { it.constantValue() != null }
-
+            val inheritedConstants = allInheritedMembers.filter { it.constantValue() != null }.groupBy { it.owner!! }
             val constructors = node.members(NodeKind.Constructor)
             val functions = node.members(functionKind)
             val properties = node.members(propertyKind) - constants
-            val inheritedFunctionsByReceiver = node.inheritedMembers(functionKind).groupBy { it.owner!! }
-            val inheritedPropertiesByReceiver = node.inheritedMembers(propertyKind).groupBy { it.owner!! }
+            val inheritedFunctionsByReceiver = allInheritedMembers.filter { it.kind == functionKind }.groupBy { it.owner!! }
+            val inheritedPropertiesByReceiver = allInheritedMembers.filter { it.kind == propertyKind}.groupBy { it.owner!! }
 
             val originalExtensions = if (!isCompanion) node.extensions else node.owner!!.extensions
 

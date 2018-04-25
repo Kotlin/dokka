@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.Formats.constantValue
 import java.util.*
 
 enum class NodeKind {
@@ -90,6 +91,8 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Member).map { it.to }
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
+    val allInheritedMembers: List<DocumentationNode>
+        get() = recursiveInheritedMembers()
     val inheritedCompanionObjectMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedCompanionObjectMember).map { it.to }
     val extensions: List<DocumentationNode>
@@ -153,7 +156,6 @@ open class DocumentationNode(val name: String,
         }
         (content as MutableContent).body()
     }
-
     fun details(kind: NodeKind): List<DocumentationNode> = details.filter { it.kind == kind }
     fun members(kind: NodeKind): List<DocumentationNode> = members.filter { it.kind == kind }
     fun inheritedMembers(kind: NodeKind): List<DocumentationNode> = inheritedMembers.filter { it.kind == kind }
@@ -225,3 +227,17 @@ fun DocumentationNode.qualifiedName(): String {
 }
 
 fun DocumentationNode.simpleName() = name.substringAfterLast('.')
+
+private fun DocumentationNode.recursiveInheritedMembers(): List<DocumentationNode> {
+    val allInheritedMembers = mutableListOf<DocumentationNode>()
+    recursiveInheritedMembers(allInheritedMembers)
+    return allInheritedMembers
+}
+
+private fun DocumentationNode.recursiveInheritedMembers(allInheritedMembers: MutableList<DocumentationNode>) {
+    allInheritedMembers.addAll(inheritedMembers)
+    System.out.println(allInheritedMembers.size)
+    inheritedMembers.groupBy { it.owner!! } .forEach { (node, _) ->
+        node.recursiveInheritedMembers(allInheritedMembers)
+    }
+}
