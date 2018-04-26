@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Formats.constantValue
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 enum class NodeKind {
@@ -115,11 +116,12 @@ open class DocumentationNode(val name: String,
 
     val superclassType: DocumentationNode?
         get() = when (kind) {
-            NodeKind.Supertype -> (links.firstOrNull { it.kind in NodeKind.classLike } ?: externalType)?.superclassType
+            NodeKind.Supertype -> {
+                (links + listOfNotNull(externalType)).firstOrNull { it.kind in NodeKind.classLike }?.superclassType
+            }
             NodeKind.Interface -> null
             in NodeKind.classLike -> supertypes.firstOrNull {
-                it.links.any { it.kind in NodeKind.classLike } ||
-                        it.externalType != null
+                (it.links + listOfNotNull(it.externalType)).any { it.isSuperclassFor(this) }
             }
             else -> null
         }
@@ -231,5 +233,13 @@ private fun DocumentationNode.recursiveInheritedMembers(allInheritedMembers: Mut
     System.out.println(allInheritedMembers.size)
     inheritedMembers.groupBy { it.owner!! } .forEach { (node, _) ->
         node.recursiveInheritedMembers(allInheritedMembers)
+    }
+}
+
+private fun DocumentationNode.isSuperclassFor(node: DocumentationNode): Boolean {
+    return when(node.kind) {
+        NodeKind.Object, NodeKind.Class, NodeKind.Enum -> kind == NodeKind.Class
+        NodeKind.Exception -> kind == NodeKind.Class || kind == NodeKind.Exception
+        else -> false
     }
 }
