@@ -303,9 +303,6 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         node: DocumentationNode,
         mode: LanguageService.RenderMode = SUMMARY
     ) {
-        if (node.name.contains("AnimatorListener")) {
-            val x = 0
-        }
         contentNodeToMarkup(languageService.render(node, mode))
     }
 
@@ -827,7 +824,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val functions = node.members(functionKind)
             val properties = node.members(propertyKind) - constants
             val inheritedFunctionsByReceiver = allInheritedMembers.filter { it.kind == functionKind }.groupBy { it.owner!! }
-            val inheritedPropertiesByReceiver = allInheritedMembers.filter { it.kind == propertyKind}.groupBy { it.owner!! }
+            val inheritedPropertiesByReceiver = allInheritedMembers.filter {
+                it.kind == propertyKind && it.constantValue() == null
+            }.groupBy { it.owner!! }
 
             val originalExtensions = if (!isCompanion) node.extensions else node.owner!!.extensions
 

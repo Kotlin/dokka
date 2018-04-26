@@ -302,17 +302,12 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 headerAsRow = true
         ) { propertyLikeSummaryRow(it) }
 
-        summaryNodeGroup(
-                inheritedConstants.entries,
+        expandableSummaryNodeGroupForInheritedMembers(
+                superClasses = inheritedConstants.entries,
                 header = "Inherited constants",
-                summaryId = "inhconstants",
-                tableClass = "responsive constants inhtable",
-                headerAsRow = true
-        ) {
-            inheritRow(it) {
-                propertyLikeSummaryRow(it)
-            }
-        }
+                tableId = "inhconstants",
+                tableClass = "responsive constants inhtable"
+        )
 
         summaryNodeGroup(
                 constructors,
@@ -324,7 +319,14 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             functionLikeSummaryRow(it)
         }
 
-        summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+        summaryNodeGroup(
+                functions,
+                header = "Methods",
+                summaryId = "pubmethods",
+                tableClass = "responsive",
+                headerAsRow = true
+        ) { functionLikeSummaryRow(it) }
+
         summaryNodeGroup(
                 companionFunctions,
                 header = "Companion functions",
@@ -334,17 +336,14 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         ) {
             functionLikeSummaryRow(it)
         }
-        summaryNodeGroup(
-                inheritedFunctionsByReceiver.entries,
+
+        expandableSummaryNodeGroupForInheritedMembers(
+                superClasses = inheritedFunctionsByReceiver.entries,
                 header = "Inherited functions",
-                summaryId = "inhmethods",
-                tableClass = "responsive",
-                headerAsRow = true
-        ) {
-            inheritRow(it) {
-                functionLikeSummaryRow(it)
-            }
-        }
+                tableId = "inhmethods",
+                tableClass = "responsive"
+        )
+
         summaryNodeGroup(
                 extensionFunctions.entries,
                 header = "Extension functions",
@@ -378,15 +377,13 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             propertyLikeSummaryRow(it)
         }
 
-        summaryNodeGroup(
-                inheritedPropertiesByReceiver.entries,
-                "Inherited properties",
-                headerAsRow = true
-        ) {
-            inheritRow(it) {
-                propertyLikeSummaryRow(it)
-            }
-        }
+        expandableSummaryNodeGroupForInheritedMembers(
+                superClasses = inheritedPropertiesByReceiver.entries,
+                header = "Inherited properties",
+                tableId = "inhfields",
+                tableClass = "responsive properties inhtable"
+        )
+
         summaryNodeGroup(
                 extensionProperties.entries,
                 "Extension properties",
@@ -396,6 +393,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 propertyLikeSummaryRow(it)
             }
         }
+
         summaryNodeGroup(
                 inheritedExtensionProperties.entries,
                 "Inherited extension properties",
@@ -485,6 +483,67 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 fullMemberDocs(page.extensionProperties.values.flatten(), "Extension properties")
             }
     )
+
+    private fun FlowContent.expandableSummaryNodeGroupForInheritedMembers(
+            tableId: String,
+            header: String,
+            tableClass: String,
+            superClasses: Set<Map.Entry<DocumentationNode, List<DocumentationNode>>>
+    ) {
+        if (superClasses.none()) return
+        table(classes = tableClass) {
+            attributes["id"] = tableId
+            tbody {
+                tr {
+                    th {
+                        +header
+                    }
+                }
+                superClasses.forEach { (superClass, members) ->
+                    tr(classes = "api apilevel-${superClass.apiLevel}") {
+                        td {
+                            attributes["colSpan"] = "2"
+                            div(classes = "expandable jd-inherited-apis") {
+                                span(classes = "expand-control exw-expanded") {
+                                    +"From class "
+                                    code {
+                                        a(href = superClass) { +superClass.name }
+                                    }
+                                }
+                                table(classes = "responsive exw-expanded-content") {
+                                    tbody {
+                                        members.forEach { inheritedMember ->
+                                            tr(classes = "api apilevel-${inheritedMember.apiLevel}") {
+                                                attributes["data-version-added"] = "${inheritedMember.apiLevel}"
+                                                td {
+                                                    code {
+                                                        renderedSignature(inheritedMember.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                                    }
+                                                }
+                                                td {
+                                                    attributes["width"] = "100%"
+                                                    code {
+                                                        a(href = inheritedMember) { +inheritedMember.name }
+                                                        if (inheritedMember.kind == NodeKind.Function) {
+                                                            shortFunctionParametersList(inheritedMember)
+                                                        }
+                                                    }
+                                                    p {
+                                                        contentNodeToMarkup(inheritedMember.content)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 
     private fun FlowContent.summaryNodeGroupForExtensions(
             header: String,
