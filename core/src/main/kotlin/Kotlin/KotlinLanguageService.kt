@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.Formats.classNodeNameWithOuterClass
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
@@ -170,7 +171,9 @@ class KotlinLanguageService : CommonLanguageService() {
             renderAnnotationsForNode(node)
         }
         renderModifiersForNode(node, renderMode, true)
-        renderLinked(this, node) { identifier(it.name, IdentifierKind.TypeName) }
+        renderLinked(this, node) {
+            identifier(it.typeDeclarationClass?.classNodeNameWithOuterClass() ?: it.name, IdentifierKind.TypeName)
+        }
         val typeArguments = node.details(NodeKind.Type)
         if (typeArguments.isNotEmpty()) {
             symbol("<")
@@ -367,7 +370,7 @@ class KotlinLanguageService : CommonLanguageService() {
 
         renderReceiver(node, renderMode, signatureMapper)
 
-        if (node.kind != org.jetbrains.dokka.NodeKind.Constructor)
+        if (node.kind != NodeKind.Constructor)
             identifierOrDeprecated(node)
 
         symbol("(")
@@ -467,3 +470,7 @@ fun DocumentationNode.qualifiedNameFromType(): String {
             ?: (links.firstOrNull() ?: hiddenLinks.firstOrNull())?.qualifiedName()
             ?: name
 }
+
+
+private val DocumentationNode.typeDeclarationClass
+    get() = (links.firstOrNull { it.kind in NodeKind.classLike } ?: externalType)
