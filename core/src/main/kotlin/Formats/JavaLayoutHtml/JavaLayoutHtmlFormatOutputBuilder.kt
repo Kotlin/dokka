@@ -464,15 +464,26 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
         summaryNodeGroup(constants, "Constants") { propertyLikeSummaryRow(it) }
 
-        summaryNodeGroup(
-            constructors,
-            "Constructors",
-            headerAsRow = true
-        ) {
-            functionLikeSummaryRow(it)
+        constructors.forEach { (visibility, group) ->
+            summaryNodeGroup(
+                    group,
+                    "${visibility.capitalize()} constructors",
+                    headerAsRow = true
+            ) {
+                functionLikeSummaryRow(it)
+            }
         }
 
-        summaryNodeGroup(functions, "Functions", headerAsRow = true) { functionLikeSummaryRow(it) }
+        functions.forEach { (visibility, group) ->
+            summaryNodeGroup(
+                    group,
+                    "${visibility.capitalize()} functions",
+                    headerAsRow = true
+            ) {
+                functionLikeSummaryRow(it)
+            }
+        }
+
         summaryNodeGroup(
             companionFunctions,
             "Companion functions",
@@ -550,8 +561,15 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     protected open fun FlowContent.classLikeFullMemberDocs(page: Page.ClassPage) = with(page) {
         fullMemberDocs(enumValues, "Enum values")
         fullMemberDocs(constants, "Constants")
-        fullMemberDocs(constructors, "Constructors")
-        fullMemberDocs(functions, "Functions")
+
+        constructors.forEach { (visibility, group) ->
+            fullMemberDocs(group, "${visibility.capitalize()} constructors")
+        }
+
+        functions.forEach { (visibility, group) ->
+            fullMemberDocs(group, "${visibility.capitalize()} methods")
+        }
+
         fullMemberDocs(properties, "Properties")
         if (!hasMeaningfulCompanion) {
             fullMemberDocs(companionFunctions, "Companion functions")
@@ -820,8 +838,18 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val allInheritedMembers = node.allInheritedMembers
             val constants = node.members.filter { it.constantValue() != null }
             val inheritedConstants = allInheritedMembers.filter { it.constantValue() != null }.groupBy { it.owner!! }
-            val constructors = node.members(NodeKind.Constructor)
-            val functions = node.members(functionKind)
+
+
+            fun compareVisibilities(a: String, b: String): Int {
+                return visibilityNames.indexOf(a) - visibilityNames.indexOf(b)
+            }
+
+            fun Collection<DocumentationNode>.groupByVisibility() =
+                    groupBy { it.visibility() }.toSortedMap(Comparator { a, b -> compareVisibilities(a, b) })
+
+
+            val constructors = node.members(NodeKind.Constructor).groupByVisibility()
+            val functions = node.members(functionKind).groupByVisibility()
             val properties = node.members(propertyKind) - constants
             val inheritedFunctionsByReceiver = allInheritedMembers.filter { it.kind == functionKind }.groupBy { it.owner!! }
             val inheritedPropertiesByReceiver = allInheritedMembers.filter {
@@ -917,3 +945,9 @@ fun DocumentationNode.constantValue(): String? =
     detailOrNull(NodeKind.Value)?.name.takeIf {
         kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
     }
+
+
+private val visibilityNames = setOf("public", "protected", "internal", "package-local", "private")
+
+fun DocumentationNode.visibility(): String =
+        details(NodeKind.Modifier).firstOrNull { it.name in visibilityNames }?.name ?: ""
