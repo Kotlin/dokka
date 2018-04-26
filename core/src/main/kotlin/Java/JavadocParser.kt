@@ -9,10 +9,16 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.util.regex.Pattern
 
-data class JavadocParseResult(val content: Content, val deprecatedContent: Content?) {
+private val REF_COMMAND = "ref"
+private val NAME_COMMAND = "name"
+private val DESCRIPTION_COMMAND = "description"
+private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
+
+data class JavadocParseResult(val content: Content, val deprecatedContent: Content?, val attributes: List<DocumentationNode>) {
     companion object {
-        val Empty = JavadocParseResult(Content.Empty, null)
+        val Empty = JavadocParseResult(Content.Empty, null, emptyList())
     }
 }
 
@@ -33,12 +39,17 @@ class JavadocParser(
         val para = ContentParagraph()
         result.append(para)
         para.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        val attrs = mutableListOf<DocumentationNode>()
         docComment.tags.forEach { tag ->
             when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
-                    deprecatedContent = Content()
-                    deprecatedContent!!.convertJavadocElements(tag.contentElements())
+                    deprecatedContent = Content().apply {
+                        convertJavadocElements(tag.contentElements())
+                    }
+                }
+                "attr" -> {
+                    tag.getAttr(element)?.let { attrs.add(it) }
                 }
                 else -> {
                     val subjectName = tag.getSubjectName()
@@ -48,8 +59,36 @@ class JavadocParser(
                 }
             }
         }
-        return JavadocParseResult(result, deprecatedContent)
+        return JavadocParseResult(result, deprecatedContent, attrs)
     }
+
+    private fun PsiDocTag.getAttr(element: PsiNamedElement): DocumentationNode? = when (valueElement?.text) {
+            REF_COMMAND -> {
+                if (dataElements.size > 1) {
+                    val sig = dataElements[1].text
+                    val targetDescriptor = sig.replace("#", "$")
+                    DocumentationNode(sig, Content.Empty, NodeKind.Attribute).also {
+                        refGraph.link(it, targetDescriptor, RefKind.Attribute)
+                    }
+                } else null
+            }
+            NAME_COMMAND -> {
+                if (dataElements.size > 1) {
+                    val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
+                    if (nameMatcher.matches()) {
+                        val attrName = nameMatcher.group(1)
+                        DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
+                    } else {
+                        null
+                    }
+                } else null
+            }
+            DESCRIPTION_COMMAND -> {
+                val attrDescription = dataElements.toString()
+                DocumentationNode(attrDescription, Content.Empty, NodeKind.Attribute)
+            }
+            else -> null
+        }
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children

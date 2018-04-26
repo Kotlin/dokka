@@ -93,47 +93,17 @@ class DescriptorDocumentationParser @Inject constructor(
     }
 
     /**
-     * For now, this only adds @attr tag. There are 3 types of syntax for this:
-     * @attr ref <android.>R.styleable.<attribute_name>
-     * @attr name <attribute_name>
-     * @attr description <attribute_description>
+     * Adds @attr tag. There are 3 types of syntax for this:
+     * *@attr ref <android.>R.styleable.<attribute_name>
+     * *@attr name <attribute_name>
+     * *@attr description <attribute_description>
+     * This also adds the @since tag.
      */
     private fun DocumentationNode.addExtraTags(tags: Array<KDocTag>, descriptor: DeclarationDescriptor) {
         tags.forEach {
             val name = it.name
             if (name?.toLowerCase() == "attr") {
-                val matcher = TEXT.matcher(it.getContent())
-                if (matcher.matches()) {
-                    val command = matcher.group(1)
-                    val more = matcher.group(2)
-                    val attribute: DocumentationNode? = when (command) {
-                        REF_COMMAND -> {
-                            val attrRef = more.trim()
-                            val qualified = attrRef.split('.', '#')
-                            val targetDescriptor = resolveKDocLink(resolutionFacade.resolveSession.bindingContext, resolutionFacade, descriptor, it, qualified)
-                            DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
-                                if (targetDescriptor.isNotEmpty()) {
-                                    refGraph.link(it, targetDescriptor.first().signature(), RefKind.Attribute)
-                                }
-                            }
-                        }
-                        NAME_COMMAND -> {
-                            val nameMatcher = NAME_TEXT.matcher(more)
-                            if (nameMatcher.matches()) {
-                                val attrName = nameMatcher.group(1)
-                                DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
-                            } else {
-                                null
-                            }
-                        }
-                        DESCRIPTION_COMMAND -> {
-                            val attrDescription = more
-                            DocumentationNode(attrDescription, Content.Empty, NodeKind.Attribute)
-                        }
-                        else -> null
-                    }
-                    attribute?.let { append(it, RefKind.Detail) }
-                }
+                it.getAttr(descriptor)?.let { append(it, RefKind.Detail) }
             } else if (name?.toLowerCase() == "since") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
                 append(apiLevel, RefKind.Detail)
@@ -211,6 +181,42 @@ class DescriptorDocumentationParser @Inject constructor(
             para.append(link)
             section.append(para)
         }
+    }
+
+    private fun KDocTag.getAttr(descriptor: DeclarationDescriptor): DocumentationNode? {
+        var attribute: DocumentationNode? = null
+        val matcher = TEXT.matcher(getContent())
+        if (matcher.matches()) {
+            val command = matcher.group(1)
+            val more = matcher.group(2)
+            attribute = when (command) {
+                REF_COMMAND -> {
+                    val attrRef = more.trim()
+                    val qualified = attrRef.split('.', '#')
+                    val targetDescriptor = resolveKDocLink(resolutionFacade.resolveSession.bindingContext, resolutionFacade, descriptor, this, qualified)
+                    DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
+                        if (targetDescriptor.isNotEmpty()) {
+                            refGraph.link(it, targetDescriptor.first().signature(), RefKind.Attribute)
+                        }
+                    }
+                }
+                NAME_COMMAND -> {
+                    val nameMatcher = NAME_TEXT.matcher(more)
+                    if (nameMatcher.matches()) {
+                        val attrName = nameMatcher.group(1)
+                        DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
+                    } else {
+                        null
+                    }
+                }
+                DESCRIPTION_COMMAND -> {
+                    val attrDescription = more
+                    DocumentationNode(attrDescription, Content.Empty, NodeKind.Attribute)
+                }
+                else -> null
+            }
+        }
+        return attribute
     }
 
 }

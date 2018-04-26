@@ -236,7 +236,6 @@ private fun DocumentationNode.recursiveInheritedMembers(): List<DocumentationNod
 
 private fun DocumentationNode.recursiveInheritedMembers(allInheritedMembers: MutableList<DocumentationNode>) {
     allInheritedMembers.addAll(inheritedMembers)
-    System.out.println(allInheritedMembers.size)
     inheritedMembers.groupBy { it.owner!! } .forEach { (node, _) ->
         node.recursiveInheritedMembers(allInheritedMembers)
     }
