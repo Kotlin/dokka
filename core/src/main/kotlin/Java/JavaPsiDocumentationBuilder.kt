@@ -93,7 +93,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun nodeForElement(element: PsiNamedElement,
                        kind: NodeKind,
                        name: String = element.name ?: "<anonymous>"): DocumentationNode {
-        val (docComment, deprecatedContent, attrs) = docParser.parseDocumentation(element)
+        val (docComment, deprecatedContent, attrs, apiLevel) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
@@ -113,6 +113,9 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (element is PsiDocCommentOwner && element.isDeprecated && node.deprecation == null) {
             val deprecationNode = DocumentationNode("", Content.of(ContentText("Deprecated")), NodeKind.Modifier)
             node.append(deprecationNode, RefKind.Deprecation)
+        }
+        apiLevel?.let {
+            node.append(it, RefKind.Detail)
         }
         return node
     }

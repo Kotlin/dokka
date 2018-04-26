@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.intellij.psi.*
 import com.intellij.psi.impl.JavaPsiImplementationHelper
 import com.intellij.psi.impl.source.JavaStubPsiElement
+import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
@@ -23,9 +24,14 @@ private val NAME_COMMAND = "name"
 private val DESCRIPTION_COMMAND = "description"
 private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
 
-data class JavadocParseResult(val content: Content, val deprecatedContent: Content?, val attributes: List<DocumentationNode>) {
+data class JavadocParseResult(
+        val content: Content,
+        val deprecatedContent: Content?,
+        val attributes: List<DocumentationNode>,
+        val apiLevel: DocumentationNode?
+) {
     companion object {
-        val Empty = JavadocParseResult(Content.Empty, null, emptyList())
+        val Empty = JavadocParseResult(Content.Empty, null, emptyList(), null)
     }
 }
 
@@ -47,6 +53,7 @@ class JavadocParser(
         result.append(para)
         para.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
         val attrs = mutableListOf<DocumentationNode>()
+        var since: DocumentationNode? = null
         docComment.tags.forEach { tag ->
             when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
@@ -58,15 +65,31 @@ class JavadocParser(
                 "attr" -> {
                     tag.getAttr(element)?.let { attrs.add(it) }
                 }
+                "since" -> {
+                    since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
+                }
                 else -> {
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.name), subjectName)
-
                     section.convertJavadocElements(tag.contentElements())
                 }
             }
         }
-        return JavadocParseResult(result, deprecatedContent, attrs)
+        return JavadocParseResult(result, deprecatedContent, attrs, since)
+    }
+
+    fun PsiDocTag.minApiLevel(): String? {
+        if (dataElements.isNotEmpty()) {
+            val data = dataElements
+            if (data[0] is CorePsiDocTagValueImpl) {
+                val docTagValue = data[0]
+                if (docTagValue.firstChild != null) {
+                    val apiLevel = docTagValue.firstChild
+                    return apiLevel.text
+                }
+            }
+        }
+        return null
     }
 
     private fun PsiDocTag.getAttr(element: PsiNamedElement): DocumentationNode? = when (valueElement?.text) {

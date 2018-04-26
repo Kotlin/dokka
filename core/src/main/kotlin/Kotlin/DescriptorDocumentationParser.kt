@@ -162,6 +162,9 @@ class DescriptorDocumentationParser @Inject constructor(
                 parseResult.attributes.forEach {
                     node.append(it, RefKind.Detail)
                 }
+                parseResult.apiLevel?.let {
+                    node.append(it, RefKind.Detail)
+                }
             }
         }
         return Content.Empty to { node -> }
