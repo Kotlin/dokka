@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.supertypes
+import org.jetbrains.kotlin.util.supertypesWithAny
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -649,7 +650,7 @@ class DocumentationBuilder
         }
         val node = nodeForDescriptor(this, kind, external)
         register(this, node)
-        typeConstructor.supertypes.forEach {
+        supertypesWithAnyPrecise().forEach {
             node.appendSupertype(this, it, !external)
         }
         if (getKind() != ClassKind.OBJECT && getKind() != ClassKind.ENUM_ENTRY) {
@@ -1155,4 +1156,11 @@ fun DocumentationNode.generateAllTypesNode() {
     }
 
     append(allTypesNode, RefKind.Member)
+}
+
+fun ClassDescriptor.supertypesWithAnyPrecise(): Collection<KotlinType> {
+    if (KotlinBuiltIns.isAny(this)) {
+        return emptyList()
+    }
+    return typeConstructor.supertypesWithAny()
 }
