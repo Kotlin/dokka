@@ -309,23 +309,29 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 tableClass = "responsive constants inhtable"
         )
 
-        summaryNodeGroup(
-                constructors,
-                header = "Constructors",
-                summaryId = "pubctors",
-                tableClass = "responsive",
-                headerAsRow = true
-        ) {
-            functionLikeSummaryRow(it)
+        constructors.forEach { (visibility, group) ->
+            summaryNodeGroup(
+                    group,
+                    header = "${visibility.capitalize()} constructors",
+                    summaryId = "${visibility.take(3)}ctors",
+                    tableClass = "responsive",
+                    headerAsRow = true
+            ) {
+                functionLikeSummaryRow(it)
+            }
         }
 
-        summaryNodeGroup(
-                functions,
-                header = "Methods",
-                summaryId = "pubmethods",
-                tableClass = "responsive",
-                headerAsRow = true
-        ) { functionLikeSummaryRow(it) }
+        functions.forEach { (visibility, group) ->
+            summaryNodeGroup(
+                    group,
+                    header = "${visibility.capitalize()} methods",
+                    summaryId = "${visibility.take(3)}methods",
+                    tableClass = "responsive",
+                    headerAsRow = true
+            ) {
+                functionLikeSummaryRow(it)
+            }
+        }
 
         summaryNodeGroup(
                 companionFunctions,
