@@ -23,7 +23,7 @@ class KotlinLanguageService : CommonLanguageService() {
                 NodeKind.Type,
                 NodeKind.UpperBound -> renderType(node, renderMode)
 
-                NodeKind.Modifier -> renderModifier(this, node)
+                NodeKind.Modifier -> renderModifier(this, node, renderMode)
                 NodeKind.Constructor,
                 NodeKind.Function,
                 NodeKind.CompanionObjectFunction -> renderFunction(node, renderMode)
@@ -188,13 +188,16 @@ class KotlinLanguageService : CommonLanguageService() {
     override fun renderModifier(
         block: ContentBlock,
         node: DocumentationNode,
+        renderMode: RenderMode,
         nowrap: Boolean
     ) {
         when (node.name) {
             "final", "public", "var" -> {
             }
             else -> {
-                super.renderModifier(block, node, nowrap)
+                if (node.name !in fullOnlyModifiers || renderMode == RenderMode.FULL) {
+                    super.renderModifier(block, node, renderMode, nowrap)
+                }
             }
         }
     }
@@ -289,7 +292,7 @@ class KotlinLanguageService : CommonLanguageService() {
             if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
                 continue
             }
-            renderModifier(this, it, nowrap)
+            renderModifier(this, it, renderMode, nowrap)
         }
     }
 

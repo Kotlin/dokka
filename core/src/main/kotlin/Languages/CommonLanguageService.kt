@@ -19,6 +19,7 @@ abstract class CommonLanguageService : LanguageService {
     open fun renderModifier(
         block: ContentBlock,
         node: DocumentationNode,
+        renderMode: LanguageService.RenderMode,
         nowrap: Boolean = false
     ) = with(block) {
         keyword(node.name)

@@ -1,16 +1,18 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.LanguageService.RenderMode
+
 /**
  * Implements [LanguageService] and provides rendering of symbols in Java language
  */
 class NewJavaLanguageService : CommonLanguageService() {
-    override fun render(node: DocumentationNode, renderMode: LanguageService.RenderMode): ContentNode {
+    override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             (when (node.kind) {
                 NodeKind.Package -> renderPackage(node)
                 in NodeKind.classLike -> renderClass(node)
 
-                NodeKind.Modifier -> renderModifier(this, node)
+                NodeKind.Modifier -> renderModifier(this, node, renderMode)
                 NodeKind.TypeParameter -> renderTypeParameter(node)
                 NodeKind.Type,
                 NodeKind.UpperBound -> renderType(node)
@@ -26,11 +28,11 @@ class NewJavaLanguageService : CommonLanguageService() {
     override fun summarizeSignatures(nodes: List<DocumentationNode>): ContentNode? = null
 
 
-    override fun renderModifier(block: ContentBlock, node: DocumentationNode, nowrap: Boolean) {
+    override fun renderModifier(block: ContentBlock, node: DocumentationNode, renderMode: RenderMode, nowrap: Boolean) {
         when (node.name) {
             "open", "internal" -> {
             }
-            else -> super.renderModifier(block, node, nowrap)
+            else -> super.renderModifier(block, node, renderMode, nowrap)
         }
     }
 
