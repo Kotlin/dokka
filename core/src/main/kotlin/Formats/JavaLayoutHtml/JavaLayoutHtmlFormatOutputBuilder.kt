@@ -835,6 +835,13 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike } - enumValues
 
             val attributes = node.details(NodeKind.Attribute)
+            val inheritedAttributes =
+                    node.superclassTypeSequence
+                            .toList()
+                            .flatMap { it.typeDeclarationClass?.details(NodeKind.Attribute).orEmpty() }
+                            .distinctBy { it.name }
+                            .groupBy { it.owner!! }
+
             val allInheritedMembers = node.allInheritedMembers
             val constants = node.members.filter { it.constantValue() != null }
             val inheritedConstants = allInheritedMembers.filter { it.constantValue() != null }.groupBy { it.owner!! }
