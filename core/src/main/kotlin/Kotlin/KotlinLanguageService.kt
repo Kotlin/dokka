@@ -472,5 +472,5 @@ fun DocumentationNode.qualifiedNameFromType(): String {
 }
 
 
-private val DocumentationNode.typeDeclarationClass
+val DocumentationNode.typeDeclarationClass
     get() = (links.firstOrNull { it.kind in NodeKind.classLike } ?: externalType)
