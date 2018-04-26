@@ -292,7 +292,11 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
         summaryNodeGroup(attributes, header="XML attributes", summaryId="lattrs", tableClass = "responsive", headerAsRow = true) { xmlAttributeRow(it) }
 
-        summaryNodeGroup(attributes, header="Inherited XML attributes", summaryId="inhattrs", tableClass = "responsive", headerAsRow = true) { xmlAttributeRow(it) }
+        summaryNodeGroup(inheritedAttributes.entries, header="Inherited XML attributes", summaryId="inhattrs", tableClass = "responsive", headerAsRow = true) {
+            inheritRow(it) {
+                xmlAttributeRow(it)
+            }
+        }
 
         summaryNodeGroup(
                 constants,
