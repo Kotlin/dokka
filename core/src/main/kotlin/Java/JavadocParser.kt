@@ -1,10 +1,17 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.JavaPsiImplementationHelper
+import com.intellij.psi.impl.source.JavaStubPsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.kotlin.js.translate.utils.PsiUtils
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -65,11 +72,31 @@ class JavadocParser(
     private fun PsiDocTag.getAttr(element: PsiNamedElement): DocumentationNode? = when (valueElement?.text) {
             REF_COMMAND -> {
                 if (dataElements.size > 1) {
-                    val sig = dataElements[1].text
-                    val targetDescriptor = sig.replace("#", "$")
-                    DocumentationNode(sig, Content.Empty, NodeKind.Attribute).also {
-                        refGraph.link(it, targetDescriptor, RefKind.Attribute)
-                    }
+                    val elementText = dataElements[1].text
+                    val names = elementText.split("#")
+                    if (names.size > 1) {
+                        val qualifiedAttribute = names[1].split("_")
+                        if (qualifiedAttribute.size > 1) {
+                            val attribute = qualifiedAttribute[1]
+                            val attrRef = "android.R#" + attribute
+                                    try {
+                                        val linkComment = JavaPsiFacade.getInstance(project).elementFactory
+                                                .createDocCommentFromText("/** {@link $attrRef} */", element)
+                                        if (attrRef.contains("cacheColorHint")) {
+                                            val x = false
+                                        }
+                                        val linkElement = PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
+                                        val link = resolveLink(linkElement)
+                                        if (link != null) {
+                                            DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
+                                                refGraph.link(it, link, RefKind.Attribute)
+                                            }
+                                        } else null
+                                    } catch (e: IncorrectOperationException) {
+                                        null
+                                    }
+                        } else null
+                    } else null
                 } else null
             }
             NAME_COMMAND -> {

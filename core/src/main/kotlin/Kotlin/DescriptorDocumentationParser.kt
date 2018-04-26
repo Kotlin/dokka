@@ -159,6 +159,9 @@ class DescriptorDocumentationParser @Inject constructor(
                     val deprecationNode = DocumentationNode("", it, NodeKind.Modifier)
                     node.append(deprecationNode, RefKind.Deprecation)
                 }
+                parseResult.attributes.forEach {
+                    node.append(it, RefKind.Detail)
+                }
             }
         }
         return Content.Empty to { node -> }
