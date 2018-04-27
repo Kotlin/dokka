@@ -65,7 +65,7 @@ class BookOutlineService(
                 it.kind == NodeKind.Package
             }
             if (subPackages.any()) {
-                val sortedMembers = subPackages.sortedBy { it.name }
+                val sortedMembers = subPackages.sortedBy { it.name.toLowerCase() }
                 appendOutlineLevel(to) {
                     appendOutline(to, sortedMembers)
                 }
