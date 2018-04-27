@@ -1,10 +1,12 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.util.PsiTreeUtil
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -130,11 +132,11 @@ class JavadocParser(
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
         val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
-        val linkSignature = resolveLink(linkElement)
+        val linkSignature = resolveLink(tag.referenceElement())
         val text = ContentText(linkElement.text)
         if (linkSignature != null) {
             val linkNode =
-                ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
+                ContentNodeLazyLink((tag.valueElement ?: linkElement).text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {
@@ -144,7 +146,7 @@ class JavadocParser(
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
         "link", "linkplain" -> {
-            val valueElement = tag.linkElement()
+            val valueElement = tag.referenceElement()
             val linkSignature = resolveLink(valueElement)
             if (linkSignature != null) {
                 val labelText = tag.dataElements.firstOrNull { it is PsiDocToken }?.text ?: valueElement!!.text
@@ -164,6 +166,15 @@ class JavadocParser(
         }
         else -> tag.text
     }
+
+    private fun PsiDocTag.referenceElement(): PsiElement? =
+            linkElement()?.let {
+                if (it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER) {
+                    PsiTreeUtil.findChildOfType(it, PsiJavaCodeReferenceElement::class.java)
+                } else {
+                    it
+                }
+            }
 
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
