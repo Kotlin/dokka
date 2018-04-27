@@ -1,18 +1,14 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.JavaPsiImplementationHelper
-import com.intellij.psi.impl.source.JavaStubPsiElement
 import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
+import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.kotlin.js.translate.utils.PsiUtils
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -49,9 +45,16 @@ class JavadocParser(
         if (docComment == null) return JavadocParseResult.Empty
         val result = MutableContent()
         var deprecatedContent: Content? = null
-        val para = ContentParagraph()
-        result.append(para)
-        para.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        val firstParagraph = ContentParagraph()
+        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        val paragraphs = firstParagraph.children.dropWhile { it !is ContentParagraph }
+        firstParagraph.children.removeAll(paragraphs)
+        if (!firstParagraph.isEmpty()) {
+            result.append(firstParagraph)
+        }
+        paragraphs.forEach {
+            result.append(it)
+        }
         val attrs = mutableListOf<DocumentationNode>()
         var since: DocumentationNode? = null
         docComment.tags.forEach { tag ->
@@ -159,20 +162,24 @@ class JavadocParser(
         }
         val doc = Jsoup.parse(htmlBuilder.toString().trim())
         doc.body().childNodes().forEach {
-            convertHtmlNode(it)
+            convertHtmlNode(it)?.let { append(it) }
         }
     }
 
-    private fun ContentBlock.convertHtmlNode(node: Node) {
+    private fun convertHtmlNode(node: Node): ContentNode? {
         if (node is TextNode) {
-            append(ContentText(node.text()))
+            return ContentText(node.text())
         } else if (node is Element) {
             val childBlock = createBlock(node)
             node.childNodes().forEach {
-                childBlock.convertHtmlNode(it)
+                val child = convertHtmlNode(it)
+                if (child != null) {
+                    childBlock.append(child)
+                }
             }
-            append(childBlock)
+            return (childBlock)
         }
+        return null
     }
 
     private fun createBlock(element: Element): ContentBlock = when (element.tagName()) {
@@ -206,11 +213,11 @@ class JavadocParser(
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
         val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
-        val linkSignature = resolveLink(linkElement)
+        val linkSignature = resolveLink(tag.referenceElement())
         val text = ContentText(linkElement.text)
         if (linkSignature != null) {
             val linkNode =
-                ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
+                ContentNodeLazyLink((tag.valueElement ?: linkElement).text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {
@@ -220,7 +227,7 @@ class JavadocParser(
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
         "link", "linkplain" -> {
-            val valueElement = tag.linkElement()
+            val valueElement = tag.referenceElement()
             val linkSignature = resolveLink(valueElement)
             if (linkSignature != null) {
                 val labelText = tag.dataElements.firstOrNull { it is PsiDocToken }?.text ?: valueElement!!.text
@@ -240,6 +247,15 @@ class JavadocParser(
         }
         else -> tag.text
     }
+
+    private fun PsiDocTag.referenceElement(): PsiElement? =
+            linkElement()?.let {
+                if (it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER) {
+                    PsiTreeUtil.findChildOfType(it, PsiJavaCodeReferenceElement::class.java)
+                } else {
+                    it
+                }
+            }
 
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }

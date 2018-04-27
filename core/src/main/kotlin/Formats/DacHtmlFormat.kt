@@ -266,6 +266,10 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    override fun summary(node: DocumentationNode): ContentNode {
+        return node.firstSentenceOfSummary()
+    }
+
     fun TBODY.xmlAttributeRow(node: DocumentationNode) = tr {
         td {
             div {
@@ -733,9 +737,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                             }
                                             td(classes = "jd-descrcol") {
                                                 attributes["width"] = "100%"
-                                                var content = (inheritor.content.children.firstOrNull() as? ContentBlock)?.children?.firstOrNull() ?: ContentEmpty
-                                                if ((content is ContentText).not()) content = (content as? ContentBlock)?.children?.firstOrNull() ?: ContentEmpty
-                                                contentNodeToMarkup(content)
+                                                contentNodeToMarkup(inheritor.firstSentenceOfSummary())
                                             }
                                         }
                                     }
@@ -746,6 +748,39 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
         }
+    }
+
+
+    fun DocumentationNode.firstSentenceOfSummary(): ContentNode {
+
+        fun Sequence<ContentNode>.flatten(): Sequence<ContentNode> {
+            return flatMap {
+                when (it) {
+                    is ContentParagraph -> it.children.asSequence().flatten()
+                    else -> sequenceOf(it)
+                }
+            }
+        }
+
+        fun ContentNode.firstSentence(): ContentText? = when(this) {
+            is ContentText -> ContentText(text.takeWhile { it != '.' } + ".")
+            else -> null
+        }
+
+        val elements = sequenceOf(summary).flatten()
+        fun containsDot(it: ContentNode) = (it as? ContentText)?.text?.contains(".") == true
+
+        val paragraph = ContentParagraph()
+        (elements.takeWhile { !containsDot(it) } + elements.firstOrNull { containsDot(it) }?.firstSentence()).forEach {
+            if (it != null) {
+                paragraph.append(it)
+            }
+        }
+        if (paragraph.isEmpty()) {
+            return ContentEmpty
+        }
+
+        return paragraph
     }
 }
 
