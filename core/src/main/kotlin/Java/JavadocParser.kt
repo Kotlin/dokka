@@ -2,11 +2,10 @@ package org.jetbrains.dokka
 
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.JavaDocElementType
-import com.intellij.psi.javadoc.PsiDocTag
-import com.intellij.psi.javadoc.PsiDocTagValue
-import com.intellij.psi.javadoc.PsiDocToken
-import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.IncorrectOperationException
+import com.intellij.util.containers.isNullOrEmpty
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -33,7 +32,7 @@ class JavadocParser(
         val result = MutableContent()
         var deprecatedContent: Content? = null
         val firstParagraph = ContentParagraph()
-        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() }, element)
         val paragraphs = firstParagraph.children.dropWhile { it !is ContentParagraph }
         firstParagraph.children.removeAll(paragraphs)
         if (!firstParagraph.isEmpty()) {
@@ -49,13 +48,13 @@ class JavadocParser(
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content()
-                    deprecatedContent!!.convertJavadocElements(tag.contentElements())
+                    deprecatedContent!!.convertJavadocElements(tag.contentElements(), element)
                 }
                 else -> {
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.name), subjectName)
 
-                    section.convertJavadocElements(tag.contentElements())
+                    section.convertJavadocElements(tag.contentElements(), element)
                 }
             }
         }
@@ -70,19 +69,23 @@ class JavadocParser(
         return if (getSubjectName() != null) tagValueElements.dropWhile { it is PsiDocTagValue } else tagValueElements
     }
 
-    private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>) {
+    private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>, element: PsiNamedElement) {
+        val doc = Jsoup.parse(expandAllForElements(elements, element))
+        doc.body().childNodes().forEach {
+            convertHtmlNode(it)?.let { append(it) }
+        }
+    }
+
+    private fun expandAllForElements(elements: Iterable<PsiElement>, element: PsiNamedElement): String {
         val htmlBuilder = StringBuilder()
         elements.forEach {
             if (it is PsiInlineDocTag) {
-                htmlBuilder.append(convertInlineDocTag(it))
+                htmlBuilder.append(convertInlineDocTag(it, element))
             } else {
                 htmlBuilder.append(it.text)
             }
         }
-        val doc = Jsoup.parse(htmlBuilder.toString().trim())
-        doc.body().childNodes().forEach {
-            convertHtmlNode(it)?.let { append(it) }
-        }
+        return htmlBuilder.toString().trim()
     }
 
     private fun convertHtmlNode(node: Node): ContentNode? {
@@ -144,7 +147,7 @@ class JavadocParser(
         }
     }
 
-    private fun convertInlineDocTag(tag: PsiInlineDocTag) = when (tag.name) {
+    private fun convertInlineDocTag(tag: PsiInlineDocTag, element: PsiNamedElement) = when (tag.name) {
         "link", "linkplain" -> {
             val valueElement = tag.referenceElement()
             val linkSignature = resolveLink(valueElement)
@@ -163,6 +166,18 @@ class JavadocParser(
             tag.dataElements.forEach { text.append(it.text) }
             val escaped = text.toString().trimStart().htmlEscape()
             if (tag.name == "code") "<code>$escaped</code>" else escaped
+        }
+        "inheritDoc" -> {
+            val result = (element as? PsiMethod)?.let {
+                // @{inheritDoc} is only allowed on functions
+                val parent = tag.parent
+                when (parent) {
+                    is PsiDocComment -> element.findSuperDocCommentOrWarn()
+                    is PsiDocTag -> element.findSuperDocTagOrWarn(parent)
+                    else -> null
+                }
+            }
+            result ?: tag.text
         }
         else -> tag.text
     }
@@ -193,4 +208,88 @@ class JavadocParser(
         }
         return null
     }
+
+    private fun PsiMethod.findSuperDocCommentOrWarn(): String {
+        val method = findFirstSuperMethodWithDocumentation(this)
+        if (method != null) {
+            val descriptionElements = method.docComment?.descriptionElements?.dropWhile {
+                it.text.trim().isEmpty()
+            } ?: return ""
+
+            return expandAllForElements(descriptionElements, method)
+        }
+        logger.warn("No docs found on supertype with {@inheritDoc} method ${this.name} in ${this.containingFile.name}:${this.lineNumber()}")
+        return ""
+    }
+
+
+    private fun PsiMethod.findSuperDocTagOrWarn(elementToExpand: PsiDocTag): String {
+        val result = findFirstSuperMethodWithDocumentationforTag(elementToExpand, this)
+
+        if (result != null) {
+            val (method, tag) = result
+
+            val contentElements = tag.contentElements().dropWhile { it.text.trim().isEmpty() }
+
+            val expandedString = expandAllForElements(contentElements, method)
+
+            return expandedString
+        }
+        logger.warn("No docs found on supertype for @${elementToExpand.name} ${elementToExpand.getSubjectName()} with {@inheritDoc} method ${this.name} in ${this.containingFile.name}:${this.lineNumber()}")
+        return ""
+    }
+
+    private fun findFirstSuperMethodWithDocumentation(current: PsiMethod): PsiMethod? {
+        val superMethods = current.findSuperMethods()
+        for (method in superMethods) {
+            val docs =  method.docComment?.descriptionElements?.dropWhile { it.text.trim().isEmpty() }
+            if (!docs.isNullOrEmpty()) {
+                return method
+            }
+        }
+        for (method in superMethods) {
+            val result = findFirstSuperMethodWithDocumentation(method)
+            if (result != null) {
+                return result
+            }
+        }
+
+        return null
+    }
+
+    private fun findFirstSuperMethodWithDocumentationforTag(elementToExpand: PsiDocTag, current: PsiMethod): Pair<PsiMethod, PsiDocTag>? {
+        val superMethods = current.findSuperMethods()
+        val mappedFilteredTags = superMethods.map {
+            it to it.docComment?.tags?.filter { it.name == elementToExpand.name }
+        }
+
+        for ((method, tags) in mappedFilteredTags) {
+            tags ?: continue
+            for (tag in tags) {
+                val (tagSubject, elementSubject) = when (tag.name) {
+                    "throws" -> {
+                        // match class names only for throws, ignore possibly fully qualified path
+                        // TODO: Always match exactly here
+                        tag.getSubjectName()?.split(".")?.last() to elementToExpand.getSubjectName()?.split(".")?.last()
+                    }
+                    else -> {
+                        tag.getSubjectName() to elementToExpand.getSubjectName()
+                    }
+                }
+
+                if (tagSubject == elementSubject) {
+                    return method to tag
+                }
+            }
+        }
+
+        for (method in superMethods) {
+            val result = findFirstSuperMethodWithDocumentationforTag(elementToExpand, method)
+            if (result != null) {
+                return result
+            }
+        }
+        return null
+    }
+
 }
