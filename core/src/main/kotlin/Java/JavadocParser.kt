@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
+import com.intellij.psi.javadoc.*
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
@@ -41,14 +43,13 @@ class JavadocParser(
         paragraphs.forEach {
             result.append(it)
         }
-        val attrs = mutableListOf<DocumentationNode>()
-        var since: DocumentationNode? = null
         docComment.tags.forEach { tag ->
             when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
-                    deprecatedContent = Content()
-                    deprecatedContent!!.convertJavadocElements(tag.contentElements(), element)
+                    deprecatedContent = Content().apply {
+                        convertJavadocElements(tag.contentElements(), element)
+                    }
                 }
                 else -> {
                     val subjectName = tag.getSubjectName()
