@@ -1,18 +1,13 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.JavaPsiImplementationHelper
-import com.intellij.psi.impl.source.JavaStubPsiElement
 import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.kotlin.js.translate.utils.PsiUtils
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -49,9 +44,16 @@ class JavadocParser(
         if (docComment == null) return JavadocParseResult.Empty
         val result = MutableContent()
         var deprecatedContent: Content? = null
-        val para = ContentParagraph()
-        result.append(para)
-        para.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        val firstParagraph = ContentParagraph()
+        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() })
+        val paragraphs = firstParagraph.children.dropWhile { it !is ContentParagraph }
+        firstParagraph.children.removeAll(paragraphs)
+        if (!firstParagraph.isEmpty()) {
+            result.append(firstParagraph)
+        }
+        paragraphs.forEach {
+            result.append(it)
+        }
         val attrs = mutableListOf<DocumentationNode>()
         var since: DocumentationNode? = null
         docComment.tags.forEach { tag ->
@@ -159,20 +161,24 @@ class JavadocParser(
         }
         val doc = Jsoup.parse(htmlBuilder.toString().trim())
         doc.body().childNodes().forEach {
-            convertHtmlNode(it)
+            convertHtmlNode(it)?.let { append(it) }
         }
     }
 
-    private fun ContentBlock.convertHtmlNode(node: Node) {
+    private fun convertHtmlNode(node: Node): ContentNode? {
         if (node is TextNode) {
-            append(ContentText(node.text()))
+            return ContentText(node.text())
         } else if (node is Element) {
             val childBlock = createBlock(node)
             node.childNodes().forEach {
-                childBlock.convertHtmlNode(it)
+                val child = convertHtmlNode(it)
+                if (child != null) {
+                    childBlock.append(child)
+                }
             }
-            append(childBlock)
+            return (childBlock)
         }
+        return null
     }
 
     private fun createBlock(element: Element): ContentBlock = when (element.tagName()) {
