@@ -570,7 +570,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             appendHeader(3) { appendText(caption) }
 
-            val children = if (sortMembers) members.sortedBy { it.name } else members
+            val children = if (sortMembers) members.sortedBy { it.name.toLowerCase() } else members
             val membersMap = children.groupBy { link(node, it) }
 
 
