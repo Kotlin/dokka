@@ -148,9 +148,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
 
+    protected open fun summary(node: DocumentationNode) = node.summary
+
     protected open fun TBODY.classLikeRow(node: DocumentationNode) = tr {
         td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
-        td { contentNodeToMarkup(node.summary) }
+        td { contentNodeToMarkup(summary(node)) }
     }
 
     protected fun FlowContent.modifiers(node: DocumentationNode) {
@@ -191,7 +193,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(node.summary)
+            contentNodeToMarkup(summary(node))
         }
     }
 
@@ -207,7 +209,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(node.summary)
+            contentNodeToMarkup(summary(node))
         }
     }
 
@@ -222,7 +224,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(node.summary)
+            contentNodeToMarkup(summary(node))
         }
     }
 
@@ -440,7 +442,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
                             }
                             td {
-                                contentNodeToMarkup(inheritor.summary)
+                                contentNodeToMarkup(summary(inheritor))
                             }
                         }
                     }
