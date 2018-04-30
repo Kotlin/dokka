@@ -154,7 +154,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         div(classes = "api apilevel-${node.apiLevel.name}") {
             attributes["data-version-added"] = node.apiLevel.name
             h3(classes = "api-name") {
-//                id = node.signatureForAnchor(logger).urlEncoded()
+                //id = node.signatureForAnchor(logger).urlEncoded()
                 +node.name
             }
             if (node.apiLevel.name != "") {
@@ -166,6 +166,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
+            deprecationWarningToMarkup(node, prefix = true)
             contentNodeToMarkup(node.content)
             node.constantValue()?.let { value ->
                 pre {
@@ -267,7 +268,11 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     }
 
     override fun summary(node: DocumentationNode): ContentNode {
-        return node.firstSentenceOfSummary()
+        val deprecation = formatDeprecationOrNull(node)
+        return when (deprecation) {
+            null -> node.firstSentenceOfSummary()
+            else -> deprecation
+        }
     }
 
     fun TBODY.xmlAttributeRow(node: DocumentationNode) = tr {
@@ -669,7 +674,9 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                         a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                     }
                                     td {
-                                        contentNodeToMarkup(node.content)
+                                        if (!deprecationWarningToMarkup(node)) {
+                                            contentNodeToMarkup(node.content)
+                                        }
                                     }
                                 }
                             }
