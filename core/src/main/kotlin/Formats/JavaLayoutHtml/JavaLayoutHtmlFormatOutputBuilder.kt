@@ -595,6 +595,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 subclasses(page.directInheritors, true)
                 subclasses(page.indirectInheritors, false)
 
+                deprecationWarningToMarkup(node, prefix = true)
                 contentNodeToMarkup(node.content)
 
                 h2 { +"Summary" }
@@ -634,7 +635,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                     a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                 }
                                 td {
-                                    contentNodeToMarkup(node.content)
+                                    if (!deprecationWarningToMarkup(node)) {
+                                        contentNodeToMarkup(node.content)
+                                    }
                                 }
                             }
                         }
@@ -725,6 +728,32 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    protected open fun FlowContent.deprecationWarningToMarkup(node: DocumentationNode, prefix: Boolean = false): Boolean {
+        val deprecated = formatDeprecationOrNull(node, prefix)
+        deprecated?.let {
+            contentNodeToMarkup(deprecated)
+            return true
+        }
+        return false
+    }
+
+    protected open fun formatDeprecationOrNull(node: DocumentationNode, prefix: Boolean = false): ContentNode? {
+        val deprecated = node.deprecation
+        deprecated?.let {
+            return ContentParagraph().apply {
+                if (prefix) {
+                    append(ContentStrong().apply { text("Deprecated: ") })
+                }
+                val em = ContentEmphasis()
+                for (child in deprecated.content.children) {
+                    em.append(child)
+                }
+                append(em)
+            }
+        }
+        return null
+    }
+
     protected open fun FlowContent.section(name: String, sectionParts: List<ContentSection>) {
         when (name) {
             ContentTags.SeeAlso -> seeAlsoSection(sectionParts.map { it.children.flatMap { (it as? ContentParagraph)?.children ?: listOf(it) } })
@@ -749,6 +778,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             id = node.signatureForAnchor(logger)
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
+            deprecationWarningToMarkup(node, prefix = true)
             contentNodeToMarkup(node.content)
             node.constantValue()?.let { value ->
                 pre {
