@@ -84,6 +84,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             is ContentParagraph -> p { contentNodesToMarkup(content.children) }
 
+            is NodeRenderContent -> renderedSignature(content.node, mode = content.mode)
             is ContentNodeLink -> {
                 fun FlowContent.body() = contentNodesToMarkup(content.children)
 
