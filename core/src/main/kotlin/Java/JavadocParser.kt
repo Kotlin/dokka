@@ -2,12 +2,12 @@ package org.jetbrains.dokka
 
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
-import com.intellij.psi.javadoc.*
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
+import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -43,6 +43,17 @@ class JavadocParser(
         paragraphs.forEach {
             result.append(it)
         }
+
+        if (element is PsiMethod) {
+            val tagsByName = element.searchInheritedTags()
+            for ((tagName, tags) in tagsByName) {
+                for ((tag, context) in tags) {
+                    val section = result.addSection(javadocSectionDisplayName(tagName), tag.getSubjectName())
+                    section.convertJavadocElements(tag.contentElements(), context)
+                }
+            }
+        }
+
         docComment.tags.forEach { tag ->
             when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
@@ -51,6 +62,7 @@ class JavadocParser(
                         convertJavadocElements(tag.contentElements(), element)
                     }
                 }
+                in tagsToInherit -> {}
                 else -> {
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.name), subjectName)
@@ -61,6 +73,32 @@ class JavadocParser(
         }
         return JavadocParseResult(result, deprecatedContent)
     }
+
+    private val tagsToInherit = setOf("param", "return", "throws")
+
+    private data class TagWithContext(val tag: PsiDocTag, val context: PsiNamedElement)
+
+    private fun PsiMethod.searchInheritedTags(): Map<String, Collection<TagWithContext>> {
+
+        val output = tagsToInherit.keysToMap { mutableMapOf<String?, TagWithContext>() }
+
+        fun recursiveSearch(methods: Array<PsiMethod>) {
+            for (method in methods) {
+                recursiveSearch(method.findSuperMethods())
+            }
+            for (method in methods) {
+                for (tag in method.docComment?.tags.orEmpty()) {
+                    if (tag.name in tagsToInherit) {
+                        output[tag.name]!![tag.getSubjectName()] = TagWithContext(tag, method)
+                    }
+                }
+            }
+        }
+
+        recursiveSearch(arrayOf(this))
+        return output.mapValues { it.value.values }
+    }
+
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children
