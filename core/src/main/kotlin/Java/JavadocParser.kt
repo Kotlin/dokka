@@ -28,6 +28,18 @@ class JavadocParser(
     private val logger: DokkaLogger,
     private val signatureProvider: ElementSignatureProvider
 ) : JavaDocumentationParser {
+
+    private fun ContentSection.appendTypeElement(signature: String, selector: (DocumentationNode) -> DocumentationNode?) {
+        append(LazyContentBlock {
+            val node = refGraph.lookupOrWarn(signature, logger)?.let(selector)
+            if (node != null) {
+                it.append(NodeRenderContent(node, LanguageService.RenderMode.SUMMARY))
+                it.symbol(":")
+                it.text(" ")
+            }
+        })
+    }
+
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
         val docComment = (element as? PsiDocCommentOwner)?.docComment
         if (docComment == null) return JavadocParseResult.Empty
@@ -49,6 +61,17 @@ class JavadocParser(
             for ((tagName, tags) in tagsByName) {
                 for ((tag, context) in tags) {
                     val section = result.addSection(javadocSectionDisplayName(tagName), tag.getSubjectName())
+                    val signature = signatureProvider.signature(element)
+                    when (tagName) {
+                        "param" -> {
+                            section.appendTypeElement(signature) {
+                                it.details.find { it.kind == NodeKind.Parameter }?.detailOrNull(NodeKind.Type)
+                            }
+                        }
+                        "return" -> {
+                            section.appendTypeElement(signature) { it.detailOrNull(NodeKind.Type) }
+                        }
+                    }
                     section.convertJavadocElements(tag.contentElements(), context)
                 }
             }
