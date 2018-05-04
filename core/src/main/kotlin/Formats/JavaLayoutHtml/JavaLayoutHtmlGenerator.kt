@@ -57,14 +57,16 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
                 }
             }
             NodeKind.TypeParameter, NodeKind.Parameter -> node.path.asReversed().drop(1).firstNotNullResult(this::tryGetMainUri)?.resolveInPage(node)
-            NodeKind.AllTypes -> tryGetContainerUri(node.getOwnerOrReport())?.resolve("classes.html")
+            NodeKind.AllTypes -> outlineRootUri(node).resolve ("classes.html")
             else -> null
         }
     }
 
     override fun tryGetOutlineRootUri(node: DocumentationNode): URI? {
-        val uri = tryGetContainerUri(node)?.resolve(outlineRoot)
-        return uri
+        return when(node.kind) {
+            NodeKind.AllTypes -> tryGetContainerUri(node.getOwnerOrReport())
+            else -> tryGetContainerUri(node)
+        }?.resolve(outlineRoot)
     }
 
     fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureForAnchor(logger).urlEncoded()}")

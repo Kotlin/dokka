@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: kotlin-plugin.jar
+Main-Class: org.jetbrains.dokka.DokkaPackage
+
