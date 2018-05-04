@@ -124,15 +124,16 @@ class JavadocParser(
                 } else null
             }
             NAME_COMMAND -> {
-                if (dataElements.size > 1) {
-                    val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
-                    if (nameMatcher.matches()) {
-                        val attrName = nameMatcher.group(1)
-                        DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
-                    } else {
-                        null
-                    }
-                } else null
+                null
+//                if (dataElements.size > 1) {
+//                    val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
+//                    if (nameMatcher.matches()) {
+//                        val attrName = nameMatcher.group(1)
+//                        DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
+//                    } else {
+//                        null
+//                    }
+//                } else null
             }
             DESCRIPTION_COMMAND -> {
                 val attrDescription = dataElements.toString()

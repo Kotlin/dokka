@@ -537,7 +537,11 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                                 attributes["data-version-added"] = "${inheritedMember.apiLevel}"
                                                 td {
                                                     code {
-                                                        renderedSignature(inheritedMember.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                                        try {
+                                                            renderedSignature(inheritedMember.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                                        } catch(e: NoSuchElementException) {
+                                                            val x = null
+                                                        }
                                                     }
                                                 }
                                                 td {
