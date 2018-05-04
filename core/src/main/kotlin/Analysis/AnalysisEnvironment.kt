@@ -99,7 +99,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
     }
 
 
-    fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
+    fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
 
         val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
@@ -164,15 +164,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
             builtIns = builtIns
         )
 
-        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
+        val resolverForLibrary = resolverForProject.resolverForModule(library) // Required before module to initialize library properly
         val resolverForModule = resolverForProject.resolverForModule(module)
+        val libraryModuleDescriptor = resolverForProject.descriptorForModule(library)
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
         builtIns.initialize(moduleDescriptor, true)
+        val libraryResolutionFacade = DokkaResolutionFacade(environment.project, libraryModuleDescriptor, resolverForLibrary)
         val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
         val projectComponentManager = environment.project as MockComponentManager
         projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
 
-        return created
+        return created to libraryResolutionFacade
     }
 
     fun loadLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?) {

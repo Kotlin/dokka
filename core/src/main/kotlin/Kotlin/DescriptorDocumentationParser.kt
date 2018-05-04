@@ -34,8 +34,9 @@ class DescriptorDocumentationParser
                              val resolutionFacade: DokkaResolutionFacade,
                              val refGraph: NodeReferenceGraph,
                              val sampleService: SampleProcessingService,
-                             val signatureProvider: KotlinElementSignatureProvider
-         )
+                             val signatureProvider: KotlinElementSignatureProvider,
+        val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+)
 {
     fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
             parseDocumentationAndDetails(descriptor, inline).first
@@ -131,7 +132,12 @@ class DescriptorDocumentationParser
     fun parseJavadoc(descriptor: DeclarationDescriptor): Pair<Content, (DocumentationNode) -> Unit> {
         val psi = ((descriptor as? DeclarationDescriptorWithSource)?.source as? PsiSourceElement)?.psi
         if (psi is PsiDocCommentOwner) {
-            val parseResult = JavadocParser(refGraph, logger, signatureProvider).parseDocumentation(psi as PsiNamedElement)
+            val parseResult = JavadocParser(
+                    refGraph,
+                    logger,
+                    signatureProvider,
+                    externalDocumentationLinkResolver
+            ).parseDocumentation(psi as PsiNamedElement)
             return parseResult.content to { node ->
                 parseResult.deprecatedContent?.let {
                     val deprecationNode = DocumentationNode("", it, NodeKind.Modifier)
