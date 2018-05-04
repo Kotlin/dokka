@@ -521,7 +521,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                     }
                 }
                 superClasses.forEach { (superClass, members) ->
-                    tr(classes = "api apilevel-${superClass.apiLevel}") {
+                    tr(classes = "api apilevel-${superClass.apiLevel.name}") {
                         td {
                             attributes["colSpan"] = "2"
                             div(classes = "expandable jd-inherited-apis") {
@@ -534,7 +534,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                 table(classes = "responsive exw-expanded-content") {
                                     tbody {
                                         members.forEach { inheritedMember ->
-                                            tr(classes = "api apilevel-${inheritedMember.apiLevel}") {
+                                            tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
                                                 attributes["data-version-added"] = "${inheritedMember.apiLevel}"
                                                 val type = inheritedMember.detailOrNull(NodeKind.Type)
                                                 td {
