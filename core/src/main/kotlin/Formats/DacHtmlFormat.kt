@@ -283,8 +283,9 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            val referencedElement = node.attributesLink.first()
-            contentNodeToMarkup(referencedElement.summary)
+            node.attributesLink.firstOrNull()?.let {
+                contentNodeToMarkup(it.summary)
+            }
         }
     }
 
@@ -535,9 +536,12 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                         members.forEach { inheritedMember ->
                                             tr(classes = "api apilevel-${inheritedMember.apiLevel}") {
                                                 attributes["data-version-added"] = "${inheritedMember.apiLevel}"
+                                                val type = inheritedMember.detailOrNull(NodeKind.Type)
                                                 td {
                                                     code {
-                                                        renderedSignature(inheritedMember.detail(NodeKind.Type), LanguageService.RenderMode.SUMMARY)
+                                                        type?.let {
+                                                            renderedSignature(it, LanguageService.RenderMode.SUMMARY)
+                                                        }
                                                     }
                                                 }
                                                 td {
