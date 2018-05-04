@@ -213,7 +213,7 @@ interface InboundExternalLinkResolutionService {
                 val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
                 val containingClassLink = getPath(containingClass)
                 if (containingClassLink != null) {
-                    if (symbol is JavaMethodDescriptor) {
+                    if (symbol is JavaMethodDescriptor || symbol is JavaClassConstructorDescriptor) {
                         val psi = symbol.sourcePsi() as? PsiMethod
                         if (psi != null) {
                             val params = psi.parameterList.parameters.joinToString { it.type.canonicalText }
