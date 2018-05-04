@@ -24,8 +24,9 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         val coreEnvironment = environment.createCoreEnvironment()
         binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
 
-        val dokkaResolutionFacade = environment.createResolutionFacade(coreEnvironment)
+        val (dokkaResolutionFacade, libraryResolutionFacade) = environment.createResolutionFacade(coreEnvironment)
         binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
+        binder.bind<DokkaResolutionFacade>().annotatedWith(Names.named("libraryResolutionFacade")).toInstance(libraryResolutionFacade)
 
         binder.bind<DocumentationOptions>().toInstance(options)
 

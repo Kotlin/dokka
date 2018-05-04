@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
 import com.intellij.util.io.*
 import org.jetbrains.dokka.Formats.FileGeneratorBasedFormatDescriptor
@@ -9,10 +10,7 @@ import org.jetbrains.dokka.Formats.FormatDescriptor
 import org.jetbrains.dokka.Utilities.ServiceLocator
 import org.jetbrains.dokka.Utilities.lookup
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
-import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
-import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
-import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -24,6 +22,7 @@ import java.net.URL
 import java.net.URLConnection
 import java.nio.file.Path
 import java.security.MessageDigest
+import javax.inject.Named
 import kotlin.reflect.full.findAnnotation
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
@@ -31,6 +30,7 @@ fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(
 @Singleton
 class ExternalDocumentationLinkResolver @Inject constructor(
         val options: DocumentationOptions,
+        @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
         val logger: DokkaLogger
 ) {
 
@@ -162,6 +162,12 @@ class ExternalDocumentationLinkResolver @Inject constructor(
             } catch (e: Exception) {
                 throw RuntimeException("Exception while loading package-list from $it", e)
             }
+        }
+    }
+
+    fun buildExternalDocumentationLink(element: PsiElement): String? {
+        return element.extractDescriptor(libraryResolutionFacade)?.let {
+            buildExternalDocumentationLink(it)
         }
     }
 
