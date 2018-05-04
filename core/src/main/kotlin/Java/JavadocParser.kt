@@ -26,7 +26,8 @@ interface JavaDocumentationParser {
 class JavadocParser(
     private val refGraph: NodeReferenceGraph,
     private val logger: DokkaLogger,
-    private val signatureProvider: ElementSignatureProvider
+    private val signatureProvider: ElementSignatureProvider,
+    private val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
 ) : JavaDocumentationParser {
 
     private fun ContentSection.appendTypeElement(signature: String, selector: (DocumentationNode) -> DocumentationNode?) {
@@ -197,25 +198,41 @@ class JavadocParser(
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
         val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
-        val linkSignature = resolveLink(tag.referenceElement())
+
+        val valueElement = tag.referenceElement()
+        val externalLink = resolveExternalLink(valueElement)
         val text = ContentText(linkElement.text)
-        if (linkSignature != null) {
-            val linkNode =
-                ContentNodeLazyLink((tag.valueElement ?: linkElement).text, { -> refGraph.lookupOrWarn(linkSignature, logger) })
-            linkNode.append(text)
-            seeSection.append(linkNode)
-        } else {
-            seeSection.append(text)
+
+        val linkSignature by lazy { resolveInternalLink(valueElement) }
+        val node = when {
+            externalLink != null -> {
+                val linkNode = ContentExternalLink(externalLink)
+                linkNode.append(text)
+                linkNode
+            }
+            linkSignature != null -> {
+                val linkNode =
+                        ContentNodeLazyLink(
+                                (tag.valueElement ?: linkElement).text,
+                                { -> refGraph.lookupOrWarn(linkSignature, logger) }
+                        )
+                linkNode.append(text)
+                linkNode
+            }
+            else -> text
         }
+        seeSection.append(node)
     }
 
     private fun convertInlineDocTag(tag: PsiInlineDocTag, element: PsiNamedElement) = when (tag.name) {
         "link", "linkplain" -> {
             val valueElement = tag.referenceElement()
-            val linkSignature = resolveLink(valueElement)
-            if (linkSignature != null) {
+            val externalLink = resolveExternalLink(valueElement)
+            val linkSignature by lazy { resolveInternalLink(valueElement) }
+            if (externalLink != null || linkSignature != null) {
                 val labelText = tag.dataElements.firstOrNull { it is PsiDocToken }?.text ?: valueElement!!.text
-                val link = "<a docref=\"$linkSignature\">${labelText.htmlEscape()}</a>"
+                val linkTarget = if (externalLink != null) "href=\"$externalLink\"" else "docref=\"$linkSignature\""
+                val link = "<a $linkTarget>${labelText.htmlEscape()}</a>"
                 if (tag.name == "link") "<code>$link</code>" else link
             } else if (valueElement != null) {
                 valueElement.text
@@ -256,7 +273,15 @@ class JavadocParser(
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
 
-    private fun resolveLink(valueElement: PsiElement?): String? {
+    private fun resolveExternalLink(valueElement: PsiElement?): String? {
+        val target = valueElement?.reference?.resolve()
+        if (target != null) {
+            return externalDocumentationLinkResolver.buildExternalDocumentationLink(target)
+        }
+        return null
+    }
+
+    private fun resolveInternalLink(valueElement: PsiElement?): String? {
         val target = valueElement?.reference?.resolve()
         if (target != null) {
             return signatureProvider.signature(target)
