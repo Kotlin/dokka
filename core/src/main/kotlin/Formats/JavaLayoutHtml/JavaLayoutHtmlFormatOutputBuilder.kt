@@ -44,7 +44,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
 
     protected fun FlowContent.nodeContent(node: DocumentationNode) =
-            contentNodeToMarkup(node.content, uriProvider.mainUri(node))
+            contentNodeToMarkup(node.content, uriProvider.mainUriOrWarn(node) ?: uri)
 
     protected fun FlowContent.contentNodesToMarkup(content: List<ContentNode>, contextUri: URI = uri): Unit =
         content.forEach { contentNodeToMarkup(it, contextUri) }
@@ -241,7 +241,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     }
 
     protected fun HtmlBlockTag.nodeSummary(node: DocumentationNode) {
-        contentNodeToMarkup(summary(node), uriProvider.mainUri(node))
+        contentNodeToMarkup(summary(node), uriProvider.mainUriOrWarn(node) ?: uri)
     }
 
     protected open fun TBODY.inheritRow(
