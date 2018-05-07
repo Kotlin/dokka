@@ -355,6 +355,10 @@ class JavadocParser(
             }
             result ?: tag.text
         }
+        "docRoot" -> {
+            // TODO: fix that
+            "https://developer.android.com/"
+        }
         else -> tag.text
     }
 
