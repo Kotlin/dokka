@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
-import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
 
@@ -157,6 +156,8 @@ fun buildDocumentationModule(injector: Injector,
         }
     }
 
+    parseJavaPackageDocs(packageDocs, coreEnvironment)
+
     with(injector.getInstance(DocumentationBuilder::class.java)) {
         documentationModule.appendFragments(fragments, packageDocs.packageContent,
                 injector.getInstance(PackageDocumentationBuilder::class.java))
@@ -167,6 +168,18 @@ fun buildDocumentationModule(injector: Injector,
     val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
     with(injector.getInstance(JavaDocumentationBuilder::class.java)) {
         javaFiles.map { appendFile(it, documentationModule, packageDocs.packageContent) }
+    }
+}
+
+fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEnvironment) {
+    val contentRoots = coreEnvironment.configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.map { it.file }
+            ?: listOf()
+    contentRoots.forEach { root ->
+        root.walkTopDown().filter { it.name == "overview.html" }.forEach {
+            packageDocs.parseJava(it.path, it.relativeTo(root).parent.replace("/", "."))
+        }
     }
 }
 
