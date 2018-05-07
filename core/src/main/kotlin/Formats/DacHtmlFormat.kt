@@ -28,11 +28,12 @@ class DevsiteHtmlTemplateService @Inject constructor(
                 headContent()
                 title {
                     +when (page) {
-                        is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> "Class Index | Android Developers"
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.ClassIndex -> "Class Index"
                         is JavaLayoutHtmlFormatOutputBuilder.Page.ClassPage -> page.node.nameWithOuterClass()
-                        is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index | Android Developers"
+                        is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index"
                         is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
                     }
+                    + " | Android Developers"
                 }
                 unsafe { +"{% setvar book_path %}${dacRoot}/${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
