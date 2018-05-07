@@ -12,6 +12,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.net.URI
 import java.util.regex.Pattern
 
 private val REF_COMMAND = "ref"
@@ -270,7 +271,18 @@ class JavadocParser(
             }
             element.hasAttr("href") -> {
                 val href = element.attr("href")
-                ContentExternalLink(href)
+
+                val uri = try {
+                    URI(href)
+                } catch (_: Exception) {
+                    null
+                }
+
+                if (uri?.isAbsolute == false) {
+                    ContentLocalLink(href)
+                } else {
+                    ContentExternalLink(href)
+                }
             }
             element.hasAttr("name") -> {
                 ContentBookmark(element.attr("name"))

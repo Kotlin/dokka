@@ -149,6 +149,7 @@ class ContentExternalLink(val href : String) : ContentBlock() {
 }
 
 data class ContentBookmark(val name: String): ContentBlock()
+data class ContentLocalLink(val href: String) : ContentBlock()
 
 class ContentUnorderedList() : ContentBlock()
 class ContentOrderedList() : ContentBlock()
