@@ -12,6 +12,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.net.URI
 import java.util.regex.Pattern
 
 private val REF_COMMAND = "ref"
@@ -264,15 +265,30 @@ class JavadocParser(
     }
 
     private fun createLink(element: Element): ContentBlock {
-        if (element.hasAttr("docref")) {
-            val docref = element.attr("docref")
-            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
-        }
-        return if (element.hasAttr("href")) {
-            val href = element.attr("href")
-            ContentExternalLink(href)
-        } else {
-            ContentBlock()
+        return when {
+            element.hasAttr("docref") -> {
+                val docref = element.attr("docref")
+                ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
+            }
+            element.hasAttr("href") -> {
+                val href = element.attr("href")
+
+                val uri = try {
+                    URI(href)
+                } catch (_: Exception) {
+                    null
+                }
+
+                if (uri?.isAbsolute == false) {
+                    ContentLocalLink(href)
+                } else {
+                    ContentExternalLink(href)
+                }
+            }
+            element.hasAttr("name") -> {
+                ContentBookmark(element.attr("name"))
+            }
+            else -> ContentBlock()
         }
     }
 

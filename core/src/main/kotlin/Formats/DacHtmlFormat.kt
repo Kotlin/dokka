@@ -167,7 +167,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
             deprecationWarningToMarkup(node, prefix = true)
-            contentNodeToMarkup(node.content)
+            nodeContent(node)
             node.constantValue()?.let { value ->
                 pre {
                     +"Value: "
@@ -284,7 +284,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
 
             node.attributesLink.firstOrNull()?.let {
-                contentNodeToMarkup(it.summary)
+                nodeSummary(it)
             }
         }
     }
@@ -463,7 +463,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             },
             bodyContent = {
                 h1 { +page.node.name }
-                contentNodeToMarkup(page.node.content)
+                nodeContent(page.node)
                 summaryNodeGroup(page.classes, "Classes", headerAsRow = false) { classLikeRow(it) }
                 summaryNodeGroup(page.exceptions, "Exceptions", headerAsRow = false) { classLikeRow(it) }
                 summaryNodeGroup(page.typeAliases, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
@@ -553,7 +553,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                                         }
                                                     }
                                                     p {
-                                                        contentNodeToMarkup(inheritedMember.content)
+                                                        nodeContent(inheritedMember)
                                                     }
                                                 }
                                             }
@@ -606,7 +606,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                     }
                                 }
 
-                                contentNodeToMarkup(node.summary)
+                                nodeSummary(node)
                             }
                         }
                     }
@@ -679,7 +679,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                     }
                                     td {
                                         if (!deprecationWarningToMarkup(node)) {
-                                            contentNodeToMarkup(node.firstSentenceOfSummary())
+                                            nodeSummary(node)
                                         }
                                     }
                                 }
@@ -748,7 +748,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                             }
                                             td(classes = "jd-descrcol") {
                                                 attributes["width"] = "100%"
-                                                contentNodeToMarkup(inheritor.firstSentenceOfSummary())
+                                                nodeSummary(inheritor)
                                             }
                                         }
                                     }

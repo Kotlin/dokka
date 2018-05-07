@@ -39,13 +39,17 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun FlowContent.metaMarkup(content: List<ContentNode>) = contentNodesToMarkup(content)
-    protected open fun FlowContent.metaMarkup(content: ContentNode) = contentNodeToMarkup(content)
+    protected open fun FlowContent.metaMarkup(content: List<ContentNode>, contextUri: URI = uri) =
+            contentNodesToMarkup(content, contextUri)
 
-    protected fun FlowContent.contentNodesToMarkup(content: List<ContentNode>): Unit =
-        content.forEach { contentNodeToMarkup(it) }
 
-    protected fun FlowContent.contentNodeToMarkup(content: ContentNode) {
+    protected fun FlowContent.nodeContent(node: DocumentationNode) =
+            contentNodeToMarkup(node.content, uriProvider.mainUriOrWarn(node) ?: uri)
+
+    protected fun FlowContent.contentNodesToMarkup(content: List<ContentNode>, contextUri: URI = uri): Unit =
+        content.forEach { contentNodeToMarkup(it, contextUri) }
+
+    private fun FlowContent.contentNodeToMarkup(content: ContentNode, contextUri: URI) {
         when (content) {
             is ContentText -> +content.text
             is ContentSymbol -> span("symbol") { +content.text }
@@ -55,20 +59,20 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 +content.text
             }
 
-            is ContentHeading -> hN(level = content.level) { contentNodesToMarkup(content.children) }
+            is ContentHeading -> hN(level = content.level) { contentNodesToMarkup(content.children, contextUri) }
 
             is ContentEntity -> +content.text
 
-            is ContentStrong -> strong { contentNodesToMarkup(content.children) }
-            is ContentStrikethrough -> del { contentNodesToMarkup(content.children) }
-            is ContentEmphasis -> em { contentNodesToMarkup(content.children) }
+            is ContentStrong -> strong { contentNodesToMarkup(content.children, contextUri) }
+            is ContentStrikethrough -> del { contentNodesToMarkup(content.children, contextUri) }
+            is ContentEmphasis -> em { contentNodesToMarkup(content.children, contextUri) }
 
-            is ContentOrderedList -> ol { contentNodesToMarkup(content.children) }
-            is ContentUnorderedList -> ul { contentNodesToMarkup(content.children) }
+            is ContentOrderedList -> ol { contentNodesToMarkup(content.children, contextUri) }
+            is ContentUnorderedList -> ul { contentNodesToMarkup(content.children, contextUri) }
             is ContentListItem -> consumer.li {
                 (content.children.singleOrNull() as? ContentParagraph)
-                    ?.let { paragraph -> contentNodesToMarkup(paragraph.children) }
-                        ?: contentNodesToMarkup(content.children)
+                        ?.let { paragraph -> contentNodesToMarkup(paragraph.children, contextUri) }
+                        ?: contentNodesToMarkup(content.children, contextUri)
             }
 
 
@@ -82,21 +86,28 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             }
             ContentHardLineBreak -> br
 
-            is ContentParagraph -> p { contentNodesToMarkup(content.children) }
+            is ContentParagraph -> p { contentNodesToMarkup(content.children, contextUri) }
 
             is NodeRenderContent -> renderedSignature(content.node, mode = content.mode)
             is ContentNodeLink -> {
-                fun FlowContent.body() = contentNodesToMarkup(content.children)
+                fun FlowContent.body() = contentNodesToMarkup(content.children, contextUri)
 
                 when (content.node?.kind) {
                     NodeKind.TypeParameter -> body()
                     else -> a(href = content.node, block = FlowContent::body)
                 }
             }
+            is ContentBookmark -> a {
+                id = content.name
+                contentNodesToMarkup(content.children, contextUri)
+            }
             is ContentExternalLink -> contentExternalLink(content)
+            is ContentLocalLink -> a(href = contextUri.resolve(content.href).relativeTo(uri).toString()) {
+                contentNodesToMarkup(content.children, contextUri)
+            }
             is ContentSection -> {
             }
-            is ContentBlock -> contentNodesToMarkup(content.children)
+            is ContentBlock -> contentNodesToMarkup(content.children, contextUri)
         }
     }
 
@@ -153,7 +164,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
     protected open fun TBODY.classLikeRow(node: DocumentationNode) = tr {
         td { a(href = uriProvider.linkTo(node, uri)) { +node.simpleName() } }
-        td { contentNodeToMarkup(summary(node)) }
+        td { nodeSummary(node) }
     }
 
     protected fun FlowContent.modifiers(node: DocumentationNode) {
@@ -194,7 +205,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(summary(node))
+            nodeSummary(node)
         }
     }
 
@@ -210,7 +221,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(summary(node))
+            nodeSummary(node)
         }
     }
 
@@ -225,8 +236,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 }
             }
 
-            contentNodeToMarkup(summary(node))
+            nodeSummary(node)
         }
+    }
+
+    protected fun HtmlBlockTag.nodeSummary(node: DocumentationNode) {
+        contentNodeToMarkup(summary(node), uriProvider.mainUriOrWarn(node) ?: uri)
     }
 
     protected open fun TBODY.inheritRow(
@@ -306,7 +321,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         node: DocumentationNode,
         mode: LanguageService.RenderMode = SUMMARY
     ) {
-        contentNodeToMarkup(languageService.render(node, mode))
+        contentNodeToMarkup(languageService.render(node, mode), uri)
     }
 
     protected open fun generatePackage(page: Page.PackagePage) = templateService.composePage(
@@ -317,7 +332,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         },
         bodyContent = {
             h1 { +page.node.name }
-            contentNodeToMarkup(page.node.content)
+            nodeContent(page.node)
             summaryNodeGroup(page.classes, "Classes", headerAsRow = false) { classLikeRow(it) }
             summaryNodeGroup(page.exceptions, "Exceptions", headerAsRow = false) { classLikeRow(it) }
             summaryNodeGroup(page.typeAliases, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
@@ -443,7 +458,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
                             }
                             td {
-                                contentNodeToMarkup(summary(inheritor))
+                                nodeSummary(inheritor)
                             }
                         }
                     }
@@ -597,7 +612,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 subclasses(page.indirectInheritors, false)
 
                 deprecationWarningToMarkup(node, prefix = true)
-                contentNodeToMarkup(node.content)
+                nodeContent(node)
 
                 h2 { +"Summary" }
                 classLikeSummaries(page)
@@ -606,6 +621,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             }
         }
     )
+
+    protected open fun FlowContent.classIndexSummary(node: DocumentationNode) {
+        nodeContent(node)
+    }
 
     protected open fun generateClassIndex(page: Page.ClassIndex) = templateService.composePage(
         page,
@@ -637,7 +656,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 }
                                 td {
                                     if (!deprecationWarningToMarkup(node)) {
-                                        contentNodeToMarkup(node.content)
+                                        classIndexSummary(node)
                                     }
                                 }
                             }
@@ -664,7 +683,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 a(href = uriProvider.linkTo(node, uri)) { +node.name }
                             }
                             td {
-                                contentNodeToMarkup(node.content)
+                                nodeContent(node)
                             }
                         }
                     }
@@ -732,7 +751,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     protected open fun FlowContent.deprecationWarningToMarkup(node: DocumentationNode, prefix: Boolean = false): Boolean {
         val deprecated = formatDeprecationOrNull(node, prefix)
         deprecated?.let {
-            contentNodeToMarkup(deprecated)
+            contentNodeToMarkup(deprecated, uriProvider.mainUri(node))
             return true
         }
         return false
@@ -780,7 +799,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             h3 { +node.name }
             pre { renderedSignature(node, FULL) }
             deprecationWarningToMarkup(node, prefix = true)
-            contentNodeToMarkup(node.content)
+            nodeContent(node)
             node.constantValue()?.let { value ->
                 pre {
                     +"Value: "
