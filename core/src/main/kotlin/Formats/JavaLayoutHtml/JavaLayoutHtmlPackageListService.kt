@@ -6,6 +6,7 @@ import org.jetbrains.dokka.InboundExternalLinkResolutionService
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.PackageListService
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isCompanionObject
 import org.jetbrains.kotlin.types.KotlinType
@@ -36,7 +37,7 @@ class JavaLayoutHtmlPackageListService : PackageListService {
 class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
     private fun getContainerPath(symbol: DeclarationDescriptor): String? {
         return when (symbol) {
-            is PackageFragmentDescriptor -> symbol.fqName.asString() + "/"
+            is PackageFragmentDescriptor -> symbol.fqName.asString().replace('.', '/') + "/"
             is ClassifierDescriptor -> getContainerPath(symbol.findPackage()) + symbol.nameWithOuter() + ".html"
             else -> null
         }
@@ -52,6 +53,7 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
     private fun getPagePath(symbol: DeclarationDescriptor): String? {
         return when (symbol) {
             is PackageFragmentDescriptor -> getContainerPath(symbol) + "package-summary.html"
+            is EnumEntrySyntheticClassDescriptor -> getContainerPath(symbol.containingDeclaration) + "#" + symbol.signatureForAnchorUrlEncoded()
             is ClassifierDescriptor -> getContainerPath(symbol) + "#"
             is FunctionDescriptor, is PropertyDescriptor -> getContainerPath(symbol.containingDeclaration!!) + "#" + symbol.signatureForAnchorUrlEncoded()
             else -> null
@@ -91,6 +93,10 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
         }
 
         return when(this) {
+            is EnumEntrySyntheticClassDescriptor -> buildString {
+                append("ENUM_VALUE:")
+                append(name.asString())
+            }
             is FunctionDescriptor -> buildString {
                 appendReceiverAndCompanion(this@signatureForAnchor)
                 append(name.asString())
