@@ -955,11 +955,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val enums = node.members(NodeKind.Enum)
 
             val constants = node.members(NodeKind.Property).filter { it.constantValue() != null }
-            val functions = node.members(NodeKind.Function)
+
 
             private fun DocumentationNode.getClassExtensionReceiver() =
                 detailOrNull(NodeKind.Receiver)?.detailOrNull(NodeKind.Type)?.takeIf {
-                    it.links(NodeKind.Class).isNotEmpty()
+                    it.links.any { it.kind in NodeKind.classLike }
                 }
 
             private fun List<DocumentationNode>.groupedExtensions() =
@@ -967,7 +967,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                     .groupBy { it.getClassExtensionReceiver()!! }
                     .mapKeys { (receiverType) ->
                         receiverType.links(NodeKind.ExternalLink).firstOrNull()
-                                ?: receiverType.links(NodeKind.Class).first()
+                                ?: receiverType.links.first { it.kind in NodeKind.classLike}
                     }
 
             private fun List<DocumentationNode>.externalExtensions(kind: NodeKind) =
@@ -982,7 +982,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 node.members(NodeKind.ExternalClass).externalExtensions(NodeKind.Property) +
                         node.members(NodeKind.Property).groupedExtensions()
 
-            val properties = node.members(NodeKind.Property) - constants
+            val functions = node.members(NodeKind.Function) - extensionFunctions.values.flatten()
+            val properties = node.members(NodeKind.Property) - constants - extensionProperties.values.flatten()
 
         }
     }
