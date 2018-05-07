@@ -244,7 +244,7 @@ class DocumentationBuilder
         }
         if (kotlinType.isNullabilityFlexible()) {
             node.appendTextNode("!", NodeKind.NullabilityModifier)
-        } else if (kotlinType.isNullable()) {
+        } else if (kotlinType.isMarkedNullable) {
             node.appendTextNode("?", NodeKind.NullabilityModifier)
         }
         if (classifierDescriptor != null) {
