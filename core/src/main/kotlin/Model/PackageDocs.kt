@@ -2,16 +2,25 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiFileFactory
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.LocalTimeCounter
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.parser.LinkMap
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import java.io.File
 
 @Singleton
 class PackageDocs
         @Inject constructor(val linkResolver: DeclarationLinkResolver?,
-                            val logger: DokkaLogger)
+                            val logger: DokkaLogger,
+                            val environment: KotlinCoreEnvironment,
+                            val refGraph: NodeReferenceGraph,
+                            val elementSignatureProvider: ElementSignatureProvider)
 {
     val moduleContent: MutableContent = MutableContent()
     private val _packageContent: MutableMap<String, MutableContent> = hashMapOf()
@@ -37,6 +46,64 @@ class PackageDocs
             }
         } else {
             logger.warn("Include file $file was not found.")
+        }
+    }
+
+    private fun parseHtmlAsJavadoc(text: String, packageName: String, file: File) {
+        val javadocText = text
+                .replace("*/", "*&#47;")
+                .removeSurrounding("<html>", "</html>", true).trim()
+                .removeSurrounding("<body>", "</body>", true)
+                .lineSequence()
+                .map { "* $it" }
+                .joinToString (separator = "\n", prefix = "/**\n", postfix = "\n*/")
+        parseJavadoc(javadocText, packageName, file)
+    }
+
+    private fun CharSequence.removeSurrounding(prefix: CharSequence, suffix: CharSequence, ignoringCase: Boolean = false): CharSequence {
+        if ((length >= prefix.length + suffix.length) && startsWith(prefix, ignoringCase) && endsWith(suffix, ignoringCase)) {
+            return subSequence(prefix.length, length - suffix.length)
+        }
+        return subSequence(0, length)
+    }
+
+
+    private fun parseJavadoc(text: String, packageName: String, file: File) {
+
+        val psiFileFactory = PsiFileFactory.getInstance(environment.project)
+        val psiFile = psiFileFactory.createFileFromText(
+                file.nameWithoutExtension + ".java",
+                JavaFileType.INSTANCE,
+                "package $packageName; $text\npublic class C {}",
+                LocalTimeCounter.currentTime(),
+                false,
+                true
+        )
+
+        val psiClass = PsiTreeUtil.getChildOfType(psiFile, PsiClass::class.java)!!
+        val parser = JavadocParser(refGraph, logger, elementSignatureProvider, linkResolver?.externalDocumentationLinkResolver!!)
+        findOrCreatePackageContent(packageName).apply {
+            val content = parser.parseDocumentation(psiClass).content
+            children.addAll(content.children)
+            content.sections.forEach {
+                addSection(it.tag, it.subjectName).children.addAll(it.children)
+            }
+        }
+    }
+
+
+    fun parseJava(fileName: String, packageName: String) {
+        val file = File(fileName)
+        if (file.exists()) {
+            val text = file.readText()
+
+            val trimmedText = text.trim()
+
+            if (trimmedText.startsWith("/**")) {
+                parseJavadoc(text, packageName, file)
+            } else if (trimmedText.toLowerCase().startsWith("<html>")) {
+                parseHtmlAsJavadoc(trimmedText, packageName, file)
+            }
         }
     }
 
