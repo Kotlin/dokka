@@ -183,15 +183,19 @@ class JavadocParser(
     }
 
     private fun createLink(element: Element): ContentBlock {
-        if (element.hasAttr("docref")) {
-            val docref = element.attr("docref")
-            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
-        }
-        return if (element.hasAttr("href")) {
-            val href = element.attr("href")
-            ContentExternalLink(href)
-        } else {
-            ContentBlock()
+        return when {
+            element.hasAttr("docref") -> {
+                val docref = element.attr("docref")
+                ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
+            }
+            element.hasAttr("href") -> {
+                val href = element.attr("href")
+                ContentExternalLink(href)
+            }
+            element.hasAttr("name") -> {
+                ContentBookmark(element.attr("name"))
+            }
+            else -> ContentBlock()
         }
     }
 
