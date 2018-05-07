@@ -649,7 +649,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
                 p {
                     +"These are all the API classes. See all "
-                    a(href="https://developer.android.com/reference/packages.html") {
+                    a(href="packages.html") {
                         +"API packages."
                     }
                 }
@@ -679,7 +679,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                     }
                                     td {
                                         if (!deprecationWarningToMarkup(node)) {
-                                            contentNodeToMarkup(node.content)
+                                            contentNodeToMarkup(node.firstSentenceOfSummary())
                                         }
                                     }
                                 }
