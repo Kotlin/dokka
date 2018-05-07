@@ -148,6 +148,8 @@ class ContentExternalLink(val href : String) : ContentBlock() {
         children.hashCode() * 31 + href.hashCode()
 }
 
+data class ContentBookmark(val name: String): ContentBlock()
+
 class ContentUnorderedList() : ContentBlock()
 class ContentOrderedList() : ContentBlock()
 class ContentListItem() : ContentBlock()
