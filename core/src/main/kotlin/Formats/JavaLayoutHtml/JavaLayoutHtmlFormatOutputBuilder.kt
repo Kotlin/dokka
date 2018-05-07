@@ -611,6 +611,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     )
 
+    protected open fun FlowContent.classIndexSummary(node: DocumentationNode) {
+        contentNodeToMarkup(node.content)
+    }
+
     protected open fun generateClassIndex(page: Page.ClassIndex) = templateService.composePage(
         page,
         htmlConsumer,
@@ -641,7 +645,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                 }
                                 td {
                                     if (!deprecationWarningToMarkup(node)) {
-                                        contentNodeToMarkup(node.content)
+                                        classIndexSummary(node)
                                     }
                                 }
                             }
