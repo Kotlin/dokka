@@ -93,6 +93,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                     else -> a(href = content.node, block = FlowContent::body)
                 }
             }
+            is ContentBookmark -> a {
+                id = content.name
+                contentNodesToMarkup(content.children)
+            }
             is ContentExternalLink -> contentExternalLink(content)
             is ContentSection -> {
             }
