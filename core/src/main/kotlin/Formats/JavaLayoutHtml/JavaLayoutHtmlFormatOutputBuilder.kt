@@ -959,13 +959,13 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             private fun DocumentationNode.getClassExtensionReceiver() =
                 detailOrNull(NodeKind.Receiver)?.detailOrNull(NodeKind.Type)?.takeIf {
-                    it.links.any { it.kind in NodeKind.classLike }
+                    it.links.any { it.kind == NodeKind.ExternalLink || it.kind in NodeKind.classLike }
                 }
 
             private fun List<DocumentationNode>.groupedExtensions() =
                 filter { it.getClassExtensionReceiver() != null }
-                    .groupBy { it.getClassExtensionReceiver()!! }
-                    .mapKeys { (receiverType) ->
+                    .groupBy {
+                        val receiverType = it.getClassExtensionReceiver()!!
                         receiverType.links(NodeKind.ExternalLink).firstOrNull()
                                 ?: receiverType.links.first { it.kind in NodeKind.classLike}
                     }
