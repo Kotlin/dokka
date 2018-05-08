@@ -1,5 +1,7 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.Formats.nameWithOuterClass
+
 
 abstract class CommonLanguageService : LanguageService {
 
@@ -13,6 +15,13 @@ abstract class CommonLanguageService : LanguageService {
         return when (node.kind) {
             NodeKind.Constructor -> node.owner!!.name
             else -> node.name
+        }
+    }
+
+    override fun renderNameWithOuterClass(node: DocumentationNode): String {
+        return when (node.kind) {
+            NodeKind.Constructor -> node.owner!!.nameWithOuterClass()
+            else -> node.nameWithOuterClass()
         }
     }
 

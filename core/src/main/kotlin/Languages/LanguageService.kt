@@ -34,6 +34,8 @@ interface LanguageService {
      * $returns: [String] which is a string representation of the node's name
      */
     fun renderName(node: DocumentationNode): String
+
+    fun renderNameWithOuterClass(node: DocumentationNode): String
 }
 
 fun example(service: LanguageService, node: DocumentationNode) {

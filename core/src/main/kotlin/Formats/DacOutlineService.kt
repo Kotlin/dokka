@@ -19,12 +19,8 @@ class DacOutlineFormatter @Inject constructor(
         @Named("generateClassIndex") generateClassIndex: Boolean,
         @Named("generatePackageIndex") generatePackageIndex: Boolean
 ) : JavaLayoutHtmlFormatOutlineFactoryService {
-    val bookOutline = BookOutlineService(uriProvider, languageService, dacRoot, generateClassIndex, generatePackageIndex)
     val tocOutline = TocOutlineService(uriProvider, languageService, dacRoot, generateClassIndex, generatePackageIndex)
-    val navOutline = DacNavOutlineService(uriProvider, languageService, dacRoot)
-    val searchOutline = DacSearchOutlineService(uriProvider, languageService, dacRoot)
-
-    val outlines = listOf(bookOutline, tocOutline, navOutline, searchOutline)
+    val outlines = listOf(tocOutline)
 
     override fun generateOutlines(outputProvider: (URI) -> Appendable, nodes: Iterable<DocumentationNode>) {
         for (node in nodes) {
@@ -154,8 +150,8 @@ class TocOutlineService(
                     to.appendln("  - title: ${kind.pluralizedName()}")
                     to.appendln()
                     to.appendln("    section:")
-                    members.forEach { member ->
-                        to.appendln("    - title: ${languageService.renderName(member)}")
+                    members.sortedBy { it.name.toLowerCase() }.forEach { member ->
+                        to.appendln("    - title: ${languageService.renderNameWithOuterClass(member)}")
                         to.appendln("      path: $dacRoot${uriProvider.mainUriOrWarn(member)}")
                         to.appendln()
                     }

@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.Formats.nameWithOuterClass
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
@@ -26,6 +27,13 @@ class JavaLanguageService : LanguageService {
         return when (node.kind) {
             NodeKind.Constructor -> node.owner!!.name
             else -> node.name
+        }
+    }
+
+    override fun renderNameWithOuterClass(node: DocumentationNode): String {
+        return when (node.kind) {
+            NodeKind.Constructor -> node.owner!!.nameWithOuterClass()
+            else -> node.nameWithOuterClass()
         }
     }
 

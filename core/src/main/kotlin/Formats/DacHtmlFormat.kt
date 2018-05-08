@@ -387,9 +387,16 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 functionLikeSummaryRow(it)
             }
         }
+        
+        summaryNodeGroup(
+                properties,
+                header = "Properties",
+                summaryId = "properties",
+                tableClass = "responsive properties",
+                headerAsRow = true
+        ) { propertyLikeSummaryRow(it) }
 
 
-        summaryNodeGroup(properties, "Properties", headerAsRow = true) { propertyLikeSummaryRow(it) }
         summaryNodeGroup(
                 companionProperties,
                 "Companion properties",
