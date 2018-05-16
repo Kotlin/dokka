@@ -214,13 +214,11 @@ interface InboundExternalLinkResolutionService {
             else return "$path/index.$extension"
         }
 
-        fun getPathWithoutExtension(symbol: DeclarationDescriptor): String {
-            if (symbol.containingDeclaration == null)
-                return identifierToFilename(symbol.name.asString())
-            else if (symbol is PackageFragmentDescriptor) {
-                return symbol.fqName.asString()
-            } else {
-                return getPathWithoutExtension(symbol.containingDeclaration!!) + '/' + identifierToFilename(symbol.name.asString())
+        private fun getPathWithoutExtension(symbol: DeclarationDescriptor): String {
+            return when {
+                symbol.containingDeclaration == null -> identifierToFilename(symbol.name.asString())
+                symbol is PackageFragmentDescriptor -> identifierToFilename(symbol.fqName.asString())
+                else -> getPathWithoutExtension(symbol.containingDeclaration!!) + '/' + identifierToFilename(symbol.name.asString())
             }
         }
 
