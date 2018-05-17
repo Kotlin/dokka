@@ -2,6 +2,7 @@ package org.jetbrains.dokka.javadoc
 
 import com.sun.javadoc.*
 import org.jetbrains.dokka.*
+import org.jetbrains.kotlin.name.ClassId
 import java.lang.reflect.Modifier
 import java.util.*
 import kotlin.reflect.KClass
@@ -116,7 +117,7 @@ class AnnotationTypeDocAdapter(module: ModuleNodeAdapter, node: DocumentationNod
 }
 
 class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode) : AnnotationDesc {
-    override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node) // TODO ?????
+    override fun annotationType(): AnnotationTypeDoc? = node.links.firstOrNull()?.let { AnnotationTypeDocAdapter(module, it) } ?: AnnotationTypeDocAdapter(module, node) // TODO ?????
     override fun isSynthesized(): Boolean = false
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
@@ -172,8 +173,18 @@ open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationN
 open class TypeAdapter(override val module: ModuleNodeAdapter, override val node: DocumentationNode) : Type, HasDocumentationNode, HasModule {
     private val javaLanguageService = JavaLanguageService()
 
-    override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
-    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()
+    override fun qualifiedTypeName(): String {
+        if (node.kind in NodeKind.classLike) {
+            return ClassId.fromString(node.name).asSingleFqName().asString()
+        }
+        return javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
+    }
+    override fun typeName(): String {
+        if (node.kind in NodeKind.classLike) {
+            return ClassId.fromString(node.name).shortClassName.asString()
+        }
+        return javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()
+    }
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
     override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
@@ -398,12 +409,21 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
       Type by TypeAdapter(module, classNode),
         ClassDoc {
 
+    override fun qualifiedTypeName(): String {
+        assert(node.kind in NodeKind.classLike)
+        return ClassId.fromString(node.name).asSingleFqName().asString()
+    }
+    override fun typeName(): String {
+        assert(node.kind in NodeKind.classLike)
+        return ClassId.fromString(node.name).shortClassName.asString()
+    }
+    override fun simpleTypeName(): String = typeName()
     override fun name(): String {
-        val parent = classNode.owner
-        if (parent?.kind in NodeKind.classLike) {
-            return parent!!.name + "." + classNode.name
-        }
-        return classNode.simpleName()
+        return simpleTypeName()
+    }
+
+    override fun qualifiedName(): String? {
+        return qualifiedTypeName()
     }
 
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(NodeKind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()

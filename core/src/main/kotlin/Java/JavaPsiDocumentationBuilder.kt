@@ -9,6 +9,9 @@ import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import java.io.File
@@ -92,9 +95,12 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun nodeForElement(element: PsiNamedElement,
                        kind: NodeKind,
-                       name: String = element.name ?: "<anonymous>"): DocumentationNode {
+                       name: String = element.name ?: "<anonymous>", register: Boolean = false): DocumentationNode {
         val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
+        if (register) {
+            register(element, node)
+        }
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
             val modifierList = element.modifierList
@@ -159,6 +165,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun <T : Any> DocumentationNode.appendDetails(elements: Array<T>, buildFn: T.() -> DocumentationNode) =
             appendChildren(elements, RefKind.Detail, buildFn)
 
+    fun PsiClass.classId(): ClassId = when {
+        containingClass == null -> ClassId(FqName(qualifiedName?.substringBeforeLast('.') ?: ""), Name.identifier(name!!))
+        else -> containingClass!!.classId().createNestedClassId(Name.identifier(name!!))
+    }
+
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
             isInterface -> NodeKind.Interface
@@ -167,7 +178,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             isException() -> NodeKind.Exception
             else -> NodeKind.Class
         }
-        val node = nodeForElement(this, kind)
+        val node = nodeForElement(this, kind, name = this.classId().asString(), register = true)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
             node.appendType(it, NodeKind.Supertype)
             val superClass = it.resolve()
@@ -274,8 +285,19 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 
+
+
     fun PsiAnnotation.build(): DocumentationNode {
         val node = DocumentationNode(nameReferenceElement?.text ?: "<?>", Content.Empty, NodeKind.Annotation)
+        val classPsi = nameReferenceElement?.resolve()
+        val classSignature = getSignature(classPsi)
+        if (classSignature != null) {
+            val target = refGraph.lookup(classSignature) ?: (classPsi as? PsiClass)?.build()
+            if (target != null) {
+                node.append(target, RefKind.Link)
+            }
+        }
+
         parameterList.attributes.forEach {
             val parameter = DocumentationNode(it.name ?: "value", Content.Empty, NodeKind.Parameter)
             val value = it.value
