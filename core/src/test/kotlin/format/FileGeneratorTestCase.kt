@@ -27,7 +27,7 @@ abstract class FileGeneratorTestCase {
                 if (sb.isNotBlank() && !sb.endsWith('\n')) {
                     sb.appendln()
                 }
-                sb.appendln("<!-- File: ${relativeToRoot(loc).toUnixString()} -->")
+                sb.appendln("<!-- File: ${loc.file.relativeTo(root).toUnixString()} -->")
             }
             sb.append(loc.file.readText())
         }

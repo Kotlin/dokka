@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
 import java.io.File
-import java.nio.file.Path
 
 open class HtmlOutputBuilder(to: StringBuilder,
                              location: Location,
@@ -80,7 +79,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
     }
 
     override fun appendNodes(nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, getPageTitle(nodes), generator.relativeToRoot(location))
+        templateService.appendHeader(to, getPageTitle(nodes), generator.relativePathToRoot(location))
         super.appendNodes(nodes)
         templateService.appendFooter(to)
     }
@@ -108,7 +107,7 @@ open class HtmlFormatService @Inject constructor(generator: NodeLocationAwareGen
         HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 
     override fun appendOutline(location: Location, to: StringBuilder, nodes: Iterable<DocumentationNode>) {
-        templateService.appendHeader(to, "Module Contents", generator.relativeToRoot(location))
+        templateService.appendHeader(to, "Module Contents", generator.relativePathToRoot(location))
         super.appendOutline(location, to, nodes)
         templateService.appendFooter(to)
     }

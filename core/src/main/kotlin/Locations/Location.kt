@@ -53,9 +53,9 @@ fun NodeLocationAwareGenerator.relativePathToLocation(owner: DocumentationNode, 
     return location(owner).relativePathTo(location(node), null)
 }
 
-fun NodeLocationAwareGenerator.relativeToRoot(from: Location): File {
-    val file = File(from.path)
-    return file.relativeTo(root)
+fun NodeLocationAwareGenerator.relativePathToRoot(from: Location): File {
+    val file = File(from.path).parentFile
+    return root.relativeTo(file)
 }
 
 fun File.toUnixString() = toString().replace(File.separatorChar, '/')
