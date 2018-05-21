@@ -5,10 +5,12 @@
     <groovy codeStyle="LEGACY" />
   </component>
   <component name="EntryPointsManager">
-    <entry_points version="2.0" />
-    <list size="2">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="org.apache.maven.plugins.annotations.Mojo" />
-      <item index="1" class="java.lang.String" itemvalue="org.gradle.api.tasks.TaskAction" />
+      <item index="1" class="java.lang.String" itemvalue="org.gradle.api.tasks.InputFiles" />
+      <item index="2" class="java.lang.String" itemvalue="org.gradle.api.tasks.OutputDirectory" />
+      <item index="3" class="java.lang.String" itemvalue="org.gradle.api.tasks.TaskAction" />
+      <item index="4" class="java.lang.String" itemvalue="org.junit.BeforeClass" />
     </list>
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
@@ -23,7 +25,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
