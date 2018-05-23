@@ -33,7 +33,6 @@ class DevsiteHtmlTemplateService @Inject constructor(
                         is JavaLayoutHtmlFormatOutputBuilder.Page.PackageIndex -> "Package Index"
                         is JavaLayoutHtmlFormatOutputBuilder.Page.PackagePage -> page.node.nameWithOuterClass()
                     }
-                    + " | Android Developers"
                 }
                 unsafe { +"{% setvar book_path %}${dacRoot}/${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
@@ -472,14 +471,14 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             bodyContent = {
                 h1 { +page.node.name }
                 nodeContent(page.node)
-                summaryNodeGroup(page.classes, "Classes", headerAsRow = false) { classLikeRow(it) }
-                summaryNodeGroup(page.exceptions, "Exceptions", headerAsRow = false) { classLikeRow(it) }
-                summaryNodeGroup(page.typeAliases, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
-                summaryNodeGroup(page.annotations, "Annotations", headerAsRow = false) { classLikeRow(it) }
-                summaryNodeGroup(page.enums, "Enums", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.classes.sortedBy { it.nameWithOuterClass().toLowerCase() }, "Classes", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.exceptions.sortedBy { it.nameWithOuterClass().toLowerCase() }, "Exceptions", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.typeAliases.sortedBy { it.nameWithOuterClass().toLowerCase() }, "Type-aliases", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.annotations.sortedBy { it.nameWithOuterClass().toLowerCase() }, "Annotations", headerAsRow = false) { classLikeRow(it) }
+                summaryNodeGroup(page.enums.sortedBy { it.nameWithOuterClass().toLowerCase() }, "Enums", headerAsRow = false) { classLikeRow(it) }
 
                 summaryNodeGroup(
-                        page.constants,
+                        page.constants.sortedBy { it.name },
                         "Top-level constants summary",
                         headerAsRow = false
                 ) {
@@ -487,7 +486,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
 
                 summaryNodeGroup(
-                        page.functions,
+                        page.functions.sortedBy { it.name },
                         "Top-level functions summary",
                         headerAsRow = false
                 ) {
@@ -495,7 +494,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
 
                 summaryNodeGroup(
-                        page.properties,
+                        page.properties.sortedBy { it.name },
                         "Top-level properties summary",
                         headerAsRow = false
                 ) {
@@ -505,11 +504,11 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 summaryNodeGroupForExtensions("Extension functions summary", page.extensionFunctions.entries)
                 summaryNodeGroupForExtensions("Extension properties summary", page.extensionProperties.entries)
 
-                fullMemberDocs(page.constants, "Top-level constants")
-                fullMemberDocs(page.functions, "Top-level functions")
-                fullMemberDocs(page.properties, "Top-level properties")
-                fullMemberDocs(page.extensionFunctions.values.flatten(), "Extension functions")
-                fullMemberDocs(page.extensionProperties.values.flatten(), "Extension properties")
+                fullMemberDocs(page.constants.sortedBy { it.name }, "Top-level constants")
+                fullMemberDocs(page.functions.sortedBy { it.name }, "Top-level functions")
+                fullMemberDocs(page.properties.sortedBy { it.name }, "Top-level properties")
+                fullMemberDocs(page.extensionFunctions.values.flatten().sortedBy { it.name }, "Extension functions")
+                fullMemberDocs(page.extensionProperties.values.flatten().sortedBy { it.name }, "Extension properties")
             }
     )
 

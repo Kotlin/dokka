@@ -117,24 +117,28 @@ class TocOutlineService(
                 it.kind == NodeKind.Package
             }
             if (subPackages.any()) {
-                val sortedMembers = subPackages.sortedBy { it.name }
+                val sortedMembers = subPackages.sortedBy { it.nameWithOuterClass() }
                 appendOutlineLevel {
                     appendOutline(to, sortedMembers)
                 }
             }
-
         }
     }
 
     fun appendOutlineHeader(node: DocumentationNode, to: Appendable) {
-        if (node.kind == NodeKind.AllTypes && generateClassIndex) {
-            to.appendln("- title: Class Index")
-            to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("classes.html")}")
-            to.appendln()
-        } else if (node is DocumentationModule && generatePackageIndex) {
-            to.appendln("- title: Package Index")
-            to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("packages.html")}")
-            to.appendln()
+        if (node is DocumentationModule) {
+            if (generateClassIndex) {
+                node.members.filter { it.kind == NodeKind.AllTypes }.firstOrNull()?.let {
+                    to.appendln("- title: Class Index")
+                    to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(it).resolve("classes.html")}")
+                    to.appendln()
+                }
+            }
+            if (generatePackageIndex) {
+                to.appendln("- title: Package Index")
+                to.appendln("  path: $dacRoot${uriProvider.outlineRootUri(node).resolve("packages.html")}")
+                to.appendln()
+            }
         } else if (node.kind != NodeKind.AllTypes && !(node is DocumentationModule)) {
             to.appendln("- title: ${languageService.renderName(node)}")
             to.appendln("  path: $dacRoot${uriProvider.mainUriOrWarn(node)}")
@@ -150,7 +154,7 @@ class TocOutlineService(
                     to.appendln("  - title: ${kind.pluralizedName()}")
                     to.appendln()
                     to.appendln("    section:")
-                    members.sortedBy { it.name.toLowerCase() }.forEach { member ->
+                    members.sortedBy { it.nameWithOuterClass().toLowerCase() }.forEach { member ->
                         to.appendln("    - title: ${languageService.renderNameWithOuterClass(member)}")
                         to.appendln("      path: $dacRoot${uriProvider.mainUriOrWarn(member)}")
                         to.appendln()
