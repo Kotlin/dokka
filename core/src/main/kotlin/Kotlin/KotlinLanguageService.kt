@@ -7,6 +7,10 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Kotlin language
  */
 class KotlinLanguageService : CommonLanguageService() {
+    override fun showModifierInSummary(node: DocumentationNode): Boolean {
+        return node.name !in fullOnlyModifiers
+    }
+
     private val fullOnlyModifiers =
         setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reified")
 
@@ -280,22 +284,6 @@ class KotlinLanguageService : CommonLanguageService() {
                 indentedSoftLineBreak()
                 renderType(it, renderMode)
             }
-        }
-    }
-
-    private fun ContentBlock.renderModifiersForNode(
-        node: DocumentationNode,
-        renderMode: RenderMode,
-        nowrap: Boolean = false
-    ) {
-        val modifiers = node.details(NodeKind.Modifier)
-        for (it in modifiers) {
-            if (node.kind == org.jetbrains.dokka.NodeKind.Interface && it.name == "abstract")
-                continue
-            if (renderMode == RenderMode.SUMMARY && it.name in fullOnlyModifiers) {
-                continue
-            }
-            renderModifier(this, it, renderMode, nowrap)
         }
     }
 
