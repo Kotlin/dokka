@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
+    is PsiPackage -> element.qualifiedName
     is PsiClass -> element.qualifiedName
     is PsiField -> element.containingClass!!.qualifiedName + "$" + element.name
     is PsiMethod ->
