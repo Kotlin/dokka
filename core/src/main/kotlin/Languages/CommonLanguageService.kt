@@ -71,5 +71,23 @@ abstract class CommonLanguageService : LanguageService {
         }
     }
 
+    abstract fun showModifierInSummary(node: DocumentationNode): Boolean
+
+    protected fun ContentBlock.renderModifiersForNode(
+        node: DocumentationNode,
+        renderMode: LanguageService.RenderMode,
+        nowrap: Boolean = false
+    ) {
+        val modifiers = node.details(NodeKind.Modifier)
+        for (it in modifiers) {
+            if (node.kind == NodeKind.Interface && it.name == "abstract")
+                continue
+            if (renderMode == LanguageService.RenderMode.SUMMARY && !showModifierInSummary(it)) {
+                continue
+            }
+            renderModifier(this, it, renderMode, nowrap)
+        }
+    }
+
 
 }

@@ -6,11 +6,15 @@ import org.jetbrains.dokka.LanguageService.RenderMode
  * Implements [LanguageService] and provides rendering of symbols in Java language
  */
 class NewJavaLanguageService : CommonLanguageService() {
+    override fun showModifierInSummary(node: DocumentationNode): Boolean {
+        return true
+    }
+
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
             (when (node.kind) {
                 NodeKind.Package -> renderPackage(node)
-                in NodeKind.classLike -> renderClass(node)
+                in NodeKind.classLike -> renderClass(node, renderMode)
 
                 NodeKind.Modifier -> renderModifier(this, node, renderMode)
                 NodeKind.TypeParameter -> renderTypeParameter(node)
@@ -131,7 +135,8 @@ class NewJavaLanguageService : CommonLanguageService() {
         text(" ")
     }
 
-    private fun ContentBlock.renderClass(node: DocumentationNode) {
+    private fun ContentBlock.renderClass(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode)
         renderClassKind(node)
 
         identifier(node.name)
