@@ -1,3 +1,5 @@
+rootProject.name = "dokka"
+
 include 'core',
         'integration',
         'runners:fatjar',
