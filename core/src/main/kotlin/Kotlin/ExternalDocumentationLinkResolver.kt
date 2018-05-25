@@ -10,6 +10,7 @@ import org.jetbrains.dokka.Formats.FormatDescriptor
 import org.jetbrains.dokka.Utilities.ServiceLocator
 import org.jetbrains.dokka.Utilities.lookup
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
@@ -207,7 +208,9 @@ interface InboundExternalLinkResolutionService {
 
     class Javadoc(paramsMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
         override fun getPath(symbol: DeclarationDescriptor): String? {
-            if (symbol is JavaClassDescriptor) {
+            if (symbol is EnumEntrySyntheticClassDescriptor) {
+                return getPath(symbol.containingDeclaration)?.let { it + "#" + symbol.name.asString() }
+            } else if (symbol is JavaClassDescriptor) {
                 return DescriptorUtils.getFqName(symbol).asString().replace(".", "/") + ".html"
             } else if (symbol is JavaCallableMemberDescriptor) {
                 val containingClass = symbol.containingDeclaration as? JavaClassDescriptor ?: return null
@@ -242,13 +245,11 @@ interface InboundExternalLinkResolutionService {
             else return "$path/index.$extension"
         }
 
-        fun getPathWithoutExtension(symbol: DeclarationDescriptor): String {
-            if (symbol.containingDeclaration == null)
-                return identifierToFilename(symbol.name.asString())
-            else if (symbol is PackageFragmentDescriptor) {
-                return symbol.fqName.asString()
-            } else {
-                return getPathWithoutExtension(symbol.containingDeclaration!!) + '/' + identifierToFilename(symbol.name.asString())
+        private fun getPathWithoutExtension(symbol: DeclarationDescriptor): String {
+            return when {
+                symbol.containingDeclaration == null -> identifierToFilename(symbol.name.asString())
+                symbol is PackageFragmentDescriptor -> identifierToFilename(symbol.fqName.asString())
+                else -> getPathWithoutExtension(symbol.containingDeclaration!!) + '/' + identifierToFilename(symbol.name.asString())
             }
         }
 

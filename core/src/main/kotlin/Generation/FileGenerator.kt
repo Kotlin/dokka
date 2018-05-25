@@ -8,14 +8,12 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 
-class FileGenerator @Inject constructor(@Named("outputDir") val rootFile: File) : NodeLocationAwareGenerator {
+class FileGenerator @Inject constructor(@Named("outputDir") override val root: File) : NodeLocationAwareGenerator {
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService
     @set:Inject(optional = true) lateinit var options: DocumentationOptions
     @set:Inject(optional = true) var packageListService: PackageListService? = null
-
-    override val root: File = rootFile
 
     override fun location(node: DocumentationNode): FileLocation {
         return FileLocation(fileForNode(node, formatService.linkExtension))
