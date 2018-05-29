@@ -157,7 +157,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 //id = node.signatureForAnchor(logger).urlEncoded()
                 +node.name
             }
-            if (node.apiLevel.name != "") {
+            if (node.apiLevel.name.isNotEmpty()) {
                 div(classes = "api-level") {
                     +"added in "
                     a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {

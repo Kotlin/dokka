@@ -604,7 +604,9 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         bodyContent = {
             val node = page.node
             with(page) {
-                div(classes = "api-level") { br { +"belongs to Maven artifact ${node.artifactId}"} }
+                if (node.artifactId.name.isNotEmpty()) {
+                    div(classes = "api-level") { br { +"belongs to Maven artifact ${node.artifactId}" } }
+                }
                 h1 { +node.name }
                 pre { renderedSignature(node, FULL) }
                 classHierarchy(page.superclasses)

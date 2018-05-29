@@ -61,6 +61,6 @@ class KotlinAsJavaDocumentationParser
         }
         val descriptor = resolutionFacade.resolveToDescriptor(origin)
         val content = descriptorDocumentationParser.parseDocumentation(descriptor, origin is KtParameter)
-        return JavadocParseResult(content, null, emptyList(), null)
+        return JavadocParseResult(content, null, emptyList(), null, null)
     }
 }
