@@ -108,6 +108,9 @@ class DescriptorDocumentationParser @Inject constructor(
             } else if (name?.toLowerCase() == "since") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
                 append(apiLevel, RefKind.Detail)
+            } else if (name?.toLowerCase() == "artifactId") {
+                val artifactId = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ArtifactId)
+                append(artifactId, RefKind.Detail)
             }
         }
     }
@@ -171,9 +174,12 @@ class DescriptorDocumentationParser @Inject constructor(
                 parseResult.apiLevel?.let {
                     node.append(it, RefKind.Detail)
                 }
+                parseResult.artifactId?.let {
+                    node.append(it, RefKind.Detail)
+                }
             }
         }
-        return Content.Empty to { node -> }
+        return Content.Empty to { _ -> }
     }
 
     fun KDocSection.getTags(): Array<KDocTag> = PsiTreeUtil.getChildrenOfType(this, KDocTag::class.java)

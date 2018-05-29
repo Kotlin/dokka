@@ -65,6 +65,8 @@ enum class NodeKind {
 
     ApiLevel,
 
+    ArtifactId,
+
     GroupNode;
 
     companion object {
@@ -118,7 +120,8 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Attribute).map { it.to }
     val apiLevel: DocumentationNode
         get() = detailOrNull(NodeKind.ApiLevel) ?: DocumentationNode("", Content.Empty, NodeKind.ApiLevel)
-
+    val artifactId: DocumentationNode
+        get() = detailOrNull(NodeKind.ArtifactId) ?: DocumentationNode("", Content.Empty, NodeKind.ArtifactId)
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)
 

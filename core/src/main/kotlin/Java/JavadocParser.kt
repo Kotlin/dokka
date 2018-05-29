@@ -24,10 +24,11 @@ data class JavadocParseResult(
         val content: Content,
         val deprecatedContent: Content?,
         val attributes: List<DocumentationNode>,
-        val apiLevel: DocumentationNode?
+        val apiLevel: DocumentationNode?,
+        val artifactId: DocumentationNode?
 ) {
     companion object {
-        val Empty = JavadocParseResult(Content.Empty, null, emptyList(), null)
+        val Empty = JavadocParseResult(Content.Empty, null, emptyList(), null, null)
     }
 }
 
@@ -92,6 +93,7 @@ class JavadocParser(
 
         val attrs = mutableListOf<DocumentationNode>()
         var since: DocumentationNode? = null
+        var artifactId: DocumentationNode? = null
         docComment.tags.forEach { tag ->
             when (tag.name) {
                 "see" -> result.convertSeeTag(tag)
@@ -106,6 +108,9 @@ class JavadocParser(
                 "since" -> {
                     since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
                 }
+                "artifactId" -> {
+                    artifactId = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ArtifactId)
+                }
                 in tagsToInherit -> {}
                 else -> {
                     val subjectName = tag.getSubjectName()
@@ -114,7 +119,7 @@ class JavadocParser(
                 }
             }
         }
-        return JavadocParseResult(result, deprecatedContent, attrs, since)
+        return JavadocParseResult(result, deprecatedContent, attrs, since, artifactId)
     }
 
     private val tagsToInherit = setOf("param", "return", "throws")
