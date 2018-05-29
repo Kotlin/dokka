@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.dokka.NodeKind
-import org.jetbrains.dokka.RefKind
+import org.jetbrains.dokka.*
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
 public class JavaTest {
     @Test fun function() {
@@ -203,6 +204,17 @@ public class JavaTest {
             val fooClass = cls.members.single { it.name == "Foo" }
             val inheritors = fooClass.references(RefKind.Inheritor)
             assertEquals(1, inheritors.size)
+        }
+    }
+
+    @Test fun linksToMethodsWithNativeJavaObjectParameters() {
+        verifyJavaPackageMember("testdata/java/javaLangParameters.java") { cls ->
+            val lazyLinks = ((cls.content.summary as ContentParagraph).children.stream().map { (it as ContentCode).children }).collect(
+                Collectors.toList()).flatten()
+            lazyLinks.forEach(Consumer {
+                val lazyLink = it as ContentNodeLazyLink
+                assertNotNull(lazyLink.node)
+            })
         }
     }
 }

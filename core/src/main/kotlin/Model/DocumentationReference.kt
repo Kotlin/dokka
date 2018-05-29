@@ -41,7 +41,14 @@ class NodeReferenceGraph() {
     val references = arrayListOf<PendingDocumentationReference>()
 
     fun register(signature: String, node: DocumentationNode) {
-        nodeMap.put(signature, node)
+        val javaSignature = signature.replace("kotlin.Any", "java.lang.Object").
+            replace("kotlin.String", "java.lang.String").
+            replace("kotlin.Int", "java.lang.Integer").
+            replace("kotlin.Boolean", "java.lang.Boolean")
+        nodeMap.put(javaSignature, node)
+        if (signature != javaSignature) {
+            nodeMap.put(signature, node)
+        }
     }
 
     fun link(fromNode: DocumentationNode, toSignature: String, kind: RefKind) {
