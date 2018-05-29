@@ -70,7 +70,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                         languageVersion = languageVersion,
                         apiVersion = apiVersion,
                         cacheRoot = cacheRoot,
-                        suppressedFiles = suppressedFiles.map { File(it) },
+                        suppressedFiles = suppressedFiles.map { File(it) }.toSet(),
                         collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries,
                         outlineRoot = outlineRoot,
                         dacRoot = dacRoot

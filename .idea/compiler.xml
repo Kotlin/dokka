@@ -22,14 +22,14 @@
     <bytecodeTargetLevel>
       <module name="android-gradle-plugin_main" target="1.8" />
       <module name="android-gradle-plugin_test" target="1.8" />
-      <module name="ant_main" target="1.6" />
-      <module name="ant_test" target="1.6" />
+      <module name="ant_main" target="1.8" />
+      <module name="ant_test" target="1.8" />
       <module name="buildSrc_main" target="1.8" />
       <module name="buildSrc_test" target="1.8" />
-      <module name="cli_main" target="1.6" />
-      <module name="cli_test" target="1.6" />
-      <module name="core_main" target="1.6" />
-      <module name="core_test" target="1.6" />
+      <module name="cli_main" target="1.8" />
+      <module name="cli_test" target="1.8" />
+      <module name="core_main" target="1.8" />
+      <module name="core_test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
       <module name="gradle-integration-tests_main" target="1.8" />
@@ -38,7 +38,6 @@
       <module name="gradle-plugin_test" target="1.8" />
       <module name="integration_main" target="1.8" />
       <module name="integration_test" target="1.8" />
-      <module name="maven-plugin" target="1.5" />
       <module name="maven-plugin_main" target="1.8" />
       <module name="maven-plugin_test" target="1.8" />
     </bytecodeTargetLevel>
