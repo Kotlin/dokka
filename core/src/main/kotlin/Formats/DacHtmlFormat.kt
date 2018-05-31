@@ -31,6 +31,9 @@ class DevsiteHtmlTemplateService @Inject constructor(
                 }
                 unsafe { +"{% setvar book_path %}${dacRoot}/${outlineRoot}_book.yaml{% endsetvar %}\n{% include \"_shared/_reference-head-tags.html\" %}\n" }
             }
+            body {
+                bodyContent()
+            }
         }
     }
 }
