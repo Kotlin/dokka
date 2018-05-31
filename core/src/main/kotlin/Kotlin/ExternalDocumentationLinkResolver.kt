@@ -46,6 +46,16 @@ class ExternalDocumentationLinkResolver @Inject constructor(
         connection.connectTimeout = timeout
         connection.readTimeout = timeout
 
+        // Add proxy basic authentication when proxyUser, proxyPassword is set and proxySet is true
+        val systemSettings = System.getProperties()
+        if (systemSettings.getValue("proxySet").toString() == "true"
+                && systemSettings.getValue("proxyUser").toString().isNotEmpty()
+                && systemSettings.getValue("proxyPassword").toString().isNotEmpty()) {
+            val encoder = sun.misc.BASE64Encoder()
+            val encodedUserPwd = encoder.encode((systemSettings.getValue("proxyUser").toString() + ":" + systemSettings.getValue("proxyPassword").toString()).toByteArray())
+            connection.setRequestProperty("Proxy-Authorization","Basic $encodedUserPwd")
+        }
+
         when (connection) {
             is HttpURLConnection -> {
                 return when (connection.responseCode) {

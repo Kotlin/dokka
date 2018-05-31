@@ -456,3 +456,8 @@ Basically, given the `documentation` as a model, we do this:
 
 Dokka is built with Gradle. To build it, use `./gradlew build`.
 Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.
+
+## Using proxy with maven
+```
+mvn -Dhttp.proxyHost=host.domain.com -Dhttp.proxyPort=8080 -Dhttps.proxyHost=host.domain.com -Dhttps.proxyPort=8080 -DproxySet=true -DproxyUser=user -DproxyPassword=password dokka:dokka
+```
