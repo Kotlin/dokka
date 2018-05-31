@@ -7,6 +7,7 @@ import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
+import org.jetbrains.kotlin.utils.join
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -21,11 +22,11 @@ private val DESCRIPTION_COMMAND = "description"
 private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
 
 data class JavadocParseResult(
-        val content: Content,
-        val deprecatedContent: Content?,
-        val attributes: List<DocumentationNode>,
-        val apiLevel: DocumentationNode?,
-        val artifactId: DocumentationNode?
+    val content: Content,
+    val deprecatedContent: Content?,
+    val attributes: List<DocumentationNode>,
+    val apiLevel: DocumentationNode?,
+    val artifactId: DocumentationNode?
 ) {
     companion object {
         val Empty = JavadocParseResult(Content.Empty, null, emptyList(), null, null)
@@ -43,7 +44,10 @@ class JavadocParser(
     private val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
 ) : JavaDocumentationParser {
 
-    private fun ContentSection.appendTypeElement(signature: String, selector: (DocumentationNode) -> DocumentationNode?) {
+    private fun ContentSection.appendTypeElement(
+        signature: String,
+        selector: (DocumentationNode) -> DocumentationNode?
+    ) {
         append(LazyContentBlock {
             val node = refGraph.lookupOrWarn(signature, logger)?.let(selector)
             if (node != null) {
@@ -60,7 +64,10 @@ class JavadocParser(
         val result = MutableContent()
         var deprecatedContent: Content? = null
         val firstParagraph = ContentParagraph()
-        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() }, element)
+        firstParagraph.convertJavadocElements(
+            docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() },
+            element
+        )
         val paragraphs = firstParagraph.children.dropWhile { it !is ContentParagraph }
         firstParagraph.children.removeAll(paragraphs)
         if (!firstParagraph.isEmpty()) {
@@ -95,7 +102,7 @@ class JavadocParser(
         var since: DocumentationNode? = null
         var artifactId: DocumentationNode? = null
         docComment.tags.forEach { tag ->
-            when (tag.name) {
+            when (tag.name.toLowerCase()) {
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content().apply {
@@ -103,15 +110,16 @@ class JavadocParser(
                     }
                 }
                 "attr" -> {
-                    tag.getAttr(element)?.let { attrs.add(it) }
+                    //tag.getAttr(element)?.let { attrs.add(it) }
                 }
                 "since" -> {
                     since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
                 }
-                "artifactId" -> {
-                    artifactId = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ArtifactId)
+                "artifactid" -> {
+                    artifactId = DocumentationNode(tag.artifactId() ?: "", Content.Empty, NodeKind.ArtifactId)
                 }
-                in tagsToInherit -> {}
+                in tagsToInherit -> {
+                }
                 else -> {
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.name), subjectName)
@@ -147,6 +155,13 @@ class JavadocParser(
         return output.mapValues { it.value.values }
     }
 
+    fun PsiDocTag.artifactId(): String? {
+        var artifactName: String? = null
+        if (dataElements.isNotEmpty()) {
+            artifactName = join(dataElements.map { it.text }, "")
+        }
+        return artifactName
+    }
 
     fun PsiDocTag.minApiLevel(): String? {
         if (dataElements.isNotEmpty()) {
@@ -163,53 +178,47 @@ class JavadocParser(
     }
 
     private fun PsiDocTag.getAttr(element: PsiNamedElement): DocumentationNode? = when (valueElement?.text) {
-            REF_COMMAND -> {
-                if (dataElements.size > 1) {
-                    val elementText = dataElements[1].text
-                    val names = elementText.split("#")
-                    if (names.size > 1) {
-                        val qualifiedAttribute = names[1].split("_")
-                        if (qualifiedAttribute.size > 1) {
-                            val attribute = qualifiedAttribute[1]
-                            val attrRef = "android.R#" + attribute
-                                    try {
-                                        val linkComment = JavaPsiFacade.getInstance(project).elementFactory
-                                                .createDocCommentFromText("/** {@link $attrRef} */", element)
-                                        if (attrRef.contains("cacheColorHint")) {
-                                            val x = false
-                                        }
-                                        val linkElement = PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
-                                        val link = resolveInternalLink(linkElement)
-                                        if (link != null) {
-                                            DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
-                                                refGraph.link(it, link, RefKind.Attribute)
-                                            }
-                                        } else null
-                                    } catch (e: IncorrectOperationException) {
-                                        null
-                                    }
-                        } else null
+        REF_COMMAND -> {
+            if (dataElements.size > 1) {
+                val elementText = dataElements[1].text
+                try {
+                    val linkComment = JavaPsiFacade.getInstance(project).elementFactory
+                        .createDocCommentFromText("/** {@link $elementText} */", element)
+                    if (elementText.contains("cacheColorHint")) {
+                        val x = false
+                    }
+                    val linkElement =
+                        PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
+                    val link = resolveInternalLink(linkElement)
+                    if (link != null) {
+                        DocumentationNode(elementText, Content.Empty, NodeKind.Attribute).also {
+                            refGraph.link(it, link, RefKind.Attribute)
+                        }
                     } else null
-                } else null
-            }
-            NAME_COMMAND -> {
-                null
-//                if (dataElements.size > 1) {
-//                    val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
-//                    if (nameMatcher.matches()) {
-//                        val attrName = nameMatcher.group(1)
-//                        DocumentationNode(attrName, Content.Empty, NodeKind.Attribute)
-//                    } else {
-//                        null
-//                    }
-//                } else null
-            }
-            DESCRIPTION_COMMAND -> {
-                val attrDescription = dataElements.toString()
-                DocumentationNode(attrDescription, Content.Empty, NodeKind.Attribute)
-            }
-            else -> null
+                } catch (e: IncorrectOperationException) {
+                    null
+                }
+            } else null
         }
+        NAME_COMMAND -> {
+            if (dataElements.size > 1) {
+                val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
+                if (nameMatcher.matches()) {
+                    val attrName = nameMatcher.group(1)
+                    DocumentationNode(attrName, Content.Empty, NodeKind.AttributeName).also {
+                        //                            refGraph.link(this.name, it, RefKind.AttributeName)
+                    }
+                } else {
+                    null
+                }
+            } else null
+        }
+        DESCRIPTION_COMMAND -> {
+            val attrDescription = dataElements.toString()
+            DocumentationNode(attrDescription, Content.Empty, NodeKind.AttributeDescription)
+        }
+        else -> null
+    }
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children
@@ -314,10 +323,10 @@ class JavadocParser(
             }
             linkSignature != null -> {
                 val linkNode =
-                        ContentNodeLazyLink(
-                                (tag.valueElement ?: linkElement).text,
-                                { -> refGraph.lookupOrWarn(linkSignature, logger) }
-                        )
+                    ContentNodeLazyLink(
+                        (tag.valueElement ?: linkElement).text,
+                        { -> refGraph.lookupOrWarn(linkSignature, logger) }
+                    )
                 linkNode.append(text)
                 linkNode
             }
@@ -368,13 +377,13 @@ class JavadocParser(
     }
 
     private fun PsiDocTag.referenceElement(): PsiElement? =
-            linkElement()?.let {
-                if (it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER) {
-                    PsiTreeUtil.findChildOfType(it, PsiJavaCodeReferenceElement::class.java)
-                } else {
-                    it
-                }
+        linkElement()?.let {
+            if (it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER) {
+                PsiTreeUtil.findChildOfType(it, PsiJavaCodeReferenceElement::class.java)
+            } else {
+                it
             }
+        }
 
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
@@ -435,7 +444,7 @@ class JavadocParser(
     private fun findFirstSuperMethodWithDocumentation(current: PsiMethod): PsiMethod? {
         val superMethods = current.findSuperMethods()
         for (method in superMethods) {
-            val docs =  method.docComment?.descriptionElements?.dropWhile { it.text.trim().isEmpty() }
+            val docs = method.docComment?.descriptionElements?.dropWhile { it.text.trim().isEmpty() }
             if (!docs.isNullOrEmpty()) {
                 return method
             }
@@ -450,7 +459,10 @@ class JavadocParser(
         return null
     }
 
-    private fun findFirstSuperMethodWithDocumentationforTag(elementToExpand: PsiDocTag, current: PsiMethod): Pair<PsiMethod, PsiDocTag>? {
+    private fun findFirstSuperMethodWithDocumentationforTag(
+        elementToExpand: PsiDocTag,
+        current: PsiMethod
+    ): Pair<PsiMethod, PsiDocTag>? {
         val superMethods = current.findSuperMethods()
         val mappedFilteredTags = superMethods.map {
             it to it.docComment?.tags?.filter { it.name == elementToExpand.name }

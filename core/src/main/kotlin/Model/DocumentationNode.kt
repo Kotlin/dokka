@@ -62,7 +62,8 @@ enum class NodeKind {
     OverloadGroupNote,
 
     Attribute,
-
+    AttributeName,
+    AttributeDescription,
     ApiLevel,
 
     ArtifactId,

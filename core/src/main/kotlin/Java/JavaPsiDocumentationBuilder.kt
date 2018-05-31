@@ -129,6 +129,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         artifactId?.let {
             node.append(it, RefKind.Detail)
         }
+        attrs.forEach { node.append(it, RefKind.Detail) }
         return node
     }
 
