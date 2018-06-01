@@ -132,32 +132,36 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
                 }
 
         val resolverForProject = ResolverForProjectImpl(
-                "Dokka",
-                projectContext,
-                listOf(library, module),
-                { JvmAnalyzerFacade },
-                {
-                    when (it) {
-                        library -> ModuleContent(emptyList(), GlobalSearchScope.notScope(sourcesScope))
-                        module -> ModuleContent(sourceFiles, sourcesScope)
-                        else -> throw IllegalArgumentException("Unexpected module info")
-                    }
-                },
-                JvmPlatformParameters {
-                    val file = (it as JavaClassImpl).psi.containingFile.virtualFile
-                    if (file in sourcesScope)
-                        module
-                    else
-                        library
-                },
-                CompilerEnvironment,
-                packagePartProviderFactory = { info, content ->
-                    JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
-                        addRoots(javaRoots)
-                    }
-                },
-                builtIns = builtIns,
-                modulePlatforms = { JvmPlatform.multiTargetPlatform }
+            "Dokka",
+            projectContext,
+            listOf(library, module),
+            {
+                when (it) {
+                    library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
+                    module -> ModuleContent(it, emptyList(), sourcesScope)
+                    else -> throw IllegalArgumentException("Unexpected module info")
+                }
+            },
+            {
+                JvmPlatform.multiTargetPlatform
+            },
+            LanguageSettingsProvider.Default /* TODO: Fix this */,
+            { JvmAnalyzerFacade },
+
+            JvmPlatformParameters {
+                val file = (it as JavaClassImpl).psi.containingFile.virtualFile
+                if (file in sourcesScope)
+                    module
+                else
+                    library
+            },
+            CompilerEnvironment,
+            packagePartProviderFactory = { content ->
+                JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
+                    addRoots(javaRoots)
+                }
+            },
+            builtIns = builtIns
         )
 
         val resolverForLibrary = resolverForProject.resolverForModule(library) // Required before module to initialize library properly
@@ -244,6 +248,10 @@ fun contentRootFromPath(path: String): ContentRoot {
 class DokkaResolutionFacade(override val project: Project,
                             override val moduleDescriptor: ModuleDescriptor,
                             val resolverForModule: ResolverForModule) : ResolutionFacade {
+    override fun analyzeWithAllCompilerChecks(elements: Collection<KtElement>): AnalysisResult {
+        throw UnsupportedOperationException()
+    }
+
     override fun <T : Any> tryGetFrontendService(element: PsiElement, serviceClass: Class<T>): T? {
         return resolverForModule.componentProvider.tryGetService(serviceClass)
     }
@@ -295,10 +303,6 @@ class DokkaResolutionFacade(override val project: Project,
 
             }
         }
-        throw UnsupportedOperationException()
-    }
-
-    override fun analyzeFullyAndGetResult(elements: Collection<KtElement>): AnalysisResult {
         throw UnsupportedOperationException()
     }
 
