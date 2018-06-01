@@ -11,7 +11,6 @@ import java.io.BufferedWriter
 import java.io.File
 import java.net.URI
 
-
 class JavaLayoutHtmlFormatGenerator @Inject constructor(
         @Named("outputDir") val root: File,
         val packageListService: PackageListService,

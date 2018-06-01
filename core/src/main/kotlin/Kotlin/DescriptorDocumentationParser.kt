@@ -178,14 +178,27 @@ class DescriptorDocumentationParser @Inject constructor(
                     val deprecationNode = DocumentationNode("", it, NodeKind.Modifier)
                     node.append(deprecationNode, RefKind.Deprecation)
                 }
-                parseResult.attributes.forEach {
-                    node.append(it, RefKind.Detail)
+                if (node.kind in NodeKind.classLike) {
+                    parseResult.attributeRefs.forEach {
+                        val attrNode = DocumentationNode(it.name, it.content, NodeKind.Attribute)
+                        val attrSignature = "${node.signatureName}:${it.signatureName}"
+                        refGraph.register(attrSignature, attrNode)
+                        node.append(attrNode, RefKind.Detail)
+                    }
+                } else if (node.kind in NodeKind.memberLike) {
+                    parseResult.attributeRefs.forEach {
+                        node.append(it, RefKind.HiddenLink)
+                    }
                 }
                 parseResult.apiLevel?.let {
                     node.append(it, RefKind.Detail)
                 }
                 parseResult.artifactId?.let {
                     node.append(it, RefKind.Detail)
+                }
+                parseResult.attribute?.let {
+                    val attrSignature = "AttrMain:${node.detailOrNull(NodeKind.Signature)?.name}"
+                    refGraph.register(attrSignature, it)
                 }
             }
         }
@@ -224,7 +237,7 @@ class DescriptorDocumentationParser @Inject constructor(
                     val targetDescriptor = resolveKDocLink(resolutionFacade.resolveSession.bindingContext, resolutionFacade, descriptor, this, qualified)
                     DocumentationNode(attrRef, Content.Empty, NodeKind.Attribute).also {
                         if (targetDescriptor.isNotEmpty()) {
-                            refGraph.link(it, targetDescriptor.first().signature(), RefKind.Attribute)
+                            refGraph.link(it, targetDescriptor.first().signature(), RefKind.Detail)
                         }
                     }
                 }

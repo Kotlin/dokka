@@ -892,11 +892,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike } - enumValues
 
-            val attributes = node.details(NodeKind.Attribute)
+            val attributes = node.attributes
             val inheritedAttributes =
                     node.superclassTypeSequence
                             .toList()
-                            .flatMap { it.typeDeclarationClass?.details(NodeKind.Attribute).orEmpty() }
+                            .flatMap { it.typeDeclarationClass?.attributes.orEmpty() }
                             .distinctBy { it.name }
                             .groupBy { it.owner!! }
 

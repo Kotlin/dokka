@@ -102,7 +102,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun nodeForElement(element: PsiNamedElement,
                        kind: NodeKind,
                        name: String = element.name ?: "<anonymous>"): DocumentationNode {
-        val (docComment, deprecatedContent, attrs, apiLevel, artifactId) = docParser.parseDocumentation(element)
+        val (docComment, deprecatedContent, attrs, apiLevel, artifactId, attribute) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
@@ -129,7 +129,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         artifactId?.let {
             node.append(it, RefKind.Detail)
         }
-        attrs.forEach { node.append(it, RefKind.Detail) }
+        attrs.forEach {
+            node.append(it, RefKind.Detail)
+        }
+        attribute?.let {
+            val attrName = node.qualifiedName()
+            refGraph.register("Attr:$attrName", attribute)
+        }
         return node
     }
 

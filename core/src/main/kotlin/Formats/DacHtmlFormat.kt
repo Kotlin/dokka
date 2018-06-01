@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
-import java.io.File
 import java.lang.Math.max
 import java.net.URI
 import kotlin.reflect.KClass
@@ -189,17 +188,36 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    fun TBODY.xmlAttributeRow(node: DocumentationNode) = tr {
+    fun TBODY.xmlAttributeRow(attr: DocumentationNode) = tr {
         td {
-            div {
+            a(href = attr) {
                 code {
-                    +node.name
+                    +attr.name
                 }
             }
+        }
+        td {
+            nodeSummary(attr)
+        }
+    }
 
-            node.attributesLink.firstOrNull()?.let {
-                nodeSummary(it)
-            }
+    override fun FlowContent.classLikeFullMemberDocs(page: Page.ClassPage) = with(page) {
+        fullMemberDocs(attributes, "XML attributes")
+        fullMemberDocs(enumValues, "Enum values")
+        fullMemberDocs(constants, "Constants")
+
+        constructors.forEach { (visibility, group) ->
+            fullMemberDocs(group, "${visibility.capitalize()} constructors")
+        }
+
+        functions.forEach { (visibility, group) ->
+            fullMemberDocs(group, "${visibility.capitalize()} methods")
+        }
+
+        fullMemberDocs(properties, "Properties")
+        if (!hasMeaningfulCompanion) {
+            fullMemberDocs(companionFunctions, "Companion functions")
+            fullMemberDocs(companionProperties, "Companion properties")
         }
     }
 
@@ -214,13 +232,22 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             nestedClassSummaryRow(it)
         }
 
-        summaryNodeGroup(attributes, header="XML attributes", summaryId="lattrs", tableClass = "responsive", headerAsRow = true) { xmlAttributeRow(it) }
+        summaryNodeGroup(
+            attributes,
+            header="XML attributes",
+            summaryId="lattrs",
+            tableClass = "responsive",
+            headerAsRow = true
+        ) {
+            xmlAttributeRow(it)
+        }
 
         expandableSummaryNodeGroupForInheritedMembers(
                 superClasses = inheritedAttributes.entries,
                 header="Inherited XML attributes",
                 tableId="inhattrs",
-                tableClass = "responsive"
+                tableClass = "responsive",
+                row = { inheritedXmlAttributeRow(it)}
         )
 
         summaryNodeGroup(
@@ -235,7 +262,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 superClasses = inheritedConstants.entries,
                 header = "Inherited constants",
                 tableId = "inhconstants",
-                tableClass = "responsive constants inhtable"
+                tableClass = "responsive constants inhtable",
+                row = { inheritedMemberRow(it) }
         )
 
         constructors.forEach { (visibility, group) ->
@@ -276,7 +304,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 superClasses = inheritedFunctionsByReceiver.entries,
                 header = "Inherited functions",
                 tableId = "inhmethods",
-                tableClass = "responsive"
+                tableClass = "responsive",
+                row = { inheritedMemberRow(it) }
         )
 
         summaryNodeGroup(
@@ -301,7 +330,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 functionLikeSummaryRow(it)
             }
         }
-        
+
         summaryNodeGroup(
                 properties,
                 header = "Properties",
@@ -323,7 +352,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 superClasses = inheritedPropertiesByReceiver.entries,
                 header = "Inherited properties",
                 tableId = "inhfields",
-                tableClass = "responsive properties inhtable"
+                tableClass = "responsive properties inhtable",
+                row = { inheritedMemberRow(it) }
         )
 
         summaryNodeGroup(
@@ -352,14 +382,14 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             header: String,
             headerAsRow: Boolean,
             summaryId: String,
-            tableClass: String,
+            tableClass: String = "responsive",
             row: TBODY.(T) -> Unit
     ) {
         if (nodes.none()) return
         if (!headerAsRow) {
             h2 { +header }
         }
-        table(classes = "responsive") {
+        table(classes = tableClass) {
             id = summaryId
             tbody {
             if (headerAsRow)
@@ -426,11 +456,56 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
     )
 
+    private fun TBODY.inheritedXmlAttributeRow(inheritedMember: DocumentationNode) {
+        tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
+            attributes["data-version-added"] = "${inheritedMember.apiLevel}"
+            val type = inheritedMember.detailOrNull(NodeKind.Type)
+            td {
+                code {
+                    a(href = inheritedMember) { +inheritedMember.name }
+                }
+            }
+            td {
+                attributes["width"] = "100%"
+                p {
+                    nodeContent(inheritedMember)
+                }
+            }
+        }
+    }
+
+    private fun TBODY.inheritedMemberRow(inheritedMember: DocumentationNode) {
+        tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
+            attributes["data-version-added"] = "${inheritedMember.apiLevel}"
+            val type = inheritedMember.detailOrNull(NodeKind.Type)
+            td {
+                code {
+                    type?.let {
+                        renderedSignature(it, LanguageService.RenderMode.SUMMARY)
+                    }
+                }
+            }
+            td {
+                attributes["width"] = "100%"
+                code {
+                    a(href = inheritedMember) { +inheritedMember.name }
+                    if (inheritedMember.kind == NodeKind.Function) {
+                        shortFunctionParametersList(inheritedMember)
+                    }
+                }
+                p {
+                    nodeContent(inheritedMember)
+                }
+            }
+        }
+    }
+
     private fun FlowContent.expandableSummaryNodeGroupForInheritedMembers(
             tableId: String,
             header: String,
             tableClass: String,
-            superClasses: Set<Map.Entry<DocumentationNode, List<DocumentationNode>>>
+            superClasses: Set<Map.Entry<DocumentationNode, List<DocumentationNode>>>,
+            row: TBODY.(inheritedMember: DocumentationNode) -> Unit
     ) {
         if (superClasses.none()) return
         table(classes = tableClass) {
@@ -455,29 +530,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                 table(classes = "responsive exw-expanded-content") {
                                     tbody {
                                         members.forEach { inheritedMember ->
-                                            tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
-                                                attributes["data-version-added"] = "${inheritedMember.apiLevel}"
-                                                val type = inheritedMember.detailOrNull(NodeKind.Type)
-                                                td {
-                                                    code {
-                                                        type?.let {
-                                                            renderedSignature(it, LanguageService.RenderMode.SUMMARY)
-                                                        }
-                                                    }
-                                                }
-                                                td {
-                                                    attributes["width"] = "100%"
-                                                    code {
-                                                        a(href = inheritedMember) { +inheritedMember.name }
-                                                        if (inheritedMember.kind == NodeKind.Function) {
-                                                            shortFunctionParametersList(inheritedMember)
-                                                        }
-                                                    }
-                                                    p {
-                                                        nodeContent(inheritedMember)
-                                                    }
-                                                }
-                                            }
+                                            row(inheritedMember)
                                         }
                                     }
                                 }
@@ -487,7 +540,6 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
         }
-
     }
 
     private fun FlowContent.summaryNodeGroupForExtensions(

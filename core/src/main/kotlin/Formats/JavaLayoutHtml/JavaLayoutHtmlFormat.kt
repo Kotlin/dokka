@@ -135,6 +135,7 @@ fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String {
         NodeKind.TypeParameter, NodeKind.Parameter -> this.detail(NodeKind.Signature).name // Todo Why not signatureForAnchor
         NodeKind.Field -> name
         NodeKind.EnumItem -> "ENUM_VALUE:$name"
+        NodeKind.Attribute -> "attr_$name"
         else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
     }
 }

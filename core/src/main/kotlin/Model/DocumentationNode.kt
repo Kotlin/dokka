@@ -1,7 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.Formats.constantValue
-import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 enum class NodeKind {
@@ -62,8 +60,7 @@ enum class NodeKind {
     OverloadGroupNote,
 
     Attribute,
-    AttributeName,
-    AttributeDescription,
+
     ApiLevel,
 
     ArtifactId,
@@ -72,7 +69,7 @@ enum class NodeKind {
 
     companion object {
         val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)
-        val memberLike = setOf(Function, Property, Field, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem)
+        val memberLike = setOf(Function, Property, Field, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem, Attribute)
     }
 }
 
@@ -117,14 +114,17 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Platform).map { it.to.name }
     val externalType: DocumentationNode?
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
-    val attributesLink: List<DocumentationNode>
-        get() = references(RefKind.Attribute).map { it.to }
     val apiLevel: DocumentationNode
         get() = detailOrNull(NodeKind.ApiLevel) ?: DocumentationNode("", Content.Empty, NodeKind.ApiLevel)
     val artifactId: DocumentationNode
         get() = detailOrNull(NodeKind.ArtifactId) ?: DocumentationNode("", Content.Empty, NodeKind.ArtifactId)
+    val attributes: List<DocumentationNode>
+        get() = details(NodeKind.Attribute)
+    val relatedAttributes: List<DocumentationNode>
+        get() = hiddenLinks(NodeKind.Attribute)
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)
+    val signatureName = detailOrNull(NodeKind.Signature)?.name
 
     val superclassType: DocumentationNode?
         get() = when (kind) {
@@ -164,6 +164,7 @@ open class DocumentationNode(val name: String,
     }
     fun details(kind: NodeKind): List<DocumentationNode> = details.filter { it.kind == kind }
     fun members(kind: NodeKind): List<DocumentationNode> = members.filter { it.kind == kind }
+    fun hiddenLinks(kind: NodeKind): List<DocumentationNode> = hiddenLinks.filter { it.kind == kind }
     fun inheritedMembers(kind: NodeKind): List<DocumentationNode> = inheritedMembers.filter { it.kind == kind }
     fun inheritedCompanionObjectMembers(kind: NodeKind): List<DocumentationNode> = inheritedCompanionObjectMembers.filter { it.kind == kind }
     fun links(kind: NodeKind): List<DocumentationNode> = links.filter { it.kind == kind }

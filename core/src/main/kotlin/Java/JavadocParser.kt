@@ -16,20 +16,23 @@ import org.jsoup.nodes.TextNode
 import java.net.URI
 import java.util.regex.Pattern
 
-private val REF_COMMAND = "ref"
-private val NAME_COMMAND = "name"
-private val DESCRIPTION_COMMAND = "description"
 private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
 
 data class JavadocParseResult(
     val content: Content,
     val deprecatedContent: Content?,
-    val attributes: List<DocumentationNode>,
-    val apiLevel: DocumentationNode?,
-    val artifactId: DocumentationNode?
+    val attributeRefs: List<DocumentationNode>,
+    val apiLevel: DocumentationNode? = null,
+    val artifactId: DocumentationNode? = null,
+    val attribute: DocumentationNode? = null
 ) {
     companion object {
-        val Empty = JavadocParseResult(Content.Empty, null, emptyList(), null, null)
+        val Empty = JavadocParseResult(Content.Empty,
+            null,
+            emptyList(),
+            null,
+            null
+        )
     }
 }
 
@@ -98,9 +101,12 @@ class JavadocParser(
             }
         }
 
-        val attrs = mutableListOf<DocumentationNode>()
+        val attrRefs = mutableListOf<DocumentationNode>()
         var since: DocumentationNode? = null
         var artifactId: DocumentationNode? = null
+        var attrName: String? = null
+        var attrDesc: Content? = null
+        var attr: DocumentationNode? = null
         docComment.tags.forEach { tag ->
             when (tag.name.toLowerCase()) {
                 "see" -> result.convertSeeTag(tag)
@@ -110,7 +116,11 @@ class JavadocParser(
                     }
                 }
                 "attr" -> {
-                    //tag.getAttr(element)?.let { attrs.add(it) }
+                    when (tag.valueElement?.text) {
+                        "ref" -> tag.getAttrRef(element)?.let { attrRefs.add(it) }
+                        "name" -> attrName = tag.getAttrName(element)
+                        "description" -> attrDesc = tag.getAttrDesc(element)
+                    }
                 }
                 "since" -> {
                     since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
@@ -127,7 +137,10 @@ class JavadocParser(
                 }
             }
         }
-        return JavadocParseResult(result, deprecatedContent, attrs, since, artifactId)
+        attrName?.let { name ->
+            attr = DocumentationNode(name, attrDesc ?: Content.Empty, NodeKind.Attribute)
+        }
+        return JavadocParseResult(result, deprecatedContent, attrRefs, since, artifactId, attr)
     }
 
     private val tagsToInherit = setOf("param", "return", "throws")
@@ -177,47 +190,39 @@ class JavadocParser(
         return null
     }
 
-    private fun PsiDocTag.getAttr(element: PsiNamedElement): DocumentationNode? = when (valueElement?.text) {
-        REF_COMMAND -> {
-            if (dataElements.size > 1) {
-                val elementText = dataElements[1].text
-                try {
-                    val linkComment = JavaPsiFacade.getInstance(project).elementFactory
-                        .createDocCommentFromText("/** {@link $elementText} */", element)
-                    if (elementText.contains("cacheColorHint")) {
-                        val x = false
-                    }
-                    val linkElement =
-                        PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
-                    val link = resolveInternalLink(linkElement)
-                    if (link != null) {
-                        DocumentationNode(elementText, Content.Empty, NodeKind.Attribute).also {
-                            refGraph.link(it, link, RefKind.Attribute)
-                        }
-                    } else null
-                } catch (e: IncorrectOperationException) {
-                    null
+    private fun PsiDocTag.getAttrRef(element: PsiNamedElement): DocumentationNode? {
+        if (dataElements.size > 1) {
+            val elementText = dataElements[1].text
+            try {
+                val linkComment = JavaPsiFacade.getInstance(project).elementFactory
+                    .createDocCommentFromText("/** {@link $elementText} */", element)
+                val linkElement = PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
+                val signature = resolveInternalLink(linkElement)
+                val attributeSignature = "AttrMain:$signature"
+                return signature?.let {
+                    refGraph.lookup(attributeSignature)
                 }
-            } else null
+            } catch (e: IncorrectOperationException) {
+                return null
+            }
+        } else return null
+    }
+
+    private fun PsiDocTag.getAttrName(element: PsiNamedElement): String? {
+        if (dataElements.size > 1) {
+            val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
+            if (nameMatcher.matches()) {
+                return nameMatcher.group(1)
+            } else {
+                return null
+            }
+        } else return null
+    }
+
+    private fun PsiDocTag.getAttrDesc(element: PsiNamedElement): Content? {
+        return Content().apply {
+            convertJavadocElements(contentElements(), element)
         }
-        NAME_COMMAND -> {
-            if (dataElements.size > 1) {
-                val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
-                if (nameMatcher.matches()) {
-                    val attrName = nameMatcher.group(1)
-                    DocumentationNode(attrName, Content.Empty, NodeKind.AttributeName).also {
-                        //                            refGraph.link(this.name, it, RefKind.AttributeName)
-                    }
-                } else {
-                    null
-                }
-            } else null
-        }
-        DESCRIPTION_COMMAND -> {
-            val attrDescription = dataElements.toString()
-            DocumentationNode(attrDescription, Content.Empty, NodeKind.AttributeDescription)
-        }
-        else -> null
     }
 
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
