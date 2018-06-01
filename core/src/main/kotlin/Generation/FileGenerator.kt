@@ -82,7 +82,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
 
 }
 
-private fun File.mkdirsOrFail() {
+fun File.mkdirsOrFail() {
     if (!mkdirs() && !exists()) {
         throw IOException("Failed to create directory $this")
     }
