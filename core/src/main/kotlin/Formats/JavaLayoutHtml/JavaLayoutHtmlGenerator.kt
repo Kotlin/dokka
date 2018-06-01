@@ -5,7 +5,6 @@ import com.google.inject.name.Named
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.JavaLayoutHtmlFormatOutputBuilder.Page
 import org.jetbrains.dokka.NodeKind.Companion.classLike
-import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.BufferedWriter
 import java.io.File
