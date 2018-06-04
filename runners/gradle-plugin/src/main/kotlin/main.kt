@@ -134,6 +134,9 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
+    @Input
+    var noJdkLink: Boolean = false
+
     @Optional @Input
     var cacheRoot: String? = null
 
@@ -320,6 +323,7 @@ open class DokkaTask : DefaultTask() {
                     perPackageOptions,
                     externalDocumentationLinks,
                     noStdlibLink,
+                    noJdkLink,
                     cacheRoot,
                     collectSuppressedFiles(sourceRoots),
                     languageVersion,

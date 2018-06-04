@@ -66,6 +66,7 @@ class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
                 generateClassIndexPage = false,
                 generatePackageIndexPage = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
