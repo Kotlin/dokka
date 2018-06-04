@@ -254,7 +254,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 constants,
                 header = "Constants",
                 summaryId = "constants",
-                tableClass = "responsive constants",
+                tableClass = "responsive",
                 headerAsRow = true
         ) { propertyLikeSummaryRow(it) }
 
@@ -335,7 +335,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 properties,
                 header = "Properties",
                 summaryId = "properties",
-                tableClass = "responsive properties",
+                tableClass = "responsive",
                 headerAsRow = true
         ) { propertyLikeSummaryRow(it) }
 
@@ -459,7 +459,6 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     private fun TBODY.inheritedXmlAttributeRow(inheritedMember: DocumentationNode) {
         tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
             attributes["data-version-added"] = "${inheritedMember.apiLevel}"
-            val type = inheritedMember.detailOrNull(NodeKind.Type)
             td {
                 code {
                     a(href = inheritedMember) { +inheritedMember.name }

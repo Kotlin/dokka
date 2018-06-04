@@ -118,7 +118,7 @@ class JavadocParser(
                 "attr" -> {
                     when (tag.valueElement?.text) {
                         "ref" -> tag.getAttrRef(element)?.let { attrRefs.add(it) }
-                        "name" -> attrName = tag.getAttrName(element)
+                        "name" -> attrName = tag.getAttrName()
                         "description" -> attrDesc = tag.getAttrDesc(element)
                     }
                 }
@@ -208,7 +208,7 @@ class JavadocParser(
         } else return null
     }
 
-    private fun PsiDocTag.getAttrName(element: PsiNamedElement): String? {
+    private fun PsiDocTag.getAttrName(): String? {
         if (dataElements.size > 1) {
             val nameMatcher = NAME_TEXT.matcher(dataElements[1].text)
             if (nameMatcher.matches()) {
