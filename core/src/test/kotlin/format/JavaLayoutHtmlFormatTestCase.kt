@@ -32,6 +32,7 @@ abstract class JavaLayoutHtmlFormatTestCase {
             generateClassIndexPage = false,
             generatePackageIndexPage = false,
             noStdlibLink = false,
+            noJdkLink = false,
             collectInheritedExtensionsFromLibraries = true
         )
 

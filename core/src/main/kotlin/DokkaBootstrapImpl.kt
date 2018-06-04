@@ -67,6 +67,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks,
                         noStdlibLink = noStdlibLink,
+                        noJdkLink = noJdkLink,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion,
                         cacheRoot = cacheRoot,

@@ -40,6 +40,7 @@ fun verifyModel(vararg roots: ContentRoot,
         generateClassIndexPage = false,
         generatePackageIndexPage = false,
         noStdlibLink = noStdlibLink,
+        noJdkLink = false,
         cacheRoot = "default",
         languageVersion = null,
         apiVersion = null,
@@ -270,6 +271,14 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
         is ContentBlock -> {
             appendChildren(node)
         }
+        is NodeRenderContent -> {
+            append("render(")
+            append(node.node)
+            append(",")
+            append(node.mode)
+            append(")")
+        }
+        is ContentSymbol -> { append(node.text) }
         is ContentEmpty -> { /* nothing */ }
         else -> throw IllegalStateException("Don't know how to format node $node")
     }
