@@ -40,6 +40,7 @@ class DokkaAntTask: Task() {
     var jdkVersion: Int = 6
 
     var noStdlibLink: Boolean = false
+    var noJdkLink: Boolean = false
 
     var skipDeprecated: Boolean = false
 
@@ -131,6 +132,7 @@ class DokkaAntTask: Task() {
                         perPackageOptions = antPackageOptions,
                         externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
+                        noJdkLink = noJdkLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion
