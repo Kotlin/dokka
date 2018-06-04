@@ -54,6 +54,7 @@ class KotlinWebSiteFormatTest: FileGeneratorTestCase() {
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )

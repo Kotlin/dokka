@@ -55,6 +55,7 @@ data class DokkaConfigurationImpl(
     override val perPackageOptions: List<PackageOptionsImpl>,
     override val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>,
     override val noStdlibLink: Boolean,
+    override val noJdkLink: Boolean,
     override val cacheRoot: String?,
     override val suppressedFiles: List<String>,
     override val languageVersion: String?,

@@ -313,6 +313,7 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
@@ -447,6 +448,7 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
