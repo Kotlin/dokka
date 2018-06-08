@@ -39,7 +39,8 @@ class DokkaAntTask: Task() {
     var impliedPlatforms: String = ""
     var jdkVersion: Int = 6
 
-    var noStdlibLink: Boolean = false
+    var kotlinStdlibLink:Boolean = false
+    var javaStdlibLink:Boolean = false
 
     var skipDeprecated: Boolean = false
 
@@ -130,7 +131,8 @@ class DokkaAntTask: Task() {
                         impliedPlatforms = impliedPlatforms.split(','),
                         perPackageOptions = antPackageOptions,
                         externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink,
+                        javaStdlibLink = javaStdlibLink,
+                        kotlinStdlibLink = kotlinStdlibLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion

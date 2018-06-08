@@ -2,6 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class MarkdownFormatTest: FileGeneratorTestCase() {
@@ -206,6 +207,8 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         }
     }
 
+    // TODO: include the required cache in the project.
+    @Ignore // This currently requires hitting oracle.com. Do not assume it is reachable.
     @Test fun jdkLinks() {
         verifyMarkdownNode("jdkLinks", withKotlinRuntime = true)
     }
@@ -312,7 +315,6 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputDir = "",
                 outputFormat = "html",
                 generateIndexPages = false,
-                noStdlibLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
@@ -446,7 +448,6 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputDir = "",
                 outputFormat = "html",
                 generateIndexPages = false,
-                noStdlibLink = true,
                 languageVersion = null,
                 apiVersion = null
         )

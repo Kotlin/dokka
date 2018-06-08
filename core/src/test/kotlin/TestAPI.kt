@@ -6,7 +6,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -37,7 +36,6 @@ fun verifyModel(vararg roots: ContentRoot,
             sourceLinks = listOf(),
             perPackageOptions = perPackageOptions,
             generateIndexPages = false,
-            noStdlibLink = true,
             cacheRoot = "default",
             languageVersion = null,
             apiVersion = null

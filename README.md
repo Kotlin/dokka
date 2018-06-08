@@ -111,7 +111,10 @@ dokka {
     }
     
     // No default documentation link to kotlin-stdlib
-    noStdlibLink = false
+    kotlinStdlibLink = false
+    
+    // No default documentation link to java-stdlib
+    javaStdlibLink = false
     
     // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
     // Repeat for multiple links
@@ -304,7 +307,10 @@ The available configuration options are shown below:
         </sourceLinks>
         
         <!-- No default documentation link to kotlin-stdlib -->
-        <noStdlibLink>false</noStdlibLink>
+        <kotlinStdlibLink>false</kotlinStdlibLink>
+        
+        <!-- No default documentation link to java-stdlib -->
+        <javaStdlibLink>false</javaStdlibLink>
         
         <!-- Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka) -->
         <externalDocumentationLinks>
@@ -365,7 +371,8 @@ The Ant task supports the following attributes:
   * `<sourceRoot path="src" platforms="JVM" />` - analogue of src, but allows to specify [platforms](#platforms) 
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
-  * `noStdlibLink` - No default documentation link to kotlin-stdlib
+  * `kotlinStdlibLink` - Documentation link to kotlin-stdlib
+  * `javaStdlibLink` - Documentation link to java-stdlib
   * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
   * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
@@ -390,7 +397,8 @@ Dokka supports the following command line arguments:
   * `-impliedPlatforms` - List of implied platforms (comma-separated)
   * `-packageOptions` - List of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
   * `-links` - External documentation links in format `url^packageListUrl^^url2...`
-  * `-noStdlibLink` - Disable documentation link to stdlib
+  * `-kotlinStdlibLink` - Enable documentation link to kotlin-stdlib
+  * `-javaStdlibLink` - Enable documentation link to java-stdlib
   * `-cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
 
 

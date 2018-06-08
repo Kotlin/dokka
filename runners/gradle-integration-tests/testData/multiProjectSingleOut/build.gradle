@@ -29,4 +29,6 @@ dokka {
         [":subA:compileKotlin", ":subB:compileKotlin"]
     }
     dokkaFatJar = new File(dokka_fatjar)
+    kotlinStdlibLink = true
+    javaStdlibLink = true
 }

@@ -122,7 +122,8 @@ open class DokkaTask : DefaultTask() {
 
     @Input var externalDocumentationLinks = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
 
-    @Input var noStdlibLink: Boolean = false
+    @Input var kotlinStdlibLink: Boolean = false
+    @Input var javaStdlibLink: Boolean = false
 
     @Optional @Input
     var cacheRoot: String? = null
@@ -305,7 +306,8 @@ open class DokkaTask : DefaultTask() {
                     impliedPlatforms,
                     perPackageOptions,
                     externalDocumentationLinks,
-                    noStdlibLink,
+                    kotlinStdlibLink,
+                    javaStdlibLink,
                     cacheRoot,
                     collectSuppressedFiles(sourceRoots),
                     languageVersion,

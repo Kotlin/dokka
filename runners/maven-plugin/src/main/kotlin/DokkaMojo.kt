@@ -102,7 +102,10 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
 
     @Parameter(defaultValue = "false")
-    var noStdlibLink: Boolean = false
+    var kotlinStdlibLink:Boolean = false
+
+    @Parameter(defaultValue = "false")
+    var javaStdlibLink:Boolean = false
 
     @Parameter
     var cacheRoot: String? = null
@@ -138,7 +141,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         impliedPlatforms = impliedPlatforms,
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink,
+                        kotlinStdlibLink = kotlinStdlibLink,
+                        javaStdlibLink = javaStdlibLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion
