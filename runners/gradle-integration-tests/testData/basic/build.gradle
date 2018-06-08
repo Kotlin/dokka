@@ -37,4 +37,6 @@ dependencies {
 dokka {
     dokkaFatJar = new File(dokka_fatjar)
     classpath += files("$projectDir/classDir")
+    kotlinStdlibLink = true
+    javaStdlibLink = true
 }

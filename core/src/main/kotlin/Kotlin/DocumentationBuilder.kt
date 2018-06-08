@@ -49,7 +49,8 @@ class DocumentationOptions(val outputDir: String,
                            // Sorted by pattern length
                            perPackageOptions: List<PackageOptions> = emptyList(),
                            externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
-                           noStdlibLink: Boolean,
+                           kotlinStdlibLink:Boolean = false,
+                           javaStdlibLink:Boolean = false,
                            val languageVersion: String?,
                            val apiVersion: String?,
                            cacheRoot: String? = null,
@@ -66,9 +67,11 @@ class DocumentationOptions(val outputDir: String,
     fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
 
     val defaultLinks = run {
-        val links = mutableListOf(ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build())
-        if (!noStdlibLink)
+        val links = mutableListOf<ExternalDocumentationLink>()
+        if (kotlinStdlibLink)
             links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
+        if (javaStdlibLink)
+            links += ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
         links
     }
 

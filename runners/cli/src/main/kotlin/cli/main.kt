@@ -50,8 +50,11 @@ class DokkaArguments {
     @set:Argument(value = "links", description = "External documentation links in format url^packageListUrl^^url2...")
     var links: String = ""
 
-    @set:Argument(value = "noStdlibLink", description = "Disable documentation link to stdlib")
-    var noStdlibLink: Boolean = false
+    @set:Argument(value = "kotlinStdlibLink", description = "Enable documentation link to Kotlin stdlib")
+    var kotlinStdlibLink: Boolean = false
+
+    @set:Argument(value = "javaStdlibLink", description = "Enable documentation link to Java stdlib")
+    var javaStdlibLink: Boolean = false
 
     @set:Argument(value = "cacheRoot", description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled")
     var cacheRoot: String? = null
@@ -114,7 +117,8 @@ object MainKt {
                 perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
                 jdkVersion = arguments.jdkVersion,
                 externalDocumentationLinks = parseLinks(arguments.links),
-                noStdlibLink = arguments.noStdlibLink,
+                kotlinStdlibLink = arguments.kotlinStdlibLink,
+                javaStdlibLink = arguments.javaStdlibLink,
                 cacheRoot = arguments.cacheRoot,
                 languageVersion = arguments.languageVersion,
                 apiVersion = arguments.apiVersion
