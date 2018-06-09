@@ -148,11 +148,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
                     hasSuppressDocTag(element) ||
                     skipElementBySuppressedFiles(element)
 
-    private fun skipElementByVisibility(element: Any): Boolean = element is PsiModifierListOwner &&
-            !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
-            (element.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
-                    element.isInternal())
+    private fun skipElementByVisibility(element: Any): Boolean =
+        element is PsiModifierListOwner &&
+                element !is PsiParameter &&
+                !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
+                (element.hasModifierProperty(PsiModifier.PRIVATE) ||
+                        element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
+                        element.isInternal())
 
     private fun skipElementBySuppressedFiles(element: Any): Boolean =
             element is PsiElement && File(element.containingFile.virtualFile.path).absoluteFile in options.suppressedFiles
