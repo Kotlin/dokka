@@ -53,6 +53,9 @@ class DokkaArguments {
     @set:Argument(value = "noStdlibLink", description = "Disable documentation link to stdlib")
     var noStdlibLink: Boolean = false
 
+    @set:Argument(value = "noJdkLink", description = "Disable documentation link to jdk")
+    var noJdkLink: Boolean = false
+
     @set:Argument(value = "cacheRoot", description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled")
     var cacheRoot: String? = null
 
@@ -121,7 +124,8 @@ object MainKt {
             cacheRoot = arguments.cacheRoot,
             languageVersion = arguments.languageVersion,
             apiVersion = arguments.apiVersion,
-            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries
+            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries,
+            noJdkLink = arguments.noJdkLink
         )
 
         val generator = DokkaGenerator(
