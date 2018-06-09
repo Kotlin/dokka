@@ -20,7 +20,7 @@ class NewJavaLanguageService : CommonLanguageService() {
                 NodeKind.TypeParameter -> renderTypeParameter(node)
                 NodeKind.Type,
                 NodeKind.UpperBound -> renderType(node)
-
+                NodeKind.Parameter -> renderParameter(node)
                 NodeKind.Constructor,
                 NodeKind.Function -> renderFunction(node)
                 NodeKind.Property -> renderProperty(node)
