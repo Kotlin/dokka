@@ -101,3 +101,28 @@ def ideaRT() {
         include("lib/idea_rt.jar")
     })
 }
+
+def repoLocation = uri(file("$buildDir/dist-maven"))
+
+allprojects {
+
+    task publishToDistMaven {
+        group "publishing"
+        description "Publishes all Maven publications to Maven repository 'distMaven'."
+        dependsOn tasks.withType(PublishToMavenRepository).matching {
+            it.repository == publishing.repositories.distMaven
+        }
+    }
+
+    plugins.withType(MavenPublishPlugin) {
+        publishing {
+            repositories {
+                maven {
+                    name 'distMaven'
+                    url repoLocation
+                }
+            }
+        }
+
+    }
+}
