@@ -11,9 +11,9 @@ data class SourceLinkDefinitionImpl(override val path: String,
     companion object {
         fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinition {
             val (path, urlAndLine) = srcLink.split('=')
-            return SourceLinkDefinitionImpl(File(path).absolutePath,
+            return SourceLinkDefinitionImpl(File(path).canonicalPath,
                     urlAndLine.substringBefore("#"),
-                    urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#" + it })
+                    urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
         }
     }
 }
