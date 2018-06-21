@@ -34,6 +34,7 @@ hs_err_pid*
 .idea/vcs.xml
 .idea/shelf
 .idea/jsLibraryMappings.xml
+.idea/runConfigurations
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids
@@ -73,6 +74,11 @@ fabric.properties
 ### Gradle template
 .gradle
 build/
+runners/android-gradle-plugin/out/
+runners/ant/out/
+runners/gradle-integration-tests/out/
+runners/gradle-plugin/out/
+core/out/
 
 # Ignore Gradle GUI config
 gradle-app.setting
