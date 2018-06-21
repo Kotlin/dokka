@@ -6,6 +6,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
@@ -26,6 +27,7 @@ fun verifyModel(vararg roots: ContentRoot,
                 perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
                 noStdlibLink: Boolean = true,
                 collectInheritedExtensionsFromLibraries: Boolean = false,
+                sourceLinks: List<SourceLinkDefinition> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
@@ -35,7 +37,7 @@ fun verifyModel(vararg roots: ContentRoot,
         includeNonPublic = includeNonPublic,
         skipEmptyPackages = false,
         includeRootPackage = true,
-        sourceLinks = listOf(),
+        sourceLinks = sourceLinks,
         perPackageOptions = perPackageOptions,
         generateIndexPages = false,
         noStdlibLink = noStdlibLink,
@@ -113,15 +115,17 @@ fun verifyModel(source: String,
                 withKotlinRuntime: Boolean = false,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
+                sourceLinks: List<SourceLinkDefinition> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
-    if (!File(source).exists()) {
-        throw IllegalArgumentException("Can't find test data file $source")
+    require (File(source).exists()) {
+        "Cannot find test data file $source"
     }
     verifyModel(contentRootFromPath(source),
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,
             format = format,
             includeNonPublic = includeNonPublic,
+            sourceLinks = sourceLinks,
             verifier = verifier)
 }
 
