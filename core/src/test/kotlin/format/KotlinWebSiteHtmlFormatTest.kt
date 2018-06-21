@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.junit.Before
 import org.junit.Test
 
 class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {

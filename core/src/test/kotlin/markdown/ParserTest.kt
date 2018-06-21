@@ -5,7 +5,8 @@ import org.jetbrains.dokka.toTestString
 import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
 
-@Ignore public class ParserTest {
+@Ignore
+class ParserTest {
     fun runTestFor(text : String) {
         println("MD: ---")
         println(text)

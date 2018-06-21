@@ -106,7 +106,7 @@ object MainKt {
         val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
 
         val documentationOptions = DocumentationOptions(
-                arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+                arguments.outputDir.let { if (it.endsWith('/')) it else "$it/" },
                 arguments.outputFormat,
                 skipDeprecated = arguments.nodeprecated,
                 sourceLinks = sourceLinks,

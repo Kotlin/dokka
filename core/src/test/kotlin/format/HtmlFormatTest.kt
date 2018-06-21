@@ -3,7 +3,6 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
-import org.junit.Before
 import org.junit.Test
 import java.io.File
 

@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.junit.Assert.*
 import org.junit.Test
 
-public class PackageTest {
+class PackageTest {
     @Test fun rootPackage() {
         verifyModel("testdata/packages/rootPackage.kt") { model ->
             with(model.members.single()) {

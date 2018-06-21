@@ -4,7 +4,7 @@ import org.junit.Test
 import org.junit.Assert.*
 import org.jetbrains.dokka.*
 
-public class CommentTest {
+class CommentTest {
 
     @Test fun codeBlockComment() {
         verifyModel("testdata/comments/codeBlockComment.kt") { model ->

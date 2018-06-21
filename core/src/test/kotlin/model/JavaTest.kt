@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 
-public class JavaTest {
+class JavaTest {
     @Test fun function() {
         verifyJavaPackageMember("testdata/java/member.java") { cls ->
             assertEquals("Test", cls.name)
@@ -133,7 +133,7 @@ public class JavaTest {
             assertEquals("Int", i.detail(NodeKind.Type).name)
             assertTrue("var" in i.details(NodeKind.Modifier).map { it.name })
 
-            val s = cls.members(NodeKind.Property).single { it.name == "s" }
+            val s = cls.members(NodeKind.Property).single { it.name == "sourceLinks" }
             assertEquals("String", s.detail(NodeKind.Type).name)
             assertFalse("var" in s.details(NodeKind.Modifier).map { it.name })
             assertTrue("static" in s.details(NodeKind.Modifier).map { it.name })
