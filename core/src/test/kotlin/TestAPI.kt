@@ -25,6 +25,7 @@ fun verifyModel(vararg roots: ContentRoot,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
                 perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
+                sourceLinks: List<SourceLinkDefinition> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
@@ -34,7 +35,7 @@ fun verifyModel(vararg roots: ContentRoot,
             includeNonPublic = includeNonPublic,
             skipEmptyPackages = false,
             includeRootPackage = true,
-            sourceLinks = listOf(),
+            sourceLinks = sourceLinks,
             perPackageOptions = perPackageOptions,
             generateIndexPages = false,
             noStdlibLink = true,
@@ -110,15 +111,17 @@ fun verifyModel(source: String,
                 withKotlinRuntime: Boolean = false,
                 format: String = "html",
                 includeNonPublic: Boolean = true,
+                sourceLinks: List<SourceLinkDefinition> = emptyList(),
                 verifier: (DocumentationModule) -> Unit) {
-    if (!File(source).exists()) {
-        throw IllegalArgumentException("Can't find test data file $source")
+    require (File(source).exists()) {
+        "Cannot find test data file $source"
     }
     verifyModel(contentRootFromPath(source),
             withJdk = withJdk,
             withKotlinRuntime = withKotlinRuntime,
             format = format,
             includeNonPublic = includeNonPublic,
+            sourceLinks = sourceLinks,
             verifier = verifier)
 }
 

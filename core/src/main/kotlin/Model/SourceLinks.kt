@@ -10,25 +10,47 @@ import java.io.File
 
 fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<SourceLinkDefinition>) {
     val path = psi?.containingFile?.virtualFile?.path ?: return
+    val canonicalPath = File(path).canonicalPath
 
     val target = if (psi is PsiNameIdentifierOwner) psi.nameIdentifier else psi
-    val absPath = File(path).absolutePath
-    val linkDef = sourceLinks.firstOrNull { absPath.startsWith(it.path) }
-    if (linkDef != null) {
-        var url = linkDef.url + path.substring(linkDef.path.length)
-        if (linkDef.lineSuffix != null) {
+    val pair = determineSourceLinkDefinition(canonicalPath, sourceLinks)
+    if (pair != null) {
+        val (sourceLinkDefinition, sourceLinkCanonicalPath) = pair
+        var url = determineUrl(canonicalPath, sourceLinkDefinition, sourceLinkCanonicalPath)
+        if (sourceLinkDefinition.lineSuffix != null) {
             val line = target?.lineNumber()
             if (line != null) {
-                url += linkDef.lineSuffix + line.toString()
+                url += sourceLinkDefinition.lineSuffix + line.toString()
             }
         }
-        append(DocumentationNode(url, Content.Empty, NodeKind.SourceUrl),
-                RefKind.Detail);
+        append(DocumentationNode(url, Content.Empty, NodeKind.SourceUrl), RefKind.Detail)
     }
 
     if (target != null) {
         append(DocumentationNode(target.sourcePosition(), Content.Empty, NodeKind.SourcePosition), RefKind.Detail)
     }
+}
+
+private fun determineSourceLinkDefinition(
+    canonicalPath: String,
+    sourceLinks: List<SourceLinkDefinition>
+): Pair<SourceLinkDefinition, String>? {
+    return sourceLinks
+        .asSequence()
+        .map { it to File(it.path).canonicalPath }
+        .firstOrNull { (_, sourceLinkCanonicalPath) ->
+            canonicalPath.startsWith(sourceLinkCanonicalPath)
+        }
+}
+
+private fun determineUrl(
+    canonicalPath: String,
+    sourceLinkDefinition: SourceLinkDefinition,
+    sourceLinkCanonicalPath: String
+): String {
+    val relativePath = canonicalPath.substring(sourceLinkCanonicalPath.length)
+    val relativeUrl = relativePath.replace('\\', '/').removePrefix("/")
+    return "${sourceLinkDefinition.url.removeSuffix("/")}/$relativeUrl"
 }
 
 private fun PsiElement.sourcePosition(): String {
