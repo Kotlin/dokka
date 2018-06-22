@@ -104,6 +104,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(defaultValue = "false")
     var noStdlibLink: Boolean = false
 
+    @Parameter(defaultValue = "false")
+    var noJdkLink: Boolean = false
+
     @Parameter
     var cacheRoot: String? = null
 
@@ -139,6 +142,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
+                        noJdkLink = noJdkLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion
