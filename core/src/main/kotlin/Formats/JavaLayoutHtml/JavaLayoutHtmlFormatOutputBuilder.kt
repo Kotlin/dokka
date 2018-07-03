@@ -8,6 +8,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.LanguageService.RenderMode.FULL
 import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
+import org.jetbrains.kotlin.utils.keysToMap
 import java.net.URI
 import javax.inject.Inject
 
@@ -42,9 +43,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
     protected open fun FlowContent.metaMarkup(content: List<ContentNode>, contextUri: URI = uri) =
             contentNodesToMarkup(content, contextUri)
 
+    protected fun FlowContent.nodeContent(node: DocumentationNode, uriNode: DocumentationNode) =
+        contentNodeToMarkup(node.content, uriProvider.mainUriOrWarn(uriNode) ?: uri)
 
     protected fun FlowContent.nodeContent(node: DocumentationNode) =
-            contentNodeToMarkup(node.content, uriProvider.mainUriOrWarn(node) ?: uri)
+        nodeContent(node, node)
 
     protected fun FlowContent.contentNodesToMarkup(content: List<ContentNode>, contextUri: URI = uri): Unit =
         content.forEach { contentNodeToMarkup(it, contextUri) }
@@ -240,8 +243,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
+    protected fun HtmlBlockTag.nodeSummary(node: DocumentationNode, uriNode: DocumentationNode) {
+        contentNodeToMarkup(summary(node), uriProvider.mainUriOrWarn(uriNode) ?: uri)
+    }
+
     protected fun HtmlBlockTag.nodeSummary(node: DocumentationNode) {
-        contentNodeToMarkup(summary(node), uriProvider.mainUriOrWarn(node) ?: uri)
+        nodeSummary(node, node)
     }
 
     protected open fun TBODY.inheritRow(
@@ -796,7 +803,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         seeAlso?.let { section(ContentTags.SeeAlso, it) }
     }
 
-    protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
+    protected open fun FlowContent.fullMemberDocs(node: DocumentationNode, uriNode: DocumentationNode) {
         div {
             id = node.signatureForAnchor(logger)
             h3 { +node.name }
@@ -812,6 +819,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             sections(node.content)
         }
+    }
+
+    protected open fun FlowContent.fullMemberDocs(node: DocumentationNode) {
+        fullMemberDocs(node, node)
     }
 
     sealed class Page {
@@ -893,11 +904,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val nestedClasses = node.members.filter { it.kind in NodeKind.classLike } - enumValues
 
             val attributes = node.attributes
+
             val inheritedAttributes =
                     node.superclassTypeSequence
                             .toList()
                             .flatMap { it.typeDeclarationClass?.attributes.orEmpty() }
-                            .distinctBy { it.name }
+                            .distinctBy { it.attributeRef!!.name }
                             .groupBy { it.owner!! }
 
             val allInheritedMembers = node.allInheritedMembers

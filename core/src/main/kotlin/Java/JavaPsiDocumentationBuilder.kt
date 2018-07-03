@@ -130,7 +130,8 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
             node.append(it, RefKind.Detail)
         }
         attrs.forEach {
-            node.append(it, RefKind.Detail)
+            refGraph.link(node, it, RefKind.Detail)
+            refGraph.link(it, node, RefKind.Owner)
         }
         attribute?.let {
             val attrName = node.qualifiedName()

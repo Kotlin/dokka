@@ -7,6 +7,7 @@ import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
+import org.jetbrains.dokka.javadoc.asText
 import org.jetbrains.kotlin.utils.join
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
@@ -17,11 +18,12 @@ import java.net.URI
 import java.util.regex.Pattern
 
 private val NAME_TEXT = Pattern.compile("(\\S+)(.*)", Pattern.DOTALL)
+private val TEXT = Pattern.compile("(\\S+)\\s*(.*)", Pattern.DOTALL)
 
 data class JavadocParseResult(
     val content: Content,
     val deprecatedContent: Content?,
-    val attributeRefs: List<DocumentationNode>,
+    val attributeRefs: List<String>,
     val apiLevel: DocumentationNode? = null,
     val artifactId: DocumentationNode? = null,
     val attribute: DocumentationNode? = null
@@ -101,7 +103,7 @@ class JavadocParser(
             }
         }
 
-        val attrRefs = mutableListOf<DocumentationNode>()
+        val attrRefSignatures = mutableListOf<String>()
         var since: DocumentationNode? = null
         var artifactId: DocumentationNode? = null
         var attrName: String? = null
@@ -117,7 +119,10 @@ class JavadocParser(
                 }
                 "attr" -> {
                     when (tag.valueElement?.text) {
-                        "ref" -> tag.getAttrRef(element)?.let { attrRefs.add(it) }
+                        "ref" ->
+                            tag.getAttrRef(element)?.let {
+                                attrRefSignatures.add(it)
+                            }
                         "name" -> attrName = tag.getAttrName()
                         "description" -> attrDesc = tag.getAttrDesc(element)
                     }
@@ -138,9 +143,9 @@ class JavadocParser(
             }
         }
         attrName?.let { name ->
-            attr = DocumentationNode(name, attrDesc ?: Content.Empty, NodeKind.Attribute)
+            attr = DocumentationNode(name, attrDesc ?: Content.Empty, NodeKind.AttributeRef)
         }
-        return JavadocParseResult(result, deprecatedContent, attrRefs, since, artifactId, attr)
+        return JavadocParseResult(result, deprecatedContent, attrRefSignatures, since, artifactId, attr)
     }
 
     private val tagsToInherit = setOf("param", "return", "throws")
@@ -190,7 +195,7 @@ class JavadocParser(
         return null
     }
 
-    private fun PsiDocTag.getAttrRef(element: PsiNamedElement): DocumentationNode? {
+    private fun PsiDocTag.getAttrRef(element: PsiNamedElement): String? {
         if (dataElements.size > 1) {
             val elementText = dataElements[1].text
             try {
@@ -198,10 +203,8 @@ class JavadocParser(
                     .createDocCommentFromText("/** {@link $elementText} */", element)
                 val linkElement = PsiTreeUtil.getChildOfType(linkComment, PsiInlineDocTag::class.java)?.linkElement()
                 val signature = resolveInternalLink(linkElement)
-                val attributeSignature = "AttrMain:$signature"
-                return signature?.let {
-                    refGraph.lookup(attributeSignature)
-                }
+                val attrSignature = "AttrMain:$signature"
+                return attrSignature
             } catch (e: IncorrectOperationException) {
                 return null
             }
@@ -221,7 +224,7 @@ class JavadocParser(
 
     private fun PsiDocTag.getAttrDesc(element: PsiNamedElement): Content? {
         return Content().apply {
-            convertJavadocElements(contentElements(), element)
+            convertJavadocElementsToAttrDesc(contentElements(), element)
         }
     }
 
@@ -236,7 +239,30 @@ class JavadocParser(
     private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>, element: PsiNamedElement) {
         val doc = Jsoup.parse(expandAllForElements(elements, element))
         doc.body().childNodes().forEach {
-            convertHtmlNode(it)?.let { append(it) }
+            convertHtmlNode(it)?.let {
+                append(it)
+            }
+        }
+    }
+
+    private fun ContentBlock.convertJavadocElementsToAttrDesc(elements: Iterable<PsiElement>, element: PsiNamedElement) {
+        val doc = Jsoup.parse(expandAllForElements(elements, element))
+        doc.body().childNodes().forEach {
+            convertHtmlNode(it)?.let {
+                var content = it
+                if (content is ContentText) {
+                    var description = content.text
+                    val matcher = TEXT.matcher(content.text)
+                    if (matcher.matches()) {
+                        val command = matcher.group(1)
+                        if (command == "description") {
+                            description = matcher.group(2)
+                            content = ContentText(description)
+                        }
+                    }
+                }
+                append(content)
+            }
         }
     }
 

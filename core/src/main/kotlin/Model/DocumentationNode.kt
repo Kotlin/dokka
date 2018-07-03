@@ -61,6 +61,8 @@ enum class NodeKind {
 
     Attribute,
 
+    AttributeRef,
+
     ApiLevel,
 
     ArtifactId,
@@ -120,6 +122,8 @@ open class DocumentationNode(val name: String,
         get() = detailOrNull(NodeKind.ArtifactId) ?: DocumentationNode("", Content.Empty, NodeKind.ArtifactId)
     val attributes: List<DocumentationNode>
         get() = details(NodeKind.Attribute)
+    val attributeRef: DocumentationNode?
+        get() = references(RefKind.AttributeRef).map { it.to }.firstOrNull()
     val relatedAttributes: List<DocumentationNode>
         get() = hiddenLinks(NodeKind.Attribute)
     val supertypes: List<DocumentationNode>

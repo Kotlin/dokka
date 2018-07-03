@@ -61,8 +61,12 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         uri: URI
 ) : JavaLayoutHtmlFormatOutputBuilder(output, languageService, uriProvider, templateService, logger, uri) {
     override fun FlowContent.fullMemberDocs(node: DocumentationNode) {
+        fullMemberDocs(node, node)
+    }
+
+    override fun FlowContent.fullMemberDocs(node: DocumentationNode, uriNode: DocumentationNode) {
         a {
-            attributes["name"] = node.signatureForAnchor(logger).urlEncoded()
+            attributes["name"] = uriNode.signatureForAnchor(logger).urlEncoded()
         }
         div(classes = "api apilevel-${node.apiLevel.name}") {
             attributes["data-version-added"] = node.apiLevel.name
@@ -80,7 +84,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
             deprecationWarningToMarkup(node, prefix = true)
-            nodeContent(node)
+            nodeContent(node, uriNode)
             node.constantValue()?.let { value ->
                 pre {
                     +"Value: "
@@ -192,17 +196,29 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         td {
             a(href = attr) {
                 code {
-                    +attr.name
+                    +attr.attributeRef!!.name
                 }
             }
         }
         td {
-            nodeSummary(attr)
+            nodeSummary(attr.attributeRef!!, attr)
+        }
+    }
+
+    protected fun FlowContent.fullAttributeDocs(
+        attributes: List<DocumentationNode>,
+        header: String
+    ) {
+        h2 {
+            +header
+        }
+        attributes.forEach {
+            fullMemberDocs(it.attributeRef!!, it)
         }
     }
 
     override fun FlowContent.classLikeFullMemberDocs(page: Page.ClassPage) = with(page) {
-        fullMemberDocs(attributes, "XML attributes")
+        fullAttributeDocs(attributes, "XML attributes")
         fullMemberDocs(enumValues, "Enum values")
         fullMemberDocs(constants, "Constants")
 
@@ -457,17 +473,17 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     )
 
     private fun TBODY.inheritedXmlAttributeRow(inheritedMember: DocumentationNode) {
-        tr(classes = "api apilevel-${inheritedMember.apiLevel.name}") {
+        tr(classes = "api apilevel-${inheritedMember.attributeRef!!.apiLevel.name}") {
             attributes["data-version-added"] = "${inheritedMember.apiLevel}"
             td {
                 code {
-                    a(href = inheritedMember) { +inheritedMember.name }
+                    a(href = inheritedMember) { +inheritedMember.attributeRef!!.name }
                 }
             }
             td {
                 attributes["width"] = "100%"
                 p {
-                    nodeContent(inheritedMember)
+                    nodeContent(inheritedMember.attributeRef!!, inheritedMember)
                 }
             }
         }

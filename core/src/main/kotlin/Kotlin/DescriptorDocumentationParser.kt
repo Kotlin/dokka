@@ -180,14 +180,17 @@ class DescriptorDocumentationParser @Inject constructor(
                 }
                 if (node.kind in NodeKind.classLike) {
                     parseResult.attributeRefs.forEach {
-                        val attrNode = DocumentationNode(it.name, it.content, NodeKind.Attribute)
-                        val attrSignature = "${node.signatureName}:${it.signatureName}"
-                        refGraph.register(attrSignature, attrNode)
-                        node.append(attrNode, RefKind.Detail)
+                        val signature = node.detailOrNull(NodeKind.Signature)
+                        val signatureName = signature?.name
+                        val classAttrSignature = "${signatureName}:$it"
+                        refGraph.register(classAttrSignature, DocumentationNode(node.name, Content.Empty, NodeKind.Attribute))
+                        refGraph.link(node, classAttrSignature, RefKind.Detail)
+                        refGraph.link(classAttrSignature, node, RefKind.Owner)
+                        refGraph.link(classAttrSignature, it, RefKind.AttributeRef)
                     }
                 } else if (node.kind in NodeKind.memberLike) {
                     parseResult.attributeRefs.forEach {
-                        node.append(it, RefKind.HiddenLink)
+                        refGraph.link(node, it, RefKind.HiddenLink)
                     }
                 }
                 parseResult.apiLevel?.let {
@@ -197,8 +200,11 @@ class DescriptorDocumentationParser @Inject constructor(
                     node.append(it, RefKind.Detail)
                 }
                 parseResult.attribute?.let {
-                    val attrSignature = "AttrMain:${node.detailOrNull(NodeKind.Signature)?.name}"
+                    val signature = node.detailOrNull(NodeKind.Signature)
+                    val signatureName = signature?.name
+                    val attrSignature = "AttrMain:$signatureName"
                     refGraph.register(attrSignature, it)
+                    refGraph.link(attrSignature, node, RefKind.AttributeSource)
                 }
             }
         }
