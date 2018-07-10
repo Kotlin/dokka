@@ -17,6 +17,27 @@ class UrlSerializer : ValueSerializer<URL?> {
     override fun toJsonValue(value: URL?): Any? = value?.toExternalForm()
 }
 
+enum class Platform(val key: String) {
+    jvm("jvm"),
+    js("js");
+//    common("common");
+
+
+    companion object {
+        val DEFAULT = jvm
+
+        fun fromString(key: String): Platform {
+            return when (key.toLowerCase()) {
+                jvm.key -> jvm
+                js.key -> js
+//                common.key -> common
+                else -> TODO("write normal exception")
+            }
+        }
+    }
+
+}
+
 interface DokkaConfiguration {
     val moduleName: String
     val classpath: List<String>
@@ -45,6 +66,7 @@ interface DokkaConfiguration {
     interface SourceRoot {
         val path: String
         val platforms: List<String>
+        val analysisPlatform: Platform
     }
 
     interface SourceLinkDefinition {

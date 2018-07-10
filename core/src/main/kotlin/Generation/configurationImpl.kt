@@ -18,13 +18,22 @@ data class SourceLinkDefinitionImpl(override val path: String,
     }
 }
 
-class SourceRootImpl(path: String, override val platforms: List<String> = emptyList()) : SourceRoot {
+class SourceRootImpl(path: String, override val platforms: List<String> = emptyList(),
+                     override val analysisPlatform: Platform = Platform.DEFAULT) : SourceRoot {
     override val path: String = File(path).absolutePath
 
     companion object {
         fun parseSourceRoot(sourceRoot: String): SourceRoot {
             val components = sourceRoot.split("::", limit = 2)
-            return SourceRootImpl(components.last(), if (components.size == 1) listOf() else components[0].split(','))
+
+            // TODO: create syntax for cli
+            val platform = if (components.size == 1) {
+                Platform.DEFAULT
+            } else {
+                Platform.fromString(components[0])
+            }
+
+            return SourceRootImpl(components.last(), emptyList(), platform)
         }
     }
 }

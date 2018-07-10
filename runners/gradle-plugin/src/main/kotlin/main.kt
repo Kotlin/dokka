@@ -396,6 +396,8 @@ class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
 
     override var platforms: List<String> = arrayListOf()
 
+    override val analysisPlatform: Platform = Platform.DEFAULT
+
     override fun toString(): String {
         return "${platforms.joinToString()}::$path"
     }

@@ -35,9 +35,10 @@ class DokkaGenerator(val logger: DokkaLogger,
     private val documentationModule = DocumentationModule(moduleName)
 
     fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.platforms.firstOrNull() }
-        for ((platform, roots) in sourcesGroupedByPlatform) {
-            appendSourceModule(platform, roots)
+        val sourcesGroupedByPlatform = sources.groupBy { it.platforms.firstOrNull() to it.analysisPlatform }
+        for ((platformsInfo, roots) in sourcesGroupedByPlatform) {
+            val (platform, analysisPlatform) = platformsInfo
+            appendSourceModule(platform, analysisPlatform, roots)
         }
         documentationModule.prepareForGeneration(options)
 
@@ -49,9 +50,14 @@ class DokkaGenerator(val logger: DokkaLogger,
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(defaultPlatform: String?, sourceRoots: List<SourceRoot>) {
+    private fun appendSourceModule(defaultPlatform: String?,
+                                   analysisPlatform: Platform,
+                                   sourceRoots: List<SourceRoot>
+
+    ) {
+
         val sourcePaths = sourceRoots.map { it.path }
-        val environment = createAnalysisEnvironment(sourcePaths)
+        val environment = createAnalysisEnvironment(sourcePaths, analysisPlatform)
 
         logger.info("Module: $moduleName")
         logger.info("Output: ${File(options.outputDir)}")
@@ -82,11 +88,13 @@ class DokkaGenerator(val logger: DokkaLogger,
         Disposer.dispose(environment)
     }
 
-    fun createAnalysisEnvironment(sourcePaths: List<String>): AnalysisEnvironment {
-        val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
+    fun createAnalysisEnvironment(sourcePaths: List<String>, analysisPlatform: Platform): AnalysisEnvironment {
+        val environment = AnalysisEnvironment(DokkaMessageCollector(logger), analysisPlatform)
 
         environment.apply {
-            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            if (analysisPlatform == Platform.jvm) {
+                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            }
             //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
             for (element in this@DokkaGenerator.classpath) {
                 addClasspath(File(element))
