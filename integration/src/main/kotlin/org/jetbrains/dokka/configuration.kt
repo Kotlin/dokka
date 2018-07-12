@@ -19,8 +19,8 @@ class UrlSerializer : ValueSerializer<URL?> {
 
 enum class Platform(val key: String) {
     jvm("jvm"),
-    js("js");
-//    common("common");
+    js("js"),
+    common("common");
 
 
     companion object {
@@ -30,7 +30,7 @@ enum class Platform(val key: String) {
             return when (key.toLowerCase()) {
                 jvm.key -> jvm
                 js.key -> js
-//                common.key -> common
+                common.key -> common
                 else -> TODO("write normal exception")
             }
         }
