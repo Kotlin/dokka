@@ -102,14 +102,15 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         return environment
     }
 
-    fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope = when (analysisPlatform) {
-            Platform.js -> GlobalSearchScope.filesScope(project, sourceFiles.map { it.virtualFile }.toSet())
+    fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
+        when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-    }
+            Platform.js -> GlobalSearchScope.filesScope(project, sourceFiles.map { it.virtualFile }.toSet())
+        }
 
 
     fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
-        return when(analysisPlatform) {
+        return when (analysisPlatform) {
             Platform.jvm -> createJVMResolutionFacade(environment)
             Platform.js -> createJSResolutionFacade(environment)
         }
@@ -255,10 +256,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $paths: collection of files to add
      */
     fun addClasspath(paths: List<File>) {
-        when (analysisPlatform) {
-            Platform.js -> configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map{it.absolutePath})
-            Platform.jvm -> configuration.addJvmClasspathRoots(paths)
+        if (analysisPlatform == Platform.js) {
+            configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         }
+        configuration.addJvmClasspathRoots(paths)
     }
 
     /**
@@ -266,10 +267,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * $path: path to add
      */
     fun addClasspath(path: File) {
-        when (analysisPlatform) {
-            Platform.js -> configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
-            Platform.jvm -> configuration.addJvmClasspathRoot(path)
+        if (analysisPlatform == Platform.js) {
+            configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         }
+        configuration.addJvmClasspathRoot(path)
     }
 
     /**
