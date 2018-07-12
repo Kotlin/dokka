@@ -8,7 +8,7 @@ import org.junit.Test
 class TypeAliasTest {
     @Test
     fun testSimple() {
-        verifyModel("testdata/typealias/simple.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/simple.kt") {
             val pkg = it.members.single()
             with(pkg.member(NodeKind.TypeAlias)) {
                 assertEquals(Content.Empty, content)
@@ -20,7 +20,7 @@ class TypeAliasTest {
 
     @Test
     fun testInheritanceFromTypeAlias() {
-        verifyModel("testdata/typealias/inheritanceFromTypeAlias.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/inheritanceFromTypeAlias.kt") {
             val pkg = it.members.single()
             with(pkg.member(NodeKind.TypeAlias)) {
                 assertEquals(Content.Empty, content)
@@ -36,7 +36,7 @@ class TypeAliasTest {
 
     @Test
     fun testChain() {
-        verifyModel("testdata/typealias/chain.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/chain.kt") {
             val pkg = it.members.single()
             with(pkg.members(NodeKind.TypeAlias).find { it.name == "B" }!!) {
                 assertEquals(Content.Empty, content)
@@ -51,7 +51,7 @@ class TypeAliasTest {
 
     @Test
     fun testDocumented() {
-        verifyModel("testdata/typealias/documented.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/documented.kt") {
             val pkg = it.members.single()
             with(pkg.member(NodeKind.TypeAlias)) {
                 assertEquals("Just typealias", content.summary.toTestString())
@@ -61,7 +61,7 @@ class TypeAliasTest {
 
     @Test
     fun testDeprecated() {
-        verifyModel("testdata/typealias/deprecated.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/deprecated.kt") {
             val pkg = it.members.single()
             with(pkg.member(NodeKind.TypeAlias)) {
                 assertEquals(Content.Empty, content)
@@ -73,7 +73,7 @@ class TypeAliasTest {
 
     @Test
     fun testGeneric() {
-        verifyModel("testdata/typealias/generic.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/generic.kt") {
             val pkg = it.members.single()
             with(pkg.members(NodeKind.TypeAlias).find { it.name == "B" }!!) {
                 assertEquals("Any", detail(NodeKind.TypeAliasUnderlyingType).detail(NodeKind.Type).name)
@@ -88,7 +88,7 @@ class TypeAliasTest {
 
     @Test
     fun testFunctional() {
-        verifyModel("testdata/typealias/functional.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/functional.kt") {
             val pkg = it.members.single()
             with(pkg.member(NodeKind.TypeAlias)) {
                 assertEquals("Function1", detail(NodeKind.TypeAliasUnderlyingType).name)
@@ -105,7 +105,7 @@ class TypeAliasTest {
 
     @Test
     fun testAsTypeBoundWithVariance() {
-        verifyModel("testdata/typealias/asTypeBoundWithVariance.kt") {
+        checkSourceExistsAndVerifyModel("testdata/typealias/asTypeBoundWithVariance.kt") {
             val pkg = it.members.single()
             with(pkg.members(NodeKind.Class).find { it.name == "C" }!!) {
                 val tParam = detail(NodeKind.TypeParameter)
@@ -123,7 +123,7 @@ class TypeAliasTest {
 
     @Test
     fun sinceKotlin() {
-        verifyModel("testdata/typealias/sinceKotlin.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/typealias/sinceKotlin.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals(listOf("Kotlin 1.1"), platforms)
             }

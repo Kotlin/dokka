@@ -3,14 +3,16 @@ package org.jetbrains.dokka.javadoc
 import com.sun.javadoc.Tag
 import com.sun.javadoc.Type
 import org.jetbrains.dokka.DokkaConsoleLogger
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.tests.ModelConfig
 import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
-import org.jetbrains.dokka.tests.verifyModel
+import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
 import org.junit.Assert.*
 import org.junit.Test
 
 class JavadocTest {
     @Test fun testTypes() {
-        verifyJavadoc("testdata/javadoc/types.kt", withJdk = true) { doc ->
+        verifyJavadoc("testdata/javadoc/types.kt", ModelConfig(withJdk = true)) { doc ->
             val classDoc = doc.classNamed("foo.TypesKt")!!
             val method = classDoc.methods().find { it.name() == "foo" }!!
 
@@ -39,7 +41,7 @@ class JavadocTest {
     }
 
     @Test fun testException() {
-        verifyJavadoc("testdata/javadoc/exception.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/exception.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val classDoc = doc.classNamed("foo.MyException")!!
             val member = classDoc.methods().find { it.name() == "foo" }
             assertEquals(classDoc, member!!.containingClass())
@@ -47,7 +49,7 @@ class JavadocTest {
     }
 
     @Test fun testByteArray() {
-        verifyJavadoc("testdata/javadoc/bytearr.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/bytearr.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val classDoc = doc.classNamed("foo.ByteArray")!!
             assertNotNull(classDoc.asClassDoc())
 
@@ -57,7 +59,7 @@ class JavadocTest {
     }
 
     @Test fun testStringArray() {
-        verifyJavadoc("testdata/javadoc/stringarr.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/stringarr.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val classDoc = doc.classNamed("foo.Foo")!!
             assertNotNull(classDoc.asClassDoc())
 
@@ -70,7 +72,7 @@ class JavadocTest {
     }
 
     @Test fun testJvmName() {
-        verifyJavadoc("testdata/javadoc/jvmname.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/jvmname.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val classDoc = doc.classNamed("foo.Apple")!!
             assertNotNull(classDoc.asClassDoc())
 
@@ -80,7 +82,7 @@ class JavadocTest {
     }
 
     @Test fun testLinkWithParam() {
-        verifyJavadoc("testdata/javadoc/paramlink.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/paramlink.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val classDoc = doc.classNamed("demo.Apple")!!
             assertNotNull(classDoc.asClassDoc())
             val tags = classDoc.inlineTags().filterIsInstance<SeeTagAdapter>()
@@ -91,7 +93,7 @@ class JavadocTest {
     }
 
     @Test fun testInternalVisibility() {
-        verifyJavadoc("testdata/javadoc/internal.kt", withKotlinRuntime = true, includeNonPublic = false) { doc ->
+        verifyJavadoc("testdata/javadoc/internal.kt", ModelConfig(withKotlinRuntime = true, includeNonPublic = false)) { doc ->
             val classDoc = doc.classNamed("foo.Person")!!
             val constructors = classDoc.constructors()
             assertEquals(1, constructors.size)
@@ -100,7 +102,7 @@ class JavadocTest {
     }
 
     @Test fun testSuppress() {
-        verifyJavadoc("testdata/javadoc/suppress.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/suppress.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             assertNull(doc.classNamed("Some"))
             assertNull(doc.classNamed("SomeAgain"))
             assertNull(doc.classNamed("Interface"))
@@ -111,7 +113,7 @@ class JavadocTest {
     }
 
     @Test fun testTypeAliases() {
-        verifyJavadoc("testdata/javadoc/typealiases.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/typealiases.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             assertNull(doc.classNamed("B"))
             assertNull(doc.classNamed("D"))
 
@@ -126,7 +128,7 @@ class JavadocTest {
     }
 
     @Test fun testKDocKeywordsOnMethod() {
-        verifyJavadoc("testdata/javadoc/kdocKeywordsOnMethod.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/kdocKeywordsOnMethod.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val method = doc.classNamed("KdocKeywordsOnMethodKt")!!.methods()[0]
             assertEquals("@return [ContentText(text=value of a)]", method.tags("return").first().text())
             assertEquals("@param a [ContentText(text=Some string)]", method.paramTags().first().text())
@@ -136,7 +138,7 @@ class JavadocTest {
 
     @Test
     fun testBlankLineInsideCodeBlock() {
-        verifyJavadoc("testdata/javadoc/blankLineInsideCodeBlock.kt", withKotlinRuntime = true) { doc ->
+        verifyJavadoc("testdata/javadoc/blankLineInsideCodeBlock.kt", ModelConfig(withKotlinRuntime = true)) { doc ->
             val method = doc.classNamed("BlankLineInsideCodeBlockKt")!!.methods()[0]
             val text = method.inlineTags().joinToString(separator = "", transform = Tag::text)
             assertEqualsIgnoringSeparators("""
@@ -162,12 +164,17 @@ class JavadocTest {
     }
 
     private fun verifyJavadoc(name: String,
-                              withJdk: Boolean = false,
-                              withKotlinRuntime: Boolean = false,
-                              includeNonPublic: Boolean = true,
+                              modelConfig: ModelConfig = ModelConfig(),
                               callback: (ModuleNodeAdapter) -> Unit) {
 
-        verifyModel(name, format = "javadoc", withJdk = withJdk, withKotlinRuntime = withKotlinRuntime, includeNonPublic = includeNonPublic) { model ->
+        checkSourceExistsAndVerifyModel(name,
+            ModelConfig(
+                analysisPlatform = Platform.jvm,
+                format = "javadoc",
+                withJdk = modelConfig.withJdk,
+                withKotlinRuntime = modelConfig.withKotlinRuntime,
+                includeNonPublic = modelConfig.includeNonPublic
+            )) { model ->
             val doc = ModuleNodeAdapter(model, StandardReporter(DokkaConsoleLogger), "")
             callback(doc)
         }

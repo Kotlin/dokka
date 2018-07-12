@@ -2,8 +2,8 @@ package issues
 
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.NodeKind
-import org.jetbrains.dokka.tests.toTestString
-import org.jetbrains.dokka.tests.verifyModel
+import org.jetbrains.dokka.tests.ModelConfig
+import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -12,7 +12,8 @@ class IssuesTest {
 
     @Test
     fun errorClasses() {
-        verifyModel("testdata/issues/errorClasses.kt", withJdk = true, withKotlinRuntime = true) { model ->
+        checkSourceExistsAndVerifyModel("testdata/issues/errorClasses.kt",
+            modelConfig = ModelConfig(withJdk = true, withKotlinRuntime = true)) { model ->
             val cls = model.members.single().members.single()
 
             fun DocumentationNode.returnType() = this.details.find { it.kind == NodeKind.Type }?.name

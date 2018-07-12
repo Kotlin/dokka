@@ -9,7 +9,7 @@ import org.junit.Test
 
 public class PackageTest {
     @Test fun rootPackage() {
-        verifyModel("testdata/packages/rootPackage.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/packages/rootPackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(NodeKind.Package, kind)
                 assertEquals("", name)
@@ -22,7 +22,7 @@ public class PackageTest {
     }
 
     @Test fun simpleNamePackage() {
-        verifyModel("testdata/packages/simpleNamePackage.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/packages/simpleNamePackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(NodeKind.Package, kind)
                 assertEquals("simple", name)
@@ -35,7 +35,7 @@ public class PackageTest {
     }
 
     @Test fun dottedNamePackage() {
-        verifyModel("testdata/packages/dottedNamePackage.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/packages/dottedNamePackage.kt") { model ->
             with(model.members.single()) {
                 assertEquals(NodeKind.Package, kind)
                 assertEquals("dot.name", name)
@@ -48,8 +48,14 @@ public class PackageTest {
     }
 
     @Test fun multipleFiles() {
-        verifyModel(KotlinSourceRoot("testdata/packages/dottedNamePackage.kt"),
-                    KotlinSourceRoot("testdata/packages/simpleNamePackage.kt")) { model ->
+        verifyModel(
+            ModelConfig(
+                roots = arrayOf(
+                    KotlinSourceRoot("testdata/packages/dottedNamePackage.kt"),
+                    KotlinSourceRoot("testdata/packages/simpleNamePackage.kt")
+                )
+            )
+        ) { model ->
             assertEquals(2, model.members.count())
             with(model.members.single { it.name == "simple" }) {
                 assertEquals(NodeKind.Package, kind)
@@ -70,8 +76,14 @@ public class PackageTest {
     }
 
     @Test fun multipleFilesSamePackage() {
-        verifyModel(KotlinSourceRoot("testdata/packages/simpleNamePackage.kt"),
-                    KotlinSourceRoot("testdata/packages/simpleNamePackage2.kt")) { model ->
+        verifyModel(
+            ModelConfig(
+                roots = arrayOf(
+                    KotlinSourceRoot("testdata/packages/simpleNamePackage.kt"),
+                    KotlinSourceRoot("testdata/packages/simpleNamePackage2.kt")
+                )
+            )
+        ) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)
@@ -85,7 +97,9 @@ public class PackageTest {
     }
 
     @Test fun classAtPackageLevel() {
-        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt")) { model ->
+        verifyModel(
+            ModelConfig(roots = arrayOf(KotlinSourceRoot("testdata/packages/classInPackage.kt")))
+        ) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)
@@ -99,8 +113,14 @@ public class PackageTest {
     }
 
     @Test fun suppressAtPackageLevel() {
-        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt"),
-                perPackageOptions = listOf(PackageOptionsImpl(prefix = "simple.name", suppress = true))) { model ->
+        verifyModel(
+            ModelConfig(
+                roots = arrayOf(KotlinSourceRoot("testdata/packages/classInPackage.kt")),
+                perPackageOptions = listOf(
+                    PackageOptionsImpl(prefix = "simple.name", suppress = true)
+                )
+            )
+        ) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)

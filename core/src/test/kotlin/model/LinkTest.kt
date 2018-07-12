@@ -8,7 +8,7 @@ import org.junit.Test
 
 class LinkTest {
     @Test fun linkToSelf() {
-        verifyModel("testdata/links/linkToSelf.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToSelf.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -18,7 +18,7 @@ class LinkTest {
     }
 
     @Test fun linkToMember() {
-        verifyModel("testdata/links/linkToMember.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -28,7 +28,7 @@ class LinkTest {
     }
 
     @Test fun linkToConstantWithUnderscores() {
-        verifyModel("testdata/links/linkToConstantWithUnderscores.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToConstantWithUnderscores.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -38,7 +38,7 @@ class LinkTest {
     }
 
     @Test fun linkToQualifiedMember() {
-        verifyModel("testdata/links/linkToQualifiedMember.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToQualifiedMember.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -48,7 +48,7 @@ class LinkTest {
     }
 
     @Test fun linkToParam() {
-        verifyModel("testdata/links/linkToParam.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToParam.kt") { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Function, kind)
@@ -58,7 +58,7 @@ class LinkTest {
     }
 
     @Test fun linkToPackage() {
-        verifyModel("testdata/links/linkToPackage.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToPackage.kt") { model ->
             val packageNode = model.members.single()
             with(packageNode) {
                 assertEquals(this.name, "test.magic")
