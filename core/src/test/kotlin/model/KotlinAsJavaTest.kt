@@ -7,8 +7,6 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 
 class KotlinAsJavaTest {
-    private val defaultModelConfig = ModelConfig (analysisPlatform = Platform.jvm)
-
     @Test fun function() {
         verifyModelAsJava("testdata/functions/function.kt") { model ->
             val pkg = model.members.single()
@@ -33,14 +31,13 @@ class KotlinAsJavaTest {
 }
 
 fun verifyModelAsJava(source: String,
-                      withJdk: Boolean = false,
-                      withKotlinRuntime: Boolean = false,
+                      modelConfig: ModelConfig = ModelConfig(),
                       verifier: (DocumentationModule) -> Unit) {
     checkSourceExistsAndVerifyModel(
         source,
         modelConfig = ModelConfig(
-            withJdk = withJdk,
-            withKotlinRuntime = withKotlinRuntime,
+            withJdk = modelConfig.withJdk,
+            withKotlinRuntime = modelConfig.withKotlinRuntime,
             format = "html-as-java",
             analysisPlatform = Platform.jvm),
         verifier = verifier

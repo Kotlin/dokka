@@ -4,6 +4,7 @@ import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
 import org.jetbrains.kotlin.analyzer.PlatformAnalysisParameters
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -229,3 +230,25 @@ Documentation""", content.description.toTestString())
         }
     }
 }
+
+class JSFunctionTest: BaseFunctionTest(Platform.js)
+
+class JVMFunctionTest: BaseFunctionTest(Platform.jvm) {
+    @Test
+    fun annotatedFunction() {
+        verifyPackageMember("testdata/functions/annotatedFunction.kt", ModelConfig(
+            analysisPlatform = Platform.jvm,
+            withKotlinRuntime = true
+        )) { func ->
+            Assert.assertEquals(1, func.annotations.count())
+            with(func.annotations[0]) {
+                Assert.assertEquals("Strictfp", name)
+                Assert.assertEquals(Content.Empty, content)
+                Assert.assertEquals(NodeKind.Annotation, kind)
+            }
+        }
+    }
+
+}
+
+class CommonFunctionTest: BaseFunctionTest(Platform.common)

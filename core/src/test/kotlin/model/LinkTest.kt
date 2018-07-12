@@ -3,12 +3,14 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.ContentBlock
 import org.jetbrains.dokka.ContentNodeLazyLink
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class LinkTest {
+abstract class BaseLinkTest(val analysisPlatform: Platform) {
+    private val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     @Test fun linkToSelf() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToSelf.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToSelf.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -18,7 +20,7 @@ class LinkTest {
     }
 
     @Test fun linkToMember() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToMember.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToMember.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -28,7 +30,7 @@ class LinkTest {
     }
 
     @Test fun linkToConstantWithUnderscores() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToConstantWithUnderscores.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToConstantWithUnderscores.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -38,7 +40,7 @@ class LinkTest {
     }
 
     @Test fun linkToQualifiedMember() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToQualifiedMember.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToQualifiedMember.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Class, kind)
@@ -48,7 +50,7 @@ class LinkTest {
     }
 
     @Test fun linkToParam() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToParam.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToParam.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Foo", name)
                 assertEquals(NodeKind.Function, kind)
@@ -58,7 +60,7 @@ class LinkTest {
     }
 
     @Test fun linkToPackage() {
-        checkSourceExistsAndVerifyModel("testdata/links/linkToPackage.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/links/linkToPackage.kt", defaultModelConfig) { model ->
             val packageNode = model.members.single()
             with(packageNode) {
                 assertEquals(this.name, "test.magic")
@@ -73,3 +75,7 @@ class LinkTest {
     }
 
 }
+
+class JSLinkTest: BaseLinkTest(Platform.js)
+class JVMLinkTest: BaseLinkTest(Platform.jvm)
+class CommonLinkTest: BaseLinkTest(Platform.common)

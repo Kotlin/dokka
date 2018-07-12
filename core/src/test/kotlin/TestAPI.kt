@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.utils.PathUtil
 import org.junit.Assert
 import org.junit.Assert.fail
 import java.io.File
@@ -24,7 +25,7 @@ data class ModelConfig(
     val format: String = "html",
     val includeNonPublic: Boolean = true,
     val perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
-    val analysisPlatform: Platform = Platform.js,
+    val analysisPlatform: Platform = Platform.DEFAULT,
     val defaultPlatforms: List<String> = emptyList()
 )
 
@@ -84,18 +85,22 @@ fun appendDocumentation(documentation: DocumentationModule,
     val environment = AnalysisEnvironment(messageCollector, modelConfig.analysisPlatform)
     environment.apply {
         if (modelConfig.withJdk || modelConfig.withKotlinRuntime) {
-            val stringRoot = PathManager.getResourceRoot(String::class.java, "/java/lang/String.class")
-            addClasspath(File(stringRoot))
+            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
         }
         if (modelConfig.withKotlinRuntime) {
-            val kotlinStrictfpRoot = PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
-            addClasspath(File(kotlinStrictfpRoot))
+            if (analysisPlatform == Platform.jvm) {
+                val kotlinStrictfpRoot = PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
+                addClasspath(File(kotlinStrictfpRoot))
+            }
             // TODO: Fix concrete path to correct gradle path providing
             if (analysisPlatform == Platform.js) {
                 addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-jslib.jar"))
                 addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-stdlib-js.jar"))
                 addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-stdlib-js-sources.jar"))
                 }
+            if (analysisPlatform == Platform.common) {
+                addClasspath(File("/home/jetbrains/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.51/e4a9d4b13ab19ed1e6531fce6df98e8cfa7f7301/kotlin-stdlib-common-1.2.51.jar"))
+            }
         }
         addRoots(modelConfig.roots.toList())
 

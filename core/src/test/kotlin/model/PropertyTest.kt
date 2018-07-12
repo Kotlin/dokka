@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -99,3 +100,30 @@ abstract class BasePropertyTest(val analysisPlatform: Platform) {
         }
     }
 }
+
+class JSPropertyTest: BasePropertyTest(Platform.js) {}
+
+class JVMPropertyTest : BasePropertyTest(Platform.jvm) {
+    @Test
+    fun annotatedProperty() {
+        checkSourceExistsAndVerifyModel(
+            "testdata/properties/annotatedProperty.kt",
+            modelConfig = ModelConfig(
+                analysisPlatform = analysisPlatform,
+                withKotlinRuntime = true
+            )
+        ) { model ->
+            with(model.members.single().members.single()) {
+                Assert.assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    Assert.assertEquals("Volatile", name)
+                    Assert.assertEquals(Content.Empty, content)
+                    Assert.assertEquals(NodeKind.Annotation, kind)
+                }
+            }
+        }
+    }
+
+}
+
+class CommonPropertyTest: BasePropertyTest(Platform.common) {}

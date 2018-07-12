@@ -144,3 +144,50 @@ abstract class BaseHtmlFormatTest(val analysisPlatform: Platform): FileGenerator
     }
 }
 
+class JSHtmlFormatTest: BaseHtmlFormatTest(Platform.js)
+
+class JVMHtmlFormatTest: BaseHtmlFormatTest(Platform.jvm) {
+    @Test
+    fun javaSeeTag() {
+        verifyJavaHtmlNode("javaSeeTag", defaultModelConfig)
+    }
+
+    @Test fun javaDeprecated() {
+        verifyJavaHtmlNodes("javaDeprecated", defaultModelConfig) { model ->
+            model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" }
+        }
+    }
+
+    @Test fun crossLanguageKotlinExtendsJava() {
+        verifyOutput(
+            ModelConfig(
+                roots = arrayOf(
+                    KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt"),
+                    JavaSourceRoot(File("testdata/format/crossLanguage/kotlinExtendsJava"), null)
+                ),
+                analysisPlatform = analysisPlatform
+            ), ".html") { model, output ->
+            buildPagesAndReadInto(
+                model.members.single().members.filter { it.name == "Bar" },
+                output
+            )
+        }
+    }
+
+    @Test fun javaLinkTag() {
+        verifyJavaHtmlNode("javaLinkTag", defaultModelConfig)
+    }
+
+    @Test fun javaLinkTagWithLabel() {
+        verifyJavaHtmlNode("javaLinkTagWithLabel", defaultModelConfig)
+    }
+
+    @Test fun javaSupertypeLink() {
+        verifyJavaHtmlNodes("JavaSupertype", defaultModelConfig) { model ->
+            model.members.single().members.single { it.name == "JavaSupertype" }.members.filter { it.name == "Bar" }
+        }
+    }
+
+}
+
+class CommonHtmlFormatTest: BaseHtmlFormatTest(Platform.common)

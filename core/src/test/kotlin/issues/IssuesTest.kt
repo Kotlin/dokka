@@ -2,18 +2,19 @@ package issues
 
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.tests.ModelConfig
 import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
 import org.junit.Test
 import kotlin.test.assertEquals
 
-
-class IssuesTest {
+abstract class BaseIssuesTest(val analysisPlatform: Platform) {
+    val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
 
     @Test
     fun errorClasses() {
         checkSourceExistsAndVerifyModel("testdata/issues/errorClasses.kt",
-            modelConfig = ModelConfig(withJdk = true, withKotlinRuntime = true)) { model ->
+            modelConfig = ModelConfig(analysisPlatform = analysisPlatform, withJdk = true, withKotlinRuntime = true)) { model ->
             val cls = model.members.single().members.single()
 
             fun DocumentationNode.returnType() = this.details.find { it.kind == NodeKind.Type }?.name
@@ -27,3 +28,7 @@ class IssuesTest {
         }
     }
 }
+
+class JSIssuesTest: BaseIssuesTest(Platform.js)
+class JVMIssuesTest: BaseIssuesTest(Platform.jvm)
+class CommonIssuesTest: BaseIssuesTest(Platform.common)

@@ -3,35 +3,36 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.*
 import org.junit.Test
 
-class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
+abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
+    val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     override val formatService = KotlinWebsiteHtmlFormatService(fileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
 
     @Test fun dropImport() {
-        verifyKWSNodeByName("dropImport", "foo")
+        verifyKWSNodeByName("dropImport", "foo", defaultModelConfig)
     }
 
     @Test fun sample() {
-        verifyKWSNodeByName("sample", "foo")
+        verifyKWSNodeByName("sample", "foo", defaultModelConfig)
     }
 
     @Test fun sampleWithAsserts() {
-        verifyKWSNodeByName("sampleWithAsserts", "a")
+        verifyKWSNodeByName("sampleWithAsserts", "a", defaultModelConfig)
     }
 
     @Test fun newLinesInSamples() {
-        verifyKWSNodeByName("newLinesInSamples", "foo")
+        verifyKWSNodeByName("newLinesInSamples", "foo", defaultModelConfig)
     }
 
     @Test fun newLinesInImportList() {
-        verifyKWSNodeByName("newLinesInImportList", "foo")
+        verifyKWSNodeByName("newLinesInImportList", "foo", defaultModelConfig)
     }
 
     @Test fun returnTag() {
-        verifyKWSNodeByName("returnTag", "indexOf")
+        verifyKWSNodeByName("returnTag", "indexOf", defaultModelConfig)
     }
 
     @Test fun overloadGroup() {
-        verifyKWSNodeByName("overloadGroup", "magic")
+        verifyKWSNodeByName("overloadGroup", "magic", defaultModelConfig)
     }
 
     @Test fun dataTags() {
@@ -51,8 +52,12 @@ class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
         verifyMultiplatformPackage(module, path)
     }
 
-    private fun verifyKWSNodeByName(fileName: String, name: String) {
-        verifyOutput("testdata/format/website-html/$fileName.kt", ".html", ModelConfig(format = "kotlin-website-html")) { model, output ->
+    private fun verifyKWSNodeByName(fileName: String, name: String, modelConfig: ModelConfig) {
+        verifyOutput(
+            "testdata/format/website-html/$fileName.kt",
+            ".html",
+            ModelConfig(analysisPlatform = modelConfig.analysisPlatform, format = "kotlin-website-html")
+        ) { model, output ->
             buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
         }
     }
@@ -96,3 +101,7 @@ class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
     }
 
 }
+
+class JsKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.js)
+class JvmKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.jvm)
+class CommonKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.common)
