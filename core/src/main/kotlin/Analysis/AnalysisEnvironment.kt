@@ -19,6 +19,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalyzerFacade
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
 import org.jetbrains.kotlin.caches.project.LibraryModuleInfo
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
@@ -108,19 +110,20 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         }
 
 
-    fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade = when (analysisPlatform) {
-        Platform.jvm -> createJVMResolutionFacade(environment)
-        Platform.js -> createJSResolutionFacade(environment)
-        Platform.common -> createCommonResolutionFacade(environment)
-    }
-
-    fun createCommonResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
+    fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
         val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
 
+
+        val targetPlatform = when (analysisPlatform) {
+            Platform.js -> JsPlatform
+            Platform.common -> TargetPlatform.Common
+            Platform.jvm -> JvmPlatform
+        }
+
         val library = object : LibraryModuleInfo {
             override val platform: TargetPlatform
-                get() = TargetPlatform.Common
+                get() = targetPlatform
 
             override fun getLibraryRoots(): Collection<String> {
                 return classpath.map { it.absolutePath }
@@ -135,18 +138,48 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         }
 
         val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
+        val modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo> = {
+            when (it) {
+                library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
+                module -> ModuleContent(it, emptyList(), GlobalSearchScope.allScope(environment.project))
+                else -> throw IllegalArgumentException("Unexpected module info")
+            }
+        }
 
-        val resolverForProject = ResolverForProjectImpl(
+        var builtIns: JvmBuiltIns? = null
+
+        val resolverForProject = when (analysisPlatform) {
+            Platform.jvm -> {
+                builtIns = JvmBuiltIns(projectContext.storageManager)
+                createJvmResolverForProject(projectContext, module, library, modulesContent, sourcesScope, builtIns)
+            }
+            Platform.js -> createJsResolverForProject(projectContext, module, library, modulesContent)
+            Platform.common -> createCommonResolverForProject(projectContext, module, library, modulesContent, environment)
+
+        }
+        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
+        val resolverForModule = resolverForProject.resolverForModule(module)
+        val moduleDescriptor = resolverForProject.descriptorForModule(module)
+        builtIns?.initialize(moduleDescriptor, true)
+        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
+        val projectComponentManager = environment.project as MockComponentManager
+        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
+
+        return created
+    }
+
+    private fun createCommonResolverForProject(
+        projectContext: ProjectContext,
+        module: ModuleInfo,
+        library: LibraryModuleInfo,
+        modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>,
+        environment: KotlinCoreEnvironment
+    ): ResolverForProjectImpl<ModuleInfo> {
+        return ResolverForProjectImpl(
             debugName = "Dokka",
             projectContext = projectContext,
             modules = listOf(module, library),
-            modulesContent = {
-                when (it) {
-                    library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
-                    module -> ModuleContent(it, emptyList(), GlobalSearchScope.allScope(environment.project))
-                    else -> throw IllegalArgumentException("Unexpected module info")
-                }
-            },
+            modulesContent = modulesContent,
             modulePlatforms = { MultiTargetPlatform.Common },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { CommonAnalyzerFacade },
@@ -154,112 +187,57 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             targetEnvironment = CompilerEnvironment,
             packagePartProviderFactory = { content ->
                 environment.createPackagePartProvider(content.moduleContentScope)
-            }
+            },
+            builtIns = DefaultBuiltIns.Instance
         )
-
-        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
-        val resolverForModule = resolverForProject.resolverForModule(module)
-        val moduleDescriptor = resolverForProject.descriptorForModule(module)
-        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
-        val projectComponentManager = environment.project as MockComponentManager
-        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
-
-        return created
     }
 
-    private fun createJSResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
-        val projectContext = ProjectContext(environment.project)
-        val sourceFiles = environment.getSourceFiles()
-
-        val library = object : LibraryModuleInfo {
-            override val platform: TargetPlatform
-                get() = JsPlatform
-
-            override fun getLibraryRoots(): Collection<String> {
-                return classpath.map { it.absolutePath }
-            }
-
-            override val name: Name = Name.special("<library>")
-            override fun dependencies(): List<ModuleInfo> = listOf(this)
-        }
-        val module = object : ModuleInfo {
-            override val name: Name = Name.special("<module>")
-            override fun dependencies(): List<ModuleInfo> = listOf(this, library)
-        }
-
-        val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
-
-        val resolverForProject = ResolverForProjectImpl(
+    private fun createJsResolverForProject(
+        projectContext: ProjectContext,
+        module: ModuleInfo,
+        library: LibraryModuleInfo,
+        modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>
+    ): ResolverForProjectImpl<ModuleInfo> {
+        return ResolverForProjectImpl(
             debugName = "Dokka",
             projectContext = projectContext,
-            modules = listOf(library, module),
-            modulesContent = {
-                when (it) {
-                    library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
-                    module -> ModuleContent(it, emptyList(), sourcesScope)
-                    else -> throw IllegalArgumentException("Unexpected module info")
-                }
-            },
+            modules = listOf(module, library),
+            modulesContent = modulesContent,
             modulePlatforms = { JsPlatform.multiTargetPlatform },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { JsAnalyzerFacade },
             platformParameters = object : PlatformAnalysisParameters {},
             targetEnvironment = CompilerEnvironment,
+            packagePartProviderFactory = { PackagePartProvider.Empty },
             builtIns = JsPlatform.builtIns
         )
-
-        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
-        val resolverForModule = resolverForProject.resolverForModule(module)
-        val moduleDescriptor = resolverForProject.descriptorForModule(module)
-        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
-        val projectComponentManager = environment.project as MockComponentManager
-        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
-        return created
-
     }
 
-    private fun createJVMResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
-        val projectContext = ProjectContext(environment.project)
-        val sourceFiles = environment.getSourceFiles()
-
-
-        val library = object : ModuleInfo {
-            override val name: Name = Name.special("<library>")
-            override fun dependencies(): List<ModuleInfo> = listOf(this)
-        }
-        val module = object : ModuleInfo {
-            override val name: Name = Name.special("<module>")
-            override fun dependencies(): List<ModuleInfo> = listOf(this, library)
-        }
-
-        val sourcesScope = createSourceModuleSearchScope(environment.project, sourceFiles)
-
-        val builtIns = JvmBuiltIns(projectContext.storageManager)
-
-
+    private fun createJvmResolverForProject(
+        projectContext: ProjectContext,
+        module: ModuleInfo,
+        library: LibraryModuleInfo,
+        modulesContent: (ModuleInfo) -> ModuleContent<ModuleInfo>,
+        sourcesScope: GlobalSearchScope,
+        builtIns: KotlinBuiltIns
+    ): ResolverForProjectImpl<ModuleInfo> {
         val javaRoots = classpath
-                .mapNotNull {
-                    val rootFile = when {
-                        it.extension == "jar" ->
-                            StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")
-                        else ->
-                            StandardFileSystems.local().findFileByPath(it.absolutePath)
-                    }
-
-                    rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
+            .mapNotNull {
+                val rootFile = when {
+                    it.extension == "jar" ->
+                        StandardFileSystems.jar().findFileByPath("${it.absolutePath}${URLUtil.JAR_SEPARATOR}")
+                    else ->
+                        StandardFileSystems.local().findFileByPath(it.absolutePath)
                 }
 
-        val resolverForProject = ResolverForProjectImpl(
+                rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }
+            }
+
+        return ResolverForProjectImpl(
             debugName = "Dokka",
             projectContext = projectContext,
-            modules = listOf(library, module),
-            modulesContent = {
-                when (it) {
-                    library -> ModuleContent(it, emptyList(), GlobalSearchScope.notScope(sourcesScope))
-                    module -> ModuleContent(it, emptyList(), sourcesScope)
-                    else -> throw IllegalArgumentException("Unexpected module info")
-                }
-            },
+            modules = listOf(module, library),
+            modulesContent = modulesContent,
             modulePlatforms = { JvmPlatform.multiTargetPlatform },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { JvmAnalyzerFacade },
@@ -269,7 +247,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     module
                 else
                     library
-            },
+            }
+            ,
             targetEnvironment = CompilerEnvironment,
             packagePartProviderFactory = { content ->
                 JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
@@ -278,16 +257,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             },
             builtIns = builtIns
         )
-
-        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
-        val resolverForModule = resolverForProject.resolverForModule(module)
-        val moduleDescriptor = resolverForProject.descriptorForModule(module)
-        builtIns.initialize(moduleDescriptor, true)
-        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
-        val projectComponentManager = environment.project as MockComponentManager
-        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
-
-        return created
     }
 
     fun loadLanguageVersionSettings(languageVersionString: String?, apiVersionString: String?) {
