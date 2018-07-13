@@ -419,6 +419,27 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         verifyMarkdownNodeByName("companionImplements", "Foo")
     }
 
+    @Test fun enumRef() {
+        verifyMarkdownNode("enumRef")
+    }
+
+    @Test fun inheritedLink() {
+        val filePath = "testdata/format/inheritedLink"
+        verifyOutput(
+            arrayOf(
+                contentRootFromPath("$filePath.kt"),
+                contentRootFromPath("$filePath.1.kt")
+            ),
+            ".md",
+            withJdk = true,
+            withKotlinRuntime = true,
+            includeNonPublic = false
+        ) { model, output ->
+            buildPagesAndReadInto(model.members.single { it.name == "p2" }.members.single().members, output)
+        }
+    }
+
+
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
         val options = DocumentationOptions(

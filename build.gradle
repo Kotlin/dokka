@@ -29,6 +29,7 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
+        maven { url  "https://dl.bintray.com/jetbrains/markdown" }
         maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }

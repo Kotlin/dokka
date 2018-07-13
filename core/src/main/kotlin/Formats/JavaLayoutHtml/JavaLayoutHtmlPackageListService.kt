@@ -1,16 +1,13 @@
 package org.jetbrains.dokka.Formats
 
-import org.jetbrains.dokka.DocumentationModule
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.ExternalDocumentationLinkResolver.Companion.DOKKA_PARAM_PREFIX
-import org.jetbrains.dokka.InboundExternalLinkResolutionService
-import org.jetbrains.dokka.NodeKind
-import org.jetbrains.dokka.PackageListService
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isCompanionObject
 import org.jetbrains.kotlin.types.KotlinType
 
-class JavaLayoutHtmlPackageListService : PackageListService {
+class JavaLayoutHtmlPackageListService: PackageListService {
 
     private fun StringBuilder.appendParam(name: String, value: String) {
         append(DOKKA_PARAM_PREFIX)
