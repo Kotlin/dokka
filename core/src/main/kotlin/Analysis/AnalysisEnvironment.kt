@@ -247,8 +247,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                     module
                 else
                     library
-            }
-            ,
+            },
             targetEnvironment = CompilerEnvironment,
             packagePartProviderFactory = { content ->
                 JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {

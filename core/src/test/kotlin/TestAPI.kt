@@ -117,8 +117,7 @@ fun appendDocumentation(documentation: DocumentationModule,
 
 fun checkSourceExistsAndVerifyModel(source: String,
                         modelConfig: ModelConfig = ModelConfig(),
-                        verifier: (DocumentationModule) -> Unit
-) {
+                        verifier: (DocumentationModule) -> Unit) {
     if (!File(source).exists()) {
         throw IllegalArgumentException("Can't find test data file $source")
     }
