@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
-import com.sun.org.apache.xpath.internal.operations.Bool
 import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
