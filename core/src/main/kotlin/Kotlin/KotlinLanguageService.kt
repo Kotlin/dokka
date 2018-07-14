@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.Formats.classNodeNameWithOuterClass
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
