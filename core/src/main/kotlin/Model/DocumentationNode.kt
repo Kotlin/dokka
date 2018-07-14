@@ -1,7 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.Formats.constantValue
-import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 enum class NodeKind {
@@ -242,4 +240,9 @@ private fun DocumentationNode.isSuperclassFor(node: DocumentationNode): Boolean 
         NodeKind.Exception -> kind == NodeKind.Class || kind == NodeKind.Exception
         else -> false
     }
+}
+
+fun DocumentationNode.classNodeNameWithOuterClass(): String {
+    assert(kind in NodeKind.classLike)
+    return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
 }
