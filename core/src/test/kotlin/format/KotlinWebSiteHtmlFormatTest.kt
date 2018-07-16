@@ -69,6 +69,7 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
                 outputFormat = "kotlin-website-html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )

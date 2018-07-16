@@ -20,12 +20,12 @@ public class JavaTest {
                 with(content.sections[0]) {
                     assertEquals("Parameters", tag)
                     assertEquals("name", subjectName)
-                    assertEquals("is String parameter", toTestString())
+                    assertEquals("render(Type:String,SUMMARY): is String parameter", toTestString())
                 }
                 with(content.sections[1]) {
                     assertEquals("Parameters", tag)
                     assertEquals("value", subjectName)
-                    assertEquals("is int parameter", toTestString())
+                    assertEquals("render(Type:String,SUMMARY): is int parameter", toTestString())
                 }
                 with(content.sections[2]) {
                     assertEquals("Author", tag)
@@ -195,7 +195,7 @@ public class JavaTest {
     @Test fun enumValues() {
         verifyJavaPackageMember("testdata/java/enumValues.java", defaultModelConfig) { cls ->
             val superTypes = cls.details(NodeKind.Supertype)
-            assertEquals(0, superTypes.size)
+            assertEquals(1, superTypes.size)
             assertEquals(1, cls.members(NodeKind.EnumItem).size)
         }
     }

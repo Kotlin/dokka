@@ -26,7 +26,9 @@ data class ModelConfig(
     val includeNonPublic: Boolean = true,
     val perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
     val analysisPlatform: Platform = Platform.DEFAULT,
-    val defaultPlatforms: List<String> = emptyList()
+    val defaultPlatforms: List<String> = emptyList(),
+    val noStdlibLink: Boolean = true,
+    val collectInheritedExtensionsFromLibraries: Boolean = false
 )
 
 fun verifyModel(modelConfig: ModelConfig,
@@ -42,10 +44,12 @@ fun verifyModel(modelConfig: ModelConfig,
             sourceLinks = listOf(),
             perPackageOptions = modelConfig.perPackageOptions,
             generateIndexPages = false,
-            noStdlibLink = true,
+            noStdlibLink = modelConfig.noStdlibLink,
+            noJdkLink = false,
             cacheRoot = "default",
             languageVersion = null,
-            apiVersion = null
+            apiVersion = null,
+            collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
     )
 
     appendDocumentation(documentation, options, modelConfig)
@@ -201,8 +205,10 @@ fun verifyOutput(path: String,
             withKotlinRuntime = modelConfig.withKotlinRuntime,
             format = modelConfig.format,
             includeNonPublic = modelConfig.includeNonPublic,
-            analysisPlatform = modelConfig.analysisPlatform
-        ),
+            analysisPlatform = modelConfig.analysisPlatform,
+            noStdlibLink = modelConfig.noStdlibLink,
+            collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
+            ),
         outputExtension,
         outputGenerator
     )
@@ -274,6 +280,14 @@ fun StringBuilder.appendNode(node: ContentNode): StringBuilder {
         is ContentBlock -> {
             appendChildren(node)
         }
+        is NodeRenderContent -> {
+            append("render(")
+            append(node.node)
+            append(",")
+            append(node.mode)
+            append(")")
+        }
+        is ContentSymbol -> { append(node.text) }
         is ContentEmpty -> { /* nothing */ }
         else -> throw IllegalStateException("Don't know how to format node $node")
     }

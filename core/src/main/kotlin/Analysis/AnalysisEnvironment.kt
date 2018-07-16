@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.container.getService
+import org.jetbrains.kotlin.container.tryGetService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -110,7 +111,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         }
 
 
-    fun createResolutionFacade(environment: KotlinCoreEnvironment): DokkaResolutionFacade {
+    fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
+
         val projectContext = ProjectContext(environment.project)
         val sourceFiles = environment.getSourceFiles()
 
@@ -157,15 +159,17 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.common -> createCommonResolverForProject(projectContext, module, library, modulesContent, environment)
 
         }
-        resolverForProject.resolverForModule(library) // Required before module to initialize library properly
+        val resolverForLibrary = resolverForProject.resolverForModule(library) // Required before module to initialize library properly
         val resolverForModule = resolverForProject.resolverForModule(module)
+        val libraryModuleDescriptor = resolverForProject.descriptorForModule(library)
         val moduleDescriptor = resolverForProject.descriptorForModule(module)
         builtIns?.initialize(moduleDescriptor, true)
+        val libraryResolutionFacade = DokkaResolutionFacade(environment.project, libraryModuleDescriptor, resolverForLibrary)
         val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
         val projectComponentManager = environment.project as MockComponentManager
         projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
 
-        return created
+        return created to libraryResolutionFacade
     }
 
     private fun createCommonResolverForProject(
@@ -342,7 +346,7 @@ class DokkaResolutionFacade(override val project: Project,
     }
 
     override fun <T : Any> tryGetFrontendService(element: PsiElement, serviceClass: Class<T>): T? {
-        return null
+        return resolverForModule.componentProvider.tryGetService(serviceClass)
     }
 
     override fun resolveToDescriptor(declaration: KtDeclaration, bodyResolveMode: BodyResolveMode): DeclarationDescriptor {

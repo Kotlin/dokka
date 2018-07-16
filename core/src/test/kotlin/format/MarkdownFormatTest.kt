@@ -254,6 +254,7 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
@@ -377,6 +378,7 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
