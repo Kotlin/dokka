@@ -25,6 +25,7 @@ class NewJavaLanguageService : CommonLanguageService() {
                 NodeKind.Constructor,
                 NodeKind.Function -> renderFunction(node)
                 NodeKind.Property -> renderProperty(node)
+                NodeKind.Field -> renderField(node, renderMode)
                 else -> "${node.kind}: ${node.name}"
             })
         }
@@ -227,5 +228,12 @@ class NewJavaLanguageService : CommonLanguageService() {
         text(" ")
         renderType(node.detail(NodeKind.Type))
 
+    }
+
+    private fun ContentBlock.renderField(node: DocumentationNode, renderMode: RenderMode) {
+        renderModifiersForNode(node, renderMode)
+        renderType(node.detail(NodeKind.Type))
+        text(" ")
+        identifier(node.name)
     }
 }

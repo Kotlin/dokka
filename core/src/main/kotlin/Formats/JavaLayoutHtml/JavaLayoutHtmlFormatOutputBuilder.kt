@@ -927,11 +927,18 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val constructors = node.members(NodeKind.Constructor).groupByVisibility()
             val functions = node.members(functionKind).groupByVisibility()
+            val fields = (node.members(NodeKind.Field) - constants).groupByVisibility()
             val properties = node.members(propertyKind) - constants
             val inheritedFunctionsByReceiver = allInheritedMembers.filter { it.kind == functionKind }.groupBy { it.owner!! }
-            val inheritedPropertiesByReceiver = allInheritedMembers.filter {
-                it.kind == propertyKind && it.constantValue() == null
-            }.groupBy { it.owner!! }
+            val inheritedPropertiesByReceiver =
+                allInheritedMembers.filter {
+                    it.kind == propertyKind && it.constantValue() == null
+                }.groupBy { it.owner!! }
+
+            val inheritedFieldsByReceiver =
+                allInheritedMembers.filter {
+                    it == NodeKind.Field && it.constantValue() != null
+                }.groupBy { it.owner!! }
 
             val originalExtensions = if (!isCompanion) node.extensions else node.owner!!.extensions
 
@@ -1021,7 +1028,7 @@ class JavaLayoutHtmlFormatOutputBuilderFactoryImpl @Inject constructor(
 
 fun DocumentationNode.constantValue(): String? =
     detailOrNull(NodeKind.Value)?.name.takeIf {
-        kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
+        kind == NodeKind.Field || kind == NodeKind.Property || kind == NodeKind.CompanionObjectProperty
     }
 
 
