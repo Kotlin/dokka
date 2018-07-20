@@ -231,6 +231,10 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
 
         fullMemberDocs(properties, "Properties")
+
+        fields.forEach { (visibility, group) ->
+            fullMemberDocs(group, "${visibility.capitalize()} fields")
+        }
         if (!hasMeaningfulCompanion) {
             fullMemberDocs(companionFunctions, "Companion functions")
             fullMemberDocs(companionProperties, "Companion properties")
@@ -346,6 +350,24 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 functionLikeSummaryRow(it)
             }
         }
+
+        fields.forEach { (visibility, group) ->
+            summaryNodeGroup(
+                group,
+                header = "${visibility.capitalize()} fields",
+                summaryId = "${visibility.take(3)}fields",
+                tableClass = "responsive",
+                headerAsRow = true
+            ) { propertyLikeSummaryRow(it) }
+        }
+
+        expandableSummaryNodeGroupForInheritedMembers(
+            superClasses = inheritedFieldsByReceiver.entries,
+            header = "Inherited fields",
+            tableId = "inhfields",
+            tableClass = "responsive properties inhtable",
+            row = { inheritedMemberRow(it) }
+        )
 
         summaryNodeGroup(
                 properties,
