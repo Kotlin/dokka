@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.Formats.classNodeNameWithOuterClass
 import org.jetbrains.dokka.LanguageService.RenderMode
 
 /**
@@ -72,8 +73,14 @@ class NewJavaLanguageService : CommonLanguageService() {
             "Char" -> identifier("char")
             "Boolean" -> identifier("bool")
         // TODO: render arrays
-            else -> renderLinked(this, node) {
-                identifier(node.name)
+            else -> {
+                renderLinked(this, node) {
+                    identifier(
+                        it.typeDeclarationClass?.classNodeNameWithOuterClass() ?: it.name,
+                        IdentifierKind.TypeName
+                    )
+                }
+                renderTypeArgumentsForType(node)
             }
         }
     }
@@ -109,6 +116,17 @@ class NewJavaLanguageService : CommonLanguageService() {
         }
     }
 
+    private fun ContentBlock.renderTypeArgumentsForType(node: DocumentationNode) {
+        val typeArguments = node.details(NodeKind.Type)
+        if (typeArguments.any()) {
+            symbol("<")
+            renderList(typeArguments, noWrap = true) {
+                renderType(it)
+            }
+            symbol(">")
+        }
+    }
+
 //    private fun renderModifiersForNode(node: DocumentationNode): String {
 //        val modifiers = node.details(NodeKind.Modifier).map { renderModifier(it) }.filter { it != "" }
 //        if (modifiers.none())
@@ -141,6 +159,22 @@ class NewJavaLanguageService : CommonLanguageService() {
 
         identifier(node.name)
         renderTypeParametersForNode(node)
+        val superClassType = node.superclassType
+        val interfaces = node.supertypes - superClassType
+        if (superClassType != null) {
+            text(" ")
+            keyword("extends")
+            text(" ")
+            renderType(superClassType)
+        }
+        if (interfaces.isNotEmpty()) {
+            text(" ")
+            keyword("implements")
+            text(" ")
+            renderList(interfaces.filterNotNull()) {
+                renderType(it)
+            }
+        }
     }
 
     private fun ContentBlock.renderParameters(nodes: List<DocumentationNode>) {
