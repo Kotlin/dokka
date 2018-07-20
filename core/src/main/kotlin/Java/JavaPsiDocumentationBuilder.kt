@@ -210,8 +210,8 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun PsiClass.isException() = InheritanceUtil.isInheritor(this, "java.lang.Throwable")
 
-    fun ignoreSupertype(psiType: PsiClassType): Boolean =
-            psiType.isClass("java.lang.Enum") || psiType.isClass("java.lang.Object")
+    fun ignoreSupertype(psiType: PsiClassType): Boolean = false
+//            psiType.isClass("java.lang.Enum") || psiType.isClass("java.lang.Object")
 
     fun PsiClassType.isClass(qName: String): Boolean {
         val shortName = qName.substringAfterLast('.')
