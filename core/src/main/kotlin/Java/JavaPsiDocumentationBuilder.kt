@@ -6,6 +6,8 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.dokka.Formats.JavaLayoutHtmlInboundLinkResolutionService
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -47,23 +49,27 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private val options: DocumentationOptions
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
+    private val resolutionFacade: DokkaResolutionFacade
 
     @Inject constructor(
             options: DocumentationOptions,
             refGraph: NodeReferenceGraph,
             logger: DokkaLogger,
             signatureProvider: ElementSignatureProvider,
-            externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+            externalDocumentationLinkResolver: ExternalDocumentationLinkResolver,
+            resolutionFacade: DokkaResolutionFacade
     ) {
         this.options = options
         this.refGraph = refGraph
         this.docParser = JavadocParser(refGraph, logger, signatureProvider, externalDocumentationLinkResolver)
+        this.resolutionFacade = resolutionFacade
     }
 
-    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
+    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser, resolutionFacade: DokkaResolutionFacade) {
         this.options = options
         this.refGraph = refGraph
         this.docParser = docParser
+        this.resolutionFacade = resolutionFacade
     }
 
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
@@ -204,8 +210,21 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         node.appendMembers(methods) { build() }
         node.appendMembers(fields) { build() }
         node.appendMembers(innerClasses) { build() }
+        node.appendMirrorLocation(this)
         register(this, node)
         return node
+    }
+
+    fun DocumentationNode.appendMirrorLocation(clz: PsiMember) {
+        val resolver = JavaLayoutHtmlInboundLinkResolutionService(emptyMap())
+
+        val desc = if (this is KtLightDeclaration<*, *>) {
+            resolutionFacade.resolveToDescriptor(this.kotlinOrigin!!)
+        } else {
+            clz.getJavaOrKotlinMemberDescriptor(resolutionFacade) ?: return
+        }
+        val path = resolver.getPath(desc) ?: return
+        append(DocumentationNode(path, Content.Empty, NodeKind.MirrorLocation), RefKind.Link)
     }
 
     fun PsiClass.isException() = InheritanceUtil.isInheritor(this, "java.lang.Throwable")
@@ -259,6 +278,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
         node.appendDetails(parameterList.parameters) { build() }
         node.appendDetails(typeParameters) { build() }
+        node.appendMirrorLocation(this)
         register(this, node)
         return node
     }

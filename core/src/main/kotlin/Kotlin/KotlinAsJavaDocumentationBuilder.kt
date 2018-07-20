@@ -30,7 +30,9 @@ class KotlinAsJavaDocumentationBuilder
 
         val javaDocumentationBuilder = JavaPsiDocumentationBuilder(documentationBuilder.options,
                 documentationBuilder.refGraph,
-                kotlinAsJavaDocumentationParser)
+                kotlinAsJavaDocumentationParser,
+                documentationBuilder.resolutionFacade
+            )
 
         psiPackage.classes.filter { it is KtLightElement<*, *> }.filter { it.isVisibleInDocumentation() }.forEach {
             javaDocumentationBuilder.appendClasses(packageNode, arrayOf(it))

@@ -67,7 +67,9 @@ enum class NodeKind {
 
     ArtifactId,
 
-    GroupNode;
+    GroupNode,
+
+    MirrorLocation;
 
     companion object {
         val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)

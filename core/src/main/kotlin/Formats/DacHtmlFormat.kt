@@ -83,6 +83,13 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
+            a {
+                val loc = "file:///Users/jetbrains/Workspace/dokka3/out/dac-as-kt/playground/"
+                val mirror = node.links(NodeKind.MirrorLocation).firstOrNull()?.name.toString()
+                href = loc + mirror
+                + mirror
+            }
+
             deprecationWarningToMarkup(node, prefix = true)
             nodeContent(node, uriNode)
             node.constantValue()?.let { value ->
@@ -242,6 +249,9 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     }
 
     override fun FlowContent.classLikeSummaries(page: Page.ClassPage) = with(page) {
+
+        + page.node.links(NodeKind.MirrorLocation).firstOrNull()?.name.toString()
+
         summaryNodeGroup(
                 nestedClasses,
                 header = "Nested classes",

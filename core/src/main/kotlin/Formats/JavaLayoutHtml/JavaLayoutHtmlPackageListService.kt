@@ -78,7 +78,7 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
             is PackageFragmentDescriptor -> getContainerPath(symbol) + "package-summary.html"
             is EnumEntrySyntheticClassDescriptor -> getContainerPath(symbol.containingDeclaration) + "#" + symbol.signatureForAnchorUrlEncoded()
             is ClassifierDescriptor -> getContainerPath(symbol) + "#"
-            is FunctionDescriptor, is PropertyDescriptor -> getContainerPath(symbol.containingDeclaration!!) + "#" + symbol.signatureForAnchorUrlEncoded()
+            is FunctionDescriptor, is PropertyDescriptor -> getPagePath(symbol.containingDeclaration!!) + "#" + symbol.signatureForAnchorUrlEncoded()
             else -> null
         }
     }
