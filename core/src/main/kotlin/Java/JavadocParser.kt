@@ -207,10 +207,6 @@ class JavadocParser(
         }
     }
 
-    private val tagsToInherit = setOf("param", "return", "throws")
-
-    private data class TagWithContext(val tag: PsiDocTag, val context: PsiNamedElement)
-
     private fun PsiMethod.searchInheritedTags(): Map<String, Collection<TagWithContext>> {
 
         val output = tagsToInherit.keysToMap { mutableMapOf<String?, TagWithContext>() }
