@@ -152,27 +152,6 @@ class JavadocParser(
 
     private data class TagWithContext(val tag: PsiDocTag, val context: PsiNamedElement)
 
-    private fun PsiMethod.searchInheritedTags(): Map<String, Collection<TagWithContext>> {
-
-        val output = tagsToInherit.keysToMap { mutableMapOf<String?, TagWithContext>() }
-
-        fun recursiveSearch(methods: Array<PsiMethod>) {
-            for (method in methods) {
-                recursiveSearch(method.findSuperMethods())
-            }
-            for (method in methods) {
-                for (tag in method.docComment?.tags.orEmpty()) {
-                    if (tag.name in tagsToInherit) {
-                        output[tag.name]!![tag.getSubjectName()] = TagWithContext(tag, method)
-                    }
-                }
-            }
-        }
-
-        recursiveSearch(arrayOf(this))
-        return output.mapValues { it.value.values }
-    }
-
     fun PsiDocTag.artifactId(): String? {
         var artifactName: String? = null
         if (dataElements.isNotEmpty()) {
@@ -228,6 +207,32 @@ class JavadocParser(
         }
     }
 
+    private val tagsToInherit = setOf("param", "return", "throws")
+
+    private data class TagWithContext(val tag: PsiDocTag, val context: PsiNamedElement)
+
+    private fun PsiMethod.searchInheritedTags(): Map<String, Collection<TagWithContext>> {
+
+        val output = tagsToInherit.keysToMap { mutableMapOf<String?, TagWithContext>() }
+
+        fun recursiveSearch(methods: Array<PsiMethod>) {
+            for (method in methods) {
+                recursiveSearch(method.findSuperMethods())
+            }
+            for (method in methods) {
+                for (tag in method.docComment?.tags.orEmpty()) {
+                    if (tag.name in tagsToInherit) {
+                        output[tag.name]!![tag.getSubjectName()] = TagWithContext(tag, method)
+                    }
+                }
+            }
+        }
+
+        recursiveSearch(arrayOf(this))
+        return output.mapValues { it.value.values }
+    }
+
+
     private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
         val tagValueElements = children
             .dropWhile { it.node?.elementType == JavaDocTokenType.DOC_TAG_NAME }
@@ -239,9 +244,7 @@ class JavadocParser(
     private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>, element: PsiNamedElement) {
         val doc = Jsoup.parse(expandAllForElements(elements, element))
         doc.body().childNodes().forEach {
-            convertHtmlNode(it)?.let {
-                append(it)
-            }
+            convertHtmlNode(it)?.let { append(it) }
         }
     }
 

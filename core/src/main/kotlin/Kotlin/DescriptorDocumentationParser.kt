@@ -45,7 +45,6 @@ class DescriptorDocumentationParser @Inject constructor(
         val signatureProvider: KotlinElementSignatureProvider,
         val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
 ) {
-
     fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
             parseDocumentationAndDetails(descriptor, inline).first
 
