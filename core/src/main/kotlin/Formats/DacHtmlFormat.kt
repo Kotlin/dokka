@@ -751,7 +751,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
                                 inheritors.take(numToShow).forEach { inheritor ->
                                     a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
-                                    if (inheritor != inheritors .last()) +", "
+                                    if (inheritor != inheritors.last()) +", "
                                 }
 
                                 if (inheritors.size > numToShow) {
@@ -761,7 +761,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                             div(classes = "exw-expanded-content") {
                                 attributes["id"] = if (direct) "subclasses-direct-summary" else "subclasses-indirect-summary"
                                 table(classes = "jd-sumtable-expando") {
-                                    inheritors .forEach { inheritor ->
+                                    inheritors.forEach { inheritor ->
                                         tr(classes = "api api-level-${inheritor.apiLevel.name}") {
                                             attributes["data-version-added"] = inheritor.apiLevel.name
                                             td(classes = "jd-linkcol") {
