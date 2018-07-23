@@ -209,6 +209,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         attributes: List<DocumentationNode>,
         header: String
     ) {
+        if (attributes.none()) return
         h2 {
             +header
         }
