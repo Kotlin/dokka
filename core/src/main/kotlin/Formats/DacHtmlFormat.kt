@@ -729,6 +729,12 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
     override fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
         if (inheritors.isEmpty()) return
+        val sortedInheritors = inheritors.sortedBy{ it.classNodeNameWithOuterClass() }
+
+        // The number of subclasses in collapsed view before truncating and adding a "and xx others".
+        // See https://developer.android.com/reference/android/view/View for an example.
+        val numToShow = 12
+
         table(classes = "jd-sumtable jd-sumtable-subclasses") {
             tbody {
                 tr {
@@ -742,15 +748,20 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                             }
                             div(classes = "showalways") {
                                 attributes["id"] = if (direct) "subclasses-direct" else "subclasses-indirect"
-                                inheritors.forEach { inheritor ->
+
+                                sortedInheritors.take(numToShow).forEach { inheritor ->
                                     a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
-                                    if (inheritor != inheritors.last()) +", "
+                                    if (inheritor != sortedInheritors .last()) +", "
+                                }
+
+                                if (sortedInheritors.size > numToShow) {
+                                    +"and ${sortedInheritors .size - numToShow} others."
                                 }
                             }
                             div(classes = "exw-expanded-content") {
                                 attributes["id"] = if (direct) "subclasses-direct-summary" else "subclasses-indirect-summary"
                                 table(classes = "jd-sumtable-expando") {
-                                    inheritors.forEach { inheritor ->
+                                    sortedInheritors .forEach { inheritor ->
                                         tr(classes = "api api-level-${inheritor.apiLevel.name}") {
                                             attributes["data-version-added"] = inheritor.apiLevel.name
                                             td(classes = "jd-linkcol") {
