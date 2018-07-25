@@ -134,6 +134,10 @@ open class DocumentationNode(val name: String,
         references.add(DocumentationReference(this, to, kind))
     }
 
+    fun addReference(reference: DocumentationReference) {
+        references.add(reference)
+    }
+
     fun dropReferences(predicate: (DocumentationReference) -> Boolean) {
         references.removeAll(predicate)
     }
@@ -159,6 +163,8 @@ open class DocumentationNode(val name: String,
     fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
     fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
 
+    fun anyReference(predicate: (DocumentationReference) -> Boolean): Boolean = references.any(predicate)
+
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }
     fun allReferences(): Set<DocumentationReference> = references
 
@@ -167,9 +173,9 @@ open class DocumentationNode(val name: String,
     }
 }
 
-class DocumentationModule(name: String, content: Content = Content.Empty)
+class DocumentationModule(name: String, content: Content = Content.Empty, val nodeRefGraph: NodeReferenceGraph = NodeReferenceGraph())
     : DocumentationNode(name, content, NodeKind.Module) {
-    val nodeRefGraph = NodeReferenceGraph()
+
 }
 
 val DocumentationNode.path: List<DocumentationNode>

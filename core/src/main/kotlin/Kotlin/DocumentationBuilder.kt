@@ -1079,7 +1079,7 @@ fun DeclarationDescriptor.signature(): String {
         is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
         is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature() + ":" + returnType?.signature()
         is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
         is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
         is ReceiverParameterDescriptor -> containingDeclaration.signature() + "/" + name
@@ -1149,7 +1149,9 @@ fun DocumentationModule.prepareForGeneration(options: DocumentationOptions) {
 
 fun DocumentationNode.generateAllTypesNode() {
     val allTypes = members(NodeKind.Package)
-            .flatMap { it.members.filter { it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass } }
+            .flatMap { it.members.filter {
+                it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass
+                        || (it.kind == NodeKind.GroupNode && it.anyReference { it.to.kind in NodeKind.classLike }) } }
             .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.').toLowerCase() else it.name.toLowerCase() }
 
     val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)

@@ -25,12 +25,27 @@ enum class RefKind {
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {
 }
 
-class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
-                                    val lazyNodeTo: () -> DocumentationNode?,
+sealed class NodeResolver {
+    abstract fun resolve(): DocumentationNode?
+    class BySignature(var signature: String, var nodeMap: Map<String, DocumentationNode>) : NodeResolver() {
+        override fun resolve(): DocumentationNode? {
+            return nodeMap[signature]
+        }
+    }
+
+    class Exact(var exactNode: DocumentationNode?) : NodeResolver() {
+        override fun resolve(): DocumentationNode? {
+            return exactNode
+        }
+    }
+}
+
+class PendingDocumentationReference(val lazyNodeFrom: NodeResolver,
+                                    val lazyNodeTo: NodeResolver,
                                     val kind: RefKind) {
     fun resolve() {
-        val fromNode = lazyNodeFrom()
-        val toNode = lazyNodeTo()
+        val fromNode = lazyNodeFrom.resolve()
+        val toNode = lazyNodeTo.resolve()
         if (fromNode != null && toNode != null) {
             fromNode.addReferenceTo(toNode, kind)
         }
@@ -39,6 +54,9 @@ class PendingDocumentationReference(val lazyNodeFrom: () -> DocumentationNode?,
 
 class NodeReferenceGraph {
     private val nodeMap = hashMapOf<String, DocumentationNode>()
+    val nodeMapView: Map<String, DocumentationNode>
+            get() = HashMap(nodeMap)
+
     val references = arrayListOf<PendingDocumentationReference>()
 
     fun register(signature: String, node: DocumentationNode) {
@@ -46,15 +64,36 @@ class NodeReferenceGraph {
     }
 
     fun link(fromNode: DocumentationNode, toSignature: String, kind: RefKind) {
-        references.add(PendingDocumentationReference({ fromNode }, { nodeMap[toSignature] }, kind))
+        references.add(
+            PendingDocumentationReference(
+                NodeResolver.Exact(fromNode),
+                NodeResolver.BySignature(toSignature, nodeMap),
+                kind
+            ))
     }
 
     fun link(fromSignature: String, toNode: DocumentationNode, kind: RefKind) {
-        references.add(PendingDocumentationReference({ nodeMap[fromSignature] }, { toNode }, kind))
+        references.add(
+            PendingDocumentationReference(
+                NodeResolver.BySignature(fromSignature, nodeMap),
+                NodeResolver.Exact(toNode),
+                kind
+            )
+        )
     }
 
     fun link(fromSignature: String, toSignature: String, kind: RefKind) {
-        references.add(PendingDocumentationReference({ nodeMap[fromSignature] }, { nodeMap[toSignature] }, kind))
+        references.add(
+            PendingDocumentationReference(
+                NodeResolver.BySignature(fromSignature, nodeMap),
+                NodeResolver.BySignature(toSignature, nodeMap),
+                kind
+            )
+        )
+    }
+
+    fun addReference(reference: PendingDocumentationReference) {
+        references.add(reference)
     }
 
     fun lookup(signature: String) = nodeMap[signature]
