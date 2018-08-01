@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import org.jetbrains.kotlin.utils.fileUtils.withReplacedExtensionOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -12,7 +11,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
     @set:Inject(optional = true) lateinit var formatService: FormatService
-    @set:Inject(optional = true) lateinit var options: DocumentationOptions
+    @set:Inject(optional = true) lateinit var dokkaConfiguration: DokkaConfiguration
     @set:Inject(optional = true) var packageListService: PackageListService? = null
 
     override fun location(node: DocumentationNode): FileLocation {
@@ -74,7 +73,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
             val moduleRoot = location(module).file.parentFile
             val packageListFile = File(moduleRoot, "package-list")
 
-            packageListFile.writeText("\$dokka.format:${options.outputFormat}\n" +
+            packageListFile.writeText("\$dokka.format:${dokkaConfiguration.format}\n" +
                     packageListService!!.formatPackageList(module as DocumentationModule))
         }
 

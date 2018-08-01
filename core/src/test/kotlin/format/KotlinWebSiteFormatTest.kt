@@ -48,17 +48,20 @@ class KotlinWebSiteFormatTest: FileGeneratorTestCase() {
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "html",
-                generateIndexPages = false,
-                noStdlibLink = true,
+        val passConfiguration = PassConfigurationImpl(noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
+        val configuration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(passConfiguration)
+            )
+
         appendDocumentation(
-            module, options, ModelConfig(
+            module, configuration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website/$path/jvm.kt")),
                 defaultPlatforms = listOf("JVM")
             )
@@ -67,13 +70,13 @@ class KotlinWebSiteFormatTest: FileGeneratorTestCase() {
 
 
         appendDocumentation(
-            module, options, ModelConfig(
+            module, configuration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website/$path/jre7.kt")),
                 defaultPlatforms = listOf("JVM", "JRE7")
             )
         )
         appendDocumentation(
-            module, options, ModelConfig(
+            module, configuration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website/$path/js.kt")),
                 defaultPlatforms = listOf("JS")
             )

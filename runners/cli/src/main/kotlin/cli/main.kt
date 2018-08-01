@@ -44,7 +44,7 @@ class DokkaArguments {
     @set:Argument(value = "impliedPlatforms", description = "List of implied platforms (comma-separated)")
     var impliedPlatforms: String = ""
 
-    @set:Argument(value = "packageOptions", description = "List of package options in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" ")
+    @set:Argument(value = "packageOptions", description = "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" ")
     var packageOptions: String = ""
 
     @set:Argument(value = "links", description = "External documentation links in format url^packageListUrl^^url2...")
@@ -111,31 +111,37 @@ object MainKt {
 
         val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
 
-        val documentationOptions = DocumentationOptions(
-            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
-            arguments.outputFormat,
+        val passConfig = PassConfigurationImpl(
             skipDeprecated = arguments.nodeprecated,
             sourceLinks = sourceLinks,
-            impliedPlatforms = arguments.impliedPlatforms.split(','),
             perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
             jdkVersion = arguments.jdkVersion,
             externalDocumentationLinks = parseLinks(arguments.links),
             noStdlibLink = arguments.noStdlibLink,
-            cacheRoot = arguments.cacheRoot,
             languageVersion = arguments.languageVersion,
             apiVersion = arguments.apiVersion,
             collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries,
-            noJdkLink = arguments.noJdkLink
+            noJdkLink = arguments.noJdkLink,
+            sourceRoots = sources.map(SourceRootImpl.Companion::parseSourceRoot),
+            analysisPlatform = sources.map (SourceRootImpl.Companion::parseSourceRoot).single().analysisPlatform,
+            samples = samples,
+            includes = includes,
+            moduleName = arguments.moduleName,
+            classpath = classPath
         )
 
-        val generator = DokkaGenerator(
-                DokkaConsoleLogger,
-                classPath,
-                sources.map(SourceRootImpl.Companion::parseSourceRoot),
-                samples,
-                includes,
-                arguments.moduleName,
-                documentationOptions)
+        val config = DokkaConfigurationImpl(
+            outputDir = arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+            format = arguments.outputFormat,
+            impliedPlatforms = arguments.impliedPlatforms.split(','),
+            cacheRoot = arguments.cacheRoot,
+
+            passesConfigurations = listOf(
+                passConfig
+            )
+        )
+
+        val generator = DokkaGenerator(config, DokkaConsoleLogger)
 
         generator.generate()
         DokkaConsoleLogger.report()

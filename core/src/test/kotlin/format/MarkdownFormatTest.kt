@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.junit.Before
 import org.junit.Test
 
 abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -249,16 +248,23 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
-        appendDocumentation(module, options, ModelConfig(
+
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+        )
+
+        appendDocumentation(module, dokkaConfiguration, passConfiguration, ModelConfig(
             roots = arrayOf(contentRootFromPath("testdata/format/$path/jvm.kt")),
             defaultPlatforms = listOf("JVM"),
             withKotlinRuntime = true,
@@ -373,24 +379,30 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+
+        )
         appendDocumentation(
-            module, options, ModelConfig(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/$path/jvm.kt")),
                 defaultPlatforms = listOf("JVM"),
                 analysisPlatform = Platform.jvm
             )
         )
         appendDocumentation(
-            module, options, ModelConfig(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/$path/js.kt")),
                 defaultPlatforms = listOf("JS"),
                 analysisPlatform = Platform.js

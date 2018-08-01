@@ -116,29 +116,34 @@ class DokkaAntTask: Task() {
             SourceLinkDefinitionImpl(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
 
-        val generator = DokkaGenerator(
-                AntLogger(this),
-                compileClasspath.list().toList(),
-                sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
-                samplesPath.list().toList(),
-                includesPath.list().toList(),
-                moduleName!!,
-                DocumentationOptions(
-                        outputDir!!,
-                        outputFormat,
-                        skipDeprecated = skipDeprecated,
-                        sourceLinks = sourceLinks,
-                        jdkVersion = jdkVersion,
-                        impliedPlatforms = impliedPlatforms.split(','),
-                        perPackageOptions = antPackageOptions,
-                        externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink,
-                        noJdkLink = noJdkLink,
-                        cacheRoot = cacheRoot,
-                        languageVersion = languageVersion,
-                        apiVersion = apiVersion
-                )
+        val passConfiguration = PassConfigurationImpl(
+            classpath = compileClasspath.list().toList(),
+            sourceRoots = sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
+            samples = samplesPath.list().toList(),
+            includes = includesPath.list().toList(),
+            moduleName = moduleName!!,
+            skipDeprecated = skipDeprecated,
+            sourceLinks = sourceLinks,
+            jdkVersion = jdkVersion,
+            perPackageOptions = antPackageOptions,
+            externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
+            noStdlibLink = noStdlibLink,
+            noJdkLink = noJdkLink,
+            languageVersion = languageVersion,
+            apiVersion = apiVersion
         )
+
+        val configuration = DokkaConfigurationImpl(
+            outputDir = outputDir!!,
+            format = outputFormat,
+            impliedPlatforms = impliedPlatforms.split(','),
+            cacheRoot = cacheRoot,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+        )
+
+        val generator = DokkaGenerator(configuration, AntLogger(this))
         generator.generate()
     }
 }

@@ -39,31 +39,37 @@ enum class Platform(val key: String) {
 }
 
 interface DokkaConfiguration {
-    val moduleName: String
-    val classpath: List<String>
-    val sourceRoots: List<SourceRoot>
-    val samples: List<String>
-    val includes: List<String>
     val outputDir: String
     val format: String
-    val includeNonPublic: Boolean
-    val includeRootPackage: Boolean
-    val reportUndocumented: Boolean
-    val skipEmptyPackages: Boolean
-    val skipDeprecated: Boolean
-    val jdkVersion: Int
     val generateIndexPages: Boolean
-    val sourceLinks: List<SourceLinkDefinition>
-    val impliedPlatforms: List<String>
-    val perPackageOptions: List<PackageOptions>
-    val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>
-    val languageVersion: String?
-    val apiVersion: String?
-    val noStdlibLink: Boolean
-    val noJdkLink: Boolean
     val cacheRoot: String?
-    val suppressedFiles: List<String>
-    val collectInheritedExtensionsFromLibraries: Boolean
+    val passesConfigurations: List<PassConfiguration>
+    val impliedPlatforms: List<String>
+
+    interface PassConfiguration {
+        val moduleName: String
+        val classpath: List<String>
+        val sourceRoots: List<SourceRoot>
+        val samples: List<String>
+        val includes: List<String>
+        val includeNonPublic: Boolean
+        val includeRootPackage: Boolean
+        val reportUndocumented: Boolean
+        val skipEmptyPackages: Boolean
+        val skipDeprecated: Boolean
+        val jdkVersion: Int
+        val sourceLinks: List<SourceLinkDefinition>
+        val perPackageOptions: List<PackageOptions>
+        val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>
+        val languageVersion: String?
+        val apiVersion: String?
+        val noStdlibLink: Boolean
+        val noJdkLink: Boolean
+        val suppressedFiles: List<String>
+        val collectInheritedExtensionsFromLibraries: Boolean
+        val analysisPlatform: Platform
+        val targets: List<String>
+    }
 
     interface SourceRoot {
         val path: String
@@ -106,31 +112,12 @@ interface DokkaConfiguration {
 }
 
 data class SerializeOnlyDokkaConfiguration(
-    override val moduleName: String,
-    override val classpath: List<String>,
-    override val sourceRoots: List<DokkaConfiguration.SourceRoot>,
-    override val samples: List<String>,
-    override val includes: List<String>,
     override val outputDir: String,
     override val format: String,
-    override val includeNonPublic: Boolean,
-    override val includeRootPackage: Boolean,
-    override val reportUndocumented: Boolean,
-    override val skipEmptyPackages: Boolean,
-    override val skipDeprecated: Boolean,
-    override val jdkVersion: Int,
     override val generateIndexPages: Boolean,
-    override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>,
-    override val impliedPlatforms: List<String>,
-    override val perPackageOptions: List<DokkaConfiguration.PackageOptions>,
-    override val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>,
-    override val noStdlibLink: Boolean,
-    override val noJdkLink: Boolean,
     override val cacheRoot: String?,
-    override val suppressedFiles: List<String>,
-    override val languageVersion: String?,
-    override val apiVersion: String?,
-    override val collectInheritedExtensionsFromLibraries: Boolean
+    override val impliedPlatforms: List<String>,
+    override val passesConfigurations: List<DokkaConfiguration.PassConfiguration>
 ) : DokkaConfiguration
 
 

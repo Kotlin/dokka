@@ -35,31 +35,35 @@ fun verifyModel(modelConfig: ModelConfig,
                 verifier: (DocumentationModule) -> Unit) {
     val documentation = DocumentationModule("test")
 
-    val options = DocumentationOptions(
-            "",
-            modelConfig.format,
-            includeNonPublic = modelConfig.includeNonPublic,
-            skipEmptyPackages = false,
-            includeRootPackage = true,
-            sourceLinks = listOf(),
-            perPackageOptions = modelConfig.perPackageOptions,
-            generateIndexPages = false,
-            noStdlibLink = modelConfig.noStdlibLink,
-            noJdkLink = false,
-            cacheRoot = "default",
-            languageVersion = null,
-            apiVersion = null,
-            collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
+    val passConfiguration = PassConfigurationImpl (
+        includeNonPublic = modelConfig.includeNonPublic,
+        skipEmptyPackages = false,
+        includeRootPackage = true,
+        sourceLinks = listOf(),
+        perPackageOptions = modelConfig.perPackageOptions,
+        noStdlibLink = modelConfig.noStdlibLink,
+        noJdkLink = false,
+        languageVersion = null,
+        apiVersion = null,
+        collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
+    )
+    val configuration = DokkaConfigurationImpl(
+        outputDir = "",
+        format = modelConfig.format,
+        generateIndexPages = false,
+        cacheRoot = "default",
+        passesConfigurations = listOf(passConfiguration)
     )
 
-    appendDocumentation(documentation, options, modelConfig)
-    documentation.prepareForGeneration(options)
+    appendDocumentation(documentation, configuration, passConfiguration, modelConfig)
+    documentation.prepareForGeneration(configuration)
 
     verifier(documentation)
 }
 
 fun appendDocumentation(documentation: DocumentationModule,
-                        options: DocumentationOptions,
+                        dokkaConfiguration: DokkaConfiguration,
+                        passConfiguration: DokkaConfiguration.PassConfiguration,
                         modelConfig: ModelConfig
 ) {
     val messageCollector = object : MessageCollector {
@@ -108,13 +112,13 @@ fun appendDocumentation(documentation: DocumentationModule,
         }
         addRoots(modelConfig.roots.toList())
 
-        loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
+        loadLanguageVersionSettings(passConfiguration.languageVersion, passConfiguration.apiVersion)
     }
     val defaultPlatformsProvider = object : DefaultPlatformsProvider {
         override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = modelConfig.defaultPlatforms
     }
     val injector = Guice.createInjector(
-            DokkaAnalysisModule(environment, options, defaultPlatformsProvider, documentation.nodeRefGraph, DokkaConsoleLogger))
+            DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentation.nodeRefGraph, passConfiguration, DokkaConsoleLogger))
     buildDocumentationModule(injector, documentation)
     Disposer.dispose(environment)
 }

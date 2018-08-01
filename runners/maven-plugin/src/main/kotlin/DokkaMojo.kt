@@ -129,29 +129,32 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             return
         }
 
-        val gen = DokkaGenerator(
-                MavenDokkaLogger(log),
-                classpath,
-                sourceDirectories.map { SourceRootImpl(it) } + sourceRoots,
-                samplesDirs,
-                includeDirs + includes,
-                moduleName,
-                DocumentationOptions(getOutDir(), getOutFormat(),
-                        sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.dir, it.url, it.urlSuffix) },
-                        jdkVersion = jdkVersion,
-                        skipDeprecated = skipDeprecated,
-                        skipEmptyPackages = skipEmptyPackages,
-                        reportUndocumented = reportNotDocumented,
-                        impliedPlatforms = impliedPlatforms,
-                        perPackageOptions = perPackageOptions,
-                        externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink,
-                        noJdkLink = noJdkLink,
-                        cacheRoot = cacheRoot,
-                        languageVersion = languageVersion,
-                        apiVersion = apiVersion
-                )
+        val passConfiguration = PassConfigurationImpl(
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.dir, it.url, it.urlSuffix) },
+            jdkVersion = jdkVersion,
+            skipDeprecated = skipDeprecated,
+            skipEmptyPackages = skipEmptyPackages,
+            reportUndocumented = reportNotDocumented,
+            perPackageOptions = perPackageOptions,
+            externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
+            noStdlibLink = noStdlibLink,
+            noJdkLink = noJdkLink,
+            languageVersion = languageVersion,
+            apiVersion = apiVersion
+
         )
+
+        val configuration = DokkaConfigurationImpl(
+            outputDir = getOutDir(),
+            format = getOutFormat(),
+            impliedPlatforms = impliedPlatforms,
+            cacheRoot = cacheRoot,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+        )
+
+        val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
 
         gen.generate()
     }

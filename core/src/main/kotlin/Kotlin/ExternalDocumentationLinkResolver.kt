@@ -22,6 +22,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.security.MessageDigest
 import javax.inject.Named
 import kotlin.reflect.full.findAnnotation
@@ -30,7 +31,8 @@ fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(
 
 @Singleton
 class ExternalDocumentationLinkResolver @Inject constructor(
-        val options: DocumentationOptions,
+        val configuration: DokkaConfiguration,
+        val passConfiguration: DokkaConfiguration.PassConfiguration,
         @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
         val logger: DokkaLogger
 ) {
@@ -42,7 +44,12 @@ class ExternalDocumentationLinkResolver @Inject constructor(
         override fun toString(): String = rootUrl.toString()
     }
 
-    val cacheDir: Path? = options.cacheRoot?.resolve("packageListCache")?.apply { createDirectories() }
+
+    val cacheDir: Path? = when {
+        configuration.cacheRoot == "default" -> Paths.get(System.getProperty("user.home"), ".cache", "dokka")
+        configuration.cacheRoot != null -> Paths.get(configuration.cacheRoot)
+        else -> null
+    }?.resolve("packageListCache")?.apply { createDirectories() }
 
     val cachedProtocols = setOf("http", "https", "ftp")
 
@@ -157,7 +164,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     }
 
     init {
-        options.externalDocumentationLinks.forEach {
+        passConfiguration.externalDocumentationLinks.forEach {
             try {
                 loadPackageList(it)
             } catch (e: Exception) {

@@ -12,10 +12,10 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.resolve.ImportPath
 
 open class KotlinWebsiteSampleProcessingService
-@Inject constructor(options: DocumentationOptions,
+@Inject constructor(dokkaConfiguration: DokkaConfiguration,
                     logger: DokkaLogger,
                     resolutionFacade: DokkaResolutionFacade)
-    : DefaultSampleProcessingService(options, logger, resolutionFacade) {
+    : DefaultSampleProcessingService(dokkaConfiguration, logger, resolutionFacade) {
 
     private class SampleBuilder : KtTreeVisitorVoid() {
         val builder = StringBuilder()

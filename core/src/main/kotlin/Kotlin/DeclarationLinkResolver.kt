@@ -10,7 +10,7 @@ class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                             val refGraph: NodeReferenceGraph,
                             val logger: DokkaLogger,
-                            val options: DocumentationOptions,
+                            val passConfiguration: DokkaConfiguration.PassConfiguration,
                             val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver,
                             val elementSignatureProvider: ElementSignatureProvider) {
 
@@ -63,7 +63,7 @@ class DeclarationLinkResolver
         if (symbol is CallableMemberDescriptor && symbol.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
             return symbol.overriddenDescriptors.firstOrNull()
         }
-        if (symbol is TypeAliasDescriptor && !symbol.isDocumented(options)) {
+        if (symbol is TypeAliasDescriptor && !symbol.isDocumented(passConfiguration)) {
             return symbol.classDescriptor
         }
         return symbol

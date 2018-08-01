@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 
 class DescriptorDocumentationParser
-         @Inject constructor(val options: DocumentationOptions,
+         @Inject constructor(val options: DokkaConfiguration.PassConfiguration,
                              val logger: DokkaLogger,
                              val linkResolver: DeclarationLinkResolver,
                              val resolutionFacade: DokkaResolutionFacade,

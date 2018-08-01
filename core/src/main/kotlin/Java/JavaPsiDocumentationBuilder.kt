@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
-import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
     is PsiPackage -> element.qualifiedName
@@ -44,24 +43,24 @@ interface JavaDocumentationBuilder {
 }
 
 class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
-    private val options: DocumentationOptions
+    private val passConfiguration: DokkaConfiguration.PassConfiguration
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
 
     @Inject constructor(
-            options: DocumentationOptions,
-            refGraph: NodeReferenceGraph,
-            logger: DokkaLogger,
-            signatureProvider: ElementSignatureProvider,
-            externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+        passConfiguration: DokkaConfiguration.PassConfiguration,
+        refGraph: NodeReferenceGraph,
+        logger: DokkaLogger,
+        signatureProvider: ElementSignatureProvider,
+        externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
     ) {
-        this.options = options
+        this.passConfiguration = passConfiguration
         this.refGraph = refGraph
         this.docParser = JavadocParser(refGraph, logger, signatureProvider, externalDocumentationLinkResolver)
     }
 
-    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
-        this.options = options
+    constructor(passConfiguration: DokkaConfiguration.PassConfiguration, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
+        this.passConfiguration = passConfiguration
         this.refGraph = refGraph
         this.docParser = docParser
     }
@@ -141,7 +140,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
     }
 
-    private fun skipFile(javaFile: PsiJavaFile): Boolean = options.effectivePackageOptions(javaFile.packageName).suppress
+    private fun skipFile(javaFile: PsiJavaFile): Boolean = passConfiguration.effectivePackageOptions(javaFile.packageName).suppress
 
     private fun skipElement(element: Any) =
             skipElementByVisibility(element) ||
@@ -151,13 +150,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private fun skipElementByVisibility(element: Any): Boolean =
         element is PsiModifierListOwner &&
                 element !is PsiParameter &&
-                !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
+                !(passConfiguration.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
                 (element.hasModifierProperty(PsiModifier.PRIVATE) ||
                         element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
                         element.isInternal())
 
     private fun skipElementBySuppressedFiles(element: Any): Boolean =
-            element is PsiElement && File(element.containingFile.virtualFile.path).absoluteFile in options.suppressedFiles
+            element is PsiElement && element.containingFile.virtualFile.path in passConfiguration.suppressedFiles
 
     private fun PsiElement.isInternal(): Boolean {
         val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false

@@ -64,29 +64,37 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "kotlin-website-html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
+
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "kotlin-website-html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+
+        )
+
         appendDocumentation(
-            module, options, ModelConfig(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jvm.kt")),
                 defaultPlatforms = listOf("JVM")
             )
         )
         appendDocumentation(
-            module, options, ModelConfig(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jre7.kt")),
                 defaultPlatforms = listOf("JVM", "JRE7")
             )
         )
         appendDocumentation(
-            module, options, ModelConfig(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/js.kt")),
                 defaultPlatforms = listOf("JS")
             )
