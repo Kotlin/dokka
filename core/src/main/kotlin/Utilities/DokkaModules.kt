@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.Utilities
 
-import com.google.inject.Binder
-import com.google.inject.Module
-import com.google.inject.TypeLiteral
+import com.google.inject.*
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
@@ -12,6 +10,16 @@ import java.io.File
 import kotlin.reflect.KClass
 
 const val impliedPlatformsName = "impliedPlatforms"
+
+class DokkaRunModule(val configuration: DokkaConfiguration) : Module {
+    override fun configure(binder: Binder) {
+        binder.bind<DokkaConfiguration>().toInstance(configuration)
+        binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(configuration.impliedPlatforms)
+
+        binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(configuration.outputDir))
+    }
+
+}
 
 class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val configuration: DokkaConfiguration,
@@ -29,7 +37,6 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
         binder.bind<DokkaResolutionFacade>().annotatedWith(Names.named("libraryResolutionFacade")).toInstance(libraryResolutionFacade)
 
-        binder.bind<DokkaConfiguration>().toInstance(configuration)
         binder.bind<DokkaConfiguration.PassConfiguration>().toInstance(passConfiguration)
 
         binder.bind<DefaultPlatformsProvider>().toInstance(defaultPlatformsProvider)
@@ -46,11 +53,7 @@ object StringListType : TypeLiteral<@JvmSuppressWildcards List<String>>()
 class DokkaOutputModule(val configuration: DokkaConfiguration,
                         val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
-        binder.bind(File::class.java).annotatedWith(Names.named("outputDir")).toInstance(File(configuration.outputDir))
-
-        binder.bind<DokkaConfiguration>().toInstance(configuration)
         binder.bind<DokkaLogger>().toInstance(logger)
-        binder.bind(StringListType).annotatedWith(Names.named(impliedPlatformsName)).toInstance(configuration.impliedPlatforms)
 
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", configuration.format)
 

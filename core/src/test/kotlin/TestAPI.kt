@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
+import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -117,8 +118,22 @@ fun appendDocumentation(documentation: DocumentationModule,
     val defaultPlatformsProvider = object : DefaultPlatformsProvider {
         override fun getDefaultPlatforms(descriptor: DeclarationDescriptor) = modelConfig.defaultPlatforms
     }
-    val injector = Guice.createInjector(
-            DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentation.nodeRefGraph, passConfiguration, DokkaConsoleLogger))
+
+    val globalInjector = Guice.createInjector(
+        DokkaRunModule(dokkaConfiguration)
+    )
+
+    val injector = globalInjector.createChildInjector(
+        DokkaAnalysisModule(
+            environment,
+            dokkaConfiguration,
+            defaultPlatformsProvider,
+            documentation.nodeRefGraph,
+            passConfiguration,
+            DokkaConsoleLogger
+        )
+    )
+
     buildDocumentationModule(injector, documentation)
     Disposer.dispose(environment)
 }

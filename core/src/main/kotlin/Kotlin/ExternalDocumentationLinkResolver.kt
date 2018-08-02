@@ -29,21 +29,14 @@ import kotlin.reflect.full.findAnnotation
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
 
+typealias PackageFqNameToLocation = MutableMap<FqName, PackageListProvider.ExternalDocumentationRoot>
+
 @Singleton
-class ExternalDocumentationLinkResolver @Inject constructor(
-        val configuration: DokkaConfiguration,
-        val passConfiguration: DokkaConfiguration.PassConfiguration,
-        @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
-        val logger: DokkaLogger
+class PackageListProvider @Inject constructor(
+    val configuration: DokkaConfiguration,
+    val logger: DokkaLogger
 ) {
-
-    val packageFqNameToLocation = mutableMapOf<FqName, ExternalDocumentationRoot>()
-    val formats = mutableMapOf<String, InboundExternalLinkResolutionService>()
-
-    class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>) {
-        override fun toString(): String = rootUrl.toString()
-    }
-
+    val storage = mutableMapOf<DokkaConfiguration.ExternalDocumentationLink, PackageFqNameToLocation>()
 
     val cacheDir: Path? = when {
         configuration.cacheRoot == "default" -> Paths.get(System.getProperty("user.home"), ".cache", "dokka")
@@ -52,6 +45,25 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     }?.resolve("packageListCache")?.apply { createDirectories() }
 
     val cachedProtocols = setOf("http", "https", "ftp")
+
+    init {
+        for (conf in configuration.passesConfigurations) {
+            for (link in conf.externalDocumentationLinks) {
+                if (link in storage) {
+                    continue
+                }
+
+                try {
+                    loadPackageList(link)
+                } catch (e: Exception) {
+                    throw RuntimeException("Exception while loading package-list from $link", e)
+                }
+            }
+
+        }
+    }
+
+
 
     fun URL.doOpenConnectionToReadContent(timeout: Int = 10000, redirectsAllowed: Int = 16): URLConnection {
         val connection = this.openConnection()
@@ -127,23 +139,23 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
         val (params, packages) =
                 packageListStream
-                        .bufferedReader()
-                        .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
+                    .bufferedReader()
+                    .useLines { lines -> lines.partition { it.startsWith(ExternalDocumentationLinkResolver.DOKKA_PARAM_PREFIX) } }
 
         val paramsMap = params.asSequence()
-                .map { it.removePrefix(DOKKA_PARAM_PREFIX).split(":", limit = 2) }
-                .groupBy({ (key, _) -> key }, { (_, value) -> value })
+            .map { it.removePrefix(ExternalDocumentationLinkResolver.DOKKA_PARAM_PREFIX).split(":", limit = 2) }
+            .groupBy({ (key, _) -> key }, { (_, value) -> value })
 
         val format = paramsMap["format"]?.singleOrNull() ?: "javadoc"
 
         val locations = paramsMap["location"].orEmpty()
-                .map { it.split("\u001f", limit = 2) }
-                .map { (key, value) -> key to value }
-                .toMap()
+            .map { it.split("\u001f", limit = 2) }
+            .map { (key, value) -> key to value }
+            .toMap()
 
 
-        val defaultResolverDesc = services["dokka-default"]!!
-        val resolverDesc = services[format]
+        val defaultResolverDesc = ExternalDocumentationLinkResolver.services["dokka-default"]!!
+        val resolverDesc = ExternalDocumentationLinkResolver.services[format]
                 ?: defaultResolverDesc.takeIf { format in formatsWithDefaultResolver }
                 ?: defaultResolverDesc.also {
                     logger.warn("Couldn't find InboundExternalLinkResolutionService(format = `$format`) for $link, using Dokka default")
@@ -160,16 +172,52 @@ class ExternalDocumentationLinkResolver @Inject constructor(
 
         val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
 
-        packages.map { FqName(it) }.forEach { packageFqNameToLocation[it] = rootInfo }
+        val packageFqNameToLocation = mutableMapOf<FqName, ExternalDocumentationRoot>()
+        storage[link] = packageFqNameToLocation
+
+        val fqNames = packages.map { FqName(it) }
+        for(name in fqNames) {
+            packageFqNameToLocation[name] = rootInfo
+        }
     }
 
+
+
+    class ExternalDocumentationRoot(val rootUrl: URL, val resolver: InboundExternalLinkResolutionService, val locations: Map<String, String>) {
+        override fun toString(): String = rootUrl.toString()
+    }
+
+    companion object {
+        private val formatsWithDefaultResolver =
+            ServiceLocator
+                .allServices("format")
+                .filter {
+                    val desc = ServiceLocator.lookup<FormatDescriptor>(it) as? FileGeneratorBasedFormatDescriptor
+                    desc?.generatorServiceClass == FileGenerator::class
+                }.map { it.name }
+                .toSet()
+
+    }
+
+}
+
+class ExternalDocumentationLinkResolver @Inject constructor(
+        val configuration: DokkaConfiguration,
+        val passConfiguration: DokkaConfiguration.PassConfiguration,
+        @Named("libraryResolutionFacade") val libraryResolutionFacade: DokkaResolutionFacade,
+        val logger: DokkaLogger,
+        val packageListProvider: PackageListProvider
+) {
+
+    val formats = mutableMapOf<String, InboundExternalLinkResolutionService>()
+    val packageFqNameToLocation = mutableMapOf<FqName, PackageListProvider.ExternalDocumentationRoot>()
+
     init {
-        passConfiguration.externalDocumentationLinks.forEach {
-            try {
-                loadPackageList(it)
-            } catch (e: Exception) {
-                throw RuntimeException("Exception while loading package-list from $it", e)
-            }
+        val fqNameToLocationMaps = passConfiguration.externalDocumentationLinks
+            .mapNotNull { packageListProvider.storage[it] }
+
+        for(map in fqNameToLocationMaps) {
+           packageFqNameToLocation.putAll(map)
         }
     }
 
@@ -198,14 +246,6 @@ class ExternalDocumentationLinkResolver @Inject constructor(
     companion object {
         const val DOKKA_PARAM_PREFIX = "\$dokka."
         val services = ServiceLocator.allServices("inbound-link-resolver").associateBy { it.name }
-        private val formatsWithDefaultResolver =
-            ServiceLocator
-                .allServices("format")
-                .filter {
-                    val desc = ServiceLocator.lookup<FormatDescriptor>(it) as? FileGeneratorBasedFormatDescriptor
-                    desc?.generatorServiceClass == FileGenerator::class
-                }.map { it.name }
-                .toSet()
     }
 }
 

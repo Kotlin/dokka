@@ -9,6 +9,7 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
+import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -27,6 +28,7 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
                      val logger: DokkaLogger) {
 
     private val documentationModules: MutableList<DocumentationModule> = mutableListOf()
+    private val globalInjector = Guice.createInjector(DokkaRunModule(dokkaConfiguration))
 
 
     fun generate() = with(dokkaConfiguration) {
@@ -43,8 +45,9 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
-            val outputInjector = Guice.createInjector(DokkaOutputModule(dokkaConfiguration, logger))
-            outputInjector.getInstance(Generator::class.java).buildAll(totalDocumentationModule)
+            val outputInjector = globalInjector.createChildInjector(DokkaOutputModule(dokkaConfiguration, logger))
+            val instance = outputInjector.getInstance(Generator::class.java)
+            instance.buildAll(totalDocumentationModule)
         }
         logger.info("done in ${timeBuild / 1000} secs")
     }
@@ -75,11 +78,11 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
             }
         }
 
-        val injector = Guice.createInjector(
+        val injector = globalInjector.createChildInjector(
                 DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentationModule.nodeRefGraph, passConfiguration, logger))
 
         buildDocumentationModule(injector, documentationModule, { isNotSample(it, passConfiguration.samples) }, includes)
-        documentationModule.nodeRefGraph.nodeMapView.forEach { (_, node) ->
+        documentationModule.nodeRefGraph.nodeMapView.forEach { (_, node) -> // FIXME: change to full graph visiting
             node.addReferenceTo(
                 DocumentationNode(analysisPlatform.key, Content.Empty, NodeKind.Platform),
                 RefKind.Platform
