@@ -26,7 +26,6 @@ class SourceRootImpl(path: String, override val platforms: List<String> = emptyL
         fun parseSourceRoot(sourceRoot: String): SourceRoot {
             val components = sourceRoot.split("::", limit = 2)
 
-            // TODO: create syntax for cli
             val platform = if (components.size == 1) {
                 Platform.DEFAULT
             } else {

@@ -1097,7 +1097,7 @@ fun DocumentationNode.generateAllTypesNode() {
     val allTypes = members(NodeKind.Package)
             .flatMap { it.members.filter {
                 it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass
-                        || (it.kind == NodeKind.GroupNode && it.anyReference { it.to.kind in NodeKind.classLike }) } }
+                        || (it.kind == NodeKind.GroupNode && it.members.all { it.kind in NodeKind.classLike }) } }
             .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.').toLowerCase() else it.name.toLowerCase() }
 
     val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)

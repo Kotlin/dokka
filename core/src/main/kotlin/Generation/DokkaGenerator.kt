@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
+import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.dokka.Utilities.DokkaRunModule
@@ -82,8 +83,8 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
                 DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentationModule.nodeRefGraph, passConfiguration, logger))
 
         buildDocumentationModule(injector, documentationModule, { isNotSample(it, passConfiguration.samples) }, includes)
-        documentationModule.nodeRefGraph.nodeMapView.forEach { (_, node) -> // FIXME: change to full graph visiting
-            node.addReferenceTo(
+        documentationModule.visit { it ->
+            it.addReferenceTo(
                 DocumentationNode(analysisPlatform.key, Content.Empty, NodeKind.Platform),
                 RefKind.Platform
             )
@@ -95,7 +96,19 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         Disposer.dispose(environment)
     }
 
-   fun createAnalysisEnvironment(sourcePaths: List<String>, passConfiguration: DokkaConfiguration.PassConfiguration): AnalysisEnvironment {
+    private fun DocumentationNode.visit(action: (DocumentationNode) -> Unit) {
+        action(this)
+
+        for (member in members) {
+            member.visit(action)
+        }
+    }
+
+
+    fun createAnalysisEnvironment(
+        sourcePaths: List<String>,
+        passConfiguration: DokkaConfiguration.PassConfiguration
+    ): AnalysisEnvironment {
         val environment = AnalysisEnvironment(DokkaMessageCollector(logger), passConfiguration.analysisPlatform)
 
         environment.apply {
@@ -116,7 +129,7 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         return environment
     }
 
-   fun isNotSample(file: PsiFile, samples: List<String>): Boolean {
+   private fun isNotSample(file: PsiFile, samples: List<String>): Boolean {
         val sourceFile = File(file.virtualFile!!.path)
         return samples.none { sample ->
             val canonicalSample = File(sample).canonicalPath
@@ -155,9 +168,7 @@ fun buildDocumentationModule(injector: Injector,
     val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzer::class.java)
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
-    val fragments = fragmentFiles
-            .map { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
-            .filterNotNull()
+    val fragments = fragmentFiles.mapNotNull { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
             .distinct()
 
     val packageDocs = injector.getInstance(PackageDocs::class.java)
@@ -220,206 +231,4 @@ fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
         }
     }
     return result
-}
-
-class DocumentationMerger(
-    private val documentationModules: List<DocumentationModule>
-) {
-    private val producedNodeRefGraph: NodeReferenceGraph
-    private val signatureMap: Map<DocumentationNode, String>
-
-    init {
-        signatureMap = documentationModules
-            .flatMap { it.nodeRefGraph.nodeMapView.entries }
-            .map { (k, v) -> v to k }
-            .toMap()
-
-        producedNodeRefGraph = NodeReferenceGraph()
-        documentationModules.map { it.nodeRefGraph }
-            .flatMap { it.references }
-            .distinct()
-            .forEach { producedNodeRefGraph.addReference(it) }
-    }
-
-    private fun splitReferencesByKind(
-        source: List<DocumentationReference>,
-        kind: RefKind
-    ): Pair<List<DocumentationReference>, List<DocumentationReference>> =
-        Pair(source.filter { it.kind == kind }, source.filterNot { it.kind == kind })
-
-
-    private fun mergePackageReferences(
-        from: DocumentationNode,
-        packages: List<DocumentationReference>
-    ): List<DocumentationReference> {
-        val packagesByName = packages
-            .map { it.to }
-            .groupBy { it.name }
-
-        val mutableList: MutableList<DocumentationReference> = mutableListOf()
-        for ((name, listOfPackages) in packagesByName) {
-            val producedPackage = mergePackagesWithEqualNames(from, listOfPackages)
-            updatePendingReferences(name, producedPackage)
-
-            mutableList.add(
-                DocumentationReference(from, producedPackage, RefKind.Member)
-            )
-        }
-
-        return mutableList
-    }
-
-    private fun mergePackagesWithEqualNames(
-        from: DocumentationNode,
-        packages: List<DocumentationNode>
-    ): DocumentationNode {
-        val references = packages.flatMap { it.allReferences() }
-
-        val mergedPackage =
-            DocumentationNode(
-                packages.first().name,
-                Content.Empty,
-                NodeKind.Package
-            )
-
-        val mergedReferences = mergeReferences(mergedPackage, references)
-
-        for (packageNode in packages) {
-            mergedPackage.updateContent {
-                for (otherChild in packageNode.content.children) {
-                    children.add(otherChild)
-                }
-            }
-        }
-
-        mergedPackage.dropReferences { true } // clear()
-        for (ref in mergedReferences.distinct()) {
-            mergedPackage.addReference(ref)
-        }
-
-        from.append(mergedPackage, RefKind.Member)
-
-        return mergedPackage
-    }
-
-
-    private fun mergeMembers(
-        from: DocumentationNode,
-        refs: List<DocumentationReference>
-    ): List<DocumentationReference> {
-        val membersBySignature: Map<String, List<DocumentationNode>> = refs.map { it.to }
-            .filter { signatureMap.containsKey(it) }
-            .groupBy { signatureMap[it]!! }
-
-        val mergedMembers: MutableList<DocumentationReference> = mutableListOf()
-        for ((signature, members) in membersBySignature) {
-            val newNode = mergeMembersWithEqualSignature(signature, from, members)
-
-            producedNodeRefGraph.register(signature, newNode)
-            updatePendingReferences(signature, newNode)
-            from.append(newNode, RefKind.Member)
-
-            mergedMembers.add(DocumentationReference(from, newNode, RefKind.Member))
-        }
-
-        return mergedMembers
-    }
-
-    private fun mergeMembersWithEqualSignature(
-        signature: String,
-        from: DocumentationNode,
-        refs: List<DocumentationNode>
-    ): DocumentationNode {
-        if (refs.size == 1) {
-            val singleNode = refs.single()
-            singleNode.owner?.let { owner ->
-                singleNode.dropReferences { it.to == owner && it.kind == RefKind.Owner }
-            }
-            return singleNode
-        }
-        val groupNode = DocumentationNode(refs.first().name, Content.Empty, NodeKind.GroupNode)
-        groupNode.appendTextNode(signature, NodeKind.Signature, RefKind.Detail)
-
-        for (node in refs) {
-            if (node != groupNode) {
-                node.owner?.let { owner ->
-                    node.dropReferences { it.to == owner && it.kind == RefKind.Owner }
-                    from.dropReferences { it.to == node && it.kind == RefKind.Member }
-                }
-                groupNode.append(node, RefKind.Member)
-            }
-        }
-        return groupNode
-    }
-
-
-    private fun mergeReferences(
-        from: DocumentationNode,
-        refs: List<DocumentationReference>
-    ): List<DocumentationReference> {
-        val allRefsToPackages = refs.map { it.to }
-            .all { it.kind == NodeKind.Package }
-
-        if (allRefsToPackages) {
-            return mergePackageReferences(from, refs)
-        }
-
-        val (memberRefs, notMemberRefs) = splitReferencesByKind(refs, RefKind.Member)
-        val mergedMembers = mergeMembers(from, memberRefs)
-
-        return (mergedMembers + notMemberRefs).distinctBy {
-            it.kind to it.to.name
-        }
-    }
-
-
-    private fun updatePendingReferences(
-        signature: String,
-        nodeToUpdate: DocumentationNode
-    ) {
-        producedNodeRefGraph.references.forEach {
-            it.lazyNodeFrom.update(signature, nodeToUpdate)
-            it.lazyNodeTo.update(signature, nodeToUpdate)
-        }
-    }
-
-    private fun NodeResolver.update(signature: String, nodeToUpdate: DocumentationNode) {
-        when (this) {
-            is NodeResolver.BySignature -> update(signature, nodeToUpdate)
-            is NodeResolver.Exact -> update(signature, nodeToUpdate)
-        }
-    }
-
-    private fun NodeResolver.BySignature.update(signature: String, nodeToUpdate: DocumentationNode) {
-        if (signature == nodeToUpdate.name) {
-            nodeMap = producedNodeRefGraph.nodeMapView
-        }
-    }
-
-    private fun NodeResolver.Exact.update(signature: String, nodeToUpdate: DocumentationNode) {
-        exactNode?.let { it ->
-            val equalSignature =
-                it.anyReference { ref -> ref.to.kind == NodeKind.Signature && ref.to.name == signature }
-
-            if (equalSignature) {
-                exactNode = nodeToUpdate
-            }
-        }
-    }
-
-    fun merge(): DocumentationModule {
-        val refs = documentationModules.flatMap {
-            it.allReferences()
-        }
-        val mergedDocumentationModule = DocumentationModule(
-            name = documentationModules.first().name,
-            nodeRefGraph = producedNodeRefGraph
-        )
-
-        mergeReferences(mergedDocumentationModule, refs)
-
-        return mergedDocumentationModule
-    }
-
-
 }

@@ -163,7 +163,6 @@ open class DocumentationNode(val name: String,
     fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
     fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
 
-    fun anyReference(predicate: (DocumentationReference) -> Boolean): Boolean = references.any(predicate)
 
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }
     fun allReferences(): Set<DocumentationReference> = references

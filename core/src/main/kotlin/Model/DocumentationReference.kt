@@ -26,15 +26,15 @@ data class DocumentationReference(val from: DocumentationNode, val to: Documenta
 }
 
 sealed class NodeResolver {
-    abstract fun resolve(): DocumentationNode?
-    class BySignature(var signature: String, var nodeMap: Map<String, DocumentationNode>) : NodeResolver() {
-        override fun resolve(): DocumentationNode? {
-            return nodeMap[signature]
+    abstract fun resolve(nodeRephGraph: NodeReferenceGraph): DocumentationNode?
+    class BySignature(var signature: String) : NodeResolver() {
+        override fun resolve(nodeRephGraph: NodeReferenceGraph): DocumentationNode? {
+            return nodeRephGraph.lookup(signature)
         }
     }
 
     class Exact(var exactNode: DocumentationNode?) : NodeResolver() {
-        override fun resolve(): DocumentationNode? {
+        override fun resolve(nodeRephGraph: NodeReferenceGraph): DocumentationNode? {
             return exactNode
         }
     }
@@ -43,9 +43,9 @@ sealed class NodeResolver {
 class PendingDocumentationReference(val lazyNodeFrom: NodeResolver,
                                     val lazyNodeTo: NodeResolver,
                                     val kind: RefKind) {
-    fun resolve() {
-        val fromNode = lazyNodeFrom.resolve()
-        val toNode = lazyNodeTo.resolve()
+    fun resolve(nodeRephGraph: NodeReferenceGraph) {
+        val fromNode = lazyNodeFrom.resolve(nodeRephGraph)
+        val toNode = lazyNodeTo.resolve(nodeRephGraph)
         if (fromNode != null && toNode != null) {
             fromNode.addReferenceTo(toNode, kind)
         }
@@ -67,7 +67,7 @@ class NodeReferenceGraph {
         references.add(
             PendingDocumentationReference(
                 NodeResolver.Exact(fromNode),
-                NodeResolver.BySignature(toSignature, nodeMap),
+                NodeResolver.BySignature(toSignature),
                 kind
             ))
     }
@@ -75,7 +75,7 @@ class NodeReferenceGraph {
     fun link(fromSignature: String, toNode: DocumentationNode, kind: RefKind) {
         references.add(
             PendingDocumentationReference(
-                NodeResolver.BySignature(fromSignature, nodeMap),
+                NodeResolver.BySignature(fromSignature),
                 NodeResolver.Exact(toNode),
                 kind
             )
@@ -85,8 +85,8 @@ class NodeReferenceGraph {
     fun link(fromSignature: String, toSignature: String, kind: RefKind) {
         references.add(
             PendingDocumentationReference(
-                NodeResolver.BySignature(fromSignature, nodeMap),
-                NodeResolver.BySignature(toSignature, nodeMap),
+                NodeResolver.BySignature(fromSignature),
+                NodeResolver.BySignature(toSignature),
                 kind
             )
         )
@@ -107,7 +107,7 @@ class NodeReferenceGraph {
     }
 
     fun resolveReferences() {
-        references.forEach { it.resolve() }
+        references.forEach { it.resolve(this) }
     }
 }
 
