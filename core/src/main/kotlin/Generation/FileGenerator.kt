@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter
 class FileGenerator @Inject constructor(@Named("outputDir") override val root: File) : NodeLocationAwareGenerator {
 
     @set:Inject(optional = true) var outlineService: OutlineFormatService? = null
-    @set:Inject lateinit var formatService: FormatService
+    @set:Inject(optional = true) lateinit var formatService: FormatService
     @set:Inject(optional = true) lateinit var dokkaConfiguration: DokkaConfiguration
     @set:Inject(optional = true) var packageListService: PackageListService? = null
 
