@@ -178,6 +178,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka-android'
 ```
 
+#### Gradle Script plugin
+
+[EasyDokkaPlugin](https://github.com/Vorlonsoft/EasyDokkaPlugin) - it's very easy, you don't need to add to `dependencies` section additional `classpath` or think about compatibility issues, you don't need additional repositories also.
+
+```groovy
+apply from: 'https://raw.github.com/Vorlonsoft/EasyDokkaPlugin/master/dokka.gradle'
+```
+
 ### Using the Maven plugin
 
 The Maven plugin is available in JCenter. You need to add the JCenter repository to the list of plugin repositories if it's not there:
@@ -373,7 +381,7 @@ The Ant task supports the following attributes:
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.10/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.17/dokka-fatjar-0.9.17.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <source directories> <arguments>
