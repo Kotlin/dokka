@@ -40,59 +40,61 @@ data class GlobalArguments(
     override var format: String = "",
     override var generateIndexPages: Boolean = false,
     override var cacheRoot: String? = null,
-    override var passesConfigurations: List<DokkaConfiguration.PassConfiguration> = listOf(),
+    override var passesConfigurations: List<Arguments> = listOf(),
     override var impliedPlatforms: MutableList<String> = mutableListOf()
 ) : DokkaConfiguration
 
 class DokkaArgumentsParser {
-    private fun CommandLineInterface.registerSingleAction(
-        keys: List<String>,
-        help: String,
-        invoke: (String) -> Unit
-    ) = registerAction(
-        object : FlagActionBase(keys, help) {
-            override fun invoke(arguments: ListIterator<String>) {
-                if (arguments.hasNext()) {
-                    val msg = arguments.next()
-                    invoke(msg)
-                }
-            }
-
-            override fun invoke() {
-                error("should be never called")
-            }
-        }
-
-    )
-
-    private fun CommandLineInterface.registerRepeatingAction(
-        keys: List<String>,
-        help: String,
-        invoke: (String) -> Unit
-    ) = registerAction(
-        object : FlagActionBase(keys, help) {
-            override fun invoke(arguments: ListIterator<String>) {
-                while (arguments.hasNext()) {
-                    val message = arguments.next()
-
-                    if (cli.getFlagAction(message) != null) {
-                        arguments.previous()
-                        break
+    companion object {
+        fun CommandLineInterface.registerSingleAction(
+            keys: List<String>,
+            help: String,
+            invoke: (String) -> Unit
+        ) = registerAction(
+            object : FlagActionBase(keys, help) {
+                override fun invoke(arguments: ListIterator<String>) {
+                    if (arguments.hasNext()) {
+                        val msg = arguments.next()
+                        invoke(msg)
                     }
-                    invoke(message)
                 }
 
+                override fun invoke() {
+                    error("should be never called")
+                }
             }
 
-            override fun invoke() {
-                error("should be never called")
-            }
-        }
+        )
 
-    )
+        fun CommandLineInterface.registerRepeatingAction(
+            keys: List<String>,
+            help: String,
+            invoke: (String) -> Unit
+        ) = registerAction(
+            object : FlagActionBase(keys, help) {
+                override fun invoke(arguments: ListIterator<String>) {
+                    while (arguments.hasNext()) {
+                        val message = arguments.next()
+
+                        if (this@registerRepeatingAction.getFlagAction(message) != null) {
+                            arguments.previous()
+                            break
+                        }
+                        invoke(message)
+                    }
+
+                }
+
+                override fun invoke() {
+                    error("should be never called")
+                }
+            }
+
+        )
+
+    }
 
     val cli = CommandLineInterface("dokka")
-    val passArguments = mutableListOf<Arguments>()
     val globalArguments = GlobalArguments()
 
     init {
@@ -100,14 +102,14 @@ class DokkaArgumentsParser {
             listOf("-pass"),
             "Single dokka pass"
         ) {
-            passArguments += Arguments()
+            globalArguments.passesConfigurations += Arguments()
         }
 
         cli.registerRepeatingAction(
             listOf("-src"),
             "Source file or directory (allows many paths separated by the system path separator)"
         ) {
-            passArguments.last().sourceRoots.add(SourceRootImpl.parseSourceRoot(it))
+            globalArguments.passesConfigurations.last().sourceRoots.add(SourceRootImpl.parseSourceRoot(it))
         }
 
         cli.registerRepeatingAction(
@@ -121,14 +123,14 @@ class DokkaArgumentsParser {
             listOf("-include"),
             "Markdown files to load (allows many paths separated by the system path separator)"
         ) {
-            passArguments.last().includes.add(it)
+            globalArguments.passesConfigurations.last().includes.add(it)
         }
 
         cli.registerRepeatingAction(
             listOf("-samples"),
             "Source root for samples"
         ) {
-            passArguments.last().samples.add(it)
+            globalArguments.passesConfigurations.last().samples.add(it)
         }
 
         cli.registerSingleAction(
@@ -149,28 +151,28 @@ class DokkaArgumentsParser {
             listOf("-module"),
             "Name of the documentation module"
         ) {
-            passArguments.last().moduleName = it
+            globalArguments.passesConfigurations.last().moduleName = it
         }
 
         cli.registerRepeatingAction(
             listOf("-classpath"),
             "Classpath for symbol resolution"
         ) {
-            passArguments.last().classpath.add(it)
+            globalArguments.passesConfigurations.last().classpath.add(it)
         }
 
         cli.flagAction(
             listOf("-nodeprecacted"),
             "Exclude deprecated members from documentation"
         ) {
-            passArguments.last().skipDeprecated = true
+            globalArguments.passesConfigurations.last().skipDeprecated = true
         }
 
         cli.registerSingleAction(
             listOf("jdkVersion"),
             "Version of JDK to use for linking to JDK JavaDoc"
         ) {
-            passArguments.last().jdkVersion = Integer.parseInt(it)
+            globalArguments.passesConfigurations.last().jdkVersion = Integer.parseInt(it)
         }
 
         cli.registerRepeatingAction(
@@ -184,28 +186,28 @@ class DokkaArgumentsParser {
             listOf("-pckageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) {
-            passArguments.last().perPackageOptions = parsePerPackageOptions(it)
+            globalArguments.passesConfigurations.last().perPackageOptions = parsePerPackageOptions(it)
         }
 
         cli.registerSingleAction(
             listOf("links"),
             "External documentation links in format url^packageListUrl^^url2..."
         ) {
-            passArguments.last().externalDocumentationLinks = MainKt.parseLinks(it)
+            globalArguments.passesConfigurations.last().externalDocumentationLinks = MainKt.parseLinks(it)
         }
 
         cli.flagAction(
             listOf("-noStdlibLink"),
             "Disable documentation link to stdlib"
         ) {
-            passArguments.last().noStdlibLink = true
+            globalArguments.passesConfigurations.last().noStdlibLink = true
         }
 
         cli.flagAction(
             listOf("-noJdkLink"),
             "Disable documentation link to jdk"
         ) {
-            passArguments.last().noJdkLink = true
+            globalArguments.passesConfigurations.last().noJdkLink = true
         }
 
         cli.registerSingleAction(
@@ -219,21 +221,21 @@ class DokkaArgumentsParser {
             listOf("-languageVersion"),
             "Language Version to pass to Kotlin Analysis"
         ) {
-            passArguments.last().languageVersion = it
+            globalArguments.passesConfigurations.last().languageVersion = it
         }
 
         cli.registerSingleAction(
             listOf("-apiVesion"),
             "Kotlin Api Version to pass to Kotlin Analysis"
         ) {
-            passArguments.last().apiVersion = it
+            globalArguments.passesConfigurations.last().apiVersion = it
         }
 
         cli.flagAction(
             listOf("-collectInheritedExtensionsFromLibraries"),
             "Search for applicable extensions in libraries"
         ) {
-            passArguments.last().collectInheritedExtensionsFromLibraries = true
+            globalArguments.passesConfigurations.last().collectInheritedExtensionsFromLibraries = true
         }
 
     }
@@ -241,7 +243,6 @@ class DokkaArgumentsParser {
     fun parse(args: Array<String>): DokkaConfiguration {
         cli.parseArgs(*args)
 
-        globalArguments.passesConfigurations = passArguments
         return globalArguments
     }
 }
