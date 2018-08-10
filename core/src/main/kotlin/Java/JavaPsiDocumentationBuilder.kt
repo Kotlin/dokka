@@ -216,7 +216,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun DocumentationNode.appendMirrorLocation(clz: PsiMember) {
-        val resolver = JavaLayoutHtmlInboundLinkResolutionService(emptyMap())
+        val resolver = JavaLayoutHtmlInboundLinkResolutionService(false, resolutionFacade)
 
         val desc = if (this is KtLightDeclaration<*, *>) {
             resolutionFacade.resolveToDescriptor(this.kotlinOrigin!!)

@@ -64,6 +64,15 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         fullMemberDocs(node, node)
     }
 
+    fun FlowContent.generateMirrorRef(node: DocumentationNode) {
+        a {
+            val loc = "file:///Users/jetbrains/Workspace/dokka3/out/dac-as-java/playground/"
+            val mirror = node.links(NodeKind.MirrorLocation).firstOrNull()?.name.toString()
+            href = loc + mirror
+            + mirror
+        }
+    }
+
     override fun FlowContent.fullMemberDocs(node: DocumentationNode, uriNode: DocumentationNode) {
         a {
             attributes["name"] = uriNode.signatureForAnchor(logger).urlEncoded()
@@ -83,12 +92,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                 }
             }
             pre(classes = "api-signature no-pretty-print") { renderedSignature(node, LanguageService.RenderMode.FULL) }
-            a {
-                val loc = "file:///Users/jetbrains/Workspace/dokka3/out/dac-as-kt/playground/"
-                val mirror = node.links(NodeKind.MirrorLocation).firstOrNull()?.name.toString()
-                href = loc + mirror
-                + mirror
-            }
+            generateMirrorRef(node)
 
             deprecationWarningToMarkup(node, prefix = true)
             nodeContent(node, uriNode)
@@ -250,7 +254,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
     override fun FlowContent.classLikeSummaries(page: Page.ClassPage) = with(page) {
 
-        + page.node.links(NodeKind.MirrorLocation).firstOrNull()?.name.toString()
+        generateMirrorRef(page.node)
 
         summaryNodeGroup(
                 nestedClasses,

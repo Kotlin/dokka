@@ -4,8 +4,11 @@ import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiMember
 import org.jetbrains.dokka.DokkaConfiguration.*
+import org.jetbrains.dokka.Formats.JavaLayoutHtmlInboundLinkResolutionService
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
+import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
@@ -219,6 +222,12 @@ class DocumentationBuilder
         } else {
             appendType(projection.type, kind, projection.projectionKind.label)
         }
+    }
+
+    fun DocumentationNode.appendMirrorLocation(desc: DeclarationDescriptor) {
+        val resolver = JavaLayoutHtmlInboundLinkResolutionService(true, resolutionFacade)
+        val path = resolver.getPath(desc) ?: return
+        append(DocumentationNode(path, Content.Empty, NodeKind.MirrorLocation), RefKind.Link)
     }
 
     fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "") {
@@ -672,6 +681,7 @@ class DocumentationBuilder
         if (!external) {
             node.appendSourceLink(source)
             node.appendDefaultPlatforms(this)
+            node.appendMirrorLocation(this)
         }
         return node
     }
@@ -755,6 +765,7 @@ class DocumentationBuilder
         if (!external) {
             node.appendSourceLink(source)
             node.appendDefaultPlatforms(this)
+            node.appendMirrorLocation(this)
         } else {
             node.appendExternalLink(this)
         }
@@ -817,6 +828,7 @@ class DocumentationBuilder
                 }
             }
             node.appendDefaultPlatforms(this)
+            node.appendMirrorLocation(this)
         }
         if (external) {
             node.appendExternalLink(this)
