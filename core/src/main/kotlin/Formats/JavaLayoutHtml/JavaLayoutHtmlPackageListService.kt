@@ -1,9 +1,15 @@
 package org.jetbrains.dokka.Formats
 
+import com.intellij.psi.PsiMember
+import com.intellij.psi.PsiParameter
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.ExternalDocumentationLinkResolver.Companion.DOKKA_PARAM_PREFIX
+import org.jetbrains.kotlin.asJava.toLightElements
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.JavaMethodDescriptor
+import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.isCompanionObject
 import org.jetbrains.kotlin.types.KotlinType
@@ -31,7 +37,15 @@ class JavaLayoutHtmlPackageListService: PackageListService {
 
 }
 
-class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<String, List<String>>) : InboundExternalLinkResolutionService {
+class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<String, List<String>>,
+                                                 private val resolutionFacade: DokkaResolutionFacade) : InboundExternalLinkResolutionService {
+
+    constructor(asJava: Boolean, resolutionFacade: DokkaResolutionFacade) :
+            this(mapOf("mode" to listOf(if (asJava) "java" else "kotlin")), resolutionFacade)
+
+
+    private val isJavaMode = paramMap["mode"]!!.single() == "java"
+
     private fun getContainerPath(symbol: DeclarationDescriptor): String? {
         return when (symbol) {
             is PackageFragmentDescriptor -> symbol.fqName.asString().replace('.', '/') + "/"
@@ -46,6 +60,18 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
     private fun ClassifierDescriptor.nameWithOuter(): String =
         generateSequence(this) { it.containingDeclaration as? ClassifierDescriptor }
             .toList().asReversed().joinToString(".") { it.name.asString() }
+
+    private fun getJavaPagePath(symbol: DeclarationDescriptor): String? {
+
+        val sourcePsi = symbol.sourcePsi() ?: return null
+        val source = (if (sourcePsi is KtDeclaration) {
+            sourcePsi.toLightElements().firstOrNull()
+        } else {
+            sourcePsi
+        }) as? PsiMember ?: return null
+        val desc = source.getJavaMemberDescriptor(resolutionFacade) ?: return null
+        return getPagePath(desc)
+    }
 
     private fun getPagePath(symbol: DeclarationDescriptor): String? {
         return when (symbol) {
@@ -89,9 +115,19 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
             }
         }
 
-        return when(this) {
+        return when (this) {
             is EnumEntrySyntheticClassDescriptor -> buildString {
                 append("ENUM_VALUE:")
+                append(name.asString())
+            }
+            is JavaMethodDescriptor -> buildString {
+                append(name.asString())
+                valueParameters.joinTo(this, prefix = "(", postfix = ")") {
+                    val param = it.sourcePsi() as PsiParameter
+                    param.type.canonicalText
+                }
+            }
+            is JavaPropertyDescriptor -> buildString {
                 append(name.asString())
             }
             is FunctionDescriptor -> buildString {
@@ -105,6 +141,7 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
                 appendReceiverAndCompanion(this@signatureForAnchor)
                 append(name.asString())
                 append(":")
+
                 append(returnType?.qualifiedNameForSignature())
             }
             else -> null
@@ -113,5 +150,5 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
 
     private fun DeclarationDescriptor.signatureForAnchorUrlEncoded(): String? = signatureForAnchor()?.urlEncoded()
 
-    override fun getPath(symbol: DeclarationDescriptor) = getPagePath(symbol)
+    override fun getPath(symbol: DeclarationDescriptor) = if (isJavaMode) getJavaPagePath(symbol) else getPagePath(symbol)
 }
