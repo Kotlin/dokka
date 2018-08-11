@@ -8,22 +8,22 @@ import java.net.URL
 import java.net.URLClassLoader
 
 open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
-    override val outputDir: String by parser.defaultSingleOption(
+    override val outputDir: String by parser.singleOption(
         listOf("-output"),
         "Output directory path",
         "")
 
-    override val format: String by parser.defaultSingleOption(
+    override val format: String by parser.singleOption(
         listOf("-format"),
         "Output format (text, html, markdown, jekyll, kotlin-website)",
         "")
 
-    override val generateIndexPages: Boolean by parser.singleBooleanFlag(
+    override val generateIndexPages: Boolean by parser.singleFlag(
         listOf("-generateIndexPages"),
         "Generate index page"
     )
 
-    override val cacheRoot: String? by parser.defaultSingleOption(
+    override val cacheRoot: String? by parser.singleOption(
         listOf("-cacheRoot"),
         "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled",
         null)
@@ -31,7 +31,7 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     override val impliedPlatforms: List<String> by parser.repeatableOption(
         listOf("-impliedPlatforms"),
         "List of implied platforms (comma-separated)"
-    ) { it }
+    )
 
     override val passesConfigurations: List<Arguments> by parser.repeatableFlag(
         listOf("-pass"),
@@ -42,7 +42,7 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
-    override val moduleName: String by parser.defaultSingleOption(
+    override val moduleName: String by parser.singleOption(
         listOf("-module"),
         "Name of the documentation module",
         "")
@@ -50,7 +50,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val classpath: List<String> by parser.repeatableOption(
         listOf("-classpath"),
         "Classpath for symbol resolution"
-    ) { it }
+    )
 
     override val sourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
         listOf("-src"),
@@ -60,30 +60,30 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val samples: List<String> by parser.repeatableOption(
         listOf("-samples"),
         "Source root for samples"
-    ) { it }
+    )
 
     override val includes: List<String> by parser.repeatableOption(
         listOf("-include"),
         "Markdown files to load (allows many paths separated by the system path separator)"
-    ) { it }
+    )
 
-    override val includeNonPublic: Boolean by parser.singleBooleanFlag(
+    override val includeNonPublic: Boolean by parser.singleFlag(
         listOf("-includeNonPublic"),
         "Include non public")
 
-    override val includeRootPackage: Boolean by parser.singleBooleanFlag(
+    override val includeRootPackage: Boolean by parser.singleFlag(
         listOf("-includeRootPackage"),
         "Include non public")
 
-    override val reportUndocumented: Boolean by parser.singleBooleanFlag(
+    override val reportUndocumented: Boolean by parser.singleFlag(
         listOf("-reportUndocumented"),
         "Include non public")
 
-    override val skipEmptyPackages: Boolean by parser.singleBooleanFlag(
+    override val skipEmptyPackages: Boolean by parser.singleFlag(
         listOf("-skipEmptyPackages"),
         "Include non public")
 
-    override val skipDeprecated: Boolean by parser.singleBooleanFlag(
+    override val skipDeprecated: Boolean by parser.singleFlag(
         listOf("-skipDeprecated"),
         "Include non public")
 
@@ -94,32 +94,31 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         { 6 }
     )
 
-    override val languageVersion: String? by parser.defaultSingleOption(
+    override val languageVersion: String? by parser.singleOption(
         listOf("-languageVersion"),
         "Language Version to pass to Kotlin Analysis",
         null)
 
-    override val apiVersion: String? by parser.defaultSingleOption(
+    override val apiVersion: String? by parser.singleOption(
         listOf("-apiVesion"),
         "Kotlin Api Version to pass to Kotlin Analysis",
         null
     )
 
-    override val noStdlibLink: Boolean by parser.singleBooleanFlag(
+    override val noStdlibLink: Boolean by parser.singleFlag(
         listOf("-noStdlibLink"),
         "Disable documentation link to stdlib")
 
-    override val noJdkLink: Boolean by parser.singleBooleanFlag(
+    override val noJdkLink: Boolean by parser.singleFlag(
         listOf("-noJdkLink"),
         "Disable documentation link to stdlib")
 
     override val suppressedFiles: List<String> by parser.repeatableOption(
         listOf("-suppresedFiles"),
-        "",
-        { it }
+        ""
     )
 
-    override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleBooleanFlag(
+    override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleFlag(
         listOf("-collectInheritedExtensionsFromLibraries"),
         "Search for applicable extensions in libraries")
 
@@ -132,8 +131,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val targets: List<String> by parser.repeatableOption(
         listOf("-targets"),
-        "Generation targets",
-        { it }
+        "Generation targets"
     )
 
     override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>
