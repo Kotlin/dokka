@@ -884,8 +884,8 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         .flatMap { it.inheritors }
                         .takeUnless { it.isEmpty() }
                 }
-                directInheritors = inheritors.first()
-                indirectInheritors = inheritors.drop(1).flatten().toList()
+                directInheritors = inheritors.first().sortedBy { it.classNodeNameWithOuterClass() }
+                indirectInheritors = inheritors.drop(1).flatten().toList().sortedBy { it.classNodeNameWithOuterClass() }
             }
 
             val isCompanion = node.details(NodeKind.Modifier).any { it.name == "companion" }

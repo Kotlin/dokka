@@ -209,6 +209,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         attributes: List<DocumentationNode>,
         header: String
     ) {
+        if (attributes.none()) return
         h2 {
             +header
         }
@@ -729,6 +730,11 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
     override fun FlowContent.subclasses(inheritors: List<DocumentationNode>, direct: Boolean) {
         if (inheritors.isEmpty()) return
+
+        // The number of subclasses in collapsed view before truncating and adding a "and xx others".
+        // See https://developer.android.com/reference/android/view/View for an example.
+        val numToShow = 12
+
         table(classes = "jd-sumtable jd-sumtable-subclasses") {
             tbody {
                 tr {
@@ -742,9 +748,14 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                             }
                             div(classes = "showalways") {
                                 attributes["id"] = if (direct) "subclasses-direct" else "subclasses-indirect"
-                                inheritors.forEach { inheritor ->
+
+                                inheritors.take(numToShow).forEach { inheritor ->
                                     a(href = inheritor) { +inheritor.classNodeNameWithOuterClass() }
                                     if (inheritor != inheritors.last()) +", "
+                                }
+
+                                if (inheritors.size > numToShow) {
+                                    +"and ${inheritors.size - numToShow} others."
                                 }
                             }
                             div(classes = "exw-expanded-content") {
