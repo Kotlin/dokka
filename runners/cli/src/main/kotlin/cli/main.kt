@@ -1,6 +1,8 @@
 package org.jetbrains.dokka
 
+import kotlinx.cli.registerAction
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.kotlin.daemon.common.compareDaemonJVMOptionsMemory
 
 import java.io.File
 import java.net.MalformedURLException
@@ -8,12 +10,12 @@ import java.net.URL
 import java.net.URLClassLoader
 
 open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
-    override val outputDir: String by parser.singleOption(
+    override val outputDir: String by parser.stringOption(
         listOf("-output"),
         "Output directory path",
         "")
 
-    override val format: String by parser.singleOption(
+    override val format: String by parser.stringOption(
         listOf("-format"),
         "Output format (text, html, markdown, jekyll, kotlin-website)",
         "")
@@ -23,7 +25,7 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
         "Generate index page"
     )
 
-    override val cacheRoot: String? by parser.singleOption(
+    override val cacheRoot: String? by parser.stringOption(
         listOf("-cacheRoot"),
         "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled",
         null)
@@ -42,7 +44,7 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
-    override val moduleName: String by parser.singleOption(
+    override val moduleName: String by parser.stringOption(
         listOf("-module"),
         "Name of the documentation module",
         "")
@@ -94,12 +96,12 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         { 6 }
     )
 
-    override val languageVersion: String? by parser.singleOption(
+    override val languageVersion: String? by parser.stringOption(
         listOf("-languageVersion"),
         "Language Version to pass to Kotlin Analysis",
         null)
 
-    override val apiVersion: String? by parser.singleOption(
+    override val apiVersion: String? by parser.stringOption(
         listOf("-apiVesion"),
         "Kotlin Api Version to pass to Kotlin Analysis",
         null
@@ -134,12 +136,13 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "Generation targets"
     )
 
-    override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val perPackageOptions: List<DokkaConfiguration.PackageOptions>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
+
+    override val sourceLinks: MutableList<DokkaConfiguration.SourceLinkDefinition> = mutableListOf()
+
+    override val perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> = mutableListOf()
+
+    override val externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 }
 
 object MainKt {
@@ -202,15 +205,52 @@ object MainKt {
         }
     }
 
+    fun createConfiguration(args: Array<String>): GlobalArguments {
+        val parseContext = ParseContext()
+        val parser = DokkaArgumentsParser(args, parseContext)
+
+
+        val configuration = GlobalArguments(parser)
+
+
+        parseContext.cli.singleAction(
+                    listOf("-pckageOptions"),
+            "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
+        ) {
+            configuration.passesConfigurations.last().perPackageOptions.addAll(parsePerPackageOptions(it))
+        }
+
+        parseContext.cli.singleAction(
+            listOf("-links"),
+            "External documentation links in format url^packageListUrl^^url2..."
+        ) {
+            configuration.passesConfigurations.last().externalDocumentationLinks.addAll(MainKt.parseLinks(it))
+        }
+
+        parseContext.cli.singleAction(
+            listOf("-srcLink"),
+            "Mapping between a source directory and a Web site for browsing the code"
+        ) {
+            val newSourceLinks = if (it.isNotEmpty() && it.contains("="))
+                listOf(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
+            else {
+                if (it.isNotEmpty()) {
+                    println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+                }
+                listOf()
+            }
+
+            configuration.passesConfigurations.last().sourceLinks.addAll(newSourceLinks)
+
+        }
+
+        parser.parseInto(configuration)
+        return configuration
+    }
+
     @JvmStatic
     fun main(args: Array<String>) {
-
-
-        val parser = DokkaArgumentsParser(args, ParseContext())
-        val parseContext = parser.parseInto(::GlobalArguments)
-
-        val configuration = parseContext
-
+        val configuration = createConfiguration(args)
         if (configuration.format == "javadoc")
             startWithToolsJar(configuration)
         else

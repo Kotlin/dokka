@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import kotlinx.cli.*
 import kotlin.reflect.KProperty
 
-class ParseContext(private val cli: CommandLineInterface = CommandLineInterface("dokka")) {
+class ParseContext(val cli: CommandLineInterface = CommandLineInterface("dokka")) {
     private val transformActions = mutableMapOf<KProperty<*>, (String) -> Unit>()
     private val flagActions = mutableMapOf<KProperty<*>, () -> Unit>()
 
@@ -113,10 +113,10 @@ class DokkaArgumentsParser(val args: Array<String>, val parseContext: ParseConte
         }
     }
 
-    fun <T> parseInto(constructor: (parseContext: DokkaArgumentsParser) -> T): T {
-        val res = constructor(this)
+    fun <T> parseInto(dest: T): T {
+        // TODO: constructor: (DokkaArgumentsParser) -> T
         parseContext.parse(args)
-        return res
+        return dest
     }
 
     fun <T> repeatableOption(
@@ -129,7 +129,7 @@ class DokkaArgumentsParser(val args: Array<String>, val parseContext: ParseConte
         }
     }
 
-    fun <T> repeatableOption(
+    fun <T : String?> repeatableOption(
         keys: List<String>,
         help: String
     ) = repeatableOption(keys, help) { it as T }
@@ -160,7 +160,7 @@ class DokkaArgumentsParser(val args: Array<String>, val parseContext: ParseConte
         help: String
     ) = singleFlag(keys, help, { false }, { true })
 
-    fun <T> singleOption(
+    fun <T : String?> stringOption(
         keys: List<String>,
         help: String,
         defaultValue: T
@@ -178,3 +178,8 @@ class DokkaArgumentsParser(val args: Array<String>, val parseContext: ParseConte
         }
     }
 }
+
+
+//`(-perPackage fqName [-include-non-public] [...other flags])*` (edited)
+//`(-sourceLink dir url [-urlSuffix value])*`
+//`(-extLink url [packageListUrl])*`
