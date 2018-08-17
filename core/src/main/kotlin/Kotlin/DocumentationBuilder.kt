@@ -889,23 +889,27 @@ class DocumentationBuilder
     }
 
 
-    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
-                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>,
-                                                    allFqNames: Collection<FqName>): DocumentationNode {
+    fun DocumentationNode.getParentForPackageMember(
+        descriptor: DeclarationDescriptor,
+        externalClassNodes: MutableMap<FqName, DocumentationNode>,
+        allFqNames: Collection<FqName>,
+        packageName: FqName
+    ): DocumentationNode {
         if (descriptor is CallableMemberDescriptor) {
             val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
             if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
                 val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-                return externalClassNodes.getOrPut(fqName, {
+                return externalClassNodes.getOrPut(fqName) {
                     val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
                     val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(extensionClassDescriptor)
                     if (externalLink != null) {
                         newNode.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
                     }
                     append(newNode, RefKind.Member)
+                    refGraph.register("${packageName.asString()}:${extensionClassDescriptor.signature()}", newNode)
                     newNode
-                })
+                }
             }
         }
         return this
@@ -933,7 +937,12 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
         declarations.forEach { descriptor ->
             with(documentationBuilder) {
                 if (descriptor.isDocumented(passConfiguration)) {
-                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes, allFqNames)
+                    val parent = packageNode.getParentForPackageMember(
+                        descriptor,
+                        externalClassNodes,
+                        allFqNames,
+                        packageName
+                    )
                     parent.appendOrUpdateMember(descriptor)
                 }
             }
@@ -1025,7 +1034,7 @@ fun DeclarationDescriptor.signature(): String {
         is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
         is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()  + ":" + returnType?.signature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature() + ":" + returnType?.signature()
         is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
         is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
         is ReceiverParameterDescriptor -> containingDeclaration.signature() + "/" + name

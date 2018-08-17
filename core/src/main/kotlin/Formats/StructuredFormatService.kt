@@ -404,6 +404,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             fun String.isKotlinVersion() = this.startsWith("Kotlin")
 
+            if (platforms.count() == 0) return emptySet()
+
             // Calculating common platforms for items
             return platforms.reduce { result, platformsOfItem ->
                 val otherKotlinVersion = result.find { it.isKotlinVersion() }

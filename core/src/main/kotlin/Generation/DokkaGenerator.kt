@@ -69,13 +69,13 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val defaultPlatformAsList =  listOf(passConfiguration.analysisPlatform.key)
+        val defaultPlatformAsList = passConfiguration.targets
         val defaultPlatformsProvider = object : DefaultPlatformsProvider {
             override fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String> {
                 val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
                         ?.let { File(it).absolutePath }
                 val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
-                return sourceRoot?.platforms ?: defaultPlatformAsList
+                return /*sourceRoot?.platforms ?: */defaultPlatformAsList
             }
         }
 
@@ -83,27 +83,12 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
                 DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentationModule.nodeRefGraph, passConfiguration, logger))
 
         buildDocumentationModule(injector, documentationModule, { isNotSample(it, passConfiguration.samples) }, includes)
-        documentationModule.visit { it ->
-            it.addReferenceTo(
-                DocumentationNode(analysisPlatform.key, Content.Empty, NodeKind.Platform),
-                RefKind.Platform
-            )
-        }
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
 
         Disposer.dispose(environment)
     }
-
-    private fun DocumentationNode.visit(action: (DocumentationNode) -> Unit) {
-        action(this)
-
-        for (member in members) {
-            member.visit(action)
-        }
-    }
-
 
     fun createAnalysisEnvironment(
         sourcePaths: List<String>,

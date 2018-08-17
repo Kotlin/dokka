@@ -22,7 +22,6 @@ class DocumentationMerger(
         producedNodeRefGraph = NodeReferenceGraph()
         documentationModules.map { it.nodeRefGraph }
             .flatMap { it.references }
-            .distinct()
             .forEach { producedNodeRefGraph.addReference(it) }
     }
 
@@ -30,7 +29,6 @@ class DocumentationMerger(
         from: DocumentationNode,
         packages: List<DocumentationReference>
     ): List<DocumentationReference> {
-
         val packagesByName = packages
             .map { it.to }
             .groupBy { it.name }
@@ -63,11 +61,13 @@ class DocumentationMerger(
             }
             oldToNewNodeMap[packageNode] = mergedPackage
         }
-        mergedPackage.clear()
 
         val references = packages.flatMap { it.allReferences() }
         val mergedReferences = mergeReferences(mergedPackage, references)
-        for (ref in mergedReferences.distinct()) {
+        for (ref in mergedReferences) {
+            if (ref.kind == RefKind.Owner) {
+                continue
+            }
             mergedPackage.addReference(ref)
         }
 
@@ -75,8 +75,6 @@ class DocumentationMerger(
 
         return mergedPackage
     }
-
-    private fun DocumentationNode.clear() = dropReferences { true }
 
     private fun mergeMembers(
         from: DocumentationNode,
@@ -106,24 +104,17 @@ class DocumentationMerger(
     ): DocumentationNode {
         val singleNode = refs.singleOrNull()
         if (singleNode != null) {
-            singleNode.owner?.let { owner ->
-                singleNode.dropReferences { it.to == owner && it.kind == RefKind.Owner }
-            }
+            singleNode.dropReferences { it.kind == RefKind.Owner }
             return singleNode
         }
         val groupNode = DocumentationNode(refs.first().name, Content.Empty, NodeKind.GroupNode)
         groupNode.appendTextNode(signature, NodeKind.Signature, RefKind.Detail)
 
         for (node in refs) {
-            if (node != groupNode) {
-                node.owner?.let { owner ->
-                    node.dropReferences { it.to == owner && it.kind == RefKind.Owner }
-                    from.dropReferences { it.to == node && it.kind == RefKind.Member }
-                }
-                groupNode.append(node, RefKind.Member)
+            node.dropReferences { it.kind == RefKind.Owner }
+            groupNode.append(node, RefKind.Member)
 
-                oldToNewNodeMap[node] = groupNode
-            }
+            oldToNewNodeMap[node] = groupNode
         }
         return groupNode
     }
@@ -140,25 +131,7 @@ class DocumentationMerger(
         val mergedMembers = mergeMembers(from, refsToMembers)
 
         // TODO: think about
-        return mergedPackages + (mergedMembers + refsNotToMembers).distinctBy {
-            it.to.kind to it.to.name
-        }
-    }
-
-
-    private fun updatePendingReferences() {
-        producedNodeRefGraph.references.forEach {
-            it.lazyNodeFrom.update()
-            it.lazyNodeTo.update()
-        }
-    }
-
-    private fun NodeResolver.update() {
-        if (this is NodeResolver.Exact) {
-            if (exactNode != null && oldToNewNodeMap.containsKey(exactNode!!)) {
-                exactNode = oldToNewNodeMap[exactNode!!]
-            }
-        }
+        return mergedPackages + mergedMembers + refsNotToMembers
     }
 
     fun merge(): DocumentationModule {
@@ -175,5 +148,18 @@ class DocumentationMerger(
         return mergedDocumentationModule
     }
 
+    private fun updatePendingReferences() {
+        for (ref in producedNodeRefGraph.references) {
+            ref.lazyNodeFrom.update()
+            ref.lazyNodeTo.update()
+        }
+    }
 
+    private fun NodeResolver.update() {
+        if (this is NodeResolver.Exact) {
+            if (exactNode != null && exactNode!! in oldToNewNodeMap) {
+                exactNode = oldToNewNodeMap[exactNode!!]
+            }
+        }
+    }
 }
