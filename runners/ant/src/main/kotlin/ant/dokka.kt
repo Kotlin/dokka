@@ -53,7 +53,7 @@ class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
         }
     override val perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> = mutableListOf()
     override val externalDocumentationLinks: List<ExternalDocumentationLink>
-        get() = buildExternalLinksBuilders.map { it.build() }
+        get() = buildExternalLinksBuilders.map { it.build() } + defaultExternalDocumentationLinks
 
     override var languageVersion: String? = null
     override var apiVersion: String? = null
@@ -75,6 +75,18 @@ class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
     private val buildTargets: MutableList<TextProperty> = mutableListOf()
     private val buildExternalLinksBuilders: MutableList<ExternalDocumentationLink.Builder> = mutableListOf()
     val antSourceLinkDefinition: MutableList<AntSourceLinkDefinition> = mutableListOf()
+
+    private val defaultExternalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>
+        get() {
+            val links = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
+            if (!noJdkLink)
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
+
+            if (!noStdlibLink)
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
+            return links
+        }
+
 
     fun setSamples(ref: Path) {
         samplesPath.append(ref)
