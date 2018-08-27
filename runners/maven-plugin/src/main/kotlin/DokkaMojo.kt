@@ -36,13 +36,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     class SourceRoot : DokkaConfiguration.SourceRoot {
         @Parameter(required = true)
         override var path: String = ""
-
-        @Parameter
-        override var platforms: List<String> = emptyList()
-
-        @Parameter
-        override var analysisPlatform: Platform = Platform.DEFAULT
-
     }
 
     class PackageOptions : DokkaConfiguration.PackageOptions {

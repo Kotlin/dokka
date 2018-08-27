@@ -403,13 +403,7 @@ class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
             field = File(value).absolutePath
         }
 
-    override var platforms: List<String> = arrayListOf()
-
-    override val analysisPlatform: Platform = Platform.DEFAULT
-
-    override fun toString(): String {
-        return "${platforms.joinToString()}::$path"
-    }
+    override fun toString(): String = path
 }
 
 open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {

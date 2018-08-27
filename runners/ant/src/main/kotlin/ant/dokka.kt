@@ -17,11 +17,9 @@ class AntLogger(val task: Task): DokkaLogger {
 
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
-class AntSourceRoot(var path: String? = null, var platforms: String? = null,
-                    var platform: Platform = Platform.DEFAULT) {
-    fun toSourceRoot(): SourceRootImpl? = path?.let {
-        path ->
-        SourceRootImpl(path, platforms?.split(',').orEmpty(), platform)
+class AntSourceRoot(var path: String? = null) {
+    fun toSourceRoot(): SourceRootImpl? = path?.let { path ->
+        SourceRootImpl(path)
     }
 }
 

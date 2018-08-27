@@ -73,8 +73,6 @@ interface DokkaConfiguration {
 
     interface SourceRoot {
         val path: String
-        val platforms: List<String>
-        val analysisPlatform: Platform
     }
 
     interface SourceLinkDefinition {
