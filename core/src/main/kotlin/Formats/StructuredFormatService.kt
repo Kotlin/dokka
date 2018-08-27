@@ -329,6 +329,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
+            // TODO: remove this block cause there is no one node with OverloadGroupNote detail
             item.details(NodeKind.OverloadGroupNote).forEach {
                 appendContent(it.content)
             }
