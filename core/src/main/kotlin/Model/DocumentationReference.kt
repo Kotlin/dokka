@@ -19,7 +19,8 @@ enum class RefKind {
     Deprecation,
     TopLevelPage,
     Platform,
-    ExternalType
+    ExternalType,
+    Origin
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {
@@ -33,7 +34,7 @@ sealed class NodeResolver {
         }
     }
 
-    class Exact(var exactNode: DocumentationNode?) : NodeResolver() {
+    class Exact(var exactNode: DocumentationNode) : NodeResolver() {
         override fun resolve(nodeRephGraph: NodeReferenceGraph): DocumentationNode? {
             return exactNode
         }

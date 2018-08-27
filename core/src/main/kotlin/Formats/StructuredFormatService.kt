@@ -192,22 +192,20 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    open fun link(from: DocumentationNode,
-                  to: DocumentationNode,
-                  name: (DocumentationNode) -> String = DocumentationNode::name): FormatLink = link(from, to, extension, name)
+    open fun link(
+        from: DocumentationNode,
+        to: DocumentationNode,
+        name: (DocumentationNode) -> String = DocumentationNode::name
+    ): FormatLink = link(from, to, extension, name)
 
-    open fun link(from: DocumentationNode,
-                  to: DocumentationNode,
-                  extension: String,
-                  name: (DocumentationNode) -> String = DocumentationNode::name): FormatLink {
-        if (to.owner?.kind == NodeKind.GroupNode)
-            return link(from, to.owner!!, extension, name)
+    open fun link(
+        from: DocumentationNode,
+        to: DocumentationNode,
+        extension: String,
+        name: (DocumentationNode) -> String = DocumentationNode::name
+    ): FormatLink =
+        FormatLink(name(to), from.location().relativePathTo(to.location()))
 
-        if (from.owner?.kind == NodeKind.GroupNode)
-            return link(from.owner!!, to, extension, name)
-
-        return FormatLink(name(to), from.location().relativePathTo(to.location()))
-    }
 
     fun locationHref(from: Location, to: DocumentationNode): String {
         val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to

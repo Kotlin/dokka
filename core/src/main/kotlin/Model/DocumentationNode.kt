@@ -84,6 +84,9 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
         get() = references(RefKind.Member).map { it.to }
+    val origins: List<DocumentationNode>
+        get() = references(RefKind.Origin).map { it.to }
+
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
     val allInheritedMembers: List<DocumentationNode>
@@ -203,6 +206,7 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
         RefKind.Detail -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Member -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Owner -> child.addReferenceTo(this, RefKind.Member)
+        RefKind.Origin -> child.addReferenceTo(this, RefKind.Owner)
         else -> { /* Do not add any links back for other types */
         }
     }
