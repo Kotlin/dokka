@@ -296,7 +296,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun appendDocumentation(overloads: Iterable<DocumentationNode>, isSingleNode: Boolean) {
-            val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node -> node.content }
+            val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node ->
+                when (node.kind) {
+                    NodeKind.GroupNode -> node.origins.first().content
+                    else -> node.content
+                }
+            }
 
             if (breakdownBySummary.size == 1) {
                 formatOverloadGroup(breakdownBySummary.values.single(), isSingleNode)
@@ -314,18 +319,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
             for ((index, item) in items.withIndex()) {
                 if (index > 0) appendLine()
-                val rendered = languageService.render(item)
-                item.detailOrNull(NodeKind.Signature)?.let {
-                    if (item.kind !in NodeKind.classLike || !isSingleNode)
-                        appendAnchor(it.name)
+
+                if (item.kind == NodeKind.GroupNode) {
+                    renderGroupNode(item, isSingleNode)
+                } else {
+                    renderSimpleNode(item, isSingleNode)
                 }
-                appendAsSignature(rendered) {
-                    appendCode { appendContent(rendered) }
-                    item.appendSourceLink()
-                }
-                item.appendOverrides()
-                item.appendDeprecation()
-                item.appendPlatforms()
+
             }
             // All items have exactly the same documentation, so we can use any item to render it
             val item = items.first()
@@ -334,8 +334,73 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 appendContent(it.content)
             }
 
-            appendContent(item.content.summary)
+            if (item.kind == NodeKind.GroupNode) {
+                for (origin in item.origins) {
+                    if (origin.content.isEmpty()) continue
+                    appendParagraph {
+                        appendStrong { to.append("Platform and version requirements:") }
+                        to.append(" " + origin.actualPlatforms)
+                        appendContent(origin.summary)
+                    }
+                }
+            } else {
+                if (!item.content.isEmpty()) {
+                    appendStrong { to.append("Platform and version requirements:") }
+                    to.append(" " + item.actualPlatforms)
+                    appendContent(item.content.summary)
+                }
+            }
+
             item.appendDescription()
+        }
+
+
+        fun renderSimpleNode(item: DocumentationNode, isSingleNode: Boolean) {
+            // TODO: use summarizesignatures
+            val rendered = languageService.render(item)
+            item.detailOrNull(NodeKind.Signature)?.let {
+                if (item.kind !in NodeKind.classLike || !isSingleNode)
+                    appendAnchor(it.name)
+            }
+            appendAsSignature(rendered) {
+                appendCode { appendContent(rendered) }
+                item.appendSourceLink()
+            }
+            item.appendOverrides()
+            item.appendDeprecation()
+            item.appendPlatforms()
+        }
+
+        fun renderGroupNode(item: DocumentationNode, isSingleNode: Boolean) {
+            // TODO: use summarizesignatures
+            val groupBySignature = item.origins.groupBy {
+                languageService.render(it)
+            }
+
+            for ((sign, nodes) in groupBySignature) {
+                val first = nodes.first()
+                first.detailOrNull(NodeKind.Signature)?.let {
+                    if (item.kind !in NodeKind.classLike || !isSingleNode)
+                        appendAnchor(it.name)
+                }
+
+                appendAsSignature(sign) {
+                    appendCode { appendContent(sign) }
+                }
+                first.appendOverrides()
+                first.appendDeprecation()
+
+
+                appendParagraph {
+                    appendStrong { to.append("Platform and version requirements:") }
+                    to.append(" " + nodes
+                        .flatMap { it.actualPlatforms }
+                        .distinct()
+                        .joinToString()
+                    )
+                }
+
+            }
         }
 
         private fun DocumentationNode.appendSourceLink() {
@@ -362,29 +427,29 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 val deprecationParameter = deprecation!!.details(NodeKind.Parameter).firstOrNull()
                 val deprecationValue = deprecationParameter?.details(NodeKind.Value)?.firstOrNull()
                 appendLine()
-                if (deprecationValue != null) {
-                    appendStrong { to.append("Deprecated:") }
-                    appendText(" " + deprecationValue.name.removeSurrounding("\""))
-                    appendLine()
-                    appendLine()
-                } else if (deprecation?.content != Content.Empty) {
-                    appendStrong { to.append("Deprecated:") }
-                    to.append(" ")
-                    appendContent(deprecation!!.content)
-                } else {
-                    appendStrong { to.append("Deprecated") }
-                    appendLine()
-                    appendLine()
+                when {
+                    deprecationValue != null -> {
+                        appendStrong { to.append("Deprecated:") }
+                        appendText(" " + deprecationValue.name.removeSurrounding("\""))
+                        appendLine()
+                        appendLine()
+                    }
+                    deprecation?.content != Content.Empty -> {
+                        appendStrong { to.append("Deprecated:") }
+                        to.append(" ")
+                        appendContent(deprecation!!.content)
+                    }
+                    else -> {
+                        appendStrong { to.append("Deprecated") }
+                        appendLine()
+                        appendLine()
+                    }
                 }
             }
         }
 
         private fun DocumentationNode.appendPlatforms() {
-            val platforms = if (isModuleOrPackage())
-                platformsToShow.toSet() + platformsOfItems(members)
-            else
-                platformsToShow
-
+            val platforms = actualPlatforms
             if (platforms.isEmpty()) return
 
             appendParagraph {
@@ -393,10 +458,19 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
+        val DocumentationNode.actualPlatforms: Collection<String>
+                get() = if (isModuleOrPackage())
+                    platformsToShow.toSet() + platformsOfItems(members)
+                else
+                    platformsToShow
+
+
+
         protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
             val platforms = items.asSequence().map {
                 when (it.kind) {
-                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module, NodeKind.GroupNode -> platformsOfItems(it.members)
+                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module -> platformsOfItems(it.members)
+                    NodeKind.GroupNode -> platformsOfItems(it.origins)
                     else -> it.platformsToShow.toSet()
                 }
             }
@@ -418,7 +492,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     val resultVersion = when {
                         allKotlinVersions.size == 1 -> allKotlinVersions.single()
                         minVersion.endsWith("+") -> minVersion
-                        else -> minVersion + "+"
+                        else -> "$minVersion+"
                     }
 
                     result.intersect(otherPlatforms) + resultVersion
@@ -460,6 +534,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
+    inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false) :
+        PageBuilder(listOf(node), noHeader) {
+
+        override fun build() {
+            super.build()
+            SectionsBuilder(node).build()
+        }
+    }
+
     inner class GroupNodePageBuilder(val node: DocumentationNode) : PageBuilder(listOf(node)) {
 
         override fun build() {
@@ -470,39 +553,29 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendLine()
             appendHeader { appendText(node.name) }
 
-            fun DocumentationNode.priority(): Int = when (kind) {
-                NodeKind.TypeAlias -> 1
-                NodeKind.Class -> 2
-                else -> 3
+            renderGroupNode(node, true)
+
+            for (origin in node.origins) {
+                if (origin.content.isEmpty()) continue
+                appendStrong { to.append("Platform and version requirements:") }
+                to.append(" " + origin.actualPlatforms)
+                appendContent(origin.content.summary)
             }
 
-            for (member in node.members.sortedBy(DocumentationNode::priority)) {
-
-                appendAsOverloadGroup(to, platformsOfItems(listOf(member))) {
-                    formatSubNodeOfGroup(member)
-                }
-
-            }
-        }
-
-        fun formatSubNodeOfGroup(member: DocumentationNode) {
-            SingleNodePageBuilder(member, true).build()
+            SectionsBuilder(node).build()
         }
     }
 
-    inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false)
-        : PageBuilder(listOf(node), noHeader) {
 
+    inner class SectionsBuilder(val node: DocumentationNode): PageBuilder(listOf(node)) {
         override fun build() {
-            super.build()
-
             if (node.kind == NodeKind.ExternalClass) {
                 appendSection("Extensions for ${node.name}", node.members)
                 return
             }
 
             fun DocumentationNode.membersOrGroupMembers(predicate: (DocumentationNode) -> Boolean): List<DocumentationNode> {
-                return members.filter(predicate) + members(NodeKind.GroupNode).flatMap { it.members.filter(predicate) }
+                return members.filter(predicate) + members(NodeKind.GroupNode).filter{ it.origins.isNotEmpty() && predicate(it.origins.first()) }
             }
 
             fun DocumentationNode.membersOrGroupMembers(kind: NodeKind): List<DocumentationNode> {
@@ -510,10 +583,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             appendSection("Packages", node.members(NodeKind.Package), platformsBasedOnMembers = true)
-            appendSection("Types", node.membersOrGroupMembers { it.kind in NodeKind.classLike && it.kind != NodeKind.TypeAlias && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
+            appendSection("Types", node.membersOrGroupMembers { it.kind in NodeKind.classLike /*&& it.kind != NodeKind.TypeAlias*/ && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
             appendSection("Annotations", node.membersOrGroupMembers(NodeKind.AnnotationClass))
             appendSection("Exceptions", node.membersOrGroupMembers(NodeKind.Exception))
-            appendSection("Type Aliases", node.membersOrGroupMembers(NodeKind.TypeAlias))
             appendSection("Extensions for External Classes", node.members(NodeKind.ExternalClass))
             appendSection("Enum Values", node.membersOrGroupMembers(NodeKind.EnumItem), sortMembers = false, omitSamePlatforms = true)
             appendSection("Constructors", node.membersOrGroupMembers(NodeKind.Constructor), omitSamePlatforms = true)
@@ -558,7 +630,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (node.kind == NodeKind.Module) {
                 appendHeader(3) { to.append("Index") }
                 node.members(NodeKind.AllTypes).singleOrNull()?.let { allTypes ->
-                    appendLink(link(node, allTypes, { "All Types" }))
+                    appendLink(link(node, allTypes) { "All Types" })
                 }
             }
         }
@@ -594,11 +666,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
                             }
                             appendTableCell {
-                                val breakdownBySummary = members.groupBy { it.summary }
-                                for ((summary, items) in breakdownBySummary) {
-                                    appendSummarySignatures(items)
-                                    appendContent(summary)
+                                val nodesToAppend = if (members.all { it.kind == NodeKind.GroupNode }) {
+                                    members.flatMap { it.origins }
+                                } else {
+                                    members
                                 }
+                                appendSummarySignatures(nodesToAppend, platformsBasedOnMembers, omitSamePlatforms)
                             }
                         }
                     }
@@ -614,26 +687,47 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             return emptySet()
         }
 
-        private fun appendSummarySignatures(items: List<DocumentationNode>) {
+        private fun appendSummarySignatures(items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
             val summarySignature = languageService.summarizeSignatures(items)
             if (summarySignature != null) {
-                appendAsSignature(summarySignature) {
-                    summarySignature.appendSignature()
-                }
+                appendSummarySignature(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms)
                 return
             }
-            val renderedSignatures = items.map { languageService.render(it, RenderMode.SUMMARY) }
-            renderedSignatures.subList(0, renderedSignatures.size - 1).forEach {
-                appendAsSignature(it) {
-                    it.appendSignature()
-                }
-                appendLine()
+
+
+            val groupBySignature = items.groupBy {
+                languageService.render(it, RenderMode.SUMMARY)
             }
-            appendAsSignature(renderedSignatures.last()) {
-                renderedSignatures.last().appendSignature()
+            for ((sign, node) in groupBySignature) {
+                appendSummarySignature(sign, node, platformsBasedOnMembers, omitSamePlatforms)
             }
         }
+
+        private fun appendSummarySignature(signature: ContentNode, items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
+            val elementPlatforms = platformsOfItems(items, omitSamePlatforms)
+            val platforms = if (platformsBasedOnMembers)
+                items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
+            else
+                elementPlatforms
+
+            appendPlatforms(platforms)
+            appendAsSignature(signature) {
+                signature.appendSignature()
+            }
+
+            appendContent(items.first().summary)
+            appendSoftLineBreak()
+        }
     }
+
+    private fun DocumentationNode.isClassLikeGroupNode(): Boolean {
+        if (kind != NodeKind.GroupNode) {
+            return false
+        }
+
+        return origins.all { it.kind in NodeKind.classLike }
+    }
+
 
     inner class AllTypesNodeBuilder(val node: DocumentationNode)
         : PageBuilder(listOf(node)) {
@@ -658,7 +752,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
                             }
                             appendTableCell {
-                                appendContent(type.summary)
+                                val summary = if (type.isClassLikeGroupNode()) {
+                                    type.origins.first().summary
+                                } else {
+                                    type.summary
+                                }
+
+                                appendContent(summary)
                             }
                         }
                     }
