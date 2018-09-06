@@ -38,9 +38,9 @@ class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
     override val includes: List<String>
         get() = includesPath.list().toList()
     override var includeNonPublic: Boolean = false
-    override var includeRootPackage: Boolean = false
+    override var includeRootPackage: Boolean = true
     override var reportUndocumented: Boolean = false
-    override var skipEmptyPackages: Boolean = false
+    override var skipEmptyPackages: Boolean = true
     override var skipDeprecated: Boolean = false
     override var jdkVersion: Int = 6
     override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>
