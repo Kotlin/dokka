@@ -169,6 +169,13 @@ open class KotlinWebsiteHtmlOutputBuilder(
             appendContent(section)
         }
     }
+
+    override fun appendAsBlockWithPlatforms(platforms: Set<String>, block: () -> Unit) {
+            if (platforms.isNotEmpty())
+                wrap("<div${calculateDataAttributes(platforms)}>", "</div>", block)
+            else
+                block()
+    }
 }
 
 class KotlinWebsiteHtmlFormatService @Inject constructor(

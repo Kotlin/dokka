@@ -76,7 +76,11 @@ open class DocumentationNode(val name: String,
     var content: Content = content
         private set
 
-    val summary: ContentNode get() = content.summary
+    val summary: ContentNode get() = when (kind) {
+        NodeKind.GroupNode -> this.origins.first().summary
+        else -> content.summary
+    }
+
 
     val owner: DocumentationNode?
         get() = references(RefKind.Owner).singleOrNull()?.to

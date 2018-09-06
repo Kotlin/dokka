@@ -83,6 +83,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
+    open fun appendAsBlockWithPlatforms(platforms: Set<String>, block: () -> Unit) {
+        block()
+    }
+
     open fun appendSymbol(text: String) {
         appendText(text)
     }
@@ -465,6 +469,18 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     platformsToShow
 
 
+        protected fun mergeVersions(otherKotlinVersion: String, kotlinVersions: List<String>): String {
+            val allKotlinVersions = (kotlinVersions + otherKotlinVersion).distinct()
+
+            val minVersion = allKotlinVersions.min()!!
+            val resultVersion: String = when {
+                allKotlinVersions.size == 1 -> allKotlinVersions.single()
+                minVersion.endsWith("+") -> minVersion
+                else -> "$minVersion+"
+            }
+
+            return resultVersion
+        }
 
         protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
             val platforms = items.asSequence().map {
@@ -486,19 +502,38 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
                 // When no Kotlin version specified, it means that version is 1.0
                 if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
-                    val allKotlinVersions = (kotlinVersions + otherKotlinVersion).distinct()
-
-                    val minVersion = allKotlinVersions.min()!!
-                    val resultVersion = when {
-                        allKotlinVersions.size == 1 -> allKotlinVersions.single()
-                        minVersion.endsWith("+") -> minVersion
-                        else -> "$minVersion+"
-                    }
-
-                    result.intersect(otherPlatforms) + resultVersion
+                    result.intersect(platformsOfItem) + mergeVersions(otherKotlinVersion, kotlinVersions)
                 } else {
                     result.intersect(platformsOfItem)
                 }
+            }
+        }
+
+        protected fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
+            val platforms = items.asSequence().map {
+                when (it.kind) {
+                    NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
+                    else -> it.platformsToShow.toSet()
+                }
+            }
+
+            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+
+            if (platforms.count() == 0) return emptySet()
+
+            // Calculating common platforms for items
+            return platforms.reduce { result, platformsOfItem ->
+                val otherKotlinVersion = result.find { it.isKotlinVersion() }
+                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
+
+                // When no Kotlin version specified, it means that version is 1.0
+                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
+                    result.union(otherPlatforms) + mergeVersions(otherKotlinVersion, kotlinVersions)
+                } else {
+                    result.union(otherPlatforms)
+                }
+            }.let {
+                if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it
             }
         }
 
@@ -564,6 +599,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             SectionsBuilder(node).build()
         }
+    }
+
+    private fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
+        val platforms = items.flatMapTo(mutableSetOf<String>()) {
+            when (it.kind) {
+                NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
+                else -> it.platforms
+            }
+        }
+
+        return platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
     }
 
 
@@ -666,12 +712,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
                             }
                             appendTableCell {
-                                val nodesToAppend = if (members.all { it.kind == NodeKind.GroupNode }) {
-                                    members.flatMap { it.origins }
-                                } else {
-                                    members
-                                }
-                                appendSummarySignatures(nodesToAppend, platformsBasedOnMembers, omitSamePlatforms)
+                                appendSummarySignatures(members, platformsBasedOnMembers, omitSamePlatforms)
                             }
                         }
                     }
@@ -680,6 +721,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun platformsOfItems(items: List<DocumentationNode>, omitSamePlatforms: Boolean = true): Set<String> {
+            if (items.all { it.kind != NodeKind.Package && it.kind != NodeKind.Module && it.kind != NodeKind.ExternalClass }) {
+                return unionPlatformsOfItems(items)
+            }
+
             val platforms = platformsOfItems(items)
             if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
                 return platforms
@@ -688,35 +733,49 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun appendSummarySignatures(items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
-            val summarySignature = languageService.summarizeSignatures(items)
-            if (summarySignature != null) {
-                appendSummarySignature(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms)
-                return
-            }
+            val groupBySummary = items.groupBy { it.summary }
 
+            for ((summary, node) in groupBySummary) {
+                val nodesToAppend = if (node.all { it.kind == NodeKind.GroupNode }) {
+                    node.flatMap { it.origins }
+                } else {
+                    node
+                }
 
-            val groupBySignature = items.groupBy {
-                languageService.render(it, RenderMode.SUMMARY)
-            }
-            for ((sign, node) in groupBySignature) {
-                appendSummarySignature(sign, node, platformsBasedOnMembers, omitSamePlatforms)
+                val summarySignature = languageService.summarizeSignatures(nodesToAppend)
+                if (summarySignature != null) {
+                    appendSignatures(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms)
+                } else {
+                    val groupBySignature = nodesToAppend.groupBy {
+                        languageService.render(it, RenderMode.SUMMARY)
+                    }
+                    for ((sign, members) in groupBySignature) {
+                        appendSignatures(sign, members, platformsBasedOnMembers, omitSamePlatforms)
+                    }
+                }
+
+                val platforms = platformsOfItems(node)
+                appendAsBlockWithPlatforms(platforms) {
+                    appendContent(summary)
+                    appendSoftLineBreak()
+                }
             }
         }
 
-        private fun appendSummarySignature(signature: ContentNode, items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
+        private fun appendSignatures(signature: ContentNode, items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
             val elementPlatforms = platformsOfItems(items, omitSamePlatforms)
             val platforms = if (platformsBasedOnMembers)
                 items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
             else
                 elementPlatforms
 
-            appendPlatforms(platforms)
-            appendAsSignature(signature) {
-                signature.appendSignature()
+            appendAsBlockWithPlatforms(platforms) {
+                appendPlatforms(platforms)
+                    appendAsSignature(signature) {
+                        signature.appendSignature()
+                    }
+                appendSoftLineBreak()
             }
-
-            appendContent(items.first().summary)
-            appendSoftLineBreak()
         }
     }
 
