@@ -140,6 +140,16 @@ dokka {
 }
 ```
 
+You can also use Gradle Kotlin DSL
+
+```kotlin
+tasks {
+    val dokka by getting(DokkaTask::class) {
+        ...
+    }
+}
+```
+
 To generate the documentation, use the `dokka` Gradle task:
 
 ```bash
