@@ -1,6 +1,10 @@
 import org.jetbrains.DependenciesVersionGetter
 
 allprojects {
+    ext {
+        dokka_version = dokka_version_base + (System.getenv("BUILD_NUMBER") ?: "-SNAPSHOT")
+    }
+    
     group 'org.jetbrains.dokka'
     version dokka_version
 
