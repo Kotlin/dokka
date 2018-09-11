@@ -19,7 +19,13 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+configurations {
+    maven
+}
+
 dependencies {
+    maven group: "org.apache.maven", name: 'apache-maven', version: maven_version, classifier: 'bin', ext: 'zip'
+
     shadow project(":runners:fatjar")
     shadow "org.apache.maven:maven-core:$maven_version"
     shadow "org.apache.maven:maven-model:$maven_version"
@@ -29,6 +35,18 @@ dependencies {
     shadow "org.codehaus.plexus:plexus-archiver:$plexus_archiver_version"
     shadow "org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version"
     shadow "com.github.olivergondza:maven-jdk-tools-wrapper:0.1"
+}
+
+final File mavenHome = new File(buildDir, "maven-bin")
+final File mvn = new File(mavenHome, "apache-maven-$maven_version/bin/mvn")
+
+tasks.clean.doLast {
+    delete mavenHome
+}
+
+task setupMaven(type: Sync) {
+    from configurations.maven.collect{ zipTree(it) }
+    into "$buildDir/maven-bin"
 }
 
 task generatePom() {
@@ -58,14 +76,14 @@ task mergeClassOutputs doLast {
     }
 }
 
-task pluginDescriptor(type: CrossPlatformExec) {
+task pluginDescriptor(type: CrossPlatformExec, dependsOn: setupMaven) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:descriptor'
 
     dependsOn mergeClassOutputs
 }
 
-task helpMojo(type: CrossPlatformExec) {
+task helpMojo(type: CrossPlatformExec, dependsOn: setupMaven) {
     workingDir buildDir
     commandLine mvn, '-e', '-B', 'org.apache.maven.plugins:maven-plugin-plugin:helpmojo'
 
