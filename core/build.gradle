@@ -29,9 +29,11 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-script-runtime:$bundled_kotlin_compiler_version"
 
     compile "teamcity:kotlin-ide-common:$bundled_kotlin_compiler_version"
-    compile "teamcity:markdown:$bundled_kotlin_compiler_version"
+    compile "org.jetbrains:markdown:$markdownVersion"
 
     compile intellijCoreAnalysis()
+
+    compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.8'
 
     //tools.jar
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })

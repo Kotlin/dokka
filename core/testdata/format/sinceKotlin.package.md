@@ -1,4 +1,4 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
@@ -6,5 +6,5 @@
 
 ### Types
 
-| [Since1.1](test/-since1.1/index)<br>(Kotlin 1.1) | `class Since1.1`<br>Useful |
+| [Since1.1](-since1.1/index.md)<br>(Kotlin 1.1) | `class Since1.1`<br>Useful |
 

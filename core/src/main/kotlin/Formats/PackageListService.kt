@@ -7,10 +7,10 @@ interface PackageListService {
     fun formatPackageList(module: DocumentationModule): String
 }
 
-class DefaultPackageListService @Inject constructor(locationService: FileLocationService,
-                                                    val formatService: FormatService) : PackageListService {
-
-    val locationService: FileLocationService = locationService.withExtension(formatService.linkExtension)
+class DefaultPackageListService @Inject constructor(
+        val generator: NodeLocationAwareGenerator,
+        val formatService: FormatService
+) : PackageListService {
 
     override fun formatPackageList(module: DocumentationModule): String {
         val packages = mutableSetOf<String>()
@@ -26,7 +26,7 @@ class DefaultPackageListService @Inject constructor(locationService: FileLocatio
                 }
                 NodeKind.Signature -> {
                     if (relocated)
-                        nonStandardLocations[node.name] = locationService.relativePathToLocation(module, node.owner!!)
+                        nonStandardLocations[node.name] = generator.relativePathToLocation(module, node.owner!!)
                 }
                 NodeKind.ExternalClass -> {
                     node.members.forEach { visit(it, relocated = true) }

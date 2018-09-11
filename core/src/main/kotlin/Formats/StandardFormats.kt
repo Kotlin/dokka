@@ -1,40 +1,35 @@
 package org.jetbrains.dokka.Formats
 
+import com.google.inject.Binder
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.Kotlin.KotlinAsJavaDescriptorSignatureProvider
-import org.jetbrains.dokka.Kotlin.KotlinDescriptorSignatureProvider
-import org.jetbrains.dokka.Model.DescriptorSignatureProvider
-import org.jetbrains.dokka.Samples.DefaultSampleProcessingService
 import org.jetbrains.dokka.Samples.KotlinWebsiteSampleProcessingService
-import org.jetbrains.dokka.Samples.SampleProcessingService
+import org.jetbrains.dokka.Utilities.bind
 import kotlin.reflect.KClass
 
-abstract class KotlinFormatDescriptorBase : FormatDescriptor {
-    override val packageDocumentationBuilderClass = KotlinPackageDocumentationBuilder::class
-    override val javaDocumentationBuilderClass = KotlinJavaDocumentationBuilder::class
-
+abstract class KotlinFormatDescriptorBase
+    : FileGeneratorBasedFormatDescriptor(),
+        DefaultAnalysisComponent,
+        DefaultAnalysisComponentServices by KotlinAsKotlin {
     override val generatorServiceClass = FileGenerator::class
     override val outlineServiceClass: KClass<out OutlineFormatService>? = null
-    override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
     override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
-    override val descriptorSignatureProvider = KotlinDescriptorSignatureProvider::class
 }
 
-class HtmlFormatDescriptor : KotlinFormatDescriptorBase() {
-    override val formatServiceClass = HtmlFormatService::class
-    override val outlineServiceClass = HtmlFormatService::class
-}
-
-class HtmlAsJavaFormatDescriptor : FormatDescriptor {
+abstract class HtmlFormatDescriptorBase : FileGeneratorBasedFormatDescriptor(), DefaultAnalysisComponent {
     override val formatServiceClass = HtmlFormatService::class
     override val outlineServiceClass = HtmlFormatService::class
     override val generatorServiceClass = FileGenerator::class
-    override val packageDocumentationBuilderClass = KotlinAsJavaDocumentationBuilder::class
-    override val javaDocumentationBuilderClass = JavaPsiDocumentationBuilder::class
-    override val sampleProcessingService: KClass<out SampleProcessingService> = DefaultSampleProcessingService::class
-    override val packageListServiceClass: KClass<out PackageListService>? = DefaultPackageListService::class
-    override val descriptorSignatureProvider = KotlinAsJavaDescriptorSignatureProvider::class
+    override val packageListServiceClass = DefaultPackageListService::class
+
+    override fun configureOutput(binder: Binder): Unit = with(binder) {
+        super.configureOutput(binder)
+        bind<HtmlTemplateService>().toProvider { HtmlTemplateService.default("style.css") }
+    }
 }
+
+class HtmlFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin
+
+class HtmlAsJavaFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava
 
 class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteFormatService::class
@@ -51,6 +46,11 @@ class KotlinWebsiteHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteHtmlFormatService::class
     override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
     override val outlineServiceClass = YamlOutlineService::class
+
+    override fun configureOutput(binder: Binder) = with(binder) {
+        super.configureOutput(binder)
+        bind<HtmlTemplateService>().toInstance(EmptyHtmlTemplateService)
+    }
 }
 
 class JekyllFormatDescriptor : KotlinFormatDescriptorBase() {

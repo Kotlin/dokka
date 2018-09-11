@@ -2,6 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.DocumentationModule
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
 import org.junit.Test
 import org.junit.Assert.assertEquals
 
@@ -30,11 +31,15 @@ class KotlinAsJavaTest {
 }
 
 fun verifyModelAsJava(source: String,
-                      withJdk: Boolean = false,
-                      withKotlinRuntime: Boolean = false,
+                      modelConfig: ModelConfig = ModelConfig(),
                       verifier: (DocumentationModule) -> Unit) {
-    verifyModel(source,
-            withJdk = withJdk, withKotlinRuntime = withKotlinRuntime,
+    checkSourceExistsAndVerifyModel(
+        source,
+        modelConfig = ModelConfig(
+            withJdk = modelConfig.withJdk,
+            withKotlinRuntime = modelConfig.withKotlinRuntime,
             format = "html-as-java",
-            verifier = verifier)
+            analysisPlatform = Platform.jvm),
+        verifier = verifier
+    )
 }

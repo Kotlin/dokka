@@ -1,24 +1,24 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
 ### Types
 
-| [A](test/-a/index) | `class A` |
-| [B](test/-b/index) | `class B` |
-| [C](test/-c/index) | `class C<T>` |
+| [A](-a/index.md) | `class A` |
+| [B](-b/index.md) | `class B` |
+| [C](-c/index.md) | `class C<T>` |
 
 ### Type Aliases
 
-| [D](test/-d) | `typealias D = `[`A`](test/-a/index) |
-| [E](test/-e) | `typealias E = `[`D`](test/-d) |
-| [F](test/-f) | `typealias F = (`[`A`](test/-a/index)`) -> `[`B`](test/-b/index) |
-| [G](test/-g) | `typealias G = `[`C`](test/-c/index)`<`[`A`](test/-a/index)`>` |
-| [H](test/-h) | `typealias H<T> = `[`C`](test/-c/index)`<`[`T`](test/-h#T)`>` |
-| [I](test/-i) | `typealias I<T> = `[`H`](test/-h)`<`[`T`](test/-i#T)`>` |
-| [J](test/-j) | `typealias J = `[`H`](test/-h)`<`[`A`](test/-a/index)`>` |
-| [K](test/-k) | `typealias K = `[`H`](test/-h)`<`[`J`](test/-j)`>` |
-| [L](test/-l) | `typealias L = (`[`K`](test/-k)`, `[`B`](test/-b/index)`) -> `[`J`](test/-j) |
-| [M](test/-m) | `typealias M = `[`A`](test/-a/index)<br>Documented |
-| [N](test/-n) | `typealias ~~N~~ = `[`A`](test/-a/index) |
+| [D](-d.md) | `typealias D = `[`A`](-a/index.md) |
+| [E](-e.md) | `typealias E = `[`D`](-d.md) |
+| [F](-f.md) | `typealias F = (`[`A`](-a/index.md)`) -> `[`B`](-b/index.md) |
+| [G](-g.md) | `typealias G = `[`C`](-c/index.md)`<`[`A`](-a/index.md)`>` |
+| [H](-h.md) | `typealias H<T> = `[`C`](-c/index.md)`<`[`T`](-h.md#T)`>` |
+| [I](-i.md) | `typealias I<T> = `[`H`](-h.md)`<`[`T`](-i.md#T)`>` |
+| [J](-j.md) | `typealias J = `[`H`](-h.md)`<`[`A`](-a/index.md)`>` |
+| [K](-k.md) | `typealias K = `[`H`](-h.md)`<`[`J`](-j.md)`>` |
+| [L](-l.md) | `typealias L = (`[`K`](-k.md)`, `[`B`](-b/index.md)`) -> `[`J`](-j.md) |
+| [M](-m.md) | `typealias M = `[`A`](-a/index.md)<br>Documented |
+| [N](-n.md) | `typealias ~~N~~ = `[`A`](-a/index.md) |
 

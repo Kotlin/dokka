@@ -1,4 +1,4 @@
-[test](test/index) / [Bar](test/-bar/index)
+[test](../index.md) / [Bar](./index.md)
 
 # Bar
 
@@ -6,18 +6,18 @@
 
 An emphasised class.
 
-*This class [Bar](test/-bar/index) is awesome.*
+*This class [Bar](./index.md) is awesome.*
 
-*Even more awesomer is the function [Bar.foo](test/-bar/foo)*
+*Even more awesomer is the function [Bar.foo](foo.md)*
 
-*[Bar.hello](test/-bar/hello) is also OK*
+*[Bar.hello](hello.md) is also OK*
 
 ### Constructors
 
-| [&lt;init&gt;](test/-bar/-init-) | `Bar()`<br>An emphasised class. |
+| [&lt;init&gt;](-init-.md) | `Bar()`<br>An emphasised class. |
 
 ### Functions
 
-| [foo](test/-bar/foo) | `fun foo(): Unit` |
-| [hello](test/-bar/hello) | `fun hello(): Unit` |
+| [foo](foo.md) | `fun foo(): Unit` |
+| [hello](hello.md) | `fun hello(): Unit` |
 

@@ -6,6 +6,7 @@ allprojects {
 
     def repo = {
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
     }
 
     buildscript {
@@ -21,18 +22,20 @@ allprojects {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
             classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
 
-            classpath "com.gradle.publish:plugin-publish-plugin:0.9.6"
+            classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
         }
     }
 
     repositories {
         mavenCentral()
         mavenLocal()
+        maven { url  "https://dl.bintray.com/jetbrains/markdown" }
         maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
         maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
         ivy(repo)
+        maven { url "https://dl.bintray.com/kotlin/kotlinx.html" }
     }
 }
 
@@ -70,6 +73,7 @@ task wrapper(type: Wrapper) {
 def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
+ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
 
 configurations {
     ideaIC
@@ -96,4 +100,29 @@ def ideaRT() {
     return zipTree(project.configurations.ideaIC.singleFile).matching ({
         include("lib/idea_rt.jar")
     })
+}
+
+def repoLocation = uri(file("$buildDir/dist-maven"))
+
+allprojects {
+
+    task publishToDistMaven {
+        group "publishing"
+        description "Publishes all Maven publications to Maven repository 'distMaven'."
+        dependsOn tasks.withType(PublishToMavenRepository).matching {
+            it.repository == publishing.repositories.distMaven
+        }
+    }
+
+    plugins.withType(MavenPublishPlugin) {
+        publishing {
+            repositories {
+                maven {
+                    name 'distMaven'
+                    url repoLocation
+                }
+            }
+        }
+
+    }
 }

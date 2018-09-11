@@ -18,14 +18,11 @@ data class SourceLinkDefinitionImpl(override val path: String,
     }
 }
 
-class SourceRootImpl(path: String, override val platforms: List<String> = emptyList()) : SourceRoot {
+class SourceRootImpl(path: String) : SourceRoot {
     override val path: String = File(path).absolutePath
 
     companion object {
-        fun parseSourceRoot(sourceRoot: String): SourceRoot {
-            val components = sourceRoot.split("::", limit = 2)
-            return SourceRootImpl(components.last(), if (components.size == 1) listOf() else components[0].split(','))
-        }
+        fun parseSourceRoot(sourceRoot: String): SourceRoot = SourceRootImpl(sourceRoot)
     }
 }
 
@@ -36,27 +33,47 @@ data class PackageOptionsImpl(override val prefix: String,
                               override val suppress: Boolean = false) : DokkaConfiguration.PackageOptions
 
 data class DokkaConfigurationImpl(
-        override val moduleName: String,
-        override val classpath: List<String>,
-        override val sourceRoots: List<SourceRootImpl>,
-        override val samples: List<String>,
-        override val includes: List<String>,
-        override val outputDir: String,
-        override val format: String,
-        override val includeNonPublic: Boolean,
-        override val includeRootPackage: Boolean,
-        override val reportUndocumented: Boolean,
-        override val skipEmptyPackages: Boolean,
-        override val skipDeprecated: Boolean,
-        override val jdkVersion: Int,
-        override val generateIndexPages: Boolean,
-        override val sourceLinks: List<SourceLinkDefinitionImpl>,
-        override val impliedPlatforms: List<String>,
-        override val perPackageOptions: List<PackageOptionsImpl>,
-        override val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>,
-        override val noStdlibLink: Boolean,
-        override val cacheRoot: String?,
-        override val suppressedFiles: List<String>,
-        override val languageVersion: String?,
-        override val apiVersion: String?
+    override val outputDir: String = "",
+    override val format: String = "html",
+    override val generateIndexPages: Boolean = false,
+    override val cacheRoot: String? = null,
+    override val impliedPlatforms: List<String> = listOf(),
+    override val passesConfigurations: List<DokkaConfiguration.PassConfiguration> = listOf()
 ) : DokkaConfiguration
+
+class PassConfigurationImpl (
+    override val classpath: List<String> = listOf(),
+    override val moduleName: String = "",
+    override val sourceRoots: List<SourceRoot> = listOf(),
+    override val samples: List<String> = listOf(),
+    override val includes: List<String> = listOf(),
+    override val includeNonPublic: Boolean = false,
+    override val includeRootPackage: Boolean = false,
+    override val reportUndocumented: Boolean = false,
+    override val skipEmptyPackages: Boolean = false,
+    override val skipDeprecated: Boolean = false,
+    override val jdkVersion: Int = 6,
+    override val sourceLinks: List<SourceLinkDefinition> = listOf(),
+    override val perPackageOptions: List<DokkaConfiguration.PackageOptions> = listOf(),
+    externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink> = listOf(),
+    override val languageVersion: String? = null,
+    override val apiVersion: String? = null,
+    override val noStdlibLink: Boolean = false,
+    override val noJdkLink: Boolean = false,
+    override val suppressedFiles: List<String> = listOf(),
+    override val collectInheritedExtensionsFromLibraries: Boolean = false,
+    override val analysisPlatform: Platform = Platform.DEFAULT,
+    override val targets: List<String> = listOf()
+): DokkaConfiguration.PassConfiguration {
+    private val defaultLinks = run {
+        val links = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
+        if (!noJdkLink)
+            links += DokkaConfiguration.ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
+
+        if (!noStdlibLink)
+            links += DokkaConfiguration.ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
+        links
+    }
+    override val externalDocumentationLinks = defaultLinks + externalDocumentationLinks
+}
+

@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Dokka" type="KotlinRunConfigurationType" factoryName="Kotlin" singleton="true">
+  <configuration default="false" name="Dokka" type="JetRunConfigurationType" factoryName="Kotlin" singleton="true">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="org.jetbrains.dokka.MainKt" />
     <option name="VM_PARAMETERS" value="" />
-    <option name="PROGRAM_PARAMETERS" value="src/ -output doc -module dokka -format kotlin-website -classpath &quot;$KOTLIN_BUNDLED$/lib/kotlin-compiler.jar:$KOTLIN_BUNDLED$/lib/kotlin-runtime.jar&quot;" />
+    <option name="PROGRAM_PARAMETERS" value="core/src -output doc -module dokka -format javadoc -classpath &quot;$KOTLIN_BUNDLED$/lib/kotlin-compiler.jar:$KOTLIN_BUNDLED$/lib/kotlin-runtime.jar&quot;" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />

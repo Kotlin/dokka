@@ -1,7 +1,9 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
+import com.intellij.psi.impl.JavaConstantExpressionEvaluator
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
@@ -11,9 +13,9 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtModifierListOwner
-import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
+    is PsiPackage -> element.qualifiedName
     is PsiClass -> element.qualifiedName
     is PsiField -> element.containingClass!!.qualifiedName + "$" + element.name
     is PsiMethod ->
@@ -41,18 +43,24 @@ interface JavaDocumentationBuilder {
 }
 
 class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
-    private val options: DocumentationOptions
+    private val passConfiguration: DokkaConfiguration.PassConfiguration
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
 
-    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger) {
-        this.options = options
+    @Inject constructor(
+        passConfiguration: DokkaConfiguration.PassConfiguration,
+        refGraph: NodeReferenceGraph,
+        logger: DokkaLogger,
+        signatureProvider: ElementSignatureProvider,
+        externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+    ) {
+        this.passConfiguration = passConfiguration
         this.refGraph = refGraph
-        this.docParser = JavadocParser(refGraph, logger)
+        this.docParser = JavadocParser(refGraph, logger, signatureProvider, externalDocumentationLinkResolver)
     }
 
-    constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
-        this.options = options
+    constructor(passConfiguration: DokkaConfiguration.PassConfiguration, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
+        this.passConfiguration = passConfiguration
         this.refGraph = refGraph
         this.docParser = docParser
     }
@@ -61,7 +69,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (skipFile(file) || file.classes.all { skipElement(it) }) {
             return
         }
-        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap(), refGraph)
+        val packageNode = findOrCreatePackageNode(module, file.packageName, emptyMap(), refGraph)
         appendClasses(packageNode, file.classes)
     }
 
@@ -132,21 +140,23 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         }
     }
 
-    private fun skipFile(javaFile: PsiJavaFile): Boolean = options.effectivePackageOptions(javaFile.packageName).suppress
+    private fun skipFile(javaFile: PsiJavaFile): Boolean = passConfiguration.effectivePackageOptions(javaFile.packageName).suppress
 
     private fun skipElement(element: Any) =
             skipElementByVisibility(element) ||
                     hasSuppressDocTag(element) ||
                     skipElementBySuppressedFiles(element)
 
-    private fun skipElementByVisibility(element: Any): Boolean = element is PsiModifierListOwner &&
-            !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
-            (element.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
-                    element.isInternal())
+    private fun skipElementByVisibility(element: Any): Boolean =
+        element is PsiModifierListOwner &&
+                element !is PsiParameter &&
+                !(passConfiguration.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
+                (element.hasModifierProperty(PsiModifier.PRIVATE) ||
+                        element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
+                        element.isInternal())
 
     private fun skipElementBySuppressedFiles(element: Any): Boolean =
-            element is PsiElement && File(element.containingFile.virtualFile.path).absoluteFile in options.suppressedFiles
+            element is PsiElement && element.containingFile.virtualFile.path in passConfiguration.suppressedFiles
 
     private fun PsiElement.isInternal(): Boolean {
         val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false
@@ -200,9 +210,26 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun PsiField.build(): DocumentationNode {
         val node = nodeForElement(this, nodeKind())
         node.appendType(type)
-        node.appendModifiers(this)
+
+        node.appendConstantValueIfAny(this)
         register(this, node)
         return node
+    }
+
+    private fun DocumentationNode.appendConstantValueIfAny(field: PsiField) {
+        val modifierList = field.modifierList ?: return
+        val initializer = field.initializer ?: return
+        if (field.type is PsiPrimitiveType &&
+            modifierList.hasExplicitModifier(PsiModifier.FINAL) &&
+            modifierList.hasExplicitModifier(PsiModifier.STATIC)) {
+            val value = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
+            val text = when(value) {
+                is String ->
+                    "\"" + StringUtil.escapeStringCharacters(value) + "\""
+                else -> value.toString()
+            }
+            append(DocumentationNode(text, Content.Empty, NodeKind.Value), RefKind.Detail)
+        }
     }
 
     private fun PsiField.nodeKind(): NodeKind = when {

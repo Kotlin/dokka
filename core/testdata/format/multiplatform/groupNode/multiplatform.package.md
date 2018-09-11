@@ -1,13 +1,13 @@
-[test](test/index) / [pack](test/pack/index)
+[test](../index.md) / [pack](./index.md)
 
 ## Package pack
 
 ### Types
 
-| [Some](test/pack/-some/index)<br>(JS) | `class Some` |
-| [SomeCoolJvmClass](test/pack/-some-cool-jvm-class/index)<br>(JVM) | `class SomeCoolJvmClass` |
+| [Some](-some/index.md)<br>(JS) | `class Some` |
+| [SomeCoolJvmClass](-some-cool-jvm-class/index.md)<br>(JVM) | `class SomeCoolJvmClass` |
 
 ### Type Aliases
 
-| [Some](test/pack/-some/index)<br>(JVM) | `typealias Some = SomeCoolJvmClass` |
+| [Some](-some/index.md)<br>(JVM) | `typealias Some = SomeCoolJvmClass` |
 

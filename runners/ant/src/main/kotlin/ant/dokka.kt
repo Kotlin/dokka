@@ -17,53 +17,101 @@ class AntLogger(val task: Task): DokkaLogger {
 
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)
 
-class AntSourceRoot(var path: String? = null, var platforms: String? = null) {
-    fun toSourceRoot(): SourceRootImpl? = path?.let {
-        path ->
-        SourceRootImpl(path, platforms?.split(',').orEmpty())
+class AntSourceRoot(var path: String? = null) {
+    fun toSourceRoot(): SourceRootImpl? = path?.let { path ->
+        SourceRootImpl(path)
     }
 }
 
-class AntPackageOptions(
-        override var prefix: String = "",
-        override var includeNonPublic: Boolean = false,
-        override var reportUndocumented: Boolean = true,
-        override var skipDeprecated: Boolean = false,
-        override var suppress: Boolean = false) : DokkaConfiguration.PackageOptions
+class TextProperty(var value: String = "")
+
+class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
+    override var moduleName: String = ""
+    override val classpath: List<String>
+        get() = buildClassPath.list().toList()
+
+    override val sourceRoots: List<DokkaConfiguration.SourceRoot>
+        get() = sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() }
+
+    override val samples: List<String>
+        get() = samplesPath.list().toList()
+    override val includes: List<String>
+        get() = includesPath.list().toList()
+    override var includeNonPublic: Boolean = false
+    override var includeRootPackage: Boolean = true
+    override var reportUndocumented: Boolean = false
+    override var skipEmptyPackages: Boolean = true
+    override var skipDeprecated: Boolean = false
+    override var jdkVersion: Int = 6
+    override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>
+        get() = antSourceLinkDefinition.map {
+            val path = it.path!!
+            val url = it.url!!
+            SourceLinkDefinitionImpl(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
+        }
+    override val perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> = mutableListOf()
+    override val externalDocumentationLinks: List<ExternalDocumentationLink>
+        get() = buildExternalLinksBuilders.map { it.build() } + defaultExternalDocumentationLinks
+
+    override var languageVersion: String? = null
+    override var apiVersion: String? = null
+    override var noStdlibLink: Boolean = false
+    override var noJdkLink: Boolean = false
+    override var suppressedFiles: MutableList<String> = mutableListOf()
+    override var collectInheritedExtensionsFromLibraries: Boolean = false
+    override var analysisPlatform: Platform = Platform.DEFAULT
+    override var targets: List<String> = listOf()
+        get() = buildTargets.filter { it.value != "" }
+            .map { it.value }
+
+    private val samplesPath: Path by lazy { Path(task.project) }
+    private val includesPath: Path by lazy { Path(task.project) }
+    private val buildClassPath: Path by lazy { Path(task.project) }
+    val sourcePath: Path by lazy { Path(task.project) }
+    val antSourceRoots: MutableList<AntSourceRoot> = mutableListOf()
+
+    private val buildTargets: MutableList<TextProperty> = mutableListOf()
+    private val buildExternalLinksBuilders: MutableList<ExternalDocumentationLink.Builder> = mutableListOf()
+    val antSourceLinkDefinition: MutableList<AntSourceLinkDefinition> = mutableListOf()
+
+    private val defaultExternalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>
+        get() {
+            val links = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()
+            if (!noJdkLink)
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
+
+            if (!noStdlibLink)
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
+            return links
+        }
 
 
-class DokkaAntTask: Task() {
-    var moduleName: String? = null
-    var outputDir: String? = null
-    var outputFormat: String = "html"
-    var impliedPlatforms: String = ""
-    var jdkVersion: Int = 6
+    fun setSamples(ref: Path) {
+        samplesPath.append(ref)
+    }
 
-    var noStdlibLink: Boolean = false
+    fun setSamplesRef(ref: Reference) {
+        samplesPath.createPath().refid = ref
+    }
 
-    var skipDeprecated: Boolean = false
-
-    var cacheRoot: String? = null
-
-    var languageVersion: String? = null
-    var apiVersion: String? = null
-
-    val compileClasspath: Path by lazy { Path(getProject()) }
-    val sourcePath: Path by lazy { Path(getProject()) }
-    val samplesPath: Path by lazy { Path(getProject()) }
-    val includesPath: Path by lazy { Path(getProject()) }
-
-    val antSourceLinks: MutableList<AntSourceLinkDefinition> = arrayListOf()
-    val antSourceRoots: MutableList<AntSourceRoot> = arrayListOf()
-    val antPackageOptions: MutableList<AntPackageOptions> = arrayListOf()
-    val antExternalDocumentationLinks = mutableListOf<ExternalDocumentationLink.Builder>()
+    fun setInclude(ref: Path) {
+        includesPath.append(ref)
+    }
 
     fun setClasspath(classpath: Path) {
-        compileClasspath.append(classpath)
+        buildClassPath.append(classpath)
+    }
+
+    fun createPackageOptions(): AntPackageOptions = AntPackageOptions().apply { perPackageOptions.add(this) }
+
+    fun createSourceRoot(): AntSourceRoot = AntSourceRoot().apply {  antSourceRoots.add(this) }
+
+    fun createTarget(): TextProperty = TextProperty().apply {
+            buildTargets.add(this)
     }
 
     fun setClasspathRef(ref: Reference) {
-        compileClasspath.createPath().refid = ref
+        buildClassPath.createPath().refid = ref
     }
 
     fun setSrc(src: Path) {
@@ -74,68 +122,66 @@ class DokkaAntTask: Task() {
         sourcePath.createPath().refid = ref
     }
 
-    fun setSamples(samples: Path) {
-        samplesPath.append(samples)
-    }
-
-    fun setSamplesRef(ref: Reference) {
-        samplesPath.createPath().refid = ref
-    }
-
-    fun setInclude(include: Path) {
-        includesPath.append(include)
-    }
-
     fun createSourceLink(): AntSourceLinkDefinition {
         val def = AntSourceLinkDefinition()
-        antSourceLinks.add(def)
+        antSourceLinkDefinition.add(def)
         return def
     }
 
-    fun createSourceRoot(): AntSourceRoot = AntSourceRoot().apply { antSourceRoots.add(this) }
+    fun createExternalDocumentationLink() =
+        ExternalDocumentationLink.Builder().apply { buildExternalLinksBuilders.add(this) }
 
-    fun createPackageOptions(): AntPackageOptions = AntPackageOptions().apply { antPackageOptions.add(this) }
+}
 
-    fun createExternalDocumentationLink() = ExternalDocumentationLink.Builder().apply { antExternalDocumentationLinks.add(this) }
+class AntPackageOptions(
+        override var prefix: String = "",
+        override var includeNonPublic: Boolean = false,
+        override var reportUndocumented: Boolean = true,
+        override var skipDeprecated: Boolean = false,
+        override var suppress: Boolean = false) : DokkaConfiguration.PackageOptions
+
+class DokkaAntTask: Task(), DokkaConfiguration {
+
+    override var format: String = "html"
+    override var generateIndexPages: Boolean = false
+    override var outputDir: String = ""
+    override var impliedPlatforms: List<String> = listOf()
+        get() = buildImpliedPlatforms.map { it.value }.toList()
+    private val buildImpliedPlatforms: MutableList<TextProperty> = mutableListOf()
+
+    override var cacheRoot: String? = null
+    override val passesConfigurations: MutableList<AntPassConfig> = mutableListOf()
+
+    fun createPassConfig() = AntPassConfig(this).apply { passesConfigurations.add(this) }
+    fun createImpliedPlatform(): TextProperty = TextProperty().apply { buildImpliedPlatforms.add(this) }
+
 
     override fun execute() {
-        if (sourcePath.list().isEmpty() && antSourceRoots.isEmpty()) {
-            throw BuildException("At least one source path needs to be specified")
-        }
-        if (moduleName == null) {
-            throw BuildException("Module name needs to be specified")
-        }
-        if (outputDir == null) {
-            throw BuildException("Output directory needs to be specified")
-        }
-        val sourceLinks = antSourceLinks.map {
-            val path = it.path ?: throw BuildException("'path' attribute of a <sourceLink> element is required")
-            val url = it.url ?: throw BuildException("'url' attribute of a <sourceLink> element is required")
-            SourceLinkDefinitionImpl(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
+        for (passConfig in passesConfigurations) {
+            if (passConfig.sourcePath.list().isEmpty() && passConfig.antSourceRoots.isEmpty()) {
+                throw BuildException("At least one source path needs to be specified")
+            }
+
+            if (passConfig.moduleName == "") {
+                throw BuildException("Module name needs to be specified and not empty")
+            }
+
+            for (sourceLink in passConfig.antSourceLinkDefinition) {
+                if (sourceLink.path == null) {
+                    throw BuildException("'path' attribute of a <sourceLink> element is required")
+                }
+
+                if (sourceLink.url == null) {
+                    throw BuildException("'url' attribute of a <sourceLink> element is required")
+                }
+            }
         }
 
-        val generator = DokkaGenerator(
-                AntLogger(this),
-                compileClasspath.list().toList(),
-                sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() },
-                samplesPath.list().toList(),
-                includesPath.list().toList(),
-                moduleName!!,
-                DocumentationOptions(
-                        outputDir!!,
-                        outputFormat,
-                        skipDeprecated = skipDeprecated,
-                        sourceLinks = sourceLinks,
-                        jdkVersion = jdkVersion,
-                        impliedPlatforms = impliedPlatforms.split(','),
-                        perPackageOptions = antPackageOptions,
-                        externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
-                        noStdlibLink = noStdlibLink,
-                        cacheRoot = cacheRoot,
-                        languageVersion = languageVersion,
-                        apiVersion = apiVersion
-                )
-        )
+        if (outputDir == "") {
+            throw BuildException("Output directory needs to be specified and not empty")
+        }
+
+        val generator = DokkaGenerator(this, AntLogger(this))
         generator.generate()
     }
 }

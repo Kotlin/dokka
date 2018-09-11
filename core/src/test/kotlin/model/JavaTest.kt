@@ -1,14 +1,16 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.RefKind
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 
 public class JavaTest {
+    private val defaultModelConfig = ModelConfig(analysisPlatform = Platform.jvm)
     @Test fun function() {
-        verifyJavaPackageMember("testdata/java/member.java") { cls ->
+        verifyJavaPackageMember("testdata/java/member.java", defaultModelConfig) { cls ->
             assertEquals("Test", cls.name)
             assertEquals(NodeKind.Class, cls.kind)
             with(cls.members(NodeKind.Function).single()) {
@@ -18,12 +20,12 @@ public class JavaTest {
                 with(content.sections[0]) {
                     assertEquals("Parameters", tag)
                     assertEquals("name", subjectName)
-                    assertEquals("is String parameter", toTestString())
+                    assertEquals("render(Type:String,SUMMARY): is String parameter", toTestString())
                 }
                 with(content.sections[1]) {
                     assertEquals("Parameters", tag)
                     assertEquals("value", subjectName)
-                    assertEquals("is int parameter", toTestString())
+                    assertEquals("render(Type:String,SUMMARY): is int parameter", toTestString())
                 }
                 with(content.sections[2]) {
                     assertEquals("Author", tag)
@@ -45,7 +47,7 @@ public class JavaTest {
     }
 
     @Test fun memberWithModifiers() {
-        verifyJavaPackageMember("testdata/java/memberWithModifiers.java") { cls ->
+        verifyJavaPackageMember("testdata/java/memberWithModifiers.java", defaultModelConfig) { cls ->
             val modifiers = cls.details(NodeKind.Modifier).map { it.name }
             assertTrue("abstract" in modifiers)
             with(cls.members.single { it.name == "fn" }) {
@@ -58,7 +60,7 @@ public class JavaTest {
     }
 
     @Test fun superClass() {
-        verifyJavaPackageMember("testdata/java/superClass.java") { cls ->
+        verifyJavaPackageMember("testdata/java/superClass.java", defaultModelConfig) { cls ->
             val superTypes = cls.details(NodeKind.Supertype)
             assertEquals(2, superTypes.size)
             assertEquals("Exception", superTypes[0].name)
@@ -67,7 +69,7 @@ public class JavaTest {
     }
 
     @Test fun arrayType() {
-        verifyJavaPackageMember("testdata/java/arrayType.java") { cls ->
+        verifyJavaPackageMember("testdata/java/arrayType.java", defaultModelConfig) { cls ->
             with(cls.members(NodeKind.Function).single()) {
                 val type = detail(NodeKind.Type)
                 assertEquals("Array", type.name)
@@ -81,7 +83,7 @@ public class JavaTest {
     }
 
     @Test fun typeParameter() {
-        verifyJavaPackageMember("testdata/java/typeParameter.java") { cls ->
+        verifyJavaPackageMember("testdata/java/typeParameter.java", defaultModelConfig) { cls ->
             val typeParameters = cls.details(NodeKind.TypeParameter)
             with(typeParameters.single()) {
                 assertEquals("T", name)
@@ -100,7 +102,7 @@ public class JavaTest {
     }
 
     @Test fun constructors() {
-        verifyJavaPackageMember("testdata/java/constructors.java") { cls ->
+        verifyJavaPackageMember("testdata/java/constructors.java", defaultModelConfig) { cls ->
             val constructors = cls.members(NodeKind.Constructor)
             assertEquals(2, constructors.size)
             with(constructors[0]) {
@@ -110,14 +112,14 @@ public class JavaTest {
     }
 
     @Test fun innerClass() {
-        verifyJavaPackageMember("testdata/java/InnerClass.java") { cls ->
+        verifyJavaPackageMember("testdata/java/InnerClass.java", defaultModelConfig) { cls ->
             val innerClass = cls.members(NodeKind.Class).single()
             assertEquals("D", innerClass.name)
         }
     }
 
     @Test fun varargs() {
-        verifyJavaPackageMember("testdata/java/varargs.java") { cls ->
+        verifyJavaPackageMember("testdata/java/varargs.java", defaultModelConfig) { cls ->
             val fn = cls.members(NodeKind.Function).single()
             val param = fn.detail(NodeKind.Parameter)
             assertEquals("vararg", param.details(NodeKind.Modifier).first().name)
@@ -128,7 +130,7 @@ public class JavaTest {
     }
 
     @Test fun fields() {
-        verifyJavaPackageMember("testdata/java/field.java") { cls ->
+        verifyJavaPackageMember("testdata/java/field.java", defaultModelConfig) { cls ->
             val i = cls.members(NodeKind.Property).single { it.name == "i" }
             assertEquals("Int", i.detail(NodeKind.Type).name)
             assertTrue("var" in i.details(NodeKind.Modifier).map { it.name })
@@ -141,7 +143,7 @@ public class JavaTest {
     }
 
     @Test fun staticMethod() {
-        verifyJavaPackageMember("testdata/java/staticMethod.java") { cls ->
+        verifyJavaPackageMember("testdata/java/staticMethod.java", defaultModelConfig) { cls ->
             val m = cls.members(NodeKind.Function).single { it.name == "foo" }
             assertTrue("static" in m.details(NodeKind.Modifier).map { it.name })
         }
@@ -154,13 +156,13 @@ public class JavaTest {
      *  Proposed tag `@exclude` for it, but not supported yet
      */
     @Ignore("@suppress not supported in Java!") @Test fun suppressTag() {
-        verifyJavaPackageMember("testdata/java/suppressTag.java") { cls ->
+        verifyJavaPackageMember("testdata/java/suppressTag.java", defaultModelConfig) { cls ->
             assertEquals(1, cls.members(NodeKind.Function).size)
         }
     }
 
     @Test fun annotatedAnnotation() {
-        verifyJavaPackageMember("testdata/java/annotatedAnnotation.java") { cls ->
+        verifyJavaPackageMember("testdata/java/annotatedAnnotation.java", defaultModelConfig) { cls ->
             assertEquals(1, cls.annotations.size)
             with(cls.annotations[0]) {
                 assertEquals(1, details.count())
@@ -177,29 +179,29 @@ public class JavaTest {
     }
 
     @Test fun deprecation() {
-        verifyJavaPackageMember("testdata/java/deprecation.java") { cls ->
+        verifyJavaPackageMember("testdata/java/deprecation.java", defaultModelConfig) { cls ->
             val fn = cls.members(NodeKind.Function).single()
             assertEquals("This should no longer be used", fn.deprecation!!.content.toTestString())
         }
     }
 
     @Test fun javaLangObject() {
-        verifyJavaPackageMember("testdata/java/javaLangObject.java") { cls ->
+        verifyJavaPackageMember("testdata/java/javaLangObject.java", defaultModelConfig) { cls ->
             val fn = cls.members(NodeKind.Function).single()
             assertEquals("Any", fn.detail(NodeKind.Type).name)
         }
     }
 
     @Test fun enumValues() {
-        verifyJavaPackageMember("testdata/java/enumValues.java") { cls ->
+        verifyJavaPackageMember("testdata/java/enumValues.java", defaultModelConfig) { cls ->
             val superTypes = cls.details(NodeKind.Supertype)
-            assertEquals(0, superTypes.size)
+            assertEquals(1, superTypes.size)
             assertEquals(1, cls.members(NodeKind.EnumItem).size)
         }
     }
 
     @Test fun inheritorLinks() {
-        verifyJavaPackageMember("testdata/java/InheritorLinks.java") { cls ->
+        verifyJavaPackageMember("testdata/java/InheritorLinks.java", defaultModelConfig) { cls ->
             val fooClass = cls.members.single { it.name == "Foo" }
             val inheritors = fooClass.references(RefKind.Inheritor)
             assertEquals(1, inheritors.size)

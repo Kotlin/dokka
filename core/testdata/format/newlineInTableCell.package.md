@@ -1,8 +1,8 @@
-[test](test/index)
+[test](./index.md)
 
 ## Package &lt;root&gt;
 
 ### Types
 
-| [A](test/-a/index) | `class A`<br>There is `long long int` story full of new lines |
+| [A](-a/index.md) | `class A`<br>There is `long long int` story full of new lines |
 

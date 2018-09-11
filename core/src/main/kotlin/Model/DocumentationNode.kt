@@ -48,6 +48,7 @@ enum class NodeKind {
     Signature,
 
     ExternalLink,
+    QualifiedName,
     Platform,
 
     AllTypes,
@@ -62,7 +63,7 @@ enum class NodeKind {
 
     companion object {
         val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)
-        val memberLike = setOf(Function, Property, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem)
+        val memberLike = setOf(Function, Property, Field, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem)
     }
 }
 
@@ -75,7 +76,11 @@ open class DocumentationNode(val name: String,
     var content: Content = content
         private set
 
-    val summary: ContentNode get() = content.summary
+    val summary: ContentNode get() = when (kind) {
+        NodeKind.GroupNode -> this.origins.first().summary
+        else -> content.summary
+    }
+
 
     val owner: DocumentationNode?
         get() = references(RefKind.Owner).singleOrNull()?.to
@@ -83,8 +88,13 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
         get() = references(RefKind.Member).map { it.to }
+    val origins: List<DocumentationNode>
+        get() = references(RefKind.Origin).map { it.to }
+
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
+    val allInheritedMembers: List<DocumentationNode>
+        get() = recursiveInheritedMembers()
     val inheritedCompanionObjectMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedCompanionObjectMember).map { it.to }
     val extensions: List<DocumentationNode>
@@ -103,10 +113,36 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Deprecation).singleOrNull()?.to
     val platforms: List<String>
         get() = references(RefKind.Platform).map { it.to.name }
+    val externalType: DocumentationNode?
+        get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
+
+    val supertypes: List<DocumentationNode>
+        get() = details(NodeKind.Supertype)
+
+    val superclassType: DocumentationNode?
+        get() = when (kind) {
+            NodeKind.Supertype -> {
+                (links + listOfNotNull(externalType)).firstOrNull { it.kind in NodeKind.classLike }?.superclassType
+            }
+            NodeKind.Interface -> null
+            in NodeKind.classLike -> supertypes.firstOrNull {
+                (it.links + listOfNotNull(it.externalType)).any { it.isSuperclassFor(this) }
+            }
+            else -> null
+        }
+
+    val superclassTypeSequence: Sequence<DocumentationNode>
+        get() = generateSequence(superclassType) {
+            it.superclassType
+        }
 
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
         references.add(DocumentationReference(this, to, kind))
+    }
+
+    fun addReference(reference: DocumentationReference) {
+        references.add(reference)
     }
 
     fun dropReferences(predicate: (DocumentationReference) -> Boolean) {
@@ -123,7 +159,6 @@ open class DocumentationNode(val name: String,
         }
         (content as MutableContent).body()
     }
-
     fun details(kind: NodeKind): List<DocumentationNode> = details.filter { it.kind == kind }
     fun members(kind: NodeKind): List<DocumentationNode> = members.filter { it.kind == kind }
     fun inheritedMembers(kind: NodeKind): List<DocumentationNode> = inheritedMembers.filter { it.kind == kind }
@@ -135,6 +170,7 @@ open class DocumentationNode(val name: String,
     fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
     fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
 
+
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }
     fun allReferences(): Set<DocumentationReference> = references
 
@@ -143,9 +179,9 @@ open class DocumentationNode(val name: String,
     }
 }
 
-class DocumentationModule(name: String, content: Content = Content.Empty)
+class DocumentationModule(name: String, content: Content = Content.Empty, val nodeRefGraph: NodeReferenceGraph = NodeReferenceGraph())
     : DocumentationNode(name, content, NodeKind.Module) {
-    val nodeRefGraph = NodeReferenceGraph()
+
 }
 
 val DocumentationNode.path: List<DocumentationNode>
@@ -154,16 +190,17 @@ val DocumentationNode.path: List<DocumentationNode>
         return parent.path + this
     }
 
-fun DocumentationNode.findOrCreatePackageNode(packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val existingNode = members(NodeKind.Package).firstOrNull { it.name  == packageName }
+fun findOrCreatePackageNode(module: DocumentationNode?, packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
+    val existingNode = refGraph.lookup(packageName)
     if (existingNode != null) {
         return existingNode
     }
     val newNode = DocumentationNode(packageName,
             packageContent.getOrElse(packageName) { Content.Empty },
             NodeKind.Package)
-    append(newNode, RefKind.Member)
+
     refGraph.register(packageName, newNode)
+    module?.append(newNode, RefKind.Member)
     return newNode
 }
 
@@ -173,7 +210,9 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
         RefKind.Detail -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Member -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Owner -> child.addReferenceTo(this, RefKind.Member)
-        else -> { /* Do not add any links back for other types */ }
+        RefKind.Origin -> child.addReferenceTo(this, RefKind.Owner)
+        else -> { /* Do not add any links back for other types */
+        }
     }
 }
 
@@ -186,8 +225,37 @@ fun DocumentationNode.appendTextNode(text: String,
 fun DocumentationNode.qualifiedName(): String {
     if (kind == NodeKind.Type) {
         return qualifiedNameFromType()
+    } else if (kind == NodeKind.Package) {
+        return name
     }
     return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
 }
 
 fun DocumentationNode.simpleName() = name.substringAfterLast('.')
+
+private fun DocumentationNode.recursiveInheritedMembers(): List<DocumentationNode> {
+    val allInheritedMembers = mutableListOf<DocumentationNode>()
+    recursiveInheritedMembers(allInheritedMembers)
+    return allInheritedMembers
+}
+
+private fun DocumentationNode.recursiveInheritedMembers(allInheritedMembers: MutableList<DocumentationNode>) {
+    allInheritedMembers.addAll(inheritedMembers)
+    System.out.println(allInheritedMembers.size)
+    inheritedMembers.groupBy { it.owner!! } .forEach { (node, _) ->
+        node.recursiveInheritedMembers(allInheritedMembers)
+    }
+}
+
+private fun DocumentationNode.isSuperclassFor(node: DocumentationNode): Boolean {
+    return when(node.kind) {
+        NodeKind.Object, NodeKind.Class, NodeKind.Enum -> kind == NodeKind.Class
+        NodeKind.Exception -> kind == NodeKind.Class || kind == NodeKind.Exception
+        else -> false
+    }
+}
+
+fun DocumentationNode.classNodeNameWithOuterClass(): String {
+    assert(kind in NodeKind.classLike)
+    return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
+}

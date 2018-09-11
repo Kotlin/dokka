@@ -4,10 +4,10 @@ import org.junit.Test
 import org.junit.Assert.*
 import org.jetbrains.dokka.*
 
-public class CommentTest {
-
+abstract class BaseCommentTest(val analysisPlatform: Platform) {
+    val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     @Test fun codeBlockComment() {
-        verifyModel("testdata/comments/codeBlockComment.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/codeBlockComment.kt", defaultModelConfig) { model ->
             with(model.members.single().members.first()) {
                 assertEqualsIgnoringSeparators("""[code lang=brainfuck]
                                 |
@@ -30,7 +30,7 @@ public class CommentTest {
     }
 
     @Test fun emptyDoc() {
-        verifyModel("testdata/comments/emptyDoc.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/emptyDoc.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(Content.Empty, content)
             }
@@ -38,7 +38,7 @@ public class CommentTest {
     }
 
     @Test fun emptyDocButComment() {
-        verifyModel("testdata/comments/emptyDocButComment.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/emptyDocButComment.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(Content.Empty, content)
             }
@@ -46,7 +46,7 @@ public class CommentTest {
     }
 
     @Test fun multilineDoc() {
-        verifyModel("testdata/comments/multilineDoc.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/multilineDoc.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc1", content.summary.toTestString())
                 assertEquals("doc2\ndoc3", content.description.toTestString())
@@ -55,7 +55,7 @@ public class CommentTest {
     }
 
     @Test fun multilineDocWithComment() {
-        verifyModel("testdata/comments/multilineDocWithComment.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/multilineDocWithComment.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc1", content.summary.toTestString())
                 assertEquals("doc2\ndoc3", content.description.toTestString())
@@ -64,7 +64,7 @@ public class CommentTest {
     }
 
     @Test fun oneLineDoc() {
-        verifyModel("testdata/comments/oneLineDoc.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/oneLineDoc.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
             }
@@ -72,7 +72,7 @@ public class CommentTest {
     }
 
     @Test fun oneLineDocWithComment() {
-        verifyModel("testdata/comments/oneLineDocWithComment.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/oneLineDocWithComment.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
             }
@@ -80,7 +80,7 @@ public class CommentTest {
     }
 
     @Test fun oneLineDocWithEmptyLine() {
-        verifyModel("testdata/comments/oneLineDocWithEmptyLine.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/oneLineDocWithEmptyLine.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("doc", content.summary.toTestString())
             }
@@ -88,7 +88,7 @@ public class CommentTest {
     }
 
     @Test fun emptySection() {
-        verifyModel("testdata/comments/emptySection.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/emptySection.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
@@ -101,7 +101,7 @@ public class CommentTest {
     }
 
     @Test fun quotes() {
-        verifyModel("testdata/comments/quotes.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/quotes.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("it's \"useful\"", content.summary.toTestString())
             }
@@ -109,7 +109,7 @@ public class CommentTest {
     }
 
     @Test fun section1() {
-        verifyModel("testdata/comments/section1.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/section1.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
@@ -122,7 +122,7 @@ public class CommentTest {
     }
 
     @Test fun section2() {
-        verifyModel("testdata/comments/section2.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/section2.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(2, content.sections.count())
@@ -139,7 +139,7 @@ public class CommentTest {
     }
 
     @Test fun multilineSection() {
-        verifyModel("testdata/comments/multilineSection.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/multilineSection.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("Summary", content.summary.toTestString())
                 assertEquals(1, content.sections.count())
@@ -153,7 +153,7 @@ line two""", toTestString())
     }
 
     @Test fun directive() {
-        verifyModel("testdata/comments/directive.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/comments/directive.kt", defaultModelConfig) { model ->
             with(model.members.single().members.first()) {
                 assertEquals("Summary", content.summary.toTestString())
                 with (content.description) {
@@ -184,3 +184,7 @@ line two""", toTestString())
         }
     }
 }
+
+class JSCommentTest: BaseCommentTest(Platform.js)
+class JVMCommentTest: BaseCommentTest(Platform.jvm)
+class CommonCommentTest: BaseCommentTest(Platform.common)

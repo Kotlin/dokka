@@ -18,10 +18,10 @@ import java.io.StringWriter
 
 
 open class KotlinWebsiteSampleProcessingService
-@Inject constructor(options: DocumentationOptions,
+@Inject constructor(dokkaConfiguration: DokkaConfiguration,
                     logger: DokkaLogger,
                     resolutionFacade: DokkaResolutionFacade)
-    : DefaultSampleProcessingService(options, logger, resolutionFacade) {
+    : DefaultSampleProcessingService(dokkaConfiguration, logger, resolutionFacade) {
 
     private class SampleBuilder : KtTreeVisitorVoid() {
         val builder = StringBuilder()

@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import ru.yole.jkid.deserialization.deserialize
-import java.io.File
 import java.util.function.BiConsumer
 
 
@@ -44,34 +43,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
             = configure(DokkaProxyLogger(logger), deserialize<DokkaConfigurationImpl>(serializedConfigurationJSON))
 
     fun configure(logger: DokkaLogger, configuration: DokkaConfiguration) = with(configuration) {
-        generator = DokkaGenerator(
-                logger,
-                classpath,
-                sourceRoots,
-                samples,
-                includes,
-                moduleName,
-                DocumentationOptions(
-                        outputDir,
-                        format,
-                        includeNonPublic,
-                        includeRootPackage,
-                        reportUndocumented,
-                        skipEmptyPackages,
-                        skipDeprecated,
-                        jdkVersion,
-                        generateIndexPages,
-                        sourceLinks,
-                        impliedPlatforms,
-                        perPackageOptions,
-                        externalDocumentationLinks,
-                        noStdlibLink,
-                        languageVersion,
-                        apiVersion,
-                        cacheRoot,
-                        suppressedFiles.map { File(it) }
-                )
-        )
+        generator = DokkaGenerator(configuration, logger)
     }
 
     override fun generate() = generator.generate()
