@@ -65,11 +65,6 @@ def bintrayPublication(project, List<String> _publications) {
     })
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
-}
-
 def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
