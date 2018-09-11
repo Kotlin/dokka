@@ -11,9 +11,11 @@ include 'core',
         'runners:gradle-integration-tests'
 
 
-if (new File(rootProject.projectDir, "../kotlinx-cli").isDirectory()) {
+final File kotlinx_cli = new File(rootProject.projectDir, System.getenv("KOTLINX_CLI") ?: '../kotlinx-cli') 
+
+if (kotlinx_cli.isDirectory()) {
     println "Using kotlinx-cli from source!"
-    includeBuild('../kotlinx-cli') {
+    includeBuild(kotlinx_cli) {
         dependencySubstitution {
             substitute module("org.jetbrains.kotlinx:cli:0.1") with project(':')
         }
