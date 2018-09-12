@@ -22,8 +22,8 @@ import com.intellij.util.messages.MessageBus
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
 import org.jetbrains.kotlin.cli.jvm.config.JvmContentRoot
-import org.jetbrains.kotlin.config.ContentRoot
-import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.config.ContentRoot
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.picocontainer.PicoContainer
 import java.io.File
 

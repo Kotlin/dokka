@@ -11,6 +11,7 @@ import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.dokka.Utilities.DokkaRunModule
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -184,7 +185,7 @@ fun buildDocumentationModule(injector: Injector,
 }
 
 fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEnvironment) {
-    val contentRoots = coreEnvironment.configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+    val contentRoots = coreEnvironment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
             ?.map { it.file }
             ?: listOf()
@@ -197,7 +198,7 @@ fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEn
 
 
 fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
-    val sourceRoots = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+    val sourceRoots = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
             ?.map { it.file }
             ?: listOf()

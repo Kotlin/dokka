@@ -18,6 +18,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
 import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
 import org.jetbrains.kotlin.analyzer.common.CommonAnalyzerFacade
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
@@ -25,6 +26,9 @@ import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
 import org.jetbrains.kotlin.caches.project.LibraryModuleInfo
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.common.config.ContentRoot
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
@@ -38,7 +42,6 @@ import org.jetbrains.kotlin.container.tryGetService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.idea.caches.resolve.JsAnalyzerFacade
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
@@ -84,7 +87,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val projectComponentManager = environment.project as MockComponentManager
 
         val projectFileIndex = CoreProjectFileIndex(environment.project,
-                environment.configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
+                environment.configuration.getList(CLIConfigurationKeys.CONTENT_ROOTS))
+
 
         val moduleManager = object : CoreModuleManager(environment.project, this) {
             override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
@@ -187,11 +191,12 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             modulePlatforms = { MultiTargetPlatform.Common },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { CommonAnalyzerFacade },
-            platformParameters = object : PlatformAnalysisParameters {},
-            targetEnvironment = CompilerEnvironment,
-            packagePartProviderFactory = { content ->
-                environment.createPackagePartProvider(content.moduleContentScope)
+            platformParameters = { _ ->
+                CommonAnalysisParameters { content ->
+                    environment.createPackagePartProvider(content.moduleContentScope)
+                }
             },
+            targetEnvironment = CompilerEnvironment,
             builtIns = DefaultBuiltIns.Instance
         )
     }
@@ -210,9 +215,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             modulePlatforms = { JsPlatform.multiTargetPlatform },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { JsAnalyzerFacade },
-            platformParameters = object : PlatformAnalysisParameters {},
+            platformParameters = { _ -> PlatformAnalysisParameters.Empty },// object : PlatformAnalysisParameters {},
             targetEnvironment = CompilerEnvironment,
-            packagePartProviderFactory = { PackagePartProvider.Empty },
             builtIns = JsPlatform.builtIns
         )
     }
@@ -245,19 +249,26 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             modulePlatforms = { JvmPlatform.multiTargetPlatform },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
             resolverForModuleFactoryByPlatform = { JvmAnalyzerFacade },
-            platformParameters = JvmPlatformParameters {
-                val file = (it as JavaClassImpl).psi.containingFile.virtualFile
-                if (file in sourcesScope)
-                    module
-                else
-                    library
-            },
-            targetEnvironment = CompilerEnvironment,
-            packagePartProviderFactory = { content ->
-                JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
-                    addRoots(javaRoots)
+            platformParameters = { targetPlaftorm ->
+                JvmPlatformParameters(
+                    { content ->
+                        JvmPackagePartProvider(
+                            configuration.languageVersionSettings,
+                            content.moduleContentScope
+                        ).apply {
+                            this.addRoots(javaRoots, configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY))
+                        }
+                    }
+                ) { it ->
+                    val file = (it as JavaClassImpl).psi.containingFile.virtualFile
+                    if (file in sourcesScope)
+                        module
+                    else
+                        library
+
                 }
             },
+            targetEnvironment = CompilerEnvironment,
             builtIns = builtIns
         )
     }
@@ -302,7 +313,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      * List of source roots for this environment.
      */
     val sources: List<String>
-        get() = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+        get() = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<KotlinSourceRoot>()
                 ?.map { it.path } ?: emptyList()
 
@@ -321,7 +332,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     }
 
     fun addRoots(list: List<ContentRoot>) {
-        configuration.addAll(JVMConfigurationKeys.CONTENT_ROOTS, list)
+        configuration.addAll(CLIConfigurationKeys.CONTENT_ROOTS, list)
     }
 
     /**
@@ -334,7 +345,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
 
 fun contentRootFromPath(path: String): ContentRoot {
     val file = File(path)
-    return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path)
+    return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path, false)
 }
 
 
