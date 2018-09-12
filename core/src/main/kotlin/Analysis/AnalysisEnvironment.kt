@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.container.tryGetService
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.JsAnalyzerFacade
+import org.jetbrains.dokka.Analysis.DokkaJsAnalyzerFacade
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatform
@@ -214,8 +214,8 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             modulesContent = modulesContent,
             modulePlatforms = { JsPlatform.multiTargetPlatform },
             moduleLanguageSettingsProvider = LanguageSettingsProvider.Default /* TODO: Fix this */,
-            resolverForModuleFactoryByPlatform = { JsAnalyzerFacade },
-            platformParameters = { _ -> PlatformAnalysisParameters.Empty },// object : PlatformAnalysisParameters {},
+            resolverForModuleFactoryByPlatform = { DokkaJsAnalyzerFacade },
+            platformParameters = { _ -> PlatformAnalysisParameters.Empty },
             targetEnvironment = CompilerEnvironment,
             builtIns = JsPlatform.builtIns
         )
