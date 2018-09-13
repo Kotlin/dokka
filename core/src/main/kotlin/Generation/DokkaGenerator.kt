@@ -42,7 +42,7 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
             documentationModules.add(documentationModule)
         }
 
-        val totalDocumentationModule = DocumentationMerger(documentationModules).merge()
+        val totalDocumentationModule = DocumentationMerger(documentationModules, logger).merge()
         totalDocumentationModule.prepareForGeneration(dokkaConfiguration)
 
         val timeBuild = measureTimeMillis {

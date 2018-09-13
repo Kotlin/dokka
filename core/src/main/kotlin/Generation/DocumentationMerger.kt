@@ -3,7 +3,8 @@ package org.jetbrains.dokka.Generation
 import org.jetbrains.dokka.*
 
 class DocumentationMerger(
-    private val documentationModules: List<DocumentationModule>
+    private val documentationModules: List<DocumentationModule>,
+    val logger: DokkaLogger
 ) {
     private val producedNodeRefGraph: NodeReferenceGraph = NodeReferenceGraph()
     private val signatureMap: Map<DocumentationNode, String>
@@ -34,12 +35,17 @@ class DocumentationMerger(
 
         val resultReferences = mutableListOf<DocumentationReference>()
         for ((name, listOfPackages) in packagesByName) {
-            val producedPackage = mergePackagesWithEqualNames(name, from, listOfPackages)
-            updatePendingReferences()
+            try {
+                val producedPackage = mergePackagesWithEqualNames(name, from, listOfPackages)
+                updatePendingReferences()
 
-            resultReferences.add(
-                DocumentationReference(from, producedPackage, RefKind.Member)
-            )
+                resultReferences.add(
+                        DocumentationReference(from, producedPackage, RefKind.Member)
+                )
+            } catch (t: Throwable) {
+                val entries = listOfPackages.joinToString(",") { "references:${it.allReferences().size}" }
+                throw Error("Failed to merge package $name from $from with entries $entries. ${t.message}", t)
+            }
         }
 
         return resultReferences
