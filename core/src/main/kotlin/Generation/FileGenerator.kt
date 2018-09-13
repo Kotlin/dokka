@@ -30,6 +30,13 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
 
         for ((file, items) in nodes.groupBy { fileForNode(it, formatService.extension) }) {
 
+            if (items.size > 1) {
+                println("An attempt to generate ${root.toPath().relativize(file.toPath())} for: ")
+                for (item in items) {
+                    println("  ${item.allReferences().map { "${it.to.kind} ${it.to.name }" } }")
+                }
+            }
+
             file.parentFile?.mkdirsOrFail()
             try {
                 FileOutputStream(file).use {
