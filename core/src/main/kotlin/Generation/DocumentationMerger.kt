@@ -84,12 +84,23 @@ class DocumentationMerger(
         return mergedPackage
     }
 
+    private fun mergeMemberGroupBy(it: DocumentationNode): String {
+        val signature = signatureMap[it]
+
+        if (signature != null) {
+            return signature
+        }
+
+        logger.error("Failed to find signature for $it in \n${it.allReferences().joinToString { "\n  ${it.kind} ${it.to}" }}")
+        return "<ERROR>"
+    }
+
     private fun mergeMemberReferences(
         from: DocumentationNode,
         refs: List<DocumentationReference>
     ): List<DocumentationReference> {
         val membersBySignature: Map<String, List<DocumentationNode>> = refs.map { it.to }
-            .groupBy { signatureMap[it] ?: error("Unresolved signatures: ${it.kind} ${it.name}") }
+            .groupBy(this::mergeMemberGroupBy)
 
         val mergedMembers: MutableList<DocumentationReference> = mutableListOf()
         for ((signature, members) in membersBySignature) {
