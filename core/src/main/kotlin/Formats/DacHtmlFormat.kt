@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.utilities.firstSentence
 import java.lang.Math.max
 import java.net.URI
 import kotlin.reflect.KClass
@@ -795,7 +796,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
 
         fun ContentNode.firstSentence(): ContentText? = when(this) {
-            is ContentText -> ContentText(text.takeWhile { it != '.' } + ".")
+            is ContentText -> ContentText(text.firstSentence())
             else -> null
         }
 
