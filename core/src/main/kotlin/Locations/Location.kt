@@ -44,6 +44,7 @@ fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String
 fun relativePathToNode(node: DocumentationNode) = relativePathToNode(node.path.map { it.name }, node.members.any())
 
 fun identifierToFilename(path: String): String {
+    if (path.isEmpty()) return "--root--"
     val escaped = path.replace('<', '-').replace('>', '-')
     val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
     return if (lowercase == "index") "--index--" else lowercase
