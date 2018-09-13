@@ -11,7 +11,7 @@ class DocumentationMerger(
 
     init {
         if (documentationModules.groupBy { it.name }.size > 1) {
-            throw IllegalArgumentException("Modules should have similar names")
+            throw IllegalArgumentException("Modules should have similar names: ${documentationModules.joinToString(", ") {it.name}}")
         }
 
         signatureMap = documentationModules
