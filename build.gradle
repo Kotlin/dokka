@@ -5,7 +5,7 @@ allprojects {
         final String buildNumber = System.getenv("BUILD_NUMBER")
         dokka_version = dokka_version_base + ( buildNumber == null ? "-SNAPSHOT" : ".$buildNumber" )
     }
-    
+
     if (project == rootProject) {
         println "Publication version: $dokka_version"
     }
@@ -15,6 +15,7 @@ allprojects {
 
     def repo = {
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
     }
 
@@ -107,6 +108,22 @@ def ideaRT() {
 }
 
 def repoLocation = uri(file("$buildDir/dist-maven"))
+
+configurations {
+    kotlin_plugin_full
+}
+
+dependencies {
+    final String ijVersion = "20" + ideaVersion.take(2) + "." + ideaVersion[2]
+    kotlin_plugin_full "teamcity:kotlin-plugin-$bundled_kotlin_compiler_version-IJ$ijVersion-1:$bundled_kotlin_compiler_version@zip"
+}
+
+def kotlinPluginDependency() {
+    return zipTree(configurations.kotlin_plugin_full.singleFile).matching({
+        include("Kotlin/lib/kotlin-plugin.jar")
+    })
+}
+
 
 allprojects {
 
