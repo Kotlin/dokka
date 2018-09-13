@@ -83,7 +83,7 @@ class DocumentationMerger(
         refs: List<DocumentationReference>
     ): List<DocumentationReference> {
         val membersBySignature: Map<String, List<DocumentationNode>> = refs.map { it.to }
-            .groupBy { signatureMap[it]!! }
+            .groupBy { signatureMap[it] ?: error("Unresolved signatures: ${it.kind} ${it.name}") }
 
         val mergedMembers: MutableList<DocumentationReference> = mutableListOf()
         for ((signature, members) in membersBySignature) {
