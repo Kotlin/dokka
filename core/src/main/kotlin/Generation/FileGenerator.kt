@@ -22,21 +22,13 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
         return File(root, relativePathToNode(node)).appendExtension(extension)
     }
 
-    fun locationWithoutExtension(node: DocumentationNode): FileLocation {
+    private fun locationWithoutExtension(node: DocumentationNode): FileLocation {
         return FileLocation(fileForNode(node))
     }
 
     override fun buildPages(nodes: Iterable<DocumentationNode>) {
 
         for ((file, items) in nodes.groupBy { fileForNode(it, formatService.extension) }) {
-
-            if (items.size > 1) {
-                println("An attempt to generate ${root.toPath().relativize(file.toPath())} for: ")
-                for (item in items) {
-                    println("  ${item.allReferences().map { "${it.to.kind} ${it.to.name }" } }")
-                }
-            }
-
             file.parentFile?.mkdirsOrFail()
             try {
                 FileOutputStream(file).use {
@@ -86,10 +78,9 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
 
     }
 
-}
-
-private fun File.mkdirsOrFail() {
-    if (!mkdirs() && !exists()) {
-        throw IOException("Failed to create directory $this")
+    private fun File.mkdirsOrFail() {
+        if (!mkdirs() && !exists()) {
+            throw IOException("Failed to create directory $this")
+        }
     }
 }
