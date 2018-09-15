@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -141,14 +142,17 @@ open class DokkaTask : DefaultTask() {
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
 
+    fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
+        kotlinTasksConfigurator = { taskSupplier.call() }
+    }
+
     fun kotlinTasks(closure: Closure<Any?>) {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
-    fun linkMapping(closure: Closure<Unit>) {
+    fun linkMapping(action: Action<LinkMapping>) {
         val mapping = LinkMapping()
-        closure.delegate = mapping
-        closure.call()
+        action.execute(mapping)
 
         if (mapping.path.isEmpty()) {
             throw IllegalArgumentException("Link mapping should have dir")
@@ -160,25 +164,50 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
-    fun sourceRoot(closure: Closure<Unit>) {
+    fun linkMapping(closure: Closure<Unit>) {
+        linkMapping(Action { mapping ->
+            closure.delegate = mapping
+            closure.call()
+        })
+    }
+
+    fun sourceRoot(action: Action<SourceRoot>) {
         val sourceRoot = SourceRoot()
-        closure.delegate = sourceRoot
-        closure.call()
+        action.execute(sourceRoot)
         sourceRoots.add(sourceRoot)
     }
 
-    fun packageOptions(closure: Closure<Unit>) {
+    fun sourceRoot(closure: Closure<Unit>) {
+        sourceRoot(Action { sourceRoot ->
+            closure.delegate = sourceRoot
+            closure.call()
+        })
+    }
+
+    fun packageOptions(action: Action<PackageOptions>) {
         val packageOptions = PackageOptions()
-        closure.delegate = packageOptions
-        closure.call()
+        action.execute(packageOptions)
         perPackageOptions.add(packageOptions)
     }
 
-    fun externalDocumentationLink(closure: Closure<Unit>) {
+    fun packageOptions(closure: Closure<Unit>) {
+        packageOptions(Action { packageOptions ->
+            closure.delegate = packageOptions
+            closure.call()
+        })
+    }
+
+    fun externalDocumentationLink(action: Action<DokkaConfiguration.ExternalDocumentationLink.Builder>) {
         val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
-        closure.delegate = builder
-        closure.call()
+        action.execute(builder)
         externalDocumentationLinks.add(builder.build())
+    }
+
+    fun externalDocumentationLink(closure: Closure<Unit>) {
+        externalDocumentationLink(Action { builder ->
+            closure.delegate = builder
+            closure.call()
+        })
     }
 
     fun tryResolveFatJar(project: Project): File {
