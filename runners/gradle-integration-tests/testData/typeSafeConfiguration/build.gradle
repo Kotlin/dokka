@@ -1,0 +1,53 @@
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.*
+import org.jetbrains.kotlin.gradle.tasks.*
+
+import groovy.transform.CompileStatic
+import java.util.concurrent.Callable
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.dokka'
+}
+
+apply plugin: 'kotlin'
+
+@CompileStatic
+def configureDokkaTypeSafely(Project project) {
+    project.tasks.withType(DokkaTask) { DokkaTask dokka ->
+        dokka.with {
+            moduleName = "some String"
+            outputFormat = "some String"
+            outputDirectory = "some String"
+            classpath = Collections.singleton(file("someClassDir"))
+            includes = Collections.emptyList()
+            linkMappings = new ArrayList<LinkMapping>()
+            samples = Collections.emptyList()
+            jdkVersion = 6
+            sourceDirs = Collections.<File> emptyList()
+            sourceRoots = new ArrayList<SourceRoot>()
+            dokkaFatJar = file("some File")
+            includeNonPublic = false
+            skipDeprecated = false
+            skipEmptyPackages = true
+            reportUndocumented = true
+            perPackageOptions = new ArrayList<PackageOptions>()
+            impliedPlatforms = Collections.<String>emptyList()
+            externalDocumentationLinks = new ArrayList<DokkaConfiguration.ExternalDocumentationLink>()
+            noStdlibLink = false
+            cacheRoot = null as String
+            languageVersion = null as String
+            apiVersion = null as String
+        }
+    }
+}
+
+configureDokkaTypeSafely(project)
