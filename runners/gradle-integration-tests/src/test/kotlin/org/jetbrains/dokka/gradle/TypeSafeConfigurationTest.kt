@@ -1,10 +1,8 @@
 package org.jetbrains.dokka.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.test.assertEquals
 
 @RunWith(Parameterized::class)
 class TypeSafeConfigurationTest(private val testCase: TestCase) : AbstractDokkaGradleTest() {
@@ -25,14 +23,14 @@ class TypeSafeConfigurationTest(private val testCase: TestCase) : AbstractDokkaG
 
     @Test
     fun test() {
-        testDataFolder.resolve("typeSafeConfiguration").toFile().copyRecursively(testProjectDir.root)
+
+        testDataFolder.resolve("typeSafeConfiguration").toFile()
+                .copyRecursively(testProjectDir.root)
+
         configure(
                 testCase.gradleVersion,
                 testCase.kotlinVersion,
                 arguments = arrayOf("help", "-s")
-        ).build().apply {
-            println(output)
-            assertEquals(TaskOutcome.SUCCESS, task(":help")?.outcome)
-        }
+        ).build()
     }
 }
