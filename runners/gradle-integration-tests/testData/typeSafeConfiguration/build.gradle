@@ -21,64 +21,64 @@ plugins {
 apply plugin: 'kotlin'
 
 @CompileStatic
-def configureDokkaTypeSafely(Project project) {
-    project.tasks.withType(DokkaTask) { DokkaTask dokka ->
-        dokka.with {
-            moduleName = "some String"
-            outputFormat = "some String"
-            outputDirectory = "some String"
-            classpath = Collections.singleton(file("someClassDir"))
-            includes = Collections.emptyList()
-            linkMappings = new ArrayList<LinkMapping>()
-            samples = Collections.emptyList()
-            jdkVersion = 6
-            sourceDirs = Collections.<File>emptyList()
-            sourceRoots = new ArrayList<SourceRoot>()
-            dokkaFatJar = file("some File")
-            includeNonPublic = false
-            skipDeprecated = false
-            skipEmptyPackages = true
-            reportUndocumented = true
-            perPackageOptions = new ArrayList<PackageOptions>()
-            impliedPlatforms = Collections.<String>emptyList()
-            externalDocumentationLinks = new ArrayList<DokkaConfiguration.ExternalDocumentationLink>()
-            noStdlibLink = false
-            cacheRoot = null as String
-            languageVersion = null as String
-            apiVersion = null as String
-            kotlinTasks(new Callable<List<Object>>() {
-                @Override
-                List<Object> call() {
-                    return defaultKotlinTasks()
-                }
-            })
-            linkMapping(new Action<LinkMapping>() {
-                @Override
-                void execute(LinkMapping mapping) {
-                    mapping.dir = "some String"
-                    mapping.url = "some String"
-                }
-            })
-            sourceRoot(new Action<SourceRoot>() {
-                @Override
-                void execute(SourceRoot sourceRoot) {
-                    sourceRoot.path = "some String"
-                }
-            })
-            packageOptions(new Action<PackageOptions>() {
-                @Override
-                void execute(PackageOptions packageOptions) {
-                    packageOptions.prefix = "some String"
-                }
-            })
-            externalDocumentationLink(new Action<DokkaConfiguration.ExternalDocumentationLink.Builder>() {
-                @Override
-                void execute(DokkaConfiguration.ExternalDocumentationLink.Builder builder) {
-                    builder.url = uri("some URI").toURL()
-                }
-            })
-        }
+def configureDokkaTypeSafely(DokkaTask dokka) {
+    dokka.with {
+        moduleName = "some String"
+        outputFormat = "some String"
+        outputDirectory = "some String"
+        classpath = Collections.singleton(file("someClassDir"))
+        includes = Collections.emptyList()
+        linkMappings = new ArrayList<LinkMapping>()
+        samples = Collections.emptyList()
+        jdkVersion = 6
+        sourceDirs = Collections.<File>emptyList()
+        sourceRoots = new ArrayList<SourceRoot>()
+        dokkaFatJar = file("some File")
+        includeNonPublic = false
+        skipDeprecated = false
+        skipEmptyPackages = true
+        reportUndocumented = true
+        perPackageOptions = new ArrayList<PackageOptions>()
+        impliedPlatforms = Collections.<String>emptyList()
+        externalDocumentationLinks = new ArrayList<DokkaConfiguration.ExternalDocumentationLink>()
+        noStdlibLink = false
+        cacheRoot = null as String
+        languageVersion = null as String
+        apiVersion = null as String
+        kotlinTasks(new Callable<List<Object>>() {
+            @Override
+            List<Object> call() {
+                return defaultKotlinTasks()
+            }
+        })
+        linkMapping(new Action<LinkMapping>() {
+            @Override
+            void execute(LinkMapping mapping) {
+                mapping.dir = "some String"
+                mapping.url = "some String"
+            }
+        })
+        sourceRoot(new Action<SourceRoot>() {
+            @Override
+            void execute(SourceRoot sourceRoot) {
+                sourceRoot.path = "some String"
+            }
+        })
+        packageOptions(new Action<PackageOptions>() {
+            @Override
+            void execute(PackageOptions packageOptions) {
+                packageOptions.prefix = "some String"
+            }
+        })
+        externalDocumentationLink(new Action<DokkaConfiguration.ExternalDocumentationLink.Builder>() {
+            @Override
+            void execute(DokkaConfiguration.ExternalDocumentationLink.Builder builder) {
+                builder.url = uri("some URI").toURL()
+            }
+        })
     }
 }
 
-configureDokkaTypeSafely(project)
+project.tasks.withType(DokkaTask) { dokka ->
+    configureDokkaTypeSafely(dokka)
+}
