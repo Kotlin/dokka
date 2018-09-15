@@ -32,7 +32,7 @@ def configureDokkaTypeSafely(Project project) {
             linkMappings = new ArrayList<LinkMapping>()
             samples = Collections.emptyList()
             jdkVersion = 6
-            sourceDirs = Collections.<File> emptyList()
+            sourceDirs = Collections.<File>emptyList()
             sourceRoots = new ArrayList<SourceRoot>()
             dokkaFatJar = file("some File")
             includeNonPublic = false
