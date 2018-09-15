@@ -1,10 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
-import org.gradle.api.DefaultTask
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -160,10 +157,30 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
+    fun linkMapping(action: Action<in LinkMapping>) {
+        val mapping = LinkMapping()
+        action.execute(mapping)
+
+        if (mapping.path.isEmpty()) {
+            throw IllegalArgumentException("Link mapping should have dir")
+        }
+        if (mapping.url.isEmpty()) {
+            throw IllegalArgumentException("Link mapping should have url")
+        }
+
+        linkMappings.add(mapping)
+    }
+
     fun sourceRoot(closure: Closure<Unit>) {
         val sourceRoot = SourceRoot()
         closure.delegate = sourceRoot
         closure.call()
+        sourceRoots.add(sourceRoot)
+    }
+
+    fun sourceRoot(action: Action<in SourceRoot>) {
+        val sourceRoot = SourceRoot()
+        action.execute(sourceRoot)
         sourceRoots.add(sourceRoot)
     }
 
@@ -174,10 +191,22 @@ open class DokkaTask : DefaultTask() {
         perPackageOptions.add(packageOptions)
     }
 
+    fun packageOptions(action: Action<in PackageOptions>) {
+        val packageOptions = PackageOptions()
+        action.execute(packageOptions)
+        perPackageOptions.add(packageOptions)
+    }
+
     fun externalDocumentationLink(closure: Closure<Unit>) {
         val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
         closure.delegate = builder
         closure.call()
+        externalDocumentationLinks.add(builder.build())
+    }
+
+    fun externalDocumentationLink(action: Action<in DokkaConfiguration.ExternalDocumentationLink.Builder>) {
+        val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
+        action.execute(builder)
         externalDocumentationLinks.add(builder.build())
     }
 
