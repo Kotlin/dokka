@@ -12,10 +12,12 @@ import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.di.configureModule
-import org.jetbrains.kotlin.ide.konan.createPackageFragmentProviderForLibraryModule
-import org.jetbrains.kotlin.idea.caches.project.LibraryInfo
+import org.jetbrains.kotlin.ide.konan.KOTLIN_NATIVE_CURRENT_ABI_VERSION
+import org.jetbrains.kotlin.ide.konan.createPackageFragmentProvider
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatform
+import org.jetbrains.kotlin.konan.file.File
+import org.jetbrains.kotlin.konan.library.createKonanLibrary
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.konan.platform.KonanPlatform
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
@@ -143,17 +145,19 @@ object DokkaNativeAnalyzerFacade : ResolverForModuleFactory() {
 
         val moduleInfo = moduleContent.moduleInfo
 
-        if (moduleInfo is LibraryInfo) {
-            val libPackageFragmentProviders = moduleInfo.createPackageFragmentProviderForLibraryModule(
-                moduleContext.storageManager,
-                languageVersionSettings,
-                moduleDescriptor
-            )
-            fragmentProviders.addAll(libPackageFragmentProviders)
-            //TODO: Forward declarations?
+        if (moduleInfo is LibraryModuleInfo) {
+            moduleInfo.getLibraryRoots()
+                    .map { createKonanLibrary(File(it), KOTLIN_NATIVE_CURRENT_ABI_VERSION) }
+                    .mapTo(fragmentProviders) {
+                        it.createPackageFragmentProvider(
+                                moduleContext.storageManager,
+                                languageVersionSettings,
+                                moduleDescriptor
+                        )
+                    }
+
         }
 
         return ResolverForModule(CompositePackageFragmentProvider(fragmentProviders), container)
     }
 }
-
