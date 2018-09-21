@@ -712,7 +712,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
                             }
                             appendTableCell {
-                                appendSummarySignatures(members, platformsBasedOnMembers, omitSamePlatforms)
+                                appendSummarySignatures(members, platformsBasedOnMembers, omitSamePlatforms, platforms)
                             }
                         }
                     }
@@ -732,7 +732,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             return emptySet()
         }
 
-        private fun appendSummarySignatures(items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
+        private fun appendSummarySignatures(
+            items: List<DocumentationNode>,
+            platformsBasedOnMembers: Boolean,
+            omitSamePlatforms: Boolean,
+            parentPlatforms: Set<String>
+        ) {
             val groupBySummary = items.groupBy { it.summary }
 
             for ((summary, node) in groupBySummary) {
@@ -744,32 +749,50 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
                 val summarySignature = languageService.summarizeSignatures(nodesToAppend)
                 if (summarySignature != null) {
-                    appendSignatures(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms)
+                    appendSignatures(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
                 } else {
                     val groupBySignature = nodesToAppend.groupBy {
                         languageService.render(it, RenderMode.SUMMARY)
                     }
                     for ((sign, members) in groupBySignature) {
-                        appendSignatures(sign, members, platformsBasedOnMembers, omitSamePlatforms)
+                        appendSignatures(sign, members, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
                     }
                 }
 
                 val platforms = platformsOfItems(node)
-                appendAsBlockWithPlatforms(platforms) {
+                val platformsToAppend = if (platforms == parentPlatforms) {
+                    emptySet()
+                } else {
+                    platforms
+                }
+                appendAsBlockWithPlatforms(platformsToAppend) {
                     appendContent(summary)
                     appendSoftLineBreak()
                 }
             }
         }
 
-        private fun appendSignatures(signature: ContentNode, items: List<DocumentationNode>, platformsBasedOnMembers: Boolean, omitSamePlatforms: Boolean) {
+        private fun appendSignatures(
+            signature: ContentNode,
+            items: List<DocumentationNode>,
+            platformsBasedOnMembers: Boolean,
+            omitSamePlatforms: Boolean,
+            parentPlatforms: Set<String>
+        ) {
             val elementPlatforms = platformsOfItems(items, omitSamePlatforms)
             val platforms = if (platformsBasedOnMembers)
                 items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
             else
                 elementPlatforms
 
-            appendAsBlockWithPlatforms(platforms) {
+
+            val platformsToAppend = if (platforms == parentPlatforms) {
+                emptySet()
+            } else {
+                platforms
+            }
+
+            appendAsBlockWithPlatforms(platformsToAppend) {
                 appendPlatforms(platforms)
                     appendAsSignature(signature) {
                         signature.appendSignature()
