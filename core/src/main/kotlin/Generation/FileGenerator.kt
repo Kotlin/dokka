@@ -32,7 +32,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
                 PrintWriter(ww).use {
                     t.printStackTrace(it)
                 }
-                ww.toString().replace("\n", "\n  ")
+                ww.toString().split("[\r\n]+").asSequence().drop(1).take(3).joinToString("\n") {"  $it"}
             }
         }
 
