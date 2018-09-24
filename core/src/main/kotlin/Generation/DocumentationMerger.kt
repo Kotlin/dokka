@@ -120,10 +120,19 @@ class DocumentationMerger(
         signature: String,
         nodes: List<DocumentationNode>
     ): DocumentationNode {
+        require(nodes.isNotEmpty())
+
         val singleNode = nodes.singleOrNull()
         if (singleNode != null) {
             singleNode.dropReferences { it.kind == RefKind.Owner }
             return singleNode
+        }
+        val nodeWithMaxPlatforms = nodes.maxBy { it.platforms.size }!!
+        val maxPlatforms = nodeWithMaxPlatforms.platforms.toSet()
+        val notContained = nodes.filterNot { maxPlatforms.containsAll(it.platforms) }
+        val reducedDuplicates = notContained + nodeWithMaxPlatforms
+        if (!reducedDuplicates.containsAll(nodes)) {
+            return mergeMembersWithEqualSignature(signature, reducedDuplicates)
         }
 
         val groupNode = DocumentationNode(nodes.first().name, Content.Empty, NodeKind.GroupNode)
