@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.MemberDescriptor
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
@@ -73,9 +74,12 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         val defaultPlatformAsList = passConfiguration.targets
         val defaultPlatformsProvider = object : DefaultPlatformsProvider {
             override fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String> {
-                val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
-                        ?.let { File(it).absolutePath }
-                val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
+//                val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
+//                        ?.let { File(it).absolutePath }
+//                val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
+                if (descriptor is MemberDescriptor && descriptor.isExpect) {
+                    return defaultPlatformAsList.take(1)
+                }
                 return /*sourceRoot?.platforms ?: */defaultPlatformAsList
             }
         }
