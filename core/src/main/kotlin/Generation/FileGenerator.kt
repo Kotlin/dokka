@@ -25,27 +25,11 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
         //TODO: it opens the way to safely track all files created
         //TODO: to make sure no files were overwritten by mistake
         //TODO: also, the NodeLocationAwareGenerator should be removed
-        val stack = "$context\n" + try {
-            throw Error()
-        } catch (t: Throwable) {
-            StringWriter().use { ww ->
-                PrintWriter(ww).use {
-                    t.printStackTrace(it)
-                }
-                ww.toString().split("[\r\n]+").asSequence().drop(1).take(3).joinToString("\n") {"  $it"}
-            }
-        }
 
-        val writes = createdFiles.getOrDefault(this, listOf()) + stack
+        val writes = createdFiles.getOrDefault(this, listOf()) + context
         createdFiles[this] = writes
         if (writes.size > 1) {
             println("ERROR. An attempt to write ${this.relativeTo(root)} several times!")
-
-            createdFiles[this] = writes + stack
-            for (call in writes + stack) {
-                println(call)
-            }
-            println()
             return
         }
 
