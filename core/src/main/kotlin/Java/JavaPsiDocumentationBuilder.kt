@@ -160,6 +160,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private fun skipElement(element: Any) =
             skipElementByVisibility(element) ||
                     hasSuppressDocTag(element) ||
+                    hasHideAnnotation(element) ||
                     skipElementBySuppressedFiles(element)
 
     private fun skipElementByVisibility(element: Any): Boolean =
@@ -335,3 +336,16 @@ fun hasSuppressDocTag(element: Any?): Boolean {
     return PsiTreeUtil.findChildrenOfType(declaration.docComment, KDocTag::class.java).any { it.knownTag == KDocKnownTag.SUPPRESS }
 }
 
+/**
+ * Determines if the @hide annotation is present in a Javadoc comment.
+ *
+ * @param element a doc element to analyze for the presence of @hide
+ *
+ * @return true if @hide is present, otherwise false
+ *
+ * Note: this does not process @hide annotations in KDoc.  For KDoc, use the @suppress tag instead, which is processed
+ * by [hasSuppressDocTag].
+ */
+fun hasHideAnnotation(element: Any?): Boolean {
+    return element is PsiDocCommentOwner && element.docComment?.run { findTagByName("hide") != null } ?: false
+}

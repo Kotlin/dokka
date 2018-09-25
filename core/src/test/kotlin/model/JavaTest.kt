@@ -159,6 +159,12 @@ public class JavaTest {
         }
     }
 
+    @Test fun hideAnnotation() {
+        verifyJavaPackageMember("testdata/java/hideAnnotation.java") { cls ->
+            assertEquals(1, cls.members(NodeKind.Function).size)
+        }
+    }
+
     @Test fun annotatedAnnotation() {
         verifyJavaPackageMember("testdata/java/annotatedAnnotation.java") { cls ->
             assertEquals(1, cls.annotations.size)

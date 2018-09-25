@@ -1051,7 +1051,7 @@ fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOption
     val doc = findKDoc()
     if (doc is KDocSection && doc.findTagByName("suppress") != null) return true
 
-    return hasSuppressDocTag(sourcePsi())
+    return hasSuppressDocTag(sourcePsi()) || hasHideAnnotation(sourcePsi())
 }
 
 fun DeclarationDescriptor.sourcePsi() =
