@@ -20,7 +20,8 @@ enum class RefKind {
     TopLevelPage,
     Platform,
     ExternalType,
-    Origin
+    Origin,
+    SinceKotlin
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {

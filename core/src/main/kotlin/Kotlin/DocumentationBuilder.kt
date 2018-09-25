@@ -275,7 +275,7 @@ class DocumentationBuilder
                 .detail(NodeKind.Value)
                 .name.removeSurrounding("\"")
 
-        append(platformNodeRegistry["Kotlin " + kotlinVersion], RefKind.Platform)
+        sinceKotlin = kotlinVersion
     }
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {

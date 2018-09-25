@@ -125,14 +125,16 @@ open class KotlinWebsiteHtmlOutputBuilder(
     fun calculateDataAttributes(platforms: Set<String>): String {
         fun String.isKotlinVersion() = this.startsWith("Kotlin")
         fun String.isJREVersion() = this.startsWith("JRE")
+        fun String.isNoBubbles() = this.startsWith("NoBubbles")
         val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
         val jreVersion = platforms.singleOrNull(String::isJREVersion)
-        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() || it.isNoBubbles() }
 
         val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
         val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
         val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
-        return "$platformsAttr$kotlinVersionAttr$jreVersionAttr"
+        val classes = if (NoBubbles in platforms) " class=\"no-bubbles\"" else ""
+        return "$classes$platformsAttr$kotlinVersionAttr$jreVersionAttr"
     }
 
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
@@ -191,3 +193,4 @@ class KotlinWebsiteHtmlFormatService @Inject constructor(
             KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 }
 
+val NoBubbles = "NoBubbles"

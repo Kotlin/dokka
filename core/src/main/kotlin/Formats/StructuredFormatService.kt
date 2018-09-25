@@ -10,7 +10,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val generator: NodeLocationAwareGenerator,
                                        val languageService: LanguageService,
                                        val extension: String,
-                                       val impliedPlatforms: List<String>) : FormattedOutputBuilder {
+                                       impliedPlatforms: List<String>) : FormattedOutputBuilder {
 
     protected fun DocumentationNode.location() = generator.location(this)
 
@@ -312,7 +312,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             } else {
                 for ((_, items) in breakdownBySummary) {
 
-                    appendAsOverloadGroup(to, platformsOfItems(items)) {
+                    appendAsOverloadGroup(to, effectivePlatformsForMembers(items)) {
                         formatOverloadGroup(items)
                     }
 
@@ -463,82 +463,64 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         val DocumentationNode.actualPlatforms: Collection<String>
-                get() = if (isModuleOrPackage())
-                    platformsToShow.toSet() + platformsOfItems(members)
-                else
-                    platformsToShow
+                get() = effectivePlatformsForNode(this)
 
 
-        protected fun mergeVersions(otherKotlinVersion: String, kotlinVersions: List<String>): String {
-            val allKotlinVersions = (kotlinVersions + otherKotlinVersion).distinct()
+//        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
+//            val platforms = items.asSequence().map {
+//                when (it.kind) {
+//                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module -> platformsOfItems(it.members)
+//                    NodeKind.GroupNode -> platformsOfItems(it.origins)
+//                    else -> it.platformsToShow.toSet()
+//                }
+//            }
+//
+//            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+//
+//            if (platforms.count() == 0) return emptySet()
+//
+//            // Calculating common platforms for items
+//            return platforms.reduce { result, platformsOfItem ->
+//                val otherKotlinVersion = result.find { it.isKotlinVersion() }
+//                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
+//
+//                // When no Kotlin version specified, it means that version is 1.0
+//                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
+//                    result.intersect(platformsOfItem) + mergeVersions(otherKotlinVersion, kotlinVersions)
+//                } else {
+//                    result.intersect(platformsOfItem)
+//                }
+//            }
+//        }
+//
+//        protected fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
+//            val platforms = items.asSequence().map {
+//                when (it.kind) {
+//                    NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
+//                    else -> it.platformsToShow.toSet()
+//                }
+//            }
+//
+//            fun String.isKotlinVersion() = this.startsWith("Kotlin")
+//
+//            if (platforms.count() == 0) return emptySet()
+//
+//            // Calculating common platforms for items
+//            return platforms.reduce { result, platformsOfItem ->
+//                val otherKotlinVersion = result.find { it.isKotlinVersion() }
+//                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
+//
+//                // When no Kotlin version specified, it means that version is 1.0
+//                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
+//                    result.union(otherPlatforms) + mergeVersions(otherKotlinVersion, kotlinVersions)
+//                } else {
+//                    result.union(otherPlatforms)
+//                }
+//            }
+//        }
 
-            val minVersion = allKotlinVersions.min()!!
-            val resultVersion: String = when {
-                allKotlinVersions.size == 1 -> allKotlinVersions.single()
-                minVersion.endsWith("+") -> minVersion
-                else -> "$minVersion+"
-            }
-
-            return resultVersion
-        }
-
-        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
-            val platforms = items.asSequence().map {
-                when (it.kind) {
-                    NodeKind.ExternalClass, NodeKind.Package, NodeKind.Module -> platformsOfItems(it.members)
-                    NodeKind.GroupNode -> platformsOfItems(it.origins)
-                    else -> it.platformsToShow.toSet()
-                }
-            }
-
-            fun String.isKotlinVersion() = this.startsWith("Kotlin")
-
-            if (platforms.count() == 0) return emptySet()
-
-            // Calculating common platforms for items
-            return platforms.reduce { result, platformsOfItem ->
-                val otherKotlinVersion = result.find { it.isKotlinVersion() }
-                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
-
-                // When no Kotlin version specified, it means that version is 1.0
-                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
-                    result.intersect(platformsOfItem) + mergeVersions(otherKotlinVersion, kotlinVersions)
-                } else {
-                    result.intersect(platformsOfItem)
-                }
-            }
-        }
-
-        protected fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
-            val platforms = items.asSequence().map {
-                when (it.kind) {
-                    NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
-                    else -> it.platformsToShow.toSet()
-                }
-            }
-
-            fun String.isKotlinVersion() = this.startsWith("Kotlin")
-
-            if (platforms.count() == 0) return emptySet()
-
-            // Calculating common platforms for items
-            return platforms.reduce { result, platformsOfItem ->
-                val otherKotlinVersion = result.find { it.isKotlinVersion() }
-                val (kotlinVersions, otherPlatforms) = platformsOfItem.partition { it.isKotlinVersion() }
-
-                // When no Kotlin version specified, it means that version is 1.0
-                if (otherKotlinVersion != null && kotlinVersions.isNotEmpty()) {
-                    result.union(otherPlatforms) + mergeVersions(otherKotlinVersion, kotlinVersions)
-                } else {
-                    result.union(otherPlatforms)
-                }
-            }.let {
-                if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it
-            }
-        }
-
-        val DocumentationNode.platformsToShow: List<String>
-            get() = platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
+//        val DocumentationNode.platformsToShow: List<String>
+//            get() = platforms
 
         private fun DocumentationNode.appendDescription() {
             if (content.description != ContentEmpty) {
@@ -600,17 +582,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             SectionsBuilder(node).build()
         }
     }
-
-    private fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
-        val platforms = items.flatMapTo(mutableSetOf<String>()) {
-            when (it.kind) {
-                NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
-                else -> it.platforms
-            }
-        }
-
-        return platforms.let { if (it.containsAll(impliedPlatforms)) it - impliedPlatforms else it }
-    }
+//
+//    private fun unionPlatformsOfItems(items: List<DocumentationNode>): Set<String> {
+//        val platforms = items.flatMapTo(mutableSetOf<String>()) {
+//            when (it.kind) {
+//                NodeKind.GroupNode -> unionPlatformsOfItems(it.origins)
+//                else -> it.platforms
+//            }
+//        }
+//
+//        return platforms
+//    }
 
 
     inner class SectionsBuilder(val node: DocumentationNode): PageBuilder(listOf(node)) {
@@ -697,11 +679,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        val elementPlatforms = platformsOfItems(members, omitSamePlatforms)
-                        val platforms = if (platformsBasedOnMembers)
-                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
-                        else
-                            elementPlatforms
+                        val platforms = effectivePlatformsForMembers(members) + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(members))
+//                        val platforms = if (platformsBasedOnMembers)
+//                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
+//                        else
+//                            elementPlatforms
                         appendIndexRow(platforms) {
                             appendTableCell {
                                 appendParagraph {
@@ -720,17 +702,18 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun platformsOfItems(items: List<DocumentationNode>, omitSamePlatforms: Boolean = true): Set<String> {
-            if (items.all { it.kind != NodeKind.Package && it.kind != NodeKind.Module && it.kind != NodeKind.ExternalClass }) {
-                return unionPlatformsOfItems(items)
-            }
-
-            val platforms = platformsOfItems(items)
-            if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
-                return platforms
-            }
-            return emptySet()
-        }
+//
+//        private fun platformsOfItems(items: List<DocumentationNode>, omitSamePlatforms: Boolean = true): Set<String> {
+//            if (items.all { it.kind != NodeKind.Package && it.kind != NodeKind.Module && it.kind != NodeKind.ExternalClass }) {
+//                return unionPlatformsOfItems(items)
+//            }
+//
+//            val platforms = platformsOfItems(items)
+//            if (platforms.isNotEmpty() && (platforms != node.platformsToShow.toSet() || !omitSamePlatforms)) {
+//                return platforms
+//            }
+//            return emptySet()
+//        }
 
         private fun appendSummarySignatures(
             items: List<DocumentationNode>,
@@ -740,16 +723,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         ) {
             val groupBySummary = items.groupBy { it.summary }
 
-            for ((summary, node) in groupBySummary) {
-                val nodesToAppend = if (node.all { it.kind == NodeKind.GroupNode }) {
-                    node.flatMap { it.origins }
+            for ((summary, nodes) in groupBySummary) {
+                val nodesToAppend = if (nodes.all { it.kind == NodeKind.GroupNode }) {
+                    nodes.flatMap { it.origins }
                 } else {
-                    node
+                    nodes
                 }
 
                 val summarySignature = languageService.summarizeSignatures(nodesToAppend)
                 if (summarySignature != null) {
-                    appendSignatures(summarySignature, items, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
+                    appendSignatures(summarySignature, nodes, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
                 } else {
                     val groupBySignature = nodesToAppend.groupBy {
                         languageService.render(it, RenderMode.SUMMARY)
@@ -759,12 +742,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     }
                 }
 
-                val platforms = platformsOfItems(node)
-                val platformsToAppend = if (platforms == parentPlatforms) {
-                    emptySet()
-                } else {
-                    platforms
-                }
+                val platforms = effectivePlatformsForMembers(nodes)
+                val platformsToAppend = platforms + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(nodes)) + NoBubbles
                 appendAsBlockWithPlatforms(platformsToAppend) {
                     appendContent(summary)
                     appendSoftLineBreak()
@@ -779,18 +758,14 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             omitSamePlatforms: Boolean,
             parentPlatforms: Set<String>
         ) {
-            val elementPlatforms = platformsOfItems(items, omitSamePlatforms)
-            val platforms = if (platformsBasedOnMembers)
-                items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
-            else
-                elementPlatforms
+            val platforms = effectivePlatformsForMembers(items)
+//            val platforms = if (platformsBasedOnMembers)
+//                items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
+//            else
+//                elementPlatforms
 
-
-            val platformsToAppend = if (platforms == parentPlatforms) {
-                emptySet()
-            } else {
-                platforms
-            }
+            print("signature>")
+            val platformsToAppend = platforms + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(items))
 
             appendAsBlockWithPlatforms(platformsToAppend) {
                 appendPlatforms(platforms)
@@ -866,3 +841,66 @@ abstract class StructuredFormatService(val generator: NodeLocationAwareGenerator
                                        override final val linkExtension: String = extension) : FormatService {
 
 }
+
+
+fun memberPlatforms(node: DocumentationNode): Sequence<Set<String>> {
+    val members = when {
+        node.kind == NodeKind.GroupNode -> node.origins
+        else -> node.members
+    }
+
+    return members.asSequence()
+            .map { effectivePlatformsForNode(it) }
+}
+
+fun effectivePlatformsForNode(node: DocumentationNode): Set<String> {
+    val platforms =
+            sequenceOf(node.platforms.toSet()) + memberPlatforms(node)
+
+
+    // Calculating common platforms for items
+    return platforms.reduce { result, platformsOfItem ->
+        result.union(platformsOfItem)
+    }
+}
+
+fun effectivePlatformsForMembers(nodes: List<DocumentationNode>): Set<String> {
+    return nodes.map { effectivePlatformsForNode(it) }.reduce { acc, set ->
+        acc.union(set)
+    }
+}
+
+fun mergeVersions(kotlinVersions: List<String>): String {
+    val allKotlinVersions = kotlinVersions.distinct()
+
+    val minVersion = allKotlinVersions.min()!!
+    val resultVersion: String = when {
+        allKotlinVersions.size == 1 -> allKotlinVersions.single()
+        minVersion.endsWith("+") -> minVersion
+        else -> "$minVersion+"
+    }
+
+    return resultVersion
+}
+
+fun effectiveSinceKotlinForNode(node: DocumentationNode, baseVersion: String = "1.0"): String {
+    val members = when {
+        node.kind == NodeKind.GroupNode -> node.origins
+        node.kind in NodeKind.classLike -> emptyList()
+        node.kind in NodeKind.memberLike -> emptyList()
+        else -> node.members
+    }
+
+    val nodeVersion = node.sinceKotlin ?: baseVersion
+    val memberVersion = if (members.isNotEmpty()) effectiveSinceKotlinForNodes(members, nodeVersion) else nodeVersion
+
+    println("${node.path} > $nodeVersion, $memberVersion")
+
+    return mergeVersions(listOf(memberVersion, nodeVersion))
+}
+
+fun effectiveSinceKotlinForNodes(nodes: List<DocumentationNode>, baseVersion: String = "1.0"): String {
+    return mergeVersions(nodes.map { effectiveSinceKotlinForNode(it, baseVersion) })
+}
+
+fun sinceKotlinAsPlatform(version: String): String = "Kotlin $version"
