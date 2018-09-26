@@ -83,8 +83,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    open fun appendAsBlockWithPlatforms(platforms: Set<String>, block: () -> Unit) {
-        block()
+    open fun appendAsPlatformDependentBlock(platforms: Set<String>, block: (Set<String>) -> Unit) {
+        block(platforms)
     }
 
     open fun appendSymbol(text: String) {
@@ -311,11 +311,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 formatOverloadGroup(breakdownBySummary.values.single(), isSingleNode)
             } else {
                 for ((_, items) in breakdownBySummary) {
-
-                    appendAsOverloadGroup(to, effectivePlatformsForMembers(items)) {
+                    appendAsOverloadGroup(to, effectivePlatformAndVersion(items)) {
                         formatOverloadGroup(items)
                     }
-
                 }
             }
         }
@@ -339,19 +337,23 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             if (item.kind == NodeKind.GroupNode) {
-                for (origin in item.origins) {
-                    if (origin.content.isEmpty()) continue
-                    appendParagraph {
-                        appendStrong { to.append("Platform and version requirements:") }
-                        to.append(" " + origin.actualPlatforms)
-                        appendContent(origin.summary)
+                for ((content, origins) in item.origins.groupBy { it.content }) {
+                    if (content.isEmpty()) continue
+                    val platforms = effectivePlatformsForMembers(origins)
+                    appendAsPlatformDependentBlock(platforms) {
+                        appendPlatforms(platforms)
+                        appendParagraph {
+                            appendContent(content)
+                        }
                     }
                 }
             } else {
                 if (!item.content.isEmpty()) {
-                    appendStrong { to.append("Platform and version requirements:") }
-                    to.append(" " + item.actualPlatforms)
-                    appendContent(item.content.summary)
+                    val platforms = effectivePlatformsForNode(item)
+                    appendAsPlatformDependentBlock(platforms) {
+                        appendPlatforms(platforms)
+                        appendContent(item.content)
+                    }
                 }
             }
 
@@ -382,26 +384,19 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for ((sign, nodes) in groupBySignature) {
-                val first = nodes.first()
-                first.detailOrNull(NodeKind.Signature)?.let {
-                    if (item.kind !in NodeKind.classLike || !isSingleNode)
-                        appendAnchor(it.name)
-                }
+                appendAsPlatformDependentBlock(effectivePlatformAndVersion(nodes)) { platforms ->
+                    val first = nodes.first()
+                    first.detailOrNull(NodeKind.Signature)?.let {
+                        if (item.kind !in NodeKind.classLike || !isSingleNode)
+                            appendAnchor(it.name)
+                    }
 
-                appendAsSignature(sign) {
-                    appendCode { appendContent(sign) }
-                }
-                first.appendOverrides()
-                first.appendDeprecation()
-
-
-                appendParagraph {
-                    appendStrong { to.append("Platform and version requirements:") }
-                    to.append(" " + nodes
-                        .flatMap { it.actualPlatforms }
-                        .distinct()
-                        .joinToString()
-                    )
+                    appendAsSignature(sign) {
+                        appendCode { appendContent(sign) }
+                    }
+                    appendPlatforms(platforms)
+                    first.appendOverrides()
+                    first.appendDeprecation()
                 }
 
             }
@@ -463,7 +458,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         val DocumentationNode.actualPlatforms: Collection<String>
-                get() = effectivePlatformsForNode(this)
+                get() = effectivePlatformAndVersion(listOf(this))
 
 
 //        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
@@ -572,11 +567,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             renderGroupNode(node, true)
 
-            for (origin in node.origins) {
-                if (origin.content.isEmpty()) continue
-                appendStrong { to.append("Platform and version requirements:") }
-                to.append(" " + origin.actualPlatforms)
-                appendContent(origin.content.summary)
+            for ((content, origins) in node.origins.groupBy { it.content }) {
+                if (content.isEmpty()) continue
+                val platforms = effectivePlatformAndVersion(origins)
+                appendAsPlatformDependentBlock(platforms) {
+                    appendPlatforms(platforms)
+                    appendContent(content)
+                }
             }
 
             SectionsBuilder(node).build()
@@ -679,7 +676,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        val platforms = effectivePlatformsForMembers(members) + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(members))
+                        val platforms = emptySet<String>()
 //                        val platforms = if (platformsBasedOnMembers)
 //                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
 //                        else
@@ -688,12 +685,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                             appendTableCell {
                                 appendParagraph {
                                     appendLink(memberLocation)
-                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
-                                        appendPlatforms(platforms)
-                                    }
+//                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
+//                                        appendPlatforms(platforms)
+//                                    }
                                 }
-                            }
-                            appendTableCell {
                                 appendSummarySignatures(members, platformsBasedOnMembers, omitSamePlatforms, platforms)
                             }
                         }
@@ -742,9 +737,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     }
                 }
 
-                val platforms = effectivePlatformsForMembers(nodes)
-                val platformsToAppend = platforms + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(nodes)) + NoBubbles
-                appendAsBlockWithPlatforms(platformsToAppend) {
+                val platformsToAppend = effectivePlatformAndVersion(nodes)
+                appendAsPlatformDependentBlock(platformsToAppend) {
                     appendContent(summary)
                     appendSoftLineBreak()
                 }
@@ -758,21 +752,20 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             omitSamePlatforms: Boolean,
             parentPlatforms: Set<String>
         ) {
-            val platforms = effectivePlatformsForMembers(items)
+
 //            val platforms = if (platformsBasedOnMembers)
 //                items.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
 //            else
 //                elementPlatforms
 
-            print("signature>")
-            val platformsToAppend = platforms + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(items))
+            val platformsToAppend = effectivePlatformAndVersion(items)
 
-            appendAsBlockWithPlatforms(platformsToAppend) {
-                appendPlatforms(platforms)
-                    appendAsSignature(signature) {
-                        signature.appendSignature()
-                    }
+            appendAsPlatformDependentBlock(platformsToAppend) {
+                appendAsSignature(signature) {
+                    signature.appendSignature()
+                }
                 appendSoftLineBreak()
+                appendPlatforms(platformsToAppend)
             }
         }
     }
@@ -904,3 +897,8 @@ fun effectiveSinceKotlinForNodes(nodes: List<DocumentationNode>, baseVersion: St
 }
 
 fun sinceKotlinAsPlatform(version: String): String = "Kotlin $version"
+
+
+fun effectivePlatformAndVersion(nodes: List<DocumentationNode>, baseVersion: String = "1.0"): Set<String> {
+    return effectivePlatformsForMembers(nodes) + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(nodes, baseVersion))
+}
