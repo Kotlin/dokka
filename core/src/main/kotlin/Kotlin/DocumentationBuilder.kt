@@ -33,6 +33,9 @@ import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
+import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
+import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.util.supertypesWithAny
 import com.google.inject.name.Named as GuiceNamed
@@ -457,13 +460,20 @@ class DocumentationBuilder
                 .filter { it.extensionReceiverParameter != null }
         val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
 
+        fun isIgnoredReceiverType(type: KotlinType) =
+                type.isDynamic() ||
+                type.isAnyOrNullableAny() ||
+                (type.isTypeParameter() && type.immediateSupertypes().all { it.isAnyOrNullableAny() })
+
+
         for (extensionFunction in allExtensionFunctions) {
+            val extensionReceiverParameter = extensionFunction.extensionReceiverParameter!!
             if (extensionFunction.dispatchReceiverParameter != null) continue
             val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
                 ?.filter { fn -> fn.canShadow(extensionFunction) }
                     ?: emptyList()
 
-            if (extensionFunction.extensionReceiverParameter?.type?.isDynamic() == true) continue
+            if (isIgnoredReceiverType(extensionReceiverParameter.type)) continue
             val subclasses =
                 classHierarchy.filter { (key) -> key.isExtensionApplicable(extensionFunction) }
             if (subclasses.isEmpty()) continue
