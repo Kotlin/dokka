@@ -1,6 +1,9 @@
-dokka  [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
+dokka [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv)
 =====
+
+**_Note_: This is Google's fork of Dokka, customized for [Android API reference docs](https://developer.android.com/reference/)
+on [developer.android.com](https://developer.android.com/) and other Google products.**
+The main working branch in this fork is [`devsite-with-java-layout-html`](https://github.com/google/dokka/tree/devsite-with-java-layout-html).
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
