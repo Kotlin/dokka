@@ -20,7 +20,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         generator: NodeLocationAwareGenerator,
         languageService: LanguageService,
         extension: String,
-        impliedPlatforms: List<String>,
+        val impliedPlatforms: List<String>,
         templateService: HtmlTemplateService
 ) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService) {
     private var needHardLineBreaks = false
@@ -128,7 +128,10 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
         val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
         val jreVersion = platforms.singleOrNull(String::isJREVersion)
-        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+        val targetPlatforms =
+                platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+                        .takeUnless { it.intersect(impliedPlatforms).containsAll(impliedPlatforms) }
+                        .orEmpty()
 
 
         val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
