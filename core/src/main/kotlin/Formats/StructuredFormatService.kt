@@ -362,19 +362,21 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
 
         fun renderSimpleNode(item: DocumentationNode, isSingleNode: Boolean) {
-            // TODO: use summarizesignatures
-            val rendered = languageService.render(item)
-            item.detailOrNull(NodeKind.Signature)?.let {
-                if (item.kind !in NodeKind.classLike || !isSingleNode)
-                    appendAnchor(it.name)
+            appendAsPlatformDependentBlock(effectivePlatformAndVersion(listOf(item))) { platforms ->
+                // TODO: use summarizesignatures
+                val rendered = languageService.render(item)
+                item.detailOrNull(NodeKind.Signature)?.let {
+                    if (item.kind !in NodeKind.classLike || !isSingleNode)
+                        appendAnchor(it.name)
+                }
+                appendAsSignature(rendered) {
+                    appendCode { appendContent(rendered) }
+                    item.appendSourceLink()
+                }
+                item.appendOverrides()
+                item.appendDeprecation()
+                appendPlatforms(platforms)
             }
-            appendAsSignature(rendered) {
-                appendCode { appendContent(rendered) }
-                item.appendSourceLink()
-            }
-            item.appendOverrides()
-            item.appendDeprecation()
-            item.appendPlatforms()
         }
 
         fun renderGroupNode(item: DocumentationNode, isSingleNode: Boolean) {
@@ -725,6 +727,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     nodes
                 }
 
+                val platformsToAppend = effectivePlatformAndVersion(nodes)
+                appendAsPlatformDependentBlock(platformsToAppend) {
+                    appendContent(summary)
+                    appendSoftLineBreak()
+                }
+
                 val summarySignature = languageService.summarizeSignatures(nodesToAppend)
                 if (summarySignature != null) {
                     appendSignatures(summarySignature, nodes, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
@@ -735,12 +743,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     for ((sign, members) in groupBySignature) {
                         appendSignatures(sign, members, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
                     }
-                }
-
-                val platformsToAppend = effectivePlatformAndVersion(nodes)
-                appendAsPlatformDependentBlock(platformsToAppend) {
-                    appendContent(summary)
-                    appendSoftLineBreak()
                 }
             }
         }
