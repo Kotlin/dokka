@@ -129,10 +129,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
         val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
         val jreVersion = platforms.singleOrNull(String::isJREVersion)
-        val targetPlatforms =
-                platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
-                        .takeUnless { it.intersect(impliedPlatforms).containsAll(impliedPlatforms) }
-                        .orEmpty()
+        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
 
         return mapOf(
                 "platform" to targetPlatforms,
