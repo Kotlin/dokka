@@ -122,22 +122,32 @@ open class KotlinWebsiteHtmlOutputBuilder(
         else -> "identifier"
     }
 
-    fun calculateDataAttributes(platforms: Set<String>): String {
+    private fun calculatePlatforms(platforms: Set<String>): Map<String, List<String>> {
+
         fun String.isKotlinVersion() = this.startsWith("Kotlin")
         fun String.isJREVersion() = this.startsWith("JRE")
 
-        val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
+        val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
         val jreVersion = platforms.singleOrNull(String::isJREVersion)
         val targetPlatforms =
                 platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
                         .takeUnless { it.intersect(impliedPlatforms).containsAll(impliedPlatforms) }
                         .orEmpty()
 
+        return mapOf(
+                "platform" to targetPlatforms,
+                "kotlin-version" to listOfNotNull(kotlinVersion),
+                "jre-version" to listOfNotNull(jreVersion)
+        )
+    }
 
-        val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
-        val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
-        val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
-        return "$platformsAttr$kotlinVersionAttr$jreVersionAttr"
+    private fun calculateDataAttributes(platforms: Set<String>): String {
+       val platformsByKind = calculatePlatforms(platforms)
+        return platformsByKind
+                .entries.filterNot { it.value.isEmpty() }
+                .joinToString(separator = " ") { (kind, values) ->
+                    "data-$kind=\"${values.joinToString()}\""
+                }
     }
 
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
@@ -148,7 +158,16 @@ open class KotlinWebsiteHtmlOutputBuilder(
     }
 
     override fun appendPlatforms(platforms: Set<String>) {
-        div(to, "tags") {}
+        val platformsToKind = calculatePlatforms(platforms)
+        div(to, "tags") {
+            platformsToKind.entries.forEach { (kind, values) ->
+                values.forEach { value ->
+                    div(to, "tags__tag $kind") {
+                        to.append(value)
+                    }
+                }
+            }
+        }
     }
 
     override fun appendBreadcrumbSeparator() {
@@ -179,7 +198,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
     override fun appendAsPlatformDependentBlock(platforms: Set<String>, block: (Set<String>) -> Unit) {
             if (platforms.isNotEmpty())
-                wrap("<div${calculateDataAttributes(platforms)}>", "</div>") {
+                wrap("<div ${calculateDataAttributes(platforms)}>", "</div>") {
                     block(platforms)
                 }
             else
