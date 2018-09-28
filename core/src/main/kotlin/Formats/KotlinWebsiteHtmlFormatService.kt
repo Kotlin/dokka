@@ -69,27 +69,29 @@ open class KotlinWebsiteHtmlOutputBuilder(
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
 
     override fun appendTable(vararg columns: String, body: () -> Unit) {
-        to.appendln("<table class=\"api-docs-table\">")
-        body()
-        to.appendln("</table>")
+        //to.appendln("<table class=\"api-docs-table\">")
+        div(to, "api-declarations-list") {
+            body()
+        }
+        //to.appendln("</table>")
     }
 
     override fun appendTableBody(body: () -> Unit) {
-        to.appendln("<tbody>")
+        //to.appendln("<tbody>")
         body()
-        to.appendln("</tbody>")
+        //to.appendln("</tbody>")
     }
 
     override fun appendTableRow(body: () -> Unit) {
-        to.appendln("<tr>")
+        //to.appendln("<tr>")
         body()
-        to.appendln("</tr>")
+        //to.appendln("</tr>")
     }
 
     override fun appendTableCell(body: () -> Unit) {
-        to.appendln("<td>")
+//        to.appendln("<td>")
         body()
-        to.appendln("\n</td>")
+//        to.appendln("\n</td>")
     }
 
     override fun appendSymbol(text: String) {
@@ -125,12 +127,11 @@ open class KotlinWebsiteHtmlOutputBuilder(
     private fun calculatePlatforms(platforms: Set<String>): Map<String, List<String>> {
 
         fun String.isKotlinVersion() = this.startsWith("Kotlin")
-        fun String.isJREVersion() = this.startsWith("JRE")
+        fun String.isJREVersion() = this.startsWith("JRE", ignoreCase=true)
 
         val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
-        val jreVersion = platforms.singleOrNull(String::isJREVersion)
+        val jreVersion = platforms.filter(String::isJREVersion).min()?.takeUnless { it.endsWith("6") }
         val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
-
         return mapOf(
                 "platform" to targetPlatforms,
                 "kotlin-version" to listOfNotNull(kotlinVersion),
@@ -148,10 +149,13 @@ open class KotlinWebsiteHtmlOutputBuilder(
     }
 
     override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
-        if (platforms.isNotEmpty())
-            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
-        else
-            appendTableRow(block)
+//        if (platforms.isNotEmpty())
+//            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
+//        else
+//            appendTableRow(block)
+        div(to, "declarations", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block()
+        }
     }
 
     override fun appendPlatforms(platforms: Set<String>) {
@@ -159,7 +163,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         div(to, "tags") {
             platformsToKind.entries.forEach { (kind, values) ->
                 values.forEach { value ->
-                    div(to, "tags__tag $kind") {
+                    div(to, "tags__tag $kind tag-value-$value") {
                         to.append(value)
                     }
                 }

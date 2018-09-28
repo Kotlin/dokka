@@ -5,6 +5,48 @@ import java.util.*
 
 data class FormatLink(val text: String, val href: String)
 
+private data class Summarized(
+        val data: List<SummarizedBySummary>
+) {
+
+    constructor(data: Map<ContentNode, Map<ContentNode, List<DocumentationNode>>>) : this(
+            data.entries.map { (summary, signatureToMember) ->
+                SummarizedBySummary(
+                    summary,
+                    signatureToMember.map { (signature, nodes) ->
+                        SummarizedNodes(signature, nodes)
+                    }
+                )
+            }
+    )
+
+    data class SummarizedNodes(val content: ContentNode, val nodes: List<DocumentationNode>) {
+        val platforms = effectivePlatformAndVersion(nodes)
+    }
+    data class SummarizedBySummary(val content: ContentNode, val signatures: List<SummarizedNodes>) {
+        val platforms = effectivePlatformAndVersion(signatures.flatMap { it.nodes })
+        val platformsOnSignature = !sameVersionAndPlatforms(signatures.map { it.platforms })
+    }
+
+
+    fun computePlatformLevel(): PlatformPlacement {
+        if (data.any { it.platformsOnSignature }) {
+            return PlatformPlacement.Signature
+        }
+        if (sameVersionAndPlatforms(data.map { it.platforms })) {
+            return PlatformPlacement.Row
+        }
+        return PlatformPlacement.Summary
+    }
+    val platformPlacement: PlatformPlacement = computePlatformLevel()
+    val platforms = effectivePlatformAndVersion(data.flatMap { it.signatures.flatMap { it.nodes } })
+
+
+    enum class PlatformPlacement {
+        Row, Summary, Signature
+    }
+}
+
 abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val location: Location,
                                        val generator: NodeLocationAwareGenerator,
@@ -454,7 +496,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (platforms.isEmpty()) return
 
             appendParagraph {
-                appendStrong { to.append("Platform and version requirements:") }
+                appendStrong { to.append("WTF: Platform and version requirements:") }
                 to.append(" " + platforms.joinToString())
             }
         }
@@ -678,20 +720,27 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        val platforms = emptySet<String>()
+                        val platforms = effectivePlatformAndVersion(members)
 //                        val platforms = if (platformsBasedOnMembers)
 //                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
 //                        else
 //                            elementPlatforms
+
+                        val summarized = computeSummarySignatures(members)
+
+
                         appendIndexRow(platforms) {
                             appendTableCell {
+                                if (summarized.platformPlacement == Summarized.PlatformPlacement.Row) {
+                                    appendPlatforms(platforms)
+                                }
                                 appendParagraph {
                                     appendLink(memberLocation)
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)
 //                                    }
                                 }
-                                appendSummarySignatures(members, platformsBasedOnMembers, omitSamePlatforms, platforms)
+                                appendSummarySignatures(summarized)
                             }
                         }
                     }
@@ -712,47 +761,52 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 //            return emptySet()
 //        }
 
+
+
+        private fun computeSummarySignatures(items: List<DocumentationNode>): Summarized =
+                Summarized(items.groupBy { it.summary }.mapValues { (_, nodes) ->
+                    val nodesToAppend = if (nodes.all { it.kind == NodeKind.GroupNode }) {
+                        nodes.flatMap { it.origins }
+                    } else {
+                        nodes
+                    }
+                    val summarySignature = languageService.summarizeSignatures(nodesToAppend)
+                    if (summarySignature != null) {
+                        mapOf(summarySignature to nodes)
+                    } else {
+                        nodesToAppend.groupBy {
+                            languageService.render(it, RenderMode.SUMMARY)
+                        }
+                    }
+                })
+
+
         private fun appendSummarySignatures(
-            items: List<DocumentationNode>,
-            platformsBasedOnMembers: Boolean,
-            omitSamePlatforms: Boolean,
-            parentPlatforms: Set<String>
+                summarized: Summarized
         ) {
-            val groupBySummary = items.groupBy { it.summary }
+            for(summary in summarized.data) {
 
-            for ((summary, nodes) in groupBySummary) {
-                val nodesToAppend = if (nodes.all { it.kind == NodeKind.GroupNode }) {
-                    nodes.flatMap { it.origins }
-                } else {
-                    nodes
-                }
 
-                val platformsToAppend = effectivePlatformAndVersion(nodes)
-                appendAsPlatformDependentBlock(platformsToAppend) {
-                    appendContent(summary)
+
+                appendAsPlatformDependentBlock(summary.platforms) {
+                    if (summarized.platformPlacement == Summarized.PlatformPlacement.Summary) {
+                        appendPlatforms(summary.platforms)
+                    }
+                    appendContent(summary.content)
                     appendSoftLineBreak()
                 }
-
-                val summarySignature = languageService.summarizeSignatures(nodesToAppend)
-                if (summarySignature != null) {
-                    appendSignatures(summarySignature, nodes, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
-                } else {
-                    val groupBySignature = nodesToAppend.groupBy {
-                        languageService.render(it, RenderMode.SUMMARY)
-                    }
-                    for ((sign, members) in groupBySignature) {
-                        appendSignatures(sign, members, platformsBasedOnMembers, omitSamePlatforms, parentPlatforms)
-                    }
+                for (signature in summary.signatures) {
+                    appendSignatures(
+                            signature,
+                            summarized.platformPlacement == Summarized.PlatformPlacement.Signature
+                    )
                 }
             }
         }
 
         private fun appendSignatures(
-            signature: ContentNode,
-            items: List<DocumentationNode>,
-            platformsBasedOnMembers: Boolean,
-            omitSamePlatforms: Boolean,
-            parentPlatforms: Set<String>
+            signature: Summarized.SummarizedNodes,
+            withPlatforms: Boolean
         ) {
 
 //            val platforms = if (platformsBasedOnMembers)
@@ -760,14 +814,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 //            else
 //                elementPlatforms
 
-            val platformsToAppend = effectivePlatformAndVersion(items)
 
-            appendAsPlatformDependentBlock(platformsToAppend) {
-                appendAsSignature(signature) {
-                    signature.appendSignature()
+            appendAsPlatformDependentBlock(signature.platforms) {
+                if (withPlatforms) {
+                    appendPlatforms(signature.platforms)
+                }
+                appendAsSignature(signature.content) {
+                    signature.content.appendSignature()
                 }
                 appendSoftLineBreak()
-                appendPlatforms(platformsToAppend)
             }
         }
     }
@@ -859,7 +914,7 @@ fun effectivePlatformsForNode(node: DocumentationNode): Set<String> {
     }
 }
 
-fun effectivePlatformsForMembers(nodes: List<DocumentationNode>): Set<String> {
+fun effectivePlatformsForMembers(nodes: Collection<DocumentationNode>): Set<String> {
     return nodes.map { effectivePlatformsForNode(it) }.reduce { acc, set ->
         acc.union(set)
     }
@@ -889,18 +944,25 @@ fun effectiveSinceKotlinForNode(node: DocumentationNode, baseVersion: String = "
     val nodeVersion = node.sinceKotlin ?: baseVersion
     val memberVersion = if (members.isNotEmpty()) effectiveSinceKotlinForNodes(members, nodeVersion) else nodeVersion
 
-    println("${node.path} > $nodeVersion, $memberVersion")
-
     return mergeVersions(listOf(memberVersion, nodeVersion))
 }
 
-fun effectiveSinceKotlinForNodes(nodes: List<DocumentationNode>, baseVersion: String = "1.0"): String {
+fun effectiveSinceKotlinForNodes(nodes: Collection<DocumentationNode>, baseVersion: String = "1.0"): String {
     return mergeVersions(nodes.map { effectiveSinceKotlinForNode(it, baseVersion) })
 }
 
 fun sinceKotlinAsPlatform(version: String): String = "Kotlin $version"
 
 
-fun effectivePlatformAndVersion(nodes: List<DocumentationNode>, baseVersion: String = "1.0"): Set<String> {
+fun effectivePlatformAndVersion(nodes: Collection<DocumentationNode>, baseVersion: String = "1.0"): Set<String> {
     return effectivePlatformsForMembers(nodes) + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(nodes, baseVersion))
+}
+
+fun effectivePlatformAndVersion(node: DocumentationNode, baseVersion: String = "1.0"): Set<String> {
+    return effectivePlatformsForNode(node) + sinceKotlinAsPlatform(effectiveSinceKotlinForNode(node, baseVersion))
+}
+
+fun sameVersionAndPlatforms(platformsPerNode: Collection<Set<String>>): Boolean {
+    val first = platformsPerNode.firstOrNull() ?: return true
+    return platformsPerNode.all { it == first }
 }
