@@ -921,16 +921,7 @@ fun effectivePlatformsForMembers(nodes: Collection<DocumentationNode>): Set<Stri
 }
 
 fun mergeVersions(kotlinVersions: List<String>): String {
-    val allKotlinVersions = kotlinVersions.distinct()
-
-    val minVersion = allKotlinVersions.min()!!
-    val resultVersion: String = when {
-        allKotlinVersions.size == 1 -> allKotlinVersions.single()
-        minVersion.endsWith("+") -> minVersion
-        else -> "$minVersion+"
-    }
-
-    return resultVersion
+    return kotlinVersions.distinct().min()!!
 }
 
 fun effectiveSinceKotlinForNode(node: DocumentationNode, baseVersion: String = "1.0"): String {
