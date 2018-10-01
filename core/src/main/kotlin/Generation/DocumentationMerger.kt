@@ -130,7 +130,7 @@ class DocumentationMerger(
         val nodeWithMaxPlatforms = nodes.maxBy { it.platforms.size }!!
         val maxPlatforms = nodeWithMaxPlatforms.platforms.toSet()
         val notContained = nodes.filterNot { maxPlatforms.containsAll(it.platforms) }
-        val reducedDuplicates = notContained + nodeWithMaxPlatforms
+        val reducedDuplicates = listOf(nodeWithMaxPlatforms) + notContained
         if (!reducedDuplicates.containsAll(nodes)) {
             return mergeMembersWithEqualSignature(signature, reducedDuplicates)
         }
