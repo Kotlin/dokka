@@ -384,9 +384,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     val platforms = effectivePlatformsForMembers(origins)
                     appendAsPlatformDependentBlock(platforms) {
                         appendPlatforms(platforms)
-                        appendParagraph {
-                            appendContent(content)
-                        }
+                        appendContent(content.summary)
+                        content.appendDescription()
                     }
                 }
             } else {
@@ -394,12 +393,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     val platforms = effectivePlatformsForNode(item)
                     appendAsPlatformDependentBlock(platforms) {
                         appendPlatforms(platforms)
-                        appendContent(item.content)
+                        appendContent(item.summary)
+                        item.content.appendDescription()
                     }
                 }
             }
-
-            item.appendDescription()
         }
 
 
@@ -561,15 +559,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 //        val DocumentationNode.platformsToShow: List<String>
 //            get() = platforms
 
-        private fun DocumentationNode.appendDescription() {
-            if (content.description != ContentEmpty) {
-                appendContent(content.description)
+        private fun Content.appendDescription() {
+            if (description != ContentEmpty) {
+                appendContent(description)
             }
-            content.getSectionsWithSubjects().forEach {
+
+
+            getSectionsWithSubjects().forEach {
                 appendSectionWithSubject(it.key, it.value)
             }
 
-            for (section in content.sections.filter { it.subjectName == null }) {
+            for (section in sections.filter { it.subjectName == null }) {
                 appendSectionWithTag(section)
             }
         }
