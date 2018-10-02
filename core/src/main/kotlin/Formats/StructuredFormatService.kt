@@ -765,14 +765,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
         private fun computeSummarySignatures(items: List<DocumentationNode>): Summarized =
                 Summarized(items.groupBy { it.summary }.mapValues { (_, nodes) ->
-                    val nodesToAppend = if (nodes.all { it.kind == NodeKind.GroupNode }) {
-                        nodes.flatMap { it.origins }
-                    } else {
-                        nodes
-                    }
+                    val nodesToAppend = nodes.flatMap { if(it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
+
                     val summarySignature = languageService.summarizeSignatures(nodesToAppend)
                     if (summarySignature != null) {
-                        mapOf(summarySignature to nodes)
+                        mapOf(summarySignature to nodesToAppend)
                     } else {
                         nodesToAppend.groupBy {
                             languageService.render(it, RenderMode.SUMMARY)
