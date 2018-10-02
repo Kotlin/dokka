@@ -379,11 +379,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             if (item.kind == NodeKind.GroupNode) {
-                for ((content, origins) in item.origins.groupBy { it.content }) {
+                val groupByContent = item.origins.groupBy { it.content }
+                for ((content, origins) in groupByContent) {
                     if (content.isEmpty()) continue
-                    val platforms = effectivePlatformsForMembers(origins)
-                    appendAsPlatformDependentBlock(platforms) {
-                        appendPlatforms(platforms)
+                    appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
+                        if (groupByContent.count { !it.key.isEmpty() } > 1) {
+                            appendPlatforms(platforms)
+                        }
                         appendContent(content.summary)
                         content.appendDescription()
                     }
