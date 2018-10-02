@@ -392,7 +392,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 if (!item.content.isEmpty()) {
                     val platforms = effectivePlatformsForNode(item)
                     appendAsPlatformDependentBlock(platforms) {
-                        appendPlatforms(platforms)
                         appendContent(item.summary)
                         item.content.appendDescription()
                     }
@@ -409,13 +408,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (item.kind !in NodeKind.classLike || !isSingleNode)
                         appendAnchor(it.name)
                 }
+                appendPlatforms(platforms)
                 appendAsSignature(rendered) {
                     appendCode { appendContent(rendered) }
                     item.appendSourceLink()
                 }
                 item.appendOverrides()
                 item.appendDeprecation()
-                appendPlatforms(platforms)
             }
         }
 
@@ -433,10 +432,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                             appendAnchor(it.name)
                     }
 
+                    appendPlatforms(platforms)
+
                     appendAsSignature(sign) {
                         appendCode { appendContent(sign) }
                     }
-                    appendPlatforms(platforms)
                     first.appendOverrides()
                     first.appendDeprecation()
                 }
@@ -611,11 +611,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             renderGroupNode(node, true)
 
-            for ((content, origins) in node.origins.groupBy { it.content }) {
+            val groupByContent = node.origins.groupBy { it.content }
+            for ((content, origins) in groupByContent) {
                 if (content.isEmpty()) continue
-                val platforms = effectivePlatformAndVersion(origins)
-                appendAsPlatformDependentBlock(platforms) {
-                    appendPlatforms(platforms)
+                appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
+                    if (groupByContent.keys.count { !it.isEmpty() } > 1) {
+                        appendPlatforms(platforms)
+                    }
                     appendContent(content)
                 }
             }
