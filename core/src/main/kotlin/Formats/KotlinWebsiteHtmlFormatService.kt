@@ -168,6 +168,13 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
+    override fun appendAsNodeDescription(platforms: Set<String>, block: () -> Unit) {
+        div(to, "node-page-main", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block()
+        }
+
+    }
+
     override fun appendBreadcrumbSeparator() {
         to.append(" / ")
     }

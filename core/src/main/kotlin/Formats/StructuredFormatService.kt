@@ -145,6 +145,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         appendText(text)
     }
 
+    open fun appendAsNodeDescription(platforms: Set<String>, block: () -> Unit) {
+        block()
+    }
+
     fun appendEntity(text: String) {
         to.append(text)
     }
@@ -361,7 +365,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             if (breakdownBySummary.size == 1) {
-                formatOverloadGroup(breakdownBySummary.values.single(), isSingleNode)
+                val node = breakdownBySummary.values.single()
+                appendAsNodeDescription(effectivePlatformAndVersion(node)) {
+                    formatOverloadGroup(node, isSingleNode)
+                }
             } else {
                 for ((_, items) in breakdownBySummary) {
                     appendAsOverloadGroup(to, effectivePlatformAndVersion(items)) {
@@ -622,16 +629,18 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendLine()
             appendHeader { appendText(node.name) }
 
-            renderGroupNode(node, true)
+            appendAsNodeDescription(effectivePlatformAndVersion(node)) {
+                renderGroupNode(node, true)
 
-            val groupByContent = node.origins.groupBy { it.content }
-            for ((content, origins) in groupByContent) {
-                if (content.isEmpty()) continue
-                appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
-                    if (groupByContent.keys.count { !it.isEmpty() } > 1) {
-                        appendPlatformsAsText(platforms)
+                val groupByContent = node.origins.groupBy { it.content }
+                for ((content, origins) in groupByContent) {
+                    if (content.isEmpty()) continue
+                    appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
+                        if (groupByContent.keys.count { !it.isEmpty() } > 1) {
+                            appendPlatformsAsText(platforms)
+                        }
+                        appendContent(content)
                     }
-                    appendContent(content)
                 }
             }
 
