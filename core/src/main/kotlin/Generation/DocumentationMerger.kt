@@ -141,6 +141,7 @@ class DocumentationMerger(
         for (node in nodes) {
             node.dropReferences { it.kind == RefKind.Owner }
             groupNode.append(node, RefKind.Origin)
+            node.append(groupNode, RefKind.TopLevelPage)
 
             oldToNewNodeMap[node] = groupNode
         }
