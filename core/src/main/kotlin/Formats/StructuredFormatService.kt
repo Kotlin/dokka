@@ -763,7 +763,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 if (summarized.platformPlacement == Summarized.PlatformPlacement.Row) {
                                     appendPlatforms(platforms)
                                 }
-                                appendParagraph {
+                                appendHeader(level = 4) {
                                     appendLink(memberLocation)
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)
@@ -871,27 +871,23 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for (type in node.members) {
-                        appendTableRow {
-                            appendTableCell {
+                        val platforms = effectivePlatformsForNode(type)
+                        appendIndexRow(platforms) {
+                            appendPlatforms(platforms)
+                            appendHeader(level = 5) {
                                 appendLink(link(node, type) {
                                     if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
                                 })
-                                if (type.kind == NodeKind.ExternalClass) {
-                                    val packageName = type.owner?.name
-                                    if (packageName != null) {
-                                        appendText(" (extensions in package $packageName)")
-                                    }
-                                }
                             }
-                            appendTableCell {
-                                val summary = if (type.isClassLikeGroupNode()) {
-                                    type.origins.first().summary
-                                } else {
-                                    type.summary
-                                }
 
-                                appendContent(summary)
+                            if (type.kind == NodeKind.ExternalClass) {
+                                val packageName = type.owner?.name
+                                if (packageName != null) {
+                                    appendText(" (extensions in package $packageName)")
+                                }
                             }
+
+                            appendContent(type.summary)
                         }
                     }
                 }
