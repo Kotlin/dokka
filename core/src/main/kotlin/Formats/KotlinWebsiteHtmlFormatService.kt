@@ -161,6 +161,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
     override fun appendPlatforms(platforms: Set<String>) {
         val platformsToKind = calculatePlatforms(platforms)
         div(to, "tags") {
+            div(to, "spacer") {}
             platformsToKind.entries.forEach { (kind, values) ->
                 values.forEach { value ->
                     div(to, "tags__tag $kind tag-value-$value") {
