@@ -64,6 +64,8 @@ class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
         get() = buildTargets.filter { it.value != "" }
             .map { it.value }
 
+    override var sinceKotlin: String = "1.0"
+
     private val samplesPath: Path by lazy { Path(task.project) }
     private val includesPath: Path by lazy { Path(task.project) }
     private val buildClassPath: Path by lazy { Path(task.project) }

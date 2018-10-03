@@ -120,6 +120,12 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         ""
     )
 
+    override val sinceKotlin: String by parser.stringOption(
+            listOf("-sinceKotlin"),
+            "Kotlin Api version to use as base version, if none specified",
+            "1.0"
+    )
+
     override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleFlag(
         listOf("-collectInheritedExtensionsFromLibraries"),
         "Search for applicable extensions in libraries")

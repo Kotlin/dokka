@@ -289,6 +289,11 @@ class DocumentationBuilder
         sinceKotlin = kotlinVersion
     }
 
+    fun DocumentationNode.appendDefaultSinceKotlin() {
+        println("setting default sk ${passConfiguration.sinceKotlin} for $this")
+        sinceKotlin = passConfiguration.sinceKotlin
+    }
+
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
         appendInline(descriptor, psi)
@@ -590,6 +595,7 @@ class DocumentationBuilder
         val node = nodeForDescriptor(this, NodeKind.TypeAlias)
 
         if (!external) {
+            node.appendDefaultSinceKotlin()
             node.appendAnnotations(this)
         }
         node.appendModifiers(this)
@@ -627,6 +633,7 @@ class DocumentationBuilder
             for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
                 node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
             }
+            node.appendDefaultSinceKotlin()
             node.appendAnnotations(this)
         }
         node.appendModifiers(this)
@@ -687,6 +694,7 @@ class DocumentationBuilder
         val node = nodeForDescriptor(this, NodeKind.Constructor)
         node.appendInPageChildren(valueParameters, RefKind.Detail)
         node.appendDefaultPlatforms(this)
+        node.appendDefaultSinceKotlin()
         register(this, node)
         return node
     }
@@ -711,6 +719,9 @@ class DocumentationBuilder
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendInPageChildren(valueParameters, RefKind.Detail)
         node.appendType(returnType)
+        if (!external) {
+            node.appendDefaultSinceKotlin()
+        }
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (!external) {
@@ -748,6 +759,9 @@ class DocumentationBuilder
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendType(returnType)
+        if (!external) {
+            node.appendDefaultSinceKotlin()
+        }
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (!external) {
@@ -817,6 +831,7 @@ class DocumentationBuilder
                 }
             }
         }
+        node.appendDefaultSinceKotlin()
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (varargElementType != null && node.details(NodeKind.Modifier).none { it.name == "vararg" }) {
