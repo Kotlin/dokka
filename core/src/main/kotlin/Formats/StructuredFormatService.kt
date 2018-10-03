@@ -344,7 +344,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     val packageName = if (singleNode.name.isEmpty()) "<root>" else singleNode.name
                     appendHeader(2) { appendText("Package $packageName") }
                 }
-                singleNode.appendPlatforms()
                 appendContent(singleNode.content)
             } else {
                 val breakdownByName = nodes.groupBy { node -> node.name }
@@ -509,18 +508,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        private fun DocumentationNode.appendPlatforms() {
-            val platforms = actualPlatforms
-            if (platforms.isEmpty()) return
 
-            appendParagraph {
-                appendStrong { to.append("WTF: Platform and version requirements:") }
-                to.append(" " + platforms.joinToString())
-            }
-        }
-
-        val DocumentationNode.actualPlatforms: Collection<String>
-                get() = effectivePlatformAndVersion(listOf(this))
 
 
 //        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
