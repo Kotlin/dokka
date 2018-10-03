@@ -290,7 +290,6 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendDefaultSinceKotlin() {
-        println("setting default sk ${passConfiguration.sinceKotlin} for $this")
         sinceKotlin = passConfiguration.sinceKotlin
     }
 
