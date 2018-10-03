@@ -67,7 +67,7 @@ class FileGenerator @Inject constructor(@Named("outputDir") override val root: F
                 it.writeText(formatService.format(location(items.first()), items))
             }
 
-            buildPages(items.flatMap { it.members })
+            buildPages(items.filterNot { it.kind == NodeKind.AllTypes }.flatMap { it.members })
         }
     }
 
