@@ -181,6 +181,7 @@ class DocumentationMerger(
     fun merge(): DocumentationModule {
         val mergedDocumentationModule = DocumentationModule(
             name = documentationModules.first().name,
+            content = documentationModules.first().content,
             nodeRefGraph = producedNodeRefGraph
         )
 
