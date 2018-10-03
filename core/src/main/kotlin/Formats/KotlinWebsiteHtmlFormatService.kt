@@ -206,6 +206,12 @@ open class KotlinWebsiteHtmlOutputBuilder(
             else
                 block(platforms)
     }
+
+    override fun appendAsSummaryGroup(platforms: Set<String>, block: (Set<String>) -> Unit) {
+        div(to, "summary-group", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block(platforms)
+        }
+    }
 }
 
 class KotlinWebsiteHtmlFormatService @Inject constructor(

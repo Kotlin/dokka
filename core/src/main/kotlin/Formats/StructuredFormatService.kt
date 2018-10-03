@@ -129,6 +129,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         block(platforms)
     }
 
+    open fun appendAsSummaryGroup(platforms: Set<String>, block: (Set<String>) -> Unit) {
+        appendAsPlatformDependentBlock(platforms, block)
+    }
+
     open fun appendSymbol(text: String) {
         appendText(text)
     }
@@ -787,21 +791,20 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         ) {
             for(summary in summarized.data) {
 
-
-
-                appendAsPlatformDependentBlock(summary.platforms) {
+                appendAsSummaryGroup(summary.platforms) {
                     if (summarized.platformPlacement == Summarized.PlatformPlacement.Summary) {
                         appendPlatforms(summary.platforms)
                     }
                     appendContent(summary.content)
                     appendSoftLineBreak()
+                    for (signature in summary.signatures) {
+                        appendSignatures(
+                                signature,
+                                summarized.platformPlacement == Summarized.PlatformPlacement.Signature
+                        )
+                    }
                 }
-                for (signature in summary.signatures) {
-                    appendSignatures(
-                            signature,
-                            summarized.platformPlacement == Summarized.PlatformPlacement.Signature
-                    )
-                }
+
             }
         }
 
