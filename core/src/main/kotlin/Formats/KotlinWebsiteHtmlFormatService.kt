@@ -125,10 +125,6 @@ open class KotlinWebsiteHtmlOutputBuilder(
     }
 
     private fun calculatePlatforms(platforms: Set<String>): Map<String, List<String>> {
-
-        fun String.isKotlinVersion() = this.startsWith("Kotlin")
-        fun String.isJREVersion() = this.startsWith("JRE", ignoreCase=true)
-
         val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
         val jreVersion = platforms.filter(String::isJREVersion).min()?.takeUnless { it.endsWith("6") }
         val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
@@ -174,6 +170,13 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
     override fun appendBreadcrumbSeparator() {
         to.append(" / ")
+    }
+
+    override fun appendPlatformsAsText(platforms: Set<String>) {
+        appendHeader(5) {
+            to.append("For ")
+            platforms.filterNot { it.isJREVersion() }.joinTo(to)
+        }
     }
 
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
@@ -226,3 +229,7 @@ class KotlinWebsiteHtmlFormatService @Inject constructor(
     override fun createOutputBuilder(to: StringBuilder, location: Location) =
             KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 }
+
+
+private fun String.isKotlinVersion() = this.startsWith("Kotlin")
+private fun String.isJREVersion() = this.startsWith("JRE", ignoreCase=true)

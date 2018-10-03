@@ -281,6 +281,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         appendTableRow(block)
     }
 
+    protected open fun appendPlatformsAsText(platforms: Set<String>) {
+        if (platforms.isNotEmpty()) {
+            appendLine()
+            appendText(platforms.joinToString(prefix = "(", postfix = ")"))
+        }
+    }
+
     protected open fun appendPlatforms(platforms: Set<String>) {
         if (platforms.isNotEmpty()) {
             appendLine()
@@ -388,7 +395,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (content.isEmpty()) continue
                     appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
                         if (groupByContent.count { !it.key.isEmpty() } > 1) {
-                            appendPlatforms(platforms)
+                            appendPlatformsAsText(platforms)
                         }
                         appendContent(content.summary)
                         content.appendDescription()
@@ -622,7 +629,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 if (content.isEmpty()) continue
                 appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
                     if (groupByContent.keys.count { !it.isEmpty() } > 1) {
-                        appendPlatforms(platforms)
+                        appendPlatformsAsText(platforms)
                     }
                     appendContent(content)
                 }
