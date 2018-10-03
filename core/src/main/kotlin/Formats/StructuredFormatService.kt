@@ -378,13 +378,24 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
         private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
+
+            val platformsPerGroup = sameVersionAndPlatforms(
+                    items.flatMap { if (it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
+                            .map { effectivePlatformAndVersion(it) }
+            )
+
+            if (platformsPerGroup) {
+                appendAsPlatformDependentBlock(effectivePlatformAndVersion(items)) { platforms ->
+                    appendPlatforms(platforms)
+                }
+            }
             for ((index, item) in items.withIndex()) {
                 if (index > 0) appendLine()
 
                 if (item.kind == NodeKind.GroupNode) {
-                    renderGroupNode(item, isSingleNode)
+                    renderGroupNode(item, isSingleNode, !platformsPerGroup)
                 } else {
-                    renderSimpleNode(item, isSingleNode)
+                    renderSimpleNode(item, isSingleNode, !platformsPerGroup)
                 }
 
             }
@@ -419,7 +430,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
 
 
-        fun renderSimpleNode(item: DocumentationNode, isSingleNode: Boolean) {
+        fun renderSimpleNode(item: DocumentationNode, isSingleNode: Boolean, withPlatforms: Boolean = true) {
             appendAsPlatformDependentBlock(effectivePlatformAndVersion(listOf(item))) { platforms ->
                 // TODO: use summarizesignatures
                 val rendered = languageService.render(item)
@@ -427,7 +438,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (item.kind !in NodeKind.classLike || !isSingleNode)
                         appendAnchor(it.name)
                 }
-                appendPlatforms(platforms)
+                if (withPlatforms) {
+                    appendPlatforms(platforms)
+                }
                 appendAsSignature(rendered) {
                     appendCode { appendContent(rendered) }
                     item.appendSourceLink()
@@ -437,7 +450,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
         }
 
-        fun renderGroupNode(item: DocumentationNode, isSingleNode: Boolean) {
+        fun renderGroupNode(item: DocumentationNode, isSingleNode: Boolean, withPlatforms: Boolean = true) {
             // TODO: use summarizesignatures
             val groupBySignature = item.origins.groupBy {
                 languageService.render(it)
@@ -451,7 +464,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                             appendAnchor(it.name)
                     }
 
-                    appendPlatforms(platforms)
+                    if (withPlatforms) {
+                        appendPlatforms(platforms)
+                    }
 
                     appendAsSignature(sign) {
                         appendCode { appendContent(sign) }
