@@ -7,6 +7,7 @@ import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.coroutines.hasFunctionOrSuspendFunctionType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
@@ -81,7 +82,7 @@ class DocumentationBuilder
     val knownModifiers = setOf(
             KtTokens.PUBLIC_KEYWORD, KtTokens.PROTECTED_KEYWORD, KtTokens.INTERNAL_KEYWORD, KtTokens.PRIVATE_KEYWORD,
             KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
-            KtTokens.OVERRIDE_KEYWORD)
+            KtTokens.OVERRIDE_KEYWORD, KtTokens.INLINE_KEYWORD)
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: RefKind) {
         refGraph.link(node, descriptor.signature(), kind)
@@ -137,6 +138,13 @@ class DocumentationBuilder
         }
         val modifier = modality.name.toLowerCase()
         appendTextNode(modifier, NodeKind.Modifier)
+    }
+
+    fun DocumentationNode.appendInline(descriptor: DeclarationDescriptor, psi: KtModifierListOwner) {
+        if (!psi.hasModifier(KtTokens.INLINE_KEYWORD)) return
+        if (descriptor is FunctionDescriptor
+                && descriptor.valueParameters.none { it.hasFunctionOrSuspendFunctionType }) return
+        appendTextNode(KtTokens.INLINE_KEYWORD.value, NodeKind.Modifier)
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
@@ -283,6 +291,7 @@ class DocumentationBuilder
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
+        appendInline(descriptor, psi)
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
             if (psi.hasModifier(it)) {
                 appendTextNode(it.value, NodeKind.Modifier)
