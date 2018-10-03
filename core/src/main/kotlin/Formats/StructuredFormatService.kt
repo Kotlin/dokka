@@ -381,8 +381,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
 
             val platformsPerGroup = samePlatforms(
-                    items.flatMap { if (it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
-                            .map { effectivePlatformsForNode(it) }
+                    items.flatMap {
+                        if (it.kind == NodeKind.GroupNode) {
+                            it.origins.groupBy { origin ->
+                                languageService.render(origin)
+                            }.values.map { origins -> effectivePlatformsForMembers(origins) }
+                        } else {
+                            listOf(effectivePlatformsForNode(it))
+                        }
+                    }
             )
 
             if (platformsPerGroup) {
