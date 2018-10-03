@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 
 
@@ -60,7 +59,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
-    override fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
+    override fun appendAsOverloadGroup(to: StringBuilder, platforms: PlatformsData, block: () -> Unit) {
         div(to, "overload-group", calculateDataAttributes(platforms)) {
             block()
         }
@@ -124,27 +123,29 @@ open class KotlinWebsiteHtmlOutputBuilder(
         else -> "identifier"
     }
 
-    private fun calculatePlatforms(platforms: Set<String>): Map<String, List<String>> {
-        val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
-        val jreVersion = platforms.filter(String::isJREVersion).min()?.takeUnless { it.endsWith("6") }
-        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
-        return mapOf(
-                "platform" to targetPlatforms,
-                "kotlin-version" to listOfNotNull(kotlinVersion),
-                "jre-version" to listOfNotNull(jreVersion)
+    private data class PlatformsForElement(
+            val platformToVersion: Map<String, String>
+    )
+
+    private fun calculatePlatforms(platforms: PlatformsData): PlatformsForElement {
+        //val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
+        val jreVersion = platforms.keys.filter(String::isJREVersion).min()?.takeUnless { it.endsWith("6") }
+        val targetPlatforms = platforms.filterNot { it.key.isJREVersion() } +
+                listOfNotNull(jreVersion?.let { it to platforms[it]!! })
+
+        return PlatformsForElement(
+                targetPlatforms.mapValues { (_, nodes) -> effectiveSinceKotlinForNodes(nodes) }
         )
     }
 
-    private fun calculateDataAttributes(platforms: Set<String>): String {
-       val platformsByKind = calculatePlatforms(platforms)
-        return platformsByKind
-                .entries.filterNot { it.value.isEmpty() }
-                .joinToString(separator = " ") { (kind, values) ->
-                    "data-$kind=\"${values.joinToString()}\""
-                }
+    private fun calculateDataAttributes(platforms: PlatformsData): String {
+        val platformToVersion = calculatePlatforms(platforms).platformToVersion
+        val (platformNames, versions) = platformToVersion.toList().unzip()
+        return "data-platform=\"${platformNames.joinToString()}\" "+
+                "data-kotlin-version=\"${versions.joinToString()}\""
     }
 
-    override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
+    override fun appendIndexRow(platforms: PlatformsData, block: () -> Unit) {
 //        if (platforms.isNotEmpty())
 //            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
 //        else
@@ -154,21 +155,23 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
-    override fun appendPlatforms(platforms: Set<String>) {
-        val platformsToKind = calculatePlatforms(platforms)
+    override fun appendPlatforms(platforms: PlatformsData) {
+        val platformToVersion = calculatePlatforms(platforms).platformToVersion
         div(to, "tags") {
             div(to, "spacer") {}
-            platformsToKind.entries.forEach { (kind, values) ->
-                values.forEach { value ->
-                    div(to, "tags__tag $kind tag-value-$value") {
-                        to.append(value)
-                    }
+            platformToVersion.entries.forEach { (platform, version) ->
+                div(to, "tags__tag platform tag-value-$platform",
+                        otherAttributes = " data-tag-version=\"$version\"") {
+                    to.append(platform)
                 }
+            }
+            div(to, "tags__tag kotlin-version") {
+                to.append(mergeVersions(platformToVersion.values.toList()))
             }
         }
     }
 
-    override fun appendAsNodeDescription(platforms: Set<String>, block: () -> Unit) {
+    override fun appendAsNodeDescription(platforms: PlatformsData, block: () -> Unit) {
         div(to, "node-page-main", otherAttributes = " ${calculateDataAttributes(platforms)}") {
             block()
         }
@@ -179,10 +182,10 @@ open class KotlinWebsiteHtmlOutputBuilder(
         to.append(" / ")
     }
 
-    override fun appendPlatformsAsText(platforms: Set<String>) {
+    override fun appendPlatformsAsText(platforms: PlatformsData) {
         appendHeader(5) {
             to.append("For ")
-            platforms.filterNot { it.isJREVersion() }.joinTo(to)
+            platforms.keys.filterNot { it.isJREVersion() }.joinTo(to)
         }
     }
 
@@ -208,7 +211,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
-    override fun appendAsPlatformDependentBlock(platforms: Set<String>, block: (Set<String>) -> Unit) {
+    override fun appendAsPlatformDependentBlock(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
             if (platforms.isNotEmpty())
                 wrap("<div ${calculateDataAttributes(platforms)}>", "</div>") {
                     block(platforms)
@@ -217,7 +220,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
                 block(platforms)
     }
 
-    override fun appendAsSummaryGroup(platforms: Set<String>, block: (Set<String>) -> Unit) {
+    override fun appendAsSummaryGroup(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
         div(to, "summary-group", otherAttributes = " ${calculateDataAttributes(platforms)}") {
             block(platforms)
         }

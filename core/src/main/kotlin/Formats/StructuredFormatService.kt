@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.LanguageService.RenderMode
+import org.jetbrains.kotlin.utils.keysToMap
 import java.util.*
 
 data class FormatLink(val text: String, val href: String)
@@ -21,11 +22,11 @@ private data class Summarized(
     )
 
     data class SummarizedNodes(val content: ContentNode, val nodes: List<DocumentationNode>) {
-        val platforms = effectivePlatformAndVersion(nodes)
+        val platforms = effectivePlatformsForMembers(nodes)
     }
     data class SummarizedBySummary(val content: ContentNode, val signatures: List<SummarizedNodes>) {
-        val platforms = effectivePlatformAndVersion(signatures.flatMap { it.nodes })
-        val platformsOnSignature = !sameVersionAndPlatforms(signatures.map { it.platforms })
+        val platforms = effectivePlatformsForMembers(signatures.flatMap { it.nodes })
+        val platformsOnSignature = !samePlatforms(signatures.map { it.platforms })
     }
 
 
@@ -33,13 +34,13 @@ private data class Summarized(
         if (data.any { it.platformsOnSignature }) {
             return PlatformPlacement.Signature
         }
-        if (sameVersionAndPlatforms(data.map { it.platforms })) {
+        if (samePlatforms(data.map { it.platforms })) {
             return PlatformPlacement.Row
         }
         return PlatformPlacement.Summary
     }
     val platformPlacement: PlatformPlacement = computePlatformLevel()
-    val platforms = effectivePlatformAndVersion(data.flatMap { it.signatures.flatMap { it.nodes } })
+    val platforms = effectivePlatformsForMembers(data.flatMap { it.signatures.flatMap { it.nodes } })
 
 
     enum class PlatformPlacement {
@@ -125,11 +126,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         }
     }
 
-    open fun appendAsPlatformDependentBlock(platforms: Set<String>, block: (Set<String>) -> Unit) {
+    open fun appendAsPlatformDependentBlock(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
         block(platforms)
     }
 
-    open fun appendAsSummaryGroup(platforms: Set<String>, block: (Set<String>) -> Unit) {
+    open fun appendAsSummaryGroup(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
         appendAsPlatformDependentBlock(platforms, block)
     }
 
@@ -145,7 +146,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         appendText(text)
     }
 
-    open fun appendAsNodeDescription(platforms: Set<String>, block: () -> Unit) {
+    open fun appendAsNodeDescription(platforms: PlatformsData, block: () -> Unit) {
         block()
     }
 
@@ -277,25 +278,25 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         block()
     }
 
-    protected open fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
+    protected open fun appendAsOverloadGroup(to: StringBuilder, platforms: PlatformsData, block: () -> Unit) {
         block()
     }
 
-    protected open fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
+    protected open fun appendIndexRow(platforms: PlatformsData, block: () -> Unit) {
         appendTableRow(block)
     }
 
-    protected open fun appendPlatformsAsText(platforms: Set<String>) {
+    protected open fun appendPlatformsAsText(platforms: PlatformsData) {
         if (platforms.isNotEmpty()) {
             appendLine()
-            appendText(platforms.joinToString(prefix = "(", postfix = ")"))
+            appendText(platforms.keys.joinToString(prefix = "(", postfix = ")"))
         }
     }
 
-    protected open fun appendPlatforms(platforms: Set<String>) {
+    protected open fun appendPlatforms(platforms: PlatformsData) {
         if (platforms.isNotEmpty()) {
             appendLine()
-            appendText(platforms.joinToString(prefix = "(", postfix = ")"))
+            appendText(platforms.keys.joinToString(prefix = "(", postfix = ")"))
         }
     }
 
@@ -358,19 +359,19 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun appendDocumentation(overloads: Iterable<DocumentationNode>, isSingleNode: Boolean) {
             val breakdownBySummary = overloads.groupByTo(LinkedHashMap()) { node ->
                 when (node.kind) {
-                    NodeKind.GroupNode -> node.origins.first().content
+                    NodeKind.GroupNode -> node.origins.map { it.content }
                     else -> node.content
                 }
             }
 
             if (breakdownBySummary.size == 1) {
                 val node = breakdownBySummary.values.single()
-                appendAsNodeDescription(effectivePlatformAndVersion(node)) {
+                appendAsNodeDescription(effectivePlatformsForMembers(node)) {
                     formatOverloadGroup(node, isSingleNode)
                 }
             } else {
                 for ((_, items) in breakdownBySummary) {
-                    appendAsOverloadGroup(to, effectivePlatformAndVersion(items)) {
+                    appendAsOverloadGroup(to, effectivePlatformsForMembers(items)) {
                         formatOverloadGroup(items)
                     }
                 }
@@ -379,13 +380,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
         private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
 
-            val platformsPerGroup = sameVersionAndPlatforms(
+            val platformsPerGroup = samePlatforms(
                     items.flatMap { if (it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
-                            .map { effectivePlatformAndVersion(it) }
+                            .map { effectivePlatformsForNode(it) }
             )
 
             if (platformsPerGroup) {
-                appendAsPlatformDependentBlock(effectivePlatformAndVersion(items)) { platforms ->
+                appendAsPlatformDependentBlock(effectivePlatformsForMembers(items)) { platforms ->
                     appendPlatforms(platforms)
                 }
             }
@@ -411,6 +412,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 for ((content, origins) in groupByContent) {
                     if (content.isEmpty()) continue
                     appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
+                        println("FOG_GN_MULTI(${groupByContent.count { !it.key.isEmpty() }}):" + item.path.joinToString(" > "))
                         if (groupByContent.count { !it.key.isEmpty() } > 1) {
                             appendPlatformsAsText(platforms)
                         }
@@ -431,7 +433,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
 
         fun renderSimpleNode(item: DocumentationNode, isSingleNode: Boolean, withPlatforms: Boolean = true) {
-            appendAsPlatformDependentBlock(effectivePlatformAndVersion(listOf(item))) { platforms ->
+            appendAsPlatformDependentBlock(effectivePlatformsForMembers(listOf(item))) { platforms ->
                 // TODO: use summarizesignatures
                 val rendered = languageService.render(item)
                 item.detailOrNull(NodeKind.Signature)?.let {
@@ -457,7 +459,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             }
 
             for ((sign, nodes) in groupBySignature) {
-                appendAsPlatformDependentBlock(effectivePlatformAndVersion(nodes)) { platforms ->
+                appendAsPlatformDependentBlock(effectivePlatformsForMembers(nodes)) { platforms ->
                     val first = nodes.first()
                     first.detailOrNull(NodeKind.Signature)?.let {
                         if (item.kind !in NodeKind.classLike || !isSingleNode)
@@ -632,7 +634,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendLine()
             appendHeader { appendText(node.name) }
 
-            appendAsNodeDescription(effectivePlatformAndVersion(node)) {
+            appendAsNodeDescription(effectivePlatformsForNode(node)) {
                 renderGroupNode(node, true)
 
                 val groupByContent = node.origins.groupBy { it.content }
@@ -747,7 +749,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendTable("Name", "Summary") {
                 appendTableBody {
                     for ((memberLocation, members) in membersMap) {
-                        val platforms = effectivePlatformAndVersion(members)
+                        val platforms = effectivePlatformsForMembers(members)
 //                        val platforms = if (platformsBasedOnMembers)
 //                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
 //                        else
@@ -915,32 +917,32 @@ abstract class StructuredFormatService(val generator: NodeLocationAwareGenerator
 
 }
 
+typealias PlatformsData = Map<String, Set<DocumentationNode>>
 
-fun memberPlatforms(node: DocumentationNode): Sequence<Set<String>> {
+fun memberPlatforms(node: DocumentationNode): PlatformsData {
     val members = when {
         node.kind == NodeKind.GroupNode -> node.origins
         else -> node.members
     }
 
-    return members.asSequence()
-            .map { effectivePlatformsForNode(it) }
+    return members.map(::effectivePlatformsForNode).fold(mapOf(), ::mergePlatforms)
 }
 
-fun effectivePlatformsForNode(node: DocumentationNode): Set<String> {
-    val platforms =
-            sequenceOf(node.platforms.toSet()) + memberPlatforms(node)
-
-
-    // Calculating common platforms for items
-    return platforms.reduce { result, platformsOfItem ->
-        result.union(platformsOfItem)
+fun mergePlatforms(a: PlatformsData, b: PlatformsData): PlatformsData {
+    val mutable = a.toMutableMap()
+    b.forEach { (name, declarations) ->
+        mutable.merge(name, declarations) { a, b -> a.union(b) }
     }
+    return mutable
 }
 
-fun effectivePlatformsForMembers(nodes: Collection<DocumentationNode>): Set<String> {
-    return nodes.map { effectivePlatformsForNode(it) }.reduce { acc, set ->
-        acc.union(set)
-    }
+fun effectivePlatformsForNode(node: DocumentationNode): PlatformsData {
+    val platforms = node.platforms + memberPlatforms(node).keys
+    return platforms.keysToMap { setOf(node) }
+}
+
+fun effectivePlatformsForMembers(nodes: Collection<DocumentationNode>): PlatformsData {
+    return nodes.map { effectivePlatformsForNode(it) }.reduce(::mergePlatforms)
 }
 
 fun mergeVersions(kotlinVersions: List<String>): String {
@@ -954,29 +956,19 @@ fun effectiveSinceKotlinForNode(node: DocumentationNode, baseVersion: String = "
         node.kind in NodeKind.memberLike -> emptyList()
         else -> node.members
     }
+    val newBase = node.sinceKotlin ?: baseVersion
+    val memberVersion = if (members.isNotEmpty()) effectiveSinceKotlinForNodes(members, newBase) else newBase
 
-    val nodeVersion = node.sinceKotlin ?: baseVersion
-    val memberVersion = if (members.isNotEmpty()) effectiveSinceKotlinForNodes(members, nodeVersion) else nodeVersion
-
-    return mergeVersions(listOf(memberVersion, nodeVersion))
+    return node.sinceKotlin ?: memberVersion
 }
 
 fun effectiveSinceKotlinForNodes(nodes: Collection<DocumentationNode>, baseVersion: String = "1.0"): String {
-    return mergeVersions(nodes.map { effectiveSinceKotlinForNode(it, baseVersion) })
+    val map = nodes.map { effectiveSinceKotlinForNode(it, baseVersion) }
+    return mergeVersions(map)
 }
 
-fun sinceKotlinAsPlatform(version: String): String = "Kotlin $version"
+fun samePlatforms(platformsPerNode: Collection<PlatformsData>): Boolean {
 
-
-fun effectivePlatformAndVersion(nodes: Collection<DocumentationNode>, baseVersion: String = "1.0"): Set<String> {
-    return effectivePlatformsForMembers(nodes) + sinceKotlinAsPlatform(effectiveSinceKotlinForNodes(nodes, baseVersion))
-}
-
-fun effectivePlatformAndVersion(node: DocumentationNode, baseVersion: String = "1.0"): Set<String> {
-    return effectivePlatformsForNode(node) + sinceKotlinAsPlatform(effectiveSinceKotlinForNode(node, baseVersion))
-}
-
-fun sameVersionAndPlatforms(platformsPerNode: Collection<Set<String>>): Boolean {
-    val first = platformsPerNode.firstOrNull() ?: return true
-    return platformsPerNode.all { it == first }
+    val first = platformsPerNode.firstOrNull()?.keys ?: return true
+    return platformsPerNode.all { it.keys == first }
 }
