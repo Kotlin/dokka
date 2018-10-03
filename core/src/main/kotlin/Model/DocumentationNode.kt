@@ -77,7 +77,10 @@ open class DocumentationNode(val name: String,
         private set
 
     val summary: ContentNode get() = when (kind) {
-        NodeKind.GroupNode -> this.origins.first().summary
+        NodeKind.GroupNode -> this.origins
+                .map { it.content }
+                .firstOrNull { !it.isEmpty() }
+                ?.summary ?: ContentEmpty
         else -> content.summary
     }
 
