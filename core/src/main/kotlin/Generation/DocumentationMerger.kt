@@ -127,12 +127,21 @@ class DocumentationMerger(
             singleNode.dropReferences { it.kind == RefKind.Owner }
             return singleNode
         }
-        val nodeWithMaxPlatforms = nodes.maxBy { it.platforms.size }!!
-        val maxPlatforms = nodeWithMaxPlatforms.platforms.toSet()
-        val notContained = nodes.filterNot { maxPlatforms.containsAll(it.platforms) }
-        val reducedDuplicates = listOf(nodeWithMaxPlatforms) + notContained
-        if (!reducedDuplicates.containsAll(nodes)) {
-            return mergeMembersWithEqualSignature(signature, reducedDuplicates)
+
+        // Specialization processing
+        // Given (Common, JVM, JRE6, JS) and (JVM, JRE6) and (JVM, JRE7)
+        // Sorted: (JVM, JRE6), (JVM, JRE7), (Common, JVM, JRE6, JS)
+        // Should output: (JVM, JRE6), (JVM, JRE7), (Common, JS)
+        // Should not remove first platform
+        val nodesSortedByPlatformCount = nodes.sortedBy { it.platforms.size }
+        val allPlatforms = mutableSetOf<String>()
+        nodesSortedByPlatformCount.forEach { node ->
+            node.platforms
+                    .filterNot { allPlatforms.add(it) }
+                    .filter { it != node.platforms.first() }
+                    .forEach { platform ->
+                        node.dropReferences { it.kind == RefKind.Platform && it.to.name == platform }
+                    }
         }
 
         val groupNode = DocumentationNode(nodes.first().name, Content.Empty, NodeKind.GroupNode)
