@@ -26,7 +26,7 @@ data class FileLocation(val file: File) : Location {
         }
         val ownerFolder = file.parentFile!!
         val relativePath = ownerFolder.toPath().relativize(other.file.toPath()).toString().replace(File.separatorChar, '/')
-        return if (anchor == null) relativePath else relativePath + "#" + anchor
+        return if (anchor == null) relativePath else relativePath + "#" + anchor.urlEncoded()
     }
 }
 
@@ -40,8 +40,22 @@ fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String
     }
 }
 
+fun nodeActualQualifier(node: DocumentationNode): List<DocumentationNode> {
+    val topLevelPage = node.references(RefKind.TopLevelPage).singleOrNull()?.to
+    if (topLevelPage != null) {
+        return nodeActualQualifier(topLevelPage)
+    }
+    return node.owner?.let { nodeActualQualifier(it) }.orEmpty() + node
+}
 
-fun relativePathToNode(node: DocumentationNode) = relativePathToNode(node.path.map { it.name }, node.members.any())
+fun relativePathToNode(node: DocumentationNode): String {
+    val qualifier = nodeActualQualifier(node)
+    return relativePathToNode(
+            qualifier.map { it.name },
+            qualifier.last().members.any()
+    )
+}
+
 
 fun identifierToFilename(path: String): String {
     if (path.isEmpty()) return "--root--"

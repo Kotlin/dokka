@@ -55,8 +55,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                        val extension: String,
                                        impliedPlatforms: List<String>) : FormattedOutputBuilder {
 
-    protected fun DocumentationNode.location() = generator.location(this)
-
     protected fun wrap(prefix: String, suffix: String, body: () -> Unit) {
         to.append(prefix)
         body()
@@ -209,7 +207,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             is ContentNodeLink -> {
                 val node = content.node
-                val linkTo = if (node != null) locationHref(location, node) else "#"
+                val linkTo = if (node != null) locationHref(location, node, generator) else "#"
                 appendLinkIfNotThisPage(linkTo, content)
             }
             is ContentExternalLink -> appendLinkIfNotThisPage(content.href, content)
@@ -259,17 +257,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         extension: String,
         name: (DocumentationNode) -> String = DocumentationNode::name
     ): FormatLink =
-        FormatLink(name(to), from.location().relativePathTo(to.location()))
-
-
-    fun locationHref(from: Location, to: DocumentationNode): String {
-        val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
-        if (topLevelPage != null) {
-            val signature = to.detailOrNull(NodeKind.Signature)
-            return from.relativePathTo(topLevelPage.location(), signature?.name ?: to.name)
-        }
-        return from.relativePathTo(to.location())
-    }
+        FormatLink(name(to), generator.relativePathToLocation(from, to))
 
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
             kind == NodeKind.Module || kind == NodeKind.Package
@@ -467,6 +455,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             for ((sign, nodes) in groupBySignature) {
                 appendAsPlatformDependentBlock(effectivePlatformsForMembers(nodes)) { platforms ->
+                    println("GNPM: ${platforms.toList().joinToString { "${it.first}->${it.second.map { it.path.joinToString(separator = ">") }}" }}")
                     val first = nodes.first()
                     first.detailOrNull(NodeKind.Signature)?.let {
                         if (item.kind !in NodeKind.classLike || !isSingleNode)
@@ -499,7 +488,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             overrides.forEach {
                 appendParagraph {
                     to.append("Overrides ")
-                    val location = location().relativePathTo(it.location())
+                    val location = generator.relativePathToLocation(this, it)
 
                     appendLink(FormatLink(it.owner!!.name + "." + it.name, location))
                 }
@@ -531,8 +520,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
         }
-
-
 
 
 //        protected fun platformsOfItems(items: List<DocumentationNode>): Set<String> {
@@ -620,6 +607,29 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
         }
+
+        fun appendOriginsGroupByContent(node: DocumentationNode) {
+            require(node.kind == NodeKind.GroupNode)
+            val groupByContent =
+                    node.origins.groupBy { it.content }
+                    .mapValues { (_, origins) ->
+                        effectivePlatformsForMembers(origins)
+                    }
+                    .filterNot { it.key.isEmpty() }
+                    .toList()
+                    .sortedByDescending { it.second.size }
+
+
+            for ((content, platforms) in groupByContent) {
+                appendAsPlatformDependentBlock(platforms) {
+                    if (groupByContent.size > 1) {
+                        appendPlatformsAsText(platforms)
+                    }
+                    appendContent(content.summary)
+                    content.appendDescription()
+                }
+            }
+        }
     }
 
     inner class SingleNodePageBuilder(val node: DocumentationNode, noHeader: Boolean = false) :
@@ -644,18 +654,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendAsNodeDescription(effectivePlatformsForNode(node)) {
                 renderGroupNode(node, true)
 
-                val groupByContent = node.origins.groupBy { it.content }
-                for ((content, origins) in groupByContent) {
-                    if (content.isEmpty()) continue
-                    appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
-                        if (groupByContent.keys.count { !it.isEmpty() } > 1) {
-                            appendPlatformsAsText(platforms)
-                        }
-                        appendContent(content)
-                    }
-                }
+                appendOriginsGroupByContent(node)
             }
 
+            println("GN: ${node.path}")
             SectionsBuilder(node).build()
         }
     }
@@ -925,6 +927,8 @@ typealias PlatformsData = Map<String, Set<DocumentationNode>>
 fun memberPlatforms(node: DocumentationNode): PlatformsData {
     val members = when {
         node.kind == NodeKind.GroupNode -> node.origins
+        node.kind in NodeKind.classLike -> emptyList()
+        node.kind in NodeKind.memberLike -> emptyList()
         else -> node.members
     }
 
@@ -974,4 +978,21 @@ fun samePlatforms(platformsPerNode: Collection<PlatformsData>): Boolean {
 
     val first = platformsPerNode.firstOrNull()?.keys ?: return true
     return platformsPerNode.all { it.keys == first }
+}
+
+fun locationHref(
+        from: Location,
+        to: DocumentationNode,
+        generator: NodeLocationAwareGenerator,
+        pathOnly: Boolean = false
+): String {
+    val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
+    if (topLevelPage != null) {
+        val signature = to.detailOrNull(NodeKind.Signature)
+        return from.relativePathTo(
+                generator.location(topLevelPage),
+                (signature?.name ?: to.name).takeUnless { pathOnly }
+        )
+    }
+    return from.relativePathTo(generator.location(to))
 }
