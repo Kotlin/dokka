@@ -159,7 +159,9 @@ open class KotlinWebsiteHtmlOutputBuilder(
         val platformToVersion = calculatePlatforms(platforms).platformToVersion
         div(to, "tags") {
             div(to, "spacer") {}
-            platformToVersion.entries.forEach { (platform, version) ->
+            platformToVersion.entries.sortedBy {
+                platformSortWeight(it.key)
+            }.forEach { (platform, version) ->
                 div(to, "tags__tag platform tag-value-$platform",
                         otherAttributes = " data-tag-version=\"$version\"") {
                     to.append(platform)
@@ -184,8 +186,11 @@ open class KotlinWebsiteHtmlOutputBuilder(
 
     override fun appendPlatformsAsText(platforms: PlatformsData) {
         appendHeader(5) {
-            to.append("For ")
-            platforms.keys.filterNot { it.isJREVersion() }.joinTo(to)
+            val filtered = platforms.keys.filterNot { it.isJREVersion() }.sortedBy { platformSortWeight(it) }
+            if (filtered.isNotEmpty()) {
+                to.append("For ")
+                filtered.joinTo(to)
+            }
         }
     }
 
@@ -224,6 +229,14 @@ open class KotlinWebsiteHtmlOutputBuilder(
         div(to, "summary-group", otherAttributes = " ${calculateDataAttributes(platforms)}") {
             block(platforms)
         }
+    }
+
+    fun platformSortWeight(name: String) = when(name.toLowerCase()) {
+        "common" -> 0
+        "jvm" -> 1
+        "js" -> 3
+        "native" -> 4
+        else -> 2 // This is hack to support JRE/JUnit and so on
     }
 }
 
