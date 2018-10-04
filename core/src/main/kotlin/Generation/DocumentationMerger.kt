@@ -148,7 +148,7 @@ class DocumentationMerger(
 
         // if nodes are classes, nested members should be also merged and
         // inserted at the same level with class
-        if (nodes.all { it.kind == NodeKind.Class }) {
+        if (nodes.all { it.kind in NodeKind.classLike }) {
             val members = nodes.flatMap { it.allReferences() }.filter { it.kind == RefKind.Member }
             val mergedMembers = mergeMemberReferences(groupNode, members)
 
