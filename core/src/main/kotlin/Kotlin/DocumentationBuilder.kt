@@ -1067,7 +1067,7 @@ fun DeclarationDescriptor.signature(): String {
         is TypeAliasDescriptor -> DescriptorUtils.getFqName(this).asString()
 
         is PropertyDescriptor -> containingDeclaration.signature() + "$" + name + receiverSignature()
-        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature() + ":" + returnType?.signature()
+        is FunctionDescriptor -> containingDeclaration.signature() + "$" + name + parameterSignature()
         is ValueParameterDescriptor -> containingDeclaration.signature() + "/" + name
         is TypeParameterDescriptor -> containingDeclaration.signature() + "*" + name
         is ReceiverParameterDescriptor -> containingDeclaration.signature() + "/" + name
