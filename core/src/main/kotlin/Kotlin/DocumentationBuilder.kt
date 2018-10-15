@@ -290,7 +290,9 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendDefaultSinceKotlin() {
-        sinceKotlin = passConfiguration.sinceKotlin
+        if (sinceKotlin == null) {
+            sinceKotlin = passConfiguration.sinceKotlin
+        }
     }
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {

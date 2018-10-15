@@ -122,8 +122,10 @@ open class DocumentationNode(val name: String,
     var sinceKotlin: String?
         get() = references(RefKind.SinceKotlin).singleOrNull()?.to?.name
         set(value) {
-            if(value == null) return dropReferences { it.kind == RefKind.SinceKotlin }
-            append(DocumentationNode(value, Content.Empty, NodeKind.Value), RefKind.SinceKotlin)
+            dropReferences { it.kind == RefKind.SinceKotlin }
+            if (value != null) {
+                append(DocumentationNode(value, Content.Empty, NodeKind.Value), RefKind.SinceKotlin)
+            }
         }
 
     val supertypes: List<DocumentationNode>
