@@ -407,7 +407,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 for ((content, origins) in groupByContent) {
                     if (content.isEmpty()) continue
                     appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
-                        println("FOG_GN_MULTI(${groupByContent.count { !it.key.isEmpty() }}):" + item.path.joinToString(" > "))
                         if (groupByContent.count { !it.key.isEmpty() } > 1) {
                             appendPlatformsAsText(platforms)
                         }
@@ -455,7 +454,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             for ((sign, nodes) in groupBySignature) {
                 appendAsPlatformDependentBlock(effectivePlatformsForMembers(nodes)) { platforms ->
-                    println("GNPM: ${platforms.toList().joinToString { "${it.first}->${it.second.map { it.path.joinToString(separator = ">") }}" }}")
                     val first = nodes.first()
                     first.detailOrNull(NodeKind.Signature)?.let {
                         if (item.kind !in NodeKind.classLike || !isSingleNode)
@@ -657,7 +655,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 appendOriginsGroupByContent(node)
             }
 
-            println("GN: ${node.path}")
             SectionsBuilder(node).build()
         }
     }
