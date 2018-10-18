@@ -404,6 +404,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             if (item.kind == NodeKind.GroupNode) {
                 val groupByContent = item.origins.groupBy { it.content }
+                if (groupByContent.count { !it.key.isEmpty() } > 1) {
+                    if (groupByContent.size > 1) println("[mult] Found ov diff: ${generator.location(item).path}")
+                }
                 for ((content, origins) in groupByContent) {
                     if (content.isEmpty()) continue
                     appendAsPlatformDependentBlock(effectivePlatformsForMembers(origins)) { platforms ->
@@ -617,7 +620,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     .toList()
                     .sortedByDescending { it.second.size }
 
-
+            if (groupByContent.size > 1) println("[mult] Found diff: ${generator.location(node).path}")
             for ((content, platforms) in groupByContent) {
                 appendAsPlatformDependentBlock(platforms) {
                     if (groupByContent.size > 1) {
