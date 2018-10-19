@@ -195,7 +195,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
     }
 
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
-        div(to, "sample") {
+        div(to, "sample", otherAttributes = " data-min-compiler-version=\"1.3\"") {
             appendBlockCode(language) {
                 imports()
                 wrap("\n\nfun main(args: Array<String>) {".htmlEscape(), "}") {
