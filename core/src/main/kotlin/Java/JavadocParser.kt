@@ -1,11 +1,9 @@
 package org.jetbrains.dokka
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.javadoc.CorePsiDocTagValueImpl
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
@@ -43,20 +41,19 @@ class JavadocParser(
     }
 
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
-        val docComment = (element as? PsiDocCommentOwner)?.docComment
-        if (docComment == null) return JavadocParseResult.Empty
+        val docComment = (element as? PsiDocCommentOwner)?.docComment ?: return JavadocParseResult.Empty
         val result = MutableContent()
         var deprecatedContent: Content? = null
+
+        val nodes = convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() }, element)
+        val firstParagraphContents = nodes.takeWhile { it !is ContentParagraph }
         val firstParagraph = ContentParagraph()
-        firstParagraph.convertJavadocElements(docComment.descriptionElements.dropWhile { it.text.trim().isEmpty() }, element)
-        val paragraphs = firstParagraph.children.dropWhile { it !is ContentParagraph }
-        firstParagraph.children.removeAll(paragraphs)
-        if (!firstParagraph.isEmpty()) {
+        if (firstParagraphContents.isNotEmpty()) {
+            firstParagraphContents.forEach { firstParagraph.append(it) }
             result.append(firstParagraph)
         }
-        paragraphs.forEach {
-            result.append(it)
-        }
+
+        result.appendAll(nodes.drop(firstParagraphContents.size))
 
         if (element is PsiMethod) {
             val tagsByName = element.searchInheritedTags()
@@ -67,14 +64,16 @@ class JavadocParser(
                     when (tagName) {
                         "param" -> {
                             section.appendTypeElement(signature) {
-                                it.details.find { it.kind == NodeKind.Parameter }?.detailOrNull(NodeKind.Type)
+                                it.details
+                                    .find { node -> node.kind == NodeKind.Parameter && node.name == tag.getSubjectName() }
+                                    ?.detailOrNull(NodeKind.Type)
                             }
                         }
                         "return" -> {
                             section.appendTypeElement(signature) { it.detailOrNull(NodeKind.Type) }
                         }
                     }
-                    section.convertJavadocElements(tag.contentElements(), context)
+                    section.appendAll(convertJavadocElements(tag.contentElements(), context))
                 }
             }
         }
@@ -84,7 +83,7 @@ class JavadocParser(
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content().apply {
-                        convertJavadocElements(tag.contentElements(), element)
+                        appendAll(convertJavadocElements(tag.contentElements(), element))
                     }
                 }
                 in tagsToInherit -> {}
@@ -92,7 +91,7 @@ class JavadocParser(
                     val subjectName = tag.getSubjectName()
                     val section = result.addSection(javadocSectionDisplayName(tag.name), subjectName)
 
-                    section.convertJavadocElements(tag.contentElements(), element)
+                    section.appendAll(convertJavadocElements(tag.contentElements(), element))
                 }
             }
         }
@@ -133,11 +132,15 @@ class JavadocParser(
         return if (getSubjectName() != null) tagValueElements.dropWhile { it is PsiDocTagValue } else tagValueElements
     }
 
-    private fun ContentBlock.convertJavadocElements(elements: Iterable<PsiElement>, element: PsiNamedElement) {
+    private fun convertJavadocElements(elements: Iterable<PsiElement>, element: PsiNamedElement): List<ContentNode> {
         val doc = Jsoup.parse(expandAllForElements(elements, element))
-        doc.body().childNodes().forEach {
-            convertHtmlNode(it)?.let { append(it) }
+        return doc.body().childNodes().mapNotNull {
+            convertHtmlNode(it)
         }
+    }
+
+    private fun ContentBlock.appendAll(nodes: List<ContentNode>) {
+        nodes.forEach { append(it) }
     }
 
     private fun expandAllForElements(elements: Iterable<PsiElement>, element: PsiNamedElement): String {
