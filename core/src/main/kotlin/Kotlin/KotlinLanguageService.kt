@@ -11,7 +11,7 @@ class KotlinLanguageService : CommonLanguageService() {
     }
 
     private val fullOnlyModifiers =
-        setOf("public", "protected", "private", "inline", "noinline", "crossinline", "reified")
+        setOf("public", "protected", "private", "internal", "inline", "noinline", "crossinline", "reified")
 
     override fun render(node: DocumentationNode, renderMode: RenderMode): ContentNode {
         return content {
@@ -201,7 +201,7 @@ class KotlinLanguageService : CommonLanguageService() {
             "final", "public", "var" -> {
             }
             else -> {
-                if (node.name !in fullOnlyModifiers || renderMode == RenderMode.FULL) {
+                if (showModifierInSummary(node) || renderMode == RenderMode.FULL) {
                     super.renderModifier(block, node, renderMode, nowrap)
                 }
             }
