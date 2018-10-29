@@ -109,7 +109,12 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun javaCodeInParam() {
-        verifyJavaMarkdownNode("javaCodeInParam")
+        verifyJavaMarkdownNodes("javaCodeInParam") {
+            selectNodes(it) {
+                subgraphOf(RefKind.Member)
+                withKind(NodeKind.Function)
+            }
+        }
     }
 
     @Test fun javaSpaceInAuthor() {
