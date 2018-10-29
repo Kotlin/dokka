@@ -1,14 +1,9 @@
-[test](../index.md) / [C](./index.md)
+[test](../index.md) / [C](index.md) / [withParam](./with-param.md)
 
-# C
+# withParam
 
-`protected open class C<T : Any>`
+`open fun withParam(par: String!): Unit`
 
 ### Parameters
 
-`T` - this is `some code` and other text
-
-### Constructors
-
-| [&lt;init&gt;](-init-.md) | `C()` |
-
+`par` - String!: this is `some code` and other text
