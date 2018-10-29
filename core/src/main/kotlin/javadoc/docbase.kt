@@ -173,7 +173,7 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
     private val javaLanguageService = JavaLanguageService()
 
     override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
-    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()
+    override fun typeName(): String = (javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()) + dimension()
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
     override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
@@ -275,7 +275,7 @@ class ParameterizedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNod
 }
 
 class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), Parameter {
-    override fun typeName(): String? = JavaLanguageService().renderType(node.detail(NodeKind.Type))
+    override fun typeName(): String? = type()?.typeName()
     override fun type(): Type? = TypeAdapter(module, node.detail(NodeKind.Type))
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this).toTypedArray()
 }
@@ -317,7 +317,7 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
                     .map { ThrowsTagAdapter(this, ClassDocumentationNodeAdapter(module, classOf(it.subjectName!!, NodeKind.Exception)), it.children) }
                     .toTypedArray()
 
-    override fun isVarArgs(): Boolean = node.details(NodeKind.Parameter).any { false } // TODO
+    override fun isVarArgs(): Boolean = node.details(NodeKind.Parameter).last().hasModifier("vararg")
 
     override fun isSynchronized(): Boolean = node.annotations.any { it.name == "synchronized" }
 

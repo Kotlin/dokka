@@ -64,7 +64,7 @@ class JavadocTest {
             val member = classDoc.methods().find { it.name() == "main" }!!
             val paramType = member.parameters()[0].type()
             assertNull(paramType.asParameterizedType())
-            assertEquals("String", paramType.typeName())
+            assertEquals("String[]", paramType.typeName())
             assertEquals("String", paramType.asClassDoc().name())
         }
     }
@@ -158,6 +158,22 @@ class JavadocTest {
             val tag = classDoc.inlineTags().filterIsInstance<SeeMethodTagAdapter>().first()
             assertEquals("TestClass.Companion", tag.referencedClassName())
             assertEquals("test", tag.referencedMemberName())
+        }
+    }
+
+    @Test
+    fun testVararg() {
+        verifyJavadoc("testdata/javadoc/vararg.kt") { doc ->
+            val classDoc = doc.classNamed("VarargKt")!!
+            val methods = classDoc.methods()
+            methods.single { it.name() == "vararg" }.let {  method ->
+                assertTrue(method.isVarArgs)
+                assertEquals("int", method.parameters().last().typeName())
+            }
+            methods.single { it.name() == "varargInMiddle" }.let {  method ->
+                assertFalse(method.isVarArgs)
+                assertEquals("int[]", method.parameters()[1].typeName())
+            }
         }
     }
 
