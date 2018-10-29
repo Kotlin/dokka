@@ -18,11 +18,5 @@ Block code
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized* <br>Paragraph ~~Strikethrough~~ ~~Deleted~~ `Code`
-
-```
-Block code<br>```
-<br>
-* List Item
-<br> |
+| [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized*  |
 
