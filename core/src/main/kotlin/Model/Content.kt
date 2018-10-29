@@ -35,13 +35,13 @@ class NodeRenderContent(
         get() = 0 //TODO: Clarify?
 }
 
-class LazyContentBlock(private val fillChildren: (ContentBlock) -> Unit) : ContentBlock() {
+class LazyContentBlock(private val fillChildren: () -> List<ContentNode>) : ContentBlock() {
     private var computed = false
     override val children: ArrayList<ContentNode>
         get() {
             if (!computed) {
                 computed = true
-                fillChildren(this)
+                children.addAll(fillChildren())
             }
             return super.children
         }

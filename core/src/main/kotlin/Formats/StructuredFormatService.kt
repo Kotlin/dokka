@@ -152,6 +152,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
 
+            is NodeRenderContent -> {
+                val node = content.node
+                appendContent(languageService.render(node, content.mode))
+            }
             is ContentNodeLink -> {
                 val node = content.node
                 val linkTo = if (node != null) locationHref(location, node) else "#"

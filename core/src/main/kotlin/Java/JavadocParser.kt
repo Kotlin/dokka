@@ -33,12 +33,12 @@ class JavadocParser(
 
     private fun ContentSection.appendTypeElement(signature: String, selector: (DocumentationNode) -> DocumentationNode?) {
         append(LazyContentBlock {
-            val node = refGraph.lookupOrWarn(signature, logger)?.let(selector)
-            if (node != null) {
-                it.append(NodeRenderContent(node, LanguageService.RenderMode.SUMMARY))
-                it.symbol(":")
-                it.text(" ")
-            }
+            val node = refGraph.lookupOrWarn(signature, logger)?.let(selector) ?: return@LazyContentBlock emptyList()
+            listOf(ContentBlock().apply {
+                append(NodeRenderContent(node, LanguageService.RenderMode.SUMMARY))
+                symbol(":")
+                text(" ")
+            })
         })
     }
 

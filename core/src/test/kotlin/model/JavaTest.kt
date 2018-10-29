@@ -23,7 +23,7 @@ public class JavaTest {
                 with(content.sections[1]) {
                     assertEquals("Parameters", tag)
                     assertEquals("value", subjectName)
-                    assertEquals("render(Type:String,SUMMARY): is int parameter", toTestString())
+                    assertEquals("render(Type:Int,SUMMARY): is int parameter", toTestString())
                 }
                 with(content.sections[2]) {
                     assertEquals("Author", tag)
