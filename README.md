@@ -11,22 +11,37 @@ and can generate documentation in multiple formats including standard Javadoc, H
 
 ### Using the Gradle plugin
 
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-    }
+> ```groovy
+> buildscript {
+>     repositories {
+>         jcenter()
+>     }
+> 
+>     dependencies {
+>         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+>         //WARNING: If your project is Android project, please replace the 				//previous row with the next row!
+>         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
+>     }
+> }
+> 
+> apply plugin: 'org.jetbrains.dokka'
+> ```
+>
 
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
-    }
-}
 
-apply plugin: 'org.jetbrains.dokka'
+
+//WARNING: If your project is Android project, please replace "**apply plugin: 'org.jetbrains.dokka'**" with "**apply plugin: 'org.jetbrains.dokka-android'**"!
+
+```
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
 ```
 
+**[Direct Train with Bintray maven push for kotlin code](upload.gradle)**
+
 The plugin adds a task named "dokka" to the project.
- 
+
 Minimal dokka configuration:
 
 ```groovy
@@ -37,7 +52,7 @@ dokka {
 ```
 
 [Output formats](#output_formats)
- 
+
 The available configuration options are shown below:
 
 ```groovy
@@ -156,27 +171,6 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 ```
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
-
-#### Android
-
-If you are using Android there is a separate Gradle plugin. Just make sure you apply the plugin after
-`com.android.library` and `kotlin-android`.
-
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
-    }
-}
-
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
-```
 
 ### Using the Maven plugin
 
