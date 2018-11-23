@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
@@ -23,7 +22,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
-import org.jetbrains.kotlin.psi.KtVariableDeclaration
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
@@ -792,13 +790,7 @@ class DocumentationBuilder
             }
 
             if (isConst) {
-                val psi = sourcePsi()
-                val valueText = when (psi) {
-                    is KtVariableDeclaration -> psi.initializer?.text
-                    is PsiField -> psi.initializer?.text
-                    else -> null
-                }
-                valueText?.let { node.appendTextNode(it, NodeKind.Value) }
+                this.compileTimeInitializer?.toDocumentationNode()?.let { node.append(it, RefKind.Detail) }
             }
 
 
@@ -922,8 +914,8 @@ class DocumentationBuilder
         return node
     }
 
-    fun ConstantValue<*>.toDocumentationNode(): DocumentationNode? = value?.let { value ->
-        when (value) {
+    fun ConstantValue<*>.toDocumentationNode(): DocumentationNode? = value.let { value ->
+        val text = when (value) {
             is String ->
                 "\"" + StringUtil.escapeStringCharacters(value) + "\""
             is EnumEntrySyntheticClassDescriptor ->
@@ -936,10 +928,9 @@ class DocumentationBuilder
                     value.toString()
                 }
             }
-            else -> value.toString()
-        }.let { valueString ->
-            DocumentationNode(valueString, Content.Empty, NodeKind.Value)
+            else -> "$value"
         }
+        DocumentationNode(text, Content.Empty, NodeKind.Value)
     }
 
 

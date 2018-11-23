@@ -220,11 +220,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private fun DocumentationNode.appendConstantValueIfAny(field: PsiField) {
         val modifierList = field.modifierList ?: return
         val initializer = field.initializer ?: return
-        if (field.type is PsiPrimitiveType &&
-            modifierList.hasExplicitModifier(PsiModifier.FINAL) &&
+        if (modifierList.hasExplicitModifier(PsiModifier.FINAL) &&
             modifierList.hasExplicitModifier(PsiModifier.STATIC)) {
             val value = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
             val text = when(value) {
+                null -> return // No value found
                 is String ->
                     "\"" + StringUtil.escapeStringCharacters(value) + "\""
                 else -> value.toString()
