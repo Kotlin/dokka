@@ -180,7 +180,7 @@ Documentation""", content.description.toTestString())
                 it == "suspend" || it == "inline"
             }
 
-            assertEquals(setOf("suspend", "inline"), modifiers)
+            assertEquals(listOf("suspend", "inline"), modifiers)
         }
     }
 

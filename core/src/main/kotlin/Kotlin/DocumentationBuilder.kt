@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.addRemoveModifier.MODIFIERS_ORDER
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
@@ -332,7 +333,11 @@ class DocumentationBuilder
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
-        KtTokens.MODIFIER_KEYWORDS_ARRAY.filter { it !in knownModifiers }.forEach {
+        KtTokens.MODIFIER_KEYWORDS_ARRAY.filter {
+            it !in knownModifiers
+        }.sortedWith (
+            compareBy(MODIFIERS_ORDER::indexOf)
+        ).forEach {
             if (psi.hasModifier(it)) {
                 appendTextNode(it.value, NodeKind.Modifier)
             }
