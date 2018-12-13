@@ -140,9 +140,7 @@ fun buildDocumentationModule(injector: Injector,
     val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzer::class.java)
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
-    val fragments = fragmentFiles
-            .map { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
-            .filterNotNull()
+    val fragments = fragmentFiles.mapNotNull { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
             .distinct()
 
     val packageDocs = injector.getInstance(PackageDocs::class.java)

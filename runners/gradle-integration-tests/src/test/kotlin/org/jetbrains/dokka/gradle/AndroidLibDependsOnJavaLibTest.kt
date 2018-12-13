@@ -2,8 +2,6 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
-import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.test.assertEquals
 
 class AndroidLibDependsOnJavaLibTest: AbstractDokkaAndroidGradleTest() {

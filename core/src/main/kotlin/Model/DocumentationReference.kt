@@ -45,15 +45,15 @@ class NodeReferenceGraph() {
     }
 
     fun link(fromNode: DocumentationNode, toSignature: String, kind: RefKind) {
-        references.add(PendingDocumentationReference({ -> fromNode}, { -> nodeMap[toSignature]}, kind))
+        references.add(PendingDocumentationReference({ fromNode}, { nodeMap[toSignature]}, kind))
     }
 
     fun link(fromSignature: String, toNode: DocumentationNode, kind: RefKind) {
-        references.add(PendingDocumentationReference({ -> nodeMap[fromSignature]}, { -> toNode}, kind))
+        references.add(PendingDocumentationReference({ nodeMap[fromSignature]}, { toNode}, kind))
     }
 
     fun link(fromSignature: String, toSignature: String, kind: RefKind) {
-        references.add(PendingDocumentationReference({ -> nodeMap[fromSignature]}, { -> nodeMap[toSignature]}, kind))
+        references.add(PendingDocumentationReference({ nodeMap[fromSignature]}, { nodeMap[toSignature]}, kind))
     }
 
     fun lookup(signature: String) = nodeMap[signature]

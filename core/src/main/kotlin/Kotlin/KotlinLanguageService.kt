@@ -55,7 +55,7 @@ class KotlinLanguageService : LanguageService {
     }
 
     private fun List<DocumentationNode>.getReceiverKind(): ReceiverKind? {
-        val qNames = map { it.getReceiverQName() }.filterNotNull()
+        val qNames = mapNotNull { it.getReceiverQName() }
         if (qNames.size != size)
             return null
 

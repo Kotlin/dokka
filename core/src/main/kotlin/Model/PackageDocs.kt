@@ -33,7 +33,7 @@ class PackageDocs
                         targetContent = findTargetContent(headingText.trimStart())
                     }
                 } else {
-                    buildContentTo(it, targetContent, LinkResolver(linkMap, { resolveContentLink(fileName, it, linkResolveContext) }))
+                    buildContentTo(it, targetContent, LinkResolver(linkMap) { resolveContentLink(fileName, it, linkResolveContext) })
                 }
             }
         } else {

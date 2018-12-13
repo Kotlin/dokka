@@ -2,7 +2,6 @@ package org.jetbrains.dokka
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import org.jetbrains.kotlin.utils.fileUtils.withReplacedExtensionOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

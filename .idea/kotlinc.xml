@@ -6,6 +6,6 @@
   </component>
   <component name="KotlinCommonCompilerArguments">
     <option name="apiVersion" value="1.1" />
-    <option name="languageVersion" value="1.1" />
+    <option name="languageVersion" value="1.2" />
   </component>
 </project>

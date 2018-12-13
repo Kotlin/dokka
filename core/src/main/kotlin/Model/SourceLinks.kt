@@ -23,7 +23,7 @@ fun DocumentationNode.appendSourceLink(psi: PsiElement?, sourceLinks: List<Sourc
             }
         }
         append(DocumentationNode(url, Content.Empty, NodeKind.SourceUrl),
-                RefKind.Detail);
+                RefKind.Detail)
     }
 
     if (target != null) {

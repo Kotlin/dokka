@@ -326,8 +326,9 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
 
     override fun thrownExceptionTypes(): Array<out Type> = emptyArray()
     override fun receiverType(): Type? = receiverNode()?.let { receiver -> TypeAdapter(module, receiver) }
-    override fun flatSignature(): String = node.details(NodeKind.Parameter).map { JavaLanguageService().renderType(it) }.joinToString(", ", "(", ")")
-    override fun signature(): String = node.details(NodeKind.Parameter).map { JavaLanguageService().renderType(it) }.joinToString(", ", "(", ")") // TODO it should be FQ types
+    override fun flatSignature(): String = node.details(NodeKind.Parameter).joinToString(", ", "(", ")") { JavaLanguageService().renderType(it) }
+    override fun signature(): String =
+        node.details(NodeKind.Parameter).joinToString(", ", "(", ")") { JavaLanguageService().renderType(it) } // TODO it should be FQ types
 
     override fun parameters(): Array<out Parameter> =
             ((receiverNode()?.let { receiver -> listOf<Parameter>(ReceiverParameterAdapter(module, receiver, this)) } ?: emptyList())
@@ -469,10 +470,8 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
 }
 
 fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
-        details(NodeKind.Supertype)
-                .map { it.links.firstOrNull() }
-                .map { module.allTypes[it?.qualifiedName()] }
-                .filterNotNull()
+    details(NodeKind.Supertype)
+        .map { it.links.firstOrNull() }.mapNotNull { module.allTypes[it?.qualifiedName()] }
 
 fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, DocumentationNode> {
     val result = hashMapOf<String, DocumentationNode>()

@@ -23,8 +23,7 @@ interface JavaDocumentationParser {
 class JavadocParser(private val refGraph: NodeReferenceGraph,
                     private val logger: DokkaLogger) : JavaDocumentationParser {
     override fun parseDocumentation(element: PsiNamedElement): JavadocParseResult {
-        val docComment = (element as? PsiDocCommentOwner)?.docComment
-        if (docComment == null) return JavadocParseResult.Empty
+        val docComment = (element as? PsiDocCommentOwner)?.docComment ?: return JavadocParseResult.Empty
         val result = MutableContent()
         var deprecatedContent: Content? = null
         val para = ContentParagraph()
@@ -101,7 +100,7 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
     private fun createLink(element: Element): ContentBlock {
         val docref = element.attr("docref")
         if (docref != null) {
-            return ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger)})
+            return ContentNodeLazyLink(docref) { refGraph.lookupOrWarn(docref, logger)}
         }
         val href = element.attr("href")
         if (href != null) {
@@ -112,15 +111,12 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
     }
 
     private fun MutableContent.convertSeeTag(tag: PsiDocTag) {
-        val linkElement = tag.linkElement()
-        if (linkElement == null) {
-            return
-        }
+        val linkElement = tag.linkElement() ?: return
         val seeSection = findSectionByTag(ContentTags.SeeAlso) ?: addSection(ContentTags.SeeAlso, null)
         val linkSignature = resolveLink(linkElement)
         val text = ContentText(linkElement.text)
         if (linkSignature != null) {
-            val linkNode = ContentNodeLazyLink(tag.valueElement!!.text, { -> refGraph.lookupOrWarn(linkSignature, logger)})
+            val linkNode = ContentNodeLazyLink(tag.valueElement!!.text) { refGraph.lookupOrWarn(linkSignature, logger)}
             linkNode.append(text)
             seeSection.append(linkNode)
         } else {

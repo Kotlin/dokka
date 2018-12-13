@@ -1,10 +1,6 @@
 package org.jetbrains.dokka.tests
 
-import org.jetbrains.dokka.DokkaConsoleLogger
-import org.jetbrains.dokka.KotlinLanguageService
-import org.jetbrains.dokka.KotlinWebsiteRunnableSamplesFormatService
 import org.junit.Ignore
-import org.junit.Test
 
 @Ignore
 class KotlinWebSiteRunnableSamplesFormatTest {

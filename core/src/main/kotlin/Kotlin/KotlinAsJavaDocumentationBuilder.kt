@@ -40,8 +40,7 @@ class KotlinAsJavaDocumentationBuilder
     fun PsiClass.isVisibleInDocumentation(): Boolean {
         val origin: KtDeclaration = (this as KtLightElement<*, *>).kotlinOrigin as? KtDeclaration ?: return true
 
-        return origin.hasModifier(KtTokens.INTERNAL_KEYWORD) != true &&
-                origin.hasModifier(KtTokens.PRIVATE_KEYWORD) != true
+        return !origin.hasModifier(KtTokens.INTERNAL_KEYWORD) && !origin.hasModifier(KtTokens.PRIVATE_KEYWORD)
     }
 }
 

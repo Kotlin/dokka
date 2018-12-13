@@ -2,38 +2,38 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin.iml" group="runners/android-gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin_main.iml" group="runners/android-gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/android-gradle-plugin_test.iml" group="runners/android-gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/ant.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/ant.iml" group="runners/ant" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/ant_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/ant_main.iml" group="runners/ant" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/ant_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/ant_test.iml" group="runners/ant" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc_main.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc_main.iml" group="buildSrc" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc_test.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc_test.iml" group="buildSrc" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/cli.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/cli.iml" group="runners/cli" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/cli_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/cli_main.iml" group="runners/cli" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/cli_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/cli_test.iml" group="runners/cli" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dokka.iml" filepath="$PROJECT_DIR$/.idea/modules/dokka.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar.iml" group="runners/fatjar" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_main.iml" group="runners/fatjar" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/fatjar_test.iml" group="runners/fatjar" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests.iml" group="runners/gradle-integration-tests" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests_main.iml" group="runners/gradle-integration-tests" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/gradle-integration-tests_test.iml" group="runners/gradle-integration-tests" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin.iml" group="runners/gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin_main.iml" group="runners/gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/gradle-plugin_test.iml" group="runners/gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/integration.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/integration.iml" group="integration" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/integration_main.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/integration_main.iml" group="integration" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/integration_test.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/integration_test.iml" group="integration" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin.iml" group="runners/maven-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin_main.iml" group="runners/maven-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/maven-plugin_test.iml" group="runners/maven-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/runners.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/runners.iml" group="runners" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/android-gradle-plugin/org.jetbrains.dokka.android-gradle-plugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/ant/org.jetbrains.dokka.ant.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.main.iml" filepath="$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.test.iml" filepath="$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.buildSrc.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/cli/org.jetbrains.dokka.cli.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.jetbrains.dokka.core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.dokka.iml" filepath="$PROJECT_DIR$/.idea/modules/org.jetbrains.dokka.dokka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/fatjar/org.jetbrains.dokka.fatjar.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-integration-tests/org.jetbrains.dokka.gradle-integration-tests.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/gradle-plugin/org.jetbrains.dokka.gradle-plugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integration/org.jetbrains.dokka.integration.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/maven-plugin/org.jetbrains.dokka.maven-plugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runners/org.jetbrains.dokka.runners.iml" filepath="$PROJECT_DIR$/.idea/modules/runners/org.jetbrains.dokka.runners.iml" />
     </modules>
   </component>
 </project>

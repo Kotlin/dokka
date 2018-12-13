@@ -174,9 +174,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
                 when (content) {
                     is ContentBlockSampleCode ->
-                        appendSampleBlockCode(content.language, content.importsBlock::appendBlockCodeContent, { content.appendBlockCodeContent() })
+                        appendSampleBlockCode(content.language, content.importsBlock::appendBlockCodeContent) { content.appendBlockCodeContent() }
                     is ContentBlockCode ->
-                        appendBlockCode(content.language, { content.appendBlockCodeContent() })
+                        appendBlockCode(content.language) { content.appendBlockCodeContent() }
                 }
             }
             is ContentHeading -> appendHeader(content.level) { appendContent(content.children) }
@@ -557,7 +557,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             if (node.kind == NodeKind.Module) {
                 appendHeader(3) { to.append("Index") }
                 node.members(NodeKind.AllTypes).singleOrNull()?.let { allTypes ->
-                    appendLink(link(node, allTypes, { "All Types" }))
+                    appendLink(link(node, allTypes) { "All Types" })
                 }
             }
         }

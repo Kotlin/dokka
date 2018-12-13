@@ -6,8 +6,6 @@ import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPrivateApi
-import org.jetbrains.kotlin.resolve.descriptorUtil.isEffectivelyPublicApi
 
 class DeclarationLinkResolver
         @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
@@ -37,14 +35,14 @@ class DeclarationLinkResolver
             val signature = descriptorSignatureProvider.signature(symbol)
             val referencedAt = fromDescriptor.signatureWithSourceLocation()
 
-            return ContentNodeLazyLink(href, { ->
+            return ContentNodeLazyLink(href) {
                 val target = refGraph.lookup(signature)
 
                 if (target == null) {
                     logger.warn("Can't find node by signature $signature, referenced at $referencedAt")
                 }
                 target
-            })
+            }
         }
         if ("/" in href) {
             return ContentExternalLink(href)

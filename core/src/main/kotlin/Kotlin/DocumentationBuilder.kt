@@ -901,11 +901,11 @@ fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescripto
         if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
             val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-            return externalClassNodes.getOrPut(fqName, {
+            return externalClassNodes.getOrPut(fqName) {
                 val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
                 append(newNode, RefKind.Member)
                 newNode
-            })
+            }
         }
     }
     return this

@@ -2,7 +2,6 @@ package issues
 
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.NodeKind
-import org.jetbrains.dokka.tests.toTestString
 import org.jetbrains.dokka.tests.verifyModel
 import org.junit.Test
 import kotlin.test.assertEquals

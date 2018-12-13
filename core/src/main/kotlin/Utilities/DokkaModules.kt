@@ -2,14 +2,12 @@ package org.jetbrains.dokka.Utilities
 
 import com.google.inject.Binder
 import com.google.inject.Module
-import com.google.inject.Provider
 import com.google.inject.TypeLiteral
 import com.google.inject.binder.AnnotatedBindingBuilder
+import com.google.inject.binder.ScopedBindingBuilder
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
-import org.jetbrains.dokka.Model.DescriptorSignatureProvider
-import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 import kotlin.reflect.KClass
@@ -77,4 +75,4 @@ inline fun <reified T: Any> Binder.lazyBind(): Lazy<AnnotatedBindingBuilder<T>> 
 inline infix fun <reified T: Any, TKClass: KClass<out T>> Lazy<AnnotatedBindingBuilder<T>>.toOptional(kClass: TKClass?) =
         kClass?.let { value toType it }
 
-inline infix fun <reified T: Any, TKClass: KClass<out T>> AnnotatedBindingBuilder<T>.toType(kClass: TKClass) = to(kClass.java)
+inline infix fun <reified T: Any, TKClass: KClass<out T>> AnnotatedBindingBuilder<T>.toType(kClass: TKClass): ScopedBindingBuilder = to(kClass.java)
