@@ -174,8 +174,18 @@ Documentation""", content.description.toTestString())
         }
     }
 
-    @Test fun suspendInlineOrderFunction() {
+    @Test fun suspendInlineFunctionOrder() {
         verifyPackageMember("testdata/functions/suspendInlineFunction.kt") { func ->
+            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
+                it == "suspend" || it == "inline"
+            }
+
+            assertEquals(listOf("suspend", "inline"), modifiers)
+        }
+    }
+
+    @Test fun inlineSuspendFunctionOrderChanged() {
+        verifyPackageMember("testdata/functions/inlineSuspendFunction.kt") { func ->
             val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
                 it == "suspend" || it == "inline"
             }

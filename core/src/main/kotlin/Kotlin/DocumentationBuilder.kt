@@ -335,9 +335,9 @@ class DocumentationBuilder
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter {
             it !in knownModifiers
-        }.sortedWith (
-            compareBy(MODIFIERS_ORDER::indexOf)
-        ).forEach {
+        }.sortedBy {
+            MODIFIERS_ORDER.indexOf(it)
+        }.forEach {
             if (psi.hasModifier(it)) {
                 appendTextNode(it.value, NodeKind.Modifier)
             }
