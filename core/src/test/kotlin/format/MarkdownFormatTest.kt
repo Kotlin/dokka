@@ -165,6 +165,14 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         verifyMarkdownNode("reifiedTypeParameter", withKotlinRuntime = true)
     }
 
+    @Test fun suspendInlineFunctionOrder() {
+        verifyMarkdownNode("suspendInlineFunction", withKotlinRuntime = true)
+    }
+
+    @Test fun inlineSuspendFunctionOrderChanged() {
+        verifyMarkdownNode("inlineSuspendFunction", withKotlinRuntime = true)
+    }
+
     @Test fun annotatedTypeParameter() {
         verifyMarkdownNode("annotatedTypeParameter", withKotlinRuntime = true)
     }
