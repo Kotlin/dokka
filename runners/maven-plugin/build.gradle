@@ -90,6 +90,8 @@ task helpMojo(type: CrossPlatformExec, dependsOn: setupMaven) {
     dependsOn mergeClassOutputs
 }
 
+mergeClassOutputs.dependsOn compileKotlin
+helpMojo.dependsOn mergeClassOutputs
 helpMojo.dependsOn generatePom
 sourceSets.main.java.srcDir("$buildDir/generated-sources/plugin")
 compileJava.dependsOn helpMojo
