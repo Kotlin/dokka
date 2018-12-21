@@ -51,6 +51,12 @@ task setupMaven(type: Sync) {
 
 def mavenBuildDir = "$buildDir/maven"
 
+
+sourceSets.main.resources { 
+    srcDirs += "$mavenBuildDir/classes/java/main" 
+    exclude "**/*.class"
+}
+
 task generatePom() {
     inputs.file(new File(projectDir, "pom.tpl.xml"))
     outputs.file(new File(mavenBuildDir, "pom.xml"))
@@ -120,6 +126,7 @@ task pluginDescriptor(type: CrossPlatformExec, dependsOn: setupMaven) {
 helpMojo.dependsOn generatePom
 sourceSets.main.java.srcDir("$buildDir/maven/generated-sources/plugin")
 compileJava.dependsOn helpMojo
+processResources.dependsOn pluginDescriptor
 
 pluginDescriptor.dependsOn generatePom
 
