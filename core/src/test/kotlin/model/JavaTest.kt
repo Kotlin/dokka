@@ -162,6 +162,11 @@ public class JavaTest {
     @Test fun hideAnnotation() {
         verifyJavaPackageMember("testdata/java/hideAnnotation.java") { cls ->
             assertEquals(1, cls.members(NodeKind.Function).size)
+            assertEquals(1, cls.members(NodeKind.Property).size)
+
+            // The test file contains two classes, one of which is hidden.
+            // The test for @hide annotation on classes is via verifyJavaPackageMember(),
+            // which will throw an IllegalArgumentException if it detects more than one class.
         }
     }
 
