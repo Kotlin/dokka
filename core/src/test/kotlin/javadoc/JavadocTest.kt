@@ -177,6 +177,35 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun shouldHaveValidVisibilityModifiers() {
+        verifyJavadoc("testdata/javadoc/visibilityModifiers.kt", withKotlinRuntime = true) { doc ->
+            val classDoc = doc.classNamed("foo.Apple")!!
+            val methods = classDoc.methods()
+
+            val getName = methods[0]
+            val setName = methods[1]
+            val getWeight = methods[2]
+            val setWeight = methods[3]
+            val getRating = methods[4]
+            val setRating = methods[5]
+            val color = classDoc.fields()[3]
+
+            assertTrue(getName.isProtected)
+            assertTrue(setName.isProtected)
+
+            assertTrue(getWeight.isPublic)
+            assertTrue(setWeight.isPublic)
+
+            assertTrue(getRating.isPublic)
+            assertTrue(setRating.isPublic)
+
+            assertEquals(methods.size, 6)
+
+            assertTrue(color.isPrivate)
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,

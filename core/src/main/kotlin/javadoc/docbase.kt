@@ -122,14 +122,14 @@ class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: Documentati
 }
 
 open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
-    override fun isPublic(): Boolean = true
+    override fun isPublic(): Boolean = node.hasModifier("public") || node.hasModifier("internal")
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
     override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
     override fun qualifiedName(): String? = node.qualifiedName()
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
-    override fun isProtected(): Boolean = false
+    override fun isProtected(): Boolean = node.hasModifier("protected")
 
     override fun isFinal(): Boolean = node.hasModifier("final")
 
@@ -165,7 +165,7 @@ open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationN
         return null
     }
 
-    override fun isPrivate(): Boolean = false
+    override fun isPrivate(): Boolean = node.hasModifier("private")
     override fun isIncluded(): Boolean = containingPackage()?.isIncluded ?: false && containingClass()?.let { it.isIncluded } ?: true
 }
 
