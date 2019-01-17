@@ -137,19 +137,26 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     override fun appendEmphasis(body: () -> Unit) = wrap("*", "*", body)
     override fun appendStrikethrough(body: () -> Unit) = wrap("~~", "~~", body)
 
-    override fun appendLink(href: String, body: () -> Unit) {
+    private fun normalizeHref(href: String):String{
         fun isExternalHref(href:String) = href.contains(":/")
-        var resolvedHref = href
+        var result = href
         //wiki mode for local links
         if(wikiMode && !isExternalHref(href)){
-            resolvedHref = href.replace("""(\.$extension*)?$""".toRegex(),"")
+            result = href.replace("""(\.$extension*)?$""".toRegex(),"")
+            if(!result.startsWith("./")&& !result.startsWith("../")){
+                result = "./$result"
+            }
         }
+        return result
+    }
 
+    override fun appendLink(href: String, body: () -> Unit) {
+        val normalizedHref = normalizeHref(href)
         if (inCodeBlock) {
-            wrap("`[`", "`]($resolvedHref)`", body)
+            wrap("`[`", "`]($normalizedHref)`", body)
         }
         else {
-            wrap("[", "]($resolvedHref)", body)
+            wrap("[", "]($normalizedHref)", body)
         }
     }
 

@@ -8,10 +8,10 @@
 
 | Name | Summary |
 |---|---|
-| [&lt;init&gt;](-init-) | `Foo()` |
+| [&lt;init&gt;](./-init-) | `Foo()` |
 
 ### Functions
 
 | Name | Summary |
 |---|---|
-| [foo](foo) | `fun foo(): Unit`<ol><li>Foo</li><li>Bar</li></ol> |
+| [foo](./foo) | `fun foo(): Unit`<ol><li>Foo</li><li>Bar</li></ol> |
