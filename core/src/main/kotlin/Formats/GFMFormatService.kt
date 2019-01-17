@@ -10,8 +10,11 @@ open class GFMOutputBuilder(
         generator: NodeLocationAwareGenerator,
         languageService: LanguageService,
         extension: String,
-        impliedPlatforms: List<String>
-) : MarkdownOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms) {
+        impliedPlatforms: List<String>,
+        wikiMode: Boolean = false
+) : MarkdownOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, wikiMode) {
+
+
     override fun appendTable(vararg columns: String, body: () -> Unit) {
         to.appendln(columns.joinToString(" | ", "| ", " |"))
         to.appendln("|" + "---|".repeat(columns.size))

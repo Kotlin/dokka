@@ -402,6 +402,7 @@ Dokka supports the following command line arguments:
   * `markdown` - Markdown structured as `html`
     * `gfm` - GitHub flavored markdown  
     * `jekyll` - Jekyll compatible markdown 
+    * `glw` - Gitlab Wiki (#403)
   * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 
 ### Platforms<a name="platforms"></a>

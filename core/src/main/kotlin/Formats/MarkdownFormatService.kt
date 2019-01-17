@@ -24,7 +24,8 @@ open class MarkdownOutputBuilder(to: StringBuilder,
                                  generator: NodeLocationAwareGenerator,
                                  languageService: LanguageService,
                                  extension: String,
-                                 impliedPlatforms: List<String>)
+                                 impliedPlatforms: List<String>,
+                                 val wikiMode:Boolean =false)
     : StructuredOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 {
     private val listStack = ArrayDeque<ListState>()
@@ -137,11 +138,18 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     override fun appendStrikethrough(body: () -> Unit) = wrap("~~", "~~", body)
 
     override fun appendLink(href: String, body: () -> Unit) {
+        fun isExternalHref(href:String) = href.contains(":/")
+        var resolvedHref = href
+        //wiki mode for local links
+        if(wikiMode && !isExternalHref(href)){
+            resolvedHref = href.replace("""(\.$extension*)?$""".toRegex(),"")
+        }
+
         if (inCodeBlock) {
-            wrap("`[`", "`]($href)`", body)
+            wrap("`[`", "`]($resolvedHref)`", body)
         }
         else {
-            wrap("[", "]($href)", body)
+            wrap("[", "]($resolvedHref)", body)
         }
     }
 
