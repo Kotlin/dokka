@@ -177,6 +177,15 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun shouldNotHaveDuplicatedConstructorParameters() {
+        verifyJavadoc("testdata/javadoc/constructorParameters.kt") { doc ->
+            val classDoc = doc.classNamed("bar.Banana")!!
+            val c = classDoc.constructors()
+
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,
