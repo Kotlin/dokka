@@ -521,12 +521,13 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
 }
 
 private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, sectionFilter: (ContentSection) -> Boolean) =
-        (node.details(kind)
-                .filter(DocumentationNode::hasNonEmptyContent)
-                .map { ParamTagAdapter(module, this, it.name, true, it.content.children) }
+    (node.details(kind)
+        .filter(DocumentationNode::hasNonEmptyContent)
+        .map { ParamTagAdapter(module, this, it.name, true, it.content.children) }
 
-                + node.content.sections
-                .filter(sectionFilter)
-                .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) })
-
-                .toTypedArray()
+        + node.content.sections
+        .filter(sectionFilter)
+        .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) }
+    )
+    .distinctBy { it.parameterName }
+    .toTypedArray()
