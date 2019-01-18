@@ -99,10 +99,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         to.append(text)
     }
 
+    /**
+     * Usefull feature for link adaptation for certain format or usage
+     */
+    open fun normalizeHref(href: String):String = href
+
     abstract fun appendLink(href: String, body: () -> Unit)
 
     open fun appendLink(link: FormatLink) {
-        appendLink(link.href) { appendText(link.text) }
+        appendLink(normalizeHref(link.href)) { appendText(link.text) }
     }
 
     abstract fun appendStrong(body: () -> Unit)

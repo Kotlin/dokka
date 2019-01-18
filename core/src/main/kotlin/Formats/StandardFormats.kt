@@ -65,6 +65,10 @@ class GFMFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = GFMFormatService::class
 }
 
-class GLWFormatDescriptor : KotlinFormatDescriptorBase() {
-    override val formatServiceClass = GLWFormatService::class
+class GLMFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = GLMFormatService::class
+}
+
+class GLMWFormatDescriptor : KotlinFormatDescriptorBase() {
+    override val formatServiceClass = GLMWFormatService::class
 }

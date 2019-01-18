@@ -40,6 +40,26 @@
       <module name="integration_test" target="1.8" />
       <module name="maven-plugin_main" target="1.8" />
       <module name="maven-plugin_test" target="1.8" />
+      <module name="org.jetbrains.dokka.android-gradle-plugin.main" target="1.8" />
+      <module name="org.jetbrains.dokka.android-gradle-plugin.test" target="1.8" />
+      <module name="org.jetbrains.dokka.ant.main" target="1.8" />
+      <module name="org.jetbrains.dokka.ant.test" target="1.8" />
+      <module name="org.jetbrains.dokka.buildSrc.main" target="1.8" />
+      <module name="org.jetbrains.dokka.buildSrc.test" target="1.8" />
+      <module name="org.jetbrains.dokka.cli.main" target="1.8" />
+      <module name="org.jetbrains.dokka.cli.test" target="1.8" />
+      <module name="org.jetbrains.dokka.core.main" target="1.8" />
+      <module name="org.jetbrains.dokka.core.test" target="1.8" />
+      <module name="org.jetbrains.dokka.fatjar.main" target="1.8" />
+      <module name="org.jetbrains.dokka.fatjar.test" target="1.8" />
+      <module name="org.jetbrains.dokka.gradle-integration-tests.main" target="1.8" />
+      <module name="org.jetbrains.dokka.gradle-integration-tests.test" target="1.8" />
+      <module name="org.jetbrains.dokka.gradle-plugin.main" target="1.8" />
+      <module name="org.jetbrains.dokka.gradle-plugin.test" target="1.8" />
+      <module name="org.jetbrains.dokka.integration.main" target="1.8" />
+      <module name="org.jetbrains.dokka.integration.test" target="1.8" />
+      <module name="org.jetbrains.dokka.maven-plugin.main" target="1.8" />
+      <module name="org.jetbrains.dokka.maven-plugin.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

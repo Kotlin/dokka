@@ -24,8 +24,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
                                  generator: NodeLocationAwareGenerator,
                                  languageService: LanguageService,
                                  extension: String,
-                                 impliedPlatforms: List<String>,
-                                 val wikiMode:Boolean =false)
+                                 impliedPlatforms: List<String>)
     : StructuredOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms)
 {
     private val listStack = ArrayDeque<ListState>()
@@ -137,18 +136,7 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     override fun appendEmphasis(body: () -> Unit) = wrap("*", "*", body)
     override fun appendStrikethrough(body: () -> Unit) = wrap("~~", "~~", body)
 
-    private fun normalizeHref(href: String):String{
-        fun isExternalHref(href:String) = href.contains(":/")
-        var result = href
-        //wiki mode for local links
-        if(wikiMode && !isExternalHref(href)){
-            result = href.replace("""(\.$extension*)?$""".toRegex(),"")
-            if(!result.startsWith("./")&& !result.startsWith("../")){
-                result = "./$result"
-            }
-        }
-        return result
-    }
+
 
     override fun appendLink(href: String, body: () -> Unit) {
         val normalizedHref = normalizeHref(href)
