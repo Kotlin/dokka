@@ -160,13 +160,17 @@ class JavadocParser(
             return ContentText(node.text())
         } else if (node is Element) {
             val childBlock = createBlock(node)
-            node.childNodes().forEach {
-                val child = convertHtmlNode(it)
-                if (child != null) {
-                    childBlock.append(child)
+            if (childBlock is ContentBlockCode) {
+                childBlock.append(ContentText(node.text()))
+            } else {
+                node.childNodes().forEach {
+                    val child = convertHtmlNode(it)
+                    if (child != null) {
+                        childBlock.append(child)
+                    }
                 }
+                return (childBlock)
             }
-            return (childBlock)
         }
         return null
     }
