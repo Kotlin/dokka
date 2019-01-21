@@ -76,10 +76,15 @@ class JavadocParser(private val refGraph: NodeReferenceGraph,
             append(ContentText(node.text()))
         } else if (node is Element) {
             val childBlock = createBlock(node)
-            node.childNodes().forEach {
-                childBlock.convertHtmlNode(it)
+            if (childBlock is ContentBlockCode) {
+                append(childBlock)
+                childBlock.append(ContentText(node.text()))
+            } else {
+                node.childNodes().forEach {
+                    childBlock.convertHtmlNode(it)
+                }
+                append(childBlock)
             }
-            append(childBlock)
         }
     }
 
