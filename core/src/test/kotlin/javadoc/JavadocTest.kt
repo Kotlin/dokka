@@ -7,6 +7,7 @@ import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
 import org.jetbrains.dokka.tests.verifyModel
 import org.junit.Assert.*
 import org.junit.Test
+import java.lang.reflect.Modifier.*
 
 class JavadocTest {
     @Test fun testTypes() {
@@ -189,20 +190,36 @@ class JavadocTest {
             val setWeight = methods[3]
             val getRating = methods[4]
             val setRating = methods[5]
+            val getCode = methods[6]
             val color = classDoc.fields()[3]
+            val code = classDoc.fields()[4]
 
             assertTrue(getName.isProtected)
+            assertEquals(PROTECTED, getName.modifierSpecifier())
             assertTrue(setName.isProtected)
+            assertEquals(PROTECTED, setName.modifierSpecifier())
 
             assertTrue(getWeight.isPublic)
+            assertEquals(PUBLIC, getWeight.modifierSpecifier())
             assertTrue(setWeight.isPublic)
+            assertEquals(PUBLIC, setWeight.modifierSpecifier())
 
             assertTrue(getRating.isPublic)
+            assertEquals(PUBLIC, getRating.modifierSpecifier())
             assertTrue(setRating.isPublic)
+            assertEquals(PUBLIC, setRating.modifierSpecifier())
 
-            assertEquals(methods.size, 6)
+            assertTrue(getCode.isPublic)
+            assertEquals(PUBLIC or STATIC, getCode.modifierSpecifier())
+
+            assertEquals(methods.size, 7)
 
             assertTrue(color.isPrivate)
+            assertEquals(PRIVATE, color.modifierSpecifier())
+
+            assertTrue(code.isPrivate)
+            assertTrue(code.isStatic)
+            assertEquals(PRIVATE or STATIC, code.modifierSpecifier())
         }
     }
 
