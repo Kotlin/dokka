@@ -181,8 +181,9 @@ class JavadocTest {
     fun shouldNotHaveDuplicatedConstructorParameters() {
         verifyJavadoc("testdata/javadoc/constructorParameters.kt") { doc ->
             val classDoc = doc.classNamed("bar.Banana")!!
-            val c = classDoc.constructors()
+            val paramTags = classDoc.constructors()[0].paramTags()
 
+            assertEquals(3, paramTags.size)
         }
     }
 

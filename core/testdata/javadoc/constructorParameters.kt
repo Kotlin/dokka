@@ -5,7 +5,7 @@ package bar
  *
  * @param weight in grams
  * @param ranking quality from 0 to 10, where 10 is best
- * @param color default is yellow
+ * @param color yellow is default
  */
 class Banana (
     private val weight: Double,
