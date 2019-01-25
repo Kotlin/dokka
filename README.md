@@ -79,7 +79,7 @@ dokka {
     impliedPlatforms = ["JVM"] // See platforms section of documentation 
     
     // Manual adding files to classpath
-    // This property not overrides classpath collected from kotlinTasks but appends to it
+    // This property doesn't override classpath collected from kotlinTasks but appends to it
     classpath = [new File("$buildDir/other.jar")]
 
     // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
