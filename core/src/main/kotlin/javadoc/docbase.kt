@@ -348,6 +348,9 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
 }
 
 class ConstructorAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : ExecutableMemberAdapter(module, node), ConstructorDoc {
+    init {
+        println("")
+    }
     override fun name(): String = node.owner?.name ?: throw IllegalStateException("No owner for $node")
 
     override fun containingClass(): ClassDoc? {
@@ -399,6 +402,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         ClassDoc {
 
     override fun name(): String {
+        //todo jak jest tworzony class nody i czemu jest pomijany bezparametrowy
         val parent = classNode.owner
         if (parent?.kind in NodeKind.classLike) {
             return parent!!.name + "." + classNode.name
@@ -490,6 +494,10 @@ fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, Documentat
 }
 
 class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorReporter, val outputPath: String) : DocumentationNodeBareAdapter(module), DocErrorReporter by reporter, RootDoc {
+
+    init {
+        print("")
+    }
     val allPackages = module.members(NodeKind.Package).associateBy { it.name }
     val allTypes = module.members(NodeKind.Package).collectAllTypesRecursively()
 

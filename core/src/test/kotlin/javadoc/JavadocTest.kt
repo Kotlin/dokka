@@ -177,6 +177,15 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun testNoArgConstructor() {
+        verifyJavadoc("testdata/javadoc/noArgConstructor.kt") { doc ->
+            val classDoc = doc.classNamed("foo.Peach")!!
+            println("foo")
+        }
+
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,
