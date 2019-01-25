@@ -70,6 +70,9 @@ enum class NodeKind {
 open class DocumentationNode(val name: String,
                              content: Content,
                              val kind: NodeKind) {
+    init{
+        println(name)
+    }
 
     private val references = LinkedHashSet<DocumentationReference>()
 
