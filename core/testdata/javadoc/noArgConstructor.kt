@@ -3,19 +3,10 @@ package foo
 /**
  * Description
  *
- * @constructor print peach
+ * @constructor print plum
  */
-class Peach {
+class Plum() {
     init {
-        println("peach")
-    }
-
-    /**
-     * Description for secondary
-     *
-     * @constructor secondary
-     */
-    constructor(s: String) {
-
+        println("plum")
     }
 }
