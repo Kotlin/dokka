@@ -19,6 +19,8 @@ import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.annotations.argumentValue
 import org.jetbrains.kotlin.resolve.constants.StringValue
@@ -38,10 +40,10 @@ class DescriptorDocumentationParser
         val externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
 )
 {
-    fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false): Content =
-            parseDocumentationAndDetails(descriptor, inline).first
+    fun parseDocumentation(descriptor: DeclarationDescriptor, inline: Boolean = false, isDefaultNoArgConstructor: Boolean = false): Content =
+            parseDocumentationAndDetails(descriptor, inline, isDefaultNoArgConstructor).first
 
-    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor, inline: Boolean = false): Pair<Content, (DocumentationNode) -> Unit> {
+    fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor, inline: Boolean = false, isDefaultNoArgConstructor: Boolean = false): Pair<Content, (DocumentationNode) -> Unit> {
         if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
             return parseJavadoc(descriptor)
         }
@@ -62,7 +64,10 @@ class DescriptorDocumentationParser
                 ?.resolveToDescriptorIfAny()
                 ?: descriptor
 
-        var kdocText = kdoc.getContent()
+        var kdocText = if (isDefaultNoArgConstructor) {
+             ((DescriptorToSourceUtils.descriptorToDeclaration(descriptor)?.navigationElement as? KtElement) as KtDeclaration).docComment?.findSectionByTag(KDocKnownTag.CONSTRUCTOR)?.getContent() ?: kdoc.getContent()
+        } else kdoc.getContent()
+
         // workaround for code fence parsing problem in IJ markdown parser
         if (kdocText.endsWith("```") || kdocText.endsWith("~~~")) {
             kdocText += "\n"

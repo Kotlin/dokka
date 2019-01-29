@@ -244,12 +244,19 @@ class JavadocTest {
     }
 
     @Test
-    fun testNoArgConstructor() {
-        verifyJavadoc("testdata/javadoc/noArgConstructor.kt") { doc ->
+    fun testDefaultNoArgConstructor() {
+        verifyJavadoc("testdata/javadoc/defaultNoArgConstructor.kt") { doc ->
             val classDoc = doc.classNamed("foo.Peach")!!
-            println("foo")
+            assertTrue(classDoc.constructors()[0].tags()[2].text() == "print peach")
         }
+    }
 
+    @Test
+    fun testNoArgContructor() {
+        verifyJavadoc("testdata/javadoc/noArgConstructor.kt") { doc ->
+            val classDoc = doc.classNamed("foo.Plum")!!
+            assertTrue(classDoc.constructors()[0].tags()[2].text() == "print plum")
+        }
     }
 
     private fun verifyJavadoc(name: String,
