@@ -252,8 +252,8 @@ The available configuration options are shown below:
         <!-- List of '.md' files with package and module docs -->
         <!-- http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
         <includes>
-            <file>packages.md</file>
-            <file>extra.md</file>
+            <include>packages.md</include>
+            <include>extra.md</include>
         </includes>
         
         <!-- List of sample roots -->
