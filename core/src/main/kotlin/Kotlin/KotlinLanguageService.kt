@@ -170,13 +170,14 @@ class KotlinLanguageService : CommonLanguageService() {
         val nullabilityModifier = node.detailOrNull(NodeKind.NullabilityModifier)
 
         if (node.isFunctionalType()) {
-            nullabilityModifier ?.also {
+            if (nullabilityModifier != null) {
                 symbol("(")
                 renderFunctionalType(node, renderMode)
                 symbol(")")
-                symbol(it.name)
-            } ?: renderFunctionalType(node, renderMode)
-
+                symbol(nullabilityModifier.name)
+            } else {
+                renderFunctionalType(node, renderMode)
+            }
             return
         }
         if (renderMode == RenderMode.FULL) {
