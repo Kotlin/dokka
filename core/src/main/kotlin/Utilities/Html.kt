@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import java.net.URLEncoder
+import java.net.URI
 
 
 /**
@@ -9,4 +9,10 @@ import java.net.URLEncoder
  */
 fun String.htmlEscape(): String = replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
+// A URI consists of several parts (as described in https://docs.oracle.com/javase/7/docs/api/java/net/URI.html ):
+// [scheme:][//authority][path][?query][#fragment]
+//
+// The anchorEnchoded() function encodes the given string to make it a legal value for <fragment>
+fun String.anchorEncoded(): String {
+    return URI(null, null, this).getRawFragment()
+}

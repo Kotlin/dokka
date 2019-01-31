@@ -148,7 +148,7 @@ class JavaLayoutHtmlInboundLinkResolutionService(private val paramMap: Map<Strin
         }
     }
 
-    private fun DeclarationDescriptor.signatureForAnchorUrlEncoded(): String? = signatureForAnchor()?.urlEncoded()
+    private fun DeclarationDescriptor.signatureForAnchorUrlEncoded(): String? = signatureForAnchor()?.anchorEncoded()
 
     override fun getPath(symbol: DeclarationDescriptor) = if (isJavaMode) getJavaPagePath(symbol) else getPagePath(symbol)
 }

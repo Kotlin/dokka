@@ -67,7 +67,7 @@ class JavaLayoutHtmlFormatGenerator @Inject constructor(
         }?.resolve(outlineRoot)
     }
 
-    fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureForAnchor(logger).urlEncoded()}")
+    fun URI.resolveInPage(node: DocumentationNode): URI = resolve("#${node.signatureForAnchor(logger).anchorEncoded()}")
 
     fun buildClass(node: DocumentationNode, parentDir: File) {
         val fileForClass = parentDir.resolve(node.classNodeNameWithOuterClass() + ".html")

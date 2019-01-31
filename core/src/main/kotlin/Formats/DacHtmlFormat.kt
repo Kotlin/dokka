@@ -67,7 +67,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
 
     override fun FlowContent.fullMemberDocs(node: DocumentationNode, uriNode: DocumentationNode) {
         a {
-            attributes["name"] = uriNode.signatureForAnchor(logger).urlEncoded()
+            attributes["name"] = uriNode.signatureForAnchor(logger).anchorEncoded()
         }
         div(classes = "api apilevel-${node.apiLevel.name}") {
             attributes["data-version-added"] = node.apiLevel.name

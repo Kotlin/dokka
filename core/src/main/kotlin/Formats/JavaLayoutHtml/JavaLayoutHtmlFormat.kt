@@ -8,7 +8,6 @@ import org.jetbrains.dokka.Utilities.lazyBind
 import org.jetbrains.dokka.Utilities.toOptional
 import org.jetbrains.dokka.Utilities.toType
 import java.net.URI
-import java.net.URLEncoder
 import kotlin.reflect.KClass
 
 
@@ -139,8 +138,6 @@ fun DocumentationNode.signatureForAnchor(logger: DokkaLogger): String {
         else -> "Not implemented signatureForAnchor $this".also { logger.warn(it) }
     }
 }
-
-fun String.urlEncoded(): String = URLEncoder.encode(this, "UTF-8")
 
 fun DocumentationNode.classNodeNameWithOuterClass(): String {
     assert(kind in NodeKind.classLike)
