@@ -27,18 +27,26 @@ abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
             if (!sdkDirFile.exists()) error("\$ANDROID_HOME and android.local.properties points to non-existing location")
             val sdkLicensesDir = sdkDirFile.resolve("licenses")
 
-            val acceptedLicenses = File("android-licenses")
-            acceptedLicenses.listFiles().forEach { licenseFile ->
-                val target = sdkLicensesDir.resolve(licenseFile.name)
-                if(!target.exists() || target.readText() != licenseFile.readText()) {
-                    val overwrite = System.getProperty("android.licenses.overwrite", "false").toBoolean()
-                    if (!target.exists() || overwrite) {
-                        licenseFile.copyTo(target, true)
-                        println("Accepted ${licenseFile.name}, by copying $licenseFile to $target")
-                    }
-                }
+            if (System.getProperty("android.licenses.accept", "false") != "true") return
 
+            if (!sdkLicensesDir.exists()) sdkLicensesDir.mkdir()
+
+            val process = ProcessBuilder(sdkDirFile.resolve("tools/bin/sdkmanager").toString(), "--licenses")
+                .inheritIO()
+                .redirectInput(ProcessBuilder.Redirect.PIPE)
+                .start()
+
+            val processIn = process.outputStream.bufferedWriter()
+
+
+            while (process.isAlive) {
+                processIn.write("y")
+                processIn.newLine()
             }
+
+            processIn.close()
+            require(process.exitValue() == 0) { "sdkmanager exited with non-zero value" }
+
         }
 
     }
