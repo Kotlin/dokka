@@ -31,6 +31,7 @@ abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
             acceptedLicenses.listFiles().forEach { licenseFile ->
                 val target = sdkLicensesDir.resolve(licenseFile.name)
                 if(!target.exists() || target.readText() != licenseFile.readText()) {
+                    System.err.println("$target = `${target.readText()}`")
                     val overwrite = System.getProperty("android.licenses.overwrite", "false").toBoolean()
                     if (!target.exists() || overwrite) {
                         licenseFile.copyTo(target, true)
