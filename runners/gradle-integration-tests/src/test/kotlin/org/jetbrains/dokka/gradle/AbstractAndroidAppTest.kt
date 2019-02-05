@@ -27,6 +27,8 @@ abstract class AbstractAndroidAppTest(val testDataRootPath: String) : AbstractDo
 
 
     protected fun doTest(gradleVersion: String, kotlinVersion: String, androidPluginParams: AndroidPluginParams) {
+        acceptAndroidSdkLicenses()
+
         prepareTestData()
 
         val result = configure(gradleVersion, kotlinVersion,
