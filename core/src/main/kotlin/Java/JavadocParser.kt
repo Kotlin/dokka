@@ -83,7 +83,7 @@ class JavadocParser(
                 "see" -> result.convertSeeTag(tag)
                 "deprecated" -> {
                     deprecatedContent = Content().apply {
-                        appendAll(convertJavadocElements(tag.contentElements(), element))
+                        appendAll(convertJavadocElements(tag.contentElementsOrFirstChild(), element))
                     }
                 }
                 in tagsToInherit -> {}
@@ -122,9 +122,10 @@ class JavadocParser(
         recursiveSearch(arrayOf(this))
         return output.mapValues { it.value.values }
     }
+    private fun PsiDocTag.contentElementsOrFirstChild(): Collection<PsiElement> = contentElements()
+        .takeIf { it.isNotEmpty() } ?: children.take(1)
 
-
-    private fun PsiDocTag.contentElements(): Iterable<PsiElement> {
+    private fun PsiDocTag.contentElements(): Collection<PsiElement> {
         val tagValueElements = children
             .dropWhile { it.node?.elementType == JavaDocTokenType.DOC_TAG_NAME }
             .dropWhile { it is PsiWhiteSpace }
