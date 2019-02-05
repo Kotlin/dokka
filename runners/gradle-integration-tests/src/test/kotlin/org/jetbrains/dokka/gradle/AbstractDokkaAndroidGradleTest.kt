@@ -12,6 +12,8 @@ abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
         @JvmStatic
         @BeforeClass
         fun acceptAndroidSdkLicenses() {
+
+            System.err.println("!!!!!!!!WTF")
             val sdkDir = androidLocalProperties?.toFile()?.let {
                 val lines = it.readLines().map { it.trim() }
                 val sdkDirLine = lines.firstOrNull { "sdk.dir" in it }
