@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
-import org.gradle.api.Action
-import org.gradle.api.DefaultTask
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
@@ -74,6 +72,9 @@ open class DokkaTask : DefaultTask() {
 
         @Suppress("LeakingThis")
         dependsOn(Callable { kotlinTasks.map { it.taskDependencies } })
+
+        @Suppress("LeakingThis")
+        dependsOn(Callable { requiredDokkaTasks })
     }
 
     @Input
@@ -143,6 +144,22 @@ open class DokkaTask : DefaultTask() {
 
     @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
+
+    @InputFiles
+    fun getDependenciesDocumentations(): FileCollection =
+        project.files(requiredDokkaTasks.map { it.getOutputDirectoryAsFile() })
+
+    private val requiredDokkaTasks by lazy {
+        project.configurations.getByName("implementation").allDependencies
+            .withType(ProjectDependency::class.java)
+            .mapNotNull { findCorrespondingTask(it.dependencyProject) }
+    }
+
+    private fun findCorrespondingTask(project: Project) =
+        project.tasks.withType(DokkaTask::class.java).run {
+            findByName(name) ?: findByName("dokka")
+        }
+
 
 
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
