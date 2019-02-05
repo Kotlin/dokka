@@ -177,6 +177,16 @@ class JavadocTest {
         }
     }
 
+    @Test fun shouldHaveAllFunctionMarkedAsDeprecated() {
+        verifyJavadoc("testdata/javadoc/deprecated.java") { doc ->
+            val classDoc = doc.classNamed("bar.Banana")!!
+
+            classDoc.methods().forEach {
+                assertNotNull((it as? DocumentationNodeAdapter)?.node?.deprecation)
+            }
+        }
+    }
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,
