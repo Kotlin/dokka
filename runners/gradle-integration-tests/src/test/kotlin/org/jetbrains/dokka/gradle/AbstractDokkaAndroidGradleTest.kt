@@ -42,6 +42,7 @@ abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
             while (process.isAlive) {
                 processIn.write("y")
                 processIn.newLine()
+                processIn.flush()
             }
 
             processIn.close()
