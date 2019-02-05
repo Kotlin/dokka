@@ -32,11 +32,15 @@ abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
             val acceptedLicenses = File("android-licenses")
             acceptedLicenses.listFiles().forEach { licenseFile ->
                 val target = sdkLicensesDir.resolve(licenseFile.name)
-                if(!target.exists() || target.readText() != licenseFile.readText()) {
-                    System.err.println("$target = `${target.readText()}`")
+                val original: Set<String> = if (target.exists()) target.readLines().toHashSet() else emptySet()
+                val toAccept = licenseFile.readLines().toHashSet()
+                val new = original + toAccept
+
+                if (!target.exists() || new != original) {
+
                     val overwrite = System.getProperty("android.licenses.overwrite", "false").toBoolean()
                     if (!target.exists() || overwrite) {
-                        licenseFile.copyTo(target, true)
+                        licenseFile.writeText(new.joinToString { it })
                         println("Accepted ${licenseFile.name}, by copying $licenseFile to $target")
                     }
                 }
