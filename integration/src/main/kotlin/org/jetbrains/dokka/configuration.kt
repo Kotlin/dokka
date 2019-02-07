@@ -43,6 +43,7 @@ interface DokkaConfiguration {
     val cacheRoot: String?
     val suppressedFiles: List<String>
     val collectInheritedExtensionsFromLibraries: Boolean
+    val dependenciesDocumentations: List<String>
 
     interface SourceRoot {
         val path: String
@@ -108,7 +109,8 @@ data class SerializeOnlyDokkaConfiguration(
     override val suppressedFiles: List<String>,
     override val languageVersion: String?,
     override val apiVersion: String?,
-    override val collectInheritedExtensionsFromLibraries: Boolean
+    override val collectInheritedExtensionsFromLibraries: Boolean,
+    override val dependenciesDocumentations: List<String>
 ) : DokkaConfiguration
 
 

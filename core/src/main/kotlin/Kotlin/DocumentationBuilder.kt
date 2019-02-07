@@ -59,7 +59,8 @@ class DocumentationOptions(val outputDir: String,
                            val apiVersion: String?,
                            cacheRoot: String? = null,
                            val suppressedFiles: Set<File> = emptySet(),
-                           val collectInheritedExtensionsFromLibraries: Boolean = false) {
+                           val collectInheritedExtensionsFromLibraries: Boolean = false,
+                           val dependenciesDocumentations: List<String> = emptyList()) {
     init {
         if (perPackageOptions.any { it.prefix == "" })
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")

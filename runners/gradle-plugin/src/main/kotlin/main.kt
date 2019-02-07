@@ -338,6 +338,9 @@ open class DokkaTask : DefaultTask() {
 
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
+            val dependenciesDocumentations = getDependenciesDocumentations().toList()
+                .map { getOutputDirectoryAsFile().toPath().relativize(it.toPath()).toString() }
+
             val configuration = SerializeOnlyDokkaConfiguration(
                 moduleName,
                 fullClasspath.map { it.absolutePath },
@@ -359,11 +362,12 @@ open class DokkaTask : DefaultTask() {
                 externalDocumentationLinks,
                 noStdlibLink,
                 noJdkLink,
-                    cacheRoot,
-                    collectSuppressedFiles(sourceRoots),
-                    languageVersion,
-                    apiVersion,
-                    collectInheritedExtensionsFromLibraries
+                cacheRoot,
+                collectSuppressedFiles(sourceRoots),
+                languageVersion,
+                apiVersion,
+                collectInheritedExtensionsFromLibraries,
+                dependenciesDocumentations
             )
 
 

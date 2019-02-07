@@ -60,5 +60,6 @@ data class DokkaConfigurationImpl(
     override val suppressedFiles: List<String>,
     override val languageVersion: String?,
     override val apiVersion: String?,
-    override val collectInheritedExtensionsFromLibraries: Boolean
+    override val collectInheritedExtensionsFromLibraries: Boolean,
+    override val dependenciesDocumentations: List<String>
 ) : DokkaConfiguration
