@@ -18,8 +18,12 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
 import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.common.config.ContentRoot
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
@@ -36,7 +40,6 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
@@ -73,7 +76,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
         val projectComponentManager = environment.project as MockComponentManager
 
         val projectFileIndex = CoreProjectFileIndex(environment.project,
-                environment.configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
+                environment.configuration.getList(CLIConfigurationKeys.CONTENT_ROOTS))
 
         val moduleManager = object : CoreModuleManager(environment.project, this) {
             override fun getModules(): Array<out Module> = arrayOf(projectFileIndex.module)
@@ -147,20 +150,20 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
             },
             LanguageSettingsProvider.Default /* TODO: Fix this */,
             { JvmAnalyzerFacade },
-
-            JvmPlatformParameters {
-                val file = (it as JavaClassImpl).psi.containingFile.virtualFile
-                if (file in sourcesScope)
-                    module
-                else
-                    library
+            {
+                JvmPlatformParameters({ content ->
+                    JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
+                        addRoots(javaRoots, messageCollector)
+                    }
+                }, {
+                    val file = (it as JavaClassImpl).psi.containingFile.virtualFile
+                    if (file in sourcesScope)
+                        module
+                    else
+                        library
+                })
             },
             CompilerEnvironment,
-            packagePartProviderFactory = { content ->
-                JvmPackagePartProvider(configuration.languageVersionSettings, content.moduleContentScope).apply {
-                    addRoots(javaRoots)
-                }
-            },
             builtIns = builtIns
         )
 
@@ -209,7 +212,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
      * List of source roots for this environment.
      */
     val sources: List<String>
-        get() = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+        get() = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
                 ?.filterIsInstance<KotlinSourceRoot>()
                 ?.map { it.path } ?: emptyList()
 
@@ -228,7 +231,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
     }
 
     fun addRoots(list: List<ContentRoot>) {
-        configuration.addAll(JVMConfigurationKeys.CONTENT_ROOTS, list)
+        configuration.addAll(CLIConfigurationKeys.CONTENT_ROOTS, list)
     }
 
     /**
@@ -241,7 +244,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector) : Disposable {
 
 fun contentRootFromPath(path: String): ContentRoot {
     val file = File(path)
-    return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path)
+    return if (file.extension == "java") JavaSourceRoot(file, null) else KotlinSourceRoot(path, false)
 }
 
 
