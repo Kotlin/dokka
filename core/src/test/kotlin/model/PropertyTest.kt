@@ -5,6 +5,7 @@ import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.RefKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 
 class PropertyTest {
@@ -64,6 +65,7 @@ class PropertyTest {
         }
     }
 
+    @Ignore
     @Test fun annotatedProperty() {
         verifyModel("testdata/properties/annotatedProperty.kt", withKotlinRuntime = true) { model ->
             with(model.members.single().members.single()) {
