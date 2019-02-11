@@ -1,9 +1,8 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.config.KotlinSourceRoot
-import org.junit.Before
 import org.junit.Test
 import java.io.File
 
@@ -100,7 +99,8 @@ class HtmlFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun crossLanguageKotlinExtendsJava() {
-        verifyOutput(arrayOf(KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt"),
+        verifyOutput(arrayOf(
+            KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt", false),
                 JavaSourceRoot(File("testdata/format/crossLanguage/kotlinExtendsJava"), null)),
                 ".html") { model, output ->
             buildPagesAndReadInto(

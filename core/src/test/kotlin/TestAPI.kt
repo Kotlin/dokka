@@ -7,12 +7,12 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
+import org.jetbrains.kotlin.cli.common.config.ContentRoot
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.config.ContentRoot
-import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.junit.Assert
 import org.junit.Assert.fail

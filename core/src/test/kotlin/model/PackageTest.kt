@@ -3,7 +3,7 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.PackageOptionsImpl
-import org.jetbrains.kotlin.config.KotlinSourceRoot
+import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -48,8 +48,8 @@ public class PackageTest {
     }
 
     @Test fun multipleFiles() {
-        verifyModel(KotlinSourceRoot("testdata/packages/dottedNamePackage.kt"),
-                    KotlinSourceRoot("testdata/packages/simpleNamePackage.kt")) { model ->
+        verifyModel(KotlinSourceRoot("testdata/packages/dottedNamePackage.kt", false),
+                    KotlinSourceRoot("testdata/packages/simpleNamePackage.kt", false)) { model ->
             assertEquals(2, model.members.count())
             with(model.members.single { it.name == "simple" }) {
                 assertEquals(NodeKind.Package, kind)
@@ -70,8 +70,8 @@ public class PackageTest {
     }
 
     @Test fun multipleFilesSamePackage() {
-        verifyModel(KotlinSourceRoot("testdata/packages/simpleNamePackage.kt"),
-                    KotlinSourceRoot("testdata/packages/simpleNamePackage2.kt")) { model ->
+        verifyModel(KotlinSourceRoot("testdata/packages/simpleNamePackage.kt", false),
+                    KotlinSourceRoot("testdata/packages/simpleNamePackage2.kt", false)) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)
@@ -85,7 +85,7 @@ public class PackageTest {
     }
 
     @Test fun classAtPackageLevel() {
-        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt")) { model ->
+        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt", false)) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
                 assertEquals(NodeKind.Package, kind)
@@ -99,7 +99,7 @@ public class PackageTest {
     }
 
     @Test fun suppressAtPackageLevel() {
-        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt"),
+        verifyModel(KotlinSourceRoot("testdata/packages/classInPackage.kt", false),
                 perPackageOptions = listOf(PackageOptionsImpl(prefix = "simple.name", suppress = true))) { model ->
             assertEquals(1, model.members.count())
             with(model.members.elementAt(0)) {
