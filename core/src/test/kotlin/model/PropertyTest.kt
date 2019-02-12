@@ -65,6 +65,7 @@ class PropertyTest {
         }
     }
 
+    // TODO: add test back
     @Ignore
     @Test fun annotatedProperty() {
         verifyModel("testdata/properties/annotatedProperty.kt", withKotlinRuntime = true) { model ->

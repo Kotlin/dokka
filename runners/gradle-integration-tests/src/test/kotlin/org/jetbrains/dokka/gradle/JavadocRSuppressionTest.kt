@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.junit.Test
 
+// TODO: add tests back
 class JavadocRSuppressionTest : AbstractAndroidAppTest("androidAppJavadoc") {
 //    @Test
 //    fun `test kotlin 1_1_2-5 and gradle 4_0 and abt 3_0_0-alpha3`() {

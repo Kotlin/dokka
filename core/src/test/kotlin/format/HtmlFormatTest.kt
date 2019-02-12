@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.junit.Test
 import java.io.File
 
+// TODO: add tests back
 class HtmlFormatTest: FileGeneratorTestCase() {
     override val formatService = HtmlFormatService(fileGenerator, KotlinLanguageService(), HtmlTemplateService.default(), listOf())
 

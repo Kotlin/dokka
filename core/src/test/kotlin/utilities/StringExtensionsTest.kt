@@ -20,6 +20,7 @@ package org.jetbrains.dokka.tests.utilities
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+// TODO: add tests back
 class StringExtensionsTest {
 
 //    @Test
