@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
 import org.gradle.api.*
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
@@ -148,10 +149,17 @@ open class DokkaTask : DefaultTask() {
     fun getDependenciesDocumentations(): FileCollection =
         project.files(requiredDokkaTasks.map { it.documentationRootForTask })
 
+    private val usedConfiguration: Configuration? by lazy {
+        project.configurations.run {
+            findByName("implementation") ?: findByName("compile")
+        }
+    }
+
     private val requiredDokkaTasks by lazy {
-        project.configurations.getByName("implementation").allDependencies
-            .withType(ProjectDependency::class.java)
-            .mapNotNull { findCorrespondingTask(it.dependencyProject) }
+        usedConfiguration?.allDependencies
+            ?.withType(ProjectDependency::class.java)
+            ?.mapNotNull { findCorrespondingTask(it.dependencyProject) }
+            .orEmpty()
     }
 
     private fun findCorrespondingTask(project: Project) =
