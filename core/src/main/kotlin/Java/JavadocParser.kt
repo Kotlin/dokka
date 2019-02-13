@@ -225,7 +225,7 @@ class JavadocParser(
         val linkSignature by lazy { resolveInternalLink(valueElement) }
         val node = when {
             externalLink != null -> {
-                val linkNode = ContentExternalLink(externalLink)
+                val linkNode = externalLink.toContentBlock()
                 linkNode.append(text)
                 linkNode
             }
@@ -292,7 +292,7 @@ class JavadocParser(
     private fun PsiDocTag.linkElement(): PsiElement? =
         valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
 
-    private fun resolveExternalLink(valueElement: PsiElement?): String? {
+    private fun resolveExternalLink(valueElement: PsiElement?): Link? {
         val target = valueElement?.reference?.resolve()
         if (target != null) {
             return externalDocumentationLinkResolver.buildExternalDocumentationLink(target)

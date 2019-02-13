@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.LanguageService.RenderMode
+import java.io.File
 import java.util.*
 
 data class FormatLink(val text: String, val href: String)
@@ -162,6 +163,11 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 appendLinkIfNotThisPage(linkTo, content)
             }
             is ContentExternalLink -> appendLinkIfNotThisPage(content.href, content)
+
+            is ContentRelativeExternalLink -> {
+                val linkTo = location.relativePathTo(FileLocation(File(content.href)))
+                appendLinkIfNotThisPage(linkTo, content)
+            }
 
             is ContentParagraph -> {
                 if (!content.isEmpty()) {

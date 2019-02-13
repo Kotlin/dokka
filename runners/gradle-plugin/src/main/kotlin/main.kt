@@ -4,7 +4,6 @@ import groovy.lang.Closure
 import org.gradle.api.*
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.FileCollection
-import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
@@ -147,7 +146,7 @@ open class DokkaTask : DefaultTask() {
 
     @InputFiles
     fun getDependenciesDocumentations(): FileCollection =
-        project.files(requiredDokkaTasks.map { it.getOutputDirectoryAsFile() })
+        project.files(requiredDokkaTasks.map { it.documentationRootForTask })
 
     private val requiredDokkaTasks by lazy {
         project.configurations.getByName("implementation").allDependencies
@@ -160,7 +159,11 @@ open class DokkaTask : DefaultTask() {
             findByName(name) ?: findByName("dokka")
         }
 
-
+    private val documentationRootForTask
+        get() = if (moduleName.isBlank())
+            getOutputDirectoryAsFile()
+        else
+            getOutputDirectoryAsFile().toPath().resolve(moduleName).toFile()
 
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
@@ -338,8 +341,7 @@ open class DokkaTask : DefaultTask() {
 
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
-            val dependenciesDocumentations = getDependenciesDocumentations().toList()
-                .map { getOutputDirectoryAsFile().toPath().relativize(it.toPath()).toString() }
+            val dependenciesDocumentations = getDependenciesDocumentations().map { it.toString() }
 
             val configuration = SerializeOnlyDokkaConfiguration(
                 moduleName,

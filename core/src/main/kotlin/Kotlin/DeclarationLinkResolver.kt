@@ -27,10 +27,10 @@ class DeclarationLinkResolver
         // don't include unresolved links in generated doc
         // assume that if an href doesn't contain '/', it's not an attempt to reference an external file
         if (symbol != null) {
-            val externalHref = externalDocumentationLinkResolver.buildExternalDocumentationLink(symbol)
-            if (externalHref != null) {
-                return ContentExternalLink(externalHref)
-            }
+            externalDocumentationLinkResolver.buildExternalDocumentationLink(symbol)
+                ?.toContentBlock()
+                ?.let { return it }
+
             val signature = elementSignatureProvider.signature(symbol)
             val referencedAt = fromDescriptor.signatureWithSourceLocation()
 

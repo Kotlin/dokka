@@ -148,6 +148,14 @@ class ContentExternalLink(val href : String) : ContentBlock() {
         children.hashCode() * 31 + href.hashCode()
 }
 
+class ContentRelativeExternalLink(val href: String) : ContentBlock() {
+    override fun equals(other: Any?): Boolean =
+        super.equals(other) && other is ContentRelativeExternalLink && href == other.href
+
+    override fun hashCode(): Int =
+        children.hashCode() * 31 + href.hashCode()
+}
+
 data class ContentBookmark(val name: String): ContentBlock()
 data class ContentLocalLink(val href: String) : ContentBlock()
 
@@ -204,10 +212,11 @@ fun ContentBlock.code(body: ContentBlock.() -> Unit) {
 }
 
 fun ContentBlock.link(to: DocumentationNode, body: ContentBlock.() -> Unit) {
-    val block = if (to.kind == NodeKind.ExternalLink)
-        ContentExternalLink(to.name)
-    else
-        ContentNodeDirectLink(to)
+    val block = when(to.kind) {
+        NodeKind.ExternalLink -> ContentExternalLink(to.name)
+        NodeKind.RelativeExternalLink -> ContentRelativeExternalLink(to.name)
+        else -> ContentNodeDirectLink(to)
+    }
 
     block.body()
     append(block)

@@ -259,7 +259,7 @@ class DocumentationBuilder
                     val targetNode =
                         refGraph.lookup(classifierDescriptor.signature()) ?: classifierDescriptor.build(true)
                     node.append(targetNode, RefKind.ExternalType)
-                    node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+                    node.append(DocumentationNode(externalLink.href, Content.Empty, externalLink.kind), RefKind.Link)
                 }
             } else {
                 link(
@@ -314,6 +314,10 @@ class DocumentationBuilder
 
     fun DocumentationNode.appendExternalLink(externalLink: String) {
         append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+    }
+
+    fun DocumentationNode.appendExternalLink(link: Link) {
+        append(DocumentationNode(link.href, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
     }
 
     fun DocumentationNode.appendExternalLink(descriptor: DeclarationDescriptor) {
@@ -605,7 +609,7 @@ class DocumentationBuilder
 
         val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(this)
         if (externalLink != null) {
-            node.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+            node.append(DocumentationNode(externalLink.href, Content.Empty, externalLink.kind), RefKind.Link)
         }
         register(this, node)
         return node
@@ -948,15 +952,15 @@ class DocumentationBuilder
             if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
                 val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-                return externalClassNodes.getOrPut(fqName, {
+                return externalClassNodes.getOrPut(fqName) {
                     val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
                     val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(extensionClassDescriptor)
                     if (externalLink != null) {
-                        newNode.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
+                        newNode.append(DocumentationNode(externalLink.href, Content.Empty, externalLink.kind), RefKind.Link)
                     }
                     append(newNode, RefKind.Member)
                     newNode
-                })
+                }
             }
         }
         return this

@@ -47,6 +47,7 @@ enum class NodeKind {
     SourcePosition,
     Signature,
 
+    RelativeExternalLink,
     ExternalLink,
     QualifiedName,
     Platform,
