@@ -763,7 +763,7 @@ class DocumentationBuilder
         if (annotationClass == null || ErrorUtils.isError(annotationClass)) {
             return null
         }
-        val node = DocumentationNode(annotationClass.name.asString(), Content.Empty, NodeKind.Annotation)
+        val node = DocumentationNode(annotationClass.fqNameSafe.asString(), Content.Empty, NodeKind.Annotation)
         allValueArguments.forEach { (name, value) ->
             val valueNode = value.toDocumentationNode()
             if (valueNode != null) {
