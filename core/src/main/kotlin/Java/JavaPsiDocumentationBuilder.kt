@@ -275,7 +275,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     }
 
     fun PsiAnnotation.build(): DocumentationNode {
-        val node = DocumentationNode(nameReferenceElement?.text ?: "<?>", Content.Empty, NodeKind.Annotation)
+        val node = DocumentationNode(nameReferenceElement?.qualifiedName ?: "<?>", Content.Empty, NodeKind.Annotation)
         parameterList.attributes.forEach {
             val parameter = DocumentationNode(it.name ?: "value", Content.Empty, NodeKind.Parameter)
             val value = it.value
