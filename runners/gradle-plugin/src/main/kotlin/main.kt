@@ -147,7 +147,9 @@ open class DokkaTask : DefaultTask() {
 
     @InputFiles
     fun getDependenciesDocumentations(): FileCollection =
-        project.files(requiredDokkaTasks.map { it.documentationRootForTask })
+        requiredDokkaTasks.flatMap { it.getDependenciesDocumentations() + it.documentationRootForTask }
+            .toSet()
+            .let { project.files(it) }
 
     private val usedConfiguration: Configuration? by lazy {
         project.configurations.run {
