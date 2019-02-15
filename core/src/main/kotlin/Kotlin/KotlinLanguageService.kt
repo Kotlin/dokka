@@ -166,8 +166,18 @@ class KotlinLanguageService : CommonLanguageService() {
             keyword("dynamic")
             return
         }
+
+        val nullabilityModifier = node.detailOrNull(NodeKind.NullabilityModifier)
+
         if (node.isFunctionalType()) {
-            renderFunctionalType(node, renderMode)
+            if (nullabilityModifier != null) {
+                symbol("(")
+                renderFunctionalType(node, renderMode)
+                symbol(")")
+                symbol(nullabilityModifier.name)
+            } else {
+                renderFunctionalType(node, renderMode)
+            }
             return
         }
         if (renderMode == RenderMode.FULL) {
@@ -185,8 +195,8 @@ class KotlinLanguageService : CommonLanguageService() {
             }
             symbol(">")
         }
-        val nullabilityModifier = node.details(NodeKind.NullabilityModifier).singleOrNull()
-        if (nullabilityModifier != null) {
+
+        nullabilityModifier ?.apply {
             symbol(nullabilityModifier.name)
         }
     }
