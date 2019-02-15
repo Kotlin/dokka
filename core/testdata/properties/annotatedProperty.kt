@@ -1,1 +1,1 @@
-@Volatile var property = "test"
+@Strictfp var property = "test"
