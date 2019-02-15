@@ -539,4 +539,8 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
             nodesWithName
         }
     }
+
+    @Test fun nullableTypeParameterFunction() {
+        verifyMarkdownNode("nullableTypeParameterFunction", withKotlinRuntime = true)
+    }
 }
