@@ -6,6 +6,7 @@ import s1.someCoolThing
 
 /**
  * Just an entry-point
+ * @see s1.MyClass
  */
 fun main(args: Array<String>) {
 
@@ -25,7 +26,7 @@ class Cooler {
  */
 class Superful : Super() {
     /**
-     * Overriden magic
+     * Overriden magic. Also reference to [s1.Super.foo]
      */
     override fun bar() = foo(20) * 2
 }

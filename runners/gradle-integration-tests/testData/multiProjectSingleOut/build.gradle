@@ -30,3 +30,12 @@ dokka {
     }
     dokkaFatJar = new File(dokka_fatjar)
 }
+
+task dokkaMd(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'markdown'
+    kotlinTasks {
+        [":subA:compileKotlin", ":subB:compileKotlin"]
+    }
+    outputDirectory = "$buildDir/dokkaMd/"
+    dokkaFatJar = new File(dokka_fatjar)
+}
