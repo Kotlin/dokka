@@ -1,4 +1,4 @@
 /**
- * [a**b**__d__ kas ](http://www.ibm.com)
+ * [a**b**__d__ kas ](https://www.ibm.com)
  */
 fun foo() {}

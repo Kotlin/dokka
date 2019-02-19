@@ -1,7 +1,6 @@
 
 
 Core functions and types
-See [ref](http://example.com)
-Also, [example](http://example.com)
+See [ref](https://example.com)
+Also, [example](https://example.com)
 
- 

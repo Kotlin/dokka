@@ -76,7 +76,7 @@ artifacts {
 }
 
 pluginBundle {
-    website = 'http://www.kotlinlang.org/'
+    website = 'https://www.kotlinlang.org/'
     vcsUrl = 'https://github.com/kotlin/dokka.git'
     description = 'Dokka, the Kotlin documentation tool'
     tags = ['dokka', 'kotlin', 'kdoc', 'android']

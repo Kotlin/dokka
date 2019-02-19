@@ -4,7 +4,7 @@
 
 `fun a(): Unit`
 
-It is link to [example site](http://example.com)
+It is link to [example site](https://example.com)
 
-Sure, it is [example.com](http://example.com)
+Sure, it is [example.com](https://example.com)
 

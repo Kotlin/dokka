@@ -23,7 +23,7 @@ HTML but in LaTeX and many other formats.
 ## Why is a spec needed?
 
 John Gruber's [canonical description of Markdown's
-syntax](http://daringfireball.net/projects/markdown/syntax)
+syntax](https://daringfireball.net/projects/markdown/syntax)
 does not specify the syntax unambiguously.  Here are some examples of
 questions it does not answer:
 
@@ -34,7 +34,7 @@ questions it does not answer:
     not require that.  This is hardly a "corner case," and divergences
     between implementations on this issue often lead to surprises for
     users in real documents. (See [this comment by John
-    Gruber](http://article.gmane.org/gmane.text.markdown.general/1997).)
+    Gruber](https://article.gmane.org/gmane.text.markdown.general/1997).)
 
 2.  Is a blank line needed before a block quote or header?
     Most implementations do not require the blank line.  However,
@@ -42,7 +42,7 @@ questions it does not answer:
     also to ambiguities in parsing (note that some implementations
     put the header inside the blockquote, while others do not).
     (John Gruber has also spoken [in favor of requiring the blank
-    lines](http://article.gmane.org/gmane.text.markdown.general/2146).)
+    lines](https://article.gmane.org/gmane.text.markdown.general/2146).)
 
 3.  Is a blank line needed before an indented code block?
     (`Markdown.pl` requires it, but this is not mentioned in the
@@ -75,7 +75,7 @@ questions it does not answer:
     ```
 
     (There are some relevant comments by John Gruber
-    [here](http://article.gmane.org/gmane.text.markdown.general/2554).)
+    [here](https://article.gmane.org/gmane.text.markdown.general/2554).)
 
 5.  Can list markers be indented?  Can ordered list markers be right-aligned?
 
@@ -509,7 +509,7 @@ More than six `#` characters is not a header:
 A space is required between the `#` characters and the header's
 contents.  Note that many implementations currently do not require
 the space.  However, the space was required by the [original ATX
-implementation](http://www.aaronsw.com/2002/atx/atx.py), and it helps
+implementation](https://www.aaronsw.com/2002/atx/atx.py), and it helps
 prevent things like the following from being parsed as headers:
 
 .
@@ -3686,9 +3686,9 @@ raw HTML:
 .
 
 .
-<http://google.com?find=\*>
+<https://google.com?find=\*>
 .
-<p><a href="http://google.com?find=%5C*">http://google.com?find=\*</a></p>
+<p><a href="https://google.com?find=%5C*">https://google.com?find=\*</a></p>
 .
 
 .
@@ -3736,7 +3736,7 @@ and simplifies the job of implementations targetting other languages, as these w
 UTF8 chars and need not be HTML-entity aware.
 
 [Named entities](#name-entities) <a id="named-entities"></a> consist of `&`
-+ any of the valid HTML5 entity names + `;`. The [following document](http://www.whatwg.org/specs/web-apps/current-work/multipage/entities.json)
++ any of the valid HTML5 entity names + `;`. The [following document](https://www.whatwg.org/specs/web-apps/current-work/multipage/entities.json)
 is used as an authoritative source of the valid entity names and their corresponding codepoints.
 
 Conforming implementations that target Markdown don't need to generate entities for all the valid
@@ -3955,9 +3955,9 @@ And this is not parsed as a link:
 But this is a link:
 
 .
-<http://foo.bar.`baz>`
+<https://foo.bar.`baz>`
 .
-<p><a href="http://foo.bar.%60baz">http://foo.bar.`baz</a>`</p>
+<p><a href="https://foo.bar.%60baz">https://foo.bar.`baz</a>`</p>
 .
 
 And this is an HTML tag:
@@ -3986,7 +3986,7 @@ we just have literal backticks:
 ## Emphasis and strong emphasis
 
 John Gruber's original [Markdown syntax
-description](http://daringfireball.net/projects/markdown/syntax#em) says:
+description](https://daringfireball.net/projects/markdown/syntax#em) says:
 
 > Markdown treats asterisks (`*`) and underscores (`_`) as indicators of
 > emphasis. Text wrapped with one `*` or `_` will be wrapped with an HTML
@@ -4229,15 +4229,15 @@ _a `_`_
 .
 
 .
-**a<http://foo.bar?q=**>
+**a<https://foo.bar?q=**>
 .
-<p>**a<a href="http://foo.bar?q=**">http://foo.bar?q=**</a></p>
+<p>**a<a href="https://foo.bar?q=**">https://foo.bar?q=**</a></p>
 .
 
 .
-__a<http://foo.bar?q=__>
+__a<https://foo.bar?q=__>
 .
-<p>__a<a href="http://foo.bar?q=__">http://foo.bar?q=__</a></p>
+<p>__a<a href="https://foo.bar?q=__">https://foo.bar?q=__</a></p>
 .
 
 This is not emphasis, because the opening delimiter is
@@ -5455,15 +5455,15 @@ soap.beep`, `soap.beeps`, `tag`, `tel`, `telnet`, `tftp`, `thismessage`,
 Here are some valid autolinks:
 
 .
-<http://foo.bar.baz>
+<https://foo.bar.baz>
 .
-<p><a href="http://foo.bar.baz">http://foo.bar.baz</a></p>
+<p><a href="https://foo.bar.baz">https://foo.bar.baz</a></p>
 .
 
 .
-<http://foo.bar.baz?q=hello&id=22&boolean>
+<https://foo.bar.baz?q=hello&id=22&boolean>
 .
-<p><a href="http://foo.bar.baz?q=hello&amp;id=22&amp;boolean">http://foo.bar.baz?q=hello&amp;id=22&amp;boolean</a></p>
+<p><a href="https://foo.bar.baz?q=hello&amp;id=22&amp;boolean">https://foo.bar.baz?q=hello&amp;id=22&amp;boolean</a></p>
 .
 
 .
@@ -5483,9 +5483,9 @@ Uppercase is also fine:
 Spaces are not allowed in autolinks:
 
 .
-<http://foo.bar/baz bim>
+<https://foo.bar/baz bim>
 .
-<p>&lt;http://foo.bar/baz bim&gt;</p>
+<p>&lt;https://foo.bar/baz bim&gt;</p>
 .
 
 An [email autolink](#email-autolink) <a id="email-autolink"></a>
@@ -5496,7 +5496,7 @@ and the URL is `mailto:` followed by the email address.
 An [email address](#email-address), <a id="email-address"></a>
 for these purposes, is anything that matches
 the [non-normative regex from the HTML5
-spec](http://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#e-mail-state-%28type=email%29):
+spec](https://www.whatwg.org/specs/web-apps/current-work/multipage/forms.html#e-mail-state-%28type=email%29):
 
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?
     (?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
@@ -5530,9 +5530,9 @@ These are not autolinks:
 .
 
 .
-< http://foo.bar >
+< https://foo.bar >
 .
-<p>&lt; http://foo.bar &gt;</p>
+<p>&lt; https://foo.bar &gt;</p>
 .
 
 .
@@ -5548,9 +5548,9 @@ These are not autolinks:
 .
 
 .
-http://google.com
+https://google.com
 .
-<p>http://google.com</p>
+<p>https://google.com</p>
 .
 
 .

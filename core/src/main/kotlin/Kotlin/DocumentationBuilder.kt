@@ -74,7 +74,7 @@ class DocumentationOptions(val outputDir: String,
     val defaultLinks = run {
         val links = mutableListOf<ExternalDocumentationLink>()
         if (!noJdkLink)
-            links += ExternalDocumentationLink.Builder("http://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
+            links += ExternalDocumentationLink.Builder("https://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
 
         if (!noStdlibLink)
             links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()

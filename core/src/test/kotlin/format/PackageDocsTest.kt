@@ -49,7 +49,7 @@ class PackageDocsTest {
 
     @Test fun testReferenceLinksInPackageDocs() {
         val mockLinkResolver = mock<DeclarationLinkResolver> {
-            val exampleCom = "http://example.com"
+            val exampleCom = "https://example.com"
             on { tryResolveContentLink(any(), eq(exampleCom)) } doAnswer { ContentExternalLink(exampleCom) }
         }
 
