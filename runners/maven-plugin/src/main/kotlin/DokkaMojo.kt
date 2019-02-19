@@ -200,7 +200,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
     /**
      * The archive configuration to use.
-     * See [Maven Archiver Reference](http://maven.apache.org/shared/maven-archiver/index.html)
+     * See [Maven Archiver Reference](https://maven.apache.org/shared/maven-archiver/index.html)
      */
     @Parameter
     private val archive = MavenArchiveConfiguration()

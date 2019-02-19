@@ -14,4 +14,4 @@ See [ref]
 Also, [example][ref] 
 
 <!-- Refs -->
-[ref]: http://example.com 
+[ref]: https://example.com

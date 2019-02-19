@@ -1,4 +1,4 @@
-dokka  [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 =====
 
@@ -52,7 +52,7 @@ dokka {
     }
     
     // List of files with module and package documentation
-    // http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+    // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
     includes = ['packages.md', 'extra.md']
     
     // The list of files or directories containing sample code (referenced with @sample tags)
@@ -250,7 +250,7 @@ The available configuration options are shown below:
         <cacheRoot>default</cacheRoot>
 
         <!-- List of '.md' files with package and module docs -->
-        <!-- http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
+        <!-- https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
         <includes>
             <file>packages.md</file>
             <file>extra.md</file>
@@ -297,7 +297,7 @@ The available configuration options are shown below:
                 <!-- Source directory -->
                 <dir>${project.basedir}/src/main/kotlin</dir>
                 <!-- URL showing where the source code can be accessed through the web browser -->
-                <url>http://github.com/me/myrepo</url>
+                <url>https://github.com/me/myrepo</url>
                 <!--Suffix which is used to append the line number to the URL. Use #L for GitHub -->
                 <urlSuffix>#L</urlSuffix>
             </link>

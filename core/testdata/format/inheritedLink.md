@@ -13,5 +13,5 @@
 
 Overrides [Foo.sayHello](../../p1/-foo/say-hello.md)
 
-Says hello - [LinkedList](http://docs.oracle.com/javase/6/docs/api/java/util/LinkedList.html).
+Says hello - [LinkedList](https://docs.oracle.com/javase/6/docs/api/java/util/LinkedList.html).
 

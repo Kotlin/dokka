@@ -150,7 +150,7 @@ public class JavaTest {
     /**
      *  `@suppress` not supported in Java!
      *
-     *  [Proposed tags](http://www.oracle.com/technetwork/java/javase/documentation/proposed-tags-142378.html)
+     *  [Proposed tags](https://www.oracle.com/technetwork/java/javase/documentation/proposed-tags-142378.html)
      *  Proposed tag `@exclude` for it, but not supported yet
      */
     @Ignore("@suppress not supported in Java!") @Test fun suppressTag() {
