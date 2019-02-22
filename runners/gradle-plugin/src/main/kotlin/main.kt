@@ -7,6 +7,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -32,6 +33,7 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
         project.tasks.create("dokka", DokkaTask::class.java).apply {
+            dokkaRuntime = project.configurations.create("dokkaRuntime")
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
         }
@@ -82,7 +84,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
-
+    lateinit var dokkaRuntime: Configuration
 
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
@@ -227,7 +229,7 @@ open class DokkaTask : DefaultTask() {
             val outputDirectoryFatJarPath = "$outputDirectory/dokkaFatJarRepack/$fatJarName"
             val dokkaRepackPath = "$outputDirectory/dokka-repack"
 
-            configuration.resolve().forEach {
+            dokkaRuntime.resolve().forEach {
                 project.copy { copySpec -> copySpec.from(project.zipTree(it)).into(dokkaRepackPath) }
             }
 
