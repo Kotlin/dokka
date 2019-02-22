@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
+import org.apache.tools.ant.taskdefs.Zip
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -221,7 +222,24 @@ open class DokkaTask : DefaultTask() {
             val dependency = project.buildscript.dependencies.create(dokkaFatJar)
             val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
             configuration.description = "Dokka main jar"
-            configuration.resolve().first()
+
+            val fatJarName = dokkaFatJar.toString().split(":").getOrElse(1){ "dokka-fatjar" }.plus(".jar")
+            val outputDirectoryFatJarPath = "$outputDirectory/dokkaFatJarRepack/$fatJarName"
+            val dokkaRepackPath = "$outputDirectory/dokka-repack"
+
+            configuration.resolve().forEach {
+                project.copy { copySpec -> copySpec.from(project.zipTree(it)).into(dokkaRepackPath) }
+            }
+
+            val antProject = org.apache.tools.ant.Project()
+            antProject.init()
+            val zip = Zip()
+            zip.project = antProject
+            zip.setBasedir(File(dokkaRepackPath))
+            zip.destFile = File(outputDirectoryFatJarPath)
+            zip.perform()
+
+            File(outputDirectoryFatJarPath)
         } catch (e: Exception) {
             project.parent?.let { tryResolveFatJar(it) } ?: throw e
         }
