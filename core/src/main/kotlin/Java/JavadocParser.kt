@@ -155,32 +155,30 @@ class JavadocParser(
         return htmlBuilder.toString().trim()
     }
 
-    private fun convertHtmlNode(node: Node): ContentNode? {
+    private fun convertHtmlNode(node: Node, insidePre: Boolean = false): ContentNode? {
         if (node is TextNode) {
-            return ContentText(node.text())
+            val text = if (insidePre) node.wholeText else node.text()
+            return ContentText(text)
         } else if (node is Element) {
-            val childBlock = createBlock(node)
-            if (childBlock is ContentBlockCode) {
-                childBlock.append(ContentText(node.text()))
-            } else {
-                node.childNodes().forEach {
-                    val child = convertHtmlNode(it)
-                    if (child != null) {
-                        childBlock.append(child)
-                    }
+            val childBlock = createBlock(node, insidePre)
+
+            node.childNodes().forEach {
+                val child = convertHtmlNode(it, insidePre || childBlock is ContentBlockCode)
+                if (child != null) {
+                    childBlock.append(child)
                 }
-                return (childBlock)
             }
+            return  childBlock
         }
         return null
     }
 
-    private fun createBlock(element: Element): ContentBlock = when (element.tagName()) {
+    private fun createBlock(element: Element, insidePre: Boolean): ContentBlock = when (element.tagName()) {
         "p" -> ContentParagraph()
         "b", "strong" -> ContentStrong()
         "i", "em" -> ContentEmphasis()
         "s", "del" -> ContentStrikethrough()
-        "code" -> ContentCode()
+        "code" -> if (insidePre) ContentBlock() else ContentCode()
         "pre" -> ContentBlockCode()
         "ul" -> ContentUnorderedList()
         "ol" -> ContentOrderedList()
