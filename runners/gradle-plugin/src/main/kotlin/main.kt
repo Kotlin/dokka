@@ -83,7 +83,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
-    lateinit var dokkaRuntime: Configuration
+    var dokkaRuntime: Configuration? = null
 
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
@@ -220,7 +220,7 @@ open class DokkaTask : DefaultTask() {
 
     fun tryResolveFatJar(project: Project): Set<File> {
         return try {
-            dokkaRuntime.resolve()
+            dokkaRuntime!!.resolve()
         } catch (e: Exception) {
             project.parent?.let { tryResolveFatJar(it) } ?: throw e
         }
@@ -297,7 +297,7 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        dokkaRuntime.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
+        project.configurations.getByName("dokkaRuntime").defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
