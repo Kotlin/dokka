@@ -16,6 +16,22 @@ Block code
 
  * List Item
 
+
+```
+
+  with( some ) {
+     multi = lines
+     sample()
+  }
+  ```
+
+
+
+```
+with (some) { <code> }
+  
+  ```
+
 ### Constructors
 
 | [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized*  |
