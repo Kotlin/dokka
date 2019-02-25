@@ -237,8 +237,8 @@ class JavadocTest {
         verifyJavadoc("testdata/javadoc/deprecated.java") { doc ->
             val classDoc = doc.classNamed("bar.Banana")!!
 
-            classDoc.methods().forEach {
-                assertNotNull((it as? DocumentationNodeAdapter)?.node?.deprecation)
+            classDoc.methods().forEach { method ->
+                assertTrue(method.tags().any { it.kind() == "deprecated" })
             }
         }
     }
