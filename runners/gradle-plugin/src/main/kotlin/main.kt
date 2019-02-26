@@ -297,7 +297,11 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        project.configurations.getByName("dokkaRuntime").defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
+        if (dokkaRuntime == null){
+            dokkaRuntime = project.configurations.getByName("dokkaRuntime")
+        }
+
+        dokkaRuntime?.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
