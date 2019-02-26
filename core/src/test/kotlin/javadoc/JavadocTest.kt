@@ -252,7 +252,7 @@ class JavadocTest {
     }
 
     @Test
-    fun testNoArgContructor() {
+    fun testNoArgConstructor() {
         verifyJavadoc("testdata/javadoc/noArgConstructor.kt") { doc ->
             val classDoc = doc.classNamed("foo.Plum")!!
             assertTrue(classDoc.constructors()[0].tags()[2].text() == "print plum")

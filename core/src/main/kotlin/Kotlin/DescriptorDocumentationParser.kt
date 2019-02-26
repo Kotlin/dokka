@@ -65,7 +65,7 @@ class DescriptorDocumentationParser
                 ?: descriptor
 
         var kdocText = if (isDefaultNoArgConstructor) {
-             ((DescriptorToSourceUtils.descriptorToDeclaration(descriptor)?.navigationElement as? KtElement) as KtDeclaration).docComment?.findSectionByTag(KDocKnownTag.CONSTRUCTOR)?.getContent() ?: kdoc.getContent()
+            getConstructorTagContent(descriptor) ?: kdoc.getContent()
         } else kdoc.getContent()
 
         // workaround for code fence parsing problem in IJ markdown parser
@@ -94,6 +94,13 @@ class DescriptorDocumentationParser
         }
         return content to { node -> }
     }
+
+    private fun getConstructorTagContent(descriptor: DeclarationDescriptor): String? {
+        return ((DescriptorToSourceUtils.descriptorToDeclaration(descriptor)?.navigationElement as? KtElement) as KtDeclaration).docComment?.findSectionByTag(
+            KDocKnownTag.CONSTRUCTOR
+        )?.getContent()
+    }
+
 
     private fun DeclarationDescriptor.isSuppressWarning() : Boolean {
         val suppressAnnotation = annotations.findAnnotation(FqName(Suppress::class.qualifiedName!!))
