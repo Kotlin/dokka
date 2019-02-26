@@ -263,12 +263,8 @@ class JavadocTest {
     fun testArgumentReference() {
         verifyJavadoc("testdata/javadoc/argumentReference.kt") { doc ->
             val classDoc = doc.classNamed("ArgumentReferenceKt")!!
-            val method = classDoc.methods()[0]
-            val tag = method.seeTags()[0]
-            val text = method.inlineTags().joinToString(separator = "", transform = Tag::text)
-            assertEqualsIgnoringSeparators("""
-                <p><p>argNamedError</p></p>
-            """.trimIndent(), text)
+            val method = classDoc.methods().first()
+            val tag = method.seeTags().first()
             assertEquals("argNamedError", tag.referencedMemberName())
             assertEquals("error", tag.label())
         }
