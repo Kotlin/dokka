@@ -448,7 +448,9 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     var dir: String
         get() = path
         set(value) {
-            path = value
+            if (value.contains("\\"))
+                throw java.lang.IllegalArgumentException("Incorrect dir property, only Unix based path allowed.")
+            else path = value
         }
 
     override var path: String = ""

@@ -100,7 +100,7 @@ dokka {
     // If provided, Dokka generates "source" links for each declaration.
     // Repeat for multiple mappings
     linkMapping {
-        // Directory relative to the root of the project (where you execute gradle respectively). 
+        // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
         dir = "src/main/kotlin" // or simply "./"
          
         // URL showing where the source code can be accessed through the web browser

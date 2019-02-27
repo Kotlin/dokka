@@ -40,7 +40,7 @@ class SourceLinksTest(
         private const val sourceLinks = "sourceLinks"
         private const val dummy = "dummy.kt"
         private const val pathSuffix = "$sourceLinks/$dummy"
-        private const val filePath = "$testdata/$pathSuffix/../dummy.kt"
+        private const val filePath = "$testdata/$pathSuffix"
         private const val url = "https://example.com"
 
         @Parameterized.Parameters(name = "{index}: {0}, {1}, {2} = {3}")
@@ -59,10 +59,8 @@ class SourceLinksTest(
                 arrayOf("$testdata/$sourceLinks", "$url/$dummy"),
                 arrayOf("./$testdata/../$testdata/$sourceLinks", "$url/$dummy")
             )
-            val allPaths = list +
-                    // we want to be sure Windows paths work as well
-                    list.map { arrayOf(it[0].replace('/', '\\'), it[1]) }
-            return allPaths.map { arrayOf(it[0].padEnd(maxLength, '_'), url, null, it[1]) } +
+
+            return list.map { arrayOf(it[0].padEnd(maxLength, '_'), url, null, it[1]) } +
                     listOf(
                         // check that it also works if url ends with /
                         arrayOf((File(testdata).absolutePath.removeSuffix("/") + "/").padEnd(maxLength, '_'), "$url/", null, "$url/$pathSuffix"),

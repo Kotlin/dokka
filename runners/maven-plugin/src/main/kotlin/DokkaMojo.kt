@@ -11,11 +11,17 @@ import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.jetbrains.dokka.*
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.net.URL
 
 class SourceLinkMapItem {
     @Parameter(name = "dir", required = true)
     var dir: String = ""
+    set(value) {
+        if (value.contains("\\"))
+            throw IllegalArgumentException("Incorrect dir property, only Unix based path allowed.")
+        else field = value
+    }
 
     @Parameter(name = "url", required = true)
     var url: String = ""
