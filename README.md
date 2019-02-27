@@ -100,7 +100,7 @@ dokka {
     // If provided, Dokka generates "source" links for each declaration.
     // Repeat for multiple mappings
     linkMapping {
-        // Directory relative to the root of the project (where you execute gradle respectively). 
+        // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
         dir = "src/main/kotlin" // or simply "./"
          
         // URL showing where the source code can be accessed through the web browser
@@ -297,7 +297,7 @@ The available configuration options are shown below:
                 <!-- Source directory -->
                 <dir>${project.basedir}/src/main/kotlin</dir>
                 <!-- URL showing where the source code can be accessed through the web browser -->
-                <url>https://github.com/me/myrepo</url>
+                <url>https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin</url> <!-- //remove src/main/kotlin if you use "./" above -->
                 <!--Suffix which is used to append the line number to the URL. Use #L for GitHub -->
                 <urlSuffix>#L</urlSuffix>
             </link>
