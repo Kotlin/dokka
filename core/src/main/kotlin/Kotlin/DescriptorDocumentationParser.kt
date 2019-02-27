@@ -107,14 +107,14 @@ class DescriptorDocumentationParser @Inject constructor(
      * *@attr ref <android.>R.styleable.<attribute_name>
      * *@attr name <attribute_name>
      * *@attr description <attribute_description>
-     * This also adds the @since tag.
+     * This also adds the @since and @apiSince tags.
      */
     private fun DocumentationNode.addExtraTags(tags: Array<KDocTag>, descriptor: DeclarationDescriptor) {
         tags.forEach {
             val name = it.name
             if (name?.toLowerCase() == "attr") {
                 it.getAttr(descriptor)?.let { append(it, RefKind.Detail) }
-            } else if (name?.toLowerCase() == "since") {
+            } else if (name?.toLowerCase() == "since" || name?.toLowerCase() == "apisince") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
                 append(apiLevel, RefKind.Detail)
             } else if (name?.toLowerCase() == "artifactid") {
