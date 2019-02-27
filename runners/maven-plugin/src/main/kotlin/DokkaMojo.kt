@@ -4,6 +4,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration
 import org.apache.maven.archiver.MavenArchiver
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
+import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugins.annotations.*
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
@@ -123,6 +124,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         if (skip) {
             log.info("Dokka skip parameter is true so no dokka output will be produced")
             return
+        }
+
+        sourceLinks.forEach {
+            if (it.dir.contains("\\")) {
+                throw MojoExecutionException("Incorrect dir property, only Unix based path allowed.")
+            }
         }
 
         val gen = DokkaGenerator(
