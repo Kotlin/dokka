@@ -279,7 +279,7 @@ class JavadocParser(
 
     private fun convertHtmlNode(node: Node): ContentNode? {
         if (node is TextNode) {
-            return ContentText(node.text())
+            return ContentText(node.text().removePrefix("#"))
         } else if (node is Element) {
             val childBlock = createBlock(node)
             node.childNodes().forEach {
