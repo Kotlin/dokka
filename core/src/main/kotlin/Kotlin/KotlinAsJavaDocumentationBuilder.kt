@@ -6,9 +6,11 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
+import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
@@ -59,8 +61,9 @@ class KotlinAsJavaDocumentationParser
                 return JavadocParseResult.Empty
             }
         }
+        val isDefaultNoArgConstructor = kotlinLightElement is KtLightMethod && origin is KtClass
         val descriptor = resolutionFacade.resolveToDescriptor(origin)
-        val content = descriptorDocumentationParser.parseDocumentation(descriptor, origin is KtParameter)
+        val content = descriptorDocumentationParser.parseDocumentation(descriptor, origin is KtParameter, isDefaultNoArgConstructor)
         return JavadocParseResult(content, null)
     }
 }
