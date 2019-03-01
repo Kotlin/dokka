@@ -65,14 +65,12 @@ class PropertyTest {
         }
     }
 
-    // TODO: add test back
-    @Ignore
     @Test fun annotatedProperty() {
         verifyModel("testdata/properties/annotatedProperty.kt", withKotlinRuntime = true) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {
-                    assertEquals("Volatile", name)
+                    assertEquals("Strictfp", name)
                     assertEquals(Content.Empty, content)
                     assertEquals(NodeKind.Annotation, kind)
                 }
