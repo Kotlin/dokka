@@ -75,9 +75,7 @@ open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node
 
         node.deprecation?.let {
             val content = it.content.asText()
-            if (content != null) {
-                result.add(TagImpl(this, "deprecated", content))
-            }
+            result.add(TagImpl(this, "deprecated", content ?: ""))
         }
 
         return result.toTypedArray()
