@@ -6,6 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -31,6 +32,7 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
         project.tasks.create("dokka", DokkaTask::class.java).apply {
+            dokkaRuntime = project.configurations.create("dokkaRuntime")
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
         }
@@ -81,7 +83,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
-
+    var dokkaRuntime: Configuration? = null
 
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
@@ -216,12 +218,9 @@ open class DokkaTask : DefaultTask() {
         })
     }
 
-    fun tryResolveFatJar(project: Project): File {
+    fun tryResolveFatJar(project: Project): Set<File> {
         return try {
-            val dependency = project.buildscript.dependencies.create(dokkaFatJar)
-            val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
-            configuration.description = "Dokka main jar"
-            configuration.resolve().first()
+            dokkaRuntime!!.resolve()
         } catch (e: Exception) {
             project.parent?.let { tryResolveFatJar(it) } ?: throw e
         }
@@ -229,11 +228,11 @@ open class DokkaTask : DefaultTask() {
 
     fun loadFatJar() {
         if (fatJarClassLoader == null) {
-            val fatjar = if (dokkaFatJar is File)
-                dokkaFatJar as File
+            val jars = if (dokkaFatJar is File)
+                setOf(dokkaFatJar as File)
             else
                 tryResolveFatJar(project)
-            fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()), ClassLoader.getSystemClassLoader().parent)
+            fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }
 
@@ -298,6 +297,11 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        if (dokkaRuntime == null){
+            dokkaRuntime = project.configurations.getByName("dokkaRuntime")
+        }
+
+        dokkaRuntime?.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
