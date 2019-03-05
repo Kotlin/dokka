@@ -402,6 +402,7 @@ Dokka supports the following command line arguments:
   * `markdown` - Markdown structured as `html`
     * `gfm` - GitHub flavored markdown  
     * `jekyll` - Jekyll compatible markdown 
+    * `hexo` - [Hexo](https://hexo.io/) compatible markdown 
   * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 
 ### Platforms<a name="platforms"></a>
