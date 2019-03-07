@@ -157,6 +157,28 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
+#### Dokka Runtime
+If you are using Gradle plugin and you want to change the version of Dokka, you can do it by setting `dokkaRuntime`:
+
+```groovy
+buildscript {
+    ...
+}
+
+apply plugin: 'org.jetbrains.dokka'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
+}
+```
+
+#### FAQ
+Please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+
 #### Android
 
 If you are using Android there is a separate Gradle plugin. Just make sure you apply the plugin after
