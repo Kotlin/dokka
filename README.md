@@ -418,11 +418,11 @@ Dokka supports the following command line arguments:
 
 ### Output formats<a name="output_formats"></a>
 
-  * `html` - minimalistic html format used by default
-  * `javadoc` - Dokka mimic to javadoc
-  * `html-as-java` - as `html` but using java syntax
-  * `markdown` - Markdown structured as `html`
-    * `gfm` - GitHub flavored markdown  
+  * `html` - minimalistic html format used by default, Java classes are translated to Kotlin
+  * `javadoc` - looks like normal Javadoc, Kotlin classes are translated to Java
+  * `html-as-java` - looks like `html`, but Kotlin classes are translated to Java
+  * `markdown` - markdown structured as `html`, Java classes are translated to Kotlin
+    * `gfm` - GitHub flavored markdown
     * `jekyll` - Jekyll compatible markdown 
   * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 
