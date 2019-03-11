@@ -20,9 +20,17 @@ fun getSignature(element: PsiElement?) = when(element) {
     is PsiClass -> element.qualifiedName
     is PsiField -> element.containingClass!!.qualifiedName + "$" + element.name
     is PsiMethod ->
-        element.containingClass!!.qualifiedName + "$" + element.name + "(" +
-                element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
+        methodSignature(element)
+    is PsiParameter -> {
+        val method = (element.parent.parent as PsiMethod)
+        methodSignature(method)
+    }
     else -> null
+}
+
+private fun methodSignature(method: PsiMethod): String {
+    return method.containingClass!!.qualifiedName + "$" + method.name + "(" +
+            method.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
 }
 
 private fun PsiType.typeSignature(): String = when(this) {

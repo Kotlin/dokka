@@ -259,6 +259,18 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun testArgumentReference() {
+        verifyJavadoc("testdata/javadoc/argumentReference.kt") { doc ->
+            val classDoc = doc.classNamed("ArgumentReferenceKt")!!
+            val method = classDoc.methods().first()
+            val tag = method.seeTags().first()
+            assertEquals("argNamedError", tag.referencedMemberName())
+            assertEquals("error", tag.label())
+        }
+    }
+
+
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,
                               withKotlinRuntime: Boolean = false,

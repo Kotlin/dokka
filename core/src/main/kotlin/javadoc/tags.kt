@@ -71,7 +71,7 @@ class SeeMethodTagAdapter(holder: Doc, val method: MethodAdapter, content: Conte
     override fun referencedPackage(): PackageDoc? = null
     override fun referencedClass(): ClassDoc? = method.containingClass()
     override fun referencedClassName(): String = method.containingClass()?.name() ?: ""
-    override fun label(): String = "${method.containingClass()?.name()}.${method.name()}"
+    override fun label(): String = content.text ?: "${method.containingClass()?.name()}.${method.name()}"
 
     override fun inlineTags(): Array<out Tag> = emptyArray() // TODO
     override fun firstSentenceTags(): Array<out Tag> = inlineTags() // TODO
