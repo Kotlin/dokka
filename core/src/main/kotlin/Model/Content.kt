@@ -115,6 +115,7 @@ class ContentBlockSampleCode(language: String = "kotlin", val importsBlock: Cont
 
 abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?
+    abstract val text: String?
 }
 
 object ContentHardLineBreak : ContentNode {
@@ -128,6 +129,8 @@ class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLi
 
     override fun hashCode(): Int =
             children.hashCode() * 31 + node.name.hashCode()
+
+    override val text: String? = null
 }
 
 class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode?): ContentNodeLink() {
@@ -138,6 +141,8 @@ class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> Documentatio
 
     override fun hashCode(): Int =
             children.hashCode() * 31 + linkText.hashCode()
+
+    override val text: String? = linkText
 }
 
 class ContentExternalLink(val href : String) : ContentBlock() {
