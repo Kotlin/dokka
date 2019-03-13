@@ -6,6 +6,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.JavaConstantExpressionEvaluator
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -109,9 +110,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun nodeForElement(element: PsiNamedElement,
                        kind: NodeKind,
-                       name: String = element.name ?: "<anonymous>"): DocumentationNode {
+                       name: String = element.name ?: "<anonymous>",
+                       register: Boolean = false): DocumentationNode {
         val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
+        if (register) register(element, node)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
             val modifierList = element.modifierList
@@ -180,13 +183,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
+            isAnnotationType -> NodeKind.AnnotationClass
             isInterface -> NodeKind.Interface
             isEnum -> NodeKind.Enum
-            isAnnotationType -> NodeKind.AnnotationClass
             isException() -> NodeKind.Exception
             else -> NodeKind.Class
         }
-        val node = nodeForElement(this, kind)
+        val node = nodeForElement(this, kind, register = isAnnotationType)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
             node.appendType(it, NodeKind.Supertype)
             val superClass = it.resolve()
@@ -310,8 +313,26 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 
+    private fun lookupOrBuildClass(psiClass: PsiClass): DocumentationNode {
+        val existing = refGraph.lookup(getSignature(psiClass)!!)
+        if (existing != null) return existing
+        val new = psiClass.build()
+        val packageNode = findOrCreatePackageNode(null, (psiClass.parent as PsiJavaFile).packageName, emptyMap(), refGraph)
+        packageNode.append(new, RefKind.Member)
+        return new
+    }
+
     fun PsiAnnotation.build(): DocumentationNode {
+
+        val original = when (this) {
+            is KtLightAbstractAnnotation -> clsDelegate
+            else -> this
+        }
         val node = DocumentationNode(qualifiedName?.substringAfterLast(".") ?: "<?>", Content.Empty, NodeKind.Annotation)
+        val psiClass = original.nameReferenceElement?.resolve() as? PsiClass
+        if (psiClass != null && psiClass.isAnnotationType) {
+            node.append(lookupOrBuildClass(psiClass), RefKind.Link)
+        }
         parameterList.attributes.forEach {
             val parameter = DocumentationNode(it.name ?: "value", Content.Empty, NodeKind.Parameter)
             val value = it.value

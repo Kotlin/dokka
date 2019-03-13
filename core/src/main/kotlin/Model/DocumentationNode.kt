@@ -179,17 +179,20 @@ val DocumentationNode.path: List<DocumentationNode>
     }
 
 fun findOrCreatePackageNode(module: DocumentationNode?, packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val existingNode = refGraph.lookup(packageName)
-    if (existingNode != null) {
-        return existingNode
-    }
-    val newNode = DocumentationNode(packageName,
+    val node = refGraph.lookup(packageName)  ?: run {
+        val newNode = DocumentationNode(
+            packageName,
             packageContent.getOrElse(packageName) { Content.Empty },
-            NodeKind.Package)
+            NodeKind.Package
+        )
 
-    refGraph.register(packageName, newNode)
-    module?.append(newNode, RefKind.Member)
-    return newNode
+        refGraph.register(packageName, newNode)
+        newNode
+    }
+    if (module != null && node !in module.members) {
+        module.append(node, RefKind.Member)
+    }
+    return node
 }
 
 fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
@@ -215,7 +218,7 @@ fun DocumentationNode.qualifiedName(): String {
     } else if (kind == NodeKind.Package) {
         return name
     }
-    return path.drop(1).map { it.name }.filter { it.length > 0 }.joinToString(".")
+    return path.dropWhile { it.kind == NodeKind.Module }.map { it.name }.filter { it.isNotEmpty() }.joinToString(".")
 }
 
 fun DocumentationNode.simpleName() = name.substringAfterLast('.')
