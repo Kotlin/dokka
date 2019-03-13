@@ -114,7 +114,7 @@ class AnnotationTypeDocAdapter(module: ModuleNodeAdapter, node: DocumentationNod
 }
 
 class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode) : AnnotationDesc {
-    override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node) // TODO ?????
+    override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node.links.find { it.kind == NodeKind.AnnotationClass } ?: node) // TODO ?????
     override fun isSynthesized(): Boolean = false
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
@@ -411,6 +411,9 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         return classNode.simpleName()
     }
 
+    override fun qualifiedName(): String? {
+        return super.qualifiedName()
+    }
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(NodeKind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()
     override fun constructors(): Array<out ConstructorDoc> = constructors(true)
     override fun importedPackages(): Array<out PackageDoc> = emptyArray()
