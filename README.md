@@ -26,7 +26,7 @@ apply plugin: 'org.jetbrains.dokka'
 ```
 
 The plugin adds a task named "dokka" to the project.
- 
+
 Minimal dokka configuration:
 
 ```groovy
@@ -37,7 +37,7 @@ dokka {
 ```
 
 [Output formats](#output_formats)
- 
+
 The available configuration options are shown below:
 
 ```groovy
@@ -110,8 +110,11 @@ dokka {
         suffix = "#L"
     }
     
-    // No default documentation link to kotlin-stdlib
+    // Disable linking to online kotlin-stdlib documentation
     noStdlibLink = false
+    
+    // Disable linking to online JDK documentation
+    noJdkLink = false 
     
     // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
     // Repeat for multiple links
@@ -285,7 +288,7 @@ The available configuration options are shown below:
         
         <!-- Used for linking to JDK, default: 6 -->
         <jdkVersion>6</jdkVersion>
-        
+
         <!-- Do not output deprecated members, applies globally, can be overridden by packageOptions -->
         <skipDeprecated>false</skipDeprecated> 
         <!-- Emit warnings about not documented members, applies globally, also can be overridden by packageOptions -->
@@ -325,8 +328,11 @@ The available configuration options are shown below:
             </link>
         </sourceLinks>
         
-        <!-- No default documentation link to kotlin-stdlib -->
+        <!-- Disable linking to online kotlin-stdlib documentation  -->
         <noStdlibLink>false</noStdlibLink>
+        
+        <!-- Disable linking to online JDK documentation -->
+        <noJdkLink>false</noJdkLink>
         
         <!-- Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka) -->
         <externalDocumentationLinks>
@@ -387,11 +393,12 @@ The Ant task supports the following attributes:
   * `<sourceRoot path="src" platforms="JVM" />` - analogue of src, but allows to specify [platforms](#platforms) 
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
-  * `noStdlibLink` - No default documentation link to kotlin-stdlib
+  * `noStdlibLink` - disable linking to online kotlin-stdlib documentation
+  * `noJdkLink` - disable linking to online JDK documentation
   * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
   * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
-    
+
 
 ### Using the Command Line
 
@@ -409,11 +416,12 @@ Dokka supports the following command line arguments:
   * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
   * `-include` - names of files containing the documentation for the module and individual packages
   * `-nodeprecated` - if set, deprecated elements are not included in the generated documentation
-  * `-impliedPlatforms` - List of implied platforms (comma-separated)
-  * `-packageOptions` - List of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
-  * `-links` - External documentation links in format `url^packageListUrl^^url2...`
-  * `-noStdlibLink` - Disable documentation link to stdlib
-  * `-cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
+  * `-impliedPlatforms` - list of implied platforms (comma-separated)
+  * `-packageOptions` - list of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
+  * `-links` - external documentation links in format `url^packageListUrl^^url2...`
+  * `-noStdlibLink` - disable linking to online kotlin-stdlib documentation
+  * `-noJdkLink` - disable linking to online JDK documentation
+  * `-cacheRoot` - use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
 
 
 ### Output formats<a name="output_formats"></a>
