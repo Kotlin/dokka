@@ -127,7 +127,7 @@ class JavadocParser(
                         "description" -> attrDesc = tag.getAttrDesc(element)
                     }
                 }
-                "since" -> {
+                "since", "apisince" -> {
                     since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
                 }
                 "artifactid" -> {
