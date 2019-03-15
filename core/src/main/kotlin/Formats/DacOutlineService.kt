@@ -156,7 +156,7 @@ class TocOutlineService(
                     to.appendln("    section:")
                     members.sortedBy { it.nameWithOuterClass().toLowerCase() }.forEach { member ->
                         to.appendln("    - title: ${languageService.renderNameWithOuterClass(member)}")
-                        to.appendln("      path: $dacRoot${uriProvider.mainUriOrWarn(member)}")
+                        to.appendln("      path: $dacRoot${uriProvider.mainUriOrWarn(member)}".trimEnd('#'))
                         to.appendln()
                     }
                 }
