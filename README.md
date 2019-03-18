@@ -1,4 +1,4 @@
-dokka  [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![TeamCity (build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_Dokka_DokkaAntMavenGradle.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [ ![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg) ](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 =====
 
@@ -26,7 +26,7 @@ apply plugin: 'org.jetbrains.dokka'
 ```
 
 The plugin adds a task named "dokka" to the project.
- 
+
 Minimal dokka configuration:
 
 ```groovy
@@ -37,7 +37,7 @@ dokka {
 ```
 
 [Output formats](#output_formats)
- 
+
 The available configuration options are shown below:
 
 ```groovy
@@ -52,7 +52,7 @@ dokka {
     }
     
     // List of files with module and package documentation
-    // http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+    // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
     includes = ['packages.md', 'extra.md']
     
     // The list of files or directories containing sample code (referenced with @sample tags)
@@ -100,18 +100,21 @@ dokka {
     // If provided, Dokka generates "source" links for each declaration.
     // Repeat for multiple mappings
     linkMapping {
-        // Source directory
-        dir = "src/main/kotlin"
+        // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
+        dir = "src/main/kotlin" // or simply "./"
          
         // URL showing where the source code can be accessed through the web browser
-        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin"
+        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" //remove src/main/kotlin if you use "./" above
         
         // Suffix which is used to append the line number to the URL. Use #L for GitHub
         suffix = "#L"
     }
     
-    // No default documentation link to kotlin-stdlib
+    // Disable linking to online kotlin-stdlib documentation
     noStdlibLink = false
+    
+    // Disable linking to online JDK documentation
+    noJdkLink = false 
     
     // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
     // Repeat for multiple links
@@ -156,6 +159,28 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 ```
 
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
+
+#### Dokka Runtime
+If you are using Gradle plugin and you want to change the version of Dokka, you can do it by setting `dokkaRuntime`:
+
+```groovy
+buildscript {
+    ...
+}
+
+apply plugin: 'org.jetbrains.dokka'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
+}
+```
+
+#### FAQ
+Please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
 #### Android
 
@@ -250,7 +275,7 @@ The available configuration options are shown below:
         <cacheRoot>default</cacheRoot>
 
         <!-- List of '.md' files with package and module docs -->
-        <!-- http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
+        <!-- https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation -->
         <includes>
             <include>packages.md</include>
             <include>extra.md</include>
@@ -263,7 +288,7 @@ The available configuration options are shown below:
         
         <!-- Used for linking to JDK, default: 6 -->
         <jdkVersion>6</jdkVersion>
-        
+
         <!-- Do not output deprecated members, applies globally, can be overridden by packageOptions -->
         <skipDeprecated>false</skipDeprecated> 
         <!-- Emit warnings about not documented members, applies globally, also can be overridden by packageOptions -->
@@ -297,14 +322,17 @@ The available configuration options are shown below:
                 <!-- Source directory -->
                 <dir>${project.basedir}/src/main/kotlin</dir>
                 <!-- URL showing where the source code can be accessed through the web browser -->
-                <url>http://github.com/me/myrepo</url>
+                <url>https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin</url> <!-- //remove src/main/kotlin if you use "./" above -->
                 <!--Suffix which is used to append the line number to the URL. Use #L for GitHub -->
                 <urlSuffix>#L</urlSuffix>
             </link>
         </sourceLinks>
         
-        <!-- No default documentation link to kotlin-stdlib -->
+        <!-- Disable linking to online kotlin-stdlib documentation  -->
         <noStdlibLink>false</noStdlibLink>
+        
+        <!-- Disable linking to online JDK documentation -->
+        <noJdkLink>false</noJdkLink>
         
         <!-- Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka) -->
         <externalDocumentationLinks>
@@ -365,11 +393,12 @@ The Ant task supports the following attributes:
   * `<sourceRoot path="src" platforms="JVM" />` - analogue of src, but allows to specify [platforms](#platforms) 
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
-  * `noStdlibLink` - No default documentation link to kotlin-stdlib
+  * `noStdlibLink` - disable linking to online kotlin-stdlib documentation
+  * `noJdkLink` - disable linking to online JDK documentation
   * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
   * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
-    
+
 
 ### Using the Command Line
 
@@ -387,20 +416,21 @@ Dokka supports the following command line arguments:
   * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
   * `-include` - names of files containing the documentation for the module and individual packages
   * `-nodeprecated` - if set, deprecated elements are not included in the generated documentation
-  * `-impliedPlatforms` - List of implied platforms (comma-separated)
-  * `-packageOptions` - List of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
-  * `-links` - External documentation links in format `url^packageListUrl^^url2...`
-  * `-noStdlibLink` - Disable documentation link to stdlib
-  * `-cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
+  * `-impliedPlatforms` - list of implied platforms (comma-separated)
+  * `-packageOptions` - list of package options in format `prefix,-deprecated,-privateApi,+warnUndocumented;...` 
+  * `-links` - external documentation links in format `url^packageListUrl^^url2...`
+  * `-noStdlibLink` - disable linking to online kotlin-stdlib documentation
+  * `-noJdkLink` - disable linking to online JDK documentation
+  * `-cacheRoot` - use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
 
 
 ### Output formats<a name="output_formats"></a>
 
-  * `html` - minimalistic html format used by default
-  * `javadoc` - Dokka mimic to javadoc
-  * `html-as-java` - as `html` but using java syntax
-  * `markdown` - Markdown structured as `html`
-    * `gfm` - GitHub flavored markdown  
+  * `html` - minimalistic html format used by default, Java classes are translated to Kotlin
+  * `javadoc` - looks like normal Javadoc, Kotlin classes are translated to Java
+  * `html-as-java` - looks like `html`, but Kotlin classes are translated to Java
+  * `markdown` - markdown structured as `html`, Java classes are translated to Kotlin
+    * `gfm` - GitHub flavored markdown
     * `jekyll` - Jekyll compatible markdown 
   * `kotlin-website*` - internal format used for documentation on [kotlinlang.org](https://kotlinlang.org)
 

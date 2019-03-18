@@ -2,14 +2,11 @@ package org.jetbrains.dokka.Utilities
 
 import com.google.inject.Binder
 import com.google.inject.Module
-import com.google.inject.Provider
 import com.google.inject.TypeLiteral
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Formats.FormatDescriptor
-import org.jetbrains.dokka.Model.DescriptorSignatureProvider
-import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import java.io.File
 import kotlin.reflect.KClass
@@ -27,8 +24,9 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         val coreEnvironment = environment.createCoreEnvironment()
         binder.bind<KotlinCoreEnvironment>().toInstance(coreEnvironment)
 
-        val dokkaResolutionFacade = environment.createResolutionFacade(coreEnvironment)
+        val (dokkaResolutionFacade, libraryResolutionFacade) = environment.createResolutionFacade(coreEnvironment)
         binder.bind<DokkaResolutionFacade>().toInstance(dokkaResolutionFacade)
+        binder.bind<DokkaResolutionFacade>().annotatedWith(Names.named("libraryResolutionFacade")).toInstance(libraryResolutionFacade)
 
         binder.bind<DocumentationOptions>().toInstance(options)
 

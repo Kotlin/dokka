@@ -7,7 +7,7 @@ subprojects {
         repositories {
             mavenCentral()
             jcenter()
-            maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+            maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         }
         dependencies {
@@ -17,7 +17,7 @@ subprojects {
     repositories {
         mavenCentral()
         jcenter()
-        maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
     }
 }

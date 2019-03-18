@@ -7,6 +7,7 @@ import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
 import org.jetbrains.dokka.tests.verifyModel
 import org.junit.Assert.*
 import org.junit.Test
+import java.lang.reflect.Modifier.*
 
 class JavadocTest {
     @Test fun testTypes() {
@@ -64,7 +65,7 @@ class JavadocTest {
             val member = classDoc.methods().find { it.name() == "main" }!!
             val paramType = member.parameters()[0].type()
             assertNull(paramType.asParameterizedType())
-            assertEquals("String", paramType.typeName())
+            assertEquals("String[]", paramType.typeName())
             assertEquals("String", paramType.asClassDoc().name())
         }
     }
@@ -160,6 +161,115 @@ class JavadocTest {
             assertEquals("test", tag.referencedMemberName())
         }
     }
+
+    @Test
+    fun testVararg() {
+        verifyJavadoc("testdata/javadoc/vararg.kt") { doc ->
+            val classDoc = doc.classNamed("VarargKt")!!
+            val methods = classDoc.methods()
+            methods.single { it.name() == "vararg" }.let {  method ->
+                assertTrue(method.isVarArgs)
+                assertEquals("int", method.parameters().last().typeName())
+            }
+            methods.single { it.name() == "varargInMiddle" }.let {  method ->
+                assertFalse(method.isVarArgs)
+                assertEquals("int[]", method.parameters()[1].typeName())
+            }
+        }
+    }
+
+    @Test
+    fun shouldHaveValidVisibilityModifiers() {
+        verifyJavadoc("testdata/javadoc/visibilityModifiers.kt", withKotlinRuntime = true) { doc ->
+            val classDoc = doc.classNamed("foo.Apple")!!
+            val methods = classDoc.methods()
+
+            val getName = methods[0]
+            val setName = methods[1]
+            val getWeight = methods[2]
+            val setWeight = methods[3]
+            val getRating = methods[4]
+            val setRating = methods[5]
+            val getCode = methods[6]
+            val color = classDoc.fields()[3]
+            val code = classDoc.fields()[4]
+
+            assertTrue(getName.isProtected)
+            assertEquals(PROTECTED, getName.modifierSpecifier())
+            assertTrue(setName.isProtected)
+            assertEquals(PROTECTED, setName.modifierSpecifier())
+
+            assertTrue(getWeight.isPublic)
+            assertEquals(PUBLIC, getWeight.modifierSpecifier())
+            assertTrue(setWeight.isPublic)
+            assertEquals(PUBLIC, setWeight.modifierSpecifier())
+
+            assertTrue(getRating.isPublic)
+            assertEquals(PUBLIC, getRating.modifierSpecifier())
+            assertTrue(setRating.isPublic)
+            assertEquals(PUBLIC, setRating.modifierSpecifier())
+
+            assertTrue(getCode.isPublic)
+            assertEquals(PUBLIC or STATIC, getCode.modifierSpecifier())
+
+            assertEquals(methods.size, 7)
+
+            assertTrue(color.isPrivate)
+            assertEquals(PRIVATE, color.modifierSpecifier())
+
+            assertTrue(code.isPrivate)
+            assertTrue(code.isStatic)
+            assertEquals(PRIVATE or STATIC, code.modifierSpecifier())
+        }
+    }
+
+    @Test
+    fun shouldNotHaveDuplicatedConstructorParameters() {
+        verifyJavadoc("testdata/javadoc/constructorParameters.kt") { doc ->
+            val classDoc = doc.classNamed("bar.Banana")!!
+            val paramTags = classDoc.constructors()[0].paramTags()
+
+            assertEquals(3, paramTags.size)
+        }
+    }
+
+    @Test fun shouldHaveAllFunctionMarkedAsDeprecated() {
+        verifyJavadoc("testdata/javadoc/deprecated.java") { doc ->
+            val classDoc = doc.classNamed("bar.Banana")!!
+
+            classDoc.methods().forEach { method ->
+                assertTrue(method.tags().any { it.kind() == "deprecated" })
+            }
+        }
+    }
+
+    @Test
+    fun testDefaultNoArgConstructor() {
+        verifyJavadoc("testdata/javadoc/defaultNoArgConstructor.kt") { doc ->
+            val classDoc = doc.classNamed("foo.Peach")!!
+            assertTrue(classDoc.constructors()[0].tags()[2].text() == "print peach")
+        }
+    }
+
+    @Test
+    fun testNoArgConstructor() {
+        verifyJavadoc("testdata/javadoc/noArgConstructor.kt") { doc ->
+            val classDoc = doc.classNamed("foo.Plum")!!
+            assertTrue(classDoc.constructors()[0].tags()[2].text() == "print plum")
+        }
+    }
+
+    @Test
+    fun testArgumentReference() {
+        verifyJavadoc("testdata/javadoc/argumentReference.kt") { doc ->
+            val classDoc = doc.classNamed("ArgumentReferenceKt")!!
+            val method = classDoc.methods().first()
+            val tag = method.seeTags().first()
+            assertEquals("argNamedError", tag.referencedMemberName())
+            assertEquals("error", tag.label())
+        }
+    }
+
 
     private fun verifyJavadoc(name: String,
                               withJdk: Boolean = false,

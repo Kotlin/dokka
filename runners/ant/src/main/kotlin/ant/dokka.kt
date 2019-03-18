@@ -40,6 +40,7 @@ class DokkaAntTask: Task() {
     var jdkVersion: Int = 6
 
     var noStdlibLink: Boolean = false
+    var noJdkLink: Boolean = false
 
     var skipDeprecated: Boolean = false
 
@@ -110,6 +111,10 @@ class DokkaAntTask: Task() {
         }
         val sourceLinks = antSourceLinks.map {
             val path = it.path ?: throw BuildException("'path' attribute of a <sourceLink> element is required")
+            if (path.contains("\\")) {
+                throw BuildException("'dir' attribute of a <sourceLink> - incorrect value, only Unix based path allowed.")
+            }
+
             val url = it.url ?: throw BuildException("'url' attribute of a <sourceLink> element is required")
             SourceLinkDefinitionImpl(File(path).canonicalFile.absolutePath, url, it.lineSuffix)
         }
@@ -131,6 +136,7 @@ class DokkaAntTask: Task() {
                         perPackageOptions = antPackageOptions,
                         externalDocumentationLinks = antExternalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
+                        noJdkLink = noJdkLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion

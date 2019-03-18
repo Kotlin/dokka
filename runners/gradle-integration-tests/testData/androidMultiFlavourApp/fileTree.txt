@@ -10,6 +10,7 @@
                     -init-.html
                     index.html
                     on-create-options-menu.html
+                    on-create.html
                 -kotlin-activity/
                     -init-.html
                     index.html
@@ -35,6 +36,7 @@
                     -init-.html
                     index.html
                     on-create-options-menu.html
+                    on-create.html
                 -kotlin-activity/
                     -init-.html
                     index.html

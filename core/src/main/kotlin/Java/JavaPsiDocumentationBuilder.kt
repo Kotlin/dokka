@@ -1,9 +1,12 @@
 package org.jetbrains.dokka
 
 import com.google.inject.Inject
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
+import com.intellij.psi.impl.JavaConstantExpressionEvaluator
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -14,12 +17,21 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import java.io.File
 
 fun getSignature(element: PsiElement?) = when(element) {
+    is PsiPackage -> element.qualifiedName
     is PsiClass -> element.qualifiedName
     is PsiField -> element.containingClass!!.qualifiedName + "$" + element.name
     is PsiMethod ->
-        element.containingClass!!.qualifiedName + "$" + element.name + "(" +
-                element.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
+        methodSignature(element)
+    is PsiParameter -> {
+        val method = (element.parent.parent as PsiMethod)
+        methodSignature(method)
+    }
     else -> null
+}
+
+private fun methodSignature(method: PsiMethod): String {
+    return method.containingClass!!.qualifiedName + "$" + method.name + "(" +
+            method.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
 }
 
 private fun PsiType.typeSignature(): String = when(this) {
@@ -45,10 +57,16 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     private val refGraph: NodeReferenceGraph
     private val docParser: JavaDocumentationParser
 
-    @Inject constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, logger: DokkaLogger) {
+    @Inject constructor(
+            options: DocumentationOptions,
+            refGraph: NodeReferenceGraph,
+            logger: DokkaLogger,
+            signatureProvider: ElementSignatureProvider,
+            externalDocumentationLinkResolver: ExternalDocumentationLinkResolver
+    ) {
         this.options = options
         this.refGraph = refGraph
-        this.docParser = JavadocParser(refGraph, logger)
+        this.docParser = JavadocParser(refGraph, logger, signatureProvider, externalDocumentationLinkResolver)
     }
 
     constructor(options: DocumentationOptions, refGraph: NodeReferenceGraph, docParser: JavaDocumentationParser) {
@@ -61,7 +79,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         if (skipFile(file) || file.classes.all { skipElement(it) }) {
             return
         }
-        val packageNode = module.findOrCreatePackageNode(file.packageName, emptyMap(), refGraph)
+        val packageNode = findOrCreatePackageNode(module, file.packageName, emptyMap(), refGraph)
         appendClasses(packageNode, file.classes)
     }
 
@@ -92,9 +110,11 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun nodeForElement(element: PsiNamedElement,
                        kind: NodeKind,
-                       name: String = element.name ?: "<anonymous>"): DocumentationNode {
+                       name: String = element.name ?: "<anonymous>",
+                       register: Boolean = false): DocumentationNode {
         val (docComment, deprecatedContent) = docParser.parseDocumentation(element)
         val node = DocumentationNode(name, docComment, kind)
+        if (register) register(element, node)
         if (element is PsiModifierListOwner) {
             node.appendModifiers(element)
             val modifierList = element.modifierList
@@ -139,11 +159,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
                     hasSuppressDocTag(element) ||
                     skipElementBySuppressedFiles(element)
 
-    private fun skipElementByVisibility(element: Any): Boolean = element is PsiModifierListOwner &&
-            !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
-            (element.hasModifierProperty(PsiModifier.PRIVATE) ||
-                    element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
-                    element.isInternal())
+    private fun skipElementByVisibility(element: Any): Boolean =
+        element is PsiModifierListOwner &&
+                element !is PsiParameter &&
+                !(options.effectivePackageOptions((element.containingFile as? PsiJavaFile)?.packageName ?: "").includeNonPublic) &&
+                (element.hasModifierProperty(PsiModifier.PRIVATE) ||
+                        element.hasModifierProperty(PsiModifier.PACKAGE_LOCAL) ||
+                        element.isInternal())
 
     private fun skipElementBySuppressedFiles(element: Any): Boolean =
             element is PsiElement && File(element.containingFile.virtualFile.path).absoluteFile in options.suppressedFiles
@@ -161,13 +183,13 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 
     fun PsiClass.build(): DocumentationNode {
         val kind = when {
+            isAnnotationType -> NodeKind.AnnotationClass
             isInterface -> NodeKind.Interface
             isEnum -> NodeKind.Enum
-            isAnnotationType -> NodeKind.AnnotationClass
             isException() -> NodeKind.Exception
             else -> NodeKind.Class
         }
-        val node = nodeForElement(this, kind)
+        val node = nodeForElement(this, kind, register = isAnnotationType)
         superTypes.filter { !ignoreSupertype(it) }.forEach {
             node.appendType(it, NodeKind.Supertype)
             val superClass = it.resolve()
@@ -200,9 +222,26 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
     fun PsiField.build(): DocumentationNode {
         val node = nodeForElement(this, nodeKind())
         node.appendType(type)
-        node.appendModifiers(this)
+
+        node.appendConstantValueIfAny(this)
         register(this, node)
         return node
+    }
+
+    private fun DocumentationNode.appendConstantValueIfAny(field: PsiField) {
+        val modifierList = field.modifierList ?: return
+        val initializer = field.initializer ?: return
+        if (modifierList.hasExplicitModifier(PsiModifier.FINAL) &&
+            modifierList.hasExplicitModifier(PsiModifier.STATIC)) {
+            val value = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
+            val text = when(value) {
+                null -> return // No value found
+                is String ->
+                    "\"" + StringUtil.escapeStringCharacters(value) + "\""
+                else -> value.toString()
+            }
+            append(DocumentationNode(text, Content.Empty, NodeKind.Value), RefKind.Detail)
+        }
     }
 
     private fun PsiField.nodeKind(): NodeKind = when {
@@ -274,8 +313,26 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         return node
     }
 
+    private fun lookupOrBuildClass(psiClass: PsiClass): DocumentationNode {
+        val existing = refGraph.lookup(getSignature(psiClass)!!)
+        if (existing != null) return existing
+        val new = psiClass.build()
+        val packageNode = findOrCreatePackageNode(null, (psiClass.parent as PsiJavaFile).packageName, emptyMap(), refGraph)
+        packageNode.append(new, RefKind.Member)
+        return new
+    }
+
     fun PsiAnnotation.build(): DocumentationNode {
-        val node = DocumentationNode(nameReferenceElement?.text ?: "<?>", Content.Empty, NodeKind.Annotation)
+
+        val original = when (this) {
+            is KtLightAbstractAnnotation -> clsDelegate
+            else -> this
+        }
+        val node = DocumentationNode(qualifiedName?.substringAfterLast(".") ?: "<?>", Content.Empty, NodeKind.Annotation)
+        val psiClass = original.nameReferenceElement?.resolve() as? PsiClass
+        if (psiClass != null && psiClass.isAnnotationType) {
+            node.append(lookupOrBuildClass(psiClass), RefKind.Link)
+        }
         parameterList.attributes.forEach {
             val parameter = DocumentationNode(it.name ?: "value", Content.Empty, NodeKind.Parameter)
             val value = it.value

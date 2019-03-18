@@ -167,6 +167,33 @@ Documentation""", content.description.toTestString())
         }
     }
 
+    @Test fun suspendFunction() {
+        verifyPackageMember("testdata/functions/suspendFunction.kt") { func ->
+            val modifiers = func.details(NodeKind.Modifier).map { it.name }
+            assertTrue("suspend" in modifiers)
+        }
+    }
+
+    @Test fun suspendInlineFunctionOrder() {
+        verifyPackageMember("testdata/functions/suspendInlineFunction.kt") { func ->
+            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
+                it == "suspend" || it == "inline"
+            }
+
+            assertEquals(listOf("suspend", "inline"), modifiers)
+        }
+    }
+
+    @Test fun inlineSuspendFunctionOrderChanged() {
+        verifyPackageMember("testdata/functions/inlineSuspendFunction.kt") { func ->
+            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
+                it == "suspend" || it == "inline"
+            }
+
+            assertEquals(listOf("suspend", "inline"), modifiers)
+        }
+    }
+
     @Test fun functionWithAnnotatedParam() {
         verifyModel("testdata/functions/functionWithAnnotatedParam.kt") { model ->
             with(model.members.single().members.single { it.name == "function" }) {

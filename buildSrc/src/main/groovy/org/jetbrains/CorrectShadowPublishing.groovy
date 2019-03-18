@@ -35,5 +35,5 @@ private static void addDependency(Node dependenciesNode, dep) {
     dependencyNode.appendNode('groupId', dep.group)
     dependencyNode.appendNode('artifactId', dep.name)
     dependencyNode.appendNode('version', dep.version)
-    dependencyNode.appendNode('scope', 'runtime')
+    dependencyNode.appendNode('scope', 'compile')
 }

@@ -39,8 +39,10 @@ interface DokkaConfiguration {
     val languageVersion: String?
     val apiVersion: String?
     val noStdlibLink: Boolean
+    val noJdkLink: Boolean
     val cacheRoot: String?
     val suppressedFiles: List<String>
+    val collectInheritedExtensionsFromLibraries: Boolean
 
     interface SourceRoot {
         val path: String
@@ -82,29 +84,31 @@ interface DokkaConfiguration {
 }
 
 data class SerializeOnlyDokkaConfiguration(
-        override val moduleName: String,
-        override val classpath: List<String>,
-        override val sourceRoots: List<DokkaConfiguration.SourceRoot>,
-        override val samples: List<String>,
-        override val includes: List<String>,
-        override val outputDir: String,
-        override val format: String,
-        override val includeNonPublic: Boolean,
-        override val includeRootPackage: Boolean,
-        override val reportUndocumented: Boolean,
-        override val skipEmptyPackages: Boolean,
-        override val skipDeprecated: Boolean,
-        override val jdkVersion: Int,
-        override val generateIndexPages: Boolean,
-        override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>,
-        override val impliedPlatforms: List<String>,
-        override val perPackageOptions: List<DokkaConfiguration.PackageOptions>,
-        override val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>,
-        override val noStdlibLink: Boolean,
-        override val cacheRoot: String?,
-        override val suppressedFiles: List<String>,
-        override val languageVersion: String?,
-        override val apiVersion: String?
+    override val moduleName: String,
+    override val classpath: List<String>,
+    override val sourceRoots: List<DokkaConfiguration.SourceRoot>,
+    override val samples: List<String>,
+    override val includes: List<String>,
+    override val outputDir: String,
+    override val format: String,
+    override val includeNonPublic: Boolean,
+    override val includeRootPackage: Boolean,
+    override val reportUndocumented: Boolean,
+    override val skipEmptyPackages: Boolean,
+    override val skipDeprecated: Boolean,
+    override val jdkVersion: Int,
+    override val generateIndexPages: Boolean,
+    override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>,
+    override val impliedPlatforms: List<String>,
+    override val perPackageOptions: List<DokkaConfiguration.PackageOptions>,
+    override val externalDocumentationLinks: List<DokkaConfiguration.ExternalDocumentationLink>,
+    override val noStdlibLink: Boolean,
+    override val noJdkLink: Boolean,
+    override val cacheRoot: String?,
+    override val suppressedFiles: List<String>,
+    override val languageVersion: String?,
+    override val apiVersion: String?,
+    override val collectInheritedExtensionsFromLibraries: Boolean
 ) : DokkaConfiguration
 
 

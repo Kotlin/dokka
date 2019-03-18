@@ -10,13 +10,13 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
@@ -157,9 +157,13 @@ fun buildDocumentationModule(injector: Injector,
         }
     }
 
+    parseJavaPackageDocs(packageDocs, coreEnvironment)
+
     with(injector.getInstance(DocumentationBuilder::class.java)) {
         documentationModule.appendFragments(fragments, packageDocs.packageContent,
                 injector.getInstance(PackageDocumentationBuilder::class.java))
+
+        propagateExtensionFunctionsToSubclasses(fragments, resolutionFacade)
     }
 
     val javaFiles = coreEnvironment.getJavaSourceFiles().filter(filesToDocumentFilter)
@@ -168,9 +172,21 @@ fun buildDocumentationModule(injector: Injector,
     }
 }
 
+fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEnvironment) {
+    val contentRoots = coreEnvironment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.map { it.file }
+            ?: listOf()
+    contentRoots.forEach { root ->
+        root.walkTopDown().filter { it.name == "overview.html" }.forEach {
+            packageDocs.parseJava(it.path, it.relativeTo(root).parent.replace("/", "."))
+        }
+    }
+}
+
 
 fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
-    val sourceRoots = configuration.get(JVMConfigurationKeys.CONTENT_ROOTS)
+    val sourceRoots = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
             ?.map { it.file }
             ?: listOf()

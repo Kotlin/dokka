@@ -4,6 +4,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration
 import org.apache.maven.archiver.MavenArchiver
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
+import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugins.annotations.*
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
@@ -104,6 +105,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(defaultValue = "false")
     var noStdlibLink: Boolean = false
 
+    @Parameter(defaultValue = "false")
+    var noJdkLink: Boolean = false
+
     @Parameter
     var cacheRoot: String? = null
 
@@ -120,6 +124,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         if (skip) {
             log.info("Dokka skip parameter is true so no dokka output will be produced")
             return
+        }
+
+        sourceLinks.forEach {
+            if (it.dir.contains("\\")) {
+                throw MojoExecutionException("Incorrect dir property, only Unix based path allowed.")
+            }
         }
 
         val gen = DokkaGenerator(
@@ -139,6 +149,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                         perPackageOptions = perPackageOptions,
                         externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
                         noStdlibLink = noStdlibLink,
+                        noJdkLink = noJdkLink,
                         cacheRoot = cacheRoot,
                         languageVersion = languageVersion,
                         apiVersion = apiVersion
@@ -196,7 +207,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
     /**
      * The archive configuration to use.
-     * See [Maven Archiver Reference](http://maven.apache.org/shared/maven-archiver/index.html)
+     * See [Maven Archiver Reference](https://maven.apache.org/shared/maven-archiver/index.html)
      */
     @Parameter
     private val archive = MavenArchiveConfiguration()

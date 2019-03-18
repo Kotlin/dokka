@@ -16,13 +16,23 @@ Block code
 
  * List Item
 
-### Constructors
-
-| [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized* <br>Paragraph ~~Strikethrough~~ ~~Deleted~~ `Code`
 
 ```
-Block code<br>```
-<br>
-* List Item
-<br> |
+
+  with( some ) {
+     multi = lines
+     sample()
+  }
+  ```
+
+
+
+```
+with (some) { <code> }
+  
+  ```
+
+### Constructors
+
+| [&lt;init&gt;](-init-.md) | `C()`<br>**Bold** **Strong** *Italic* *Emphasized*  |
 

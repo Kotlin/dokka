@@ -152,6 +152,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
 
+            is NodeRenderContent -> {
+                val node = content.node
+                appendContent(languageService.render(node, content.mode))
+            }
             is ContentNodeLink -> {
                 val node = content.node
                 val linkTo = if (node != null) locationHref(location, node) else "#"
@@ -570,7 +574,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             appendHeader(3) { appendText(caption) }
 
-            val children = if (sortMembers) members.sortedBy { it.name } else members
+            val children = if (sortMembers) members.sortedBy { it.name.toLowerCase() } else members
             val membersMap = children.groupBy { link(node, it) }
 
 
