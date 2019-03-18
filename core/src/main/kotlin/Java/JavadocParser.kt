@@ -403,6 +403,10 @@ class JavadocParser(
             // TODO: fix that
             "https://developer.android.com/"
         }
+
+        // Ignore the @usesMathJax tag
+        "usesMathJax" -> ""
+
         else -> tag.text
     }
 
