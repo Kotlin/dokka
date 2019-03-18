@@ -18,7 +18,8 @@ enum class RefKind {
     HiddenAnnotation,
     Deprecation,
     TopLevelPage,
-    Platform
+    Platform,
+    ExternalType
 }
 
 data class DocumentationReference(val from: DocumentationNode, val to: DocumentationNode, val kind: RefKind) {
@@ -61,7 +62,7 @@ class NodeReferenceGraph() {
     fun lookupOrWarn(signature: String, logger: DokkaLogger): DocumentationNode? {
         val result = nodeMap[signature]
         if (result == null) {
-            logger.warn("Can't find node by signature $signature")
+            logger.warn("Can't find node by signature `$signature`")
         }
         return result
     }

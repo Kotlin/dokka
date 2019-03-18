@@ -9,6 +9,18 @@
  * <code>Code</code>
  * <pre>Block code</pre>
  * <ul><li>List Item</li></ul>
+ * <pre>
+ * with( some ) {
+ *    multi = lines
+ *    sample()
+ * }
+ * </pre>
+ * <pre>
+ * {@code
+ *  with (some) { <code> }
+ * }
+ * </pre>
+ *
  */
 public class C {
 }

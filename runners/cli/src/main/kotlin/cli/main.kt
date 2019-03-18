@@ -53,6 +53,9 @@ class DokkaArguments {
     @set:Argument(value = "noStdlibLink", description = "Disable documentation link to stdlib")
     var noStdlibLink: Boolean = false
 
+    @set:Argument(value = "noJdkLink", description = "Disable documentation link to jdk")
+    var noJdkLink: Boolean = false
+
     @set:Argument(value = "cacheRoot", description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled")
     var cacheRoot: String? = null
 
@@ -61,6 +64,9 @@ class DokkaArguments {
 
     @set:Argument(value = "apiVersion", description = "Kotlin Api Version to pass to Kotlin Analysis")
     var apiVersion: String? = null
+
+    @set:Argument(value = "collectInheritedExtensionsFromLibraries", description = "Search for applicable extensions in libraries")
+    var collectInheritedExtensionsFromLibraries: Boolean = false
 
 }
 
@@ -106,18 +112,20 @@ object MainKt {
         val classPath = arguments.classpath.split(File.pathSeparatorChar).toList()
 
         val documentationOptions = DocumentationOptions(
-                arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
-                arguments.outputFormat,
-                skipDeprecated = arguments.nodeprecated,
-                sourceLinks = sourceLinks,
-                impliedPlatforms = arguments.impliedPlatforms.split(','),
-                perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
-                jdkVersion = arguments.jdkVersion,
-                externalDocumentationLinks = parseLinks(arguments.links),
-                noStdlibLink = arguments.noStdlibLink,
-                cacheRoot = arguments.cacheRoot,
-                languageVersion = arguments.languageVersion,
-                apiVersion = arguments.apiVersion
+            arguments.outputDir.let { if (it.endsWith('/')) it else it + '/' },
+            arguments.outputFormat,
+            skipDeprecated = arguments.nodeprecated,
+            sourceLinks = sourceLinks,
+            impliedPlatforms = arguments.impliedPlatforms.split(','),
+            perPackageOptions = parsePerPackageOptions(arguments.packageOptions),
+            jdkVersion = arguments.jdkVersion,
+            externalDocumentationLinks = parseLinks(arguments.links),
+            noStdlibLink = arguments.noStdlibLink,
+            cacheRoot = arguments.cacheRoot,
+            languageVersion = arguments.languageVersion,
+            apiVersion = arguments.apiVersion,
+            collectInheritedExtensionsFromLibraries = arguments.collectInheritedExtensionsFromLibraries,
+            noJdkLink = arguments.noJdkLink
         )
 
         val generator = DokkaGenerator(

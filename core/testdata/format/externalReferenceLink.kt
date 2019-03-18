@@ -3,7 +3,7 @@
  *
  * Sure, it is [example.com]
  *
- * [example.com]: http://example.com
+ * [example.com]: https://example.com
  */
 fun a() {
 

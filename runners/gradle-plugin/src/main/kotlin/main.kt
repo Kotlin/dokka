@@ -1,10 +1,12 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -30,6 +32,7 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
         project.tasks.create("dokka", DokkaTask::class.java).apply {
+            dokkaRuntime = project.configurations.create("dokkaRuntime")
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
         }
@@ -80,7 +83,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
     var outputDirectory: String = ""
-
+    var dokkaRuntime: Configuration? = null
 
     @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
     @Input var processConfigurations: List<Any?> = emptyList()
@@ -124,6 +127,9 @@ open class DokkaTask : DefaultTask() {
 
     @Input var noStdlibLink: Boolean = false
 
+    @Input
+    var noJdkLink: Boolean = false
+
     @Optional @Input
     var cacheRoot: String? = null
 
@@ -134,6 +140,9 @@ open class DokkaTask : DefaultTask() {
     @Optional @Input
     var apiVersion: String? = null
 
+    @Input
+    var collectInheritedExtensionsFromLibraries: Boolean = false
+
     @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
 
@@ -141,14 +150,17 @@ open class DokkaTask : DefaultTask() {
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
 
+    fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
+        kotlinTasksConfigurator = { taskSupplier.call() }
+    }
+
     fun kotlinTasks(closure: Closure<Any?>) {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
-    fun linkMapping(closure: Closure<Unit>) {
+    fun linkMapping(action: Action<LinkMapping>) {
         val mapping = LinkMapping()
-        closure.delegate = mapping
-        closure.call()
+        action.execute(mapping)
 
         if (mapping.path.isEmpty()) {
             throw IllegalArgumentException("Link mapping should have dir")
@@ -160,33 +172,55 @@ open class DokkaTask : DefaultTask() {
         linkMappings.add(mapping)
     }
 
-    fun sourceRoot(closure: Closure<Unit>) {
+    fun linkMapping(closure: Closure<Unit>) {
+        linkMapping(Action { mapping ->
+            closure.delegate = mapping
+            closure.call()
+        })
+    }
+
+    fun sourceRoot(action: Action<SourceRoot>) {
         val sourceRoot = SourceRoot()
-        closure.delegate = sourceRoot
-        closure.call()
+        action.execute(sourceRoot)
         sourceRoots.add(sourceRoot)
     }
 
-    fun packageOptions(closure: Closure<Unit>) {
+    fun sourceRoot(closure: Closure<Unit>) {
+        sourceRoot(Action { sourceRoot ->
+            closure.delegate = sourceRoot
+            closure.call()
+        })
+    }
+
+    fun packageOptions(action: Action<PackageOptions>) {
         val packageOptions = PackageOptions()
-        closure.delegate = packageOptions
-        closure.call()
+        action.execute(packageOptions)
         perPackageOptions.add(packageOptions)
     }
 
-    fun externalDocumentationLink(closure: Closure<Unit>) {
+    fun packageOptions(closure: Closure<Unit>) {
+        packageOptions(Action { packageOptions ->
+            closure.delegate = packageOptions
+            closure.call()
+        })
+    }
+
+    fun externalDocumentationLink(action: Action<DokkaConfiguration.ExternalDocumentationLink.Builder>) {
         val builder = DokkaConfiguration.ExternalDocumentationLink.Builder()
-        closure.delegate = builder
-        closure.call()
+        action.execute(builder)
         externalDocumentationLinks.add(builder.build())
     }
 
-    fun tryResolveFatJar(project: Project): File {
+    fun externalDocumentationLink(closure: Closure<Unit>) {
+        externalDocumentationLink(Action { builder ->
+            closure.delegate = builder
+            closure.call()
+        })
+    }
+
+    fun tryResolveFatJar(project: Project): Set<File> {
         return try {
-            val dependency = project.buildscript.dependencies.create(dokkaFatJar)
-            val configuration = project.buildscript.configurations.detachedConfiguration(dependency)
-            configuration.description = "Dokka main jar"
-            configuration.resolve().first()
+            dokkaRuntime!!.resolve()
         } catch (e: Exception) {
             project.parent?.let { tryResolveFatJar(it) } ?: throw e
         }
@@ -194,11 +228,11 @@ open class DokkaTask : DefaultTask() {
 
     fun loadFatJar() {
         if (fatJarClassLoader == null) {
-            val fatjar = if (dokkaFatJar is File)
-                dokkaFatJar as File
+            val jars = if (dokkaFatJar is File)
+                setOf(dokkaFatJar as File)
             else
                 tryResolveFatJar(project)
-            fatJarClassLoader = URLClassLoader(arrayOf(fatjar.toURI().toURL()), ClassLoader.getSystemClassLoader().parent)
+            fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }
 
@@ -263,6 +297,11 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        if (dokkaRuntime == null){
+            dokkaRuntime = project.configurations.getByName("dokkaRuntime")
+        }
+
+        dokkaRuntime?.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
@@ -287,29 +326,32 @@ open class DokkaTask : DefaultTask() {
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
             val configuration = SerializeOnlyDokkaConfiguration(
-                    moduleName,
-                    fullClasspath.map { it.absolutePath },
-                    sourceRoots,
-                    samples.filterNotNull().map { project.file(it).absolutePath },
-                    includes.filterNotNull().map { project.file(it).absolutePath },
-                    outputDirectory,
-                    outputFormat,
-                    includeNonPublic,
-                    false,
-                    reportUndocumented,
-                    skipEmptyPackages,
-                    skipDeprecated,
-                    jdkVersion,
-                    true,
-                    linkMappings,
-                    impliedPlatforms,
-                    perPackageOptions,
-                    externalDocumentationLinks,
-                    noStdlibLink,
+                moduleName,
+                fullClasspath.map { it.absolutePath },
+                sourceRoots,
+                samples.filterNotNull().map { project.file(it).absolutePath },
+                includes.filterNotNull().map { project.file(it).absolutePath },
+                outputDirectory,
+                outputFormat,
+                includeNonPublic,
+                false,
+                reportUndocumented,
+                skipEmptyPackages,
+                skipDeprecated,
+                jdkVersion,
+                true,
+                linkMappings,
+                impliedPlatforms,
+                perPackageOptions,
+                externalDocumentationLinks,
+                noStdlibLink,
+                noJdkLink,
                     cacheRoot,
                     collectSuppressedFiles(sourceRoots),
                     languageVersion,
-                    apiVersion)
+                    apiVersion,
+                    collectInheritedExtensionsFromLibraries
+            )
 
 
             bootstrapProxy.configure(
@@ -406,7 +448,9 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     var dir: String
         get() = path
         set(value) {
-            path = value
+            if (value.contains("\\"))
+                throw java.lang.IllegalArgumentException("Incorrect dir property, only Unix based path allowed.")
+            else path = value
         }
 
     override var path: String = ""

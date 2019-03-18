@@ -109,7 +109,12 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun javaCodeInParam() {
-        verifyJavaMarkdownNode("javaCodeInParam")
+        verifyJavaMarkdownNodes("javaCodeInParam") {
+            selectNodes(it) {
+                subgraphOf(RefKind.Member)
+                withKind(NodeKind.Function)
+            }
+        }
     }
 
     @Test fun javaSpaceInAuthor() {
@@ -158,6 +163,14 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
 
     @Test fun reifiedTypeParameter() {
         verifyMarkdownNode("reifiedTypeParameter", withKotlinRuntime = true)
+    }
+
+    @Test fun suspendInlineFunctionOrder() {
+        verifyMarkdownNode("suspendInlineFunction", withKotlinRuntime = true)
+    }
+
+    @Test fun inlineSuspendFunctionOrderChanged() {
+        verifyMarkdownNode("inlineSuspendFunction", withKotlinRuntime = true)
     }
 
     @Test fun annotatedTypeParameter() {
@@ -313,6 +326,7 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
@@ -447,6 +461,7 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
                 outputFormat = "html",
                 generateIndexPages = false,
                 noStdlibLink = true,
+                noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
@@ -523,5 +538,9 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
             }
             nodesWithName
         }
+    }
+
+    @Test fun nullableTypeParameterFunction() {
+        verifyMarkdownNode("nullableTypeParameterFunction", withKotlinRuntime = true)
     }
 }

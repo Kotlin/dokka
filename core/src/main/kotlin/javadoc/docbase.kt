@@ -2,7 +2,7 @@ package org.jetbrains.dokka.javadoc
 
 import com.sun.javadoc.*
 import org.jetbrains.dokka.*
-import java.lang.reflect.Modifier
+import java.lang.reflect.Modifier.*
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -75,9 +75,7 @@ open class DocumentationNodeAdapter(override val module: ModuleNodeAdapter, node
 
         node.deprecation?.let {
             val content = it.content.asText()
-            if (content != null) {
-                result.add(TagImpl(this, "deprecated", content))
-            }
+            result.add(TagImpl(this, "deprecated", content ?: ""))
         }
 
         return result.toTypedArray()
@@ -116,20 +114,27 @@ class AnnotationTypeDocAdapter(module: ModuleNodeAdapter, node: DocumentationNod
 }
 
 class AnnotationDescAdapter(val module: ModuleNodeAdapter, val node: DocumentationNode) : AnnotationDesc {
-    override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node) // TODO ?????
+    override fun annotationType(): AnnotationTypeDoc? = AnnotationTypeDocAdapter(module, node.links.find { it.kind == NodeKind.AnnotationClass } ?: node) // TODO ?????
     override fun isSynthesized(): Boolean = false
     override fun elementValues(): Array<out AnnotationDesc.ElementValuePair>? = emptyArray() // TODO
 }
 
 open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), ProgramElementDoc {
-    override fun isPublic(): Boolean = true
+    override fun isPublic(): Boolean = node.hasModifier("public") || node.hasModifier("internal")
     override fun isPackagePrivate(): Boolean = false
     override fun isStatic(): Boolean = node.hasModifier("static")
-    override fun modifierSpecifier(): Int = Modifier.PUBLIC + if (isStatic) Modifier.STATIC else 0
+    override fun modifierSpecifier(): Int = visibilityModifier or (if (isStatic) STATIC else 0)
+    private val visibilityModifier
+        get() = when {
+            isPublic() -> PUBLIC
+            isPrivate() -> PRIVATE
+            isProtected() -> PROTECTED
+            else -> 0
+        }
     override fun qualifiedName(): String? = node.qualifiedName()
     override fun annotations(): Array<out AnnotationDesc>? = nodeAnnotations(this).toTypedArray()
     override fun modifiers(): String? = "public ${if (isStatic) "static" else ""}".trim()
-    override fun isProtected(): Boolean = false
+    override fun isProtected(): Boolean = node.hasModifier("protected")
 
     override fun isFinal(): Boolean = node.hasModifier("final")
 
@@ -165,7 +170,7 @@ open class ProgramElementAdapter(module: ModuleNodeAdapter, node: DocumentationN
         return null
     }
 
-    override fun isPrivate(): Boolean = false
+    override fun isPrivate(): Boolean = node.hasModifier("private")
     override fun isIncluded(): Boolean = containingPackage()?.isIncluded ?: false && containingClass()?.let { it.isIncluded } ?: true
 }
 
@@ -173,7 +178,7 @@ open class TypeAdapter(override val module: ModuleNodeAdapter, override val node
     private val javaLanguageService = JavaLanguageService()
 
     override fun qualifiedTypeName(): String = javaLanguageService.getArrayElementType(node)?.qualifiedNameFromType() ?: node.qualifiedNameFromType()
-    override fun typeName(): String = javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()
+    override fun typeName(): String = (javaLanguageService.getArrayElementType(node)?.simpleName() ?: node.simpleName()) + dimension()
     override fun simpleTypeName(): String = typeName() // TODO difference typeName() vs simpleTypeName()
 
     override fun dimension(): String = Collections.nCopies(javaLanguageService.getArrayDimension(node), "[]").joinToString("")
@@ -275,7 +280,7 @@ class ParameterizedTypeAdapter(module: ModuleNodeAdapter, node: DocumentationNod
 }
 
 class ParameterAdapter(module: ModuleNodeAdapter, node: DocumentationNode) : DocumentationNodeAdapter(module, node), Parameter {
-    override fun typeName(): String? = JavaLanguageService().renderType(node.detail(NodeKind.Type))
+    override fun typeName(): String? = type()?.typeName()
     override fun type(): Type? = TypeAdapter(module, node.detail(NodeKind.Type))
     override fun annotations(): Array<out AnnotationDesc> = nodeAnnotations(this).toTypedArray()
 }
@@ -317,7 +322,7 @@ open class ExecutableMemberAdapter(module: ModuleNodeAdapter, node: Documentatio
                     .map { ThrowsTagAdapter(this, ClassDocumentationNodeAdapter(module, classOf(it.subjectName!!, NodeKind.Exception)), it.children) }
                     .toTypedArray()
 
-    override fun isVarArgs(): Boolean = node.details(NodeKind.Parameter).any { false } // TODO
+    override fun isVarArgs(): Boolean = node.details(NodeKind.Parameter).last().hasModifier("vararg")
 
     override fun isSynchronized(): Boolean = node.annotations.any { it.name == "synchronized" }
 
@@ -406,6 +411,9 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
         return classNode.simpleName()
     }
 
+    override fun qualifiedName(): String? {
+        return super.qualifiedName()
+    }
     override fun constructors(filter: Boolean): Array<out ConstructorDoc> = classNode.members(NodeKind.Constructor).map { ConstructorAdapter(module, it) }.toTypedArray()
     override fun constructors(): Array<out ConstructorDoc> = constructors(true)
     override fun importedPackages(): Array<out PackageDoc> = emptyArray()
@@ -514,12 +522,13 @@ class ModuleNodeAdapter(val module: DocumentationModule, val reporter: DocErrorR
 }
 
 private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, sectionFilter: (ContentSection) -> Boolean) =
-        (node.details(kind)
-                .filter(DocumentationNode::hasNonEmptyContent)
-                .map { ParamTagAdapter(module, this, it.name, true, it.content.children) }
+    (node.details(kind)
+        .filter(DocumentationNode::hasNonEmptyContent)
+        .map { ParamTagAdapter(module, this, it.name, true, it.content.children) }
 
-                + node.content.sections
-                .filter(sectionFilter)
-                .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) })
-
-                .toTypedArray()
+        + node.content.sections
+        .filter(sectionFilter)
+        .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) }
+    )
+    .distinctBy { it.parameterName }
+    .toTypedArray()

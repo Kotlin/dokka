@@ -9,7 +9,7 @@ object ContentEmpty : ContentNode {
 }
 
 open class ContentBlock() : ContentNode {
-    val children = arrayListOf<ContentNode>()
+    open val children = arrayListOf<ContentNode>()
 
     fun append(node: ContentNode)  {
         children.add(node)
@@ -25,6 +25,34 @@ open class ContentBlock() : ContentNode {
 
     override val textLength: Int
         get() = children.sumBy { it.textLength }
+}
+
+class NodeRenderContent(
+    val node: DocumentationNode,
+    val mode: LanguageService.RenderMode
+): ContentNode {
+    override val textLength: Int
+        get() = 0 //TODO: Clarify?
+}
+
+class LazyContentBlock(private val fillChildren: () -> List<ContentNode>) : ContentBlock() {
+    private var computed = false
+    override val children: ArrayList<ContentNode>
+        get() {
+            if (!computed) {
+                computed = true
+                children.addAll(fillChildren())
+            }
+            return super.children
+        }
+
+    override fun equals(other: Any?): Boolean {
+        return other is LazyContentBlock && other.fillChildren == fillChildren && super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode() + 31 * fillChildren.hashCode()
+    }
 }
 
 enum class IdentifierKind {
@@ -87,6 +115,7 @@ class ContentBlockSampleCode(language: String = "kotlin", val importsBlock: Cont
 
 abstract class ContentNodeLink() : ContentBlock() {
     abstract val node: DocumentationNode?
+    abstract val text: String?
 }
 
 object ContentHardLineBreak : ContentNode {
@@ -100,6 +129,8 @@ class ContentNodeDirectLink(override val node: DocumentationNode): ContentNodeLi
 
     override fun hashCode(): Int =
             children.hashCode() * 31 + node.name.hashCode()
+
+    override val text: String? = null
 }
 
 class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> DocumentationNode?): ContentNodeLink() {
@@ -110,6 +141,8 @@ class ContentNodeLazyLink(val linkText: String, val lazyNode: () -> Documentatio
 
     override fun hashCode(): Int =
             children.hashCode() * 31 + linkText.hashCode()
+
+    override val text: String? = linkText
 }
 
 class ContentExternalLink(val href : String) : ContentBlock() {
@@ -119,6 +152,9 @@ class ContentExternalLink(val href : String) : ContentBlock() {
     override fun hashCode(): Int =
         children.hashCode() * 31 + href.hashCode()
 }
+
+data class ContentBookmark(val name: String): ContentBlock()
+data class ContentLocalLink(val href: String) : ContentBlock()
 
 class ContentUnorderedList() : ContentBlock()
 class ContentOrderedList() : ContentBlock()

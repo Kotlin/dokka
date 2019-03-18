@@ -1,0 +1,6 @@
+/**
+ * Some doc.
+ */
+fun foo(){
+
+}
