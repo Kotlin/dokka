@@ -13,7 +13,7 @@ class YamlOutlineService @Inject constructor(
     override fun appendOutlineHeader(location: Location, node: DocumentationNode, to: StringBuilder) {
         val indent = "    ".repeat(outlineLevel)
         to.appendln("$indent- title: ${languageService.renderName(node)}")
-        to.appendln("$indent  url: ${generator.location(node).path}")
+        to.appendln("$indent  url: ${generator.relativePathToLocation(node.path.first(), node)}")
     }
 
     override fun appendOutlineLevel(to: StringBuilder, body: () -> Unit) {

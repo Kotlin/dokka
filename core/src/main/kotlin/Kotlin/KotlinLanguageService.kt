@@ -208,7 +208,7 @@ class KotlinLanguageService : CommonLanguageService() {
         nowrap: Boolean
     ) {
         when (node.name) {
-            "final", "public", "var" -> {
+            "final", "public", "var", "expect", "actual", "external" -> {
             }
             else -> {
                 if (showModifierInSummary(node) || renderMode == RenderMode.FULL) {

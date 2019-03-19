@@ -25,6 +25,7 @@ abstract class FileGeneratorBasedFormatDescriptor : FormatDescriptor {
     override fun configureOutput(binder: Binder): Unit = with(binder) {
         bind<Generator>() toType NodeLocationAwareGenerator::class
         bind<NodeLocationAwareGenerator>() toType generatorServiceClass
+        bind(generatorServiceClass.java) // https://github.com/google/guice/issues/847
 
         bind<LanguageService>() toType languageServiceClass
 

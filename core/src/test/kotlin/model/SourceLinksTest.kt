@@ -2,7 +2,8 @@ package org.jetbrains.dokka.tests.model
 
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
-import org.jetbrains.dokka.tests.verifyModel
+import org.jetbrains.dokka.tests.ModelConfig
+import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +27,7 @@ class SourceLinksTest(
         }
         val sourceLink = SourceLinkDefinitionImpl(link, url, lineSuffix)
 
-        verifyModel(filePath, sourceLinks = listOf(sourceLink)) { model ->
+        checkSourceExistsAndVerifyModel(filePath, ModelConfig(sourceLinks = listOf(sourceLink))) { model ->
             with(model.members.single().members.single()) {
                 Assert.assertEquals("foo", name)
                 Assert.assertEquals(NodeKind.Function, kind)

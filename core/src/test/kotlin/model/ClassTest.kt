@@ -2,14 +2,17 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.RefKind
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ClassTest {
+abstract class BaseClassTest(val analysisPlatform: Platform) {
+    protected val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     @Test fun emptyClass() {
-        verifyModel("testdata/classes/emptyClass.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/emptyClass.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(NodeKind.Class, kind)
                 assertEquals("Klass", name)
@@ -21,7 +24,7 @@ class ClassTest {
     }
 
     @Test fun emptyObject() {
-        verifyModel("testdata/classes/emptyObject.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/emptyObject.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(NodeKind.Object, kind)
                 assertEquals("Obj", name)
@@ -33,7 +36,7 @@ class ClassTest {
     }
 
     @Test fun classWithConstructor() {
-        verifyModel("testdata/classes/classWithConstructor.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/classWithConstructor.kt", defaultModelConfig) { model ->
             with (model.members.single().members.single()) {
                 assertEquals(NodeKind.Class, kind)
                 assertEquals("Klass", name)
@@ -63,7 +66,7 @@ class ClassTest {
     }
 
     @Test fun classWithFunction() {
-        verifyModel("testdata/classes/classWithFunction.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/classWithFunction.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(NodeKind.Class, kind)
                 assertEquals("Klass", name)
@@ -93,7 +96,7 @@ class ClassTest {
     }
 
     @Test fun classWithProperty() {
-        verifyModel("testdata/classes/classWithProperty.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/classWithProperty.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(NodeKind.Class, kind)
                 assertEquals("Klass", name)
@@ -123,7 +126,7 @@ class ClassTest {
     }
 
     @Test fun classWithCompanionObject() {
-        verifyModel("testdata/classes/classWithCompanionObject.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/classWithCompanionObject.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(NodeKind.Class, kind)
                 assertEquals("Klass", name)
@@ -151,33 +154,25 @@ class ClassTest {
         }
     }
 
-    @Test fun annotatedClass() {
-        verifyPackageMember("testdata/classes/annotatedClass.kt", withKotlinRuntime = true) { cls ->
-            assertEquals(1, cls.annotations.count())
-            with(cls.annotations[0]) {
-                assertEquals("Strictfp", name)
-                assertEquals(Content.Empty, content)
-                assertEquals(NodeKind.Annotation, kind)
-            }
-        }
-    }
-
     @Test fun dataClass() {
-        verifyPackageMember("testdata/classes/dataClass.kt") { cls ->
+        verifyPackageMember("testdata/classes/dataClass.kt", defaultModelConfig) { cls ->
             val modifiers = cls.details(NodeKind.Modifier).map { it.name }
             assertTrue("data" in modifiers)
         }
     }
 
     @Test fun sealedClass() {
-        verifyPackageMember("testdata/classes/sealedClass.kt") { cls ->
+        verifyPackageMember("testdata/classes/sealedClass.kt", defaultModelConfig) { cls ->
             val modifiers = cls.details(NodeKind.Modifier).map { it.name }
             assertEquals(1, modifiers.count { it == "sealed" })
         }
     }
 
     @Test fun annotatedClassWithAnnotationParameters() {
-        verifyModel("testdata/classes/annotatedClassWithAnnotationParameters.kt") { model ->
+        checkSourceExistsAndVerifyModel(
+            "testdata/classes/annotatedClassWithAnnotationParameters.kt",
+            defaultModelConfig
+        ) { model ->
             with(model.members.single().members.single()) {
                 with(deprecation!!) {
                     assertEquals("Deprecated", name)
@@ -197,29 +192,8 @@ class ClassTest {
         }
     }
 
-    @Test fun javaAnnotationClass() {
-        verifyModel("testdata/classes/javaAnnotationClass.kt", withJdk = true) { model ->
-            with(model.members.single().members.single()) {
-                assertEquals(1, annotations.count())
-                with(annotations[0]) {
-                    assertEquals("Retention", name)
-                    assertEquals(Content.Empty, content)
-                    assertEquals(NodeKind.Annotation, kind)
-                    with(details[0]) {
-                        assertEquals(NodeKind.Parameter, kind)
-                        assertEquals(1, details.count())
-                        with(details[0]) {
-                            assertEquals(NodeKind.Value, kind)
-                            assertEquals("RetentionPolicy.SOURCE", name)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     @Test fun notOpenClass() {
-        verifyModel("testdata/classes/notOpenClass.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/notOpenClass.kt", defaultModelConfig) { model ->
             with(model.members.single().members.first { it.name == "D"}.members.first { it.name == "f" }) {
                 val modifiers = details(NodeKind.Modifier)
                 assertEquals(2, modifiers.size)
@@ -232,7 +206,7 @@ class ClassTest {
     }
 
     @Test fun indirectOverride() {
-        verifyModel("testdata/classes/indirectOverride.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/indirectOverride.kt", defaultModelConfig) { model ->
             with(model.members.single().members.first { it.name == "E"}.members.first { it.name == "foo" }) {
                 val modifiers = details(NodeKind.Modifier)
                 assertEquals(2, modifiers.size)
@@ -245,7 +219,7 @@ class ClassTest {
     }
 
     @Test fun innerClass() {
-        verifyPackageMember("testdata/classes/innerClass.kt") { cls ->
+        verifyPackageMember("testdata/classes/innerClass.kt", defaultModelConfig) { cls ->
             val innerClass = cls.members.single { it.name == "D" }
             val modifiers = innerClass.details(NodeKind.Modifier)
             assertEquals(3, modifiers.size)
@@ -254,7 +228,7 @@ class ClassTest {
     }
 
     @Test fun companionObjectExtension() {
-        verifyModel("testdata/classes/companionObjectExtension.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/companionObjectExtension.kt", defaultModelConfig) { model ->
             val pkg = model.members.single()
             val cls = pkg.members.single { it.name == "Foo" }
             val extensions = cls.extensions.filter { it.kind == NodeKind.CompanionObjectProperty }
@@ -263,7 +237,7 @@ class ClassTest {
     }
 
     @Test fun secondaryConstructor() {
-        verifyPackageMember("testdata/classes/secondaryConstructor.kt") { cls ->
+        verifyPackageMember("testdata/classes/secondaryConstructor.kt", defaultModelConfig) { cls ->
             val constructors = cls.members(NodeKind.Constructor)
             assertEquals(2, constructors.size)
             with (constructors.first { it.details(NodeKind.Parameter).size == 1}) {
@@ -274,7 +248,7 @@ class ClassTest {
     }
 
     @Test fun sinceKotlin() {
-        verifyModel("testdata/classes/sinceKotlin.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/classes/sinceKotlin.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(listOf("Kotlin 1.1"), platforms)
             }
@@ -282,7 +256,10 @@ class ClassTest {
     }
 
     @Test fun privateCompanionObject() {
-        verifyModel("testdata/classes/privateCompanionObject.kt", includeNonPublic = false) { model ->
+        checkSourceExistsAndVerifyModel(
+            "testdata/classes/privateCompanionObject.kt",
+            modelConfig = ModelConfig(analysisPlatform = analysisPlatform, includeNonPublic = false)
+        ) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(0, members(NodeKind.CompanionObjectFunction).size)
                 assertEquals(0, members(NodeKind.CompanionObjectProperty).size)
@@ -291,3 +268,51 @@ class ClassTest {
     }
 
 }
+
+class JSClassTest: BaseClassTest(Platform.js) {}
+
+class JVMClassTest: BaseClassTest(Platform.jvm) {
+    @Test
+    fun annotatedClass() {
+        verifyPackageMember("testdata/classes/annotatedClass.kt", ModelConfig(
+            analysisPlatform = analysisPlatform,
+            withKotlinRuntime = true
+        )
+        ) { cls ->
+            Assert.assertEquals(1, cls.annotations.count())
+            with(cls.annotations[0]) {
+                Assert.assertEquals("Strictfp", name)
+                Assert.assertEquals(Content.Empty, content)
+                Assert.assertEquals(NodeKind.Annotation, kind)
+            }
+        }
+    }
+
+
+    @Test fun javaAnnotationClass() {
+        checkSourceExistsAndVerifyModel(
+            "testdata/classes/javaAnnotationClass.kt",
+            modelConfig = ModelConfig(analysisPlatform = analysisPlatform, withJdk = true)
+        ) { model ->
+            with(model.members.single().members.single()) {
+                Assert.assertEquals(1, annotations.count())
+                with(annotations[0]) {
+                    Assert.assertEquals("Retention", name)
+                    Assert.assertEquals(Content.Empty, content)
+                    Assert.assertEquals(NodeKind.Annotation, kind)
+                    with(details[0]) {
+                        Assert.assertEquals(NodeKind.Parameter, kind)
+                        Assert.assertEquals(1, details.count())
+                        with(details[0]) {
+                            Assert.assertEquals(NodeKind.Value, kind)
+                            Assert.assertEquals("RetentionPolicy.SOURCE", name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+class CommonClassTest: BaseClassTest(Platform.common) {}

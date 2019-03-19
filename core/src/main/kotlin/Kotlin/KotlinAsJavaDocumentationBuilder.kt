@@ -30,7 +30,7 @@ class KotlinAsJavaDocumentationBuilder
             return
         }
 
-        val javaDocumentationBuilder = JavaPsiDocumentationBuilder(documentationBuilder.options,
+        val javaDocumentationBuilder = JavaPsiDocumentationBuilder(documentationBuilder.passConfiguration,
                 documentationBuilder.refGraph,
                 kotlinAsJavaDocumentationParser)
 

@@ -3,9 +3,10 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiJavaFile
-import org.jetbrains.dokka.DokkaConfiguration.*
+import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration
 import org.jetbrains.dokka.Kotlin.DescriptorDocumentationParser
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.coroutines.hasFunctionOrSuspendFunctionType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
@@ -32,63 +33,12 @@ import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
+import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
+import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.util.supertypesWithAny
-import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
 import com.google.inject.name.Named as GuiceNamed
-
-class DocumentationOptions(val outputDir: String,
-                           val outputFormat: String,
-                           includeNonPublic: Boolean = false,
-                           val includeRootPackage: Boolean = false,
-                           reportUndocumented: Boolean = true,
-                           val skipEmptyPackages: Boolean = true,
-                           skipDeprecated: Boolean = false,
-                           jdkVersion: Int = 6,
-                           val generateIndexPages: Boolean = true,
-                           val sourceLinks: List<SourceLinkDefinition> = emptyList(),
-                           val impliedPlatforms: List<String> = emptyList(),
-                           // Sorted by pattern length
-                           perPackageOptions: List<PackageOptions> = emptyList(),
-                           externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList(),
-                           noStdlibLink: Boolean,
-                           noJdkLink: Boolean = false,
-                           val languageVersion: String?,
-                           val apiVersion: String?,
-                           cacheRoot: String? = null,
-                           val suppressedFiles: Set<File> = emptySet(),
-                           val collectInheritedExtensionsFromLibraries: Boolean = false) {
-    init {
-        if (perPackageOptions.any { it.prefix == "" })
-            throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
-    }
-
-    val perPackageOptions = perPackageOptions.sortedByDescending { it.prefix.length }
-    val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated)
-
-    fun effectivePackageOptions(pack: String): PackageOptions = perPackageOptions.firstOrNull { pack == it.prefix || pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
-    fun effectivePackageOptions(pack: FqName): PackageOptions = effectivePackageOptions(pack.asString())
-
-    val defaultLinks = run {
-        val links = mutableListOf<ExternalDocumentationLink>()
-        if (!noJdkLink)
-            links += ExternalDocumentationLink.Builder("https://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
-
-        if (!noStdlibLink)
-            links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
-        links
-    }
-
-    val externalDocumentationLinks = defaultLinks + externalDocumentationLinks
-
-    val cacheRoot: Path? = when {
-        cacheRoot == "default" -> Paths.get(System.getProperty("user.home"), ".cache", "dokka")
-        cacheRoot != null -> Paths.get(cacheRoot)
-        else -> null
-    }
-}
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
                                         extensionReceiverDescriptor: DeclarationDescriptor,
@@ -119,7 +69,7 @@ val ignoredSupertypes = setOf(
 class DocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val descriptorDocumentationParser: DescriptorDocumentationParser,
-                    val options: DocumentationOptions,
+                    val passConfiguration: DokkaConfiguration.PassConfiguration,
                     val refGraph: NodeReferenceGraph,
                     val platformNodeRegistry: PlatformNodeRegistry,
                     val logger: DokkaLogger,
@@ -131,7 +81,7 @@ class DocumentationBuilder
     val knownModifiers = setOf(
             KtTokens.PUBLIC_KEYWORD, KtTokens.PROTECTED_KEYWORD, KtTokens.INTERNAL_KEYWORD, KtTokens.PRIVATE_KEYWORD,
             KtTokens.OPEN_KEYWORD, KtTokens.FINAL_KEYWORD, KtTokens.ABSTRACT_KEYWORD, KtTokens.SEALED_KEYWORD,
-            KtTokens.OVERRIDE_KEYWORD)
+            KtTokens.OVERRIDE_KEYWORD, KtTokens.INLINE_KEYWORD)
 
     fun link(node: DocumentationNode, descriptor: DeclarationDescriptor, kind: RefKind) {
         refGraph.link(node, descriptor.signature(), kind)
@@ -187,6 +137,13 @@ class DocumentationBuilder
         }
         val modifier = modality.name.toLowerCase()
         appendTextNode(modifier, NodeKind.Modifier)
+    }
+
+    fun DocumentationNode.appendInline(descriptor: DeclarationDescriptor, psi: KtModifierListOwner) {
+        if (!psi.hasModifier(KtTokens.INLINE_KEYWORD)) return
+        if (descriptor is FunctionDescriptor
+                && descriptor.valueParameters.none { it.hasFunctionOrSuspendFunctionType }) return
+        appendTextNode(KtTokens.INLINE_KEYWORD.value, NodeKind.Modifier)
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
@@ -328,11 +285,18 @@ class DocumentationBuilder
                 .detail(NodeKind.Value)
                 .name.removeSurrounding("\"")
 
-        append(platformNodeRegistry["Kotlin " + kotlinVersion], RefKind.Platform)
+        sinceKotlin = kotlinVersion
+    }
+
+    fun DocumentationNode.appendDefaultSinceKotlin() {
+        if (sinceKotlin == null) {
+            sinceKotlin = passConfiguration.sinceKotlin
+        }
     }
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
+        appendInline(descriptor, psi)
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter {
             it !in knownModifiers
         }.sortedBy {
@@ -355,7 +319,7 @@ class DocumentationBuilder
     fun DocumentationNode.isSinceKotlin() = name == "SinceKotlin" && kind == NodeKind.Annotation
 
     fun DocumentationNode.appendSourceLink(sourceElement: SourceElement) {
-        appendSourceLink(sourceElement.getPsi(), options.sourceLinks)
+        appendSourceLink(sourceElement.getPsi(), passConfiguration.sourceLinks)
     }
 
     fun DocumentationNode.appendSignature(descriptor: DeclarationDescriptor) {
@@ -363,7 +327,7 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendChild(descriptor: DeclarationDescriptor, kind: RefKind): DocumentationNode? {
-        if (!descriptor.isGenerated() && descriptor.isDocumented(options)) {
+        if (!descriptor.isGenerated() && descriptor.isDocumented(passConfiguration)) {
             val node = descriptor.build()
             append(node, kind)
             return node
@@ -390,7 +354,7 @@ class DocumentationBuilder
 
 
     fun DocumentationNode.appendOrUpdateMember(descriptor: DeclarationDescriptor) {
-        if (descriptor.isGenerated() || !descriptor.isDocumented(options)) return
+        if (descriptor.isGenerated() || !descriptor.isDocumented(passConfiguration)) return
 
         val existingNode = refGraph.lookup(descriptor.signature())
         if (existingNode != null) {
@@ -462,10 +426,10 @@ class DocumentationBuilder
         val allFqNames = fragments.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
-            if (packageName.isRoot && !options.includeRootPackage) continue
+            if (packageName.isRoot && !passConfiguration.includeRootPackage) continue
             val declarations = fragments.filter { it.fqName == packageName }.flatMap { it.getMemberScope().getContributedDescriptors() }
 
-            if (options.skipEmptyPackages && declarations.none { it.isDocumented(options) }) continue
+            if (passConfiguration.skipEmptyPackages && declarations.none { it.isDocumented(passConfiguration) }) continue
             logger.info("  package $packageName: ${declarations.count()} declarations")
             val packageNode = findOrCreatePackageNode(this, packageName.asString(), packageContent, this@DocumentationBuilder.refGraph)
             packageDocumentationBuilder.buildPackageDocumentation(this@DocumentationBuilder, packageName, packageNode,
@@ -492,7 +456,7 @@ class DocumentationBuilder
         }.flatten()
 
         val allDescriptors =
-            if (options.collectInheritedExtensionsFromLibraries) {
+            if (passConfiguration.collectInheritedExtensionsFromLibraries) {
                 allPackageViewDescriptors.map { it.memberScope }
             } else {
                 fragments.asSequence().map { it.getMemberScope() }
@@ -514,13 +478,20 @@ class DocumentationBuilder
                 .filter { it.extensionReceiverParameter != null }
         val extensionFunctionsByName = allExtensionFunctions.groupBy { it.name }
 
+        fun isIgnoredReceiverType(type: KotlinType) =
+                type.isDynamic() ||
+                type.isAnyOrNullableAny() ||
+                (type.isTypeParameter() && type.immediateSupertypes().all { it.isAnyOrNullableAny() })
+
+
         for (extensionFunction in allExtensionFunctions) {
+            val extensionReceiverParameter = extensionFunction.extensionReceiverParameter!!
             if (extensionFunction.dispatchReceiverParameter != null) continue
             val possiblyShadowingFunctions = extensionFunctionsByName[extensionFunction.name]
                 ?.filter { fn -> fn.canShadow(extensionFunction) }
                     ?: emptyList()
 
-            if (extensionFunction.extensionReceiverParameter?.type?.isDynamic() == true) continue
+            if (isIgnoredReceiverType(extensionReceiverParameter.type)) continue
             val subclasses =
                 classHierarchy.filter { (key) -> key.isExtensionApplicable(extensionFunction) }
             if (subclasses.isEmpty()) continue
@@ -628,6 +599,7 @@ class DocumentationBuilder
         val node = nodeForDescriptor(this, NodeKind.TypeAlias)
 
         if (!external) {
+            node.appendDefaultSinceKotlin()
             node.appendAnnotations(this)
         }
         node.appendModifiers(this)
@@ -665,6 +637,7 @@ class DocumentationBuilder
             for ((descriptor, inheritedLinkKind, extraModifier) in collectMembersToDocument()) {
                 node.appendClassMember(descriptor, inheritedLinkKind, extraModifier)
             }
+            node.appendDefaultSinceKotlin()
             node.appendAnnotations(this)
         }
         node.appendModifiers(this)
@@ -697,7 +670,7 @@ class DocumentationBuilder
                 .mapTo(result) { ClassMember(it, extraModifier = "static") }
 
         val companionObjectDescriptor = companionObjectDescriptor
-        if (companionObjectDescriptor != null && companionObjectDescriptor.isDocumented(options)) {
+        if (companionObjectDescriptor != null && companionObjectDescriptor.isDocumented(passConfiguration)) {
             val descriptors = companionObjectDescriptor.defaultType.memberScope.getContributedDescriptors()
             val descriptorsToDocument = descriptors.filter { it !is CallableDescriptor || !it.isInheritedFromAny() }
             descriptorsToDocument.mapTo(result) {
@@ -725,6 +698,7 @@ class DocumentationBuilder
         val node = nodeForDescriptor(this, NodeKind.Constructor)
         node.appendInPageChildren(valueParameters, RefKind.Detail)
         node.appendDefaultPlatforms(this)
+        node.appendDefaultSinceKotlin()
         register(this, node)
         return node
     }
@@ -749,6 +723,9 @@ class DocumentationBuilder
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendInPageChildren(valueParameters, RefKind.Detail)
         node.appendType(returnType)
+        if (!external) {
+            node.appendDefaultSinceKotlin()
+        }
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (!external) {
@@ -786,6 +763,9 @@ class DocumentationBuilder
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendType(returnType)
+        if (!external) {
+            node.appendDefaultSinceKotlin()
+        }
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (!external) {
@@ -849,6 +829,7 @@ class DocumentationBuilder
                 }
             }
         }
+        node.appendDefaultSinceKotlin()
         node.appendAnnotations(this)
         node.appendModifiers(this)
         if (varargElementType != null && node.details(NodeKind.Modifier).none { it.name == "vararg" }) {
@@ -939,23 +920,27 @@ class DocumentationBuilder
     }
 
 
-    fun DocumentationNode.getParentForPackageMember(descriptor: DeclarationDescriptor,
-                                                    externalClassNodes: MutableMap<FqName, DocumentationNode>,
-                                                    allFqNames: Collection<FqName>): DocumentationNode {
+    fun DocumentationNode.getParentForPackageMember(
+        descriptor: DeclarationDescriptor,
+        externalClassNodes: MutableMap<FqName, DocumentationNode>,
+        allFqNames: Collection<FqName>,
+        packageName: FqName
+    ): DocumentationNode {
         if (descriptor is CallableMemberDescriptor) {
             val extensionClassDescriptor = descriptor.getExtensionClassDescriptor()
             if (extensionClassDescriptor != null && isExtensionForExternalClass(descriptor, extensionClassDescriptor, allFqNames) &&
                 !ErrorUtils.isError(extensionClassDescriptor)) {
                 val fqName = DescriptorUtils.getFqNameSafe(extensionClassDescriptor)
-                return externalClassNodes.getOrPut(fqName, {
+                return externalClassNodes.getOrPut(fqName) {
                     val newNode = DocumentationNode(fqName.asString(), Content.Empty, NodeKind.ExternalClass)
                     val externalLink = linkResolver.externalDocumentationLinkResolver.buildExternalDocumentationLink(extensionClassDescriptor)
                     if (externalLink != null) {
                         newNode.append(DocumentationNode(externalLink, Content.Empty, NodeKind.ExternalLink), RefKind.Link)
                     }
                     append(newNode, RefKind.Member)
+                    refGraph.register("${packageName.asString()}:${extensionClassDescriptor.signature()}", newNode)
                     newNode
-                })
+                }
             }
         }
         return this
@@ -963,12 +948,12 @@ class DocumentationBuilder
 
 }
 
-fun DeclarationDescriptor.isDocumented(options: DocumentationOptions): Boolean {
-    return (options.effectivePackageOptions(fqNameSafe).includeNonPublic
+fun DeclarationDescriptor.isDocumented(passConfiguration: DokkaConfiguration.PassConfiguration): Boolean {
+    return (passConfiguration.effectivePackageOptions(fqNameSafe).includeNonPublic
             || this !is MemberDescriptor
             || this.visibility.isPublicAPI)
-            && !isDocumentationSuppressed(options)
-            && (!options.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
+            && !isDocumentationSuppressed(passConfiguration)
+            && (!passConfiguration.effectivePackageOptions(fqNameSafe).skipDeprecated || !isDeprecated())
 }
 
 private fun DeclarationDescriptor.isGenerated() = this is CallableMemberDescriptor && kind != CallableMemberDescriptor.Kind.DECLARATION
@@ -982,8 +967,13 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
         val externalClassNodes = hashMapOf<FqName, DocumentationNode>()
         declarations.forEach { descriptor ->
             with(documentationBuilder) {
-                if (descriptor.isDocumented(options)) {
-                    val parent = packageNode.getParentForPackageMember(descriptor, externalClassNodes, allFqNames)
+                if (descriptor.isDocumented(passConfiguration)) {
+                    val parent = packageNode.getParentForPackageMember(
+                        descriptor,
+                        externalClassNodes,
+                        allFqNames,
+                        packageName
+                    )
                     parent.appendOrUpdateMember(descriptor)
                 }
             }
@@ -994,14 +984,14 @@ class KotlinPackageDocumentationBuilder : PackageDocumentationBuilder {
 class KotlinJavaDocumentationBuilder
 @Inject constructor(val resolutionFacade: DokkaResolutionFacade,
                     val documentationBuilder: DocumentationBuilder,
-                    val options: DocumentationOptions,
+                    val passConfiguration: DokkaConfiguration.PassConfiguration,
                     val logger: DokkaLogger) : JavaDocumentationBuilder {
     override fun appendFile(file: PsiJavaFile, module: DocumentationModule, packageContent: Map<String, Content>) {
         val classDescriptors = file.classes.map {
             it.getJavaClassDescriptor(resolutionFacade)
         }
 
-        if (classDescriptors.any { it != null && it.isDocumented(options) }) {
+        if (classDescriptors.any { it != null && it.isDocumented(passConfiguration) }) {
             val packageNode = findOrCreatePackageNode(module, file.packageName, packageContent, documentationBuilder.refGraph)
 
             for (descriptor in classDescriptors.filterNotNull()) {
@@ -1031,13 +1021,13 @@ fun AnnotationDescriptor.mustBeDocumented(): Boolean {
     return annotationClass.isDocumentedAnnotation()
 }
 
-fun DeclarationDescriptor.isDocumentationSuppressed(options: DocumentationOptions): Boolean {
+fun DeclarationDescriptor.isDocumentationSuppressed(passConfiguration: DokkaConfiguration.PassConfiguration): Boolean {
 
-    if (options.effectivePackageOptions(fqNameSafe).suppress) return true
+    if (passConfiguration.effectivePackageOptions(fqNameSafe).suppress) return true
 
     val path = this.findPsi()?.containingFile?.virtualFile?.path
     if (path != null) {
-        if (File(path).absoluteFile in options.suppressedFiles) return true
+        if (path in passConfiguration.suppressedFiles) return true
     }
 
     val doc = findKDoc()
@@ -1136,8 +1126,8 @@ fun DeclarationDescriptor.sourceLocation(): String? {
     return null
 }
 
-fun DocumentationModule.prepareForGeneration(options: DocumentationOptions) {
-    if (options.generateIndexPages) {
+fun DocumentationModule.prepareForGeneration(configuration: DokkaConfiguration) {
+    if (configuration.generateIndexPages) {
         generateAllTypesNode()
     }
     nodeRefGraph.resolveReferences()
@@ -1145,7 +1135,9 @@ fun DocumentationModule.prepareForGeneration(options: DocumentationOptions) {
 
 fun DocumentationNode.generateAllTypesNode() {
     val allTypes = members(NodeKind.Package)
-            .flatMap { it.members.filter { it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass } }
+            .flatMap { it.members.filter {
+                it.kind in NodeKind.classLike || it.kind == NodeKind.ExternalClass
+                        || (it.kind == NodeKind.GroupNode && it.origins.all { it.kind in NodeKind.classLike }) } }
             .sortedBy { if (it.kind == NodeKind.ExternalClass) it.name.substringAfterLast('.').toLowerCase() else it.name.toLowerCase() }
 
     val allTypesNode = DocumentationNode("alltypes", Content.Empty, NodeKind.AllTypes)
@@ -1162,3 +1154,11 @@ fun ClassDescriptor.supertypesWithAnyPrecise(): Collection<KotlinType> {
     }
     return typeConstructor.supertypesWithAny()
 }
+
+fun PassConfiguration.effectivePackageOptions(pack: String): DokkaConfiguration.PackageOptions {
+    val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated)
+    return perPackageOptions.firstOrNull { pack == it.prefix || pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
+}
+
+fun PassConfiguration.effectivePackageOptions(pack: FqName): DokkaConfiguration.PackageOptions = effectivePackageOptions(pack.asString())
+

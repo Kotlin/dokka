@@ -1,38 +1,38 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.junit.Before
 import org.junit.Test
 
-class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
+abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
+    val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     override val formatService = KotlinWebsiteHtmlFormatService(fileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
 
     @Test fun dropImport() {
-        verifyKWSNodeByName("dropImport", "foo")
+        verifyKWSNodeByName("dropImport", "foo", defaultModelConfig)
     }
 
     @Test fun sample() {
-        verifyKWSNodeByName("sample", "foo")
+        verifyKWSNodeByName("sample", "foo", defaultModelConfig)
     }
 
     @Test fun sampleWithAsserts() {
-        verifyKWSNodeByName("sampleWithAsserts", "a")
+        verifyKWSNodeByName("sampleWithAsserts", "a", defaultModelConfig)
     }
 
     @Test fun newLinesInSamples() {
-        verifyKWSNodeByName("newLinesInSamples", "foo")
+        verifyKWSNodeByName("newLinesInSamples", "foo", defaultModelConfig)
     }
 
     @Test fun newLinesInImportList() {
-        verifyKWSNodeByName("newLinesInImportList", "foo")
+        verifyKWSNodeByName("newLinesInImportList", "foo", defaultModelConfig)
     }
 
     @Test fun returnTag() {
-        verifyKWSNodeByName("returnTag", "indexOf")
+        verifyKWSNodeByName("returnTag", "indexOf", defaultModelConfig)
     }
 
     @Test fun overloadGroup() {
-        verifyKWSNodeByName("overloadGroup", "magic")
+        verifyKWSNodeByName("overloadGroup", "magic", defaultModelConfig)
     }
 
     @Test fun dataTags() {
@@ -52,26 +52,54 @@ class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
         verifyMultiplatformPackage(module, path)
     }
 
-    private fun verifyKWSNodeByName(fileName: String, name: String) {
-        verifyOutput("testdata/format/website-html/$fileName.kt", ".html", format = "kotlin-website-html") { model, output ->
+    private fun verifyKWSNodeByName(fileName: String, name: String, modelConfig: ModelConfig) {
+        verifyOutput(
+            "testdata/format/website-html/$fileName.kt",
+            ".html",
+            ModelConfig(analysisPlatform = modelConfig.analysisPlatform, format = "kotlin-website-html")
+        ) { model, output ->
             buildPagesAndReadInto(model.members.single().members.filter { it.name == name }, output)
         }
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "kotlin-website-html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
-        appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
-        appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/jre7.kt"), defaultPlatforms = listOf("JVM", "JRE7"), options = options)
-        appendDocumentation(module, contentRootFromPath("testdata/format/website-html/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
+
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "kotlin-website-html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+
+        )
+
+        appendDocumentation(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
+                roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jvm.kt")),
+                defaultPlatforms = listOf("JVM")
+            )
+        )
+        appendDocumentation(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
+                roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jre7.kt")),
+                defaultPlatforms = listOf("JVM", "JRE7")
+            )
+        )
+        appendDocumentation(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
+                roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/js.kt")),
+                defaultPlatforms = listOf("JS")
+            )
+        )
+
         return module
     }
 
@@ -82,3 +110,7 @@ class KotlinWebSiteHtmlFormatTest: FileGeneratorTestCase() {
     }
 
 }
+
+class JsKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.js)
+class JvmKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.jvm)
+class CommonKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.common)

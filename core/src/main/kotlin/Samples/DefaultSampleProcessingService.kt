@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.resolve.scopes.ResolutionScope
 
 
 open class DefaultSampleProcessingService
-@Inject constructor(val options: DocumentationOptions,
+@Inject constructor(val configuration: DokkaConfiguration,
                     val logger: DokkaLogger,
                     val resolutionFacade: DokkaResolutionFacade)
     : SampleProcessingService {

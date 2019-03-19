@@ -57,8 +57,8 @@ open class KotlinWebsiteOutputBuilder(
         }
     }
 
-    override fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
-        div(to, "overload-group", calculateDataAttributes(platforms), true) {
+    override fun appendAsOverloadGroup(to: StringBuilder, platforms: PlatformsData, block: () -> Unit) {
+        div(to, "overload-group", calculateDataAttributes(platforms.keys), true) {
             ensureParagraph()
             block()
             ensureParagraph()
@@ -159,14 +159,14 @@ open class KotlinWebsiteOutputBuilder(
         return "$platformsAttr$kotlinVersionAttr$jreVersionAttr"
     }
 
-    override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
+    override fun appendIndexRow(platforms: PlatformsData, block: () -> Unit) {
         if (platforms.isNotEmpty())
-            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
+            wrap("<tr${calculateDataAttributes(platforms.keys)}>", "</tr>", block)
         else
             appendTableRow(block)
     }
 
-    override fun appendPlatforms(platforms: Set<String>) {
+    override fun appendPlatforms(platforms: PlatformsData) {
 
     }
 }

@@ -32,10 +32,13 @@ class DefaultPackageListService @Inject constructor(
                     node.members.forEach { visit(it, relocated = true) }
                 }
                 NodeKind.GroupNode -> {
-                    //only children of top-level GN records interesting for us, since link to top-level ones should point to GN
-                    node.members.forEach { it.members.forEach { visit(it, relocated = true) } }
-                    //record signature of GN as signature of type alias and class merged to GN, so link to it should point to GN
-                    node.detailOrNull(NodeKind.Signature)?.let { visit(it, relocated = true) }
+                    if (node.members.isNotEmpty()) {
+                        // Only nodes only has single file is need to be relocated
+                        // TypeAliases for example
+                        node.origins
+                                .filter { it.members.isEmpty() }
+                                .forEach { visit(it, relocated = true) }
+                    }
                 }
                 else -> {
                     if (nodeKind in NodeKind.classLike || nodeKind in NodeKind.memberLike) {

@@ -76,7 +76,14 @@ open class DocumentationNode(val name: String,
     var content: Content = content
         private set
 
-    val summary: ContentNode get() = content.summary
+    val summary: ContentNode get() = when (kind) {
+        NodeKind.GroupNode -> this.origins
+                .map { it.content }
+                .firstOrNull { !it.isEmpty() }
+                ?.summary ?: ContentEmpty
+        else -> content.summary
+    }
+
 
     val owner: DocumentationNode?
         get() = references(RefKind.Owner).singleOrNull()?.to
@@ -84,6 +91,9 @@ open class DocumentationNode(val name: String,
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
         get() = references(RefKind.Member).map { it.to }
+    val origins: List<DocumentationNode>
+        get() = references(RefKind.Origin).map { it.to }
+
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
     val allInheritedMembers: List<DocumentationNode>
@@ -109,6 +119,15 @@ open class DocumentationNode(val name: String,
     val externalType: DocumentationNode?
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
 
+    var sinceKotlin: String?
+        get() = references(RefKind.SinceKotlin).singleOrNull()?.to?.name
+        set(value) {
+            dropReferences { it.kind == RefKind.SinceKotlin }
+            if (value != null) {
+                append(DocumentationNode(value, Content.Empty, NodeKind.Value), RefKind.SinceKotlin)
+            }
+        }
+
     val supertypes: List<DocumentationNode>
         get() = details(NodeKind.Supertype)
 
@@ -132,6 +151,10 @@ open class DocumentationNode(val name: String,
     // TODO: Should we allow node mutation? Model merge will copy by ref, so references are transparent, which could nice
     fun addReferenceTo(to: DocumentationNode, kind: RefKind) {
         references.add(DocumentationReference(this, to, kind))
+    }
+
+    fun addReference(reference: DocumentationReference) {
+        references.add(reference)
     }
 
     fun dropReferences(predicate: (DocumentationReference) -> Boolean) {
@@ -159,6 +182,7 @@ open class DocumentationNode(val name: String,
     fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
     fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
 
+
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }
     fun allReferences(): Set<DocumentationReference> = references
 
@@ -167,9 +191,9 @@ open class DocumentationNode(val name: String,
     }
 }
 
-class DocumentationModule(name: String, content: Content = Content.Empty)
+class DocumentationModule(name: String, content: Content = Content.Empty, val nodeRefGraph: NodeReferenceGraph = NodeReferenceGraph())
     : DocumentationNode(name, content, NodeKind.Module) {
-    val nodeRefGraph = NodeReferenceGraph()
+
 }
 
 val DocumentationNode.path: List<DocumentationNode>
@@ -201,6 +225,7 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
         RefKind.Detail -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Member -> child.addReferenceTo(this, RefKind.Owner)
         RefKind.Owner -> child.addReferenceTo(this, RefKind.Member)
+        RefKind.Origin -> child.addReferenceTo(this, RefKind.Owner)
         else -> { /* Do not add any links back for other types */
         }
     }

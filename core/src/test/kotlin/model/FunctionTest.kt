@@ -2,14 +2,17 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.Platform
+import org.jetbrains.kotlin.analyzer.PlatformAnalysisParameters
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.test.assertNotNull
 
-class FunctionTest {
+abstract class BaseFunctionTest(val analysisPlatform: Platform) {
+    protected val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     @Test fun function() {
-        verifyModel("testdata/functions/function.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/function.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("fn", name)
                 assertEquals(NodeKind.Function, kind)
@@ -22,7 +25,7 @@ class FunctionTest {
     }
 
     @Test fun functionWithReceiver() {
-        verifyModel("testdata/functions/functionWithReceiver.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/functionWithReceiver.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("kotlin.String", name)
                 assertEquals(NodeKind.ExternalClass, kind)
@@ -54,7 +57,7 @@ class FunctionTest {
     }
 
     @Test fun genericFunction() {
-        verifyModel("testdata/functions/genericFunction.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/genericFunction.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(NodeKind.Function, kind)
@@ -78,7 +81,7 @@ class FunctionTest {
         }
     }
     @Test fun genericFunctionWithConstraints() {
-        verifyModel("testdata/functions/genericFunctionWithConstraints.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/genericFunctionWithConstraints.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("generic", name)
                 assertEquals(NodeKind.Function, kind)
@@ -118,7 +121,7 @@ class FunctionTest {
     }
 
     @Test fun functionWithParams() {
-        verifyModel("testdata/functions/functionWithParams.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/functionWithParams.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals("function", name)
                 assertEquals(NodeKind.Function, kind)
@@ -143,25 +146,14 @@ Documentation""", content.description.toTestString())
         }
     }
 
-    @Test fun annotatedFunction() {
-        verifyPackageMember("testdata/functions/annotatedFunction.kt", withKotlinRuntime = true) { func ->
-            assertEquals(1, func.annotations.count())
-            with(func.annotations[0]) {
-                assertEquals("Strictfp", name)
-                assertEquals(Content.Empty, content)
-                assertEquals(NodeKind.Annotation, kind)
-            }
-        }
-    }
-
     @Test fun functionWithNotDocumentedAnnotation() {
-        verifyPackageMember("testdata/functions/functionWithNotDocumentedAnnotation.kt") { func ->
+        verifyPackageMember("testdata/functions/functionWithNotDocumentedAnnotation.kt", defaultModelConfig) { func ->
             assertEquals(0, func.annotations.count())
         }
     }
 
     @Test fun inlineFunction() {
-        verifyPackageMember("testdata/functions/inlineFunction.kt") { func ->
+        verifyPackageMember("testdata/functions/inlineFunction.kt", defaultModelConfig) { func ->
             val modifiers = func.details(NodeKind.Modifier).map { it.name }
             assertTrue("inline" in modifiers)
         }
@@ -195,7 +187,7 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun functionWithAnnotatedParam() {
-        verifyModel("testdata/functions/functionWithAnnotatedParam.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/functionWithAnnotatedParam.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single { it.name == "function" }) {
                 with(details(NodeKind.Parameter).first()) {
                     assertEquals(1, annotations.count())
@@ -210,7 +202,7 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun functionWithNoinlineParam() {
-        verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt") { func ->
+        verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt", defaultModelConfig) { func ->
             with(func.details(NodeKind.Parameter).first()) {
                 val modifiers = details(NodeKind.Modifier).map { it.name }
                 assertTrue("noinline" in modifiers)
@@ -219,7 +211,10 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun annotatedFunctionWithAnnotationParameters() {
-        verifyModel("testdata/functions/annotatedFunctionWithAnnotationParameters.kt") { model ->
+        checkSourceExistsAndVerifyModel(
+            "testdata/functions/annotatedFunctionWithAnnotationParameters.kt",
+            defaultModelConfig
+        ) { model ->
             with(model.members.single().members.single { it.name == "f" }) {
                 assertEquals(1, annotations.count())
                 with(annotations[0]) {
@@ -241,7 +236,7 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun functionWithDefaultParameter() {
-        verifyModel("testdata/functions/functionWithDefaultParameter.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/functionWithDefaultParameter.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 with(details.elementAt(3)) {
                     val value = details(NodeKind.Value)
@@ -255,10 +250,32 @@ Documentation""", content.description.toTestString())
     }
 
     @Test fun sinceKotlin() {
-        verifyModel("testdata/functions/sinceKotlin.kt") { model ->
+        checkSourceExistsAndVerifyModel("testdata/functions/sinceKotlin.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
                 assertEquals(listOf("Kotlin 1.1"), platforms)
             }
         }
     }
 }
+
+class JSFunctionTest: BaseFunctionTest(Platform.js)
+
+class JVMFunctionTest: BaseFunctionTest(Platform.jvm) {
+    @Test
+    fun annotatedFunction() {
+        verifyPackageMember("testdata/functions/annotatedFunction.kt", ModelConfig(
+            analysisPlatform = Platform.jvm,
+            withKotlinRuntime = true
+        )) { func ->
+            Assert.assertEquals(1, func.annotations.count())
+            with(func.annotations[0]) {
+                Assert.assertEquals("Strictfp", name)
+                Assert.assertEquals(Content.Empty, content)
+                Assert.assertEquals(NodeKind.Annotation, kind)
+            }
+        }
+    }
+
+}
+
+class CommonFunctionTest: BaseFunctionTest(Platform.common)

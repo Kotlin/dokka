@@ -1,11 +1,21 @@
 import org.jetbrains.DependenciesVersionGetter
 
 allprojects {
+    ext {
+        final String buildNumber = System.getenv("BUILD_NUMBER")
+        dokka_version = dokka_version_base + ( buildNumber == null || System.getenv("FORCE_SNAPSHOT") != null ? "-SNAPSHOT" : ".$buildNumber" )
+    }
+
+    if (project == rootProject) {
+        println "Publication version: $dokka_version"
+    }
+
     group 'org.jetbrains.dokka'
     version dokka_version
 
     def repo = {
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
     }
 
@@ -29,7 +39,7 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-        maven { url  "https://dl.bintray.com/jetbrains/markdown" }
+        maven { url "https://dl.bintray.com/jetbrains/markdown" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url 'https://jitpack.io' }
@@ -65,11 +75,6 @@ def bintrayPublication(project, List<String> _publications) {
     })
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
-}
-
 def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
 ext.ideaVersion = versions["idea.build.id"]
@@ -103,6 +108,22 @@ def ideaRT() {
 }
 
 def repoLocation = uri(file("$buildDir/dist-maven"))
+
+configurations {
+    kotlin_plugin_full
+}
+
+dependencies {
+    final String ijVersion = "20" + ideaVersion.take(2) + "." + ideaVersion[2]
+    kotlin_plugin_full "teamcity:kotlin-plugin-$bundled_kotlin_compiler_version-IJ$ijVersion-1:$bundled_kotlin_compiler_version@zip"
+}
+
+def kotlinPluginDependency() {
+    return zipTree(configurations.kotlin_plugin_full.singleFile).matching({
+        include("Kotlin/lib/kotlin-plugin.jar")
+    })
+}
+
 
 allprojects {
 

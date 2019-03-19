@@ -325,6 +325,8 @@ open class DokkaTask : DefaultTask() {
 
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
+            TODO("Fix Configuration in Gradle")
+            /*
             val configuration = SerializeOnlyDokkaConfiguration(
                 moduleName,
                 fullClasspath.map { it.absolutePath },
@@ -365,6 +367,7 @@ open class DokkaTask : DefaultTask() {
                     serialize(configuration)
             )
 
+            */
             bootstrapProxy.generate()
 
         } finally {
@@ -436,11 +439,7 @@ class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
             field = File(value).absolutePath
         }
 
-    override var platforms: List<String> = arrayListOf()
-
-    override fun toString(): String {
-        return "${platforms.joinToString()}::$path"
-    }
+    override fun toString(): String = path
 }
 
 open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {

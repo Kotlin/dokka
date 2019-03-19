@@ -26,6 +26,8 @@ fun sample() {
     assertFails("reading file now") { readSomeFile(File("some.txt")) }
     assertFailsWith<FileNotFoundException> { readSomeFile(File("some.txt")) }
 
+    assertFails { readSomeFile(File("some.txt")) }
+
     fun indented() {
         assertFalse(a() != b(), "A neq B")
     }
