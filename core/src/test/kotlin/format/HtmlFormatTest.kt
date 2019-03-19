@@ -6,176 +6,187 @@ import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.junit.Test
 import java.io.File
 
-class HtmlFormatTest: FileGeneratorTestCase() {
+abstract class BaseHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
+    protected val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     override val formatService = HtmlFormatService(fileGenerator, KotlinLanguageService(), HtmlTemplateService.default(), listOf())
 
     @Test fun classWithCompanionObject() {
-        verifyHtmlNode("classWithCompanionObject")
+        verifyHtmlNode("classWithCompanionObject", defaultModelConfig)
     }
 
     @Test fun htmlEscaping() {
-        verifyHtmlNode("htmlEscaping")
+        verifyHtmlNode("htmlEscaping", defaultModelConfig)
     }
 
     @Test fun overloads() {
-        verifyHtmlNodes("overloads") { model -> model.members }
+        verifyHtmlNodes("overloads", defaultModelConfig) { model -> model.members }
     }
 
     @Test fun overloadsWithDescription() {
-        verifyHtmlNode("overloadsWithDescription")
+        verifyHtmlNode("overloadsWithDescription", defaultModelConfig)
     }
 
     @Test fun overloadsWithDifferentDescriptions() {
-        verifyHtmlNode("overloadsWithDifferentDescriptions")
+        verifyHtmlNode("overloadsWithDifferentDescriptions", defaultModelConfig)
     }
 
     @Test fun deprecated() {
-        verifyOutput("testdata/format/deprecated.kt", ".package.html") { model, output ->
+        verifyOutput("testdata/format/deprecated.kt", ".package.html", defaultModelConfig) { model, output ->
             buildPagesAndReadInto(model.members, output)
         }
-        verifyOutput("testdata/format/deprecated.kt", ".class.html") { model, output ->
+        verifyOutput("testdata/format/deprecated.kt", ".class.html", defaultModelConfig) { model, output ->
             buildPagesAndReadInto(model.members.single().members, output)
         }
     }
 
     @Test fun brokenLink() {
-        verifyHtmlNode("brokenLink")
+        verifyHtmlNode("brokenLink", defaultModelConfig)
     }
 
     @Test fun codeSpan() {
-        verifyHtmlNode("codeSpan")
+        verifyHtmlNode("codeSpan", defaultModelConfig)
     }
 
     @Test fun parenthesis() {
-        verifyHtmlNode("parenthesis")
+        verifyHtmlNode("parenthesis", defaultModelConfig)
     }
 
     @Test fun bracket() {
-        verifyHtmlNode("bracket")
+        verifyHtmlNode("bracket", defaultModelConfig)
     }
 
     @Test fun see() {
-        verifyHtmlNode("see")
+        verifyHtmlNode("see", defaultModelConfig)
     }
 
     @Test fun tripleBackticks() {
-        verifyHtmlNode("tripleBackticks")
+        verifyHtmlNode("tripleBackticks", defaultModelConfig)
     }
 
     @Test fun typeLink() {
-        verifyHtmlNodes("typeLink") { model -> model.members.single().members.filter { it.name == "Bar" } }
+        verifyHtmlNodes("typeLink", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Bar" } }
     }
 
     @Test fun parameterAnchor() {
-        verifyHtmlNode("parameterAnchor")
-    }
-
-    @Test fun javaSupertypeLink() {
-        verifyJavaHtmlNodes("JavaSupertype") { model ->
-            model.members.single().members.single { it.name == "JavaSupertype" }.members.filter { it.name == "Bar" }
-        }
+        verifyHtmlNode("parameterAnchor", defaultModelConfig)
     }
 
     @Test fun codeBlock() {
-        verifyHtmlNode("codeBlock")
+        verifyHtmlNode("codeBlock", defaultModelConfig)
     }
-
-    @Test fun javaLinkTag() {
-        verifyJavaHtmlNode("javaLinkTag")
-    }
-
-    @Test fun javaLinkTagWithLabel() {
-        verifyJavaHtmlNode("javaLinkTagWithLabel")
-    }
-
-    @Test fun javaSeeTag() {
-        verifyJavaHtmlNode("javaSeeTag")
-    }
-
-    @Test fun javaDeprecated() {
-        verifyJavaHtmlNodes("javaDeprecated") { model ->
-            model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" }
-        }
-    }
-
-    @Test fun crossLanguageKotlinExtendsJava() {
-        verifyOutput(arrayOf(
-            KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt", false),
-                JavaSourceRoot(File("testdata/format/crossLanguage/kotlinExtendsJava"), null)),
-                ".html") { model, output ->
-            buildPagesAndReadInto(
-                    model.members.single().members.filter { it.name == "Bar" },
-                    output
-            )
-        }
-    }
-
     @Test fun orderedList() {
-        verifyHtmlNodes("orderedList") { model -> model.members.single().members.filter { it.name == "Bar" } }
+        verifyHtmlNodes("orderedList", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Bar" } }
     }
 
     @Test fun linkWithLabel() {
-        verifyHtmlNodes("linkWithLabel") { model -> model.members.single().members.filter { it.name == "Bar" } }
+        verifyHtmlNodes("linkWithLabel", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Bar" } }
     }
 
     @Test fun entity() {
-        verifyHtmlNodes("entity") { model -> model.members.single().members.filter { it.name == "Bar" } }
+        verifyHtmlNodes("entity", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Bar" } }
     }
 
     @Test fun uninterpretedEmphasisCharacters() {
-        verifyHtmlNode("uninterpretedEmphasisCharacters")
+        verifyHtmlNode("uninterpretedEmphasisCharacters", defaultModelConfig)
     }
 
     @Test fun markdownInLinks() {
-        verifyHtmlNode("markdownInLinks")
+        verifyHtmlNode("markdownInLinks", defaultModelConfig)
     }
 
     @Test fun returnWithLink() {
-        verifyHtmlNode("returnWithLink")
+        verifyHtmlNode("returnWithLink", defaultModelConfig)
     }
 
     @Test fun linkWithStarProjection() {
-        verifyHtmlNode("linkWithStarProjection", withKotlinRuntime = true)
+        verifyHtmlNode("linkWithStarProjection", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun functionalTypeWithNamedParameters() {
-        verifyHtmlNode("functionalTypeWithNamedParameters")
+        verifyHtmlNode("functionalTypeWithNamedParameters", defaultModelConfig)
     }
 
     @Test fun sinceKotlin() {
-        verifyHtmlNode("sinceKotlin")
+        verifyHtmlNode("sinceKotlin", defaultModelConfig)
     }
 
     @Test fun blankLineInsideCodeBlock() {
-        verifyHtmlNode("blankLineInsideCodeBlock")
+        verifyHtmlNode("blankLineInsideCodeBlock", defaultModelConfig)
     }
 
     @Test fun indentedCodeBlock() {
-        verifyHtmlNode("indentedCodeBlock")
+        verifyHtmlNode("indentedCodeBlock", defaultModelConfig)
     }
 
-    private fun verifyHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
-        verifyHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    private fun verifyHtmlNode(fileName: String, modelConfig: ModelConfig = ModelConfig()) {
+        verifyHtmlNodes(fileName, modelConfig) { model -> model.members.single().members }
     }
 
     private fun verifyHtmlNodes(fileName: String,
-                                withKotlinRuntime: Boolean = false,
+                                modelConfig: ModelConfig = ModelConfig(),
                                 nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyOutput("testdata/format/$fileName.kt", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
+        verifyOutput("testdata/format/$fileName.kt", ".html", modelConfig) { model, output ->
             buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
-    private fun verifyJavaHtmlNode(fileName: String, withKotlinRuntime: Boolean = false) {
-        verifyJavaHtmlNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    protected fun verifyJavaHtmlNode(fileName: String, modelConfig: ModelConfig = ModelConfig()) {
+        verifyJavaHtmlNodes(fileName, modelConfig) { model -> model.members.single().members }
     }
 
-    private fun verifyJavaHtmlNodes(fileName: String,
-                                    withKotlinRuntime: Boolean = false,
-                                    nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyJavaOutput("testdata/format/$fileName.java", ".html", withKotlinRuntime = withKotlinRuntime) { model, output ->
+    protected fun verifyJavaHtmlNodes(fileName: String,
+                                      modelConfig: ModelConfig = ModelConfig(),
+                                      nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
+        verifyJavaOutput("testdata/format/$fileName.java", ".html", modelConfig) { model, output ->
             buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 }
 
+class JSHtmlFormatTest: BaseHtmlFormatTest(Platform.js)
+
+class JVMHtmlFormatTest: BaseHtmlFormatTest(Platform.jvm) {
+    @Test
+    fun javaSeeTag() {
+        verifyJavaHtmlNode("javaSeeTag", defaultModelConfig)
+    }
+
+    @Test fun javaDeprecated() {
+        verifyJavaHtmlNodes("javaDeprecated", defaultModelConfig) { model ->
+            model.members.single().members.single { it.name == "Foo" }.members.filter { it.name == "foo" }
+        }
+    }
+
+    @Test fun crossLanguageKotlinExtendsJava() {
+        verifyOutput(
+            ModelConfig(
+                roots = arrayOf(
+                    KotlinSourceRoot("testdata/format/crossLanguage/kotlinExtendsJava/Bar.kt", false),
+                    JavaSourceRoot(File("testdata/format/crossLanguage/kotlinExtendsJava"), null)
+                ),
+                analysisPlatform = analysisPlatform
+            ), ".html") { model, output ->
+            buildPagesAndReadInto(
+                model.members.single().members.filter { it.name == "Bar" },
+                output
+            )
+        }
+    }
+
+    @Test fun javaLinkTag() {
+        verifyJavaHtmlNode("javaLinkTag", defaultModelConfig)
+    }
+
+    @Test fun javaLinkTagWithLabel() {
+        verifyJavaHtmlNode("javaLinkTagWithLabel", defaultModelConfig)
+    }
+
+    @Test fun javaSupertypeLink() {
+        verifyJavaHtmlNodes("JavaSupertype", defaultModelConfig) { model ->
+            model.members.single().members.single { it.name == "JavaSupertype" }.members.filter { it.name == "Bar" }
+        }
+    }
+
+}
+
+class CommonHtmlFormatTest: BaseHtmlFormatTest(Platform.common)

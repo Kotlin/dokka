@@ -7,9 +7,10 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
+import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaOutputModule
+import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -18,63 +19,74 @@ import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.MemberDescriptor
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.system.measureTimeMillis
 
-class DokkaGenerator(val logger: DokkaLogger,
-                     val classpath: List<String>,
-                     val sources: List<SourceRoot>,
-                     val samples: List<String>,
-                     val includes: List<String>,
-                     val moduleName: String,
-                     val options: DocumentationOptions) {
+class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
+                     val logger: DokkaLogger) {
 
-    private val documentationModule = DocumentationModule(moduleName)
+    private val documentationModules: MutableList<DocumentationModule> = mutableListOf()
+    private val globalInjector = Guice.createInjector(DokkaRunModule(dokkaConfiguration))
 
-    fun generate() {
-        val sourcesGroupedByPlatform = sources.groupBy { it.platforms.firstOrNull() }
-        for ((platform, roots) in sourcesGroupedByPlatform) {
-            appendSourceModule(platform, roots)
+
+    fun generate() = with(dokkaConfiguration) {
+
+
+        for (pass in passesConfigurations) {
+            val documentationModule = DocumentationModule(pass.moduleName)
+            appendSourceModule(pass, documentationModule)
+            documentationModules.add(documentationModule)
         }
-        documentationModule.prepareForGeneration(options)
+
+        val totalDocumentationModule = DocumentationMerger(documentationModules, logger).merge()
+        totalDocumentationModule.prepareForGeneration(dokkaConfiguration)
 
         val timeBuild = measureTimeMillis {
             logger.info("Generating pages... ")
-            val outputInjector = Guice.createInjector(DokkaOutputModule(options, logger))
-            outputInjector.getInstance(Generator::class.java).buildAll(documentationModule)
+            val outputInjector = globalInjector.createChildInjector(DokkaOutputModule(dokkaConfiguration, logger))
+            val instance = outputInjector.getInstance(Generator::class.java)
+            instance.buildAll(totalDocumentationModule)
         }
         logger.info("done in ${timeBuild / 1000} secs")
     }
 
-    private fun appendSourceModule(defaultPlatform: String?, sourceRoots: List<SourceRoot>) {
-        val sourcePaths = sourceRoots.map { it.path }
-        val environment = createAnalysisEnvironment(sourcePaths)
+    private fun appendSourceModule(
+        passConfiguration: DokkaConfiguration.PassConfiguration,
+        documentationModule: DocumentationModule
+    ) = with(passConfiguration) {
+
+        val sourcePaths = passConfiguration.sourceRoots.map { it.path }
+        val environment = createAnalysisEnvironment(sourcePaths, passConfiguration)
 
         logger.info("Module: $moduleName")
-        logger.info("Output: ${File(options.outputDir)}")
+        logger.info("Output: ${File(dokkaConfiguration.outputDir)}")
         logger.info("Sources: ${sourcePaths.joinToString()}")
         logger.info("Classpath: ${environment.classpath.joinToString()}")
 
         logger.info("Analysing sources and libraries... ")
         val startAnalyse = System.currentTimeMillis()
 
-        val defaultPlatformAsList = defaultPlatform?.let { listOf(it) }.orEmpty()
+        val defaultPlatformAsList = passConfiguration.targets
         val defaultPlatformsProvider = object : DefaultPlatformsProvider {
             override fun getDefaultPlatforms(descriptor: DeclarationDescriptor): List<String> {
-                val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
-                        ?.let { File(it).absolutePath }
-                val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
-                return sourceRoot?.platforms ?: defaultPlatformAsList
+//                val containingFilePath = descriptor.sourcePsi()?.containingFile?.virtualFile?.canonicalPath
+//                        ?.let { File(it).absolutePath }
+//                val sourceRoot = containingFilePath?.let { path -> sourceRoots.find { path.startsWith(it.path) } }
+                if (descriptor is MemberDescriptor && descriptor.isExpect) {
+                    return defaultPlatformAsList.take(1)
+                }
+                return /*sourceRoot?.platforms ?: */defaultPlatformAsList
             }
         }
 
-        val injector = Guice.createInjector(
-                DokkaAnalysisModule(environment, options, defaultPlatformsProvider, documentationModule.nodeRefGraph, logger))
+        val injector = globalInjector.createChildInjector(
+                DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentationModule.nodeRefGraph, passConfiguration, logger))
 
-        buildDocumentationModule(injector, documentationModule, { isNotSample(it) }, includes)
+        buildDocumentationModule(injector, documentationModule, { isNotSample(it, passConfiguration.samples) }, includes)
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -82,26 +94,31 @@ class DokkaGenerator(val logger: DokkaLogger,
         Disposer.dispose(environment)
     }
 
-    fun createAnalysisEnvironment(sourcePaths: List<String>): AnalysisEnvironment {
-        val environment = AnalysisEnvironment(DokkaMessageCollector(logger))
+    fun createAnalysisEnvironment(
+        sourcePaths: List<String>,
+        passConfiguration: DokkaConfiguration.PassConfiguration
+    ): AnalysisEnvironment {
+        val environment = AnalysisEnvironment(DokkaMessageCollector(logger), passConfiguration.analysisPlatform)
 
         environment.apply {
-            addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            if (analysisPlatform == Platform.jvm) {
+                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+            }
             //   addClasspath(PathUtil.getKotlinPathsForCompiler().getRuntimePath())
-            for (element in this@DokkaGenerator.classpath) {
+            for (element in passConfiguration.classpath) {
                 addClasspath(File(element))
             }
 
             addSources(sourcePaths)
-            addSources(this@DokkaGenerator.samples)
+            addSources(passConfiguration.samples)
 
-            loadLanguageVersionSettings(options.languageVersion, options.apiVersion)
+            loadLanguageVersionSettings(passConfiguration.languageVersion, passConfiguration.apiVersion)
         }
 
         return environment
     }
 
-    fun isNotSample(file: PsiFile): Boolean {
+   private fun isNotSample(file: PsiFile, samples: List<String>): Boolean {
         val sourceFile = File(file.virtualFile!!.path)
         return samples.none { sample ->
             val canonicalSample = File(sample).canonicalPath
@@ -140,9 +157,7 @@ fun buildDocumentationModule(injector: Injector,
     val analyzer = resolutionFacade.getFrontendService(LazyTopDownAnalyzer::class.java)
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
-    val fragments = fragmentFiles
-            .map { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
-            .filterNotNull()
+    val fragments = fragmentFiles.mapNotNull { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
             .distinct()
 
     val packageDocs = injector.getInstance(PackageDocs::class.java)

@@ -227,7 +227,11 @@ open class Content(): ContentBlock() {
             sections.firstOrNull { tag.equals(it.tag, ignoreCase = true) }
 
     companion object {
-        val Empty = Content()
+        val Empty = object: Content() {
+            override fun toString(): String {
+                return "EMPTY_CONTENT"
+            }
+        }
 
         fun of(vararg child: ContentNode): Content {
             val result = MutableContent()

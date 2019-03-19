@@ -1,52 +1,35 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.junit.Before
 import org.junit.Test
 
-class MarkdownFormatTest: FileGeneratorTestCase() {
+abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
     override val formatService = MarkdownFormatService(fileGenerator, KotlinLanguageService(), listOf())
 
+    protected val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
+
     @Test fun emptyDescription() {
-        verifyMarkdownNode("emptyDescription")
+        verifyMarkdownNode("emptyDescription", defaultModelConfig)
     }
 
     @Test fun classWithCompanionObject() {
-        verifyMarkdownNode("classWithCompanionObject")
+        verifyMarkdownNode("classWithCompanionObject", defaultModelConfig)
     }
 
     @Test fun annotations() {
-        verifyMarkdownNode("annotations")
+        verifyMarkdownNode("annotations", defaultModelConfig)
     }
 
     @Test fun annotationClass() {
-        verifyMarkdownNode("annotationClass", withKotlinRuntime = true)
-        verifyMarkdownPackage("annotationClass", withKotlinRuntime = true)
-    }
-
-    @Test fun exceptionClass() {
-        verifyMarkdownNode("exceptionClass", withKotlinRuntime = true)
-        verifyMarkdownPackage("exceptionClass", withKotlinRuntime = true)
-    }
-
-    @Test fun annotationParams() {
-        verifyMarkdownNode("annotationParams", withKotlinRuntime = true)
-    }
-
-    @Test fun extensions() {
-        verifyOutput("testdata/format/extensions.kt", ".package.md") { model, output ->
-            buildPagesAndReadInto(model.members, output)
-        }
-        verifyOutput("testdata/format/extensions.kt", ".class.md") { model, output ->
-            buildPagesAndReadInto(model.members.single().members, output)
-        }
+        verifyMarkdownNode("annotationClass", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
+        verifyMarkdownPackage("annotationClass", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun enumClass() {
-        verifyOutput("testdata/format/enumClass.kt", ".md") { model, output ->
+        verifyOutput("testdata/format/enumClass.kt", ".md", defaultModelConfig) { model, output ->
             buildPagesAndReadInto(model.members.single().members, output)
         }
-        verifyOutput("testdata/format/enumClass.kt", ".value.md") { model, output ->
+        verifyOutput("testdata/format/enumClass.kt", ".value.md", defaultModelConfig) { model, output ->
             val enumClassNode = model.members.single().members[0]
             buildPagesAndReadInto(
                     enumClassNode.members.filter { it.name == "LOCAL_CONTINUE_AND_BREAK" },
@@ -56,235 +39,187 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun varargsFunction() {
-        verifyMarkdownNode("varargsFunction")
+        verifyMarkdownNode("varargsFunction", defaultModelConfig)
     }
 
     @Test fun overridingFunction() {
-        verifyMarkdownNodes("overridingFunction") { model->
+        verifyMarkdownNodes("overridingFunction", defaultModelConfig) { model->
             val classMembers = model.members.single().members.first { it.name == "D" }.members
             classMembers.filter { it.name == "f" }
         }
     }
 
     @Test fun propertyVar() {
-        verifyMarkdownNode("propertyVar")
+        verifyMarkdownNode("propertyVar", defaultModelConfig)
     }
 
     @Test fun functionWithDefaultParameter() {
-        verifyMarkdownNode("functionWithDefaultParameter")
+        verifyMarkdownNode("functionWithDefaultParameter", defaultModelConfig)
     }
 
     @Test fun accessor() {
-        verifyMarkdownNodes("accessor") { model ->
+        verifyMarkdownNodes("accessor", defaultModelConfig) { model ->
             model.members.single().members.first { it.name == "C" }.members.filter { it.name == "x" }
         }
     }
 
     @Test fun paramTag() {
-        verifyMarkdownNode("paramTag")
+        verifyMarkdownNode("paramTag", defaultModelConfig)
     }
 
     @Test fun throwsTag() {
-        verifyMarkdownNode("throwsTag")
+        verifyMarkdownNode("throwsTag", defaultModelConfig)
     }
 
     @Test fun typeParameterBounds() {
-        verifyMarkdownNode("typeParameterBounds")
+        verifyMarkdownNode("typeParameterBounds", defaultModelConfig)
     }
 
     @Test fun typeParameterVariance() {
-        verifyMarkdownNode("typeParameterVariance")
+        verifyMarkdownNode("typeParameterVariance", defaultModelConfig)
     }
 
     @Test fun typeProjectionVariance() {
-        verifyMarkdownNode("typeProjectionVariance")
-    }
-
-    @Test fun javadocHtml() {
-        verifyJavaMarkdownNode("javadocHtml")
-    }
-
-    @Test fun javaCodeLiteralTags() {
-        verifyJavaMarkdownNode("javaCodeLiteralTags")
-    }
-
-    @Test fun javaCodeInParam() {
-        verifyJavaMarkdownNodes("javaCodeInParam") {
-            selectNodes(it) {
-                subgraphOf(RefKind.Member)
-                withKind(NodeKind.Function)
-            }
-        }
-    }
-
-    @Test fun javaSpaceInAuthor() {
-        verifyJavaMarkdownNode("javaSpaceInAuthor")
-    }
-
-    @Test fun nullability() {
-        verifyMarkdownNode("nullability")
-    }
-
-    @Test fun operatorOverloading() {
-        verifyMarkdownNodes("operatorOverloading") { model->
-            model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" }
-        }
-    }
-
-    @Test fun javadocOrderedList() {
-        verifyJavaMarkdownNodes("javadocOrderedList") { model ->
-            model.members.single().members.filter { it.name == "Bar" }
-        }
+        verifyMarkdownNode("typeProjectionVariance", defaultModelConfig)
     }
 
     @Test fun codeBlockNoHtmlEscape() {
-        verifyMarkdownNodeByName("codeBlockNoHtmlEscape", "hackTheArithmetic")
+        verifyMarkdownNodeByName("codeBlockNoHtmlEscape", "hackTheArithmetic", defaultModelConfig)
     }
 
     @Test fun companionObjectExtension() {
-        verifyMarkdownNodeByName("companionObjectExtension", "Foo")
+        verifyMarkdownNodeByName("companionObjectExtension", "Foo", defaultModelConfig)
     }
 
     @Test fun starProjection() {
-        verifyMarkdownNode("starProjection")
+        verifyMarkdownNode("starProjection", defaultModelConfig)
     }
 
     @Test fun extensionFunctionParameter() {
-        verifyMarkdownNode("extensionFunctionParameter")
+        verifyMarkdownNode("extensionFunctionParameter", defaultModelConfig)
     }
 
     @Test fun summarizeSignatures() {
-        verifyMarkdownNodes("summarizeSignatures") { model -> model.members }
-    }
-
-    @Test fun summarizeSignaturesProperty() {
-        verifyMarkdownNodes("summarizeSignaturesProperty") { model -> model.members }
+        verifyMarkdownNodes("summarizeSignatures", defaultModelConfig) { model -> model.members }
     }
 
     @Test fun reifiedTypeParameter() {
-        verifyMarkdownNode("reifiedTypeParameter", withKotlinRuntime = true)
+        verifyMarkdownNode("reifiedTypeParameter", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun suspendInlineFunctionOrder() {
-        verifyMarkdownNode("suspendInlineFunction", withKotlinRuntime = true)
+        verifyMarkdownNode("suspendInlineFunction", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun inlineSuspendFunctionOrderChanged() {
-        verifyMarkdownNode("inlineSuspendFunction", withKotlinRuntime = true)
+        verifyMarkdownNode("inlineSuspendFunction", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun annotatedTypeParameter() {
-        verifyMarkdownNode("annotatedTypeParameter", withKotlinRuntime = true)
+        verifyMarkdownNode("annotatedTypeParameter", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun inheritedMembers() {
-        verifyMarkdownNodeByName("inheritedMembers", "Bar")
+        verifyMarkdownNodeByName("inheritedMembers", "Bar", defaultModelConfig)
     }
 
     @Test fun inheritedExtensions() {
-        verifyMarkdownNodeByName("inheritedExtensions", "Bar")
+        verifyMarkdownNodeByName("inheritedExtensions", "Bar", defaultModelConfig)
     }
 
     @Test fun genericInheritedExtensions() {
-        verifyMarkdownNodeByName("genericInheritedExtensions", "Bar")
+        verifyMarkdownNodeByName("genericInheritedExtensions", "Bar", defaultModelConfig)
     }
 
     @Test fun arrayAverage() {
-        verifyMarkdownNodeByName("arrayAverage", "XArray")
+        verifyMarkdownNodeByName("arrayAverage", "XArray", defaultModelConfig)
     }
 
     @Test fun multipleTypeParameterConstraints() {
-        verifyMarkdownNode("multipleTypeParameterConstraints", withKotlinRuntime = true)
+        verifyMarkdownNode("multipleTypeParameterConstraints", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun inheritedCompanionObjectProperties() {
-        verifyMarkdownNodeByName("inheritedCompanionObjectProperties", "C")
+        verifyMarkdownNodeByName("inheritedCompanionObjectProperties", "C", defaultModelConfig)
     }
 
     @Test fun shadowedExtensionFunctions() {
-        verifyMarkdownNodeByName("shadowedExtensionFunctions", "Bar")
+        verifyMarkdownNodeByName("shadowedExtensionFunctions", "Bar", defaultModelConfig)
     }
 
     @Test fun inapplicableExtensionFunctions() {
-        verifyMarkdownNodeByName("inapplicableExtensionFunctions", "Bar")
+        verifyMarkdownNodeByName("inapplicableExtensionFunctions", "Bar", defaultModelConfig)
     }
 
     @Test fun receiverParameterTypeBound() {
-        verifyMarkdownNodeByName("receiverParameterTypeBound", "Foo")
+        verifyMarkdownNodeByName("receiverParameterTypeBound", "Foo", defaultModelConfig)
     }
 
     @Test fun extensionWithDocumentedReceiver() {
-        verifyMarkdownNodes("extensionWithDocumentedReceiver") { model ->
+        verifyMarkdownNodes("extensionWithDocumentedReceiver", defaultModelConfig) { model ->
             model.members.single().members.single().members.filter { it.name == "fn" }
         }
     }
 
-    @Test fun jdkLinks() {
-        verifyMarkdownNode("jdkLinks", withKotlinRuntime = true)
-    }
-
     @Test fun codeBlock() {
-        verifyMarkdownNode("codeBlock")
+        verifyMarkdownNode("codeBlock", defaultModelConfig)
     }
 
     @Test fun exclInCodeBlock() {
-        verifyMarkdownNodeByName("exclInCodeBlock", "foo")
+        verifyMarkdownNodeByName("exclInCodeBlock", "foo", defaultModelConfig)
     }
 
     @Test fun backtickInCodeBlock() {
-        verifyMarkdownNodeByName("backtickInCodeBlock", "foo")
+        verifyMarkdownNodeByName("backtickInCodeBlock", "foo", defaultModelConfig)
     }
 
     @Test fun qualifiedNameLink() {
-        verifyMarkdownNodeByName("qualifiedNameLink", "foo", withKotlinRuntime = true)
+        verifyMarkdownNodeByName("qualifiedNameLink", "foo",
+            ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 
     @Test fun functionalTypeWithNamedParameters() {
-        verifyMarkdownNode("functionalTypeWithNamedParameters")
+        verifyMarkdownNode("functionalTypeWithNamedParameters", defaultModelConfig)
     }
 
     @Test fun typeAliases() {
-        verifyMarkdownNode("typeAliases")
-        verifyMarkdownPackage("typeAliases")
-    }
-
-    @Test fun sampleByFQName() {
-        verifyMarkdownNode("sampleByFQName")
+        verifyMarkdownNode("typeAliases", defaultModelConfig)
+        verifyMarkdownPackage("typeAliases", defaultModelConfig)
     }
 
     @Test fun sampleByShortName() {
-        verifyMarkdownNode("sampleByShortName")
+        verifyMarkdownNode("sampleByShortName", defaultModelConfig)
     }
 
 
     @Test fun suspendParam() {
-        verifyMarkdownNode("suspendParam")
-        verifyMarkdownPackage("suspendParam")
+        verifyMarkdownNode("suspendParam", defaultModelConfig)
+        verifyMarkdownPackage("suspendParam", defaultModelConfig)
     }
 
     @Test fun sinceKotlin() {
-        verifyMarkdownNode("sinceKotlin")
-        verifyMarkdownPackage("sinceKotlin")
+        verifyMarkdownNode("sinceKotlin", defaultModelConfig)
+        verifyMarkdownPackage("sinceKotlin", defaultModelConfig)
     }
 
     @Test fun sinceKotlinWide() {
-        verifyMarkdownPackage("sinceKotlinWide")
+        verifyMarkdownPackage("sinceKotlinWide", defaultModelConfig)
     }
 
     @Test fun dynamicType() {
-        verifyMarkdownNode("dynamicType")
+        verifyMarkdownNode("dynamicType", defaultModelConfig)
     }
 
     @Test fun dynamicExtension() {
-        verifyMarkdownNodes("dynamicExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
+        verifyMarkdownNodes("dynamicExtension", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Foo" } }
     }
 
     @Test fun memberExtension() {
-        verifyMarkdownNodes("memberExtension") { model -> model.members.single().members.filter { it.name == "Foo" } }
+        verifyMarkdownNodes("memberExtension", defaultModelConfig) { model -> model.members.single().members.filter { it.name == "Foo" } }
     }
 
     @Test fun renderFunctionalTypeInParenthesisWhenItIsReceiver() {
-        verifyMarkdownNode("renderFunctionalTypeInParenthesisWhenItIsReceiver")
+        verifyMarkdownNode("renderFunctionalTypeInParenthesisWhenItIsReceiver", defaultModelConfig)
     }
 
     @Test fun multiplePlatforms() {
@@ -321,16 +256,29 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
-        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), withKotlinRuntime = true, options = options)
+
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+        )
+
+        appendDocumentation(module, dokkaConfiguration, passConfiguration, ModelConfig(
+            roots = arrayOf(contentRootFromPath("testdata/format/$path/jvm.kt")),
+            defaultPlatforms = listOf("JVM"),
+            withKotlinRuntime = true,
+            analysisPlatform = analysisPlatform
+            )
+        )
         verifyMultiplatformIndex(module, path)
         verifyMultiplatformPackage(module, path)
     }
@@ -366,107 +314,109 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun linksInEmphasis() {
-        verifyMarkdownNode("linksInEmphasis")
+        verifyMarkdownNode("linksInEmphasis", defaultModelConfig)
     }
 
     @Test fun linksInStrong() {
-        verifyMarkdownNode("linksInStrong")
+        verifyMarkdownNode("linksInStrong", defaultModelConfig)
     }
 
     @Test fun linksInHeaders() {
-        verifyMarkdownNode("linksInHeaders")
+        verifyMarkdownNode("linksInHeaders", defaultModelConfig)
     }
 
     @Test fun tokensInEmphasis() {
-        verifyMarkdownNode("tokensInEmphasis")
+        verifyMarkdownNode("tokensInEmphasis", defaultModelConfig)
     }
 
     @Test fun tokensInStrong() {
-        verifyMarkdownNode("tokensInStrong")
+        verifyMarkdownNode("tokensInStrong", defaultModelConfig)
     }
 
     @Test fun tokensInHeaders() {
-        verifyMarkdownNode("tokensInHeaders")
+        verifyMarkdownNode("tokensInHeaders", defaultModelConfig)
     }
 
     @Test fun unorderedLists() {
-        verifyMarkdownNode("unorderedLists")
+        verifyMarkdownNode("unorderedLists", defaultModelConfig)
     }
 
     @Test fun nestedLists() {
-        verifyMarkdownNode("nestedLists")
+        verifyMarkdownNode("nestedLists", defaultModelConfig)
     }
 
     @Test fun referenceLink() {
-        verifyMarkdownNode("referenceLink")
+        verifyMarkdownNode("referenceLink", defaultModelConfig)
     }
 
     @Test fun externalReferenceLink() {
-        verifyMarkdownNode("externalReferenceLink")
+        verifyMarkdownNode("externalReferenceLink", defaultModelConfig)
     }
 
     @Test fun newlineInTableCell() {
-        verifyMarkdownPackage("newlineInTableCell")
+        verifyMarkdownPackage("newlineInTableCell", defaultModelConfig)
     }
 
     @Test fun indentedCodeBlock() {
-        verifyMarkdownNode("indentedCodeBlock")
+        verifyMarkdownNode("indentedCodeBlock", defaultModelConfig)
     }
 
     @Test fun receiverReference() {
-        verifyMarkdownNode("receiverReference")
+        verifyMarkdownNode("receiverReference", defaultModelConfig)
     }
 
     @Test fun extensionScope() {
-        verifyMarkdownNodeByName("extensionScope", "test")
+        verifyMarkdownNodeByName("extensionScope", "test", defaultModelConfig)
     }
 
     @Test fun typeParameterReference() {
-        verifyMarkdownNode("typeParameterReference")
+        verifyMarkdownNode("typeParameterReference", defaultModelConfig)
     }
 
     @Test fun notPublishedTypeAliasAutoExpansion() {
-        verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", includeNonPublic = false)
+        verifyMarkdownNodeByName("notPublishedTypeAliasAutoExpansion", "foo", ModelConfig(
+            analysisPlatform = analysisPlatform,
+            includeNonPublic = false
+        ))
     }
 
     @Test fun companionImplements() {
-        verifyMarkdownNodeByName("companionImplements", "Foo")
-    }
-
-    @Test fun enumRef() {
-        verifyMarkdownNode("enumRef")
-    }
-
-    @Test fun inheritedLink() {
-        val filePath = "testdata/format/inheritedLink"
-        verifyOutput(
-            arrayOf(
-                contentRootFromPath("$filePath.kt"),
-                contentRootFromPath("$filePath.1.kt")
-            ),
-            ".md",
-            withJdk = true,
-            withKotlinRuntime = true,
-            includeNonPublic = false
-        ) { model, output ->
-            buildPagesAndReadInto(model.members.single { it.name == "p2" }.members.single().members, output)
-        }
+        verifyMarkdownNodeByName("companionImplements", "Foo", defaultModelConfig)
     }
 
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val module = DocumentationModule("test")
-        val options = DocumentationOptions(
-                outputDir = "",
-                outputFormat = "html",
-                generateIndexPages = false,
+        val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
-        appendDocumentation(module, contentRootFromPath("testdata/format/$path/jvm.kt"), defaultPlatforms = listOf("JVM"), options = options)
-        appendDocumentation(module, contentRootFromPath("testdata/format/$path/js.kt"), defaultPlatforms = listOf("JS"), options = options)
+        val dokkaConfiguration = DokkaConfigurationImpl(
+            outputDir = "",
+            format = "html",
+            generateIndexPages = false,
+            passesConfigurations = listOf(
+                passConfiguration
+            )
+
+        )
+        appendDocumentation(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
+                roots = arrayOf(contentRootFromPath("testdata/format/$path/jvm.kt")),
+                defaultPlatforms = listOf("JVM"),
+                analysisPlatform = Platform.jvm
+            )
+        )
+        appendDocumentation(
+            module, dokkaConfiguration, passConfiguration, ModelConfig(
+                roots = arrayOf(contentRootFromPath("testdata/format/$path/js.kt")),
+                defaultPlatforms = listOf("JS"),
+                analysisPlatform = Platform.js
+            )
+        )
+
         return module
     }
 
@@ -486,52 +436,49 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun blankLineInsideCodeBlock() {
-        verifyMarkdownNode("blankLineInsideCodeBlock")
+        verifyMarkdownNode("blankLineInsideCodeBlock", defaultModelConfig)
     }
 
-    private fun verifyMarkdownPackage(fileName: String, withKotlinRuntime: Boolean = false) {
-        verifyOutput("testdata/format/$fileName.kt", ".package.md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+    protected fun verifyMarkdownPackage(fileName: String, modelConfig: ModelConfig = ModelConfig()) {
+        verifyOutput("testdata/format/$fileName.kt", ".package.md", modelConfig) { model, output ->
             buildPagesAndReadInto(model.members, output)
         }
     }
 
-    private fun verifyMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
-        verifyMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    protected fun verifyMarkdownNode(fileName: String, modelConfig: ModelConfig = ModelConfig()) {
+        verifyMarkdownNodes(fileName, modelConfig) { model -> model.members.single().members }
     }
 
-    private fun verifyMarkdownNodes(
+    protected fun verifyMarkdownNodes(
             fileName: String,
-            withKotlinRuntime: Boolean = false,
-            includeNonPublic: Boolean = true,
+            modelConfig: ModelConfig = ModelConfig(),
             nodeFilter: (DocumentationModule) -> List<DocumentationNode>
     ) {
         verifyOutput(
                 "testdata/format/$fileName.kt",
                 ".md",
-                withKotlinRuntime = withKotlinRuntime,
-                includeNonPublic = includeNonPublic
+                modelConfig
         ) { model, output ->
             buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
-    private fun verifyJavaMarkdownNode(fileName: String, withKotlinRuntime: Boolean = false) {
-        verifyJavaMarkdownNodes(fileName, withKotlinRuntime) { model -> model.members.single().members }
+    protected fun verifyJavaMarkdownNode(fileName: String, modelConfig: ModelConfig = ModelConfig()) {
+        verifyJavaMarkdownNodes(fileName, modelConfig) { model -> model.members.single().members }
     }
 
-    private fun verifyJavaMarkdownNodes(fileName: String, withKotlinRuntime: Boolean = false, nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
-        verifyJavaOutput("testdata/format/$fileName.java", ".md", withKotlinRuntime = withKotlinRuntime) { model, output ->
+    protected fun verifyJavaMarkdownNodes(fileName: String, modelConfig: ModelConfig = ModelConfig(), nodeFilter: (DocumentationModule) -> List<DocumentationNode>) {
+        verifyJavaOutput("testdata/format/$fileName.java", ".md", modelConfig) { model, output ->
             buildPagesAndReadInto(nodeFilter(model), output)
         }
     }
 
-    private fun verifyMarkdownNodeByName(
+    protected fun verifyMarkdownNodeByName(
             fileName: String,
             name: String,
-            withKotlinRuntime: Boolean = false,
-            includeNonPublic: Boolean = true
+            modelConfig: ModelConfig = ModelConfig()
     ) {
-        verifyMarkdownNodes(fileName, withKotlinRuntime, includeNonPublic) { model->
+        verifyMarkdownNodes(fileName, modelConfig) { model->
             val nodesWithName = model.members.single().members.filter { it.name == name }
             if (nodesWithName.isEmpty()) {
                 throw IllegalArgumentException("Found no nodes named $name")
@@ -541,6 +488,124 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
     }
 
     @Test fun nullableTypeParameterFunction() {
-        verifyMarkdownNode("nullableTypeParameterFunction", withKotlinRuntime = true)
+        verifyMarkdownNode("nullableTypeParameterFunction", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
     }
 }
+
+class JSMarkdownFormatTest: BaseMarkdownFormatTest(Platform.js)
+
+class JVMMarkdownFormatTest: BaseMarkdownFormatTest(Platform.jvm) {
+
+    @Test
+    fun enumRef() {
+        verifyMarkdownNode("enumRef", defaultModelConfig)
+    }
+
+    @Test
+    fun javaCodeLiteralTags() {
+        verifyJavaMarkdownNode("javaCodeLiteralTags", defaultModelConfig)
+    }
+
+    @Test
+    fun nullability() {
+        verifyMarkdownNode("nullability", defaultModelConfig)
+    }
+
+    @Test
+    fun exceptionClass() {
+        verifyMarkdownNode(
+            "exceptionClass", ModelConfig(
+                analysisPlatform = analysisPlatform,
+                withKotlinRuntime = true
+            )
+        )
+        verifyMarkdownPackage(
+            "exceptionClass", ModelConfig(
+                analysisPlatform = analysisPlatform,
+                withKotlinRuntime = true
+            )
+        )
+    }
+
+    @Test
+    fun operatorOverloading() {
+        verifyMarkdownNodes("operatorOverloading", defaultModelConfig) { model->
+            model.members.single().members.single { it.name == "C" }.members.filter { it.name == "plus" }
+        }
+    }
+
+    @Test
+    fun extensions() {
+        verifyOutput("testdata/format/extensions.kt", ".package.md", defaultModelConfig) { model, output ->
+            buildPagesAndReadInto(model.members, output)
+        }
+        verifyOutput("testdata/format/extensions.kt", ".class.md", defaultModelConfig) { model, output ->
+            buildPagesAndReadInto(model.members.single().members, output)
+        }
+    }
+
+    @Test
+    fun summarizeSignaturesProperty() {
+        verifyMarkdownNodes("summarizeSignaturesProperty", defaultModelConfig) { model -> model.members }
+    }
+
+    @Test
+    fun javaSpaceInAuthor() {
+        verifyJavaMarkdownNode("javaSpaceInAuthor", defaultModelConfig)
+    }
+
+    @Test
+    fun javaCodeInParam() {
+        verifyJavaMarkdownNodes("javaCodeInParam", defaultModelConfig) {
+            selectNodes(it) {
+                subgraphOf(RefKind.Member)
+                withKind(NodeKind.Function)
+            }
+        }
+    }
+
+    @Test
+    fun annotationParams() {
+        verifyMarkdownNode("annotationParams", ModelConfig(analysisPlatform = analysisPlatform, withKotlinRuntime = true))
+    }
+
+    @Test fun inheritedLink() {
+        val filePath = "testdata/format/inheritedLink"
+        verifyOutput(
+            filePath,
+            ".md",
+            ModelConfig(
+                roots = arrayOf(
+                    contentRootFromPath("$filePath.kt"),
+                    contentRootFromPath("$filePath.1.kt")
+                ),
+                withJdk = true,
+                withKotlinRuntime = true,
+                includeNonPublic = false,
+                analysisPlatform = analysisPlatform
+
+            )
+        ) { model, output ->
+            buildPagesAndReadInto(model.members.single { it.name == "p2" }.members.single().members, output)
+        }
+    }
+
+    @Test
+    fun javadocOrderedList() {
+        verifyJavaMarkdownNodes("javadocOrderedList", defaultModelConfig) { model ->
+            model.members.single().members.filter { it.name == "Bar" }
+        }
+    }
+
+    @Test
+    fun jdkLinks() {
+        verifyMarkdownNode("jdkLinks", ModelConfig(withKotlinRuntime = true, analysisPlatform = analysisPlatform))
+    }
+
+    @Test
+    fun javadocHtml() {
+        verifyJavaMarkdownNode("javadocHtml", defaultModelConfig)
+    }
+}
+
+class CommonMarkdownFormatTest: BaseMarkdownFormatTest(Platform.common)

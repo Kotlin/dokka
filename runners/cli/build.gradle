@@ -10,7 +10,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+repositories {
+    mavenLocal()
+}
+
 dependencies {
     compile project(":core")
-    compile "com.github.spullara.cli-parser:cli-parser:1.1.1"
+    compile "org.jetbrains.kotlinx:cli:0.1"
 }

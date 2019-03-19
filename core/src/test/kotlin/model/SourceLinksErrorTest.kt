@@ -2,7 +2,8 @@ package org.jetbrains.dokka.tests.model
 
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
-import org.jetbrains.dokka.tests.verifyModel
+import org.jetbrains.dokka.tests.ModelConfig
+import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
@@ -22,7 +23,7 @@ class SourceLinksErrorTest {
     }
 
     private fun verifyNoSourceUrl(sourceLink: SourceLinkDefinitionImpl) {
-        verifyModel("testdata/sourceLinks/dummy.kt", sourceLinks = listOf(sourceLink)) { model ->
+        checkSourceExistsAndVerifyModel("testdata/sourceLinks/dummy.kt", ModelConfig(sourceLinks = listOf(sourceLink))) { model ->
             with(model.members.single().members.single()) {
                 Assert.assertEquals("foo", name)
                 Assert.assertEquals(NodeKind.Function, kind)

@@ -3,7 +3,6 @@ package org.jetbrains.dokka
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import org.jetbrains.dokka.Utilities.impliedPlatformsName
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 
 
@@ -20,7 +19,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         generator: NodeLocationAwareGenerator,
         languageService: LanguageService,
         extension: String,
-        impliedPlatforms: List<String>,
+        val impliedPlatforms: List<String>,
         templateService: HtmlTemplateService
 ) : HtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService) {
     private var needHardLineBreaks = false
@@ -60,7 +59,7 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
-    override fun appendAsOverloadGroup(to: StringBuilder, platforms: Set<String>, block: () -> Unit) {
+    override fun appendAsOverloadGroup(to: StringBuilder, platforms: PlatformsData, block: () -> Unit) {
         div(to, "overload-group", calculateDataAttributes(platforms)) {
             block()
         }
@@ -69,27 +68,29 @@ open class KotlinWebsiteHtmlOutputBuilder(
     override fun appendLink(href: String, body: () -> Unit) = wrap("<a href=\"$href\">", "</a>", body)
 
     override fun appendTable(vararg columns: String, body: () -> Unit) {
-        to.appendln("<table class=\"api-docs-table\">")
-        body()
-        to.appendln("</table>")
+        //to.appendln("<table class=\"api-docs-table\">")
+        div(to, "api-declarations-list") {
+            body()
+        }
+        //to.appendln("</table>")
     }
 
     override fun appendTableBody(body: () -> Unit) {
-        to.appendln("<tbody>")
+        //to.appendln("<tbody>")
         body()
-        to.appendln("</tbody>")
+        //to.appendln("</tbody>")
     }
 
     override fun appendTableRow(body: () -> Unit) {
-        to.appendln("<tr>")
+        //to.appendln("<tr>")
         body()
-        to.appendln("</tr>")
+        //to.appendln("</tr>")
     }
 
     override fun appendTableCell(body: () -> Unit) {
-        to.appendln("<td>")
+//        to.appendln("<td>")
         body()
-        to.appendln("\n</td>")
+//        to.appendln("\n</td>")
     }
 
     override fun appendSymbol(text: String) {
@@ -122,34 +123,79 @@ open class KotlinWebsiteHtmlOutputBuilder(
         else -> "identifier"
     }
 
-    fun calculateDataAttributes(platforms: Set<String>): String {
-        fun String.isKotlinVersion() = this.startsWith("Kotlin")
-        fun String.isJREVersion() = this.startsWith("JRE")
-        val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)
-        val jreVersion = platforms.singleOrNull(String::isJREVersion)
-        val targetPlatforms = platforms.filterNot { it.isKotlinVersion() || it.isJREVersion() }
+    private data class PlatformsForElement(
+            val platformToVersion: Map<String, String>
+    )
 
-        val kotlinVersionAttr = kotlinVersion?.let { " data-kotlin-version=\"$it\"" } ?: ""
-        val jreVersionAttr = jreVersion?.let { " data-jre-version=\"$it\"" } ?: ""
-        val platformsAttr = targetPlatforms.ifNotEmpty { " data-platform=\"${targetPlatforms.joinToString()}\"" } ?: ""
-        return "$platformsAttr$kotlinVersionAttr$jreVersionAttr"
+    private fun calculatePlatforms(platforms: PlatformsData): PlatformsForElement {
+        //val kotlinVersion = platforms.singleOrNull(String::isKotlinVersion)?.removePrefix("Kotlin ")
+        val jreVersion = platforms.keys.filter(String::isJREVersion).min()?.takeUnless { it.endsWith("6") }
+        val targetPlatforms = platforms.filterNot { it.key.isJREVersion() } +
+                listOfNotNull(jreVersion?.let { it to platforms[it]!! })
+
+        return PlatformsForElement(
+                targetPlatforms.mapValues { (_, nodes) -> effectiveSinceKotlinForNodes(nodes) }
+        )
     }
 
-    override fun appendIndexRow(platforms: Set<String>, block: () -> Unit) {
-        if (platforms.isNotEmpty())
-            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
-        else
-            appendTableRow(block)
+    private fun calculateDataAttributes(platforms: PlatformsData): String {
+        val platformToVersion = calculatePlatforms(platforms).platformToVersion
+        val (platformNames, versions) = platformToVersion.toList().unzip()
+        return "data-platform=\"${platformNames.joinToString()}\" "+
+                "data-kotlin-version=\"${versions.joinToString()}\""
     }
 
-    override fun appendPlatforms(platforms: Set<String>) {}
+    override fun appendIndexRow(platforms: PlatformsData, block: () -> Unit) {
+//        if (platforms.isNotEmpty())
+//            wrap("<tr${calculateDataAttributes(platforms)}>", "</tr>", block)
+//        else
+//            appendTableRow(block)
+        div(to, "declarations", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block()
+        }
+    }
+
+    override fun appendPlatforms(platforms: PlatformsData) {
+        val platformToVersion = calculatePlatforms(platforms).platformToVersion
+        div(to, "tags") {
+            div(to, "spacer") {}
+            platformToVersion.entries.sortedBy {
+                platformSortWeight(it.key)
+            }.forEach { (platform, version) ->
+                div(to, "tags__tag platform tag-value-$platform",
+                        otherAttributes = " data-tag-version=\"$version\"") {
+                    to.append(platform)
+                }
+            }
+            div(to, "tags__tag kotlin-version") {
+                to.append(mergeVersions(platformToVersion.values.toList()))
+            }
+        }
+    }
+
+    override fun appendAsNodeDescription(platforms: PlatformsData, block: () -> Unit) {
+        div(to, "node-page-main", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block()
+        }
+
+    }
 
     override fun appendBreadcrumbSeparator() {
         to.append(" / ")
     }
 
+    override fun appendPlatformsAsText(platforms: PlatformsData) {
+        appendHeader(5) {
+            val filtered = platforms.keys.filterNot { it.isJREVersion() }.sortedBy { platformSortWeight(it) }
+            if (filtered.isNotEmpty()) {
+                to.append("For ")
+                filtered.joinTo(to)
+            }
+        }
+    }
+
     override fun appendSampleBlockCode(language: String, imports: () -> Unit, body: () -> Unit) {
-        div(to, "sample") {
+        div(to, "sample", otherAttributes = " data-min-compiler-version=\"1.3\"") {
             appendBlockCode(language) {
                 imports()
                 wrap("\n\nfun main(args: Array<String>) {".htmlEscape(), "}") {
@@ -169,6 +215,29 @@ open class KotlinWebsiteHtmlOutputBuilder(
             appendContent(section)
         }
     }
+
+    override fun appendAsPlatformDependentBlock(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
+            if (platforms.isNotEmpty())
+                wrap("<div ${calculateDataAttributes(platforms)}>", "</div>") {
+                    block(platforms)
+                }
+            else
+                block(platforms)
+    }
+
+    override fun appendAsSummaryGroup(platforms: PlatformsData, block: (PlatformsData) -> Unit) {
+        div(to, "summary-group", otherAttributes = " ${calculateDataAttributes(platforms)}") {
+            block(platforms)
+        }
+    }
+
+    fun platformSortWeight(name: String) = when(name.toLowerCase()) {
+        "common" -> 0
+        "jvm" -> 1
+        "js" -> 3
+        "native" -> 4
+        else -> 2 // This is hack to support JRE/JUnit and so on
+    }
 }
 
 class KotlinWebsiteHtmlFormatService @Inject constructor(
@@ -184,3 +253,6 @@ class KotlinWebsiteHtmlFormatService @Inject constructor(
             KotlinWebsiteHtmlOutputBuilder(to, location, generator, languageService, extension, impliedPlatforms, templateService)
 }
 
+
+private fun String.isKotlinVersion() = this.startsWith("Kotlin")
+private fun String.isJREVersion() = this.startsWith("JRE", ignoreCase=true)

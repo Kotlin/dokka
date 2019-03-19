@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.Samples
 
 import com.google.inject.Inject
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -9,18 +11,26 @@ import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.ImportPath
+import java.io.PrintWriter
+import java.io.StringWriter
+
 
 open class KotlinWebsiteSampleProcessingService
-@Inject constructor(options: DocumentationOptions,
+@Inject constructor(dokkaConfiguration: DokkaConfiguration,
                     logger: DokkaLogger,
                     resolutionFacade: DokkaResolutionFacade)
-    : DefaultSampleProcessingService(options, logger, resolutionFacade) {
+    : DefaultSampleProcessingService(dokkaConfiguration, logger, resolutionFacade) {
 
     private class SampleBuilder : KtTreeVisitorVoid() {
         val builder = StringBuilder()
         val text: String
             get() = builder.toString()
+
+        val errors = mutableListOf<ConvertError>()
+
+        data class ConvertError(val e: Exception, val text: String, val loc: String)
 
         fun KtValueArgument.extractStringArgumentValue() =
                 (getArgumentExpression() as KtStringTemplateExpression)
@@ -54,27 +64,42 @@ open class KotlinWebsiteSampleProcessingService
         }
 
         fun convertAssertFails(expression: KtCallExpression) {
-            val (message, funcArgument) = expression.valueArguments
+            val valueArguments = expression.valueArguments
+
+            val funcArgument: KtValueArgument
+            val message: KtValueArgument?
+
+            if (valueArguments.size == 1) {
+                message = null
+                funcArgument = valueArguments.first()
+            } else {
+                message = valueArguments.first()
+                funcArgument = valueArguments.last()
+            }
+
             builder.apply {
-                val argument = if (funcArgument.getArgumentExpression() is KtLambdaExpression)
-                    PsiTreeUtil.findChildOfType(funcArgument, KtBlockExpression::class.java)?.text ?: ""
-                else
-                    funcArgument.text
+                val argument = funcArgument.extractFunctionalArgumentText()
                 append(argument.lines().joinToString(separator = "\n") { "// $it" })
                 append(" // ")
-                append(message.extractStringArgumentValue())
+                if (message != null) {
+                    append(message.extractStringArgumentValue())
+                }
                 append(" will fail")
             }
+        }
+
+        private fun KtValueArgument.extractFunctionalArgumentText(): String {
+            return if (getArgumentExpression() is KtLambdaExpression)
+                PsiTreeUtil.findChildOfType(this, KtBlockExpression::class.java)?.text ?: ""
+            else
+                text
         }
 
         fun convertAssertFailsWith(expression: KtCallExpression) {
             val (funcArgument) = expression.valueArguments
             val (exceptionType) = expression.typeArguments
             builder.apply {
-                val argument = if (funcArgument.firstChild is KtLambdaExpression)
-                    PsiTreeUtil.findChildOfType(funcArgument, KtBlockExpression::class.java)?.text ?: ""
-                else
-                    funcArgument.text
+                val argument = funcArgument.extractFunctionalArgumentText()
                 append(argument.lines().joinToString(separator = "\n") { "// $it" })
                 append(" // will fail with ")
                 append(exceptionType.text)
@@ -92,16 +117,51 @@ open class KotlinWebsiteSampleProcessingService
             }
         }
 
+        private fun reportProblemConvertingElement(element: PsiElement, e: Exception) {
+            val text = element.text
+            val document = PsiDocumentManager.getInstance(element.project).getDocument(element.containingFile)
+
+            val lineInfo = if (document != null) {
+                val lineNumber = document.getLineNumber(element.startOffset)
+                "$lineNumber, ${element.startOffset - document.getLineStartOffset(lineNumber)}"
+            } else {
+                "offset: ${element.startOffset}"
+            }
+            errors += ConvertError(e, text, lineInfo)
+        }
+
         override fun visitElement(element: PsiElement) {
             if (element is LeafPsiElement)
                 builder.append(element.text)
-            super.visitElement(element)
+
+            element.acceptChildren(object : PsiElementVisitor() {
+                override fun visitElement(element: PsiElement) {
+                    try {
+                        element.accept(this@SampleBuilder)
+                    } catch (e: Exception) {
+                        try {
+                            reportProblemConvertingElement(element, e)
+                        } finally {
+                            builder.append(element.text) //recover
+                        }
+                    }
+                }
+            })
         }
+
     }
 
     private fun PsiElement.buildSampleText(): String {
         val sampleBuilder = SampleBuilder()
         this.accept(sampleBuilder)
+
+        sampleBuilder.errors.forEach {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            it.e.printStackTrace(pw)
+
+            logger.error("${containingFile.name}: (${it.loc}): Exception thrown while converting \n```\n${it.text}\n```\n$sw")
+        }
         return sampleBuilder.text
     }
 

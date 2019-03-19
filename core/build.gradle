@@ -32,6 +32,8 @@ dependencies {
     compile "org.jetbrains:markdown:$markdownVersion"
 
     compile intellijCoreAnalysis()
+    
+    compile kotlinPluginDependency()
 
     compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.8'
 
