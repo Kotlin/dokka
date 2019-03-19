@@ -22,7 +22,6 @@ allprojects {
     buildscript {
         repositories {
             mavenCentral()
-            jcenter()
             maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
             maven { url "https://plugins.gradle.org/m2/" }
@@ -37,6 +36,7 @@ allprojects {
     }
 
     repositories {
+        jcenter()
         mavenCentral()
         mavenLocal()
         maven { url "https://dl.bintray.com/jetbrains/markdown" }
@@ -45,7 +45,8 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
         ivy(repo)
-        maven { url "https://dl.bintray.com/kotlin/kotlinx.html" }
+        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+        maven { url "https://dl.bintray.com/orangy/maven" } // TODO: remove this repository when kotlinx.cli is available in maven 
     }
 }
 
