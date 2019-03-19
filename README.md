@@ -21,7 +21,7 @@ buildscript {
     }
 }
 repositories {
-    jcenter()
+    jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
 }
 
 apply plugin: 'org.jetbrains.dokka'
@@ -34,7 +34,7 @@ plugins {
     id 'org.jetbrains.dokka' version '0.9.18'
 }
 repositories {
-    jcenter()
+    jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
 }
 ```
 
