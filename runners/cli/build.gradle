@@ -10,11 +10,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
-repositories {
-    mavenLocal()
-}
-
 dependencies {
     compile project(":core")
-    compile "org.jetbrains.kotlinx:cli:0.1"
+    compile "org.jetbrains.kotlinx:kotlinx-cli:0.1.0-dev-3"
 }
