@@ -16,16 +16,31 @@ buildscript {
     repositories {
         jcenter()
     }
-
     dependencies {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
+}
+repositories {
+    jcenter()
 }
 
 apply plugin: 'org.jetbrains.dokka'
 ```
 
+or using the new plugins block:
+
+```groovy
+plugins {
+    id 'org.jetbrains.dokka' version '0.9.18'
+}
+repositories {
+    jcenter()
+}
+```
+
 The plugin adds a task named "dokka" to the project.
+
+If you encounter any problems when migrating from older versions of Dokka, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
 Minimal dokka configuration:
 
@@ -180,7 +195,7 @@ dependencies {
 ```
 
 #### FAQ
-Please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 
 #### Android
 
@@ -192,12 +207,13 @@ buildscript {
     repositories {
         jcenter()
     }
-
     dependencies {
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
     }
 }
-
+repositories {
+    jcenter()
+}
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka-android'
