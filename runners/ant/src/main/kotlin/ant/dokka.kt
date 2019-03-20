@@ -172,7 +172,7 @@ class DokkaAntTask: Task(), DokkaConfiguration {
                 if (sourceLink.path == null) {
                     throw BuildException("'path' attribute of a <sourceLink> element is required")
                 }
-                if (sourceLink.path.contains("\\")) {
+                if (sourceLink.path!!.contains("\\")) {
                     throw BuildException("'dir' attribute of a <sourceLink> - incorrect value, only Unix based path allowed")
                 }
 
