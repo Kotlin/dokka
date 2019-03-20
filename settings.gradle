@@ -9,16 +9,3 @@ include 'core',
         'runners:gradle-plugin',
         'runners:android-gradle-plugin',
         'runners:gradle-integration-tests'
-
-
-final File kotlinx_cli = new File(rootProject.projectDir, System.getenv("KOTLINX_CLI") ?: '../kotlinx-cli') 
-
-if (kotlinx_cli.isDirectory()) {
-    println "Using kotlinx-cli from source!"
-    includeBuild(kotlinx_cli) {
-        dependencySubstitution {
-            substitute module("org.jetbrains.kotlinx:cli:0.1") with project(':')
-        }
-    }
-}
-
