@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMember
 import com.intellij.psi.PsiPackage
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.name.FqName
@@ -26,6 +27,7 @@ fun PsiElement.extractDescriptor(resolutionFacade: DokkaResolutionFacade): Decla
     val forPsi = this
 
     return when (forPsi) {
+        is KtLightClassForFacade -> resolutionFacade.moduleDescriptor.getPackage(forPsi.fqName)
         is KtLightElement<*, *> -> return (forPsi.kotlinOrigin!!).extractDescriptor(resolutionFacade)
         is PsiPackage -> resolutionFacade.moduleDescriptor.getPackage(FqName(forPsi.qualifiedName))
         is PsiMember -> forPsi.getJavaOrKotlinMemberDescriptor(resolutionFacade)
