@@ -1156,7 +1156,7 @@ fun ClassDescriptor.supertypesWithAnyPrecise(): Collection<KotlinType> {
 }
 
 fun PassConfiguration.effectivePackageOptions(pack: String): DokkaConfiguration.PackageOptions {
-    val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated)
+    val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated, false)
     return perPackageOptions.firstOrNull { pack == it.prefix || pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
 }
 
