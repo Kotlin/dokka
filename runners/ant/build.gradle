@@ -5,8 +5,8 @@ sourceCompatibility = 1.8
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
         freeCompilerArgs += "-Xjsr305=strict"
-        languageVersion = "1.2"
-        apiVersion = languageVersion
+        languageVersion = language_version
+        apiVersion = language_version
         jvmTarget = "1.8"
     }
 }

@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -17,8 +19,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ClassloaderContainer.fatJarClassLoader
 import org.jetbrains.dokka.gradle.DokkaVersion.version
-import ru.yole.jkid.JsonExclude
-import ru.yole.jkid.serialization.serialize
+
 import java.io.File
 import java.io.InputStream
 import java.io.Serializable
@@ -55,7 +56,6 @@ object ClassloaderContainer {
     var fatJarClassLoader: ClassLoader? = null
 }
 
-const val `deprecationMessage reportNotDocumented` = "Will be removed in 0.9.17, see dokka#243"
 
 open class DokkaTask : DefaultTask() {
 
@@ -85,9 +85,6 @@ open class DokkaTask : DefaultTask() {
     var outputDirectory: String = ""
     var dokkaRuntime: Configuration? = null
 
-    @Deprecated("Going to be removed in 0.9.16, use classpath + sourceDirs instead if kotlinTasks is not suitable for you")
-    @Input var processConfigurations: List<Any?> = emptyList()
-
     @InputFiles var classpath: Iterable<File> = arrayListOf()
 
     @Input
@@ -110,15 +107,6 @@ open class DokkaTask : DefaultTask() {
     @Input var includeNonPublic = false
     @Input var skipDeprecated = false
     @Input var skipEmptyPackages = true
-
-    @Deprecated(`deprecationMessage reportNotDocumented`, replaceWith = ReplaceWith("reportUndocumented"))
-    var reportNotDocumented
-        get() = reportUndocumented
-        set(value) {
-            logger.warn("Dokka: reportNotDocumented is deprecated and " + `deprecationMessage reportNotDocumented`.decapitalize())
-            reportUndocumented = value
-        }
-
     @Input var reportUndocumented = true
     @Input var perPackageOptions: MutableList<PackageOptions> = arrayListOf()
     @Input var impliedPlatforms: MutableList<String> = arrayListOf()
@@ -145,6 +133,9 @@ open class DokkaTask : DefaultTask() {
 
     @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
+
+    @Optional @Input
+    var targets: List<String> = listOf()
 
 
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
@@ -247,12 +238,12 @@ open class DokkaTask : DefaultTask() {
         val tasksByPath = paths.map { taskContainer.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found") }
 
         other
-                .filter { it !is Task || it isNotInstance getAbstractKotlinCompileFor(it) }
-                .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
+            .filter { it !is Task || it isNotInstance getAbstractKotlinCompileFor(it) }
+            .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
 
         tasksByPath
-                .filter { it == null || it isNotInstance getAbstractKotlinCompileFor(it) }
-                .forEach { throw IllegalArgumentException("Illegal task path in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE, but was $it") }
+            .filter { it == null || it isNotInstance getAbstractKotlinCompileFor(it) }
+            .forEach { throw IllegalArgumentException("Illegal task path in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE, but was $it") }
 
 
         return (tasksByPath + other) as List<Task>
@@ -275,9 +266,9 @@ open class DokkaTask : DefaultTask() {
                 val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
 
                 val taskClasspath: Iterable<File> =
-                        (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
-                                ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
-                                ?: it["getClasspath", abstractKotlinCompileClz]())
+                    (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
+                            ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
+                            ?: it["getClasspath", abstractKotlinCompileClz]())
 
                 if (taskClasspath is FileCollection) {
                     allClasspathFileCollection += taskClasspath
@@ -295,11 +286,13 @@ open class DokkaTask : DefaultTask() {
 
     protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
 
+    @ImplicitReflectionSerializer
     @TaskAction
     fun generate() {
         if (dokkaRuntime == null){
             dokkaRuntime = project.configurations.getByName("dokkaRuntime")
         }
+
 
         dokkaRuntime?.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
@@ -309,65 +302,73 @@ open class DokkaTask : DefaultTask() {
 
             val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
 
-            val project = project
             val sourceRoots = collectSourceRoots() + tasksSourceRoots.toSourceRoots()
-
             if (sourceRoots.isEmpty()) {
                 logger.warn("No source directories found: skipping dokka generation")
                 return
             }
 
-            val fullClasspath = collectClasspathFromOldSources() + tasksClasspath + classpath
+            val fullClasspath = tasksClasspath + classpath
 
             val bootstrapClass = fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
-
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
-
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
-            TODO("Fix Configuration in Gradle")
-            /*
-            val configuration = SerializeOnlyDokkaConfiguration(
-                moduleName,
-                fullClasspath.map { it.absolutePath },
-                sourceRoots,
-                samples.filterNotNull().map { project.file(it).absolutePath },
-                includes.filterNotNull().map { project.file(it).absolutePath },
+
+            val configuration = DokkaConfigurationImpl(
                 outputDirectory,
                 outputFormat,
-                includeNonPublic,
-                false,
-                reportUndocumented,
-                skipEmptyPackages,
-                skipDeprecated,
-                jdkVersion,
                 true,
-                linkMappings,
+                cacheRoot,
                 impliedPlatforms,
-                perPackageOptions,
-                externalDocumentationLinks,
-                noStdlibLink,
-                noJdkLink,
-                    cacheRoot,
-                    collectSuppressedFiles(sourceRoots),
-                    languageVersion,
-                    apiVersion,
-                    collectInheritedExtensionsFromLibraries
+                listOf(PassConfigurationImpl(
+                    classpath= fullClasspath.map { it.absolutePath },
+                    sourceRoots = sourceRoots.map { SourceRootImpl(it.path) },
+                    samples = samples.filterNotNull().map { project.file(it).absolutePath },
+                    includes = includes.filterNotNull().map { project.file(it).absolutePath },
+                    collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries,
+                    perPackageOptions = perPackageOptions.map{PackageOptionsImpl(
+                        prefix = it.prefix,
+                        includeNonPublic = it.includeNonPublic,
+                        reportUndocumented = it.reportUndocumented,
+                        skipDeprecated = it.skipDeprecated,
+                        suppress = it.suppress
+                        )},
+                    moduleName = moduleName,
+                    includeNonPublic = includeNonPublic,
+                    includeRootPackage = false,
+                    reportUndocumented = reportUndocumented,
+                    skipEmptyPackages = skipEmptyPackages,
+                    skipDeprecated = skipDeprecated,
+                    jdkVersion = jdkVersion,
+                    languageVersion = languageVersion,
+                    apiVersion = apiVersion,
+                    noStdlibLink = noStdlibLink,
+                    noJdkLink = noJdkLink,
+                    suppressedFiles = collectSuppressedFiles(sourceRoots),
+                    sinceKotlin = "1.0",
+                    analysisPlatform = Platform.DEFAULT,
+                    targets = targets,
+                    sourceLinks = mutableListOf(), // TODO: check this line
+                    externalDocumentationLinks = externalDocumentationLinks.map {
+                        ExternalDocumentationLinkImpl(it.url, it.packageListUrl)
+                        }
+                    )
+                )
             )
-
 
             bootstrapProxy.configure(
-                    BiConsumer { level, message ->
-                        when (level) {
-                            "info" -> logger.info(message)
-                            "warn" -> logger.warn(message)
-                            "error" -> logger.error(message)
-                        }
-                    },
-                    serialize(configuration)
+                BiConsumer { level, message ->
+                    when (level) {
+                        "info" -> logger.info(message)
+                        "warn" -> logger.warn(message)
+                        "error" -> logger.error(message)
+                    }
+                },
+                Json.stringify(configuration)
             )
 
-            */
+
             bootstrapProxy.generate()
 
         } finally {
@@ -375,15 +376,6 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    private fun collectClasspathFromOldSources(): List<File> {
-
-        val allConfigurations = project.configurations
-
-        val fromConfigurations =
-                processConfigurations.flatMap { allConfigurations.getByName(it.toString()) }
-
-        return fromConfigurations
-    }
 
     private fun collectSourceRoots(): List<SourceRoot> {
         val sourceDirs = if (sourceDirs.any()) {
@@ -406,7 +398,7 @@ open class DokkaTask : DefaultTask() {
     @Classpath
     fun getInputClasspath(): FileCollection {
         val (classpathFileCollection) = extractClasspathAndSourceRootsFromKotlinTasks()
-        return project.files(collectClasspathFromOldSources() + classpath) + classpathFileCollection
+        return project.files(classpath) + classpathFileCollection
     }
 
     @InputFiles
@@ -431,6 +423,7 @@ open class DokkaTask : DefaultTask() {
             null
         }
     }
+
 }
 
 class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
@@ -443,7 +436,6 @@ class SourceRoot : DokkaConfiguration.SourceRoot, Serializable {
 }
 
 open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
-    @JsonExclude
     var dir: String
         get() = path
         set(value) {
@@ -455,7 +447,6 @@ open class LinkMapping : Serializable, DokkaConfiguration.SourceLinkDefinition {
     override var path: String = ""
     override var url: String = ""
 
-    @JsonExclude
     var suffix: String?
         get() = lineSuffix
         set(value) {

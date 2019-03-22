@@ -1,9 +1,6 @@
 package org.jetbrains.dokka
 
-import kotlinx.cli.registerAction
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import org.jetbrains.kotlin.daemon.common.compareDaemonJVMOptionsMemory
-
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
@@ -57,7 +54,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val sourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
         listOf("-src"),
         "Source file or directory (allows many paths separated by the system path separator)"
-    ) { SourceRootImpl.parseSourceRoot(it) }
+    ) { SourceRootImpl(it) }
 
     override val samples: List<String> by parser.repeatableOption(
         listOf("-samples"),
@@ -121,9 +118,9 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     )
 
     override val sinceKotlin: String by parser.stringOption(
-            listOf("-sinceKotlin"),
-            "Kotlin Api version to use as base version, if none specified",
-            "1.0"
+        listOf("-sinceKotlin"),
+        "Kotlin Api version to use as base version, if none specified",
+        "1.0"
     )
 
     override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleFlag(
@@ -154,19 +151,19 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 object MainKt {
     fun parseLinks(links: String): List<ExternalDocumentationLink> {
         val (parsedLinks, parsedOfflineLinks) = links.split("^^")
-                .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
-                .filter { it.isNotEmpty() }
-                .partition { it.size == 1 }
+            .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
+            .filter { it.isNotEmpty() }
+            .partition { it.size == 1 }
 
         return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
                 parsedOfflineLinks.map { (root, packageList) ->
                     val rootUrl = URL(root)
                     val packageListUrl =
-                            try {
-                                URL(packageList)
-                            } catch (ex: MalformedURLException) {
-                                File(packageList).toURI().toURL()
-                            }
+                        try {
+                            URL(packageList)
+                        } catch (ex: MalformedURLException) {
+                            File(packageList).toURI().toURL()
+                        }
                     ExternalDocumentationLink.Builder(rootUrl, packageListUrl).build()
                 }
     }
@@ -206,8 +203,8 @@ object MainKt {
         } catch (e: ClassNotFoundException) {
             val classLoader = createClassLoaderWithTools()
             classLoader.loadClass("org.jetbrains.dokka.MainKt")
-                    .methods.find { it.name == "entry" }!!
-                    .invoke(null, configuration)
+                .methods.find { it.name == "entry" }!!
+                .invoke(null, configuration)
         }
     }
 
@@ -220,7 +217,7 @@ object MainKt {
 
 
         parseContext.cli.singleAction(
-                    listOf("-pckageOptions"),
+            listOf("-pckageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) {
             configuration.passesConfigurations.last().perPackageOptions.addAll(parsePerPackageOptions(it))

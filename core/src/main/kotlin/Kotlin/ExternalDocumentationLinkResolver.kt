@@ -154,7 +154,7 @@ class PackageListProvider @Inject constructor(
             .toMap()
 
 
-        val defaultResolverDesc = ExternalDocumentationLinkResolver.services["dokka-default"]!!
+        val defaultResolverDesc = ExternalDocumentationLinkResolver.services.getValue("dokka-default")
         val resolverDesc = ExternalDocumentationLinkResolver.services[format]
                 ?: defaultResolverDesc.takeIf { format in formatsWithDefaultResolver }
                 ?: defaultResolverDesc.also {
