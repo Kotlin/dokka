@@ -95,7 +95,7 @@ abstract class BasePropertyTest(val analysisPlatform: Platform) {
     @Test fun sinceKotlin() {
         checkSourceExistsAndVerifyModel("testdata/properties/sinceKotlin.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
-                assertEquals(listOf("Kotlin 1.1"), platforms)
+                assertEquals("1.1", sinceKotlin)
             }
         }
     }
