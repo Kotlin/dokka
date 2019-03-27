@@ -292,7 +292,7 @@ The available configuration options are shown below:
         <!-- Do not output deprecated members, applies globally, can be overridden by packageOptions -->
         <skipDeprecated>false</skipDeprecated> 
         <!-- Emit warnings about not documented members, applies globally, also can be overridden by packageOptions -->
-        <reportNotDocumented>true</reportNotDocumented>             
+        <reportUndocumented>true</reportUndocumented>             
         <!-- Do not create index pages for empty packages -->
         <skipEmptyPackages>true</skipEmptyPackages> 
         

@@ -62,10 +62,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var samplesDirs: List<String> = emptyList()
 
     @Parameter
-    @Deprecated("Use <includes> instead")
-    var includeDirs: List<String> = emptyList()
-
-    @Parameter
     var includes: List<String> = emptyList()
 
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
@@ -88,7 +84,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var skipEmptyPackages = true
     @Parameter
-    var reportNotDocumented = true
+    var reportUndocumented = true
 
     @Parameter
     var impliedPlatforms: List<String> = emptyList()
@@ -130,18 +126,36 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         }
 
         val passConfiguration = PassConfigurationImpl(
+            classpath = classpath,
+            sourceRoots = sourceDirectories.map { SourceRootImpl(it) } + sourceRoots.map { SourceRootImpl(path = it.path) },
+            samples = samplesDirs,
+            includes = includes,
+            collectInheritedExtensionsFromLibraries = false, // TODO: Should we implement this?
             sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.dir, it.url, it.urlSuffix) },
             jdkVersion = jdkVersion,
             skipDeprecated = skipDeprecated,
             skipEmptyPackages = skipEmptyPackages,
-            reportUndocumented = reportNotDocumented,
-            perPackageOptions = perPackageOptions,
-            externalDocumentationLinks = externalDocumentationLinks.map { it.build() },
+            reportUndocumented = reportUndocumented,
+            perPackageOptions = perPackageOptions.map {
+                PackageOptionsImpl(
+                    prefix = it.prefix,
+                    includeNonPublic = it.includeNonPublic,
+                    reportUndocumented = it.reportUndocumented,
+                    skipDeprecated = it.skipDeprecated,
+                    suppress = it.suppress
+                )},
+            externalDocumentationLinks = externalDocumentationLinks.map { it.build() as ExternalDocumentationLinkImpl },
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             languageVersion = languageVersion,
-            apiVersion = apiVersion
-
+            apiVersion = apiVersion,
+            moduleName = moduleName,
+            suppressedFiles = emptyList(), // TODO: Should we implement this?
+            sinceKotlin = "1.0", // TODO: Should we implement this?
+            analysisPlatform = Platform.DEFAULT, // TODO: Should we implement this?
+            targets = emptyList(), // TODO: Should we implement this?
+            includeNonPublic = false, // TODO: Should we implement this?
+            includeRootPackage = false // TODO: Should we implement this?
         )
 
         val configuration = DokkaConfigurationImpl(
@@ -149,9 +163,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             format = getOutFormat(),
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
-            passesConfigurations = listOf(
-                passConfiguration
-            )
+            passesConfigurations = listOf(passConfiguration),
+            generateIndexPages = false // TODO: Should we implement this?
         )
 
         val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
