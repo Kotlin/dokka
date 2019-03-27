@@ -252,7 +252,7 @@ Documentation""", content.description.toTestString())
     @Test fun sinceKotlin() {
         checkSourceExistsAndVerifyModel("testdata/functions/sinceKotlin.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
-                assertEquals(listOf("Kotlin 1.1"), platforms)
+                assertEquals("1.1", sinceKotlin)
             }
         }
     }

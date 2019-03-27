@@ -125,7 +125,7 @@ class TypeAliasTest {
     fun sinceKotlin() {
         checkSourceExistsAndVerifyModel("testdata/typealias/sinceKotlin.kt") { model ->
             with(model.members.single().members.single()) {
-                assertEquals(listOf("Kotlin 1.1"), platforms)
+                assertEquals("1.1", sinceKotlin)
             }
         }
     }

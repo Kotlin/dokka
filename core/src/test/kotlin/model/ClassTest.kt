@@ -250,7 +250,7 @@ abstract class BaseClassTest(val analysisPlatform: Platform) {
     @Test fun sinceKotlin() {
         checkSourceExistsAndVerifyModel("testdata/classes/sinceKotlin.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
-                assertEquals(listOf("Kotlin 1.1"), platforms)
+                assertEquals("1.1", sinceKotlin)
             }
         }
     }
