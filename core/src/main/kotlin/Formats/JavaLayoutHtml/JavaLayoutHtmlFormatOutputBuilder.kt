@@ -772,7 +772,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         deprecated?.let {
             return ContentParagraph().apply {
                 if (prefix) {
-                    append(ContentStrong().apply { text("Deprecated: ") })
+                    append(ContentStrong().apply { text(
+                        if (deprecated.content.children.size == 0) "Deprecated."
+                        else "Deprecated: "
+                    ) })
                 }
                 val em = ContentEmphasis()
                 for (child in deprecated.content.children) {
