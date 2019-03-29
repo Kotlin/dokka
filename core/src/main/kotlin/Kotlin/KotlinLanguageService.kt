@@ -20,7 +20,7 @@ class KotlinLanguageService : CommonLanguageService() {
                 NodeKind.Package -> if (renderMode == RenderMode.FULL) renderPackage(node)
                 in NodeKind.classLike -> renderClass(node, renderMode)
 
-                NodeKind.EnumItem,
+                NodeKind.EnumItem -> renderClass(node, renderMode)
                 NodeKind.ExternalClass -> if (renderMode == RenderMode.FULL) identifier(node.name)
 
                 NodeKind.Parameter -> renderParameter(node, renderMode)

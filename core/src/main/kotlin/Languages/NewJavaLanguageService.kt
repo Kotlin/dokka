@@ -26,6 +26,7 @@ class NewJavaLanguageService : CommonLanguageService() {
                 NodeKind.Function -> renderFunction(node)
                 NodeKind.Property -> renderProperty(node)
                 NodeKind.Field -> renderField(node, renderMode)
+                NodeKind.EnumItem -> renderClass(node, renderMode)
                 else -> "${node.kind}: ${node.name}"
             })
         }

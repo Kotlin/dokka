@@ -2,4 +2,4 @@
 
 # LOCAL_CONTINUE_AND_BREAK
 
-`LOCAL_CONTINUE_AND_BREAK`
+`enum val LOCAL_CONTINUE_AND_BREAK : `[`InlineOption`](index.md)

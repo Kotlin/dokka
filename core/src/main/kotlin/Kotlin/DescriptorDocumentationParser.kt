@@ -8,6 +8,7 @@ import org.intellij.markdown.parser.LinkMap
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Samples.SampleProcessingService
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.EnumEntrySyntheticClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
@@ -49,7 +50,8 @@ class DescriptorDocumentationParser @Inject constructor(
             parseDocumentationAndDetails(descriptor, inline).first
 
     fun parseDocumentationAndDetails(descriptor: DeclarationDescriptor, inline: Boolean = false): Pair<Content, (DocumentationNode) -> Unit> {
-        if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor) {
+        if (descriptor is JavaClassDescriptor || descriptor is JavaCallableMemberDescriptor ||
+            descriptor is EnumEntrySyntheticClassDescriptor) {
             return parseJavadoc(descriptor)
         }
 
