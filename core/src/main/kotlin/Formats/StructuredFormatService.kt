@@ -7,18 +7,18 @@ import java.util.*
 data class FormatLink(val text: String, val href: String)
 
 private data class Summarized(
-        val data: List<SummarizedBySummary>
+    val data: List<SummarizedBySummary>
 ) {
 
     constructor(data: Map<ContentNode, Map<ContentNode, List<DocumentationNode>>>) : this(
-            data.entries.map { (summary, signatureToMember) ->
-                SummarizedBySummary(
-                    summary,
-                    signatureToMember.map { (signature, nodes) ->
-                        SummarizedNodes(signature, nodes)
-                    }
-                )
-            }
+        data.entries.map { (summary, signatureToMember) ->
+            SummarizedBySummary(
+                summary,
+                signatureToMember.map { (signature, nodes) ->
+                    SummarizedNodes(signature, nodes)
+                }
+            )
+        }
     )
 
     data class SummarizedNodes(val content: ContentNode, val nodes: List<DocumentationNode>) {
@@ -226,8 +226,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 content as ContentBlockCode
                 fun ContentBlockCode.appendBlockCodeContent() {
                     children
-                            .dropWhile { it is ContentText && it.text.isBlank() }
-                            .forEach { appendContent(it) }
+                        .dropWhile { it is ContentText && it.text.isBlank() }
+                        .forEach { appendContent(it) }
                 }
                 when (content) {
                     is ContentBlockSampleCode ->
@@ -264,7 +264,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         FormatLink(name(to), generator.relativePathToLocation(from, to))
 
     private fun DocumentationNode.isModuleOrPackage(): Boolean =
-            kind == NodeKind.Module || kind == NodeKind.Package
+        kind == NodeKind.Module || kind == NodeKind.Package
 
     protected open fun appendAsSignature(node: ContentNode, block: () -> Unit) {
         block()
@@ -302,7 +302,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     }
 
     fun Content.getSectionsWithSubjects(): Map<String, List<ContentSection>> =
-            sections.filter { it.subjectName != null }.groupBy { it.tag }
+        sections.filter { it.subjectName != null }.groupBy { it.tag }
 
     private fun ContentNode.appendSignature() {
         if (this is ContentBlock && this.isEmpty()) {
@@ -373,15 +373,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         private fun formatOverloadGroup(items: List<DocumentationNode>, isSingleNode: Boolean = false) {
 
             val platformsPerGroup = samePlatforms(
-                    items.flatMap {
-                        if (it.kind == NodeKind.GroupNode) {
-                            it.origins.groupBy { origin ->
-                                languageService.render(origin)
-                            }.values.map { origins -> effectivePlatformsForMembers(origins) }
-                        } else {
-                            listOf(effectivePlatformsForNode(it))
-                        }
+                items.flatMap {
+                    if (it.kind == NodeKind.GroupNode) {
+                        it.origins.groupBy { origin ->
+                            languageService.render(origin)
+                        }.values.map { origins -> effectivePlatformsForMembers(origins) }
+                    } else {
+                        listOf(effectivePlatformsForNode(it))
                     }
+                }
             )
 
             if (platformsPerGroup) {
@@ -422,12 +422,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     }
                 }
             } else {
-                if (!item.content.isEmpty()) {
-                    val platforms = effectivePlatformsForNode(item)
-                    appendAsPlatformDependentBlock(platforms) {
-                        appendContent(item.summary)
-                        item.content.appendDescription()
-                    }
+                val platforms = effectivePlatformsForNode(item)
+                appendAsPlatformDependentBlock(platforms) {
+                    appendContent(item.summary)
+                    item.content.appendDescription()
                 }
             }
         }
@@ -616,7 +614,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
         fun appendOriginsGroupByContent(node: DocumentationNode) {
             require(node.kind == NodeKind.GroupNode)
             val groupByContent =
-                    node.origins.groupBy { it.content }
+                node.origins.groupBy { it.content }
                     .mapValues { (_, origins) ->
                         effectivePlatformsForMembers(origins)
                     }
@@ -710,23 +708,23 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendSection("Inherited Companion Object Functions", node.inheritedCompanionObjectMembers(NodeKind.Function))
             appendSection("Other members", node.members.filter {
                 it.kind !in setOf(
-                        NodeKind.Class,
-                        NodeKind.Interface,
-                        NodeKind.Enum,
-                        NodeKind.Object,
-                        NodeKind.AnnotationClass,
-                        NodeKind.Exception,
-                        NodeKind.TypeAlias,
-                        NodeKind.Constructor,
-                        NodeKind.Property,
-                        NodeKind.Package,
-                        NodeKind.Function,
-                        NodeKind.CompanionObjectProperty,
-                        NodeKind.CompanionObjectFunction,
-                        NodeKind.ExternalClass,
-                        NodeKind.EnumItem,
-                        NodeKind.AllTypes,
-                        NodeKind.GroupNode
+                    NodeKind.Class,
+                    NodeKind.Interface,
+                    NodeKind.Enum,
+                    NodeKind.Object,
+                    NodeKind.AnnotationClass,
+                    NodeKind.Exception,
+                    NodeKind.TypeAlias,
+                    NodeKind.Constructor,
+                    NodeKind.Property,
+                    NodeKind.Package,
+                    NodeKind.Function,
+                    NodeKind.CompanionObjectProperty,
+                    NodeKind.CompanionObjectFunction,
+                    NodeKind.ExternalClass,
+                    NodeKind.EnumItem,
+                    NodeKind.AllTypes,
+                    NodeKind.GroupNode
                 )
             })
 
@@ -736,7 +734,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendSection("Companion Object Extension Properties", allExtensions.filter { it.kind == NodeKind.CompanionObjectProperty })
             appendSection("Companion Object Extension Functions", allExtensions.filter { it.kind == NodeKind.CompanionObjectFunction })
             appendSection("Inheritors",
-                    node.inheritors.filter { it.kind != NodeKind.EnumItem })
+                node.inheritors.filter { it.kind != NodeKind.EnumItem })
 
             if (node.kind == NodeKind.Module) {
                 appendHeader(3) { to.append("Index") }
@@ -806,22 +804,22 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
 
         private fun computeSummarySignatures(items: List<DocumentationNode>): Summarized =
-                Summarized(items.groupBy { it.summary }.mapValues { (_, nodes) ->
-                    val nodesToAppend = nodes.flatMap { if(it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
+            Summarized(items.groupBy { it.summary }.mapValues { (_, nodes) ->
+                val nodesToAppend = nodes.flatMap { if(it.kind == NodeKind.GroupNode) it.origins else listOf(it) }
 
-                    val summarySignature = languageService.summarizeSignatures(nodesToAppend)
-                    if (summarySignature != null) {
-                        mapOf(summarySignature to nodesToAppend)
-                    } else {
-                        nodesToAppend.groupBy {
-                            languageService.render(it, RenderMode.SUMMARY)
-                        }
+                val summarySignature = languageService.summarizeSignatures(nodesToAppend)
+                if (summarySignature != null) {
+                    mapOf(summarySignature to nodesToAppend)
+                } else {
+                    nodesToAppend.groupBy {
+                        languageService.render(it, RenderMode.SUMMARY)
                     }
-                })
+                }
+            })
 
 
         private fun appendSummarySignatures(
-                summarized: Summarized
+            summarized: Summarized
         ) {
             for(summary in summarized.data) {
 
@@ -833,8 +831,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     appendSoftLineBreak()
                     for (signature in summary.signatures) {
                         appendSignatures(
-                                signature,
-                                summarized.platformPlacement == Summarized.PlatformPlacement.Signature
+                            signature,
+                            summarized.platformPlacement == Summarized.PlatformPlacement.Signature
                         )
                     }
                 }
@@ -985,17 +983,17 @@ fun samePlatforms(platformsPerNode: Collection<PlatformsData>): Boolean {
 }
 
 fun locationHref(
-        from: Location,
-        to: DocumentationNode,
-        generator: NodeLocationAwareGenerator,
-        pathOnly: Boolean = false
+    from: Location,
+    to: DocumentationNode,
+    generator: NodeLocationAwareGenerator,
+    pathOnly: Boolean = false
 ): String {
     val topLevelPage = to.references(RefKind.TopLevelPage).singleOrNull()?.to
     if (topLevelPage != null) {
         val signature = to.detailOrNull(NodeKind.Signature)
         return from.relativePathTo(
-                generator.location(topLevelPage),
-                (signature?.name ?: to.name).takeUnless { pathOnly }
+            generator.location(topLevelPage),
+            (signature?.name ?: to.name).takeUnless { pathOnly }
         )
     }
     return from.relativePathTo(generator.location(to))
