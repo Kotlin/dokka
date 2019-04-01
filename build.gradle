@@ -1,5 +1,7 @@
 import org.jetbrains.DependenciesVersionGetter
 
+println("Metadata enabled = " + project.gradle.services.get(org.gradle.api.internal.FeaturePreviews.class).isFeatureEnabled(org.gradle.api.internal.FeaturePreviews.Feature.GRADLE_METADATA))
+
 allprojects {
     ext {
         final String buildNumber = System.getenv("BUILD_NUMBER")
@@ -14,9 +16,12 @@ allprojects {
     version dokka_version
 
     def repo = {
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[artifact](.[ext])")
+        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
         artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+        metadataSources {
+            artifact()
+        }
     }
 
     buildscript {
