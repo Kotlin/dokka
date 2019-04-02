@@ -178,13 +178,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    override fun summary(node: DocumentationNode): ContentNode {
-        val deprecation = formatDeprecationOrNull(node)
-        return when (deprecation) {
-            null -> node.firstSentenceOfSummary()
-            else -> deprecation
-        }
-    }
+    override fun summary(node: DocumentationNode) = node.firstSentenceOfSummary()
 
     fun TBODY.xmlAttributeRow(attr: DocumentationNode) = tr {
         td {
