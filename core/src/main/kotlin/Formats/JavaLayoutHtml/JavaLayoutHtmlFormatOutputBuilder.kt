@@ -624,9 +624,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 deprecationWarningToMarkup(node, prefix = true)
                 nodeContent(node)
 
+                div(classes = "api-info-block") {
+                    apiAndDeprecatedVersions(node)
+                }
+
                 h2 { +"Summary" }
                 classLikeSummaries(page)
-
                 classLikeFullMemberDocs(page)
             }
         }
@@ -765,6 +768,30 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             return true
         }
         return false
+    }
+
+    protected open fun FlowContent.apiAndDeprecatedVersions(node: DocumentationNode) {
+        val apiLevelExists = node.apiLevel.name.isNotEmpty()
+        val deprecatedLevelExists = node.deprecatedLevel.name.isNotEmpty()
+        if (apiLevelExists || deprecatedLevelExists) {
+            div(classes = "api-level") {
+                if (apiLevelExists) {
+                    +"Added in "
+                    a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {
+                        +"API level ${node.apiLevel.name}"
+                    }
+                    if (deprecatedLevelExists) {
+                        br
+                    }
+                }
+                if (deprecatedLevelExists) {
+                    +"Deprecated in "
+                    a(href = "https://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels") {
+                        +"API level ${node.deprecatedLevel.name}"
+                    }
+                }
+            }
+        }
     }
 
     protected open fun formatDeprecationOrNull(node: DocumentationNode, prefix: Boolean = false): ContentNode? {

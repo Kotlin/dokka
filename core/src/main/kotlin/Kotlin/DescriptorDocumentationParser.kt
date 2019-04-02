@@ -119,6 +119,9 @@ class DescriptorDocumentationParser @Inject constructor(
             } else if (name?.toLowerCase() == "since" || name?.toLowerCase() == "apisince") {
                 val apiLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ApiLevel)
                 append(apiLevel, RefKind.Detail)
+            } else if (name?.toLowerCase() == "deprecatedsince") {
+                val deprecatedLevel = DocumentationNode(it.getContent(), Content.Empty, NodeKind.DeprecatedLevel)
+                append(deprecatedLevel, RefKind.Detail)
             } else if (name?.toLowerCase() == "artifactid") {
                 val artifactId = DocumentationNode(it.getContent(), Content.Empty, NodeKind.ArtifactId)
                 append(artifactId, RefKind.Detail)
@@ -195,6 +198,9 @@ class DescriptorDocumentationParser @Inject constructor(
                     }
                 }
                 parseResult.apiLevel?.let {
+                    node.append(it, RefKind.Detail)
+                }
+                parseResult.deprecatedLevel?.let {
                     node.append(it, RefKind.Detail)
                 }
                 parseResult.artifactId?.let {
