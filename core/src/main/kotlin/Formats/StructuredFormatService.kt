@@ -691,8 +691,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 return membersOrGroupMembers { it.kind == kind }
             }
 
-
-            //todo debug
             appendSection("Packages", node.members(NodeKind.Package), platformsBasedOnMembers = true)
             appendSection("Types", node.membersOrGroupMembers { it.kind in NodeKind.classLike /*&& it.kind != NodeKind.TypeAlias*/ && it.kind != NodeKind.AnnotationClass && it.kind != NodeKind.Exception })
             appendSection("Annotations", node.membersOrGroupMembers(NodeKind.AnnotationClass))
@@ -776,13 +774,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 if (summarized.platformPlacement == Summarized.PlatformPlacement.Row) {
                                     appendPlatforms(platforms)
                                 }
-                                appendHeader(level = 4) {
+//                                appendHeader(level = 4) {
                                     appendLink(memberLocation)
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)
 //                                    }
-                                }
+//                                }
                                 appendSummarySignatures(summarized)
+                            }
+                            appendTableCell {
+
                             }
                         }
                     }
