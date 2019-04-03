@@ -93,11 +93,11 @@ open class DocumentationNode(val name: String,
     val details: List<DocumentationNode>
         get() = references(RefKind.Detail).map { it.to }
     val members: List<DocumentationNode>
-        get() = references(RefKind.Member).map { it.to }
+        get() = references(RefKind.Member).map { it.to }.sortedBy { it.name }
     val inheritedMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedMember).map { it.to }
     val allInheritedMembers: List<DocumentationNode>
-        get() = recursiveInheritedMembers()
+        get() = recursiveInheritedMembers().sortedBy { it.name }
     val inheritedCompanionObjectMembers: List<DocumentationNode>
         get() = references(RefKind.InheritedCompanionObjectMember).map { it.to }
     val extensions: List<DocumentationNode>
@@ -125,7 +125,7 @@ open class DocumentationNode(val name: String,
     val artifactId: DocumentationNode
         get() = detailOrNull(NodeKind.ArtifactId) ?: DocumentationNode("", Content.Empty, NodeKind.ArtifactId)
     val attributes: List<DocumentationNode>
-        get() = details(NodeKind.Attribute)
+        get() = details(NodeKind.Attribute).sortedBy { it.attributeRef!!.name }
     val attributeRef: DocumentationNode?
         get() = references(RefKind.AttributeRef).map { it.to }.firstOrNull()
     val relatedAttributes: List<DocumentationNode>

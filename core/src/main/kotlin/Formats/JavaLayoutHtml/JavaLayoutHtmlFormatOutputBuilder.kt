@@ -902,7 +902,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             val superclasses = (sequenceOf(node) + node.superclassTypeSequence).toList().asReversed()
 
-            val enumValues = node.members(NodeKind.EnumItem)
+            val enumValues = node.members(NodeKind.EnumItem).sortedBy { it.name }
 
             val directInheritors: List<DocumentationNode>
             val indirectInheritors: List<DocumentationNode>
@@ -938,6 +938,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             val inheritedAttributes =
                     node.superclassTypeSequence
                             .toList()
+                            .sortedBy { it.name }
                             .flatMap { it.typeDeclarationClass?.attributes.orEmpty() }
                             .distinctBy { it.attributeRef!!.name }
                             .groupBy { it.owner!! }
@@ -979,12 +980,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
 
             init {
                 val (extensions, inheritedExtensions) = originalExtensions.partition { it.thisTypeExtension() }
-                extensionFunctions = extensions.filter { it.isFunction() }.groupBy { it.owner!! }
-                extensionProperties = extensions.filter { it.isProperty() }.groupBy { it.owner!! }
+                extensionFunctions = extensions.filter { it.isFunction() }.sortedBy { it.name }.groupBy { it.owner!! }
+                extensionProperties = extensions.filter { it.isProperty() }.sortedBy { it.name }.groupBy { it.owner!! }
                 inheritedExtensionFunctions =
-                        inheritedExtensions.filter { it.isFunction() }.groupBy { it.owner!! }
+                        inheritedExtensions.filter { it.isFunction() }.sortedBy { it.name }.groupBy { it.owner!! }
                 inheritedExtensionProperties =
-                        inheritedExtensions.filter { it.isProperty() }.groupBy { it.owner!! }
+                        inheritedExtensions.filter { it.isProperty() }.sortedBy { it.name }.groupBy { it.owner!! }
             }
 
             val companionFunctions = node.members(NodeKind.CompanionObjectFunction).takeUnless { isCompanion }.orEmpty()
