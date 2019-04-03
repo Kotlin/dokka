@@ -780,10 +780,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 //                                        appendPlatforms(platforms)
 //                                    }
 //                                }
-                                appendSummarySignatures(summarized)
                             }
                             appendTableCell {
-
+                                appendSummarySignatures(summarized)
                             }
                         }
                     }
@@ -830,14 +829,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (summarized.platformPlacement == Summarized.PlatformPlacement.Summary) {
                         appendPlatforms(summary.platforms)
                     }
-                    appendContent(summary.content)
-                    appendSoftLineBreak()
                     for (signature in summary.signatures) {
                         appendSignatures(
                             signature,
                             summarized.platformPlacement == Summarized.PlatformPlacement.Signature
                         )
                     }
+                    appendContent(summary.content)
                 }
 
             }
