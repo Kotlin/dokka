@@ -31,15 +31,15 @@
 
 | [&lt;init&gt;](-init-.md) | `C()` |
 
-<!-- File: test/f.md -->
-[test](index.md) / [f](./f.md)
-
-# f
-
-`val f: (a: `[`A`](-a/index.md)`, b: `[`B`](-b/index.md)`) -> `[`C`](-c/index.md)
 <!-- File: test/accept-function-type-with-named-arguments.md -->
 [test](index.md) / [acceptFunctionTypeWithNamedArguments](./accept-function-type-with-named-arguments.md)
 
 # acceptFunctionTypeWithNamedArguments
 
 `fun acceptFunctionTypeWithNamedArguments(f: (bb: `[`B`](-b/index.md)`, aa: `[`A`](-a/index.md)`) -> `[`C`](-c/index.md)`): Unit`
+<!-- File: test/f.md -->
+[test](index.md) / [f](./f.md)
+
+# f
+
+`val f: (a: `[`A`](-a/index.md)`, b: `[`B`](-b/index.md)`) -> `[`C`](-c/index.md)

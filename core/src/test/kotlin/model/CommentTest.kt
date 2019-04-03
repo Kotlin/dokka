@@ -154,7 +154,7 @@ line two""", toTestString())
 
     @Test fun directive() {
         verifyModel("testdata/comments/directive.kt") { model ->
-            with(model.members.single().members.first()) {
+            with(model.members.single().members[3]) {
                 assertEquals("Summary", content.summary.toTestString())
                 with (content.description) {
                     assertEqualsIgnoringSeparators("""

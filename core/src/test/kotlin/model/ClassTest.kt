@@ -136,14 +136,14 @@ class ClassTest {
                     assertEquals(Content.Empty, content)
                 }
                 with(members.elementAt(1)) {
-                    assertEquals("x", name)
-                    assertEquals(NodeKind.CompanionObjectProperty, kind)
+                    assertEquals("foo", name)
+                    assertEquals(NodeKind.CompanionObjectFunction, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
                 with(members.elementAt(2)) {
-                    assertEquals("foo", name)
-                    assertEquals(NodeKind.CompanionObjectFunction, kind)
+                    assertEquals("x", name)
+                    assertEquals(NodeKind.CompanionObjectProperty, kind)
                     assertTrue(members.none())
                     assertTrue(links.none())
                 }
