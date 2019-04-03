@@ -19,6 +19,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
     compile "org.jetbrains.kotlin:kotlin-stdlib:$bundled_kotlin_compiler_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$bundled_kotlin_compiler_version"
 
@@ -33,7 +35,8 @@ dependencies {
 
     compile intellijCoreAnalysis()
 
-    compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.8'
+//    Google version of the library in the libs folder. Fixing 129528660
+//    compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.8'
 
     //tools.jar
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
