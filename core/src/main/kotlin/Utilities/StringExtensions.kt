@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.dokka.utilities
+package org.jetbrains.dokka.Utilities
 
 /**
  * Finds the first sentence of a string, accounting for periods that may occur in parenthesis.

@@ -16,7 +16,7 @@
 
 package org.jetbrains.dokka.tests.utilities
 
-import org.jetbrains.dokka.utilities.firstSentence
+import org.jetbrains.dokka.Utilities.firstSentence
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.utilities.firstSentence
+import org.jetbrains.dokka.Utilities.firstSentence
 import java.lang.Math.max
 import java.net.URI
 import kotlin.reflect.KClass
