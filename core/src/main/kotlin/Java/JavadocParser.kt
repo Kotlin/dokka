@@ -7,7 +7,6 @@ import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
-import org.jetbrains.dokka.javadoc.asText
 import org.jetbrains.kotlin.utils.join
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
@@ -131,10 +130,10 @@ class JavadocParser(
                     }
                 }
                 "since", "apisince" -> {
-                    since = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
+                    since = DocumentationNode(tag.getApiLevel() ?: "", Content.Empty, NodeKind.ApiLevel)
                 }
                 "deprecatedsince" -> {
-                    deprecated = DocumentationNode(tag.minApiLevel() ?: "", Content.Empty, NodeKind.DeprecatedLevel)
+                    deprecated = DocumentationNode(tag.getApiLevel() ?: "", Content.Empty, NodeKind.DeprecatedLevel)
                 }
                 "artifactid" -> {
                     artifactId = DocumentationNode(tag.artifactId() ?: "", Content.Empty, NodeKind.ArtifactId)
@@ -166,7 +165,7 @@ class JavadocParser(
         return artifactName
     }
 
-    fun PsiDocTag.minApiLevel(): String? {
+    fun PsiDocTag.getApiLevel(): String? {
         if (dataElements.isNotEmpty()) {
             val data = dataElements
             if (data[0] is CorePsiDocTagValueImpl) {
