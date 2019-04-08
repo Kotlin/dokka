@@ -3,12 +3,10 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'kotlinx-serialization'
 
 sourceCompatibility = 1.8
 
@@ -23,5 +21,5 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 dependencies {
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
     compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_for_gradle_runtime_version
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
