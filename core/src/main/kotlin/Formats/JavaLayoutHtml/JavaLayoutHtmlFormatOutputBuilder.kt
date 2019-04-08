@@ -624,10 +624,6 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 deprecationWarningToMarkup(node, prefix = true)
                 nodeContent(node)
 
-                div(classes = "api-info-block") {
-                    apiAndDeprecatedVersions(node)
-                }
-
                 h2 { +"Summary" }
                 classLikeSummaries(page)
                 classLikeFullMemberDocs(page)
