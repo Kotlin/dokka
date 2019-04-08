@@ -28,6 +28,7 @@ dependencies {
 
     compileOnly gradleApi()
     compileOnly localGroovy()
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 
 task sourceJar(type: Jar) {

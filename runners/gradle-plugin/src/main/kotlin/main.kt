@@ -1,13 +1,8 @@
 package org.jetbrains.dokka.gradle
 
+import com.google.gson.GsonBuilder
 import groovy.lang.Closure
-import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import org.gradle.api.Action
-import org.gradle.api.DefaultTask
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaBasePlugin
@@ -23,6 +18,7 @@ import org.jetbrains.dokka.gradle.DokkaVersion.version
 import java.io.File
 import java.io.InputStream
 import java.io.Serializable
+import java.net.URL
 import java.net.URLClassLoader
 import java.util.*
 import java.util.concurrent.Callable
@@ -32,6 +28,10 @@ open class DokkaPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
+
+        val passConfiguration= project.container(GradlePassConfigurationImpl::class.java)
+        project.extensions.add("passConfigurations", passConfiguration)
+
         project.tasks.create("dokka", DokkaTask::class.java).apply {
             dokkaRuntime = project.configurations.create("dokkaRuntime")
             moduleName = project.name
@@ -39,6 +39,7 @@ open class DokkaPlugin : Plugin<Project> {
         }
     }
 }
+
 
 object DokkaVersion {
     var version: String? = null
@@ -137,6 +138,25 @@ open class DokkaTask : DefaultTask() {
     @Optional @Input
     var targets: List<String> = listOf()
 
+//    @Input var passConfigurations: MutableList<GradlePassConfigurationImpl> = arrayListOf()
+
+//    fun passConfiguration(action: Action<GradlePassConfigurationImpl>) {
+//        val passConfig = GradlePassConfigurationImpl()
+//        action.execute(passConfig)
+//        passConfigurations.add(passConfig)
+//    }
+//
+//    fun passConfiguration(closure: Closure<Unit>) {
+//        passConfiguration(Action {
+//            closure.delegate = it
+//            closure.call()
+//        })
+//    }
+
+//    fun passConfiguration(closure: Closure<Unit>) {
+//        closure.call()
+//        passConfiguration = mutableListOf(PassConfigurationImpl(targets = closure.getProperty("targets") as List<String>))
+//    }
 
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
@@ -286,7 +306,6 @@ open class DokkaTask : DefaultTask() {
 
     protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
 
-    @ImplicitReflectionSerializer
     @TaskAction
     fun generate() {
         if (dokkaRuntime == null){
@@ -314,48 +333,55 @@ open class DokkaTask : DefaultTask() {
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
+            val gson = GsonBuilder().setPrettyPrinting().create()
 
-            val configuration = DokkaConfigurationImpl(
-                outputDirectory,
-                outputFormat,
-                true,
-                cacheRoot,
-                impliedPlatforms,
-                listOf(PassConfigurationImpl(
-                    classpath= fullClasspath.map { it.absolutePath },
-                    sourceRoots = sourceRoots.map { SourceRootImpl(it.path) },
-                    samples = samples.filterNotNull().map { project.file(it).absolutePath },
-                    includes = includes.filterNotNull().map { project.file(it).absolutePath },
-                    collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries,
-                    perPackageOptions = perPackageOptions.map{PackageOptionsImpl(
-                        prefix = it.prefix,
-                        includeNonPublic = it.includeNonPublic,
-                        reportUndocumented = it.reportUndocumented,
-                        skipDeprecated = it.skipDeprecated,
-                        suppress = it.suppress
-                        )},
-                    moduleName = moduleName,
-                    includeNonPublic = includeNonPublic,
-                    includeRootPackage = false,
-                    reportUndocumented = reportUndocumented,
-                    skipEmptyPackages = skipEmptyPackages,
-                    skipDeprecated = skipDeprecated,
-                    jdkVersion = jdkVersion,
-                    languageVersion = languageVersion,
-                    apiVersion = apiVersion,
-                    noStdlibLink = noStdlibLink,
-                    noJdkLink = noJdkLink,
-                    suppressedFiles = collectSuppressedFiles(sourceRoots),
-                    sinceKotlin = "1.0",
-                    analysisPlatform = Platform.DEFAULT,
-                    targets = targets,
-                    sourceLinks = mutableListOf(), // TODO: check this line
-                    externalDocumentationLinks = externalDocumentationLinks.map {
-                        ExternalDocumentationLinkImpl(it.url, it.packageListUrl)
-                        }
-                    )
-                )
-            )
+
+            val configuration = GradleDokkaConfigurationImpl()
+            configuration.outputDir = outputDirectory
+            configuration.format = outputFormat
+            configuration.generateIndexPages = true
+            configuration.cacheRoot = cacheRoot
+            configuration.impliedPlatforms = impliedPlatforms
+            configuration.passesConfigurations =
+                (project.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>)
+                .toList()
+                .map { defaultPassConfiguration(it) }
+
+//                listOf(PassConfigurationImpl(
+//                    classpath= fullClasspath.map { it.absolutePath },
+//                    sourceRoots = sourceRoots.map { SourceRootImpl(it.path) },
+//                    samples = samples.filterNotNull().map { project.file(it).absolutePath },
+//                    includes = includes.filterNotNull().map { project.file(it).absolutePath },
+//                    collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries,
+//                    perPackageOptions = perPackageOptions.map{PackageOptionsImpl(
+//                        prefix = it.prefix,
+//                        includeNonPublic = it.includeNonPublic,
+//                        reportUndocumented = it.reportUndocumented,
+//                        skipDeprecated = it.skipDeprecated,
+//                        suppress = it.suppress
+//                        )},
+//                    moduleName = moduleName,
+//                    includeNonPublic = includeNonPublic,
+//                    includeRootPackage = false,
+//                    reportUndocumented = reportUndocumented,
+//                    skipEmptyPackages = skipEmptyPackages,
+//                    skipDeprecated = skipDeprecated,
+//                    jdkVersion = jdkVersion,
+//                    languageVersion = languageVersion,
+//                    apiVersion = apiVersion,
+//                    noStdlibLink = noStdlibLink,
+//                    noJdkLink = noJdkLink,
+//                    suppressedFiles = collectSuppressedFiles(sourceRoots),
+//                    sinceKotlin = "1.0",
+//                    analysisPlatform = Platform.DEFAULT,
+//                    targets = emptyList(),
+//                    sourceLinks = mutableListOf(), // TODO: check this line
+//                    externalDocumentationLinks = externalDocumentationLinks.map {
+//                        ExternalDocumentationLinkImpl(it.url, it.packageListUrl)
+//                        }
+//                    )
+//                )
+//            )
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->
@@ -365,15 +391,48 @@ open class DokkaTask : DefaultTask() {
                         "error" -> logger.error(message)
                     }
                 },
-                Json.stringify(configuration)
+                gson.toJson(configuration)
             )
-
 
             bootstrapProxy.generate()
 
         } finally {
             System.setProperty(COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
         }
+    }
+
+    private fun defaultPassConfiguration(passConfig: GradlePassConfigurationImpl): GradlePassConfigurationImpl{
+
+        fun Closure<Unit>.setDelegateAndCall(delegate: Any) {
+            this.delegate = delegate
+            this.call()
+            this.delegate
+        }
+
+        val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
+
+        val fullClasspath = tasksClasspath + classpath
+        passConfig.moduleName = moduleName
+        passConfig.classpath = fullClasspath.map { it.absolutePath }
+        passConfig.sourceRoots = sourceRoots.map { SourceRootImpl(it.path) }
+        passConfig.samples = samples.filterNotNull().map { project.file(it).absolutePath }
+        passConfig.includes = includes.filterNotNull().map { project.file(it).absolutePath }
+        passConfig.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
+
+        passConfig.perPackageOptions = ((passConfig.perPackageOptions as List<Closure<Unit>>).map {
+            it.setDelegateAndCall(GradlePackageOptionsImpl())
+        }) as List<PackageOptionsImpl>
+
+        passConfig.suppressedFiles = collectSuppressedFiles(sourceRoots)
+        passConfig.sourceLinks = ((passConfig.sourceLinks as List<Closure<Unit>>).map {
+            it.setDelegateAndCall(GradleSourceLinkDefinitionImpl())
+        }) as MutableList<GradleSourceLinkDefinitionImpl> // TODO: Parse source links?
+
+        passConfig.externalDocumentationLinks = ((passConfig.externalDocumentationLinks as List<Closure<Unit>>).map {
+            it.setDelegateAndCall(GradleExternalDocumentationLinkImpl())
+        }) as List<ExternalDocumentationLinkImpl>
+
+        return passConfig
     }
 
 
@@ -486,4 +545,68 @@ class PackageOptions : Serializable, DokkaConfiguration.PackageOptions {
     override var reportUndocumented: Boolean = true
     override var skipDeprecated: Boolean = false
     override var suppress: Boolean = false
+}
+
+open class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaConfiguration.PassConfiguration {
+    override var classpath: List<String> = emptyList()
+    override var moduleName: String = ""
+    override var sourceRoots: List<SourceRootImpl> = emptyList()
+    override var samples: List<String> = emptyList()
+    override var includes: List<String> = emptyList()
+    override var includeNonPublic: Boolean = false
+    override var includeRootPackage: Boolean = false
+    override var reportUndocumented: Boolean = false
+    override var skipEmptyPackages: Boolean = false
+    override var skipDeprecated: Boolean = false
+    override var jdkVersion: Int = 6
+    override var sourceLinks: List<GradleSourceLinkDefinitionImpl> = emptyList()
+    override var perPackageOptions: List<PackageOptionsImpl> = emptyList()
+    override var externalDocumentationLinks: List<ExternalDocumentationLinkImpl> = emptyList()
+    override var languageVersion: String? = null
+    override var apiVersion: String? = null
+    override var noStdlibLink: Boolean = false
+    override var noJdkLink: Boolean = false
+    override var suppressedFiles: List<String> = emptyList()
+    override var collectInheritedExtensionsFromLibraries: Boolean = false
+    override var analysisPlatform: Platform = Platform.DEFAULT
+    override var targets: List<String> = listOf("JVM")
+    override var sinceKotlin: String = "1.0"
+}
+
+class GradleSourceLinkDefinitionImpl : DokkaConfiguration.SourceLinkDefinition {
+    override var path: String = ""
+    override var url: String = ""
+    override var lineSuffix: String? = null
+
+    companion object {
+        fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
+            val (path, urlAndLine) = srcLink.split('=')
+            return SourceLinkDefinitionImpl(
+                File(path).canonicalPath,
+                urlAndLine.substringBefore("#"),
+                urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
+        }
+    }
+}
+
+class GradleExternalDocumentationLinkImpl : DokkaConfiguration.ExternalDocumentationLink {
+    override var url: URL = URL("")
+    override var packageListUrl: URL = URL("")
+}
+
+class GradleDokkaConfigurationImpl: DokkaConfiguration {
+    override var outputDir: String = ""
+    override var format: String = "html"
+    override var generateIndexPages: Boolean = false
+    override var cacheRoot: String? = null
+    override var impliedPlatforms: List<String> = emptyList()
+    override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
+}
+
+class GradlePackageOptionsImpl: DokkaConfiguration.PackageOptions {
+    override var prefix: String = ""
+    override val includeNonPublic: Boolean = false
+    override val reportUndocumented: Boolean = true
+    override val skipDeprecated: Boolean = true
+    override val suppress: Boolean = false
 }
