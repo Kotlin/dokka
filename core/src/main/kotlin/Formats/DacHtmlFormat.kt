@@ -189,7 +189,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
         td {
-            nodeSummary(attr.attributeRef!!, attr)
+            nodeContent(attr.attributeRef!!, attr)
         }
     }
 
