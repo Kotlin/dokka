@@ -775,7 +775,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                     appendPlatforms(platforms)
                                 }
 //                                appendHeader(level = 4) {
+                                appendParagraph {
                                     appendLink(memberLocation)
+                                }
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)
 //                                    }
