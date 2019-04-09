@@ -165,6 +165,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
 
+            is ContentSpecialReference -> wrapInTag(tag = "div class=\"special reference\"", body = {
+                if (!content.isEmpty()) {
+                    appendContent(content.children)
+                }
+            })
+
             is ContentBlockSampleCode, is ContentBlockCode -> {
                 content as ContentBlockCode
                 fun ContentBlockCode.appendBlockCodeContent() {

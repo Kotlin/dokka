@@ -316,6 +316,17 @@ class JavadocParser(
         "li" -> ContentListItem()
         "a" -> createLink(element)
         "br" -> ContentBlock().apply { hardLineBreak() }
+        "h1" -> ContentHeading(1)
+        "h2" -> ContentHeading(2)
+        "h3" -> ContentHeading(3)
+        "h4" -> ContentHeading(4)
+        "h5" -> ContentHeading(5)
+        "h6" -> ContentHeading(6)
+        "div" -> {
+            val divClass = element.attr("class")
+            if (divClass == "special reference") ContentSpecialReference()
+            else ContentBlock()
+        }
         else -> ContentBlock()
     }
 

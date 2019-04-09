@@ -78,11 +78,13 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         ?: contentNodesToMarkup(content.children, contextUri)
             }
 
+            is ContentSpecialReference -> div(classes = "special reference") {
+                contentNodesToMarkup(content.children, contextUri)
+            }
 
             is ContentCode -> contentInlineCode(content)
             is ContentBlockSampleCode -> contentBlockSampleCode(content)
             is ContentBlockCode -> contentBlockCode(content)
-
 
             ContentNonBreakingSpace -> +nbsp
             ContentSoftLineBreak, ContentIndentedSoftLineBreak -> {
