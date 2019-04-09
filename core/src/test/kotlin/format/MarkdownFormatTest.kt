@@ -101,6 +101,11 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         verifyMarkdownNode("typeProjectionVariance")
     }
 
+    @Test
+    fun javadocCodeMultiline() {
+        verifyJavaMarkdownNode("javadocCodeMultiline")
+    }
+
     // TODO: FIXME
     @Ignore
     @Test

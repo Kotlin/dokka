@@ -7,6 +7,7 @@ import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.isNullOrEmpty
+import org.jetbrains.dokka.Model.CodeNode
 import org.jetbrains.kotlin.utils.join
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
@@ -282,13 +283,18 @@ class JavadocParser(
         return htmlBuilder.toString().trim()
     }
 
-    private fun convertHtmlNode(node: Node): ContentNode? {
+    private fun convertHtmlNode(node: Node, isCode: Boolean = false): ContentNode? {
         if (node is TextNode) {
-            return ContentText(node.text().removePrefix("#"))
+            if (isCode) { // Fixes b/129762453
+                val codeNode = CodeNode(node.wholeText, "")
+                return ContentText(codeNode.text().removePrefix("#"))
+            } else {
+                return ContentText(node.text().removePrefix("#"))
+            }
         } else if (node is Element) {
             val childBlock = createBlock(node)
             node.childNodes().forEach {
-                val child = convertHtmlNode(it)
+                val child = convertHtmlNode(it, isCode = childBlock is ContentBlockCode || childBlock is ContentCode)
                 if (child != null) {
                     childBlock.append(child)
                 }
