@@ -1,4 +1,4 @@
-[test](index.md) / [containsAll](./contains-all.md)
+[test](../index.md) / [containsAll](./contains-all.md)
 
 # containsAll
 

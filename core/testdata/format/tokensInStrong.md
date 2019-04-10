@@ -1,4 +1,4 @@
-[test](../index.md) / [Yasc](./index.md)
+[test](../../index.md) / [Yasc](./index.md)
 
 # Yasc
 

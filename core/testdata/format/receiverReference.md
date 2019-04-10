@@ -1,4 +1,4 @@
-[test](../index.md) / [kotlin.String](./index.md)
+[test](../../index.md) / [kotlin.String](./index.md)
 
 ### Extensions for kotlin.String
 

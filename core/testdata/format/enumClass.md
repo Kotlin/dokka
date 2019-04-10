@@ -1,4 +1,4 @@
-[test](../index.md) / [InlineOption](./index.md)
+[test](../../index.md) / [InlineOption](./index.md)
 
 # InlineOption
 
