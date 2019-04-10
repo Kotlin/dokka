@@ -1,17 +1,17 @@
-<!-- File: test/-a.md -->
-[test](index.md) / [A](./-a.md)
+<!-- File: test/--root--/-a.md -->
+[test](../index.md) / [A](./-a.md)
 
 # A
 
 `interface A`
-<!-- File: test/-b.md -->
-[test](index.md) / [B](./-b.md)
+<!-- File: test/--root--/-b.md -->
+[test](../index.md) / [B](./-b.md)
 
 # B
 
 `interface B`
-<!-- File: test/f.md -->
-[test](index.md) / [f](./f.md)
+<!-- File: test/--root--/f.md -->
+[test](../index.md) / [f](./f.md)
 
 # f
 

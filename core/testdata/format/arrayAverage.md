@@ -1,4 +1,4 @@
-[test](../index.md) / [XArray](./index.md)
+[test](../../index.md) / [XArray](./index.md)
 
 # XArray
 

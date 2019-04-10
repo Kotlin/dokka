@@ -1,4 +1,4 @@
-[test](index.md) / [tt](./tt.md)
+[test](../index.md) / [tt](./tt.md)
 
 # tt
 

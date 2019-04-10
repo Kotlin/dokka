@@ -1,4 +1,4 @@
-[test](./index.md)
+[test](../index.md)
 
 ## Package &lt;root&gt;
 

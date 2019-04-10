@@ -1,4 +1,4 @@
-[test](../index.md) / [MyException](./index.md)
+[test](../../index.md) / [MyException](./index.md)
 
 # MyException
 

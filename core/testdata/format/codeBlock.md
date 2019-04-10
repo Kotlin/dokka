@@ -1,5 +1,5 @@
-<!-- File: test/-throws/index.md -->
-[test](../index.md) / [Throws](./index.md)
+<!-- File: test/--root--/-throws/index.md -->
+[test](../../index.md) / [Throws](./index.md)
 
 # Throws
 
@@ -18,8 +18,8 @@ fun readFile(name: String): String {...}
 
 | [&lt;init&gt;](-init-.md) | `Throws()`<br>This annotation indicates what exceptions should be declared by a function when compiled to a JVM method. |
 
-<!-- File: test/-it-does-some-obfuscated-thing/index.md -->
-[test](../index.md) / [ItDoesSomeObfuscatedThing](./index.md)
+<!-- File: test/--root--/-it-does-some-obfuscated-thing/index.md -->
+[test](../../index.md) / [ItDoesSomeObfuscatedThing](./index.md)
 
 # ItDoesSomeObfuscatedThing
 

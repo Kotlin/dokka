@@ -1,4 +1,4 @@
-[test](../index.md) / [fancy](./index.md)
+[test](../../index.md) / [fancy](./index.md)
 
 # fancy
 

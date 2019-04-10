@@ -1,4 +1,4 @@
-[test](../index.md) / [kotlin.coroutines.SuspendFunction0](./index.md)
+[test](../../index.md) / [kotlin.coroutines.SuspendFunction0](./index.md)
 
 ### Extensions for kotlin.coroutines.SuspendFunction0
 

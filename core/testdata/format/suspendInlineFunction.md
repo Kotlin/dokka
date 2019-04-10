@@ -1,8 +1,8 @@
-[test](index.md) / [foo](./foo.md)
+[test](../index.md) / [foo](./foo.md)
 
 # foo
 
-`suspend inline fun foo(): Int`
+`suspend fun foo(): Int`
 
 returns 1
 

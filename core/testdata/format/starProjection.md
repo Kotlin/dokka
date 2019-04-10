@@ -1,4 +1,4 @@
-[test](../index.md) / [kotlin.collections.Iterable](./index.md)
+[test](../../index.md) / [kotlin.collections.Iterable](./index.md)
 
 ### Extensions for kotlin.collections.Iterable
 

@@ -1,4 +1,4 @@
-[test](../index.md) / [kotlin.Array](./index.md)
+[test](../../index.md) / [kotlin.Array](./index.md)
 
 ### Extensions for kotlin.Array
 

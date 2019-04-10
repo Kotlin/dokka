@@ -1,4 +1,4 @@
-[test](../index.md) / [Klass](./index.md)
+[test](../../index.md) / [Klass](./index.md)
 
 # Klass
 

@@ -1,4 +1,4 @@
-[test](index.md) / [generic](./generic.md)
+[test](../index.md) / [generic](./generic.md)
 
 # generic
 
