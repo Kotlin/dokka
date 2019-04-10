@@ -251,24 +251,6 @@ open class DokkaTask : DefaultTask() {
         return sourceRoots + (sourceDirs?.toSourceRoots() ?: emptyList())
     }
 
-//    @Classpath
-//    fun getInputClasspath(): FileCollection {
-//        val (classpathFileCollection) = extractClasspathAndSourceRootsFromKotlinTasks()
-//        return project.files(classpath) + classpathFileCollection
-//    }
-
-//    @InputFiles
-//    fun getInputFiles(): FileCollection {
-//        val (_, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
-//        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
-//                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) }) +
-//                project.files(includes) +
-//                project.files(samples.filterNotNull().map { project.fileTree(it) })
-//    }
-
-//    @OutputDirectory
-//    fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
-
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
         const val ABSTRACT_KOTLIN_COMPILE = "org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile"
