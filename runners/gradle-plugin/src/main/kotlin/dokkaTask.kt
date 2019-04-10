@@ -199,16 +199,19 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
+            val passConfigurationList =
+                ((this.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>) +
+                        (this.extensions.getByName("passConfiguration") as GradlePassConfigurationImpl))
+                            .toList()
+                .map { defaultPassConfiguration(it) }
+
             val configuration = GradleDokkaConfigurationImpl()
             configuration.outputDir = outputDirectory
             configuration.format = outputFormat
             configuration.generateIndexPages = true
             configuration.cacheRoot = cacheRoot
             configuration.impliedPlatforms = impliedPlatforms
-            configuration.passesConfigurations =
-                (this.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>)
-                    .toList()
-                    .map { defaultPassConfiguration(it) }
+            configuration.passesConfigurations = passConfigurationList
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->

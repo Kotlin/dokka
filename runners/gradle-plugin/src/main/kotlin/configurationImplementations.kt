@@ -19,7 +19,7 @@ class GradleSourceRootImpl: DokkaConfiguration.SourceRoot, Serializable{
     override fun toString(): String = path
 }
 
-class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaConfiguration.PassConfiguration {
+open class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaConfiguration.PassConfiguration {
     override var classpath: List<String> = emptyList()
     override var moduleName: String = ""
     override var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = mutableListOf()
