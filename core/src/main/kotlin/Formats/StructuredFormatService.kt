@@ -165,7 +165,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
             }
 
-            is ContentSpecialReference -> wrapInTag(tag = "div class=\"special reference\"", body = {
+            is ContentSpecialReference -> wrapInTag(tag = "aside class=\"note\"", body = {
                 if (!content.isEmpty()) {
                     appendContent(content.children)
                 }

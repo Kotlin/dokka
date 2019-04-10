@@ -197,7 +197,7 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
             }
         }
         is ContentExternalLink -> result.add(SeeExternalLinkTagAdapter(holder, node))
-        is ContentSpecialReference -> surroundWith(module, holder, "<div class=\"special reference\">", "</div>", node, result)
+        is ContentSpecialReference -> surroundWith(module, holder, "<aside class=\"note\">", "</aside>", node, result)
         is ContentCode -> surroundWith(module, holder, "<code>", "</code>", node, result)
         is ContentBlockCode -> surroundWith(module, holder, "<code><pre>", "</pre></code>", node, result)
         is ContentEmpty -> {}

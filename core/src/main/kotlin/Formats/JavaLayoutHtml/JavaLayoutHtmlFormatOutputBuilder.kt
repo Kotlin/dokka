@@ -78,7 +78,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         ?: contentNodesToMarkup(content.children, contextUri)
             }
 
-            is ContentSpecialReference -> div(classes = "special reference") {
+            is ContentSpecialReference -> aside(classes = "note") {
                 contentNodesToMarkup(content.children, contextUri)
             }
 

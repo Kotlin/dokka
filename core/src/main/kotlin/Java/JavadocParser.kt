@@ -324,7 +324,7 @@ class JavadocParser(
         "h6" -> ContentHeading(6)
         "div" -> {
             val divClass = element.attr("class")
-            if (divClass == "special reference") ContentSpecialReference()
+            if (divClass == "special reference" || divClass == "note") ContentSpecialReference()
             else ContentBlock()
         }
         else -> ContentBlock()
