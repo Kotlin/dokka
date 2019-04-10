@@ -54,10 +54,10 @@ open class DokkaTask : DefaultTask() {
     @InputFiles
     var classpath: Iterable<File> = arrayListOf()
 
-//    @Input
-//    var sourceDirs: Iterable<File> = emptyList()
-//    @Input
-//    var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = arrayListOf()
+    @Input
+    var sourceDirs: Iterable<File> = emptyList()
+    @Input
+    var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = arrayListOf()
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
     @Input
@@ -83,18 +83,6 @@ open class DokkaTask : DefaultTask() {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
-//    fun sourceRoot(action: Action<GradleSourceRootImpl>) {
-//        val sourceRoot = GradleSourceRootImpl()
-//        action.execute(sourceRoot)
-//        sourceRoots.add(sourceRoot)
-//    }
-//
-//    fun sourceRoot(closure: Closure<Unit>) {
-//        sourceRoot(Action { sourceRoot ->
-//            closure.delegate = sourceRoot
-//            closure.call()
-//        })
-//    }
 
     fun tryResolveFatJar(project: Project): Set<File> {
         return try {
@@ -185,13 +173,9 @@ open class DokkaTask : DefaultTask() {
         try {
             loadFatJar()
             // TODO: implement extracting source roots from kotlin tasks
-//            val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
+            val (_, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
 
-//            val sourceRoots = collectSourceRoots(sourceDirs, sourceRoots) + tasksSourceRoots.toSourceRoots()
-//            if (sourceRoots.isEmpty()) {
-//                logger.warn("No source directories found: skipping dokka generation")
-//                return
-//            }
+            val sourceRoots = collectSourceRoots(sourceDirs, sourceRoots) + tasksSourceRoots.toSourceRoots()
 
             val bootstrapClass = ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
@@ -199,11 +183,15 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
+            val passConfigurationExtension: GradlePassConfigurationImpl? = this.extensions.findByName("passConfiguration") as GradlePassConfigurationImpl
+            val passConfigurationsContainer by lazy {
+                (this.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>).toList()
+            }
+            passConfigurationExtension?.sourceRoots?.addAll(sourceRoots)
+
             val passConfigurationList =
-                ((this.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>) +
-                        (this.extensions.getByName("passConfiguration") as GradlePassConfigurationImpl))
-                            .toList()
-                .map { defaultPassConfiguration(it) }
+                (passConfigurationExtension?.let {passConfigurationsContainer + it } ?: passConfigurationsContainer)
+                    .map { defaultPassConfiguration(it) }
 
             val configuration = GradleDokkaConfigurationImpl()
             configuration.outputDir = outputDirectory
