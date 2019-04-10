@@ -189,7 +189,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
         td {
-            nodeContent(attr.attributeRef!!, attr)
+            +attr.attributeRef!!.firstSentence()
         }
     }
 
@@ -801,6 +801,52 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         }
 
         return paragraph
+    }
+
+    fun DocumentationNode.firstSentence(): String {
+        val sb = StringBuilder()
+        addContentNodeToStringBuilder(content, sb)
+        return sb.toString().firstSentence()
+    }
+
+    private fun addContentNodesToStringBuilder(content: List<ContentNode>, sb: StringBuilder): Unit =
+        content.forEach { addContentNodeToStringBuilder(it, sb) }
+
+    private fun addContentNodeToStringBuilder(content: ContentNode, sb: StringBuilder) {
+        when (content) {
+            is ContentText -> sb.appendWith(content.text)
+            is ContentSymbol -> sb.appendWith(content.text)
+            is ContentKeyword -> sb.appendWith(content.text)
+            is ContentIdentifier -> sb.appendWith(content.text)
+            is ContentEntity -> sb.appendWith(content.text)
+
+            is ContentHeading -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentStrong -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentStrikethrough -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentEmphasis -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentOrderedList -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentUnorderedList -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentListItem -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentCode -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentBlockSampleCode -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentBlockCode -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentParagraph -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentNodeLink -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentBookmark -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentExternalLink -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentLocalLink -> addContentNodesToStringBuilder(content.children, sb)
+            is ContentSection -> { }
+            is ContentBlock -> addContentNodesToStringBuilder(content.children, sb)
+        }
+    }
+
+    private fun StringBuilder.appendWith(text: String, delimiter: String = " ") {
+        if (this.length == 0) {
+            append(text)
+        } else {
+            append(delimiter)
+            append(text)
+        }
     }
 }
 
