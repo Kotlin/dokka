@@ -183,9 +183,10 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
-            val passConfigurationExtension: GradlePassConfigurationImpl? = this.extensions.findByName("passConfiguration") as GradlePassConfigurationImpl
+            val passConfigurationExtension: GradlePassConfigurationImpl? = this.extensions.findByName(
+                CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl?
             val passConfigurationsContainer by lazy {
-                (this.extensions.getByName("passConfigurations") as Iterable<GradlePassConfigurationImpl>).toList()
+                (this.extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
             }
             passConfigurationExtension?.sourceRoots?.addAll(sourceRoots)
 

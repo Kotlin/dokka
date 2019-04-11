@@ -6,6 +6,9 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
+internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
+internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
+
 open class DokkaPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -18,8 +21,8 @@ open class DokkaPlugin : Plugin<Project> {
         }
         project.tasks.withType(DokkaTask::class.java) { task ->
             val passConfiguration = project.container(GradlePassConfigurationImpl::class.java)
-            task.extensions.add("multiplatform", passConfiguration)
-            task.extensions.create("configuration", GradlePassConfigurationImpl::class.java, "")
+            task.extensions.add(MULTIPLATFORM_EXTENSION_NAME, passConfiguration)
+            task.extensions.create(CONFIGURATION_EXTENSION_NAME, GradlePassConfigurationImpl::class.java, "")
         }
     }
 }
