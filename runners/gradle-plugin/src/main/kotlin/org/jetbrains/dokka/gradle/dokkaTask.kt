@@ -15,7 +15,6 @@ import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
-import org.jetbrains.dokka.automagicTypedProxy
 import java.io.File
 import java.io.Serializable
 import java.net.URLClassLoader
@@ -179,7 +178,8 @@ open class DokkaTask : DefaultTask() {
 
             val bootstrapClass = ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
-            val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
+            val bootstrapProxy: DokkaBootstrap =
+                automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 

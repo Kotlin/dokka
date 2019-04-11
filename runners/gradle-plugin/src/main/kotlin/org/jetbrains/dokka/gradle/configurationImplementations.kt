@@ -5,7 +5,6 @@ import org.gradle.api.Action
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import java.io.File
 import java.io.Serializable
 import java.net.URL
@@ -93,16 +92,6 @@ class GradleSourceLinkDefinitionImpl : DokkaConfiguration.SourceLinkDefinition {
     override var path: String = ""
     override var url: String = ""
     override var lineSuffix: String? = null
-
-    companion object {
-        fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
-            val (path, urlAndLine) = srcLink.split('=')
-            return SourceLinkDefinitionImpl(
-                File(path).canonicalPath,
-                urlAndLine.substringBefore("#"),
-                urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
-        }
-    }
 }
 
 class GradleExternalDocumentationLinkImpl : DokkaConfiguration.ExternalDocumentationLink {

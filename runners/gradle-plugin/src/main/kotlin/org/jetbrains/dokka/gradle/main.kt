@@ -6,6 +6,13 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
+/*
+* Those are extension names, which are used in a build.gradle file as closure names:
+* dokka {
+*     configuration { <- extension name
+*     }
+* }
+* */
 internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
 internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
 
