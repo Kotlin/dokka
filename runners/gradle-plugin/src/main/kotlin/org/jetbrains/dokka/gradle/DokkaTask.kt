@@ -13,6 +13,7 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import java.io.File
@@ -44,10 +45,13 @@ open class DokkaTask : DefaultTask() {
 
     @Input
     var moduleName: String = ""
+
     @Input
     var outputFormat: String = "html"
+
     @OutputDirectory
     var outputDirectory: String = ""
+
     var dokkaRuntime: Configuration? = null
 
     @InputFiles
@@ -55,17 +59,23 @@ open class DokkaTask : DefaultTask() {
 
     @Input
     var sourceDirs: Iterable<File> = emptyList()
+
     @Input
     var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = arrayListOf()
+
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
+
     @Input
     var impliedPlatforms: MutableList<String> = arrayListOf()
+
     @Optional
     @Input
     var cacheRoot: String? = null
+
     @Input
     var collectInheritedExtensionsFromLibraries: Boolean = false
+
     @get:Internal
     internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
 
@@ -158,7 +168,7 @@ open class DokkaTask : DefaultTask() {
 
     private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
 
-    protected open fun collectSuppressedFiles(sourceRoots: List<DokkaConfiguration.SourceRoot>): List<String> = emptyList()
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
 
     @TaskAction
     fun generate() {
@@ -174,7 +184,7 @@ open class DokkaTask : DefaultTask() {
             // TODO: implement extracting source roots from kotlin tasks
             val (_, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
 
-            val sourceRoots = collectSourceRoots(sourceDirs, sourceRoots) + tasksSourceRoots.toSourceRoots()
+            val sourceRoots = collectSourceRoots() + tasksSourceRoots.toSourceRoots()
 
             val bootstrapClass = ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
@@ -183,10 +193,10 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
-            val passConfigurationExtension: GradlePassConfigurationImpl? = this.extensions.findByName(
+            val passConfigurationExtension: GradlePassConfigurationImpl? = extensions.findByName(
                 CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl?
             val passConfigurationsContainer by lazy {
-                (this.extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
+                (extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
             }
             passConfigurationExtension?.sourceRoots?.addAll(sourceRoots)
 
@@ -221,7 +231,7 @@ open class DokkaTask : DefaultTask() {
     }
 
     private fun defaultPassConfiguration(passConfig: GradlePassConfigurationImpl): GradlePassConfigurationImpl{
-        val (tasksClasspath, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
+        val (tasksClasspath, _) = kotlinCompileBasedClasspathAndSourceRoots
 
         val fullClasspath = tasksClasspath + classpath
         passConfig.moduleName = moduleName
@@ -235,7 +245,7 @@ open class DokkaTask : DefaultTask() {
         return passConfig
     }
 
-    private fun collectSourceRoots(sourceDirs: Iterable<File>, sourceRoots: List<DokkaConfiguration.SourceRoot>): List<DokkaConfiguration.SourceRoot> {
+    private fun collectSourceRoots(): List<DokkaConfiguration.SourceRoot> {
         val sourceDirs = when {
             sourceDirs.any() -> {
                 logger.info("Dokka: Taking source directories provided by the user")

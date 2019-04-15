@@ -7,9 +7,10 @@ import java.io.InputStream
 import java.util.*
 
 /*
-* Those are extension names, which are used in a build.gradle file as closure names:
+* Extension names, which are used in a build.gradle file as closure names:
 * dokka {
-*     configuration { <- extension name
+*     configuration { // extension name
+*
 *     }
 * }
 * */

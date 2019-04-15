@@ -26,8 +26,8 @@ inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader,
  */
 fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
         Proxy.newProxyInstance(
-                targetClassLoader,
-                arrayOf(targetType),
+            targetClassLoader,
+            arrayOf(targetType),
             DelegatedInvocationHandler(delegate)
         )
 

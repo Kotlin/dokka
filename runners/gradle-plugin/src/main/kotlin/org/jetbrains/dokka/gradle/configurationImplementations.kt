@@ -4,12 +4,13 @@ import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.Platform
 import java.io.File
 import java.io.Serializable
 import java.net.URL
 
-class GradleSourceRootImpl: DokkaConfiguration.SourceRoot, Serializable{
+class GradleSourceRootImpl: SourceRoot, Serializable {
     override var path: String = ""
         set(value) {
             field = File(value).absolutePath
@@ -18,10 +19,10 @@ class GradleSourceRootImpl: DokkaConfiguration.SourceRoot, Serializable{
     override fun toString(): String = path
 }
 
-open class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaConfiguration.PassConfiguration {
+open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
     override var classpath: List<String> = emptyList()
     override var moduleName: String = ""
-    override var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = mutableListOf()
+    override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
     override var samples: List<String> = emptyList()
     override var includes: List<String> = emptyList()
     override var includeNonPublic: Boolean = false
@@ -30,9 +31,9 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaC
     override var skipEmptyPackages: Boolean = false
     override var skipDeprecated: Boolean = false
     override var jdkVersion: Int = 6
-    override var sourceLinks: MutableList<DokkaConfiguration.SourceLinkDefinition> = mutableListOf()
-    override var perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> = mutableListOf()
-    override var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
+    override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
+    override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
+    override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
     override var languageVersion: String? = null
     override var apiVersion: String? = null
     override var noStdlibLink: Boolean = false
@@ -43,58 +44,58 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): DokkaC
     override var targets: List<String> = listOf("JVM")
     override var sinceKotlin: String = "1.0"
 
-    fun sourceRoot(c: Closure<Unit>){
+    fun sourceRoot(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradleSourceRootImpl())
         sourceRoots.add(configured)
     }
 
-    fun sourceRoot(action: Action<in GradleSourceRootImpl>){
+    fun sourceRoot(action: Action<in GradleSourceRootImpl>) {
         val sourceRoot = GradleSourceRootImpl()
         action.execute(sourceRoot)
         sourceRoots.add(sourceRoot)
     }
 
-    fun sourceLink(c: Closure<Unit>){
+    fun sourceLink(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradleSourceLinkDefinitionImpl())
         sourceLinks.add(configured)
     }
 
-    fun sourceLink(action: Action<in GradleSourceLinkDefinitionImpl>){
+    fun sourceLink(action: Action<in GradleSourceLinkDefinitionImpl>) {
         val sourceLink = GradleSourceLinkDefinitionImpl()
         action.execute(sourceLink)
         sourceLinks.add(sourceLink)
     }
 
-    fun perPackageOption(c: Closure<Unit>){
+    fun perPackageOption(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradlePackageOptionsImpl())
         perPackageOptions.add(configured)
     }
 
-    fun perPackageOption(action: Action<in GradlePackageOptionsImpl>){
+    fun perPackageOption(action: Action<in GradlePackageOptionsImpl>) {
         val option = GradlePackageOptionsImpl()
         action.execute(option)
         perPackageOptions.add(option)
     }
 
-    fun externalDocumentationLink(c: Closure<Unit>){
+    fun externalDocumentationLink(c: Closure<Unit>) {
         val link = ConfigureUtil.configure(c, GradleExternalDocumentationLinkImpl())
         externalDocumentationLinks.add(link)
     }
 
-    fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkImpl>){
+    fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkImpl>) {
         val link = GradleExternalDocumentationLinkImpl()
         action.execute(link)
         externalDocumentationLinks.add(link)
     }
 }
 
-class GradleSourceLinkDefinitionImpl : DokkaConfiguration.SourceLinkDefinition {
+class GradleSourceLinkDefinitionImpl : SourceLinkDefinition {
     override var path: String = ""
     override var url: String = ""
     override var lineSuffix: String? = null
 }
 
-class GradleExternalDocumentationLinkImpl : DokkaConfiguration.ExternalDocumentationLink {
+class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink {
     override var url: URL = URL("")
     override var packageListUrl: URL = URL("")
 }
@@ -108,7 +109,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
 }
 
-class GradlePackageOptionsImpl: DokkaConfiguration.PackageOptions {
+class GradlePackageOptionsImpl: PackageOptions {
     override var prefix: String = ""
     override val includeNonPublic: Boolean = false
     override val reportUndocumented: Boolean = true
