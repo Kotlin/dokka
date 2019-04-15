@@ -296,7 +296,6 @@ class DocumentationBuilder
 
     fun DocumentationNode.appendModifiers(descriptor: DeclarationDescriptor) {
         val psi = (descriptor as DeclarationDescriptorWithSource).source.getPsi() as? KtModifierListOwner ?: return
-        appendInline(descriptor, psi)
         KtTokens.MODIFIER_KEYWORDS_ARRAY.filter {
             it !in knownModifiers
         }.sortedBy {
@@ -306,6 +305,7 @@ class DocumentationBuilder
                 appendTextNode(it.value, NodeKind.Modifier)
             }
         }
+        appendInline(descriptor, psi)
     }
 
     fun DocumentationNode.appendDefaultPlatforms(descriptor: DeclarationDescriptor) {
