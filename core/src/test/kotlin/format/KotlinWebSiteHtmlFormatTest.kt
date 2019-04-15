@@ -1,8 +1,10 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore
 abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
     val defaultModelConfig = ModelConfig(analysisPlatform = analysisPlatform)
     override val formatService = KotlinWebsiteHtmlFormatService(fileGenerator, KotlinLanguageService(), listOf(), EmptyHtmlTemplateService)
@@ -110,7 +112,11 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
     }
 
 }
-
+@Ignore
 class JsKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.js)
+
+@Ignore
 class JvmKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.jvm)
+
+@Ignore
 class CommonKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.common)
