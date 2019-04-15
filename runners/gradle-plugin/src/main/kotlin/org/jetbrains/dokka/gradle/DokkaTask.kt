@@ -201,7 +201,7 @@ open class DokkaTask : DefaultTask() {
             passConfigurationExtension?.sourceRoots?.addAll(sourceRoots)
 
             val passConfigurationList =
-                (passConfigurationExtension?.let {passConfigurationsContainer + it } ?: passConfigurationsContainer)
+                (passConfigurationExtension?.let { listOf(it) } ?: passConfigurationsContainer)
                     .map { defaultPassConfiguration(it) }
 
             val configuration = GradleDokkaConfigurationImpl()
