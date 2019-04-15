@@ -1,2 +1,2 @@
-suspend inline fun f() {
+suspend inline fun f(a: () -> String) {
 }

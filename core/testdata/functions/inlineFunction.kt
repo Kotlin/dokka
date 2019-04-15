@@ -1,2 +1,2 @@
-inline fun f() {
+inline fun f(a: () -> String) {
 }
