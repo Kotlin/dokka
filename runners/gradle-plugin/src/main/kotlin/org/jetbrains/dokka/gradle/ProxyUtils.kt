@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.gradle
 
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
@@ -26,9 +26,9 @@ inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader,
  */
 fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
         Proxy.newProxyInstance(
-                targetClassLoader,
-                arrayOf(targetType),
-                DelegatedInvocationHandler(delegate)
+            targetClassLoader,
+            arrayOf(targetType),
+            DelegatedInvocationHandler(delegate)
         )
 
 class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {

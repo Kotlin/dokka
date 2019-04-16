@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
+import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import java.io.File
 
 open class DokkaAndroidPlugin : Plugin<Project> {
