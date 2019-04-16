@@ -831,12 +831,17 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (summarized.platformPlacement == Summarized.PlatformPlacement.Summary) {
                         appendPlatforms(summary.platforms)
                     }
-                    for (signature in summary.signatures) {
+                    summary.signatures.subList(0, summary.signatures.size - 1).forEach {
                         appendSignatures(
-                            signature,
+                            it,
                             summarized.platformPlacement == Summarized.PlatformPlacement.Signature
                         )
+                        appendLine()
                     }
+                    appendSignatures(
+                        summary.signatures.last(),
+                        summarized.platformPlacement == Summarized.PlatformPlacement.Signature
+                    )
                     appendContent(summary.content)
                 }
 
