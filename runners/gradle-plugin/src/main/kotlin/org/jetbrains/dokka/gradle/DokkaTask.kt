@@ -127,7 +127,7 @@ open class DokkaTask : DefaultTask() {
             .forEach { throw IllegalArgumentException("Illegal entry in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE or String, but was $it") }
 
         tasksByPath
-            .filter { it == null || it isNotInstance getAbstractKotlinCompileFor(it) }
+            .filter { it isNotInstance getAbstractKotlinCompileFor(it) }
             .forEach { throw IllegalArgumentException("Illegal task path in kotlinTasks, must be subtype of $ABSTRACT_KOTLIN_COMPILE, but was $it") }
 
 
@@ -193,15 +193,15 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
-            val passConfigurationExtension: GradlePassConfigurationImpl? = extensions.findByName(
-                CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl?
-            val passConfigurationsContainer by lazy {
+            val passConfigurationExtension: GradlePassConfigurationImpl = extensions.findByName(
+                CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
+            val passConfigurationsContainer=
                 (extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
-            }
-            passConfigurationExtension?.sourceRoots?.addAll(sourceRoots)
+
+            passConfigurationExtension.sourceRoots.addAll(sourceRoots)
 
             val passConfigurationList =
-                (passConfigurationExtension?.let { listOf(it) } ?: passConfigurationsContainer)
+                (passConfigurationsContainer + passConfigurationExtension)
                     .map { defaultPassConfiguration(it) }
 
             val configuration = GradleDokkaConfigurationImpl()
