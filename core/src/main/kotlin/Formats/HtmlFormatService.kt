@@ -88,9 +88,7 @@ open class HtmlOutputBuilder(to: StringBuilder,
         to.append("&nbsp;")
     }
 
-    override fun ensureParagraph() {
-
-    }
+    override fun ensureParagraph() {}
 }
 
 open class HtmlFormatService @Inject constructor(generator: NodeLocationAwareGenerator,
@@ -144,7 +142,7 @@ fun formatPageTitle(node: DocumentationNode): String {
     }
 
     val qName = qualifiedNameForPageTitle(node)
-    return qName + " - " + moduleName
+    return "$qName - $moduleName"
 }
 
 private fun qualifiedNameForPageTitle(node: DocumentationNode): String {
