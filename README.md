@@ -53,7 +53,7 @@ dokka {
 
 [Output formats](#output_formats)
 
-The available configuration options are shown below:
+The available configuration options for single platform are shown below:
 
 ```groovy
 dokka {
@@ -74,89 +74,129 @@ dokka {
     samples = ['samples/basic.kt', 'samples/advanced.kt']
     
     jdkVersion = 6 // Used for linking to JDK
+    
+    impliedPlatforms = ["JVM"] // See platforms section of documentation 
 
     // Use default or set to custom path to cache directory
     // to enable package-list caching
     // When set to default, caches stored in $USER_HOME/.cache/dokka
     cacheRoot = 'default' 
     
-    // Use to include or exclude non public members.
-    includeNonPublic = false
-    
-    // Do not output deprecated members. Applies globally, can be overridden by packageOptions
-    skipDeprecated = false 
-   
-    // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-    reportUndocumented = true 
-    
-    skipEmptyPackages = true // Do not create index pages for empty packages
- 
-    impliedPlatforms = ["JVM"] // See platforms section of documentation 
-    
-    // Manual adding files to classpath
-    // This property not overrides classpath collected from kotlinTasks but appends to it
-    classpath = [new File("$buildDir/other.jar")]
-
-    // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
-    // Short form sourceRoots
-    sourceDirs = files('src/main/kotlin')
-    
-    // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
-    // Full form sourceRoot declaration
-    // Repeat for multiple sourceRoots
-    sourceRoot {
-        // Path to source root
-        path = "src" 
-        // See platforms section of documentation 
-        platforms = ["JVM"] 
-    }
-    
-    // Specifies the location of the project source code on the Web.
-    // If provided, Dokka generates "source" links for each declaration.
-    // Repeat for multiple mappings
-    linkMapping {
-        // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
-        dir = "src/main/kotlin" // or simply "./"
-         
-        // URL showing where the source code can be accessed through the web browser
-        url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" //remove src/main/kotlin if you use "./" above
-        
-        // Suffix which is used to append the line number to the URL. Use #L for GitHub
-        suffix = "#L"
-    }
-    
-    // Disable linking to online kotlin-stdlib documentation
-    noStdlibLink = false
-    
-    // Disable linking to online JDK documentation
-    noJdkLink = false 
-    
-    // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
-    // Repeat for multiple links
-    externalDocumentationLink {
-        // Root URL of the generated documentation to link with. The trailing slash is required!
-        url = new URL("https://example.com/docs/")
-        
-        // If package-list file located in non-standard location
-        // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
-    }
-    
-    // Allows to customize documentation generation options on a per-package basis
-    // Repeat for multiple packageOptions
-    packageOptions {
-        prefix = "kotlin" // will match kotlin and all sub-packages of it
-        // All options are optional, default values are below:
-        skipDeprecated = false
-        reportUndocumented = true // Emit warnings about not documented members 
+    configuration {
+        // Use to include or exclude non public members.
         includeNonPublic = false
-    }
-    // Suppress a package
-    packageOptions {
-        prefix = "kotlin.internal" // will match kotlin.internal and all sub-packages of it
-        suppress = true
+        
+        // Do not output deprecated members. Applies globally, can be overridden by packageOptions
+        skipDeprecated = false 
+       
+        // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+        reportUndocumented = true 
+        
+        skipEmptyPackages = true // Do not create index pages for empty packages
+     
+        targets = ["JVM"] // See platforms section of documentation 
+
+        // Manual adding files to classpath
+        // This property not overrides classpath collected from kotlinTasks but appends to it
+        classpath = [new File("$buildDir/other.jar")]
+    
+        // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
+        // Short form sourceRoots
+        sourceDirs = files('src/main/kotlin')
+        
+        // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
+        // Full form sourceRoot declaration
+        // Repeat for multiple sourceRoots
+        sourceRoot {
+            // Path to source root
+            path = "src" 
+        }
+        
+        // Specifies the location of the project source code on the Web.
+        // If provided, Dokka generates "source" links for each declaration.
+        // Repeat for multiple mappings
+        sourceLink {
+            // Unix based directory relative path to the root of the project (where you execute gradle respectively). 
+            path = "src/main/kotlin" // or simply "./"
+             
+            // URL showing where the source code can be accessed through the web browser
+            url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" //remove src/main/kotlin if you use "./" above
+            
+            // Suffix which is used to append the line number to the URL. Use #L for GitHub
+            lineSuffix = "#L"
+        }
+        
+        // Disable linking to online kotlin-stdlib documentation
+        noStdlibLink = false
+        
+        // Disable linking to online JDK documentation
+        noJdkLink = false 
+        
+        // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
+        // Repeat for multiple links
+        externalDocumentationLink {
+            // Root URL of the generated documentation to link with. The trailing slash is required!
+            url = new URL("https://example.com/docs/")
+            
+            // If package-list file located in non-standard location
+            // packageListUrl = new URL("file:///home/user/localdocs/package-list") 
+        }
+        
+        // Allows to customize documentation generation options on a per-package basis
+        // Repeat for multiple packageOptions
+        perPackageOption {
+            prefix = "kotlin" // will match kotlin and all sub-packages of it
+            // All options are optional, default values are below:
+            skipDeprecated = false
+            reportUndocumented = true // Emit warnings about not documented members 
+            includeNonPublic = false
+        }
+        // Suppress a package
+        perPackageOption {
+            prefix = "kotlin.internal" // will match kotlin.internal and all sub-packages of it
+            suppress = true
+        }
     }
 }
 ```
+
+The available configuration options for multiplatform are like those for single platform, but `configuration` block is 
+replaced by `multiplatform` which has inner blocks for each platform. You also have to explicitly empty `kotlinTasks` block:
+
+```groovy
+dokka {
+    outputDirectory = "$buildDir/dokka"
+    outputFormat = "html"
+
+    kotlinTasks {
+        []
+    }
+
+    multiplatform {
+        js { // the name here is arbitrary
+            targets = ["JS"]
+            sourceRoot {
+                path = kotlin.sourceSets.jsMain.kotlin.srcDirs[0]
+            }
+            sourceRoot {
+                path = kotlin.sourceSets.commonMain.kotlin.srcDirs[0]
+            }
+        }
+
+        jvm { // the name here is arbitrary
+            targets = ["JVM"]
+            sourceRoot {
+                path = kotlin.sourceSets.jvmMain.kotlin.srcDirs[0]
+            }
+            sourceRoot {
+                path = kotlin.sourceSets.commonMain.kotlin.srcDirs[0]
+            }
+        }
+    }
+}
+
+```
+
 
 To generate the documentation, use the `dokka` Gradle task:
 
