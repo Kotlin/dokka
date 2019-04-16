@@ -195,13 +195,13 @@ open class DokkaTask : DefaultTask() {
 
             val passConfigurationExtension: GradlePassConfigurationImpl = extensions.findByName(
                 CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
-            val passConfigurationsContainer=
+            val passConfigurationsContainer =
                 (extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
 
             passConfigurationExtension.sourceRoots.addAll(sourceRoots)
 
             val passConfigurationList =
-                (passConfigurationsContainer + passConfigurationExtension)
+                (if (passConfigurationsContainer.isEmpty()) listOf(passConfigurationExtension) else passConfigurationsContainer)
                     .map { defaultPassConfiguration(it) }
 
             val configuration = GradleDokkaConfigurationImpl()
