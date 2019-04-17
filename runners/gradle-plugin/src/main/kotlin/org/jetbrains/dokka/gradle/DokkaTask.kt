@@ -230,7 +230,7 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    private fun defaultPassConfiguration(passConfig: GradlePassConfigurationImpl): GradlePassConfigurationImpl{
+    private fun defaultPassConfiguration(passConfig: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
         val (tasksClasspath, _) = kotlinCompileBasedClasspathAndSourceRoots
 
         val fullClasspath = tasksClasspath + classpath

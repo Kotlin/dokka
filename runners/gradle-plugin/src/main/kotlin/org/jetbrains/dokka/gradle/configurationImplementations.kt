@@ -41,7 +41,7 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     override var suppressedFiles: List<String> = emptyList()
     override var collectInheritedExtensionsFromLibraries: Boolean = false
     override var analysisPlatform: Platform = Platform.DEFAULT
-    override var targets: List<String> = listOf("JVM")
+    override var targets: List<String> = emptyList()
     override var sinceKotlin: String = "1.0"
 
     fun sourceRoot(c: Closure<Unit>) {
