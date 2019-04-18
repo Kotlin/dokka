@@ -1,10 +1,8 @@
-[test](../index.md) / [Since1.1](./index.md)
+[test](../../index.md) / [Since1.1](./index.md)
 
 # Since1.1
 
 `class Since1.1`
-
-**Platform and version requirements:** Kotlin 1.1
 
 Useful
 
