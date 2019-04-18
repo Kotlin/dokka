@@ -1,8 +1,6 @@
-[test](./index.md)
+[test](../index.md)
 
 ## Package &lt;root&gt;
-
-**Platform and version requirements:** Kotlin 1.1+
 
 ### Types
 
