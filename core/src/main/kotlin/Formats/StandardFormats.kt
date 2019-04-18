@@ -31,17 +31,6 @@ class HtmlFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponen
 
 class HtmlAsJavaFormatDescriptor : HtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsJava
 
-class KotlinWebsiteFormatDescriptor : KotlinFormatDescriptorBase() {
-    override val formatServiceClass = KotlinWebsiteFormatService::class
-    override val outlineServiceClass = YamlOutlineService::class
-}
-
-class KotlinWebsiteFormatRunnableSamplesDescriptor : KotlinFormatDescriptorBase() {
-    override val formatServiceClass = KotlinWebsiteRunnableSamplesFormatService::class
-    override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
-    override val outlineServiceClass = YamlOutlineService::class
-}
-
 class KotlinWebsiteHtmlFormatDescriptor : KotlinFormatDescriptorBase() {
     override val formatServiceClass = KotlinWebsiteHtmlFormatService::class
     override val sampleProcessingService = KotlinWebsiteSampleProcessingService::class
