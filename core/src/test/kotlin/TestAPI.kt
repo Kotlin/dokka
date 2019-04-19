@@ -20,18 +20,19 @@ import org.jetbrains.kotlin.utils.PathUtil
 import org.junit.Assert
 import org.junit.Assert.fail
 import java.io.File
+
 data class ModelConfig(
-    val roots: Array<ContentRoot> = arrayOf(),
-    val withJdk: Boolean = false,
-    val withKotlinRuntime: Boolean = false,
-    val format: String = "html",
-    val includeNonPublic: Boolean = true,
-    val perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
-    val analysisPlatform: Platform = Platform.DEFAULT,
-    val defaultPlatforms: List<String> = emptyList(),
-    val noStdlibLink: Boolean = true,
-    val collectInheritedExtensionsFromLibraries: Boolean = false,
-    val sourceLinks: List<SourceLinkDefinition> = emptyList()
+        val roots: Array<ContentRoot> = arrayOf(),
+        val withJdk: Boolean = false,
+        val withKotlinRuntime: Boolean = false,
+        val format: String = "html",
+        val includeNonPublic: Boolean = true,
+        val perPackageOptions: List<DokkaConfiguration.PackageOptions> = emptyList(),
+        val analysisPlatform: Platform = Platform.DEFAULT,
+        val defaultPlatforms: List<String> = emptyList(),
+        val noStdlibLink: Boolean = true,
+        val collectInheritedExtensionsFromLibraries: Boolean = false,
+        val sourceLinks: List<SourceLinkDefinition> = emptyList()
 )
 
 fun verifyModel(modelConfig: ModelConfig,
@@ -39,23 +40,23 @@ fun verifyModel(modelConfig: ModelConfig,
     val documentation = DocumentationModule("test")
 
     val passConfiguration = PassConfigurationImpl (
-        includeNonPublic = modelConfig.includeNonPublic,
-        skipEmptyPackages = false,
-        includeRootPackage = true,
-        sourceLinks = modelConfig.sourceLinks,
-        perPackageOptions = modelConfig.perPackageOptions,
-        noStdlibLink = modelConfig.noStdlibLink,
-        noJdkLink = false,
-        languageVersion = null,
-        apiVersion = null,
-        collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
+            includeNonPublic = modelConfig.includeNonPublic,
+            skipEmptyPackages = false,
+            includeRootPackage = true,
+            sourceLinks = modelConfig.sourceLinks,
+            perPackageOptions = modelConfig.perPackageOptions,
+            noStdlibLink = modelConfig.noStdlibLink,
+            noJdkLink = false,
+            languageVersion = null,
+            apiVersion = null,
+            collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
     )
     val configuration = DokkaConfigurationImpl(
-        outputDir = "",
-        format = modelConfig.format,
-        generateIndexPages = false,
-        cacheRoot = "default",
-        passesConfigurations = listOf(passConfiguration)
+            outputDir = "",
+            format = modelConfig.format,
+            generateIndexPages = false,
+            cacheRoot = "default",
+            passesConfigurations = listOf(passConfiguration)
     )
 
     appendDocumentation(documentation, configuration, passConfiguration, modelConfig)
@@ -103,14 +104,15 @@ fun appendDocumentation(documentation: DocumentationModule,
                 val kotlinStrictfpRoot = PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
                 addClasspath(File(kotlinStrictfpRoot))
             }
-            // TODO: Fix concrete path to correct gradle path providing
             if (analysisPlatform == Platform.js) {
-                addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-jslib.jar"))
-                addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-stdlib-js.jar"))
-                addClasspath(File("/home/jetbrains/.local/share/JetBrains/Toolbox/apps/IDEA-U/ch-0/181.5281.24/plugins/Kotlin/kotlinc/lib/kotlin-stdlib-js-sources.jar"))
-                }
+                val kotlinStdlibJsRoot = PathManager.getResourceRoot(Any::class.java, "/kotlin/jquery")
+                addClasspath(File(kotlinStdlibJsRoot))
+            }
+
             if (analysisPlatform == Platform.common) {
-                addClasspath(File("/home/jetbrains/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.51/e4a9d4b13ab19ed1e6531fce6df98e8cfa7f7301/kotlin-stdlib-common-1.2.51.jar"))
+                // TODO: Feels hacky
+                val kotlinStdlibCommonRoot = ClassLoader.getSystemResource("kotlin/UInt.kotlin_metadata")
+                addClasspath(File(kotlinStdlibCommonRoot.file.replace("file:", "").replaceAfter(".jar", "")))
             }
         }
         addRoots(modelConfig.roots.toList())
@@ -122,18 +124,18 @@ fun appendDocumentation(documentation: DocumentationModule,
     }
 
     val globalInjector = Guice.createInjector(
-        DokkaRunModule(dokkaConfiguration)
+            DokkaRunModule(dokkaConfiguration)
     )
 
     val injector = globalInjector.createChildInjector(
-        DokkaAnalysisModule(
-            environment,
-            dokkaConfiguration,
-            defaultPlatformsProvider,
-            documentation.nodeRefGraph,
-            passConfiguration,
-            DokkaConsoleLogger
-        )
+            DokkaAnalysisModule(
+                    environment,
+                    dokkaConfiguration,
+                    defaultPlatformsProvider,
+                    documentation.nodeRefGraph,
+                    passConfiguration,
+                    DokkaConsoleLogger
+            )
     )
 
     buildDocumentationModule(injector, documentation)
@@ -141,23 +143,23 @@ fun appendDocumentation(documentation: DocumentationModule,
 }
 
 fun checkSourceExistsAndVerifyModel(source: String,
-                        modelConfig: ModelConfig = ModelConfig(),
-                        verifier: (DocumentationModule) -> Unit) {
+                                    modelConfig: ModelConfig = ModelConfig(),
+                                    verifier: (DocumentationModule) -> Unit) {
     require (File(source).exists()) {
         "Cannot find test data file $source"
     }
     verifyModel(
-        ModelConfig(
-            roots = arrayOf(contentRootFromPath(source)),
-            withJdk = modelConfig.withJdk,
-            withKotlinRuntime = modelConfig.withKotlinRuntime,
-            format = modelConfig.format,
-            includeNonPublic = modelConfig.includeNonPublic,
-            sourceLinks = modelConfig.sourceLinks,
-            analysisPlatform = modelConfig.analysisPlatform
-        ),
+            ModelConfig(
+                    roots = arrayOf(contentRootFromPath(source)),
+                    withJdk = modelConfig.withJdk,
+                    withKotlinRuntime = modelConfig.withKotlinRuntime,
+                    format = modelConfig.format,
+                    includeNonPublic = modelConfig.includeNonPublic,
+                    sourceLinks = modelConfig.sourceLinks,
+                    analysisPlatform = modelConfig.analysisPlatform
+            ),
 
-        verifier = verifier
+            verifier = verifier
     )
 }
 
@@ -165,12 +167,12 @@ fun verifyPackageMember(source: String,
                         modelConfig: ModelConfig = ModelConfig(),
                         verifier: (DocumentationNode) -> Unit) {
     checkSourceExistsAndVerifyModel(
-        source,
-        modelConfig = ModelConfig(
-            withJdk = modelConfig.withJdk,
-            withKotlinRuntime = modelConfig.withKotlinRuntime,
-            analysisPlatform = modelConfig.analysisPlatform
-        )
+            source,
+            modelConfig = ModelConfig(
+                    withJdk = modelConfig.withJdk,
+                    withKotlinRuntime = modelConfig.withKotlinRuntime,
+                    analysisPlatform = modelConfig.analysisPlatform
+            )
     ) { model ->
         val pkg = model.members.single()
         verifier(pkg.members.single())
@@ -185,13 +187,13 @@ fun verifyJavaModel(source: String,
         val sourceFile = File(source)
         FileUtil.copy(sourceFile, File(tempDir, sourceFile.name))
         verifyModel(
-            ModelConfig(
-                roots = arrayOf(JavaSourceRoot(tempDir, null)),
-                withJdk = true,
-                withKotlinRuntime = modelConfig.withKotlinRuntime,
-                analysisPlatform = modelConfig.analysisPlatform
-            ),
-            verifier = verifier
+                ModelConfig(
+                        roots = arrayOf(JavaSourceRoot(tempDir, null)),
+                        withJdk = true,
+                        withKotlinRuntime = modelConfig.withKotlinRuntime,
+                        analysisPlatform = modelConfig.analysisPlatform
+                ),
+                verifier = verifier
         )
     }
     finally {
@@ -221,18 +223,18 @@ fun verifyOutput(path: String,
                  modelConfig: ModelConfig = ModelConfig(),
                  outputGenerator: (DocumentationModule, StringBuilder) -> Unit) {
     verifyOutput(
-        ModelConfig(
-            roots = arrayOf(contentRootFromPath(path)) + modelConfig.roots,
-            withJdk = modelConfig.withJdk,
-            withKotlinRuntime = modelConfig.withKotlinRuntime,
-            format = modelConfig.format,
-            includeNonPublic = modelConfig.includeNonPublic,
-            analysisPlatform = modelConfig.analysisPlatform,
-            noStdlibLink = modelConfig.noStdlibLink,
-            collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
+            ModelConfig(
+                    roots = arrayOf(contentRootFromPath(path)) + modelConfig.roots,
+                    withJdk = modelConfig.withJdk,
+                    withKotlinRuntime = modelConfig.withKotlinRuntime,
+                    format = modelConfig.format,
+                    includeNonPublic = modelConfig.includeNonPublic,
+                    analysisPlatform = modelConfig.analysisPlatform,
+                    noStdlibLink = modelConfig.noStdlibLink,
+                    collectInheritedExtensionsFromLibraries = modelConfig.collectInheritedExtensionsFromLibraries
             ),
-        outputExtension,
-        outputGenerator
+            outputExtension,
+            outputGenerator
     )
 }
 

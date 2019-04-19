@@ -48,6 +48,7 @@ dependencies {
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
     implementation "com.google.code.gson:gson:$gson_version"
-
     testCompile ideaRT()
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-js:$bundled_kotlin_compiler_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-common:$bundled_kotlin_compiler_version"
 }
