@@ -287,6 +287,16 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
             }
         }
 
+        summaryNodeGroup(
+            enumValues,
+            header = "Enum values",
+            summaryId = "enumvalues",
+            tableClass = "responsive",
+            headerAsRow = true
+        ) {
+            propertyLikeSummaryRow(it, showSignature = false)
+        }
+
         functions.forEach { (visibility, group) ->
             summaryNodeGroup(
                     group,

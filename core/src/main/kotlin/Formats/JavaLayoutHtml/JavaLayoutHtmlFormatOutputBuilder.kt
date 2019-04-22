@@ -214,10 +214,12 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun TBODY.propertyLikeSummaryRow(node: DocumentationNode) = tr {
-        td {
-            modifiers(node)
-            renderedSignature(node.detail(NodeKind.Type), SUMMARY)
+    protected open fun TBODY.propertyLikeSummaryRow(node: DocumentationNode, showSignature: Boolean = true) = tr {
+        if (showSignature) {
+            td {
+                modifiers(node)
+                renderedSignature(node.detail(NodeKind.Type), SUMMARY)
+            }
         }
         td {
             div {
