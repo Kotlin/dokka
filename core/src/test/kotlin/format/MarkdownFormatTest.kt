@@ -120,6 +120,11 @@ class MarkdownFormatTest: FileGeneratorTestCase() {
         verifyJavaMarkdownNode("javaCodeLiteralTags")
     }
 
+    @Test
+    fun javaSample() {
+        verifyJavaMarkdownNode("javaSample")
+    }
+
     // TODO: FIXME
     @Ignore
     @Test

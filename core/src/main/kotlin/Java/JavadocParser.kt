@@ -14,6 +14,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.io.File
 import java.net.URI
 import java.util.regex.Pattern
 
@@ -283,18 +284,21 @@ class JavadocParser(
         return htmlBuilder.toString().trim()
     }
 
-    private fun convertHtmlNode(node: Node, isCode: Boolean = false): ContentNode? {
-        if (node is TextNode) {
-            if (isCode) { // Fixes b/129762453
+    private fun convertHtmlNode(node: Node, isBlockCode: Boolean = false): ContentNode? {
+        if (isBlockCode) {
+            return if (node is TextNode) { // Fixes b/129762453
                 val codeNode = CodeNode(node.wholeText, "")
-                return ContentText(codeNode.text().removePrefix("#"))
-            } else {
-                return ContentText(node.text().removePrefix("#"))
+                ContentText(codeNode.text().removePrefix("#"))
+            } else { // Fixes b/129857975
+                ContentText(node.toString())
             }
+        }
+        if (node is TextNode) {
+            return ContentText(node.text().removePrefix("#"))
         } else if (node is Element) {
             val childBlock = createBlock(node)
             node.childNodes().forEach {
-                val child = convertHtmlNode(it, isCode = childBlock is ContentBlockCode || childBlock is ContentCode)
+                val child = convertHtmlNode(it, isBlockCode = childBlock is ContentBlockCode)
                 if (child != null) {
                     childBlock.append(child)
                 }
@@ -425,6 +429,17 @@ class JavadocParser(
             // TODO: fix that
             "https://developer.android.com/"
         }
+        "sample" -> {
+            tag.text?.let { tagText ->
+                val (absolutePath, delimiter) = getSampleAnnotationInformation(tagText)
+                val code = retrieveCodeInFile(absolutePath, delimiter)
+                return if (code != null && code.isNotEmpty()) {
+                    "<pre is-upgraded>$code</pre>"
+                } else {
+                    ""
+                }
+            }
+        }
 
         // Ignore the @usesMathJax tag
         "usesMathJax" -> ""
@@ -553,4 +568,79 @@ class JavadocParser(
         return null
     }
 
+    /**
+     * Returns information inside @sample
+     *
+     * Component1 is the absolute path to the file
+     * Component2 is the delimiter if exists in the file
+     */
+    private fun getSampleAnnotationInformation(tagText: String): Pair<String, String> {
+        val pathContent = tagText
+            .trim { it == '{' || it == '}' }
+            .removePrefix("@sample ")
+
+        val formattedPath = pathContent.substringBefore(" ").trim()
+        val potentialDelimiter = pathContent.substringAfterLast(" ").trim()
+
+        val delimiter = if (potentialDelimiter == formattedPath) "" else potentialDelimiter
+        val path = "samples/$formattedPath"
+
+        return Pair(path, delimiter)
+    }
+
+    /**
+     * Retrieves the code inside a file.
+     *
+     * If betweenTag is not empty, it retrieves the code between
+     * BEGIN_INCLUDE($betweenTag) and END_INCLUDE($betweenTag) comments.
+     *
+     * Also, the method will trim every line with the number of spaces in the first line
+     */
+    private fun retrieveCodeInFile(path: String, betweenTag: String = "") = StringBuilder().apply {
+            try {
+                if (betweenTag.isEmpty()) {
+                    appendContent(path)
+                } else {
+                    appendContentBetweenIncludes(path, betweenTag)
+                }
+            } catch (e: java.lang.Exception) {
+                logger.error("No file found when processing Java @sample. Path to sample: $path")
+            }
+        }
+
+    private fun StringBuilder.appendContent(path: String) {
+        val spaces = InitialSpaceIndent()
+        File(path).forEachLine {
+            appendWithoutInitialIndent(it, spaces)
+        }
+    }
+
+    private fun StringBuilder.appendContentBetweenIncludes(path: String, includeTag: String) {
+        var shouldAppend = false
+        val beginning = "BEGIN_INCLUDE($includeTag)"
+        val end = "END_INCLUDE($includeTag)"
+        val spaces = InitialSpaceIndent()
+        File(path).forEachLine {
+            if (shouldAppend) {
+                if (it.contains(end)) {
+                    shouldAppend = false
+                } else {
+                    appendWithoutInitialIndent(it, spaces)
+                }
+            } else {
+                if (it.contains(beginning)) shouldAppend = true
+            }
+        }
+    }
+
+    private fun StringBuilder.appendWithoutInitialIndent(it: String, spaces: InitialSpaceIndent) {
+        if (spaces.value == -1) {
+            spaces.value = (it.length - it.trimStart().length).coerceAtLeast(0)
+            appendln(it)
+        } else {
+            appendln(if (it.isBlank()) it else it.substring(spaces.value, it.length))
+        }
+    }
+
+    private data class InitialSpaceIndent(var value: Int = -1)
 }

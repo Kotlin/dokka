@@ -98,3 +98,5 @@ local.properties
 android.local.properties
 
 !runners/gradle-integration-tests/testData/basic/classDir/**/*.class
+
+/samples
