@@ -5,8 +5,10 @@ import com.google.inject.name.Named
 import kotlinx.html.*
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Utilities.firstSentence
+import org.w3c.dom.html.HTMLElement
 import java.lang.Math.max
 import java.net.URI
+import java.util.Collections.emptyMap
 import kotlin.reflect.KClass
 
 /**
@@ -429,12 +431,8 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         table(classes = tableClass) {
             id = summaryId
             tbody {
-            if (headerAsRow)
-                tr {
-                    th {
-                        attributes["colSpan"] = "2"
-                        +header
-                    }
+                if (headerAsRow) {
+                    developerHeading(header, summaryId)
                 }
                 nodes.forEach { node ->
                     row(node)
@@ -547,11 +545,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
         table(classes = tableClass) {
             attributes["id"] = tableId
             tbody {
-                tr {
-                    th {
-                        +header
-                    }
-                }
+                developerHeading(header)
                 superClasses.forEach { (superClass, members) ->
                     tr(classes = "api apilevel-${superClass.apiLevel.name}") {
                         td {
@@ -860,6 +854,29 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
     }
 }
 
+fun TBODY.developerHeading(
+    header: String,
+    summaryId: String? = null
+) {
+    tr {
+        th {
+            attributes["colSpan"] = "2"
+            dheading {
+                attributes["ds-is"] = "heading"
+                attributes["text"] = header
+                attributes["id"] = summaryId ?: header.replace("\\s".toRegex(), "-").toLowerCase()
+                attributes["level"] = "h3"
+                attributes["toc"] = ""
+                attributes["class"] = ""
+                h3 {
+                    attributes["is-upgraded"] = ""
+                    +header
+                }
+            }
+        }
+    }
+}
+
 class DacFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultAnalysisComponentServices by KotlinAsKotlin {
     override val templateServiceClass: KClass<out JavaLayoutHtmlTemplateService> = DevsiteHtmlTemplateService::class
 
@@ -878,3 +895,8 @@ class DacAsJavaFormatDescriptor : JavaLayoutHtmlFormatDescriptorBase(), DefaultA
     override val packageListServiceClass: KClass<out PackageListService> = JavaLayoutHtmlPackageListService::class
     override val outputBuilderFactoryClass: KClass<out JavaLayoutHtmlFormatOutputBuilderFactory> = DevsiteLayoutHtmlFormatOutputBuilderFactoryImpl::class
 }
+
+fun FlowOrPhrasingContent.dheading(block : DHEADING.() -> Unit = {}) : Unit = DHEADING(consumer).visit(block)
+
+class DHEADING(consumer: TagConsumer<*>) :
+    HTMLTag("devsite-heading", consumer, emptyMap(), inlineTag = false, emptyTag = false), HtmlBlockTag

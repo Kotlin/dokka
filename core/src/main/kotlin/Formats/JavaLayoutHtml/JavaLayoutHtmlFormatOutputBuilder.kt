@@ -154,8 +154,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
             h2 { +header }
         }
         table {
-            if (headerAsRow) thead { tr { td { h3 { +header } } } }
             tbody {
+                if (headerAsRow) {
+                    developerHeading(header)
+                }
                 nodes.forEach { node ->
                     row(node)
                 }
