@@ -113,7 +113,7 @@ open class DocumentationNode(val name: String,
     val annotations: List<DocumentationNode>
         get() = references(RefKind.Annotation).map { it.to }
     val deprecation: DocumentationNode?
-        get() = references(RefKind.Deprecation).singleOrNull()?.to
+        get() = references(RefKind.Deprecation).map { it.to }.firstOrNull()
     val platforms: List<String>
         get() = references(RefKind.Platform).map { it.to.name }
     val externalType: DocumentationNode?
@@ -267,4 +267,15 @@ private fun DocumentationNode.isSuperclassFor(node: DocumentationNode): Boolean 
 fun DocumentationNode.classNodeNameWithOuterClass(): String {
     assert(kind in NodeKind.classLike)
     return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
+}
+
+fun DocumentationNode.deprecatedLevelMessage(): String {
+    val kindName = when(kind) {
+        NodeKind.Enum -> "enum"
+        NodeKind.Interface -> "interface"
+        NodeKind.AnnotationClass -> "annotation"
+        NodeKind.Exception -> "exception"
+        else -> "class"
+    }
+    return "This $kindName was deprecated in API level ${deprecatedLevel.name}."
 }

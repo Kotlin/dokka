@@ -687,7 +687,7 @@ class DevsiteLayoutHtmlFormatOutputBuilder(
                                         a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                     }
                                     td {
-                                        if (!deprecationWarningToMarkup(node)) {
+                                        if (!deprecatedIndexSummary(node)) {
                                             nodeSummary(node)
                                         }
                                     }

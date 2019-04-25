@@ -8,7 +8,6 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.LanguageService.RenderMode.FULL
 import org.jetbrains.dokka.LanguageService.RenderMode.SUMMARY
 import org.jetbrains.dokka.NodeKind.Companion.classLike
-import org.jetbrains.kotlin.utils.keysToMap
 import java.net.URI
 import javax.inject.Inject
 
@@ -625,7 +624,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 subclasses(page.directInheritors, true)
                 subclasses(page.indirectInheritors, false)
 
-                deprecationWarningToMarkup(node, prefix = true)
+                deprecatedClassCallOut(node)
                 nodeContent(node)
 
                 h2 { +"Summary" }
@@ -668,7 +667,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                                     a(href = uriProvider.linkTo(node, uri)) { +node.classNodeNameWithOuterClass() }
                                 }
                                 td {
-                                    if (!deprecationWarningToMarkup(node)) {
+                                    if (!deprecatedIndexSummary(node)) {
                                         classIndexSummary(node)
                                     }
                                 }
@@ -761,10 +760,40 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun FlowContent.deprecationWarningToMarkup(node: DocumentationNode, prefix: Boolean = false): Boolean {
-        val deprecated = formatDeprecationOrNull(node, prefix)
+    protected open fun FlowContent.deprecationWarningToMarkup(
+        node: DocumentationNode,
+        prefix: Boolean = false,
+        emphasis: Boolean = true
+    ): Boolean {
+        val deprecated = formatDeprecationOrNull(node, prefix, emphasis)
         deprecated?.let {
             contentNodeToMarkup(deprecated, uriProvider.mainUri(node))
+            return true
+        }
+        return false
+    }
+
+    protected open fun FlowContent.deprecatedClassCallOut(node: DocumentationNode) {
+        val deprecatedLevelExists = node.deprecatedLevel.name.isNotEmpty()
+        if (deprecatedLevelExists) {
+            hr { }
+            aside(classes = "caution") {
+                strong { +node.deprecatedLevelMessage() }
+                deprecationWarningToMarkup(node, emphasis = false)
+            }
+        }
+    }
+
+    protected open fun FlowContent.deprecatedIndexSummary(node: DocumentationNode): Boolean {
+        val deprecatedLevelExists = node.deprecatedLevel.name.isNotEmpty()
+        if (deprecatedLevelExists) {
+            val em = ContentEmphasis()
+            em.append(ContentText(node.deprecatedLevelMessage()))
+            em.append(ContentText(" "))
+            for (child in node.deprecation?.content?.children ?: emptyList<ContentNode>()) {
+                em.append(child)
+            }
+            contentNodeToMarkup(em, uriProvider.mainUri(node))
             return true
         }
         return false
@@ -794,7 +823,10 @@ open class JavaLayoutHtmlFormatOutputBuilder(
         }
     }
 
-    protected open fun formatDeprecationOrNull(node: DocumentationNode, prefix: Boolean = false): ContentNode? {
+    protected open fun formatDeprecationOrNull(
+        node: DocumentationNode,
+        prefix: Boolean = false,
+        emphasis: Boolean = true): ContentNode? {
         val deprecated = node.deprecation
         deprecated?.let {
             return ContentParagraph().apply {
@@ -804,7 +836,7 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         else "Deprecated: "
                     ) })
                 }
-                val em = ContentEmphasis()
+                val em = if (emphasis) ContentEmphasis() else ContentBlock()
                 for (child in deprecated.content.children) {
                     em.append(child)
                 }
