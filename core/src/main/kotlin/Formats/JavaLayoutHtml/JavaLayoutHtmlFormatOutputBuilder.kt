@@ -98,6 +98,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         attributes["colspan"] = content.colspan
                     }
                 }
+                content.rowspan?.let {
+                    if (it.isNotBlank()) {
+                        attributes["rowspan"] = content.rowspan
+                    }
+                }
                 (content.children.singleOrNull() as? ContentParagraph)
                     ?.let { paragraph -> this@contentNodeToMarkup.contentNodesToMarkup(paragraph.children, contextUri) }
                         ?: this@contentNodeToMarkup.contentNodesToMarkup(content.children, contextUri)
@@ -106,6 +111,11 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                 content.colspan?.let {
                     if (it.isNotBlank()) {
                         attributes["colspan"] = content.colspan
+                    }
+                }
+                content.rowspan?.let {
+                    if (it.isNotBlank()) {
+                        attributes["rowspan"] = content.rowspan
                     }
                 }
                 (content.children.singleOrNull() as? ContentParagraph)

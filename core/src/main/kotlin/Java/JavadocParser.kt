@@ -330,11 +330,13 @@ class JavadocParser(
         "tr" -> ContentTableRow()
         "th" -> {
             val colspan = element.attr("colspan")
-            ContentTableHeader(colspan)
+            val rowspan = element.attr("rowspan")
+            ContentTableHeader(colspan, rowspan)
         }
         "td" -> {
             val colspan = element.attr("colspan")
-            ContentTableCell(colspan)
+            val rowspan = element.attr("rowspan")
+            ContentTableCell(colspan, rowspan)
         }
 
         "h1" -> ContentHeading(1)

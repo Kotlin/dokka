@@ -118,8 +118,8 @@ class ContentDescriptionDefinition() : ContentBlock()
 class ContentTable() : ContentBlock()
 class ContentTableBody() : ContentBlock()
 class ContentTableRow() : ContentBlock()
-class ContentTableHeader(val colspan: String? = null) : ContentBlock()
-class ContentTableCell(val colspan: String? = null) : ContentBlock()
+class ContentTableHeader(val colspan: String? = null, val rowspan: String? = null) : ContentBlock()
+class ContentTableCell(val colspan: String? = null, val rowspan: String? = null) : ContentBlock()
 
 class ContentSpecialReference() : ContentBlock()
 
