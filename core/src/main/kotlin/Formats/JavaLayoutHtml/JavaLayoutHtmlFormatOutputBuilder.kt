@@ -77,6 +77,42 @@ open class JavaLayoutHtmlFormatOutputBuilder(
                         ?: contentNodesToMarkup(content.children, contextUri)
             }
 
+            is ContentDescriptionList -> dl { contentNodesToMarkup(content.children, contextUri) }
+            is ContentDescriptionTerm -> consumer.dt {
+                (content.children.singleOrNull() as? ContentParagraph)
+                    ?.let { paragraph -> this@contentNodeToMarkup.contentNodesToMarkup(paragraph.children, contextUri) }
+                        ?: this@contentNodeToMarkup.contentNodesToMarkup(content.children, contextUri)
+            }
+            is ContentDescriptionDefinition -> consumer.dd {
+                (content.children.singleOrNull() as? ContentParagraph)
+                    ?.let { paragraph -> contentNodesToMarkup(paragraph.children, contextUri) }
+                        ?: contentNodesToMarkup(content.children, contextUri)
+            }
+
+            is ContentTable -> table { contentNodesToMarkup(content.children, contextUri) }
+            is ContentTableBody -> consumer.tbody { this@contentNodeToMarkup.contentNodesToMarkup(content.children, contextUri) }
+            is ContentTableRow -> consumer.tr { this@contentNodeToMarkup.contentNodesToMarkup(content.children, contextUri) }
+            is ContentTableHeader -> consumer.th {
+                content.colspan?.let {
+                    if (it.isNotBlank()) {
+                        attributes["colspan"] = content.colspan
+                    }
+                }
+                (content.children.singleOrNull() as? ContentParagraph)
+                    ?.let { paragraph -> this@contentNodeToMarkup.contentNodesToMarkup(paragraph.children, contextUri) }
+                        ?: this@contentNodeToMarkup.contentNodesToMarkup(content.children, contextUri)
+            }
+            is ContentTableCell -> consumer.td {
+                content.colspan?.let {
+                    if (it.isNotBlank()) {
+                        attributes["colspan"] = content.colspan
+                    }
+                }
+                (content.children.singleOrNull() as? ContentParagraph)
+                    ?.let { paragraph -> contentNodesToMarkup(paragraph.children, contextUri) }
+                        ?: contentNodesToMarkup(content.children, contextUri)
+            }
+
             is ContentSpecialReference -> aside(classes = "note") {
                 contentNodesToMarkup(content.children, contextUri)
             }

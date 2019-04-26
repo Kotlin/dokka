@@ -111,6 +111,16 @@ class ContentStrong() : ContentBlock()
 class ContentStrikethrough() : ContentBlock()
 class ContentCode() : ContentBlock()
 
+class ContentDescriptionList() : ContentBlock()
+class ContentDescriptionTerm() : ContentBlock()
+class ContentDescriptionDefinition() : ContentBlock()
+
+class ContentTable() : ContentBlock()
+class ContentTableBody() : ContentBlock()
+class ContentTableRow() : ContentBlock()
+class ContentTableHeader(val colspan: String? = null) : ContentBlock()
+class ContentTableCell(val colspan: String? = null) : ContentBlock()
+
 class ContentSpecialReference() : ContentBlock()
 
 open class ContentBlockCode(val language: String = "") : ContentBlock()

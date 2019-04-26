@@ -210,6 +210,17 @@ private fun buildInlineTags(module: ModuleNodeAdapter, holder: Doc, node: Conten
         is ContentOrderedList -> surroundWith(module, holder, "<ol>", "</ol>", node, result)
         is ContentUnorderedList -> surroundWith(module, holder, "<ul>", "</ul>", node, result)
         is ContentParagraph -> surroundWith(module, holder, "<p>", "</p>", node, result)
+
+        is ContentDescriptionList -> surroundWith(module, holder, "<dl>", "</dl>", node, result)
+        is ContentDescriptionTerm -> surroundWith(module, holder, "<dt>", "</dt>", node, result)
+        is ContentDescriptionDefinition -> surroundWith(module, holder, "<dd>", "</dd>", node, result)
+
+        is ContentTable -> surroundWith(module, holder, "<table>", "</table>", node, result)
+        is ContentTableBody -> surroundWith(module, holder, "<tbody>", "</tbody>", node, result)
+        is ContentTableRow -> surroundWith(module, holder, "<tr>", "</tr>", node, result)
+        is ContentTableHeader -> surroundWith(module, holder, "<th>", "</th>", node, result)
+        is ContentTableCell -> surroundWith(module, holder, "<td>", "</td>", node, result)
+
         is ContentSection -> surroundWith(module, holder, "<p>", "</p>", node, result) // TODO how section should be represented?
         is ContentNonBreakingSpace -> result.add(TextTag(holder, ContentText("&nbsp;")))
         is ContentStrikethrough -> surroundWith(module, holder, "<strike>", "</strike>", node, result)
