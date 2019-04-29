@@ -61,7 +61,7 @@ open class DokkaTask : DefaultTask() {
     var sourceDirs: Iterable<File> = emptyList()
 
     @Input
-    var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = arrayListOf()
+    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
 
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
@@ -263,6 +263,22 @@ open class DokkaTask : DefaultTask() {
         }
 
         return sourceRoots + (sourceDirs?.toSourceRoots() ?: emptyList())
+    }
+
+    /**
+     * Needed for Gradle incremental build
+     */
+    @OutputDirectory
+    fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
+
+    /**
+     * Needed for Gradle incremental build
+     */
+    @InputFiles
+    fun getInputFiles(): FileCollection {
+        val (_, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
+        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
+                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) })
     }
 
     companion object {
