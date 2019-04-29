@@ -14,6 +14,7 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import java.io.File
@@ -241,11 +242,14 @@ open class DokkaTask : DefaultTask() {
         passConfig.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
         passConfig.suppressedFiles = collectSuppressedFiles(passConfig.sourceRoots)
         passConfig.externalDocumentationLinks.addAll(externalDocumentationLinks)
+        if(passConfig.platform.isNotEmpty()){
+            passConfig.analysisPlatform = Platform.fromString(passConfig.platform)
+        }
 
         return passConfig
     }
 
-    private fun collectSourceRoots(): List<DokkaConfiguration.SourceRoot> {
+    private fun collectSourceRoots(): List<SourceRoot> {
         val sourceDirs = when {
             sourceDirs.any() -> {
                 logger.info("Dokka: Taking source directories provided by the user")
