@@ -50,7 +50,6 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
 
-    @OutputDirectory
     var outputDirectory: String = ""
 
     var dokkaRuntime: Configuration? = null

@@ -97,8 +97,8 @@ class GradleSourceLinkDefinitionImpl : SourceLinkDefinition {
 }
 
 class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink {
-    override var url: URL = URL("")
-    override var packageListUrl: URL = URL("")
+    override var url: URL = URL("http://")
+    override var packageListUrl: URL = URL("http://")
 }
 
 class GradleDokkaConfigurationImpl: DokkaConfiguration {
