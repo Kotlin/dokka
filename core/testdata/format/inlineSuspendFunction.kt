@@ -1,6 +1,6 @@
 /**
  * returns 1
  */
-inline suspend fun foo(): Int {
+inline suspend fun foo(a: () -> String): Int {
     1
 }
