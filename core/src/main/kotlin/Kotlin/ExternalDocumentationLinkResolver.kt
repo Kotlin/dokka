@@ -118,7 +118,7 @@ class ExternalDocumentationLinkResolver @Inject constructor(
             packageListUrl.doOpenConnectionToReadContent().getInputStream()
         }
 
-        val (params, packages) =
+        val (params, modulesAndPackages) =
                 packageListStream
                         .bufferedReader()
                         .useLines { lines -> lines.partition { it.startsWith(DOKKA_PARAM_PREFIX) } }
@@ -151,9 +151,14 @@ class ExternalDocumentationLinkResolver @Inject constructor(
                 ?: constructors.first { it.findAnnotation<Inject>() != null }
         val resolver = constructor.call(paramsMap) as InboundExternalLinkResolutionService
 
-        val rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
-
-        packages.map { FqName(it) }.forEach { packageFqNameToLocation[it] = rootInfo }
+        var rootInfo = ExternalDocumentationRoot(link.url, resolver, locations)
+        modulesAndPackages.forEach {
+            if (it.startsWith("module:")) {
+                rootInfo = ExternalDocumentationRoot(URL(link.url, "${it.substringAfter("module:")}/"), resolver, locations)
+            } else {
+                packageFqNameToLocation[FqName(it)] = rootInfo
+            }
+        }
     }
 
     init {

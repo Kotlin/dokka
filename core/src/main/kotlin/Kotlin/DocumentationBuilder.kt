@@ -73,8 +73,19 @@ class DocumentationOptions(val outputDir: String,
 
     val defaultLinks = run {
         val links = mutableListOf<ExternalDocumentationLink>()
-        if (!noJdkLink)
-            links += ExternalDocumentationLink.Builder("https://docs.oracle.com/javase/$jdkVersion/docs/api/").build()
+        if (!noJdkLink) {
+            val docLink = if (jdkVersion > 10) {
+                "https://docs.oracle.com/en/java/javase/$jdkVersion/docs/api/"
+            } else {
+                "https://docs.oracle.com/javase/$jdkVersion/docs/api/"
+            }
+            val packageList = if (jdkVersion > 9) {
+                "$docLink/element-list"
+            } else {
+                "$docLink/package-list"
+            }
+            links += ExternalDocumentationLink.Builder(docLink, packageList).build()
+        }
 
         if (!noStdlibLink)
             links += ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/").build()
