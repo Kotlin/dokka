@@ -14,23 +14,23 @@ import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
 
-class SourceLinkMapItem : DokkaConfiguration.SourceLinkDefinition {
+class SourceLinkMapItem {
     @Parameter(name = "path", required = true)
-    override var path: String = ""
+    var path: String = ""
 
     @Parameter(name = "url", required = true)
-    override var url: String = ""
+    var url: String = ""
 
     @Parameter(name = "lineSuffix")
-    override var lineSuffix: String? = null
+    var lineSuffix: String? = null
 }
 
-class ExternalDocumentationLink : DokkaConfiguration.ExternalDocumentationLink {
+class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentationLink.Builder() {
 
     @Parameter(name = "url", required = true)
-    override var url: URL = URL("")
+    override var url: URL? = null
     @Parameter(name = "packageListUrl", required = true)
-    override var packageListUrl: URL = URL("")
+    override var packageListUrl: URL? = null
 }
 
 abstract class AbstractDokkaMojo : AbstractMojo() {
@@ -52,115 +52,91 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var suppress: Boolean = false
     }
 
-    class Multiplatform : DokkaConfiguration.PassConfiguration {
-        @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
-        var sourceDirectories: List<String> = emptyList()
-
-        @Parameter(required = true, defaultValue = "\${project.artifactId}")
-        override var moduleName: String = ""
-
-        @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
-        override var classpath: List<String> = emptyList()
-
-        @Parameter
-        override var sourceRoots: List<SourceRoot> = emptyList()
-
-        @Parameter
-        override val samples: List<String> = emptyList()
-
-        @Parameter
-        override val includes: List<String> = emptyList()
-
-        @Parameter
-        override val includeNonPublic: Boolean = false
-
-        @Parameter
-        override val includeRootPackage: Boolean = false
-
-        @Parameter
-        override val reportUndocumented: Boolean = true
-        @Parameter
-        override val skipEmptyPackages: Boolean = true
-
-        @Parameter
-        override val skipDeprecated: Boolean = false
-
-        @Parameter(required = false, defaultValue = "6")
-        override var jdkVersion: Int = 6
-
-        @Parameter
-        override val sourceLinks: List<SourceLinkMapItem> = emptyList()
-
-        @Parameter
-        override val perPackageOptions: List<PackageOptions> = emptyList()
-
-        @Parameter
-        override val externalDocumentationLinks: List<ExternalDocumentationLink> = emptyList()
-
-        @Parameter
-        override val languageVersion: String? = null
-
-        @Parameter
-        override val apiVersion: String? = null
-
-        @Parameter(defaultValue = "false")
-        override var noStdlibLink: Boolean = false
-
-        @Parameter(defaultValue = "false")
-        override var noJdkLink: Boolean = false
-
-        @Parameter
-        override val suppressedFiles: List<String>  = emptyList()
-
-        @Parameter
-        override val collectInheritedExtensionsFromLibraries: Boolean  = false
-
-        override var analysisPlatform: Platform = Platform.DEFAULT
-
-        @Parameter
-        val platform: String = ""
-
-        @Parameter
-        override val targets: List<String> = emptyList()
-
-        @Parameter
-        override val sinceKotlin: String = "1.0"
-    }
+    @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
+    var sourceDirectories: List<String> = emptyList()
 
     @Parameter
-    var multiplatform: List<Multiplatform> = emptyList()
+    var sourceRoots: List<SourceRoot> = emptyList()
 
     @Parameter
-    var config: Multiplatform? = null
-
-    @Parameter(required = true, defaultValue = "\${project.artifactId}")
-    var moduleName: String = ""
+    var samples: List<String> = emptyList()
 
     @Parameter
-    var impliedPlatforms: List<String> = emptyList() //TODO check
-
-    @Parameter
-    var cacheRoot: String? = null
-
-    protected abstract fun getOutDir(): String
-
-    protected abstract fun getOutFormat(): String
-
-    @Parameter(required = false, defaultValue = "false")
-    var skip: Boolean = false
+    var includes: List<String> = emptyList()
 
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
     var classpath: List<String> = emptyList()
 
-    //TODO remove
-    @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
-    var sourceDirectories: List<String> = emptyList()
+    @Parameter
+    var sourceLinks: List<SourceLinkMapItem> = emptyList()
+
+    @Parameter(required = true, defaultValue = "\${project.artifactId}")
+    var moduleName: String = ""
+
+    @Parameter(required = false, defaultValue = "false")
+    var skip: Boolean = false
+
     @Parameter(required = false, defaultValue = "6")
-     val jdkVersion: Int = 6
+    var jdkVersion: Int = 6
+
+    @Parameter
+    var skipDeprecated: Boolean = false
+    @Parameter
+    var skipEmptyPackages: Boolean = true
+    @Parameter
+    var reportUndocumented: Boolean = true
+
+    @Parameter
+    var impliedPlatforms: List<String> = emptyList()
+
+    @Parameter
+    var perPackageOptions: List<PackageOptions> = emptyList()
+
+    @Parameter
+    var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
+
     @Parameter(defaultValue = "false")
-     val noStdlibLink: Boolean = false
+    var noStdlibLink: Boolean = false
+
     @Parameter(defaultValue = "false")
-     val noJdkLink: Boolean = false
+    var noJdkLink: Boolean = false
+
+    @Parameter
+    var cacheRoot: String? = null
+
+    @Parameter
+    var languageVersion: String? = null
+
+    @Parameter
+    var apiVersion: String? = null
+
+    @Parameter
+    var includeRootPackage: Boolean = false
+
+    @Parameter
+    var suppressedFiles: List<String>  = emptyList()
+
+    @Parameter
+    var collectInheritedExtensionsFromLibraries: Boolean  = false
+
+    @Parameter
+    var platform: String = ""
+
+    @Parameter
+    var targets: List<String> = emptyList()
+
+    @Parameter
+    var sinceKotlin: String = "1.0"
+
+    @Parameter
+    var includeNonPublic: Boolean = false
+
+    @Parameter
+    var generateIndexPages: Boolean = false
+
+    protected abstract fun getOutDir(): String
+
+    protected abstract fun getOutFormat(): String
 
     override fun execute() {
         if (skip) {
@@ -168,61 +144,57 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             return
         }
 
-        val passConfigurationList = (
-                if (multiplatform.isEmpty() && config != null) listOf(config!!) else multiplatform
-                ).map {
-            defaultPassConfiguration(it)
-        }
-
-        passConfigurationList.flatMap { it.sourceLinks }.forEach {
+        sourceLinks.forEach {
             if (it.path.contains("\\")) {
                 throw MojoExecutionException("Incorrect path property, only Unix based path allowed.")
             }
         }
 
-        val platforms = impliedPlatforms
-        val cacheRoot = cacheRoot
+        val passConfiguration = PassConfigurationImpl(
+            classpath = classpath,
+            sourceRoots = sourceDirectories.map { SourceRootImpl(it) } + sourceRoots.map { SourceRootImpl(path = it.path) },
+            samples = samples,
+            includes = includes,
+            collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries, // TODO: Should we implement this?
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, it.url, it.lineSuffix) },
+            jdkVersion = jdkVersion,
+            skipDeprecated = skipDeprecated,
+            skipEmptyPackages = skipEmptyPackages,
+            reportUndocumented = reportUndocumented,
+            perPackageOptions = perPackageOptions.map {
+                PackageOptionsImpl(
+                    prefix = it.prefix,
+                    includeNonPublic = it.includeNonPublic,
+                    reportUndocumented = it.reportUndocumented,
+                    skipDeprecated = it.skipDeprecated,
+                    suppress = it.suppress
+                )},
+            externalDocumentationLinks = externalDocumentationLinks.map { it.build() as ExternalDocumentationLinkImpl },
+            noStdlibLink = noStdlibLink,
+            noJdkLink = noJdkLink,
+            languageVersion = languageVersion,
+            apiVersion = apiVersion,
+            moduleName = moduleName,
+            suppressedFiles = suppressedFiles, // TODO: Should we implement this?
+            sinceKotlin = sinceKotlin, // TODO: Should we implement this?
+            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT, // TODO: Should we implement this?
+            targets = targets, // TODO: Should we implement this?
+            includeNonPublic = includeNonPublic, // TODO: Should we implement this?
+            includeRootPackage = includeRootPackage // TODO: Should we implement this?
+        )
 
-        val configuration = object : DokkaConfiguration {
-            override val outputDir = getOutDir()
-            override val format = getOutFormat()
-            override val impliedPlatforms = platforms
-            override val cacheRoot = cacheRoot
-            override val passesConfigurations = passConfigurationList
-            override val generateIndexPages = false // TODO: Should we implement this?
-        }
+        val configuration = DokkaConfigurationImpl(
+            outputDir = getOutDir(),
+            format = getOutFormat(),
+            impliedPlatforms = impliedPlatforms,
+            cacheRoot = cacheRoot,
+            passesConfigurations = listOf(passConfiguration),
+            generateIndexPages = generateIndexPages // TODO: Should we implement this?
+        )
 
         val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
 
         gen.generate()
-    }
-
-    private fun defaultPassConfiguration(passConfig: Multiplatform): Multiplatform {
-        passConfig.moduleName = moduleName
-        passConfig.classpath = classpath
-        passConfig.externalDocumentationLinks.map {
-            val builder = DokkaConfiguration.ExternalDocumentationLink.Builder(it.url, it.packageListUrl)
-            builder.build()
-        }
-        if(passConfig.platform.isNotEmpty()){
-            passConfig.analysisPlatform = Platform.fromString(passConfig.platform)
-        }
-        // TODO fix
-        passConfig.sourceRoots = sourceDirectories.map {
-            val sourceRoot = SourceRoot()
-            sourceRoot.path = it
-            sourceRoot
-        } + passConfig.sourceRoots
-        passConfig.jdkVersion = jdkVersion
-        passConfig.noStdlibLink = noStdlibLink
-        passConfig.noJdkLink = noJdkLink
-//        passConfig.sourceRoots = passConfig.sourceDirectories.map {
-//            val sourceRoot = SourceRoot()
-//            sourceRoot.path = it
-//            sourceRoot
-//        } + passConfig.sourceRoots
-
-        return passConfig
     }
 }
 
