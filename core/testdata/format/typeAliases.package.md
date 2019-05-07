@@ -7,9 +7,6 @@
 | [A](-a/index.md) | `class A` |
 | [B](-b/index.md) | `class B` |
 | [C](-c/index.md) | `class C<T>` |
-
-### Type Aliases
-
 | [D](-d.md) | `typealias D = `[`A`](-a/index.md) |
 | [E](-e.md) | `typealias E = `[`D`](-d.md) |
 | [F](-f.md) | `typealias F = (`[`A`](-a/index.md)`) -> `[`B`](-b/index.md) |

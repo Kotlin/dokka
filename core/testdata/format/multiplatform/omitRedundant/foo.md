@@ -2,21 +2,19 @@
 
 # Foo
 
-`class Foo`
-
-**Platform and version requirements:** JVM
+(JVM) `class Foo`
 
 This is a foo.
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Foo()`<br>This is a foo. |
+| (JVM) [&lt;init&gt;](-init-.md) | `Foo()`<br>This is a foo. |
 
 ### Properties
 
-| [propJvm](prop-jvm.md) | `val propJvm: String` |
+| (JVM) [propJvm](prop-jvm.md) | `val propJvm: String` |
 
 ### Functions
 
-| [jvm](jvm.md) | `fun jvm(): Unit` |
+| (JVM) [jvm](jvm.md) | `fun jvm(): Unit` |
 

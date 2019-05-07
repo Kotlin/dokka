@@ -1,3 +1,3 @@
-inline fun f<reified T>() {
+inline fun f<reified T>(a: () -> String) {
 
 }

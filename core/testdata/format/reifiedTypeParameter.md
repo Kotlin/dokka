@@ -2,4 +2,4 @@
 
 # f
 
-`inline fun <reified T> f(): Unit`
+`inline fun <reified T> f(a: () -> String): Unit`
