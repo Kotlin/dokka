@@ -96,6 +96,8 @@ dokka {
      
         targets = ["JVM"] // See platforms section of documentation 
 
+        platform = "JVM" // Platform used for code analysis 
+        
         // Manual adding files to classpath
         // This property not overrides classpath collected from kotlinTasks but appends to it
         classpath = [new File("$buildDir/other.jar")]
@@ -175,6 +177,7 @@ dokka {
     multiplatform {
         js { // the name here is arbitrary
             targets = ["JS"]
+            platform = "js"
             sourceRoot {
                 path = kotlin.sourceSets.jsMain.kotlin.srcDirs[0]
             }
@@ -185,6 +188,7 @@ dokka {
 
         jvm { // the name here is arbitrary
             targets = ["JVM"]
+            platform = "jvm"
             sourceRoot {
                 path = kotlin.sourceSets.jvmMain.kotlin.srcDirs[0]
             }

@@ -152,7 +152,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(required = true, defaultValue = "\${project.compileClasspathElements}")
     var classpath: List<String> = emptyList()
 
-    //todo remove
+    //TODO remove
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
     @Parameter(required = false, defaultValue = "6")
@@ -207,7 +207,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         if(passConfig.platform.isNotEmpty()){
             passConfig.analysisPlatform = Platform.fromString(passConfig.platform)
         }
-        // todo fix
+        // TODO fix
         passConfig.sourceRoots = sourceDirectories.map {
             val sourceRoot = SourceRoot()
             sourceRoot.path = it

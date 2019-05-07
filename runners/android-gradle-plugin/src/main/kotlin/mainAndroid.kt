@@ -7,6 +7,9 @@ import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import java.io.File
 
+internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
+internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
+
 open class DokkaAndroidPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka-android.properties"))
@@ -14,6 +17,11 @@ open class DokkaAndroidPlugin : Plugin<Project> {
             dokkaRuntime = project.configurations.create("dokkaRuntime")
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
+        }
+        project.tasks.withType(DokkaTask::class.java) { task ->
+            val passConfiguration = project.container(GradlePassConfigurationImpl::class.java)
+            task.extensions.add(MULTIPLATFORM_EXTENSION_NAME, passConfiguration)
+            task.extensions.create(CONFIGURATION_EXTENSION_NAME, GradlePassConfigurationImpl::class.java, "")
         }
     }
 }

@@ -14,6 +14,7 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import java.io.File
@@ -49,7 +50,6 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
 
-    @OutputDirectory
     var outputDirectory: String = ""
 
     var dokkaRuntime: Configuration? = null
@@ -61,7 +61,7 @@ open class DokkaTask : DefaultTask() {
     var sourceDirs: Iterable<File> = emptyList()
 
     @Input
-    var sourceRoots: MutableList<DokkaConfiguration.SourceRoot> = arrayListOf()
+    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
 
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
@@ -241,11 +241,14 @@ open class DokkaTask : DefaultTask() {
         passConfig.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
         passConfig.suppressedFiles = collectSuppressedFiles(passConfig.sourceRoots)
         passConfig.externalDocumentationLinks.addAll(externalDocumentationLinks)
+        if(passConfig.platform.isNotEmpty()){
+            passConfig.analysisPlatform = Platform.fromString(passConfig.platform)
+        }
 
         return passConfig
     }
 
-    private fun collectSourceRoots(): List<DokkaConfiguration.SourceRoot> {
+    private fun collectSourceRoots(): List<SourceRoot> {
         val sourceDirs = when {
             sourceDirs.any() -> {
                 logger.info("Dokka: Taking source directories provided by the user")
@@ -260,6 +263,22 @@ open class DokkaTask : DefaultTask() {
         }
 
         return sourceRoots + (sourceDirs?.toSourceRoots() ?: emptyList())
+    }
+
+    /**
+     * Needed for Gradle incremental build
+     */
+    @OutputDirectory
+    fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
+
+    /**
+     * Needed for Gradle incremental build
+     */
+    @InputFiles
+    fun getInputFiles(): FileCollection {
+        val (_, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
+        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
+                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) })
     }
 
     companion object {
