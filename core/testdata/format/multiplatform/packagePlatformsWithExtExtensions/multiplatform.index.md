@@ -2,7 +2,7 @@
 
 ### Packages
 
-| [some](some/index.md)<br>(JVM) |  |
+| (JVM) [some](some/index.md) |  |
 
 ### Index
 

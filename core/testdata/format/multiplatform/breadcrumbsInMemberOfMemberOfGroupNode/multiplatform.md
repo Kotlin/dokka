@@ -2,7 +2,4 @@
 
 # magic
 
-`fun magic(): Unit`
-
-**Platform and version requirements:** JS
-
+(JS) `fun magic(): Unit`

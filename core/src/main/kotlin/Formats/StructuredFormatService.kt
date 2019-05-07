@@ -111,7 +111,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
     open fun appendSinceKotlin(version: String) {
         appendParagraph {
-            appendText("Available since Kotlin: ")
+            appendText("Since: ")
             appendCode { appendText(version) }
         }
     }
@@ -280,15 +280,13 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
     protected open fun appendPlatformsAsText(platforms: PlatformsData) {
         if (platforms.isNotEmpty()) {
-            appendLine()
-            appendText(platforms.keys.joinToString(prefix = "(", postfix = ")"))
+            appendText(platforms.keys.joinToString(prefix = "(", postfix = ") "))
         }
     }
 
     protected open fun appendPlatforms(platforms: PlatformsData) {
         if (platforms.isNotEmpty()) {
-            appendLine()
-            appendText(platforms.keys.joinToString(prefix = "(", postfix = ")"))
+            appendText(platforms.keys.joinToString(prefix = "(", postfix = ") "))
         }
     }
 
@@ -775,9 +773,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                     appendPlatforms(platforms)
                                 }
 //                                appendHeader(level = 4) {
-                                appendParagraph {
+//                                appendParagraph {
                                     appendLink(memberLocation)
-                                }
+
+//                                  }
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)
 //                                    }

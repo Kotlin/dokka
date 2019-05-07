@@ -159,16 +159,20 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     override fun appendParagraph(body: () -> Unit) {
-        if (inTableCell) {
-            ensureNewline()
-            body()
-        } else if (listStack.isNotEmpty()) {
-            body()
-            ensureNewline()
-        } else {
-            ensureParagraph()
-            body()
-            ensureParagraph()
+        when {
+            inTableCell -> {
+                ensureNewline()
+                body()
+            }
+            listStack.isNotEmpty() -> {
+                body()
+                ensureNewline()
+            }
+            else -> {
+                ensureParagraph()
+                body()
+                ensureParagraph()
+            }
         }
     }
 
