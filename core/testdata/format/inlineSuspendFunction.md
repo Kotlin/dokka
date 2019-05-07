@@ -2,7 +2,7 @@
 
 # foo
 
-`suspend inline fun foo(): Int`
+`suspend inline fun foo(a: () -> String): Int`
 
 returns 1
 

@@ -30,10 +30,11 @@ dependencies {
 }
 
 dokka {
-    dokkaFatJar = new File(dokka_fatjar)
-
-    externalDocumentationLink {
-        url = new URL("https://example.com")
-        packageListUrl = file("$rootDir/package-list").toURI().toURL()
+    dokkaFatJar = files(dokka_fatjar)
+    configuration {
+        externalDocumentationLink {
+            url = new URL("https://example.com")
+            packageListUrl = file("$rootDir/package-list").toURI().toURL()
+        }
     }
 }

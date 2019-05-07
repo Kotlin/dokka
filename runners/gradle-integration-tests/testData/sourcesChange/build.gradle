@@ -35,5 +35,5 @@ dependencies {
 
 
 dokka {
-    dokkaFatJar = new File(dokka_fatjar)
+    dokkaFatJar = files(dokka_fatjar)
 }
