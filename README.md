@@ -342,9 +342,9 @@ The available configuration options are shown below:
         </includes>
         
         <!-- List of sample roots -->
-        <samplesDirs>
+        <samples>
             <dir>src/test/samples</dir>
-        </samplesDirs>
+        </samples>
         
         <!-- Used for linking to JDK, default: 6 -->
         <jdkVersion>6</jdkVersion>
@@ -380,11 +380,11 @@ The available configuration options are shown below:
         <sourceLinks>
             <link>
                 <!-- Source directory -->
-                <dir>${project.basedir}/src/main/kotlin</dir>
+                <path>${project.basedir}/src/main/kotlin</path>
                 <!-- URL showing where the source code can be accessed through the web browser -->
                 <url>https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin</url> <!-- //remove src/main/kotlin if you use "./" above -->
                 <!--Suffix which is used to append the line number to the URL. Use #L for GitHub -->
-                <urlSuffix>#L</urlSuffix>
+                <lineSuffix>#L</lineSuffix>
             </link>
         </sourceLinks>
         
