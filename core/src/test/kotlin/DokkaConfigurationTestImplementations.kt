@@ -65,7 +65,7 @@ class PassConfigurationImpl (
     override val collectInheritedExtensionsFromLibraries: Boolean = false,
     override val analysisPlatform: Platform = Platform.DEFAULT,
     override val targets: List<String> = emptyList(),
-    override val sinceKotlin: String = "1.0"
+    override val sinceKotlin: String? = null
 ): DokkaConfiguration.PassConfiguration {
     private val defaultLinks = run {
         val links = mutableListOf<DokkaConfiguration.ExternalDocumentationLink>()

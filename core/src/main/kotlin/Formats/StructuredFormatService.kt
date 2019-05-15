@@ -110,10 +110,8 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     abstract fun appendText(text: String)
 
     open fun appendSinceKotlin(version: String) {
-        appendParagraph {
             appendText("Since: ")
             appendCode { appendText(version) }
-        }
     }
 
     open fun appendSectionWithTag(section: ContentSection) {
@@ -279,9 +277,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
     }
 
     protected open fun appendPlatformsAsText(platforms: PlatformsData) {
-        if (platforms.isNotEmpty()) {
-            appendText(platforms.keys.joinToString(prefix = "(", postfix = ") "))
-        }
+        appendPlatforms(platforms)
     }
 
     protected open fun appendPlatforms(platforms: PlatformsData) {
@@ -757,15 +753,14 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
             appendTable("Name", "Summary") {
                 appendTableBody {
-                    for ((memberLocation, members) in membersMap) {
-                        val platforms = effectivePlatformsForMembers(members)
+                    for ((memberLocation, membersList) in membersMap) {
+                        val platforms = effectivePlatformsForMembers(membersList)
 //                        val platforms = if (platformsBasedOnMembers)
 //                            members.flatMapTo(mutableSetOf()) { platformsOfItems(it.members) } + elementPlatforms
 //                        else
 //                            elementPlatforms
 
-                        val summarized = computeSummarySignatures(members)
-
+                        val summarized = computeSummarySignatures(membersList)
 
                         appendIndexRow(platforms) {
                             appendTableCell {
@@ -774,8 +769,15 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
 //                                appendHeader(level = 4) {
 //                                appendParagraph {
-                                    appendLink(memberLocation)
+                                appendLink(memberLocation)
 
+                                if (node.sinceKotlin != null) {
+                                    appendSinceKotlin(node.sinceKotlin.toString())
+                                }
+
+                                if (membersList.singleOrNull()?.sinceKotlin != null){
+                                    wrap(" (", ")"){ appendSinceKotlin(membersList.single().sinceKotlin.toString()) }
+                                }
 //                                  }
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {
 //                                        appendPlatforms(platforms)

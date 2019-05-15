@@ -8,5 +8,5 @@ Useful
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Since1.1()`<br>Useful |
+| [&lt;init&gt;](-init-.md)Since: `1.1` | `Since1.1()`<br>Useful |
 
