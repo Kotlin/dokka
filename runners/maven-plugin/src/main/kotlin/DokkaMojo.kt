@@ -126,7 +126,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var targets: List<String> = emptyList()
 
     @Parameter
-    var sinceKotlin: String = "1.0"
+    var sinceKotlin: String? = null
 
     @Parameter
     var includeNonPublic: Boolean = false

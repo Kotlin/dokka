@@ -43,7 +43,7 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     override var analysisPlatform: Platform = Platform.DEFAULT
     var platform: String = ""
     override var targets: List<String> = emptyList()
-    override var sinceKotlin: String = "1.0"
+    override var sinceKotlin: String? = null
 
     fun sourceRoot(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradleSourceRootImpl())
