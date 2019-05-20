@@ -103,7 +103,8 @@ class NodeReferenceGraph {
     fun lookupOrWarn(signature: String, logger: DokkaLogger): DocumentationNode? {
         val result = nodeMap[signature]
         if (result == null) {
-            logger.warn("Can't find node by signature `$signature`")
+            logger.warn("Can't find node by signature `$signature`." +
+                    "This is probably caused by invalid configuration of cross-module dependencies")
         }
         return result
     }
