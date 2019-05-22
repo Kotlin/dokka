@@ -26,6 +26,7 @@ dependencies {
 
     compile project(":integration")
 
+    compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin"
     compileOnly gradleApi()
     compileOnly localGroovy()
     implementation "com.google.code.gson:gson:$gson_version"

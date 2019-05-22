@@ -3,14 +3,14 @@ package org.jetbrains.dokka.gradle
 import com.google.gson.GsonBuilder
 import groovy.lang.Closure
 import org.gradle.api.DefaultTask
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
-import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
@@ -18,7 +18,6 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import java.io.File
-import java.io.Serializable
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
@@ -54,15 +53,6 @@ open class DokkaTask : DefaultTask() {
 
     var dokkaRuntime: Configuration? = null
 
-    @InputFiles
-    var classpath: Iterable<File> = arrayListOf()
-
-    @Input
-    var sourceDirs: Iterable<File> = emptyList()
-
-    @Input
-    var sourceRoots: MutableList<SourceRoot> = arrayListOf()
-
     @Input
     var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
 
@@ -76,22 +66,33 @@ open class DokkaTask : DefaultTask() {
     @Input
     var collectInheritedExtensionsFromLibraries: Boolean = false
 
-    @get:Internal
-    internal val kotlinCompileBasedClasspathAndSourceRoots: ClasspathAndSourceRoots by lazy { extractClasspathAndSourceRootsFromKotlinTasks() }
+    var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
+        @Suppress("UNCHECKED_CAST")
+        get() = DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>
+        internal set(value) = DslObject(this).extensions.add(MULTIPLATFORM_EXTENSION_NAME, value)
+
+    var configuration: GradlePassConfigurationImpl
+        @Suppress("UNCHECKED_CAST")
+        get() = DslObject(this).extensions.getByName(CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
+        internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
 
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 
     private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
 
+    @Deprecated("Use manual configuration of source roots or subProjects{} closure")
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         kotlinTasksConfigurator = { taskSupplier.call() }
     }
 
+    @Deprecated("Use manual configuration of source roots or subProjects{} closure")
     fun kotlinTasks(closure: Closure<Any?>) {
         kotlinTasksConfigurator = { closure.call() as? List<Any?> }
     }
 
+    @Input
+    var subProjects: List<String> = emptyList()
 
     fun tryResolveFatJar(project: Project): Set<File> {
         return try {
@@ -110,9 +111,6 @@ open class DokkaTask : DefaultTask() {
             ClassloaderContainer.fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }
-
-    internal data class ClasspathAndSourceRoots(val classpathFileCollection: FileCollection, val sourceRoots: List<File>) :
-        Serializable
 
     private fun extractKotlinCompileTasks(): List<Task> {
         val inputList = (kotlinTasksConfigurator.invoke() ?: emptyList()).filterNotNull()
@@ -134,45 +132,14 @@ open class DokkaTask : DefaultTask() {
         return (tasksByPath + other) as List<Task>
     }
 
-    private fun extractClasspathAndSourceRootsFromKotlinTasks(): ClasspathAndSourceRoots {
-
-        val allTasks = kotlinTasks
-
-        val allClasspath = mutableSetOf<File>()
-        var allClasspathFileCollection: FileCollection = project.files()
-        val allSourceRoots = mutableSetOf<File>()
-
-        allTasks.forEach {
-            logger.debug("Dokka found AbstractKotlinCompile task: $it")
-            with(ReflectDsl) {
-                val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
-
-                val abstractKotlinCompileClz = getAbstractKotlinCompileFor(it)!!
-
-                val taskClasspath: Iterable<File> =
-                    (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
-                            ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
-                            ?: it["getClasspath", abstractKotlinCompileClz]())
-
-                if (taskClasspath is FileCollection) {
-                    allClasspathFileCollection += taskClasspath
-                } else {
-                    allClasspath += taskClasspath
-                }
-                allSourceRoots += taskSourceRoots.filter { it.exists() }
-            }
-        }
-
-        return ClasspathAndSourceRoots(allClasspathFileCollection + project.files(allClasspath), allSourceRoots.toList())
-    }
-
     private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
+    private fun Iterable<String>.toProjects(): List<Project> = project.subprojects.toList().filter { this.contains(it.name) }
 
     protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
 
     @TaskAction
     fun generate() {
-        if (dokkaRuntime == null){
+        if (dokkaRuntime == null) {
             dokkaRuntime = project.configurations.getByName("dokkaRuntime")
         }
 
@@ -181,10 +148,6 @@ open class DokkaTask : DefaultTask() {
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
             loadFatJar()
-            // TODO: implement extracting source roots from kotlin tasks
-            val (_, tasksSourceRoots) = kotlinCompileBasedClasspathAndSourceRoots
-
-            val sourceRoots = collectSourceRoots() + tasksSourceRoots.toSourceRoots()
 
             val bootstrapClass = ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
@@ -193,16 +156,8 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
-            val passConfigurationExtension: GradlePassConfigurationImpl = extensions.findByName(
-                CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
-            val passConfigurationsContainer =
-                (extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as Iterable<GradlePassConfigurationImpl>).toList()
-
-            passConfigurationExtension.sourceRoots.addAll(sourceRoots)
-
-            val passConfigurationList =
-                (if (passConfigurationsContainer.isEmpty()) listOf(passConfigurationExtension) else passConfigurationsContainer)
-                    .map { defaultPassConfiguration(it) }
+            val passConfigurationList = collectConfigurations()
+                .map { defaultPassConfiguration(it) }
 
             val configuration = GradleDokkaConfigurationImpl()
             configuration.outputDir = outputDirectory
@@ -230,39 +185,83 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    private fun defaultPassConfiguration(passConfig: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
-        val (tasksClasspath, _) = kotlinCompileBasedClasspathAndSourceRoots
+    private fun collectConfigurations(): List<GradlePassConfigurationImpl> =
+        if (multiplatform.toList().isNotEmpty()) collectFromMultiPlatform() else collectFromSinglePlatform()
 
-        val fullClasspath = tasksClasspath + classpath
-        passConfig.moduleName = moduleName
-        passConfig.classpath = fullClasspath.map { it.absolutePath }
-        passConfig.samples = passConfig.samples.map { project.file(it).absolutePath }
-        passConfig.includes = passConfig.includes.map { project.file(it).absolutePath }
-        passConfig.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
-        passConfig.suppressedFiles = collectSuppressedFiles(passConfig.sourceRoots)
-        passConfig.externalDocumentationLinks.addAll(externalDocumentationLinks)
-        if(passConfig.platform.isNotEmpty()){
-            passConfig.analysisPlatform = Platform.fromString(passConfig.platform)
-        }
-
-        return passConfig
+    private fun collectFromMultiPlatform(): List<GradlePassConfigurationImpl> {
+        val baseConfig = mergeUserAndAutoConfigurations(
+                multiplatform.toList(),
+                ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
+        )
+        return if (subProjects.isEmpty())
+            baseConfig
+        else
+            subProjects.toProjects().fold(baseConfig, { list, project ->
+                mergeUserAndAutoConfigurations(list, ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty())})
     }
 
-    private fun collectSourceRoots(): List<SourceRoot> {
-        val sourceDirs = when {
-            sourceDirs.any() -> {
-                logger.info("Dokka: Taking source directories provided by the user")
-                sourceDirs.toSet()
+    private fun collectFromSinglePlatform(): List<GradlePassConfigurationImpl> {
+        val autoConfig = ConfigurationExtractor.extractFromSinglePlatform(project)
+        val baseConfig =  if (autoConfig != null)
+            listOf(mergeUserConfigurationAndPlatformData(configuration, autoConfig))
+        else
+            collectFromSinglePlatformOldPlugin()
+
+        return if (subProjects.isNotEmpty()) {
+            try {
+                subProjects.toProjects().fold(baseConfig, { list, project ->
+                    listOf(mergeUserConfigurationAndPlatformData(list.first(), ConfigurationExtractor.extractFromSinglePlatform(project)!!))
+                })
+            } catch(e: NoClassDefFoundError) {
+                logger.warn("Cannot extract sources from subProjects. Please update Kotlin plugin to version 1.3.30+")
+                baseConfig
             }
-            kotlinTasks.isEmpty() -> project.convention.findPlugin(JavaPluginConvention::class.java)?.let { javaPluginConvention ->
-                logger.info("Dokka: Taking source directories from default java plugin")
-                val sourceSets = javaPluginConvention.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
-                sourceSets?.allSource?.srcDirs
-            }
-            else -> emptySet()
+        } else {
+            baseConfig
+        }
+    }
+
+    private fun collectFromSinglePlatformOldPlugin(): List<GradlePassConfigurationImpl> {
+        val kotlinTasks = ConfigurationExtractor.extractFromKotlinTasks(kotlinTasks, project)
+        return if (kotlinTasks != null) {
+            listOf(mergeUserConfigurationAndPlatformData(configuration, kotlinTasks))
+        } else {
+            val javaPlugin = ConfigurationExtractor.extractFromJavaPlugin(project)
+            if (javaPlugin != null)
+                listOf(mergeUserConfigurationAndPlatformData(configuration, javaPlugin)) else listOf(configuration)
+        }
+    }
+
+    private fun mergeUserAndAutoConfigurations(userConfigurations: List<GradlePassConfigurationImpl>,
+                                               autoConfigurations: List<ConfigurationExtractor.PlatformData>) =
+        userConfigurations.map { userConfig ->
+            val autoConfig = autoConfigurations.find { autoConfig -> autoConfig.name == userConfig.name }
+            if (autoConfig != null) mergeUserConfigurationAndPlatformData(userConfig, autoConfig) else userConfig
         }
 
-        return sourceRoots + (sourceDirs?.toSourceRoots() ?: emptyList())
+
+    private fun mergeUserConfigurationAndPlatformData(user: GradlePassConfigurationImpl,
+                                                      auto: ConfigurationExtractor.PlatformData): GradlePassConfigurationImpl {
+        user.sourceRoots.addAll(auto.sourceRoots.toSourceRoots())
+        user.classpath += auto.classpath.map { it.absolutePath }
+        if (user.platform == null)
+            user.platform = auto.platform
+        return user
+    }
+
+    private fun defaultPassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
+        if (config.moduleName == "") {
+            config.moduleName = moduleName
+        }
+        config.samples = config.samples.map { project.file(it).absolutePath }
+        config.includes = config.includes.map { project.file(it).absolutePath }
+        config.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
+        config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
+        config.externalDocumentationLinks.addAll(externalDocumentationLinks)
+        if (config.platform != null && config.platform.toString().isNotEmpty()){
+            config.analysisPlatform = Platform.fromString(config.platform.toString())
+        }
+        return config
     }
 
     /**
@@ -275,17 +274,14 @@ open class DokkaTask : DefaultTask() {
      * Needed for Gradle incremental build
      */
     @InputFiles
-    fun getInputFiles(): FileCollection {
-        val (_, tasksSourceRoots) = extractClasspathAndSourceRootsFromKotlinTasks()
-        return project.files(tasksSourceRoots.map { project.fileTree(it) }) +
-                project.files(collectSourceRoots().map { project.fileTree(File(it.path)) })
-    }
+    fun getInputFiles(): FileCollection =
+        project.files(collectConfigurations().flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) })
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
         const val ABSTRACT_KOTLIN_COMPILE = "org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile"
 
-        private fun getAbstractKotlinCompileFor(task: Task) = try {
+        internal fun getAbstractKotlinCompileFor(task: Task) = try {
             task.project.buildscript.classLoader.loadClass(ABSTRACT_KOTLIN_COMPILE)
         } catch (e: ClassNotFoundException) {
             null
