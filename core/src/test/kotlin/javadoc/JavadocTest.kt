@@ -304,6 +304,14 @@ class JavadocTest {
         }
     }
 
+    @Test
+    fun functionParameters() {
+        verifyJavadoc("testdata/javadoc/functionParameters.java") { doc ->
+            val tags = doc.classNamed("bar.Foo")!!.methods().first().paramTags()
+            assertEquals((tags.first() as ParamTagAdapter).content.size, 1)
+            assertEquals((tags[1] as ParamTagAdapter).content.size, 1)
+        }
+    }
 
     private fun verifyJavadoc(name: String,
                               modelConfig: ModelConfig = ModelConfig(),

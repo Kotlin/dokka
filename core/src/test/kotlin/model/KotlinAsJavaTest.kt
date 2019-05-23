@@ -5,8 +5,8 @@ import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.RefKind
 import org.junit.Assert
-import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class KotlinAsJavaTest {
     @Test fun function() {
