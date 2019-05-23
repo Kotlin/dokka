@@ -531,7 +531,11 @@ private fun DocumentationNodeAdapter.collectParamTags(kind: NodeKind, sectionFil
 
             + node.content.sections
         .filter(sectionFilter)
-        .map { ParamTagAdapter(module, this, it.subjectName ?: "?", true, it.children) }
+        .map {
+            ParamTagAdapter(module, this, it.subjectName ?: "?", true,
+                it.children.filterNot { contentNode -> contentNode is LazyContentBlock }
             )
-        .distinctBy { it.parameterName }
-        .toTypedArray()
+        }
+    )
+    .distinctBy { it.parameterName }
+    .toTypedArray()
