@@ -7,15 +7,16 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 
 
-val testDataFolder = Paths.get("testData")
+val testDataFolder: Path = Paths.get("testData")
 
-val pluginClasspathData = Paths.get("build", "createClasspathManifest", "dokka-plugin-classpath.txt")
-val androidPluginClasspathData = pluginClasspathData.resolveSibling("android-dokka-plugin-classpath.txt")
+val pluginClasspathData: Path = Paths.get("build", "createClasspathManifest", "dokka-plugin-classpath.txt")
+val androidPluginClasspathData: Path = pluginClasspathData.resolveSibling("android-dokka-plugin-classpath.txt")
 
-val dokkaFatJarPathData = pluginClasspathData.resolveSibling("fatjar.txt")
+val dokkaFatJarPathData: Path = pluginClasspathData.resolveSibling("fatjar.txt")
 
 val androidLocalProperties = testDataFolder.resolve("android.local.properties").let { if (Files.exists(it)) it else null }
 

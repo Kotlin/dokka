@@ -74,7 +74,7 @@ class DescriptorDocumentationParser
         }
         val tree = parseMarkdown(kdocText)
         val linkMap = LinkMap.buildLinkMap(tree.node, kdocText)
-        val content = buildContent(tree, LinkResolver(linkMap, { href -> linkResolver.resolveContentLink(contextDescriptor, href) }), inline)
+        val content = buildContent(tree, LinkResolver(linkMap) { href -> linkResolver.resolveContentLink(contextDescriptor, href) }, inline)
         if (kdoc is KDocSection) {
             val tags = kdoc.getTags()
             tags.forEach {
@@ -87,7 +87,7 @@ class DescriptorDocumentationParser
                         val section = content.addSection(javadocSectionDisplayName(it.name), it.getSubjectName())
                         val sectionContent = it.getContent()
                         val markdownNode = parseMarkdown(sectionContent)
-                        buildInlineContentTo(markdownNode, section, LinkResolver(linkMap, { href -> linkResolver.resolveContentLink(contextDescriptor, href) }))
+                        buildInlineContentTo(markdownNode, section, LinkResolver(linkMap) { href -> linkResolver.resolveContentLink(contextDescriptor, href) })
                     }
                 }
             }
@@ -129,7 +129,7 @@ class DescriptorDocumentationParser
                         FqName.fromSegments(listOf("kotlin", "Any")), NoLookupLocation.FROM_IDE)
                 anyClassDescriptors.forEach {
                     val anyMethod = (it as ClassDescriptor).getMemberScope(listOf())
-                            .getDescriptorsFiltered(DescriptorKindFilter.FUNCTIONS, { it == descriptor.name })
+                            .getDescriptorsFiltered(DescriptorKindFilter.FUNCTIONS) { it == descriptor.name }
                             .single()
                     val kdoc = anyMethod.findKDoc()
                     if (kdoc != null) {

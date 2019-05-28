@@ -22,7 +22,7 @@ interface FormatService {
 }
 
 interface FormattedOutputBuilder {
-    /** Appends formatted content to [StringBuilder](to) using specified [location] */
+    /** Appends formatted content */
     fun appendNodes(nodes: Iterable<DocumentationNode>)
 }
 

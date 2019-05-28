@@ -6,7 +6,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.SourceLinkDefinition
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
 import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
@@ -32,7 +31,7 @@ data class ModelConfig(
     val defaultPlatforms: List<String> = emptyList(),
     val noStdlibLink: Boolean = true,
     val collectInheritedExtensionsFromLibraries: Boolean = false,
-    val sourceLinks: List<SourceLinkDefinition> = emptyList()
+    val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition> = emptyList()
 )
 
 fun verifyModel(

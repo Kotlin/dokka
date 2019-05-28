@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.Utilities
 
-import com.google.inject.*
+import com.google.inject.Binder
+import com.google.inject.Module
+import com.google.inject.TypeLiteral
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.name.Names
 import org.jetbrains.dokka.*

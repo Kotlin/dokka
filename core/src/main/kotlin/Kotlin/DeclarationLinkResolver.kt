@@ -34,7 +34,7 @@ class DeclarationLinkResolver
             val signature = elementSignatureProvider.signature(symbol)
             val referencedAt = fromDescriptor.signatureWithSourceLocation()
 
-            return ContentNodeLazyLink(href) { ->
+            return ContentNodeLazyLink(href) {
                 val target = refGraph.lookup(signature)
 
                 if (target == null) {

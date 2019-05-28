@@ -84,7 +84,7 @@ class JavaLanguageService : LanguageService {
         return if (constraints.none())
             node.name
         else {
-            node.name + " extends " + constraints.map { renderType(node) }.joinToString()
+            node.name + " extends " + constraints.joinToString { renderType(node) }
         }
     }
 
@@ -97,7 +97,7 @@ class JavaLanguageService : LanguageService {
             val typeParameters = node.details(NodeKind.TypeParameter)
             if (typeParameters.any()) {
                 append("<")
-                append(typeParameters.map { renderTypeParameter(it) }.joinToString())
+                append(typeParameters.joinToString { renderTypeParameter(it) })
                 append("> ")
             }
         }.toString()
@@ -142,9 +142,9 @@ class JavaLanguageService : LanguageService {
             val receiver = node.details(NodeKind.Receiver).singleOrNull()
             append("(")
             if (receiver != null)
-                (listOf(receiver) + node.details(NodeKind.Parameter)).map { renderParameter(it) }.joinTo(this)
+                (listOf(receiver) + node.details(NodeKind.Parameter)).joinTo(this) { renderParameter(it) }
             else
-                node.details(NodeKind.Parameter).map { renderParameter(it) }.joinTo(this)
+                node.details(NodeKind.Parameter).joinTo(this) { renderParameter(it) }
 
             append(")")
         }.toString()

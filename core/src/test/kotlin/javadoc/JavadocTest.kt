@@ -149,8 +149,9 @@ class JavadocTest {
                     .find { it.name() == "some" }!!.parameters().first()
                     .type()
             assertEquals("kotlin.jvm.functions.Function1", methodParamType.qualifiedTypeName())
-            assertEquals("? super A, C", methodParamType.asParameterizedType().typeArguments()
-                    .map(Type::qualifiedTypeName).joinToString())
+            assertEquals("? super A, C",
+                methodParamType.asParameterizedType().typeArguments().joinToString(transform = Type::qualifiedTypeName)
+            )
         }
     }
 

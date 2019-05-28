@@ -481,9 +481,7 @@ open class ClassDocumentationNodeAdapter(module: ModuleNodeAdapter, val classNod
 
 fun DocumentationNode.lookupSuperClasses(module: ModuleNodeAdapter) =
     details(NodeKind.Supertype)
-        .map { it.links.firstOrNull() }
-        .map { module.allTypes[it?.qualifiedName()] }
-        .filterNotNull()
+        .map { it.links.firstOrNull() }.mapNotNull { module.allTypes[it?.qualifiedName()] }
 
 fun List<DocumentationNode>.collectAllTypesRecursively(): Map<String, DocumentationNode> {
     val result = hashMapOf<String, DocumentationNode>()
