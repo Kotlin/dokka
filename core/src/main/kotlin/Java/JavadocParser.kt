@@ -192,7 +192,7 @@ class JavadocParser(
         return when {
             element.hasAttr("docref") -> {
                 val docref = element.attr("docref")
-                ContentNodeLazyLink(docref, { -> refGraph.lookupOrWarn(docref, logger) })
+                ContentNodeLazyLink(docref) { refGraph.lookupOrWarn(docref, logger)}
             }
             element.hasAttr("href") -> {
                 val href = element.attr("href")
@@ -235,7 +235,7 @@ class JavadocParser(
                 val linkNode =
                         ContentNodeLazyLink(
                                 (tag.valueElement ?: linkElement).text
-                        ) { -> refGraph.lookupOrWarn(linkSignature!!, logger) }
+                        ) { refGraph.lookupOrWarn(linkSignature!!, logger) }
                 linkNode.append(text)
                 linkNode
             }

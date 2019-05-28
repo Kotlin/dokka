@@ -347,7 +347,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
 }
 
 fun hasSuppressDocTag(element: Any?): Boolean {
-    val declaration = (element as? KtLightDeclaration<*, *>)?.kotlinOrigin as? KtDeclaration ?: return false
+    val declaration = (element as? KtLightDeclaration<*, *>)?.kotlinOrigin ?: return false
     return PsiTreeUtil.findChildrenOfType(declaration.docComment, KDocTag::class.java).any { it.knownTag == KDocKnownTag.SUPPRESS }
 }
 

@@ -45,7 +45,7 @@ open class DefaultSampleProcessingService
         val text = processSampleBody(psiElement).trim { it == '\n' || it == '\r' }.trimEnd()
         val lines = text.split("\n")
         val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
-        val finalText = lines.map { it.drop(indent) }.joinToString("\n")
+        val finalText = lines.joinToString("\n") { it.drop(indent) }
 
         return ContentBlockSampleCode(importsBlock = processImports(psiElement)).apply { append(ContentText(finalText)) }
     }
@@ -81,9 +81,7 @@ open class DefaultSampleProcessingService
         for (part in parts) {
             // short name
             val symbolName = Name.identifier(part)
-            val partSymbol = currentScope.getContributedDescriptors(DescriptorKindFilter.ALL, { it == symbolName })
-                    .filter { it.name == symbolName }
-                    .firstOrNull()
+            val partSymbol = currentScope.getContributedDescriptors(DescriptorKindFilter.ALL) { it == symbolName }.firstOrNull { it.name == symbolName }
 
             if (partSymbol == null) {
                 symbol = null

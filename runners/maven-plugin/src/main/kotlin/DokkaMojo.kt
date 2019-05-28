@@ -284,11 +284,11 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
         val javadocJar = File(jarOutputDirectory, jarFileName)
 
         val archiver = MavenArchiver()
-        archiver.setArchiver(jarArchiver)
+        archiver.archiver = jarArchiver
         archiver.setOutputFile(javadocJar)
         archiver.archiver.addDirectory(File(outputDir), arrayOf("**/**"), arrayOf())
 
-        archive.setAddMavenDescriptor(false)
+        archive.isAddMavenDescriptor = false
         archiver.createArchive(session, project, archive)
 
         return javadocJar

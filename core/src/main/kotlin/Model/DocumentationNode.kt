@@ -177,10 +177,10 @@ open class DocumentationNode(val name: String,
     fun inheritedCompanionObjectMembers(kind: NodeKind): List<DocumentationNode> = inheritedCompanionObjectMembers.filter { it.kind == kind }
     fun links(kind: NodeKind): List<DocumentationNode> = links.filter { it.kind == kind }
 
-    fun detail(kind: NodeKind): DocumentationNode = details.filter { it.kind == kind }.single()
-    fun detailOrNull(kind: NodeKind): DocumentationNode? = details.filter { it.kind == kind }.singleOrNull()
-    fun member(kind: NodeKind): DocumentationNode = members.filter { it.kind == kind }.single()
-    fun link(kind: NodeKind): DocumentationNode = links.filter { it.kind == kind }.single()
+    fun detail(kind: NodeKind): DocumentationNode = details.single { it.kind == kind }
+    fun detailOrNull(kind: NodeKind): DocumentationNode? = details.singleOrNull { it.kind == kind }
+    fun member(kind: NodeKind): DocumentationNode = members.single { it.kind == kind }
+    fun link(kind: NodeKind): DocumentationNode = links.single { it.kind == kind }
 
 
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }

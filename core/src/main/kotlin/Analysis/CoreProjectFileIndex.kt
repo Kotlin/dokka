@@ -166,8 +166,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
 
     private val sdk: Sdk = object : Sdk, RootProvider {
         override fun getFiles(rootType: OrderRootType): Array<out VirtualFile> = classpathRoots
-                .map { StandardFileSystems.local().findFileByPath(it.file.path) }
-                .filterNotNull()
+                .mapNotNull { StandardFileSystems.local().findFileByPath(it.file.path) }
                 .toTypedArray()
 
         override fun addRootSetChangedListener(p0: RootProvider.RootSetChangedListener) {

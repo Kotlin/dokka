@@ -229,9 +229,9 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                 }
                 when (content) {
                     is ContentBlockSampleCode ->
-                        appendSampleBlockCode(content.language, content.importsBlock::appendBlockCodeContent, { content.appendBlockCodeContent() })
+                        appendSampleBlockCode(content.language, content.importsBlock::appendBlockCodeContent) { content.appendBlockCodeContent() }
                     is ContentBlockCode ->
-                        appendBlockCode(content.language, { content.appendBlockCodeContent() })
+                        appendBlockCode(content.language) { content.appendBlockCodeContent() }
                 }
             }
             is ContentHeading -> appendHeader(content.level) { appendContent(content.children) }
