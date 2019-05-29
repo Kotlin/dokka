@@ -111,11 +111,8 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
     }
 
 }
-@Ignore
 class JsKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.js)
 
-@Ignore
 class JvmKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.jvm)
 
-@Ignore
 class CommonKotlinWebSiteHtmlFormatTest: BaseKotlinWebSiteHtmlFormatTest(Platform.common)
