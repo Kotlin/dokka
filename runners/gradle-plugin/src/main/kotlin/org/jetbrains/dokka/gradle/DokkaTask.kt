@@ -53,8 +53,12 @@ open class DokkaTask : DefaultTask() {
 
     var dokkaRuntime: Configuration? = null
 
+    var defaultDokkaRuntime: Configuration? = null
+
     @Input
-    var dokkaFatJar: Any = "org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}"
+    var dokkaFatJar: String = "dokka-fatjar-${DokkaVersion.version}"
+
+    private val defaultDokkaFatJar = "dokka-fatjar-${DokkaVersion.version}"
 
     @Input
     var impliedPlatforms: MutableList<String> = arrayListOf()
@@ -94,20 +98,17 @@ open class DokkaTask : DefaultTask() {
     @Input
     var subProjects: List<String> = emptyList()
 
-    fun tryResolveFatJar(project: Project): Set<File> {
+    fun tryResolveFatJar(configuration: Configuration?): Set<File> {
         return try {
-            dokkaRuntime!!.resolve()
+            configuration!!.resolve()
         } catch (e: Exception) {
-            project.parent?.let { tryResolveFatJar(it) } ?: throw e
+            project.parent?.let { tryResolveFatJar(configuration) } ?: throw e
         }
     }
 
     fun loadFatJar() {
         if (ClassloaderContainer.fatJarClassLoader == null) {
-            val jars = if (dokkaFatJar is File)
-                setOf(dokkaFatJar as File)
-            else
-                tryResolveFatJar(project)
+            val jars = tryResolveFatJar(dokkaRuntime).toList().union(tryResolveFatJar(defaultDokkaRuntime).toList()).filter { it.name.contains(dokkaFatJar) || it.name.contains(defaultDokkaFatJar) }
             ClassloaderContainer.fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }
@@ -139,11 +140,6 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        if (dokkaRuntime == null) {
-            dokkaRuntime = project.configurations.getByName("dokkaRuntime")
-        }
-
-        dokkaRuntime?.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create(dokkaFatJar)) }
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {

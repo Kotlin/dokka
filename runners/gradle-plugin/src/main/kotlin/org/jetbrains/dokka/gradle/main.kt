@@ -16,8 +16,14 @@ open class DokkaPlugin : Plugin<Project> {
         DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
 
         // TODO: Register instead of create for Gradle >= 4.10
+        val dokkaRuntimeConfiguration = project.configurations.create("dokkaRuntime")
+        val defaultDokkaRuntimeConfiguration = project.configurations.create("defaultDokkaRuntime")
+
+        defaultDokkaRuntimeConfiguration.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
+
         project.tasks.create("dokka", DokkaTask::class.java).apply {
-            dokkaRuntime = project.configurations.create("dokkaRuntime")
+            dokkaRuntime = dokkaRuntimeConfiguration
+            defaultDokkaRuntime = defaultDokkaRuntimeConfiguration
             moduleName = project.name
             outputDirectory = File(project.buildDir, "dokka").absolutePath
         }
