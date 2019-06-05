@@ -67,9 +67,6 @@ open class DokkaTask : DefaultTask() {
     @Input
     var cacheRoot: String? = null
 
-    @Input
-    var collectInheritedExtensionsFromLibraries: Boolean = false
-
     var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
         get() = DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>
@@ -186,8 +183,8 @@ open class DokkaTask : DefaultTask() {
 
     private fun collectFromMultiPlatform(): List<GradlePassConfigurationImpl> {
         val baseConfig = mergeUserAndAutoConfigurations(
-                multiplatform.toList(),
-                ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
+            multiplatform.toList(),
+            ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
         )
         return if (subProjects.isEmpty())
             baseConfig
@@ -229,20 +226,27 @@ open class DokkaTask : DefaultTask() {
     }
 
     private fun mergeUserAndAutoConfigurations(userConfigurations: List<GradlePassConfigurationImpl>,
-                                               autoConfigurations: List<ConfigurationExtractor.PlatformData>) =
-        userConfigurations.map { userConfig ->
-            val autoConfig = autoConfigurations.find { autoConfig -> autoConfig.name == userConfig.name }
-            if (autoConfig != null) mergeUserConfigurationAndPlatformData(userConfig, autoConfig) else userConfig
+                                               autoConfigurations: List<ConfigurationExtractor.PlatformData>): List<GradlePassConfigurationImpl> {
+        val merged: MutableList<GradlePassConfigurationImpl> = mutableListOf()
+        merged.addAll(
+            userConfigurations.map { userConfig ->
+                val autoConfig = autoConfigurations.find { autoConfig -> autoConfig.name == userConfig.name }
+                if (autoConfig != null) mergeUserConfigurationAndPlatformData(userConfig, autoConfig) else userConfig
+            }
+        )
+        return merged.toList()
+    }
+
+    private fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl,
+                                                      autoConfig: ConfigurationExtractor.PlatformData): GradlePassConfigurationImpl {
+        val merged = GradlePassConfigurationImpl(userConfig.name)
+        merged.apply {
+            sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
+            classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
+            if (userConfig.platform == null)
+                platform = autoConfig.platform
         }
-
-
-    private fun mergeUserConfigurationAndPlatformData(user: GradlePassConfigurationImpl,
-                                                      auto: ConfigurationExtractor.PlatformData): GradlePassConfigurationImpl {
-        user.sourceRoots.addAll(auto.sourceRoots.toSourceRoots())
-        user.classpath += auto.classpath.map { it.absolutePath }
-        if (user.platform == null)
-            user.platform = auto.platform
-        return user
+        return merged
     }
 
     private fun defaultPassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
@@ -251,7 +255,6 @@ open class DokkaTask : DefaultTask() {
         }
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
-        config.collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
         config.externalDocumentationLinks.addAll(externalDocumentationLinks)
         if (config.platform != null && config.platform.toString().isNotEmpty()){
