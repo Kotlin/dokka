@@ -59,9 +59,9 @@ object ConfigurationExtractor {
         val platformTargets = targets.filter { it.platformType != KotlinPlatformType.common }
 
         val config = platformTargets.map {
-            PlatformData(it.name,  getClasspath(it) + commonTargetClasspath.orEmpty(),
-                    getSourceSet(it) + commonTargetSourceList.orEmpty(), it.platformType.toString())
+            PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
         }
+
         return config + PlatformData("common", commonTargetClasspath.orEmpty(), commonTargetSourceList.orEmpty(), "common")
     }
 
