@@ -22,11 +22,15 @@ subprojects {
     }
 }
 
+dependencies {
+    defaultDokkaRuntime files(dokka_fatjar)
+}
+
 apply plugin: 'org.jetbrains.dokka'
 
 dokka {
     kotlinTasks {
         [":subA:compileKotlin", ":subB:compileKotlin"]
     }
-    dokkaFatJar = new File(dokka_fatjar)
+    dokkaFatJar = dokka_fatjar
 }
