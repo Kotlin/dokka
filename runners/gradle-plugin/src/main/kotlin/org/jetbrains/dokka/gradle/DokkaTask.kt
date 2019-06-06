@@ -253,6 +253,7 @@ open class DokkaTask : DefaultTask() {
         if (config.moduleName == "") {
             config.moduleName = moduleName
         }
+        config.classpath = (config.classpath as List<Any>).map { it.toString() } // Workaround for Groovy's GStringImpl
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
@@ -263,18 +264,22 @@ open class DokkaTask : DefaultTask() {
         return config
     }
 
-    /**
-     * Needed for Gradle incremental build
-     */
+    // Needed for Gradle incremental build
     @OutputDirectory
     fun getOutputDirectoryAsFile(): File = project.file(outputDirectory)
 
-    /**
-     * Needed for Gradle incremental build
-     */
+    // Needed for Gradle incremental build
     @InputFiles
-    fun getInputFiles(): FileCollection =
-        project.files(collectConfigurations().flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) })
+    fun getInputFiles(): FileCollection {
+        val config = collectConfigurations()
+        return project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
+                project.files(config.flatMap { it.includes }) +
+                project.files(config.flatMap { it.samples }.map { project.fileTree(File(it)) })
+    }
+
+    @Classpath
+    fun getInputClasspath(): FileCollection =
+        project.files((collectConfigurations().flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"

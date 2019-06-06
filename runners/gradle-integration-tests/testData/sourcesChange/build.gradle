@@ -29,11 +29,12 @@ repositories {
 }
 
 dependencies {
+    defaultDokkaRuntime files(dokka_fatjar)
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-runtime', version: test_kotlin_version
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: test_kotlin_version
 }
 
 
 dokka {
-    dokkaFatJar = files(dokka_fatjar)
+    dokkaFatJar = dokka_fatjar
 }

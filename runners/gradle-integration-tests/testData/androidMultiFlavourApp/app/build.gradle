@@ -57,19 +57,20 @@ android {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$test_kotlin_version"
+    defaultDokkaRuntime files(dokka_fatjar)
 }
 
 
 dokka {
     outputDirectory = "$buildDir/dokka/all"
-    dokkaFatJar = new File(dokka_fatjar)
+    dokkaFatJar = dokka_fatjar
 }
 
 task dokkaFullFlavourOnly(type: org.jetbrains.dokka.gradle.DokkaAndroidTask) {
     kotlinTasks {
         ["compileFullReleaseKotlin"]
     }
-    dokkaFatJar = new File(dokka_fatjar)
+    dokkaFatJar = dokka_fatjar
     outputDirectory = "$buildDir/dokka/fullOnly"
     moduleName = "full"
 }
