@@ -964,7 +964,7 @@ fun effectivePlatformsForMembers(nodes: Collection<DocumentationNode>): Platform
 }
 
 fun mergeVersions(kotlinVersions: List<String>): String {
-    return kotlinVersions.distinct().min()!!
+    return kotlinVersions.distinct().min().orEmpty()
 }
 
 fun effectiveSinceKotlinForNode(node: DocumentationNode, baseVersion: String = "1.0"): String {
