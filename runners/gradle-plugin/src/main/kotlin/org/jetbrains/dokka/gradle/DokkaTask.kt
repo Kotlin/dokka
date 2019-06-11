@@ -239,7 +239,7 @@ open class DokkaTask : DefaultTask() {
 
     private fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl,
                                                       autoConfig: ConfigurationExtractor.PlatformData): GradlePassConfigurationImpl {
-        val merged = GradlePassConfigurationImpl(userConfig.name)
+        val merged = userConfig.copy()
         merged.apply {
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
             classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
