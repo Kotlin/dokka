@@ -9,6 +9,8 @@ import org.jetbrains.dokka.Platform
 import java.io.File
 import java.io.Serializable
 import java.net.URL
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.memberProperties
 
 class GradleSourceRootImpl: SourceRoot, Serializable {
     override var path: String = ""
@@ -116,4 +118,19 @@ class GradlePackageOptionsImpl: PackageOptions {
     override val reportUndocumented: Boolean = true
     override val skipDeprecated: Boolean = true
     override val suppress: Boolean = false
+}
+
+fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {
+    val newObj = GradlePassConfigurationImpl(this.name)
+    this::class.memberProperties.forEach { field ->
+        if (field is KMutableProperty<*>) {
+            val value = field.getter.call(this)
+            if (value is Collection<*>) {
+                field.setter.call(newObj, value.toMutableList())
+            } else {
+                field.setter.call(newObj, field.getter.call(this))
+            }
+        }
+    }
+    return newObj
 }
