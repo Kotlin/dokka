@@ -1,5 +1,3 @@
-
-
 apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8

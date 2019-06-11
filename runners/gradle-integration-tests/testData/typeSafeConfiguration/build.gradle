@@ -8,6 +8,7 @@ import java.util.concurrent.Callable
 buildscript {
     repositories {
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
@@ -26,7 +27,7 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
         moduleName = "some String"
         outputFormat = "some String"
         outputDirectory = "some String"
-        dokkaFatJar = file("some File")
+        dokkaFatJar = "some String"
         cacheRoot = null as String
         impliedPlatforms = new ArrayList<String>()
 
@@ -37,21 +38,18 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
             }
         })
     }
-    dokka.extensions.findByName("configuration").with {
-
-        classpath = Collections.singleton(file("someClassDir"))
-        includes = Collections.emptyList()
-        samples = Collections.emptyList()
+    dokka.configuration.with {
+        classpath = Arrays.asList("someClassDir")
+        includes = Collections.<String> emptyList()
+        samples = Collections.<String> emptyList()
         jdkVersion = 6
-        sourceDirs = Collections.<File> emptyList()
-        sourceRoots = new ArrayList<GradleSourceRootImpl>()
+        sourceRoots = new ArrayList<GradleSourceRootImpl>() as List<DokkaConfiguration.SourceRoot>
 
         includeNonPublic = false
         skipDeprecated = false
         skipEmptyPackages = true
         reportUndocumented = true
-        perPackageOptions = new ArrayList<GradlePackageOptionsImpl>()
-        impliedPlatforms = Collections.<String> emptyList()
+        perPackageOptions = new ArrayList<GradlePackageOptionsImpl>() as List<DokkaConfiguration.PackageOptions>
         externalDocumentationLinks = new ArrayList<DokkaConfiguration.ExternalDocumentationLink>()
         noStdlibLink = false
         languageVersion = null as String
@@ -62,18 +60,14 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
                 sourceRoot.path = "some String"
             }
         })
-        packageOptions(new Action<GradlePackageOptionsImpl>() {
+        externalDocumentationLink(new Action<GradleExternalDocumentationLinkImpl>() {
             @Override
-            void execute(GradlePackageOptionsImpl packageOptions) {
-                packageOptions.prefix = "some String"
+            void execute(GradleExternalDocumentationLinkImpl link) {
+                link.url = uri("some URI").toURL()
+                link.packageListUrl = uri("some URI").toURL()
             }
         })
-        externalDocumentationLink(new Action<DokkaConfiguration.ExternalDocumentationLink.Builder>() {
-            @Override
-            void execute(DokkaConfiguration.ExternalDocumentationLink.Builder builder) {
-                builder.url = uri("some URI").toURL()
-            }
-        })
+
     }
 }
 
