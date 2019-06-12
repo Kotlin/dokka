@@ -4,6 +4,7 @@ import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.artifacts.ResolveException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
@@ -88,10 +89,14 @@ object ConfigurationExtractor {
                 allSourceRoots += taskSourceRoots.filter { it.exists() }
             }
         }
+        val classpath: MutableList<File> = try {
+            allClasspathFileCollection.toMutableList()
+        } catch (e: ResolveException) {
+            mutableListOf()
+        }
+        classpath.addAll (project.files(allClasspath).toList())
 
-        return PlatformData(null,
-                (allClasspathFileCollection + project.files(allClasspath)).toList(), allSourceRoots.toList(), ""
-        )
+        return PlatformData(null, classpath, allSourceRoots.toList(), "")
     }
 
     fun extractFromJavaPlugin(project: Project): PlatformData? =
