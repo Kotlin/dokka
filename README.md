@@ -27,7 +27,7 @@ repositories {
 apply plugin: 'org.jetbrains.dokka'
 ```
 
-or using the new plugins block:
+or using the plugins block:
 
 ```groovy
 plugins {
@@ -44,10 +44,21 @@ If you encounter any problems when migrating from older versions of Dokka, pleas
 
 Minimal dokka configuration:
 
+Groovy
 ```groovy
 dokka {
     outputFormat = 'html' 
     outputDirectory = "$buildDir/javadoc"
+}
+```
+
+Kotlin
+```kotlin
+tasks {
+    val dokka by getting(DokkaTask::class) {
+        outputFormat = "html"
+        outputDirectory = "$buildDir/dokka"
+    }
 }
 ```
 
@@ -162,31 +173,30 @@ dokka {
 }
 ```
 
-The available configuration options for multiplatform are like those for single platform, but `configuration` block is 
-replaced by `multiplatform` which has inner blocks for each platform. You also have to explicitly empty `kotlinTasks` block:
+#### Multiplatform
+Since 0.9.19 dokka supports multiplatform projects. 
+The available configuration options for multiplatform are like those for single platform, but the `configuration` block 
+is replaced by `multiplatform` which has inner blocks for each platform. The inner blocks can be named arbitrary, 
+however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names.
 
+Groovy
 ```groovy
+kotlin { // Kotlin Multiplatform plugin configuration
+    jvm() 
+    js("customName")
+}
+
 dokka {
     outputDirectory = "$buildDir/dokka"
     outputFormat = "html"
 
-    kotlinTasks {
-        []
-    }
-
     multiplatform {
-        js { // the name here is arbitrary
+        customName { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
             targets = ["JS"]
             platform = "js"
-            sourceRoot {
-                path = kotlin.sourceSets.jsMain.kotlin.srcDirs[0]
-            }
-            sourceRoot {
-                path = kotlin.sourceSets.commonMain.kotlin.srcDirs[0]
-            }
         }
 
-        jvm { // the name here is arbitrary
+        differentName { // Different name, so source roots must be passed explicitly
             targets = ["JVM"]
             platform = "jvm"
             sourceRoot {
@@ -198,9 +208,40 @@ dokka {
         }
     }
 }
-
 ```
 
+Kotlin
+```kotlin
+kotlin {  // Kotlin Multiplatform plugin configuration
+    jvm()
+    js("customName")
+}
+
+val dokka by getting(DokkaTask::class) {
+        outputDirectory = "$buildDir/dokka"
+        outputFormat = "html"
+
+        multiplatform { 
+            val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+                targets = listOf("JS")
+                platform = "js"
+            }
+
+            register("differentName") { // Different name, so source roots must be passed explicitly
+                targets = listOf("JVM")
+                platform = "jvm"
+                sourceRoot {
+                    path = kotlin.sourceSets.getByName("jvmMain").kotlin.srcDirs.first().toString()
+                }
+                sourceRoot {
+                    path = kotlin.sourceSets.getByName("commonMain").kotlin.srcDirs.first().toString()
+                }
+            }
+        }
+    }
+```
+
+Note that `javadoc` output format cannot be used with multiplatform. 
 
 To generate the documentation, use the `dokka` Gradle task:
 
