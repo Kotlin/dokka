@@ -21,7 +21,7 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
     override fun toString(): String = path
 }
 
-open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
+open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration, Serializable {
     override var classpath: List<String> = emptyList()
     override var moduleName: String = ""
     override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
