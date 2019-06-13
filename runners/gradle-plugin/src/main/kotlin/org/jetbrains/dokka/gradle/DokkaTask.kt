@@ -49,6 +49,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
 
+    @Input
     var outputDirectory: String = ""
 
     var dokkaRuntime: Configuration? = null
@@ -69,12 +70,12 @@ open class DokkaTask : DefaultTask() {
 
     var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
-        get() = DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>
+        @Input get() = DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>
         internal set(value) = DslObject(this).extensions.add(MULTIPLATFORM_EXTENSION_NAME, value)
 
     var configuration: GradlePassConfigurationImpl
         @Suppress("UNCHECKED_CAST")
-        get() = DslObject(this).extensions.getByName(CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
+        @Input get() = DslObject(this).extensions.getByName(CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
         internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
 
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
