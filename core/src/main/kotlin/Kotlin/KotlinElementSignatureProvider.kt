@@ -23,14 +23,11 @@ class KotlinElementSignatureProvider @Inject constructor(
 }
 
 
-fun PsiElement.extractDescriptor(resolutionFacade: DokkaResolutionFacade): DeclarationDescriptor? {
-    val forPsi = this
-
-    return when (forPsi) {
+fun PsiElement.extractDescriptor(resolutionFacade: DokkaResolutionFacade): DeclarationDescriptor? =
+    when (val forPsi = this) {
         is KtLightClassForFacade -> resolutionFacade.moduleDescriptor.getPackage(forPsi.fqName)
-        is KtLightElement<*, *> -> return (forPsi.kotlinOrigin!!).extractDescriptor(resolutionFacade)
+        is KtLightElement<*, *> -> (forPsi.kotlinOrigin!!).extractDescriptor(resolutionFacade)
         is PsiPackage -> resolutionFacade.moduleDescriptor.getPackage(FqName(forPsi.qualifiedName))
         is PsiMember -> forPsi.getJavaOrKotlinMemberDescriptor(resolutionFacade)
         else -> resolutionFacade.resolveSession.bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, forPsi]
     }
-}
