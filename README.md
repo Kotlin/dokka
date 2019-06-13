@@ -220,7 +220,7 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
 #### Dokka Runtime
-If you are using Gradle plugin and you want to change the version of Dokka, you can do it by setting `dokkaRuntime`:
+If you are using Gradle plugin and you want to use a custom version of Dokka, you can do it by setting `dokkaRuntime` and `dokkaFatJar`:
 
 ```groovy
 buildscript {
@@ -236,7 +236,39 @@ repositories {
 dependencies {
     dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
 }
+
+dokka {
+    dokkaFatJar = "dokka-fatjar-0.9.18"
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/dokkaHtml"
+}
+
 ```
+
+To use your Fat Jar, just set path to it:
+
+ ```groovy
+ buildscript {
+     ...
+ }
+ 
+ apply plugin: 'org.jetbrains.dokka'
+ 
+ repositories {
+     jcenter()
+ }
+ 
+ dependencies {
+     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.9.18.jar")
+ }
+ 
+ dokka {
+     dokkaFatJar = "dokka-fatjar-0.9.18"
+     outputFormat = 'html'
+     outputDirectory = "$buildDir/dokkaHtml"
+ }
+ 
+ ```
 
 #### FAQ
 If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
@@ -442,7 +474,7 @@ The Ant task definition is also contained in the dokka-fatjar.jar referenced abo
 The Ant task supports the following attributes:
 
   * `outputDir` - the output directory where the documentation is generated
-  * `outputFormat` - the output format (see the list of supported formats above)
+  * `format` - the output format (see the list of supported formats above)
   * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
   * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
   * `moduleName` - the name of the module being documented (used as the root directory of the generated documentation)
