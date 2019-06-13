@@ -275,16 +275,17 @@ repositories {
 }
 
 dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.19"
 }
 
 dokka {
-    dokkaFatJar = "dokka-fatjar-0.9.18"
+    dokkaFatJar = "dokka-fatjar-0.9.19"
     outputFormat = 'html'
     outputDirectory = "$buildDir/dokkaHtml"
 }
 
 ```
+If you don't provide `dokkaFatJar` in `dokka` task then version from `dokka-gradle-plugin` will be used.  
 
 To use your Fat Jar, just set path to it:
 
@@ -300,11 +301,11 @@ To use your Fat Jar, just set path to it:
  }
  
  dependencies {
-     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.9.18.jar")
+     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.9.19.jar")
  }
  
  dokka {
-     dokkaFatJar = "dokka-fatjar-0.9.18"
+     dokkaFatJar = "dokka-fatjar-0.9.19"
      outputFormat = 'html'
      outputDirectory = "$buildDir/dokkaHtml"
  }
