@@ -17,18 +17,19 @@ open class DokkaPlugin : Plugin<Project> {
 
         val dokkaRuntimeConfiguration = project.configurations.create("dokkaRuntime")
         val defaultDokkaRuntimeConfiguration = project.configurations.create("defaultDokkaRuntime")
+        val taskName = "dokka"
 
         defaultDokkaRuntimeConfiguration.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
 
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
-            project.tasks.register("dokka", DokkaTask::class.java).configure {
+            project.tasks.register(taskName, DokkaTask::class.java).configure {
                 it.moduleName = project.name
-                it.outputDirectory = File(project.buildDir, "dokka").absolutePath
+                it.outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         } else {
-            project.tasks.create("dokka", DokkaTask::class.java).apply {
+            project.tasks.create(taskName, DokkaTask::class.java).apply {
                 moduleName = project.name
-                outputDirectory = File(project.buildDir, "dokka").absolutePath
+                outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         }
 
