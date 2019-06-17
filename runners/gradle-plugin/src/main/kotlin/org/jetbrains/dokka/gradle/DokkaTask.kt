@@ -206,8 +206,9 @@ open class DokkaTask : DefaultTask() {
                 subProjects.toProjects().fold(baseConfig, { list, project ->
                     listOf(mergeUserConfigurationAndPlatformData(list.first(), ConfigurationExtractor.extractFromSinglePlatform(project)!!))
                 })
-            } catch(e: NoClassDefFoundError) {
-                logger.warn("Cannot extract sources from subProjects. Please update Kotlin plugin to version 1.3.30+")
+            } catch(e: NullPointerException) {
+                logger.warn("Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
+                        "and the Kotlin plugin applied in the root project?")
                 baseConfig
             }
         } else {
