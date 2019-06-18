@@ -68,14 +68,14 @@ open class DokkaTask : DefaultTask() {
     @Input
     var cacheRoot: String? = null
 
-    var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
+    var multiplatform: Set<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
-        @Input get() = DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>
+        @Input get() = (DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>).toSet()
         internal set(value) = DslObject(this).extensions.add(MULTIPLATFORM_EXTENSION_NAME, value)
 
     var configuration: GradlePassConfigurationImpl
         @Suppress("UNCHECKED_CAST")
-        @Input get() = DslObject(this).extensions.getByName(CONFIGURATION_EXTENSION_NAME) as GradlePassConfigurationImpl
+        @Input get() = DslObject(this).extensions.getByType(GradlePassConfigurationImpl::class.java)
         internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
 
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()

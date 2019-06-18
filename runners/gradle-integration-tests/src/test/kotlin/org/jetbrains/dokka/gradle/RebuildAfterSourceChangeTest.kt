@@ -30,7 +30,7 @@ class RebuildAfterSourceChangeTest : AbstractDokkaGradleTest() {
         }
 
 
-        configure(gradleVersion, kotlinVersion, arguments = arrayOf("dokka", "--stacktrace")).build().let { result ->
+        configure(gradleVersion, kotlinVersion, arguments = arrayOf("dokka", "-i", "--stacktrace")).build().let { result ->
             println(result.output)
 
             assertEquals(TaskOutcome.UP_TO_DATE, result.task(":dokka")?.outcome)
@@ -53,13 +53,13 @@ class RebuildAfterSourceChangeTest : AbstractDokkaGradleTest() {
 
 
     @Test
-    fun `test kotlin 1_1_2 and gradle 3_5`() {
-        doTest("3.5", "1.1.2")
+    fun `test kotlin 1_0_7 and gradle 2_14_1`() {
+        doTest("2.14.1", "1.0.7")
     }
 
     @Test
-    fun `test kotlin 1_0_7 and gradle 2_14_1`() {
-        doTest("2.14.1", "1.0.7")
+    fun `test kotlin 1_1_2 and gradle 3_5`() {
+        doTest("3.5", "1.1.2")
     }
 
     @Test
