@@ -34,8 +34,7 @@ open class DokkaPlugin : Plugin<Project> {
         }
 
         project.tasks.withType(DokkaTask::class.java) { task ->
-            val passConfiguration = project.container(GradlePassConfigurationImpl::class.java)
-            task.multiplatform = passConfiguration
+            task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = dokkaRuntimeConfiguration
             task.defaultDokkaRuntime = defaultDokkaRuntimeConfiguration

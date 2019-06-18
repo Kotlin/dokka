@@ -37,10 +37,6 @@ class BasicTest : AbstractDokkaGradleTest() {
                 """<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>""")
     }
 
-    @Test fun `test kotlin 1_1_2 and gradle 3_5`() {
-        doTest("3.5", "1.1.2")
-    }
-
     @Test fun `test kotlin 1_0_7 and gradle 2_14_1`() {
         doTest("2.14.1", "1.0.7")
     }

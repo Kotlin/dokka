@@ -92,13 +92,13 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     }
 }
 
-class GradleSourceLinkDefinitionImpl : SourceLinkDefinition {
+class GradleSourceLinkDefinitionImpl : SourceLinkDefinition, Serializable {
     override var path: String = ""
     override var url: String = ""
     override var lineSuffix: String? = null
 }
 
-class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink {
+class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink, Serializable {
     override var url: URL = URL("http://")
     override var packageListUrl: URL = URL("http://")
 }
@@ -112,7 +112,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
 }
 
-class GradlePackageOptionsImpl: PackageOptions {
+class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var prefix: String = ""
     override val includeNonPublic: Boolean = false
     override val reportUndocumented: Boolean = true
