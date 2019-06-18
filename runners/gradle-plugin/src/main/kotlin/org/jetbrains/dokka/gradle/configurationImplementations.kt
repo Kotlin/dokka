@@ -2,6 +2,8 @@ package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.*
@@ -21,31 +23,31 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
     override fun toString(): String = path
 }
 
-open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration, Serializable {
-    override var classpath: List<String> = emptyList()
-    override var moduleName: String = ""
-    override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
-    override var samples: List<String> = emptyList()
-    override var includes: List<String> = emptyList()
-    override var includeNonPublic: Boolean = false
-    override var includeRootPackage: Boolean = false
-    override var reportUndocumented: Boolean = false
-    override var skipEmptyPackages: Boolean = false
-    override var skipDeprecated: Boolean = false
-    override var jdkVersion: Int = 6
-    override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
-    override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
-    override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
-    override var languageVersion: String? = null
-    override var apiVersion: String? = null
-    override var noStdlibLink: Boolean = false
-    override var noJdkLink: Boolean = false
-    override var suppressedFiles: List<String> = emptyList()
-    override var collectInheritedExtensionsFromLibraries: Boolean = false
-    override var analysisPlatform: Platform = Platform.DEFAULT
-    var platform: String? = null
-    override var targets: List<String> = emptyList()
-    override var sinceKotlin: String? = null
+open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
+    @Input @Optional override var classpath: List<String> = emptyList()
+    @Input override var moduleName: String = ""
+    @Input override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
+    @Input override var samples: List<String> = emptyList()
+    @Input override var includes: List<String> = emptyList()
+    @Input override var includeNonPublic: Boolean = false
+    @Input override var includeRootPackage: Boolean = false
+    @Input override var reportUndocumented: Boolean = false
+    @Input override var skipEmptyPackages: Boolean = false
+    @Input override var skipDeprecated: Boolean = false
+    @Input override var jdkVersion: Int = 6
+    @Input override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
+    @Input override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
+    @Input override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
+    @Input @Optional override var languageVersion: String? = null
+    @Input @Optional override var apiVersion: String? = null
+    @Input override var noStdlibLink: Boolean = false
+    @Input override var noJdkLink: Boolean = false
+    @Input override var suppressedFiles: List<String> = emptyList()
+    @Input override var collectInheritedExtensionsFromLibraries: Boolean = false
+    @Input override var analysisPlatform: Platform = Platform.DEFAULT
+    @Input @Optional var platform: String? = null
+    @Input override var targets: List<String> = emptyList()
+    @Input @Optional override var sinceKotlin: String? = null
 
     fun sourceRoot(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradleSourceRootImpl())
