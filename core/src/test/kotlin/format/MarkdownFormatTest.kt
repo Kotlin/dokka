@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.junit.Test
 
 abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -307,7 +308,7 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
         val module = buildMultiplePlatforms(path)
         verifyModelOutput(module, ".md", "testdata/format/$path/multiplatform.kt") { model, output ->
             buildPagesAndReadInto(
-                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Class)?.member(NodeKind.Function)),
+                    listOfNotNull(model.members.single().members.find { it.kind == NodeKind.GroupNode }?.member(NodeKind.Function)),
                     output
             )
         }
@@ -386,7 +387,7 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
 
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
-        val module = DocumentationModule("test")
+        val moduleName = "test"
         val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
@@ -402,22 +403,25 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
             )
 
         )
+        val module1 = DocumentationModule(moduleName)
         appendDocumentation(
-            module, dokkaConfiguration, passConfiguration, ModelConfig(
+            module1, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/$path/jvm.kt")),
                 defaultPlatforms = listOf("JVM"),
                 analysisPlatform = Platform.jvm
             )
         )
+
+        val module2 = DocumentationModule(moduleName)
         appendDocumentation(
-            module, dokkaConfiguration, passConfiguration, ModelConfig(
+            module2, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/$path/js.kt")),
                 defaultPlatforms = listOf("JS"),
                 analysisPlatform = Platform.js
             )
         )
 
-        return module
+        return DocumentationMerger(listOf(module1, module2), DokkaConsoleLogger).merge()
     }
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
