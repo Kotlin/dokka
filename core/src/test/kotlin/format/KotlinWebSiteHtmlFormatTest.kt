@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
-import org.junit.Ignore
+import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.junit.Test
 
 abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -64,7 +64,7 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
     }
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
-        val module = DocumentationModule("test")
+        val moduleName = "test"
         val passConfiguration = PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
@@ -82,26 +82,31 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
 
         )
 
+        val module1 = DocumentationModule(moduleName)
         appendDocumentation(
-            module, dokkaConfiguration, passConfiguration, ModelConfig(
+            module1, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jvm.kt")),
                 defaultPlatforms = listOf("JVM")
             )
         )
+
+        val module2 = DocumentationModule(moduleName)
         appendDocumentation(
-            module, dokkaConfiguration, passConfiguration, ModelConfig(
+            module2, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/jre7.kt")),
                 defaultPlatforms = listOf("JVM", "JRE7")
             )
         )
+
+        val module3 = DocumentationModule(moduleName)
         appendDocumentation(
-            module, dokkaConfiguration, passConfiguration, ModelConfig(
+            module3, dokkaConfiguration, passConfiguration, ModelConfig(
                 roots = arrayOf(contentRootFromPath("testdata/format/website-html/$path/js.kt")),
                 defaultPlatforms = listOf("JS")
             )
         )
 
-        return module
+        return DocumentationMerger(listOf(module1, module2, module3), DokkaConsoleLogger).merge()
     }
 
     private fun verifyMultiplatformPackage(module: DocumentationModule, path: String) {
