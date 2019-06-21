@@ -4,5 +4,5 @@
 
 ### Types
 
-| [Since1.1](-since1.1/index.md) (Since: `1.1`) | `class Since1.1`<br>Useful |
+| [Since1.1](-since1.1/index.md) (Since: `1.1`) | Useful`class Since1.1` |
 

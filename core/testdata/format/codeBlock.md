@@ -16,7 +16,7 @@ fun readFile(name: String): String {...}
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Throws()`<br>This annotation indicates what exceptions should be declared by a function when compiled to a JVM method. |
+| [&lt;init&gt;](-init-.md) | This annotation indicates what exceptions should be declared by a function when compiled to a JVM method.`Throws()` |
 
 <!-- File: test/--root--/-it-does-some-obfuscated-thing/index.md -->
 [test](../../index.md) / [ItDoesSomeObfuscatedThing](./index.md)
@@ -33,5 +33,5 @@ Check output of
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `ItDoesSomeObfuscatedThing()`<br>Check output of |
+| [&lt;init&gt;](-init-.md) | Check output of`ItDoesSomeObfuscatedThing()` |
 

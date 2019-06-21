@@ -10,5 +10,5 @@
 
 ### Companion Object Extension Properties
 
-| [x](../x.md) | `val Foo.Default.x: Int`<br>The default object property. |
+| [x](../x.md) | The default object property.`val Foo.Default.x: Int` |
 

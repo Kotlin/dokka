@@ -767,10 +767,10 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 if (summarized.platformPlacement == Summarized.PlatformPlacement.Row) {
                                     appendPlatforms(platforms)
                                 }
-//                                appendHeader(level = 4) {
-//                                appendParagraph {
-                                appendLink(memberLocation)
-
+                                appendHeader(level = 4) {
+                                    //                                appendParagraph {
+                                    appendLink(memberLocation)
+                                }
                                 if (node.sinceKotlin != null) {
                                     appendSinceKotlin(node.sinceKotlin.toString())
                                 }
@@ -832,6 +832,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                     if (summarized.platformPlacement == Summarized.PlatformPlacement.Summary) {
                         appendPlatforms(summary.platforms)
                     }
+                    appendContent(summary.content)
                     summary.signatures.subList(0, summary.signatures.size - 1).forEach {
                         appendSignatures(
                             it,
@@ -843,7 +844,6 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         summary.signatures.last(),
                         summarized.platformPlacement == Summarized.PlatformPlacement.Signature
                     )
-                    appendContent(summary.content)
                 }
 
             }

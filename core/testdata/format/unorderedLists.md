@@ -32,7 +32,7 @@ Rinse options:
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Bar()`<br>Usage summary: |
+| [&lt;init&gt;](-init-.md) | Usage summary:`Bar()` |
 
 ### Properties
 

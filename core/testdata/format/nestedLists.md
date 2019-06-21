@@ -29,7 +29,7 @@ Usage instructions:
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Bar()`<br>Usage instructions: |
+| [&lt;init&gt;](-init-.md) | Usage instructions:`Bar()` |
 
 ### Properties
 

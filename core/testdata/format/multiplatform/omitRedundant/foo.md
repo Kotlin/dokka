@@ -8,7 +8,7 @@ This is a foo.
 
 ### Constructors
 
-| (JVM) [&lt;init&gt;](-init-.md) | `Foo()`<br>This is a foo. |
+| (JVM) [&lt;init&gt;](-init-.md) | This is a foo.`Foo()` |
 
 ### Properties
 

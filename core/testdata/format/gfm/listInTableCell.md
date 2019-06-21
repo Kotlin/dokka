@@ -14,4 +14,4 @@
 
 | Name | Summary |
 |---|---|
-| [foo](foo.md) | `fun foo(): Unit`<ol><li>Foo</li><li>Bar</li></ol> |
+| [foo](foo.md) | <ol><li>Foo</li><li>Bar</li></ol>`fun foo(): Unit` |

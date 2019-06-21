@@ -10,5 +10,5 @@
 
 ### Properties
 
-| [foo](foo.md) | `val <T> any_array<T>.foo: Int`<br>Returns true if foo. |
+| [foo](foo.md) | Returns true if foo.`val <T> any_array<T>.foo: Int` |
 

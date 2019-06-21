@@ -4,6 +4,6 @@
 
 ### Types
 
-| (JS) [Bar](-bar/index.md) | `class Bar`<br>This is a bar. |
-| (JVM) [Foo](-foo/index.md) | `class Foo`<br>This is a foo. |
+| (JS) [Bar](-bar/index.md) | This is a bar.`class Bar` |
+| (JVM) [Foo](-foo/index.md) | This is a foo.`class Foo` |
 
