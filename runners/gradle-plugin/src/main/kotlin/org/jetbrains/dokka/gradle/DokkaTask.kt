@@ -2,10 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import com.google.gson.GsonBuilder
 import groovy.lang.Closure
-import org.gradle.api.DefaultTask
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
@@ -77,6 +74,9 @@ open class DokkaTask : DefaultTask() {
         @Suppress("UNCHECKED_CAST")
         @Nested get() = DslObject(this).extensions.getByType(GradlePassConfigurationImpl::class.java)
         internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
+
+    // Configure Dokka with closure in Gradle Kotlin DSL
+    fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
 
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 
