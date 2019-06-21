@@ -10,5 +10,5 @@ You can print something to [java.lang.System.out](https://docs.oracle.com/javase
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `C()`<br>This is a [ClassLoader](https://docs.oracle.com/javase/6/docs/api/java/lang/ClassLoader.html) and I can get its [ClassLoader.getResource](https://docs.oracle.com/javase/6/docs/api/java/lang/ClassLoader.html#getResource(java.lang.String)) |
+| [&lt;init&gt;](-init-.md) | This is a [ClassLoader](https://docs.oracle.com/javase/6/docs/api/java/lang/ClassLoader.html) and I can get its [ClassLoader.getResource](https://docs.oracle.com/javase/6/docs/api/java/lang/ClassLoader.html#getResource(java.lang.String))`C()` |
 

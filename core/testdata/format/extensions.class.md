@@ -2,6 +2,6 @@
 
 ### Extensions for kotlin.String
 
-| [fn](fn.md) | `fun String.fn(): Unit`<br>`fun String.fn(x: Int): Unit`<br>Function with receiver |
-| [foobar](foobar.md) | `val String.foobar: Int`<br>Property with receiver. |
+| [fn](fn.md) | Function with receiver`fun String.fn(): Unit`<br>`fun String.fn(x: Int): Unit` |
+| [foobar](foobar.md) | Property with receiver.`val String.foobar: Int` |
 

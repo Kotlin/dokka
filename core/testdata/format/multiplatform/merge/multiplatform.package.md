@@ -4,5 +4,5 @@
 
 ### Types
 
-| (JVM, JS) [Foo](-foo/index.md) | `class Foo`<br>This is a foo. |
+| (JVM, JS) [Foo](-foo/index.md) | This is a foo.`class Foo` |
 

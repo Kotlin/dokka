@@ -24,7 +24,7 @@ Why did the token cross the road?
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `The()`<br>Why did the token cross the road? |
+| [&lt;init&gt;](-init-.md) | Why did the token cross the road?`The()` |
 
 ### Functions
 

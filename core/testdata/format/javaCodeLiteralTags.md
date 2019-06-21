@@ -12,5 +12,5 @@ A&lt;B&gt;C
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `C()`<br>`A<B>C` |
+| [&lt;init&gt;](-init-.md) | `A<B>C``C()` |
 

@@ -10,5 +10,5 @@
 
 ### Functions
 
-| [foo](foo.md) | `fun <T> any_array<T>.foo(predicate: (`[`T`](foo.md#T)`) -> Boolean): Boolean`<br>Returns true if foo. |
+| [foo](foo.md) | Returns true if foo.`fun <T> any_array<T>.foo(predicate: (`[`T`](foo.md#T)`) -> Boolean): Boolean` |
 

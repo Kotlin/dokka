@@ -14,7 +14,7 @@ An emphasised class.
 
 ### Constructors
 
-| [&lt;init&gt;](-init-.md) | `Bar()`<br>An emphasised class. |
+| [&lt;init&gt;](-init-.md) | An emphasised class.`Bar()` |
 
 ### Functions
 

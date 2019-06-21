@@ -177,10 +177,17 @@ open class MarkdownOutputBuilder(to: StringBuilder,
     }
 
     override fun appendHeader(level: Int, body: () -> Unit) {
-        ensureParagraph()
-        to.append("${"#".repeat(level)} ")
-        body()
-        ensureParagraph()
+        when {
+            inTableCell -> {
+                body()
+            }
+            else -> {
+                ensureParagraph()
+                to.append("${"#".repeat(level)} ")
+                body()
+                ensureParagraph()
+            }
+        }
     }
 
     override fun appendBlockCode(language: String, body: () -> Unit) {
