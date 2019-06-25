@@ -114,6 +114,12 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
             appendCode { appendText(version) }
     }
 
+    open fun appendSinceKotlinWrapped(version: String) {
+        wrap(" (", ")") {
+            appendSinceKotlin(version)
+        }
+    }
+
     open fun appendSectionWithTag(section: ContentSection) {
         appendParagraph {
             appendStrong { appendText(section.tag) }
@@ -776,7 +782,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                                 }
 
                                 if (membersList.singleOrNull()?.sinceKotlin != null){
-                                    wrap(" (", ")"){ appendSinceKotlin(membersList.single().sinceKotlin.toString()) }
+                                    appendSinceKotlinWrapped(membersList.single().sinceKotlin.toString())
                                 }
 //                                  }
 //                                    if (members.singleOrNull()?.kind != NodeKind.ExternalClass) {

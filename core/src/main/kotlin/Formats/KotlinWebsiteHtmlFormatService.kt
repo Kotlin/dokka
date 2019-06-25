@@ -35,6 +35,12 @@ open class KotlinWebsiteHtmlOutputBuilder(
         }
     }
 
+    override fun appendSinceKotlin(version: String) {
+    }
+
+    override fun appendSinceKotlinWrapped(version: String) {
+    }
+
     override fun appendCode(body: () -> Unit) = wrapIfNotEmpty("<code>", "</code>", body)
 
     protected fun div(to: StringBuilder, cssClass: String, otherAttributes: String = "", block: () -> Unit) {
