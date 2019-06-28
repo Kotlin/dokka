@@ -73,8 +73,15 @@ object ConfigurationExtractor {
 
         kotlinTasks.forEach {
             with(ReflectDsl) {
-                val taskSourceRoots: List<File> = it["sourceRootsContainer"]["sourceRoots"].v()
-                val abstractKotlinCompileClz = DokkaTask.getAbstractKotlinCompileFor(it)!!
+                val taskSourceRoots: List<File>
+                val abstractKotlinCompileClz: Class<out Any>
+                try {
+                    taskSourceRoots = it["sourceRootsContainer"]["sourceRoots"].v()
+                    abstractKotlinCompileClz = DokkaTask.getAbstractKotlinCompileFor(it)!!
+                } catch (e: NullPointerException) {
+                    println("Cannot extract sources from Kotlin tasks! Consider upgrading Kotlin Gradle Plugin")
+                    return null
+                }
 
                 val taskClasspath: Iterable<File> =
                         (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
