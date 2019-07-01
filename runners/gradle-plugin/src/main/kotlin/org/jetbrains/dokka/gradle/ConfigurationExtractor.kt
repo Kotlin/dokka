@@ -53,17 +53,12 @@ object ConfigurationExtractor {
         }
 
         val commonTarget = targets.find { it.platformType == KotlinPlatformType.common }
-        val commonTargetCompilation = commonTarget?.compilations?.getByName("main")
-        val commonTargetSourceList = commonTargetCompilation?.allKotlinSourceSets?.flatMap { it.kotlin.sourceDirectories }
-        val commonTargetClasspath = commonTargetCompilation?.compileDependencyFiles?.files?.toList()
-
         val platformTargets = targets.filter { it.platformType != KotlinPlatformType.common }
-
         val config = platformTargets.map {
             PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
         }
 
-        return config + PlatformData("common", commonTargetClasspath.orEmpty(), commonTargetSourceList.orEmpty(), "common")
+        return config + PlatformData("common", getSourceSet(commonTarget), getClasspath(commonTarget), "common")
     }
 
     fun extractFromKotlinTasks(kotlinTasks: List<Task>, project: Project): PlatformData? {
@@ -84,9 +79,9 @@ object ConfigurationExtractor {
                 }
 
                 val taskClasspath: Iterable<File> =
-                        (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
-                                ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
-                                ?: it["getClasspath", abstractKotlinCompileClz]())
+                    (it["getClasspath", AbstractCompile::class].takeIfIsFunc()?.invoke()
+                            ?: it["compileClasspath", abstractKotlinCompileClz].takeIfIsProp()?.v()
+                            ?: it["getClasspath", abstractKotlinCompileClz]())
 
                 if (taskClasspath is FileCollection) {
                     allClasspathFileCollection += taskClasspath
@@ -107,21 +102,28 @@ object ConfigurationExtractor {
     }
 
     fun extractFromJavaPlugin(project: Project): PlatformData? =
-            project.convention.findPlugin(JavaPluginConvention::class.java)
-                    ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
-                    ?.let { PlatformData(null, emptyList(), it.toList(), "") }
+        project.convention.findPlugin(JavaPluginConvention::class.java)
+            ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
+            ?.let { PlatformData(null, emptyList(), it.toList(), "") }
 
-    private fun getSourceSet(target: KotlinTarget): List<File> =
-            getMainCompilation(target).allKotlinSourceSets.flatMap { it.kotlin.sourceDirectories }
+    private fun getSourceSet(target: KotlinTarget?): List<File> = getMainCompilation(target)
+        ?.allKotlinSourceSets
+        ?.flatMap { it.kotlin.sourceDirectories }
+        ?.filter { it.exists() }
+        .orEmpty()
 
-    private fun getClasspath(target: KotlinTarget): List<File> =
-            getMainCompilation(target).compileDependencyFiles.files.toList()
+    private fun getClasspath(target: KotlinTarget?): List<File> = getMainCompilation(target)
+        ?.compileDependencyFiles
+        ?.files
+        ?.toList()
+        ?.filter { it.exists() }
+        .orEmpty()
 
-    private fun getMainCompilation(target: KotlinTarget): KotlinCompilation<KotlinCommonOptions> =
-            target.compilations.getByName("main")
+    private fun getMainCompilation(target: KotlinTarget?): KotlinCompilation<KotlinCommonOptions>? =
+        target?.compilations?.getByName("main")
 
     private fun getPlatformName(platform: KotlinPlatformType): String =
-            if (platform == KotlinPlatformType.androidJvm) "jvm" else platform.toString()
+        if (platform == KotlinPlatformType.androidJvm) "jvm" else platform.toString()
 
     data class PlatformData(val name: String?,
                             val classpath: List<File>,

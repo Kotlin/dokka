@@ -187,11 +187,11 @@ open class DokkaTask : DefaultTask() {
             multiplatform.toList(),
             ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
         )
-        return if (subProjects.isEmpty())
-            baseConfig
-        else
+        return if (subProjects.isNotEmpty())
             subProjects.toProjects().fold(baseConfig, { list, project ->
                 mergeUserAndAutoConfigurations(list, ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty())})
+        else
+            baseConfig
     }
 
     private fun collectFromSinglePlatform(): List<GradlePassConfigurationImpl> {
