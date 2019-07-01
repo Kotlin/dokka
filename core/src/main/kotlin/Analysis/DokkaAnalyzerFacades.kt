@@ -88,7 +88,7 @@ object DokkaJsAnalyzerFacade : ResolverForModuleFactory() {
                 .filter { it.version.isCompatible() }
                 .map { metadata ->
                     val (header, packageFragmentProtos) =
-                            KotlinJavascriptSerializationUtil.readModuleAsProto(metadata.body, metadata.version)
+                        KotlinJavascriptSerializationUtil.readModuleAsProto(metadata.body, metadata.version)
                     createKotlinJavascriptPackageFragmentProvider(
                         moduleContext.storageManager, moduleDescriptor, header, packageFragmentProtos, metadata.version,
                         container.get(), LookupTracker.DO_NOTHING
@@ -147,14 +147,15 @@ object DokkaNativeAnalyzerFacade : ResolverForModuleFactory() {
 
         if (moduleInfo is LibraryModuleInfo) {
             moduleInfo.getLibraryRoots()
-                    .map { createKonanLibrary(File(it), KOTLIN_NATIVE_CURRENT_ABI_VERSION) }
-                    .mapTo(fragmentProviders) {
-                        it.createPackageFragmentProvider(
-                                moduleContext.storageManager,
-                                languageVersionSettings,
-                                moduleDescriptor
-                        )
-                    }
+                .filter { File(it).extension != "jar" }
+                .map { createKonanLibrary(File(it), KOTLIN_NATIVE_CURRENT_ABI_VERSION) }
+                .mapTo(fragmentProviders) {
+                    it.createPackageFragmentProvider(
+                        moduleContext.storageManager,
+                        languageVersionSettings,
+                        moduleDescriptor
+                    )
+                }
 
         }
 

@@ -30,6 +30,26 @@
       <module name="cli_test" target="1.8" />
       <module name="core_main" target="1.8" />
       <module name="core_test" target="1.8" />
+      <module name="dokka.buildSrc.main" target="1.8" />
+      <module name="dokka.buildSrc.test" target="1.8" />
+      <module name="dokka.core.main" target="1.8" />
+      <module name="dokka.core.test" target="1.8" />
+      <module name="dokka.integration.main" target="1.8" />
+      <module name="dokka.integration.test" target="1.8" />
+      <module name="dokka.runners.android-gradle-plugin.main" target="1.8" />
+      <module name="dokka.runners.android-gradle-plugin.test" target="1.8" />
+      <module name="dokka.runners.ant.main" target="1.8" />
+      <module name="dokka.runners.ant.test" target="1.8" />
+      <module name="dokka.runners.cli.main" target="1.8" />
+      <module name="dokka.runners.cli.test" target="1.8" />
+      <module name="dokka.runners.fatjar.main" target="1.8" />
+      <module name="dokka.runners.fatjar.test" target="1.8" />
+      <module name="dokka.runners.gradle-integration-tests.main" target="1.8" />
+      <module name="dokka.runners.gradle-integration-tests.test" target="1.8" />
+      <module name="dokka.runners.gradle-plugin.main" target="1.8" />
+      <module name="dokka.runners.gradle-plugin.test" target="1.8" />
+      <module name="dokka.runners.maven-plugin.main" target="1.8" />
+      <module name="dokka.runners.maven-plugin.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
       <module name="gradle-integration-tests_main" target="1.8" />
