@@ -58,7 +58,7 @@ object ConfigurationExtractor {
             PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
         }
 
-        return config + PlatformData("common", getSourceSet(commonTarget), getClasspath(commonTarget), "common")
+        return config + PlatformData("common", getClasspath(commonTarget), getSourceSet(commonTarget), "common")
     }
 
     fun extractFromKotlinTasks(kotlinTasks: List<Task>, project: Project): PlatformData? {

@@ -255,7 +255,8 @@ open class DokkaTask : DefaultTask() {
         if (config.moduleName == "") {
             config.moduleName = moduleName
         }
-        config.classpath = (config.classpath as List<Any>).map { it.toString() } // Workaround for Groovy's GStringImpl
+        config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
+        config.sourceRoots = config.sourceRoots.distinct().toMutableList()
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
