@@ -243,7 +243,7 @@ code.paragraph {
     font-weight: bold;
     position: relative;
     line-height: 24px;
-    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal, monospace;
     font-size: 14px;
     min-height: 43px;
 }
@@ -427,14 +427,14 @@ td:first-child {
 
 .keyword {
     color: black;
-    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal, monospace;
     font-size: 12px;
 }
 
 .identifier {
     color: darkblue;
     font-size: 12px;
-    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal, monospace;
 }
 
 .brief {
