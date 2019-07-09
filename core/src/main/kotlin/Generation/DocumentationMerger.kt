@@ -40,7 +40,7 @@ class DocumentationMerger(
                 updatePendingReferences()
 
                 resultReferences.add(
-                        DocumentationReference(from, producedPackage, RefKind.Member)
+                    DocumentationReference(from, producedPackage, RefKind.Member)
                 )
             } catch (t: Throwable) {
                 val entries = listOfPackages.joinToString(",") { "references:${it.allReferences().size}" }
@@ -137,14 +137,21 @@ class DocumentationMerger(
         val allPlatforms = mutableSetOf<String>()
         nodesSortedByPlatformCount.forEach { node ->
             node.platforms
-                    .filterNot { allPlatforms.add(it) }
-                    .filter { it != node.platforms.first() }
-                    .forEach { platform ->
-                        node.dropReferences { it.kind == RefKind.Platform && it.to.name == platform }
-                    }
+                .filterNot { allPlatforms.add(it) }
+                .filter { it != node.platforms.first() }
+                .forEach { platform ->
+                    node.dropReferences { it.kind == RefKind.Platform && it.to.name == platform }
+                }
         }
 
-        val groupNode = DocumentationNode(nodes.first().name, Content.Empty, NodeKind.GroupNode)
+        // TODO: Quick and dirty fox for merging extensions for external classes. Fix this probably in StructuredFormatService
+        // TODO: while refactoring documentation model
+
+        val groupNode = if(nodes.first().kind == NodeKind.ExternalClass){
+            DocumentationNode(nodes.first().name, Content.Empty, NodeKind.ExternalClass)
+        } else {
+            DocumentationNode(nodes.first().name, Content.Empty, NodeKind.GroupNode)
+        }
         groupNode.appendTextNode(signature, NodeKind.Signature, RefKind.Detail)
 
         for (node in nodes) {
@@ -153,6 +160,11 @@ class DocumentationMerger(
             node.append(groupNode, RefKind.TopLevelPage)
 
             oldToNewNodeMap[node] = groupNode
+        }
+
+        if (groupNode.kind == NodeKind.ExternalClass){
+            val refs = nodes.flatMap { it.allReferences() }.filter { it.kind != RefKind.Owner && it.kind != RefKind.TopLevelPage }
+            refs.forEach { it.to.append(groupNode, RefKind.TopLevelPage); groupNode.append(it.to, RefKind.Member) }
         }
 
         // if nodes are classes, nested members should be also merged and
