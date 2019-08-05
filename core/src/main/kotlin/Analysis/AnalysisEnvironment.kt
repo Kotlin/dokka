@@ -321,7 +321,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         if (analysisPlatform == Platform.js) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         }
-        configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         configuration.addJvmClasspathRoots(paths)
     }
 
@@ -333,7 +332,6 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         if (analysisPlatform == Platform.js) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         }
-        configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         configuration.addJvmClasspathRoot(path)
     }
 

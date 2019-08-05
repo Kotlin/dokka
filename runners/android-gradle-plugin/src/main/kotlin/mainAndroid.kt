@@ -19,12 +19,10 @@ open class DokkaAndroidPlugin : DokkaPlugin() {
 
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
             project.tasks.register(taskName, DokkaAndroidTask::class.java).configure {
-                it.moduleName = project.name
                 it.outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         } else {
             project.tasks.create(taskName, DokkaAndroidTask::class.java).apply {
-                moduleName = project.name
                 outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         }

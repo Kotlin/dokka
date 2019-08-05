@@ -41,9 +41,6 @@ open class DokkaTask : DefaultTask() {
     }
 
     @Input
-    var moduleName: String = ""
-
-    @Input
     var outputFormat: String = "html"
 
     @Input
@@ -65,9 +62,9 @@ open class DokkaTask : DefaultTask() {
     @Input
     var cacheRoot: String? = null
 
-    var multiplatform: Set<GradlePassConfigurationImpl>
+    var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
-        @Nested get() = (DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>).toSet()
+        @Nested get() = (DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>)
         internal set(value) = DslObject(this).extensions.add(MULTIPLATFORM_EXTENSION_NAME, value)
 
     var configuration: GradlePassConfigurationImpl
@@ -95,6 +92,9 @@ open class DokkaTask : DefaultTask() {
 
     @Input
     var subProjects: List<String> = emptyList()
+
+    @Input
+    var disableAutoconfiguration: Boolean = false
 
     fun tryResolveFatJar(configuration: Configuration?): Set<File> {
         return try {
@@ -183,18 +183,23 @@ open class DokkaTask : DefaultTask() {
         if (multiplatform.toList().isNotEmpty()) collectFromMultiPlatform() else collectFromSinglePlatform()
 
     private fun collectFromMultiPlatform(): List<GradlePassConfigurationImpl> {
+        if (disableAutoconfiguration) return multiplatform.toList()
+
         val baseConfig = mergeUserAndAutoConfigurations(
             multiplatform.toList(),
             ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
         )
         return if (subProjects.isNotEmpty())
-            subProjects.toProjects().fold(baseConfig, { list, project ->
-                mergeUserAndAutoConfigurations(list, ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty())})
+            subProjects.toProjects().fold(baseConfig) { list, project ->
+                mergeUserAndAutoConfigurations(list, ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty())
+            }
         else
             baseConfig
     }
 
     private fun collectFromSinglePlatform(): List<GradlePassConfigurationImpl> {
+        if (disableAutoconfiguration) return listOf(configuration)
+
         val autoConfig = ConfigurationExtractor.extractFromSinglePlatform(project)
         val baseConfig =  if (autoConfig != null)
             listOf(mergeUserConfigurationAndPlatformData(configuration, autoConfig))
@@ -203,9 +208,9 @@ open class DokkaTask : DefaultTask() {
 
         return if (subProjects.isNotEmpty()) {
             try {
-                subProjects.toProjects().fold(baseConfig, { list, project ->
+                subProjects.toProjects().fold(baseConfig) { list, project ->
                     listOf(mergeUserConfigurationAndPlatformData(list.first(), ConfigurationExtractor.extractFromSinglePlatform(project)!!))
-                })
+                }
             } catch(e: NullPointerException) {
                 logger.warn("Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
                         "and the Kotlin plugin applied in the root project?")
@@ -253,7 +258,10 @@ open class DokkaTask : DefaultTask() {
 
     private fun defaultPassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
         if (config.moduleName == "") {
-            config.moduleName = moduleName
+            config.moduleName = project.name
+        }
+        if (config.targets.isEmpty() && multiplatform.isNotEmpty()){
+            config.targets = listOf(config.platform.toString())
         }
         config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()

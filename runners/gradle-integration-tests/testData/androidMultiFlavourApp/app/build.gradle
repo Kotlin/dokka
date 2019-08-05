@@ -72,5 +72,7 @@ task dokkaFullFlavourOnly(type: org.jetbrains.dokka.gradle.DokkaAndroidTask) {
     }
     dokkaFatJar = dokka_fatjar
     outputDirectory = "$buildDir/dokka/fullOnly"
-    moduleName = "full"
+    configuration {
+        moduleName = "full"
+    }
 }
