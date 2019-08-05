@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.util.GradleVersion
 import java.io.File
 import java.io.InputStream
@@ -11,31 +12,35 @@ internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
 internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
 
 open class DokkaPlugin : Plugin<Project> {
+    private val taskName = "dokka"
 
     override fun apply(project: Project) {
-        DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
+        loadDokkaVersion()
+        val dokkaRuntimeConfiguration = addConfiguration(project)
+        addTasks(project, dokkaRuntimeConfiguration, DokkaTask::class.java)
+    }
 
-        val dokkaRuntimeConfiguration = project.configurations.create("dokkaRuntime")
-        val defaultDokkaRuntimeConfiguration = project.configurations.create("defaultDokkaRuntime")
-        val taskName = "dokka"
+    protected fun loadDokkaVersion() = DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
 
-        defaultDokkaRuntimeConfiguration.defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
+    protected fun addConfiguration(project: Project) =
+        project.configurations.create("dokkaRuntime").apply {
+            defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
+        }
 
+    protected fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
-            project.tasks.register(taskName, DokkaTask::class.java).configure {
+            project.tasks.register(taskName, taskClass).configure {
                 it.outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         } else {
-            project.tasks.create(taskName, DokkaTask::class.java).apply {
+            project.tasks.create(taskName, taskClass).apply {
                 outputDirectory = File(project.buildDir, taskName).absolutePath
             }
         }
-
-        project.tasks.withType(DokkaTask::class.java) { task ->
+        project.tasks.withType(taskClass) { task ->
             task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
-            task.dokkaRuntime = dokkaRuntimeConfiguration
-            task.defaultDokkaRuntime = defaultDokkaRuntimeConfiguration
+            task.dokkaRuntime = runtimeConfiguration
         }
     }
 }

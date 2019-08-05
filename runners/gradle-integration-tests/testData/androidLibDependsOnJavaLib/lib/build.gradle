@@ -27,11 +27,10 @@ android {
 
 dependencies {
     api(project(":jlib"))
-    defaultDokkaRuntime files(dokka_fatjar)
+    dokkaRuntime files(dokka_fatjar)
 }
 
 dokka {
-    dokkaFatJar = dokka_fatjar
     configuration {
         externalDocumentationLink {
             url = new URL("https://example.com")

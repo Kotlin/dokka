@@ -71,11 +71,6 @@ dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
     
-    // [Deprecated] These tasks will be used to determine source directories and classpath 
-    kotlinTasks {
-        defaultKotlinTasks() + [':some:otherCompileKotlin', project("another").compileKotlin]
-    }
-    
     // In case of Gradle multiproject build, you can include subprojects here to get merged documentation
     // Note however, that you have to have the Kotlin plugin available in the root project 
     subProjects = ["subproject1", "subproject2"]
@@ -130,6 +125,11 @@ dokka {
             path = "src" 
         }
         
+        // These tasks will be used to determine source directories and classpath
+        kotlinTasks {
+            defaultKotlinTasks() + [':some:otherCompileKotlin', project("another").compileKotlin]
+        }
+
         // Specifies the location of the project source code on the Web.
         // If provided, Dokka generates "source" links for each declaration.
         // Repeat for multiple mappings

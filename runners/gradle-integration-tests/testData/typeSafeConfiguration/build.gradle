@@ -26,16 +26,8 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
     dokka.with {
         outputFormat = "some String"
         outputDirectory = "some String"
-        dokkaFatJar = "some String"
         cacheRoot = null as String
         impliedPlatforms = new ArrayList<String>()
-
-        kotlinTasks(new Callable<List<Object>>() {
-            @Override
-            List<Object> call() {
-                return defaultKotlinTasks()
-            }
-        })
     }
     dokka.configuration.with {
         moduleName = "some String"
@@ -67,7 +59,12 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
                 link.packageListUrl = uri("some URI").toURL()
             }
         })
-
+        kotlinTasks(new Callable<List<Object>>() {
+            @Override
+            List<Object> call() {
+                return defaultKotlinTasks()
+            }
+        })
     }
 }
 
