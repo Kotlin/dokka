@@ -68,7 +68,6 @@ The available configuration options for single platform are shown below:
 
 ```groovy
 dokka {
-    moduleName = 'data'
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
     
@@ -80,17 +79,10 @@ dokka {
     // In case of Gradle multiproject build, you can include subprojects here to get merged documentation
     // Note however, that you have to have the Kotlin plugin available in the root project 
     subProjects = ["subproject1", "subproject2"]
-    
-    // List of files with module and package documentation
-    // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
-    includes = ['packages.md', 'extra.md']
-    
-    // The list of files or directories containing sample code (referenced with @sample tags)
-    samples = ['samples/basic.kt', 'samples/advanced.kt']
-    
-    jdkVersion = 6 // Used for linking to JDK
-    
-    impliedPlatforms = ["JVM"] // See platforms section of documentation 
+        
+    // Used for disabling auto extraction of sources and platforms in both multi-platform and single-platform modes
+    // When set to true, subProject and kotlinTasks are also omitted
+    disableAutoconfiguration = false 
 
     // Use default or set to custom path to cache directory
     // to enable package-list caching
@@ -98,6 +90,8 @@ dokka {
     cacheRoot = 'default' 
     
     configuration {
+        moduleName = 'data'
+
         // Use to include or exclude non public members.
         includeNonPublic = false
         
@@ -121,6 +115,13 @@ dokka {
         // Short form sourceRoots
         sourceDirs = files('src/main/kotlin')
         
+        // List of files with module and package documentation
+        // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+        includes = ['packages.md', 'extra.md']
+    
+        // The list of files or directories containing sample code (referenced with @sample tags)
+        samples = ['samples/basic.kt', 'samples/advanced.kt']
+
         // By default, sourceRoots is taken from kotlinTasks, following roots will be appended to it
         // Full form sourceRoot declaration
         // Repeat for multiple sourceRoots
@@ -142,7 +143,10 @@ dokka {
             // Suffix which is used to append the line number to the URL. Use #L for GitHub
             lineSuffix = "#L"
         }
-        
+
+        // Used for linking to JDK documentation
+        jdkVersion = 6 
+
         // Disable linking to online kotlin-stdlib documentation
         noStdlibLink = false
         
@@ -195,12 +199,9 @@ dokka {
     outputFormat = "html"
 
     multiplatform {
-        customName { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
-            targets = ["JS"]
-            platform = "js"
-        }
-
-        differentName { // Different name, so source roots must be passed explicitly
+        customName {} // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+        
+        differentName { // Different name, so source roots and platform must be passed explicitly
             targets = ["JVM"]
             platform = "jvm"
             sourceRoot {
@@ -226,10 +227,7 @@ val dokka by getting(DokkaTask::class) {
         outputFormat = "html"
 
         multiplatform { 
-            val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
-                targets = listOf("JS")
-                platform = "js"
-            }
+            val customName by creating {} // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
 
             register("differentName") { // Different name, so source roots must be passed explicitly
                 targets = listOf("JVM")

@@ -24,7 +24,6 @@ apply plugin: 'kotlin'
 @CompileStatic
 def configureDokkaTypeSafely(DokkaTask dokka) {
     dokka.with {
-        moduleName = "some String"
         outputFormat = "some String"
         outputDirectory = "some String"
         dokkaFatJar = "some String"
@@ -39,6 +38,7 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
         })
     }
     dokka.configuration.with {
+        moduleName = "some String"
         classpath = Arrays.asList("someClassDir")
         includes = Collections.<String> emptyList()
         samples = Collections.<String> emptyList()

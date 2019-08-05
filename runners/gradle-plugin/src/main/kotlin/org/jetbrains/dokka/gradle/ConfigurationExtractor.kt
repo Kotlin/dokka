@@ -120,7 +120,7 @@ object ConfigurationExtractor {
         .orEmpty()
 
     private fun getMainCompilation(target: KotlinTarget?): KotlinCompilation<KotlinCommonOptions>? =
-        target?.compilations?.getByName("main")
+        target?.compilations?.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
 
     private fun getPlatformName(platform: KotlinPlatformType): String =
         if (platform == KotlinPlatformType.androidJvm) "jvm" else platform.toString()

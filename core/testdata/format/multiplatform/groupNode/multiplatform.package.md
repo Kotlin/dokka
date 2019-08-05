@@ -4,10 +4,6 @@
 
 ### Types
 
-| [Some](-some/index.md)<br>(JS) | `class Some` |
-| [SomeCoolJvmClass](-some-cool-jvm-class/index.md)<br>(JVM) | `class SomeCoolJvmClass` |
-
-### Type Aliases
-
-| [Some](-some/index.md)<br>(JVM) | `typealias Some = SomeCoolJvmClass` |
+| [Some](-some/index.md) | (JVM) `typealias Some = SomeCoolJvmClass`<br>(JS) `class Some` |
+| (JVM) [SomeCoolJvmClass](-some-cool-jvm-class/index.md) | `class SomeCoolJvmClass` |
 
