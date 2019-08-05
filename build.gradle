@@ -3,7 +3,7 @@ import org.jetbrains.DependenciesVersionGetter
 allprojects {
     ext {
         final String buildNumber = System.getenv("BUILD_NUMBER")
-        dokka_version = dokka_version_base + ( buildNumber == null || System.getenv("FORCE_SNAPSHOT") != null ? "-SNAPSHOT" : ".$buildNumber" )
+        dokka_version = dokka_version_base + ( buildNumber == null || System.getenv("FORCE_SNAPSHOT") != null ? "-SNAPSHOT" : "-$buildNumber" )
     }
 
     if (project == rootProject) {
@@ -28,7 +28,7 @@ allprojects {
             ivy(repo)
         }
         dependencies {
-            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
             classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
 
             classpath "com.gradle.publish:plugin-publish-plugin:0.9.10"
