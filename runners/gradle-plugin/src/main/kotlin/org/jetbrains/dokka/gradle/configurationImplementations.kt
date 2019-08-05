@@ -126,10 +126,10 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
 
 class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var prefix: String = ""
-    override val includeNonPublic: Boolean = false
-    override val reportUndocumented: Boolean = true
-    override val skipDeprecated: Boolean = true
-    override val suppress: Boolean = false
+    override var includeNonPublic: Boolean = false
+    override var reportUndocumented: Boolean = true
+    override var skipDeprecated: Boolean = true
+    override var suppress: Boolean = false
 }
 
 fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {

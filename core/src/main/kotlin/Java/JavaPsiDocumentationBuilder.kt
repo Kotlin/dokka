@@ -316,7 +316,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
         val existing = refGraph.lookup(getSignature(psiClass)!!)
         if (existing != null) return existing
         val new = psiClass.build()
-        val packageNode = findOrCreatePackageNode(null, (psiClass.parent as PsiJavaFile).packageName, emptyMap(), refGraph)
+        val packageNode = findOrCreatePackageNode(null, (psiClass.containingFile as PsiJavaFile).packageName, emptyMap(), refGraph)
         packageNode.append(new, RefKind.Member)
         return new
     }
