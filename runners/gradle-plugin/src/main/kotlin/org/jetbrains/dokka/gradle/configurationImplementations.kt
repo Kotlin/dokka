@@ -11,6 +11,7 @@ import org.jetbrains.dokka.Platform
 import java.io.File
 import java.io.Serializable
 import java.net.URL
+import java.util.concurrent.Callable
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.memberProperties
 
@@ -48,6 +49,15 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input @Optional var platform: String? = null
     @Input override var targets: List<String> = emptyList()
     @Input @Optional override var sinceKotlin: String? = null
+    @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
+
+    fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
+        collectKotlinTasks = { taskSupplier.call() }
+    }
+
+    fun kotlinTasks(closure: Closure<Any?>) {
+        collectKotlinTasks = { closure.call() as? List<Any?> }
+    }
 
     fun sourceRoot(c: Closure<Unit>) {
         val configured = ConfigureUtil.configure(c, GradleSourceRootImpl())

@@ -42,10 +42,5 @@ android {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$test_kotlin_version"
-    defaultDokkaRuntime files(dokka_fatjar)
-}
-
-
-dokka {
-    dokkaFatJar = dokka_fatjar
+    dokkaRuntime files(dokka_fatjar)
 }

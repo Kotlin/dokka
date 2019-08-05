@@ -21,7 +21,8 @@ import java.util.function.BiConsumer
 
 open class DokkaTask : DefaultTask() {
 
-    fun defaultKotlinTasks() = with(ReflectDsl) {
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun defaultKotlinTasks(): List<Task> = with(ReflectDsl) {
         val abstractKotlinCompileClz = try {
             project.buildscript.classLoader.loadClass(ABSTRACT_KOTLIN_COMPILE)
         } catch (cnfe: ClassNotFoundException) {
@@ -48,13 +49,6 @@ open class DokkaTask : DefaultTask() {
 
     var dokkaRuntime: Configuration? = null
 
-    var defaultDokkaRuntime: Configuration? = null
-
-    @Input
-    var dokkaFatJar: String = "dokka-fatjar-${DokkaVersion.version}"
-
-    private val defaultDokkaFatJar = "dokka-fatjar-${DokkaVersion.version}"
-
     @Input
     var impliedPlatforms: MutableList<String> = arrayListOf()
 
@@ -77,18 +71,7 @@ open class DokkaTask : DefaultTask() {
 
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 
-    private var kotlinTasksConfigurator: () -> List<Any?>? = { defaultKotlinTasks() }
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
-
-    @Deprecated("Use manual configuration of source roots or subProjects{} closure")
-    fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
-        kotlinTasksConfigurator = { taskSupplier.call() }
-    }
-
-    @Deprecated("Use manual configuration of source roots or subProjects{} closure")
-    fun kotlinTasks(closure: Closure<Any?>) {
-        kotlinTasksConfigurator = { closure.call() as? List<Any?> }
-    }
 
     @Input
     var subProjects: List<String> = emptyList()
@@ -96,7 +79,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var disableAutoconfiguration: Boolean = false
 
-    fun tryResolveFatJar(configuration: Configuration?): Set<File> {
+    private fun tryResolveFatJar(configuration: Configuration?): Set<File> {
         return try {
             configuration!!.resolve()
         } catch (e: Exception) {
@@ -104,15 +87,17 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    fun loadFatJar() {
+    private fun loadFatJar() {
         if (ClassloaderContainer.fatJarClassLoader == null) {
-            val jars = tryResolveFatJar(dokkaRuntime).toList().union(tryResolveFatJar(defaultDokkaRuntime).toList()).filter { it.name.contains(dokkaFatJar) || it.name.contains(defaultDokkaFatJar) }
+            val jars = tryResolveFatJar(dokkaRuntime).toList()
             ClassloaderContainer.fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }
 
     private fun extractKotlinCompileTasks(): List<Task> {
-        val inputList = (kotlinTasksConfigurator.invoke() ?: emptyList()).filterNotNull()
+        val collectTasks = configuration.collectKotlinTasks ?: { defaultKotlinTasks() }
+
+        val inputList = (collectTasks.invoke() ?: emptyList()).filterNotNull()
         val (paths, other) = inputList.partition { it is String }
 
         val taskContainer = project.tasks
@@ -200,9 +185,9 @@ open class DokkaTask : DefaultTask() {
     private fun collectFromSinglePlatform(): List<GradlePassConfigurationImpl> {
         if (disableAutoconfiguration) return listOf(configuration)
 
-        val autoConfig = ConfigurationExtractor.extractFromSinglePlatform(project)
-        val baseConfig =  if (autoConfig != null)
-            listOf(mergeUserConfigurationAndPlatformData(configuration, autoConfig))
+        val extractedConfig = ConfigurationExtractor.extractFromSinglePlatform(project)
+        val baseConfig = if (extractedConfig != null && configuration.collectKotlinTasks == null)
+            listOf(mergeUserConfigurationAndPlatformData(configuration, extractedConfig))
         else
             collectFromSinglePlatformOldPlugin()
 
