@@ -175,12 +175,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             languageVersion = languageVersion,
             apiVersion = apiVersion,
             moduleName = moduleName,
-            suppressedFiles = suppressedFiles, // TODO: Should we implement this?
-            sinceKotlin = sinceKotlin, // TODO: Should we implement this?
-            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT, // TODO: Should we implement this?
-            targets = targets, // TODO: Should we implement this?
-            includeNonPublic = includeNonPublic, // TODO: Should we implement this?
-            includeRootPackage = includeRootPackage // TODO: Should we implement this?
+            suppressedFiles = suppressedFiles,
+            sinceKotlin = sinceKotlin,
+            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
+            targets = targets,
+            includeNonPublic = includeNonPublic,
+            includeRootPackage = includeRootPackage
         )
 
         val configuration = DokkaConfigurationImpl(
@@ -189,7 +189,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
             passesConfigurations = listOf(passConfiguration),
-            generateIndexPages = generateIndexPages // TODO: Should we implement this?
+            generateIndexPages = generateIndexPages
         )
 
         val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
