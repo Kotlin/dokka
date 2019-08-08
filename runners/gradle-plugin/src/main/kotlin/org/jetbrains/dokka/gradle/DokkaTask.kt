@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.gradle
 
 import com.google.gson.GsonBuilder
-import groovy.lang.Closure
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
@@ -14,6 +13,7 @@ import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
+import org.jetbrains.dokka.gradle.AbstractConfigurationExtractor.PlatformData
 import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
@@ -72,6 +72,8 @@ open class DokkaTask : DefaultTask() {
     protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
+
+    protected open val configurationExtractor: AbstractConfigurationExtractor = ConfigurationExtractor(project)
 
     @Input
     var subProjects: List<String> = emptyList()
@@ -172,11 +174,11 @@ open class DokkaTask : DefaultTask() {
 
         val baseConfig = mergeUserAndAutoConfigurations(
             multiplatform.toList(),
-            ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty()
+            configurationExtractor.extractFromMultiPlatform().orEmpty()
         )
         return if (subProjects.isNotEmpty())
             subProjects.toProjects().fold(baseConfig) { list, project ->
-                mergeUserAndAutoConfigurations(list, ConfigurationExtractor.extractFromMultiPlatform(project).orEmpty())
+                mergeUserAndAutoConfigurations(list, configurationExtractor.extractFromMultiPlatform().orEmpty())
             }
         else
             baseConfig
@@ -185,7 +187,7 @@ open class DokkaTask : DefaultTask() {
     private fun collectFromSinglePlatform(): List<GradlePassConfigurationImpl> {
         if (disableAutoconfiguration) return listOf(configuration)
 
-        val extractedConfig = ConfigurationExtractor.extractFromSinglePlatform(project)
+        val extractedConfig = configurationExtractor.extractFromSinglePlatform()
         val baseConfig = if (extractedConfig != null && configuration.collectKotlinTasks == null)
             listOf(mergeUserConfigurationAndPlatformData(configuration, extractedConfig))
         else
@@ -194,7 +196,7 @@ open class DokkaTask : DefaultTask() {
         return if (subProjects.isNotEmpty()) {
             try {
                 subProjects.toProjects().fold(baseConfig) { list, project ->
-                    listOf(mergeUserConfigurationAndPlatformData(list.first(), ConfigurationExtractor.extractFromSinglePlatform(project)!!))
+                    listOf(mergeUserConfigurationAndPlatformData(list.first(), configurationExtractor.extractFromSinglePlatform()!!))
                 }
             } catch(e: NullPointerException) {
                 logger.warn("Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
@@ -207,18 +209,18 @@ open class DokkaTask : DefaultTask() {
     }
 
     private fun collectFromSinglePlatformOldPlugin(): List<GradlePassConfigurationImpl> {
-        val kotlinTasks = ConfigurationExtractor.extractFromKotlinTasks(kotlinTasks, project)
+        val kotlinTasks = configurationExtractor.extractFromKotlinTasks(kotlinTasks)
         return if (kotlinTasks != null) {
             listOf(mergeUserConfigurationAndPlatformData(configuration, kotlinTasks))
         } else {
-            val javaPlugin = ConfigurationExtractor.extractFromJavaPlugin(project)
+            val javaPlugin = configurationExtractor.extractFromJavaPlugin()
             if (javaPlugin != null)
                 listOf(mergeUserConfigurationAndPlatformData(configuration, javaPlugin)) else listOf(configuration)
         }
     }
 
     private fun mergeUserAndAutoConfigurations(userConfigurations: List<GradlePassConfigurationImpl>,
-                                               autoConfigurations: List<ConfigurationExtractor.PlatformData>): List<GradlePassConfigurationImpl> {
+                                               autoConfigurations: List<PlatformData>): List<GradlePassConfigurationImpl> {
         val merged: MutableList<GradlePassConfigurationImpl> = mutableListOf()
         merged.addAll(
             userConfigurations.map { userConfig ->
@@ -230,7 +232,7 @@ open class DokkaTask : DefaultTask() {
     }
 
     private fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl,
-                                                      autoConfig: ConfigurationExtractor.PlatformData): GradlePassConfigurationImpl {
+                                                      autoConfig: PlatformData): GradlePassConfigurationImpl {
         val merged = userConfig.copy()
         merged.apply {
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())

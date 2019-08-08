@@ -29,18 +29,15 @@ open class DokkaPlugin : Plugin<Project> {
 
     protected fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
-            project.tasks.register(taskName, taskClass).configure {
-                it.outputDirectory = File(project.buildDir, taskName).absolutePath
-            }
+            project.tasks.register(taskName, taskClass)
         } else {
-            project.tasks.create(taskName, taskClass).apply {
-                outputDirectory = File(project.buildDir, taskName).absolutePath
-            }
+            project.tasks.create(taskName, taskClass)
         }
         project.tasks.withType(taskClass) { task ->
             task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = runtimeConfiguration
+            task.outputDirectory = File(project.buildDir, taskName).absolutePath
         }
     }
 }
