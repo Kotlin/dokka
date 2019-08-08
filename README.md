@@ -577,9 +577,6 @@ Dokka can annotate elements with special `platform` block with platform requirem
 Example of usage can be found on [kotlinlang.org](https://kotlinlang.org/api/latest/jvm/stdlib/)
 
 Each source root has a list of platforms for which members are suitable. 
-Also, the list of 'implied' platforms is passed to Dokka.
-If a member is not available for all platforms in the implied platforms set, its documentation will show
-the list of platforms for which it's available.
 
 ## Dokka Internals
 
