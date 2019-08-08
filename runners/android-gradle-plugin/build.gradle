@@ -21,6 +21,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 repositories {
     jcenter()
+    google()
 }
 
 dependencies {
@@ -31,6 +32,9 @@ dependencies {
 
     compileOnly gradleApi()
     compileOnly localGroovy()
+    compileOnly("com.android.tools.build:gradle:3.0.0")
+    compileOnly("com.android.tools.build:gradle-core:3.0.0")
+    compileOnly("com.android.tools.build:builder-model:3.0.0")
 }
 
 task sourceJar(type: Jar) {

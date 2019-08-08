@@ -18,8 +18,8 @@ open class DokkaAndroidPlugin : DokkaPlugin() {
 private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
 
 open class DokkaAndroidTask : DokkaTask() {
-
     @Input var noAndroidSdkLink: Boolean = false
+    override val configurationExtractor = AndroidConfigurationExtractor(project)
 
     override fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> {
         val generatedRoot = project.buildDir.resolve("generated").absoluteFile
