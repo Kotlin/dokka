@@ -113,7 +113,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "Disable documentation link to stdlib")
 
     override val suppressedFiles: List<String> by parser.repeatableOption(
-        listOf("-suppresedFiles"),
+        listOf("-suppressedFiles"),
         ""
     )
 
@@ -217,7 +217,7 @@ object MainKt {
 
 
         parseContext.cli.singleAction(
-            listOf("-pckageOptions"),
+            listOf("-packageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) {
             configuration.passesConfigurations.last().perPackageOptions.addAll(parsePerPackageOptions(it))
