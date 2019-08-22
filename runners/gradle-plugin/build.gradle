@@ -18,6 +18,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+repositories {
+    jcenter()
+    google()
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
@@ -27,6 +32,9 @@ dependencies {
     compile project(":integration")
 
     compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin"
+    compileOnly("com.android.tools.build:gradle:3.0.0")
+    compileOnly("com.android.tools.build:gradle-core:3.0.0")
+    compileOnly("com.android.tools.build:builder-model:3.0.0")
     compileOnly gradleApi()
     compileOnly localGroovy()
     implementation "com.google.code.gson:gson:$gson_version"
@@ -56,7 +64,6 @@ apply plugin: 'maven-publish'
 publishing {
     publications {
         dokkaGradlePlugin(MavenPublication) { publication ->
-
             artifactId = 'dokka-gradle-plugin'
 
             artifact sourceJar {
@@ -79,7 +86,7 @@ pluginBundle {
     website = 'https://www.kotlinlang.org/'
     vcsUrl = 'https://github.com/kotlin/dokka.git'
     description = 'Dokka, the Kotlin documentation tool'
-    tags = ['dokka', 'kotlin', 'kdoc']
+    tags = ['dokka', 'kotlin', 'kdoc', 'android']
 
     plugins {
         dokkaGradlePlugin {

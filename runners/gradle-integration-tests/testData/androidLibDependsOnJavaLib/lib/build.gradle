@@ -7,13 +7,12 @@ buildscript {
 
 
 plugins {
-    id 'org.jetbrains.dokka-android'
+    id 'org.jetbrains.dokka'
 }
 
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
 
 
 android {
