@@ -5,7 +5,7 @@ import java.io.File
 
 abstract class AbstractDokkaAndroidGradleTest : AbstractDokkaGradleTest() {
 
-    override val pluginClasspath: List<File> = androidPluginClasspathData.toFile().readLines().map { File(it) }
+    override val pluginClasspath: List<File> = pluginClasspathData.toFile().readLines().map { File(it) }
 
     companion object {
 

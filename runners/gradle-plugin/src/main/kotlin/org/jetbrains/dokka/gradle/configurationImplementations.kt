@@ -43,6 +43,7 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input @Optional override var apiVersion: String? = null
     @Input override var noStdlibLink: Boolean = false
     @Input override var noJdkLink: Boolean = false
+    @Input var noAndroidSdkLink: Boolean = false
     @Input override var suppressedFiles: List<String> = emptyList()
     @Input override var collectInheritedExtensionsFromLibraries: Boolean = false
     @Input override var analysisPlatform: Platform = Platform.DEFAULT

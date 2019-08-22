@@ -14,7 +14,6 @@ import java.nio.file.Paths
 val testDataFolder: Path = Paths.get("testData")
 
 val pluginClasspathData: Path = Paths.get("build", "createClasspathManifest", "dokka-plugin-classpath.txt")
-val androidPluginClasspathData: Path = pluginClasspathData.resolveSibling("android-dokka-plugin-classpath.txt")
 
 val dokkaFatJarPathData: Path = pluginClasspathData.resolveSibling("fatjar.txt")
 

@@ -20,14 +20,14 @@ open class DokkaPlugin : Plugin<Project> {
         addTasks(project, dokkaRuntimeConfiguration, DokkaTask::class.java)
     }
 
-    protected fun loadDokkaVersion() = DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
+    private fun loadDokkaVersion() = DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
 
-    protected fun addConfiguration(project: Project) =
+    private fun addConfiguration(project: Project) =
         project.configurations.create("dokkaRuntime").apply {
             defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
         }
 
-    protected fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
+    private fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
             project.tasks.register(taskName, taskClass)
         } else {

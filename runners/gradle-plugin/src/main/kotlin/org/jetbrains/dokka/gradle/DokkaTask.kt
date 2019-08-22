@@ -9,17 +9,19 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
-import org.jetbrains.dokka.gradle.AbstractConfigurationExtractor.PlatformData
+import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
 import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
 
 open class DokkaTask : DefaultTask() {
+    private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun defaultKotlinTasks(): List<Task> = with(ReflectDsl) {
@@ -69,11 +71,11 @@ open class DokkaTask : DefaultTask() {
     // Configure Dokka with closure in Gradle Kotlin DSL
     fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
 
-    protected var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
+    private var externalDocumentationLinks: MutableList<DokkaConfiguration.ExternalDocumentationLink> = mutableListOf()
 
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks() }
 
-    protected open val configurationExtractor: AbstractConfigurationExtractor = ConfigurationExtractor(project)
+    private val configurationExtractor = ConfigurationExtractor(project)
 
     @Input
     var subProjects: List<String> = emptyList()
@@ -121,7 +123,17 @@ open class DokkaTask : DefaultTask() {
     private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
     private fun Iterable<String>.toProjects(): List<Project> = project.subprojects.toList().filter { this.contains(it.name) }
 
-    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>): List<String> = emptyList()
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
+        if(project.isAndroidProject()) {
+            val generatedRoot = project.buildDir.resolve("generated").absoluteFile
+            sourceRoots
+                .map { File(it.path) }
+                .filter { it.startsWith(generatedRoot) }
+                .flatMap { it.walk().toList() }
+                .map { it.absolutePath }
+        } else {
+            emptyList()
+        }
 
     @TaskAction
     fun generate() {
@@ -255,8 +267,11 @@ open class DokkaTask : DefaultTask() {
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
+        if (project.isAndroidProject() && !config.noAndroidSdkLink) {
+            config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
+        }
         config.externalDocumentationLinks.addAll(externalDocumentationLinks)
-        if (config.platform != null && config.platform.toString().isNotEmpty()){
+        if (config.platform != null && config.platform.toString().isNotEmpty()) {
             config.analysisPlatform = Platform.fromString(config.platform.toString())
         }
         return config
