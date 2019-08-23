@@ -1,4 +1,4 @@
-dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg)](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
+# dokka  [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![TeamCity (build status)](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Kotlin_Dokka_DokkaAntMavenGradle)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_Dokka_DokkaAntMavenGradle&branch_KotlinTools_Dokka=%3Cdefault%3E&tab=buildTypeStatusDiv) [![Download](https://api.bintray.com/packages/kotlin/dokka/dokka/images/download.svg)](https://bintray.com/kotlin/dokka/dokka/_latestVersion)
 
 Dokka is a documentation engine for Kotlin, performing the same function as javadoc for Java.
 Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin projects. It understands
@@ -182,10 +182,8 @@ dokka {
 ```
 
 #### Multiplatform
-Since 0.9.19 dokka supports multiplatform projects. 
-The available configuration options for multiplatform are like those for single platform, but the `configuration` block 
-is replaced by `multiplatform` which has inner blocks for each platform. The inner blocks can be named arbitrary, 
-however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names.
+Since version 0.9.19 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+In the multiplatform mode, the `configuration` block is replaced by a `multiplatform` block which has inner blocks for each platform. The inner blocks can be named arbitrary, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names. See the example blow:
 
 Groovy
 ```groovy
@@ -201,7 +199,7 @@ dokka {
     multiplatform {
         customName {} // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
         
-        differentName { // Different name, so source roots, classpath and platform must be passed explicitly
+        differentName { // Different name, so source roots, classpath and platform must be passed explicitly.
             targets = ["JVM"]
             platform = "jvm"
             sourceRoot {
@@ -243,6 +241,39 @@ val dokka by getting(DokkaTask::class) {
     }
 ```
 
+For convenience, there is also a reserved block called `global`, which is a top-level configuration of `perPackageOptions`, `externalDocumentationLinks`, and `sourceLinks` shared by every platform. Eg.
+
+```groovy
+dokka {
+    multiplatform {
+        global { // perPackageOptions, sourceLinks and externalDocumentationLinks from here will be copied to every other platform (jvm and js in eg.)
+            perPackageOption {
+                prefix = "com.somePackage"
+                suppress = true
+            }
+            perPackageOption {
+                prefix = "kotlin" 
+                skipDeprecated = false
+                reportUndocumented = true
+                includeNonPublic = false
+            }
+            sourceLink {
+                path = "src/main/kotlin" 
+                url = "https://github.com/cy6erGn0m/vertx3-lang-kotlin/blob/master/src/main/kotlin" 
+                lineSuffix = "#L"
+            }
+            externalDocumentationLink {
+                url = new URL("https://example.com/docs/")
+            }
+       }
+       js {}
+       jvm {}
+    }
+}
+```
+
+
+
 Note that `javadoc` output format cannot be used with multiplatform. 
 
 To generate the documentation, use the `dokka` Gradle task:
@@ -263,7 +294,7 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 Please see the [Dokka Gradle example project](https://github.com/JetBrains/kotlin-examples/tree/master/gradle/dokka-gradle-example) for an example.
 
 #### Dokka Runtime
-If you are using Gradle plugin and you want to use a custom version of Dokka, you can do it by setting `dokkaRuntime` configuration:
+If you are using Gradle plugin and you want to use a custom version of dokka, you can do it by setting `dokkaRuntime` configuration:
 
 ```groovy
 buildscript {
