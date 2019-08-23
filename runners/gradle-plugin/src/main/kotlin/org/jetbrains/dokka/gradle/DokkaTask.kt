@@ -187,10 +187,10 @@ open class DokkaTask : DefaultTask() {
         if (multiplatform.toList().isNotEmpty()) collectFromMultiPlatform() else collectFromSinglePlatform()
 
     private fun collectFromMultiPlatform(): List<GradlePassConfigurationImpl> {
-        if (disableAutoconfiguration) return multiplatform.toList()
+        if (disableAutoconfiguration) return multiplatform.filterNot { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }.toList()
 
         val baseConfig = mergeUserAndAutoConfigurations(
-            multiplatform.toList(),
+            multiplatform.filterNot { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }.toList(),
             configurationExtractor.extractFromMultiPlatform().orEmpty()
         )
         return if (subProjects.isNotEmpty())
@@ -245,7 +245,7 @@ open class DokkaTask : DefaultTask() {
                 if (autoConfig != null) {
                     mergeUserConfigurationAndPlatformData(userConfig, autoConfig)
                 } else {
-                    if(outputDiagnosticInfo && userConfig.name.toLowerCase() != GLOBAL_PLATFORM_NAME) {
+                    if(outputDiagnosticInfo) {
                         logger.warn(
                             "Could not find platform with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
                                     "using only user provided configuration for this platform"
@@ -275,7 +275,7 @@ open class DokkaTask : DefaultTask() {
             config.moduleName = project.name
         }
         if (config.targets.isEmpty() && multiplatform.isNotEmpty()){
-            config.targets = listOf(config.platform.toString())
+            config.targets = listOf(config.name)
         }
         config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
@@ -289,7 +289,6 @@ open class DokkaTask : DefaultTask() {
         if (config.platform != null && config.platform.toString().isNotEmpty()) {
             config.analysisPlatform = Platform.fromString(config.platform.toString())
         }
-
         if (globalConfig != null) {
             config.perPackageOptions.addAll(globalConfig.perPackageOptions)
             config.externalDocumentationLinks.addAll(globalConfig.externalDocumentationLinks)
