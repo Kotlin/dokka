@@ -22,6 +22,7 @@ import java.util.function.BiConsumer
 
 open class DokkaTask : DefaultTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
+    private val GLOBAL_PLATFORM_NAME = "global" // Used for copying perPackageOptions to other platforms
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun defaultKotlinTasks(): List<Task> = with(ReflectDsl) {
@@ -83,6 +84,8 @@ open class DokkaTask : DefaultTask() {
     @Input
     var disableAutoconfiguration: Boolean = false
 
+    private var outputDiagnosticInfo: Boolean = false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
+
     private fun tryResolveFatJar(configuration: Configuration?): Set<File> {
         return try {
             configuration!!.resolve()
@@ -137,6 +140,7 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        outputDiagnosticInfo = true
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
@@ -149,8 +153,9 @@ open class DokkaTask : DefaultTask() {
 
             val gson = GsonBuilder().setPrettyPrinting().create()
 
+            val globalConfig = multiplatform.toList().find { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }
             val passConfigurationList = collectConfigurations()
-                .map { defaultPassConfiguration(it) }
+                .map { defaultPassConfiguration(globalConfig, it) }
 
             val configuration = GradleDokkaConfigurationImpl()
             configuration.outputDir = outputDirectory
@@ -237,7 +242,17 @@ open class DokkaTask : DefaultTask() {
         merged.addAll(
             userConfigurations.map { userConfig ->
                 val autoConfig = autoConfigurations.find { autoConfig -> autoConfig.name == userConfig.name }
-                if (autoConfig != null) mergeUserConfigurationAndPlatformData(userConfig, autoConfig) else userConfig
+                if (autoConfig != null) {
+                    mergeUserConfigurationAndPlatformData(userConfig, autoConfig)
+                } else {
+                    if(outputDiagnosticInfo && userConfig.name.toLowerCase() != GLOBAL_PLATFORM_NAME) {
+                        logger.warn(
+                            "Could not find platform with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
+                                    "using only user provided configuration for this platform"
+                        )
+                    }
+                    userConfig
+                }
             }
         )
         return merged.toList()
@@ -255,7 +270,7 @@ open class DokkaTask : DefaultTask() {
         return merged
     }
 
-    private fun defaultPassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
+    private fun defaultPassConfiguration(globalConfig: GradlePassConfigurationImpl?, config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
         if (config.moduleName == "") {
             config.moduleName = project.name
         }
@@ -273,6 +288,12 @@ open class DokkaTask : DefaultTask() {
         config.externalDocumentationLinks.addAll(externalDocumentationLinks)
         if (config.platform != null && config.platform.toString().isNotEmpty()) {
             config.analysisPlatform = Platform.fromString(config.platform.toString())
+        }
+
+        if (globalConfig != null) {
+            config.perPackageOptions.addAll(globalConfig.perPackageOptions)
+            config.externalDocumentationLinks.addAll(globalConfig.externalDocumentationLinks)
+            config.sourceLinks.addAll(globalConfig.sourceLinks)
         }
         return config
     }
