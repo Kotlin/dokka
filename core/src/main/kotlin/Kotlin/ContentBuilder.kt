@@ -168,7 +168,7 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: LinkR
     }
 }
 
-private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH }.joinToString("") { it.text }
+private fun MarkdownNode.getLabelText() = children.filter { it.type == MarkdownTokenTypes.TEXT || it.type == MarkdownTokenTypes.EMPH || it.type == MarkdownTokenTypes.COLON }.joinToString("") { it.text }
 
 private fun keepEol(node: ContentNode) = node is ContentParagraph || node is ContentSection || node is ContentBlockCode
 private fun processingList(node: ContentNode) = node is ContentOrderedList || node is ContentUnorderedList

@@ -19,6 +19,16 @@ abstract class BaseLinkTest(val analysisPlatform: Platform) {
         }
     }
 
+    @Test fun linkToExternalSite() {
+        checkSourceExistsAndVerifyModel("testdata/links/linkToExternalSite.kt", defaultModelConfig) { model ->
+            with(model.members.single().members.single()) {
+                assertEquals("Foo", name)
+                assertEquals(NodeKind.Class, kind)
+                assertEquals("This is link to http://example.com/#example", content.summary.toTestString())
+            }
+        }
+    }
+
     @Test fun linkToMember() {
         checkSourceExistsAndVerifyModel("testdata/links/linkToMember.kt", defaultModelConfig) { model ->
             with(model.members.single().members.single()) {
