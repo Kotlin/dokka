@@ -183,13 +183,13 @@ dokka {
 
 #### Multiplatform
 Since version 0.9.19 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
-In the multiplatform mode, the `configuration` block is replaced by a `multiplatform` block which has inner blocks for each platform. The inner blocks can be named arbitrary, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names. See the example blow:
+In the multiplatform mode, the `configuration` block is replaced by a `multiplatform` block which has inner blocks for each platform. The inner blocks can be named arbitrarly, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names. See an example below:
 
 Groovy
 ```groovy
 kotlin { // Kotlin Multiplatform plugin configuration
     jvm() 
-    js("customName")
+    js("customName") // Define a js platform named "customName" If you want to generate docs for it, you need to have this name in dokka configuration below 
 }
 
 dokka {
