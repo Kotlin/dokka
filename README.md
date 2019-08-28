@@ -5,7 +5,7 @@ Just like Kotlin itself, Dokka fully supports mixed-language Java/Kotlin project
 standard Javadoc comments in Java files and [KDoc comments](https://kotlinlang.org/docs/reference/kotlin-doc.html) in Kotlin files,
 and can generate documentation in multiple formats including standard Javadoc, HTML and Markdown.
 
-## Using Dokka
+## Using dokka
 
 ### Using the Gradle plugin
 
@@ -527,15 +527,15 @@ Please see the [Dokka Maven example project](https://github.com/JetBrains/kotlin
 
 ### Using the Ant task
 
-The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example of using it:
+The Ant task definition is also contained in the dokka-fatjar.jar referenced above. Here's an example usage:
 
 ```xml
 <project name="Dokka" default="document">
-    <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
+  <typedef resource="dokka-antlib.xml" classpath="dokka-fatjar.jar"/>
 
-    <target name="document">
-        <dokka src="src" outputdir="doc" modulename="myproject"/>
-    </target>
+  <target name="document">
+    <dokka format="html" outputDir="doc"/>
+  </target>
 </project>
 ```
 
@@ -543,20 +543,25 @@ The Ant task supports the following attributes:
 
   * `outputDir` - the output directory where the documentation is generated
   * `format` - the output format (see the list of supported formats below)
+  * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
+
+Inside the `dokka` tag you can create another tags named `<passconfig/>` that support the following attributes: 
+
   * `classpath` - list of directories or .jar files to include in the classpath (used for resolving references)
   * `samples` - list of directories containing sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
   * `moduleName` - the name of the module being documented (used as the root directory of the generated documentation)
   * `include` - names of files containing the documentation for the module and individual packages
   * `skipDeprecated` - if set, deprecated elements are not included in the generated documentation
   * `jdkVersion` - version for linking to JDK
-  * `<sourceRoot path="src" platforms="JVM" />` - analogue of src, but allows to specify [platforms](#platforms) 
+  * `analysisPlatform="jvm"` - platform used for analysing sourceRoots, see the [platforms](#platforms) section
+  * `<sourceRoot path="src" />` - source root
   * `<packageOptions prefix="kotlin" includeNonPublic="false" reportUndocumented="true" skipDeprecated="false"/>` - 
     Per package options for package `kotlin` and sub-packages of it
   * `noStdlibLink` - disable linking to online kotlin-stdlib documentation
   * `noJdkLink` - disable linking to online JDK documentation
   * `<externalDocumentationLink url="https://example.com/docs/" packageListUrl="file:///home/user/localdocs/package-list"/>` -
     linking to external documentation, packageListUrl should be used if package-list located not in standard location
-  * `cacheRoot` - Use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
+  * `<target value="JVM"/>` - see the [platforms](#platforms) section 
 
 
 ### Using the Command Line
@@ -572,9 +577,9 @@ Dokka supports the following command line arguments:
   * `-format` - the [output format](#output-formats):
   * `-cacheRoot` - use `default` or set to custom path to cache directory to enable package-list caching. When set to `default`, caches stored in $USER_HOME/.cache/dokka
   * `-pass` - (repeatable) - configuration for single analyser pass. Following this argument, you can pass other arguments:
-      * `-src` - (repeatable) - source file or directory (allows many paths separated by the system path separator)
-      * `-classpath` - (repeatable) - directory or .jar file to include in the classpath (used for resolving references)
-      * `-sample` - (repeatable) - directory containing a sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
+    * `-src` - (repeatable) - source file or directory (allows many paths separated by the system path separator)
+    * `-classpath` - (repeatable) - directory or .jar file to include in the classpath (used for resolving references)
+    * `-sample` - (repeatable) - directory containing a sample code (documentation for those directories is not generated but declarations from them can be referenced using the `@sample` tag)
     * `-module` - the name of the module being documented (used as the root directory of the generated documentation)
     * `-include` - (repeatable) - names of files containing the documentation for the module and individual packages
     * `-skipDeprecated` - if set, deprecated elements are not included in the generated documentation
@@ -615,7 +620,7 @@ Each multiplatform closure has two properties: `platform` and `targets`. If you 
   * `native`
   * `common` 
 
-## Building Dokka
+## Building dokka
 
 Dokka is built with Gradle. To build it, use `./gradlew build`.
-Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run Dokka.
+Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run dokka.
