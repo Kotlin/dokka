@@ -29,7 +29,7 @@ or using the plugins block:
 
 ```groovy
 plugins {
-    id 'org.jetbrains.dokka' version '0.9.19'
+    id 'org.jetbrains.dokka' version '0.10.0'
 }
 repositories {
     jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
@@ -182,7 +182,7 @@ dokka {
 ```
 
 #### Multiplatform
-Since version 0.9.19 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
+Since version 0.10.0 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
 In the multiplatform mode, the `configuration` block is replaced by a `multiplatform` block which has inner blocks for each platform. The inner blocks can be named arbitrarly, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names. See an example below:
 
 Groovy
@@ -308,7 +308,7 @@ repositories {
 }
 
 dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.19"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.0"
 }
 
 dokka {
@@ -331,7 +331,7 @@ To use your Fat Jar, just set the path to it:
  }
  
  dependencies {
-     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.9.19.jar")
+     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.0.jar")
  }
  
  dokka {
@@ -566,7 +566,7 @@ Inside the `dokka` tag you can create another tags named `<passconfig/>` that su
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.9.10/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <arguments>
