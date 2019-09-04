@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.File
 import java.io.Serializable
 
@@ -29,12 +30,12 @@ class ConfigurationExtractor(private val project: Project) {
         val target: KotlinTarget
         try {
             target = project.extensions.getByType(KotlinSingleTargetExtension::class.java).target
-        } catch(e: UnknownDomainObjectException) {
-            return null
-        } catch(e: NoClassDefFoundError) {
-            return null
-        } catch(e: ClassNotFoundException) {
-            return null
+        } catch (e: Throwable) {
+            when (e){
+                is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
+                    return null
+                else -> throw e
+            }
         }
 
         return try {
@@ -48,12 +49,12 @@ class ConfigurationExtractor(private val project: Project) {
         val targets: NamedDomainObjectCollection<KotlinTarget>
         try {
             targets = project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
-        } catch(e: UnknownDomainObjectException) {
-            return null
-        } catch(e: ClassNotFoundException) {
-            return null
-        } catch(e: NoClassDefFoundError) {
-            return null
+        } catch (e: Throwable) {
+            when (e){
+                is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
+                    return null
+                else -> throw e
+            }
         }
 
         val commonTarget = targets.find { it.platformType == KotlinPlatformType.common }
@@ -65,7 +66,39 @@ class ConfigurationExtractor(private val project: Project) {
         return config + PlatformData("common", getClasspath(commonTarget), getSourceSet(commonTarget), "common")
     }
 
-    fun extractFromKotlinTasks(kotlinTasks: List<Task>): PlatformData? {
+    fun extractFromJavaPlugin(): PlatformData? =
+        project.convention.findPlugin(JavaPluginConvention::class.java)
+            ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
+            ?.let { PlatformData(null, emptyList(), it.toList(), "") }
+
+    fun extractFromKotlinTasks(kotlinTasks: List<Task>): PlatformData? =
+         try {
+            kotlinTasks.map { extractFromKotlinTask(it) }.let { platformDataList ->
+                PlatformData(null, platformDataList.flatMap { it.classpath }, platformDataList.flatMap { it.sourceRoots }, "")
+            }
+        } catch (e: Throwable) {
+             when (e){
+                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
+                     extractFromKotlinTasksTheHardWay(kotlinTasks)
+                 else -> throw e
+             }
+        }
+
+    private fun extractFromKotlinTask(task: Task): PlatformData =
+        try {
+            project.extensions.getByType(KotlinSingleTargetExtension::class.java).target
+                .compilations
+                .find { it.compileKotlinTask == task }
+        } catch (e: Throwable) {
+            when (e){
+                is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
+                    project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
+                        .firstNotNullResult { target -> target.compilations.find { it.compileKotlinTask == task } }
+                else -> throw e
+            }
+        }.let { PlatformData(task.name, getClasspath(it), getSourceSet(it), it?.platformType?.toString() ?: "") }
+
+    private fun extractFromKotlinTasksTheHardWay(kotlinTasks: List<Task>): PlatformData? {
         val allClasspath = mutableSetOf<File>()
         var allClasspathFileCollection: FileCollection = project.files()
         val allSourceRoots = mutableSetOf<File>()
@@ -78,7 +111,7 @@ class ConfigurationExtractor(private val project: Project) {
                     taskSourceRoots = it["sourceRootsContainer"]["sourceRoots"].v()
                     abstractKotlinCompileClz = DokkaTask.getAbstractKotlinCompileFor(it)!!
                 } catch (e: NullPointerException) {
-                    println("Cannot extract sources from Kotlin tasks! Consider upgrading Kotlin Gradle Plugin")
+                    println("Error during extraction of sources from kotlinTasks. This may be a result of outdated Kotlin Gradle Plugin")
                     return null
                 }
 
@@ -105,18 +138,17 @@ class ConfigurationExtractor(private val project: Project) {
         return PlatformData(null, classpath, allSourceRoots.toList(), "")
     }
 
-    fun extractFromJavaPlugin(): PlatformData? =
-        project.convention.findPlugin(JavaPluginConvention::class.java)
-            ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
-            ?.let { PlatformData(null, emptyList(), it.toList(), "") }
+    private fun getSourceSet(target: KotlinTarget?): List<File> = getSourceSet(getMainCompilation(target))
 
-    private fun getSourceSet(target: KotlinTarget?): List<File> = getMainCompilation(target)
+    private fun getClasspath(target: KotlinTarget?): List<File> = getClasspath(getMainCompilation(target))
+
+    private fun getSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
         ?.allKotlinSourceSets
         ?.flatMap { it.kotlin.sourceDirectories }
         ?.filter { it.exists() }
         .orEmpty()
 
-    private fun getClasspath(target: KotlinTarget?): List<File> = getMainCompilation(target)
+    private fun getClasspath(compilation: KotlinCompilation<*>?): List<File> = compilation
         ?.compileDependencyFiles
         ?.files
         ?.toList()

@@ -12,3 +12,5 @@ fun Project.isAndroidProject() = try {
 } catch(e: ClassNotFoundException) {
     false
 }
+
+fun DokkaTask.isMultiplatformProject() = this.multiplatform.isNotEmpty()
