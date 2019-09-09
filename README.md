@@ -346,7 +346,8 @@ If you encounter any problems, please see the [FAQ](https://github.com/Kotlin/do
 
 #### Android
 
-If you are using Android there is a separate Gradle plugin. Just make sure you apply the plugin after
+Since version 0.10.0 the separate Android plugin is merged with the default one. 
+Just make sure you apply the plugin after
 `com.android.library` and `kotlin-android`.
 
 ```groovy
@@ -355,7 +356,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
 }
 repositories {
@@ -363,8 +364,10 @@ repositories {
 }
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'org.jetbrains.dokka'
 ```
+
+There is also a `noAndroidSdkLink` configuration parameter that works similar to `noJdkLink` and `noStdlibLink`
 
 ### Using the Maven plugin
 
