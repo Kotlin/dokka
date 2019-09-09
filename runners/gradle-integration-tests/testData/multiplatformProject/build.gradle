@@ -41,6 +41,10 @@ kotlin {
     }
 }
 
+dependencies {
+    dokkaRuntime files(dokka_fatjar)
+}
+
 apply plugin: 'org.jetbrains.dokka'
 
 dokka {
