@@ -7,4 +7,8 @@ include 'core',
         'runners:cli',
         'runners:maven-plugin',
         'runners:gradle-plugin',
-        'runners:gradle-integration-tests'
+        'runners:android-gradle-plugin',
+        'runners:gradle-integration-tests',
+        'coreDependencies',
+        'plugins:javadoc8',
+        'core:testApi'
