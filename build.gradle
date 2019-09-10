@@ -15,11 +15,6 @@ allprojects {
     group 'org.jetbrains.dokka'
     version dokka_version
 
-    def repo = {
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
-        artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
-    }
 
     buildscript {
         repositories {
@@ -27,7 +22,6 @@ allprojects {
             maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
             maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
             maven { url "https://plugins.gradle.org/m2/" }
-            ivy(repo)
         }
         dependencies {
             classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
@@ -45,7 +39,6 @@ allprojects {
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
         maven { url "https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/$bundled_kotlin_compiler_version/maven" }
-        ivy(repo)
         maven { url "https://kotlin.bintray.com/kotlinx" }
         maven { url "https://dl.bintray.com/kotlin/kotlinx" }
         maven { url "https://dl.bintray.com/orangy/maven" } // TODO: remove this repository when kotlinx.cli is available in maven
@@ -78,31 +71,7 @@ def bintrayPublication(project, List<String> _publications) {
     })
 }
 
-def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
 
-ext.ideaVersion = versions["idea.build.id"]
-ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
-
-configurations {
-    ideaIC
-    intellijCore
-}
-
-repositories {
-    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
-    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
-}
-
-dependencies {
-    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
-    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
-}
-
-def intellijCoreAnalysis() {
-    return zipTree(configurations.intellijCore.singleFile).matching ({
-        include("intellij-core-analysis.jar")
-    })
-}
 
 def ideaRT() {
     return zipTree(project.configurations.ideaIC.singleFile).matching ({
@@ -111,22 +80,6 @@ def ideaRT() {
 }
 
 def repoLocation = uri(file("$buildDir/dist-maven"))
-
-configurations {
-    kotlin_plugin_full
-}
-
-dependencies {
-    final String ijVersion = "20" + ideaVersion.take(2) + "." + ideaVersion[2]
-    kotlin_plugin_full "teamcity:kotlin-plugin-$bundled_kotlin_compiler_version-IJ$ijVersion-1:$bundled_kotlin_compiler_version@zip"
-}
-
-def kotlinPluginDependency() {
-    return zipTree(configurations.kotlin_plugin_full.singleFile).matching({
-        include("Kotlin/lib/kotlin-plugin.jar")
-    })
-}
-
 
 allprojects {
 
@@ -149,4 +102,30 @@ allprojects {
         }
 
     }
+}
+
+ext.ivyrepo = {
+    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
+    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
+    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
+}
+
+repositories {
+    ivy(ivyrepo)
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+}
+
+configurations {
+    ideaIC
+    intellijCore
+}
+def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
+
+ext.ideaVersion = versions["idea.build.id"]
+ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
+
+dependencies {
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
+    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
 }
