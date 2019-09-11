@@ -3,7 +3,10 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
-import org.jetbrains.kotlin.analyzer.PlatformAnalysisParameters
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.toTestString
+import org.jetbrains.dokka.testApi.verifyPackageMember
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.tests
+package org.jetbrains.dokka.testApi
 
 import com.google.inject.Guice
 import com.intellij.openapi.application.PathManager

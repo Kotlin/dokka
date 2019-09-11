@@ -3,6 +3,8 @@ package org.jetbrains.dokka.tests
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.dokka.Content
 import org.jetbrains.dokka.NodeKind
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.toTestString
 import org.junit.Test
 
 class TypeAliasTest {

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.tests
+package org.jetbrains.dokka.testApi
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
@@ -13,8 +13,8 @@ data class SourceLinkDefinitionImpl(override val path: String,
             val (path, urlAndLine) = srcLink.split('=')
             return SourceLinkDefinitionImpl(
                 File(path).canonicalPath,
-                    urlAndLine.substringBefore("#"),
-                    urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
+                urlAndLine.substringBefore("#"),
+                urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
         }
     }
 }

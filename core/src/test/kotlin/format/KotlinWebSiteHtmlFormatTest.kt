@@ -2,6 +2,10 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Generation.DocumentationMerger
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.appendDocumentation
+import org.jetbrains.dokka.testApi.verifyModelOutput
+import org.jetbrains.dokka.testApi.verifyOutput
 import org.junit.Test
 
 abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -65,14 +69,14 @@ abstract class BaseKotlinWebSiteHtmlFormatTest(val analysisPlatform: Platform): 
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val moduleName = "test"
-        val passConfiguration = PassConfigurationImpl(
+        val passConfiguration = org.jetbrains.dokka.testApi.PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
 
-        val dokkaConfiguration = DokkaConfigurationImpl(
+        val dokkaConfiguration = org.jetbrains.dokka.testApi.DokkaConfigurationImpl(
             outputDir = "",
             format = "kotlin-website-html",
             generateIndexPages = false,

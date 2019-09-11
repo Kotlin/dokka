@@ -1,6 +1,9 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.verifyModel
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.junit.Assert.*
 import org.junit.Test
@@ -121,7 +124,7 @@ abstract class BasePackageTest(val analysisPlatform: Platform) {
             ModelConfig(
                 roots = arrayOf(KotlinSourceRoot("testdata/packages/classInPackage.kt", false)),
                 perPackageOptions = listOf(
-                    PackageOptionsImpl(prefix = "simple.name", suppress = true)
+                    org.jetbrains.dokka.testApi.PackageOptionsImpl(prefix = "simple.name", suppress = true)
                 ),
                 analysisPlatform = analysisPlatform
             )

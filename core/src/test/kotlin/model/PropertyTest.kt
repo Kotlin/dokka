@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

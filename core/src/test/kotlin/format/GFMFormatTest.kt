@@ -3,6 +3,8 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.GFMFormatService
 import org.jetbrains.dokka.KotlinLanguageService
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.verifyOutput
 import org.junit.Test
 
 abstract class BaseGFMFormatTest(val analysisPlatform: Platform) : FileGeneratorTestCase() {
@@ -23,8 +25,8 @@ abstract class BaseGFMFormatTest(val analysisPlatform: Platform) : FileGenerator
     private fun verifyGFMNodeByName(fileName: String, name: String, modelConfig: ModelConfig) {
         verifyOutput("testdata/format/gfm/$fileName.kt", ".md", modelConfig) { model, output ->
             buildPagesAndReadInto(
-                    model.members.single().members.filter { it.name == name },
-                    output
+                model.members.single().members.filter { it.name == name },
+                output
             )
         }
     }

@@ -4,9 +4,9 @@ import com.sun.javadoc.Tag
 import com.sun.javadoc.Type
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.tests.ModelConfig
-import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
-import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.assertEqualsIgnoringSeparators
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
 import org.junit.Assert.*
 import org.junit.Test
 import java.lang.reflect.Modifier.*

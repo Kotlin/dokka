@@ -3,8 +3,8 @@ package issues
 import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.tests.ModelConfig
-import org.jetbrains.dokka.tests.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
 import org.junit.Test
 import kotlin.test.assertEquals
 
