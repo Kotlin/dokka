@@ -2,6 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Generation.DocumentationMerger
+import org.jetbrains.dokka.testApi.*
 import org.junit.Test
 
 abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -257,14 +258,14 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
     @Test fun packagePlatformsWithExtExtensions() {
         val path = "multiplatform/packagePlatformsWithExtExtensions"
         val module = DocumentationModule("test")
-        val passConfiguration = PassConfigurationImpl(
+        val passConfiguration = org.jetbrains.dokka.testApi.PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
 
-        val dokkaConfiguration = DokkaConfigurationImpl(
+        val dokkaConfiguration = org.jetbrains.dokka.testApi.DokkaConfigurationImpl(
             outputDir = "",
             format = "html",
             generateIndexPages = false,
@@ -388,13 +389,13 @@ abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGener
 
     private fun buildMultiplePlatforms(path: String): DocumentationModule {
         val moduleName = "test"
-        val passConfiguration = PassConfigurationImpl(
+        val passConfiguration = org.jetbrains.dokka.testApi.PassConfigurationImpl(
                 noStdlibLink = true,
                 noJdkLink = true,
                 languageVersion = null,
                 apiVersion = null
         )
-        val dokkaConfiguration = DokkaConfigurationImpl(
+        val dokkaConfiguration = org.jetbrains.dokka.testApi.DokkaConfigurationImpl(
             outputDir = "",
             format = "html",
             generateIndexPages = false,

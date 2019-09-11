@@ -1,3 +1,6 @@
 dependencies {
     compileOnly project(":core")
+    implementation group: 'junit', name: 'junit', version: '4.12'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
+    implementation ideaRT()
 }

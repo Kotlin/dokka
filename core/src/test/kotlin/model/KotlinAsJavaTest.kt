@@ -4,6 +4,9 @@ import org.jetbrains.dokka.DocumentationModule
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.RefKind
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.checkSourceExistsAndVerifyModel
+import org.jetbrains.dokka.testApi.toTestString
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test

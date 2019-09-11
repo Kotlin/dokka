@@ -3,6 +3,9 @@ package org.jetbrains.dokka.tests
 import org.jetbrains.dokka.NodeKind
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.RefKind
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.toTestString
+import org.jetbrains.dokka.testApi.verifyJavaPackageMember
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test

@@ -1,6 +1,9 @@
 package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.testApi.ModelConfig
+import org.jetbrains.dokka.testApi.verifyJavaOutput
+import org.jetbrains.dokka.testApi.verifyOutput
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.junit.Test

@@ -7,10 +7,9 @@ import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.tests.assertEqualsIgnoringSeparators
+import org.jetbrains.dokka.testApi.assertEqualsIgnoringSeparators
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreProjectEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.junit.After
