@@ -8,7 +8,6 @@ dependencies {
     def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })
     compileOnly toolsJar
     testCompile toolsJar
-//    testCompile project(":core").sourceSets.test.output
 
     testImplementation project(":core:testApi")
     testCompile group: 'junit', name: 'junit', version: '4.12'
