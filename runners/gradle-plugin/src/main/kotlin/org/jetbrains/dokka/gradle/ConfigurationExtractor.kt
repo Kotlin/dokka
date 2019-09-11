@@ -13,14 +13,12 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.ReflectDsl
-import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.File
 import java.io.Serializable
 
@@ -94,7 +92,7 @@ class ConfigurationExtractor(private val project: Project) {
             when (e){
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
                     project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
-                        .firstNotNullResult { target -> target.compilations.find { it.compileKotlinTask == task } }
+                        .flatMap { it.compilations }.firstOrNull { it.compileKotlinTask == task }
                 else -> throw e
             }
         }.let { PlatformData(task.name, getClasspath(it), getSourceSet(it), it?.platformType?.toString() ?: "") }
