@@ -13,7 +13,6 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.ReflectDsl
-import org.jetbrains.kotlin.android.synthetic.diagnostic.AndroidExtensionPropertiesCallChecker
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
@@ -156,9 +155,9 @@ class ConfigurationExtractor(private val project: Project) {
         .orEmpty()
 
     private fun getMainCompilation(target: KotlinTarget?): KotlinCompilation<KotlinCommonOptions>? =
-        target?.compilations?.getByName(getMainCompilationName())
+        target?.compilations?.getByName(getMainCompilationName(target))
 
-    private fun getMainCompilationName() = if (project.isAndroidProject())
+    private fun getMainCompilationName(target: KotlinTarget?) = if (target?.isAndroidTarget() == true)
         getVariants(project).filter { it.name == BuilderConstants.RELEASE }.map { it.name }.first()
     else
         KotlinCompilation.MAIN_COMPILATION_NAME
