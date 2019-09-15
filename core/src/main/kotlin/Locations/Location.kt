@@ -43,10 +43,12 @@ fun relativePathToNode(qualifiedName: List<String>, hasMembers: Boolean): String
 
 fun relativePathToNode(node: DocumentationNode) = relativePathToNode(node.path.map { it.name }, node.members.any())
 
+private val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+
 fun identifierToFilename(path: String): String {
     val escaped = path.replace('<', '-').replace('>', '-')
     val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
-    return if (lowercase == "index") "--index--" else lowercase
+    return if (lowercase in reservedFilenames) "--$lowercase--" else lowercase
 }
 
 fun NodeLocationAwareGenerator.relativePathToLocation(owner: DocumentationNode, node: DocumentationNode): String {
