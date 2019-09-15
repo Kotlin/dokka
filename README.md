@@ -183,7 +183,9 @@ dokka {
 
 #### Multiplatform
 Since version 0.10.0 dokka supports multiplatform projects. For a general understanding how a multiplatform documentation is generated, please consult the [FAQ](https://github.com/Kotlin/dokka/wiki/faq).
-In the multiplatform mode, the `configuration` block is replaced by a `multiplatform` block which has inner blocks for each platform. The inner blocks can be named arbitrarly, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, they must have the same names. See an example below:
+In the multiplatform mode, instead of using the `configuration` block, you should use a `multiplatform` block with inner blocks for each platform. 
+The `configuration` block's parameters belong to those inner blocks, which can be named arbitrarly, however if you want to use source roots and classpath provided by Kotlin Multiplatform plugin, 
+they must have the same names as in the Kotlin Multiplatform plugin. See an example below:
 
 Groovy
 ```groovy
@@ -197,7 +199,10 @@ dokka {
     outputFormat = "html"
 
     multiplatform {
-        customName {} // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+        customName { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            includes = ['packages.md', 'extra.md']
+            samples = ['samples/basic.kt', 'samples/advanced.kt']
+        } 
         
         differentName { // Different name, so source roots, classpath and platform must be passed explicitly.
             targets = ["JVM"]
@@ -225,7 +230,10 @@ val dokka by getting(DokkaTask::class) {
         outputFormat = "html"
 
         multiplatform { 
-            val customName by creating {} // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            val customName by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+                includes = listOf("packages.md", "extra.md")
+                samples = listOf("samples/basic.kt", "samples/advanced.kt")
+            }
 
             register("differentName") { // Different name, so source roots must be passed explicitly
                 targets = listOf("JVM")
@@ -285,9 +293,9 @@ To generate the documentation, use the `dokka` Gradle task:
 More dokka tasks can be added to a project like this:
 
 ```groovy
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
+task dokkaMarkdown(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'markdown'
+    outputDirectory = "$buildDir/markdown"
 }
 ```
 
