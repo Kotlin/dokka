@@ -312,6 +312,8 @@ open class DokkaTask : DefaultTask() {
             config.perPackageOptions.addAll(globalConfig.perPackageOptions)
             config.externalDocumentationLinks.addAll(globalConfig.externalDocumentationLinks)
             config.sourceLinks.addAll(globalConfig.sourceLinks)
+            config.samples += globalConfig.samples.map { project.file(it).absolutePath }
+            config.includes += globalConfig.includes.map { project.file(it).absolutePath }
         }
         return config
     }
