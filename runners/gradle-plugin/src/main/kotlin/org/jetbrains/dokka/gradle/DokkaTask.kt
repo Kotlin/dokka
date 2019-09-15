@@ -301,12 +301,12 @@ open class DokkaTask : DefaultTask() {
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
-        if (project.isAndroidProject() && !config.noAndroidSdkLink) {
+        if (project.isAndroidProject() && !config.noAndroidSdkLink) { // TODO: introduce Android as a separate Dokka platform?
             config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
         }
         config.externalDocumentationLinks.addAll(externalDocumentationLinks)
         if (config.platform != null && config.platform.toString().isNotEmpty()) {
-            config.analysisPlatform = Platform.fromString(config.platform.toString())
+            config.analysisPlatform = dokkaPlatformFromString(config.platform.toString())
         }
         if (globalConfig != null) {
             config.perPackageOptions.addAll(globalConfig.perPackageOptions)
@@ -314,6 +314,11 @@ open class DokkaTask : DefaultTask() {
             config.sourceLinks.addAll(globalConfig.sourceLinks)
         }
         return config
+    }
+
+    private fun dokkaPlatformFromString(platform: String) = when (platform.toLowerCase()) {
+        "androidjvm", "android" -> Platform.jvm
+        else -> Platform.fromString(platform)
     }
 
     // Needed for Gradle incremental build
