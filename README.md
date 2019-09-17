@@ -97,7 +97,7 @@ dokka {
         // Do not create index pages for empty packages
         skipEmptyPackages = true 
      
-        // See the "Platforms" section of this readme
+        // This is a list of platform names that will be shown in the final result. See the "Platforms" section of this readme
         targets = ["JVM"]  
 
         // Platform used for code analysis. See the "Platforms" section of this readme
@@ -259,7 +259,7 @@ dokka {
                 prefix = "com.somePackage"
                 suppress = true
             }
-            perPackageOption {
+            perPackageOption { // You can repeat this block for multiple perPackageOptions
                 prefix = "kotlin" 
                 skipDeprecated = false
                 reportUndocumented = true
@@ -279,7 +279,7 @@ dokka {
     }
 }
 ```
-
+The parameters from the `global` block are appended to all the other platform configurations (in the example - `js` and `jvm`) and cannot be overriden. 
 
 
 Note that `javadoc` output format cannot be used with multiplatform. 
@@ -623,7 +623,8 @@ Example result and usage can be found on [kotlinlang.org](https://kotlinlang.org
 
 Each multiplatform closure has two properties: `platform` and `targets`. If you use autoconfiguration, those are filled automatically.
 
-`targets` property is a list of platform names that will be shown in the final result. 
+`targets` property is a list of platform names that will be shown in the final result. Note that the value of this property 
+doesn't affect analysis of source code, it just changes the result. You can think of this as a `name` property
 
 `platform` property is used for the analysis of source roots. Available values are: 
   * `jvm`
