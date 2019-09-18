@@ -376,6 +376,8 @@ apply plugin: 'org.jetbrains.dokka'
 ```
 
 There is also a `noAndroidSdkLink` configuration parameter that works similar to `noJdkLink` and `noStdlibLink`
+By default the variant documented by dokka is the first release variant encountered. If you want to change that,
+you can disable the autoconfiguration and configure dokka manually.   
 
 ### Using the Maven plugin
 
