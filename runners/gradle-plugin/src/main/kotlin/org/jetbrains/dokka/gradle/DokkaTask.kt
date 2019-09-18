@@ -223,7 +223,7 @@ open class DokkaTask : DefaultTask() {
 
         if (disableAutoconfiguration) return listOf(userConfig)
 
-        val extractedConfig = configExtractor.extractFromSinglePlatform()
+        val extractedConfig = configExtractor.extractFromSinglePlatform(userConfig.androidVariant)
         val baseConfig = if (extractedConfig != null)
             listOf(mergeUserConfigurationAndPlatformData(userConfig, extractedConfig))
         else

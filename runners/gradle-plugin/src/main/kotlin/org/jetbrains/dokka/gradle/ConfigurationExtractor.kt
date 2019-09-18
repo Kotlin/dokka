@@ -26,7 +26,7 @@ import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
-    fun extractFromSinglePlatform(): PlatformData? {
+    fun extractFromSinglePlatform(variantName: String? = null): PlatformData? {
         val target: KotlinTarget
         try {
             target = project.extensions.getByType(KotlinSingleTargetExtension::class.java).target
@@ -39,7 +39,7 @@ class ConfigurationExtractor(private val project: Project) {
         }
 
         return try {
-            PlatformData(null, getClasspath(target), getSourceSet(target), getPlatformName(target.platformType))
+            PlatformData(null, getClasspath(target, variantName), getSourceSet(target, variantName), getPlatformName(target.platformType))
         } catch(e: NoSuchMethodError){
             null
         }
@@ -139,10 +139,17 @@ class ConfigurationExtractor(private val project: Project) {
         return PlatformData(null, classpath, allSourceRoots.toList(), "")
     }
 
-    private fun getSourceSet(target: KotlinTarget): List<File> = getSourceSet(getMainCompilation(target))
+    private fun getSourceSet(target: KotlinTarget, variantName: String? = null): List<File> =
+        if(variantName != null)
+            getSourceSet(getCompilation(target, variantName))
+        else
+            getSourceSet(getMainCompilation(target))
 
-    private fun getClasspath(target: KotlinTarget): List<File> = if (target.isAndroidTarget()) {
-        getClasspathFromAndroidTask(getMainCompilation(target))
+    private fun getClasspath(target: KotlinTarget, variantName: String? = null): List<File> = if (target.isAndroidTarget()) {
+        if(variantName != null)
+            getClasspathFromAndroidTask(getCompilation(target, variantName))
+        else
+            getClasspathFromAndroidTask(getMainCompilation(target))
     } else {
         getClasspath(getMainCompilation(target))
     }
@@ -161,14 +168,17 @@ class ConfigurationExtractor(private val project: Project) {
         .orEmpty()
 
     // This is a workaround for KT-33893
-    private fun getClasspathFromAndroidTask(compilation: KotlinCompilation<*>?): List<File> = (compilation
-        ?.compileKotlinTask as? KotlinCompile)
+    private fun getClasspathFromAndroidTask(compilation: KotlinCompilation<*>): List<File> = (compilation
+        .compileKotlinTask as? KotlinCompile)
         ?.classpath?.files?.toList() ?: getClasspath(compilation)
 
-    private fun getMainCompilation(target: KotlinTarget?): KotlinCompilation<KotlinCommonOptions>? =
-        target?.compilations?.getByName(getMainCompilationName(target))
+    private fun getMainCompilation(target: KotlinTarget) =
+        getCompilation(target, getMainCompilationName(target))
 
-    private fun getMainCompilationName(target: KotlinTarget?) = if (target?.isAndroidTarget() == true)
+    private fun getCompilation(target: KotlinTarget, name: String) =
+        target.compilations.getByName(name)
+
+    private fun getMainCompilationName(target: KotlinTarget) = if (target.isAndroidTarget())
         getVariants(project).filter { it.buildType.name == BuilderConstants.RELEASE }.map { it.name }.first()
     else
         KotlinCompilation.MAIN_COMPILATION_NAME
