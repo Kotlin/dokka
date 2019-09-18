@@ -51,6 +51,7 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input override var targets: List<String> = emptyList()
     @Input @Optional override var sinceKotlin: String? = null
     @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
+    @Input @Optional @Transient var androidVariant: String? = null
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }
