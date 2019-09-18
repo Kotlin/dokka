@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.io.File
 import java.io.Serializable
@@ -56,13 +57,14 @@ class ConfigurationExtractor(private val project: Project) {
             }
         }
 
-        val commonTarget = targets.find { it.platformType == KotlinPlatformType.common }
-        val platformTargets = targets.filter { it.platformType != KotlinPlatformType.common }
-        val config = platformTargets.map {
+        val commonTargetPlatformData = targets.find { it.platformType == KotlinPlatformType.common }?.let {
+            PlatformData("common", getClasspath(it), getSourceSet(it), "common")
+        }
+        val config = targets.filter { it.platformType != KotlinPlatformType.common }.map {
             PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
         }
 
-        return config + PlatformData("common", getClasspath(commonTarget), getSourceSet(commonTarget), "common")
+        return (config + commonTargetPlatformData).filterNotNull()
     }
 
     fun extractFromJavaPlugin(): PlatformData? =
@@ -71,16 +73,16 @@ class ConfigurationExtractor(private val project: Project) {
             ?.let { PlatformData(null, emptyList(), it.toList(), "") }
 
     fun extractFromKotlinTasks(kotlinTasks: List<Task>): PlatformData? =
-         try {
+        try {
             kotlinTasks.map { extractFromKotlinTask(it) }.let { platformDataList ->
                 PlatformData(null, platformDataList.flatMap { it.classpath }, platformDataList.flatMap { it.sourceRoots }, "")
             }
         } catch (e: Throwable) {
-             when (e){
-                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
-                     extractFromKotlinTasksTheHardWay(kotlinTasks)
-                 else -> throw e
-             }
+            when (e){
+                is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
+                    extractFromKotlinTasksTheHardWay(kotlinTasks)
+                else -> throw e
+            }
         }
 
     private fun extractFromKotlinTask(task: Task): PlatformData =
@@ -137,9 +139,13 @@ class ConfigurationExtractor(private val project: Project) {
         return PlatformData(null, classpath, allSourceRoots.toList(), "")
     }
 
-    private fun getSourceSet(target: KotlinTarget?): List<File> = getSourceSet(getMainCompilation(target))
+    private fun getSourceSet(target: KotlinTarget): List<File> = getSourceSet(getMainCompilation(target))
 
-    private fun getClasspath(target: KotlinTarget?): List<File> = getClasspath(getMainCompilation(target))
+    private fun getClasspath(target: KotlinTarget): List<File> = if (target.isAndroidTarget()) {
+        getClasspathFromAndroidTask(getMainCompilation(target))
+    } else {
+        getClasspath(getMainCompilation(target))
+    }
 
     private fun getSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
         ?.allKotlinSourceSets
@@ -153,6 +159,11 @@ class ConfigurationExtractor(private val project: Project) {
         ?.toList()
         ?.filter { it.exists() }
         .orEmpty()
+
+    // This is a workaround for KT-33893
+    private fun getClasspathFromAndroidTask(compilation: KotlinCompilation<*>?): List<File> = (compilation
+        ?.compileKotlinTask as? KotlinCompile)
+        ?.classpath?.files?.toList() ?: getClasspath(compilation)
 
     private fun getMainCompilation(target: KotlinTarget?): KotlinCompilation<KotlinCommonOptions>? =
         target?.compilations?.getByName(getMainCompilationName(target))
