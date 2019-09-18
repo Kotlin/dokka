@@ -94,4 +94,4 @@ gradle-app.setting
 local.properties
 android.local.properties
 
-!runners/gradle-integration-tests/testData/basic/classDir/**/*.class
+!integration-tests/gradle-integration-tests/testData/basic/classDir/**/*.class

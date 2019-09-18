@@ -49,7 +49,7 @@ task createClasspathManifest {
 }
 
 
-createClasspathManifest.mustRunAfter project(":runners:fatjar").shadowJar
+createClasspathManifest.mustRunAfter project(":runners:fatjar").getTasksByName("shadowJar", true)
 testClasses.dependsOn project(":runners:fatjar").shadowJar
 testClasses.dependsOn createClasspathManifest
 
