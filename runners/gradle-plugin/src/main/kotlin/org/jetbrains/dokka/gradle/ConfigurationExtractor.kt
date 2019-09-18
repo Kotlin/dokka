@@ -169,7 +169,7 @@ class ConfigurationExtractor(private val project: Project) {
         target?.compilations?.getByName(getMainCompilationName(target))
 
     private fun getMainCompilationName(target: KotlinTarget?) = if (target?.isAndroidTarget() == true)
-        getVariants(project).filter { it.name == BuilderConstants.RELEASE }.map { it.name }.first()
+        getVariants(project).filter { it.buildType.name == BuilderConstants.RELEASE }.map { it.name }.first()
     else
         KotlinCompilation.MAIN_COMPILATION_NAME
 
