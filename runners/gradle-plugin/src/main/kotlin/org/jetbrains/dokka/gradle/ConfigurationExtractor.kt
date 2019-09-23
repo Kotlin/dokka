@@ -24,6 +24,12 @@ import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
+    fun extractConfiguration(targetName: String, variantName: String?) = if (project.isMultiplatformProject()) {
+        extractFromMultiPlatform(targetName, variantName)
+    } else {
+        extractFromSinglePlatform(variantName)
+    }
+
     fun extractFromSinglePlatform(variantName: String? = null): PlatformData? {
         val target: KotlinTarget
         try {
@@ -43,27 +49,21 @@ class ConfigurationExtractor(private val project: Project) {
         }
     }
 
-    fun extractFromMultiPlatform(): List<PlatformData>? {
-        val targets: NamedDomainObjectCollection<KotlinTarget>
+    private fun extractFromMultiPlatform(targetName: String, variantName: String?): PlatformData? =
         try {
-            targets = project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
+            project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
         } catch (e: Throwable) {
             when (e){
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
-                    return null
+                    null
                 else -> throw e
             }
+        }?.let {
+            val fixedName = if(targetName.toLowerCase() == "common") "metadata" else targetName.toLowerCase()
+            it.find { target -> target.name.toLowerCase() == fixedName }?.let { target ->
+                PlatformData(fixedName, getClasspath(target, variantName), getSourceSet(target, variantName), target.platformType.toString())
+            }
         }
-
-        val commonTargetPlatformData = targets.find { it.platformType == KotlinPlatformType.common }?.let {
-            PlatformData("common", getClasspath(it), getSourceSet(it), "common")
-        }
-        val config = targets.filter { it.platformType != KotlinPlatformType.common }.map {
-            PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
-        }
-
-        return (config + commonTargetPlatformData).filterNotNull()
-    }
 
     fun extractFromJavaPlugin(): PlatformData? =
         project.convention.findPlugin(JavaPluginConvention::class.java)
