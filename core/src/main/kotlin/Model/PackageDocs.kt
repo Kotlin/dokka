@@ -7,6 +7,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.LocalTimeCounter
+import com.intellij.openapi.util.text.StringUtil
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.parser.LinkMap
@@ -30,7 +31,7 @@ class PackageDocs
     fun parse(fileName: String, linkResolveContext: List<PackageFragmentDescriptor>) {
         val file = File(fileName)
         if (file.exists()) {
-            val text = file.readText()
+            val text = StringUtil.convertLineSeparators(file.readText())
             val tree = parseMarkdown(text)
             val linkMap = LinkMap.buildLinkMap(tree.node, text)
             var targetContent: MutableContent = moduleContent
