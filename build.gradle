@@ -2,8 +2,10 @@ import org.jetbrains.DependenciesVersionGetter
 
 allprojects {
     ext {
-        final String buildNumber = System.getenv("BUILD_NUMBER")
-        dokka_version = dokka_version_base + ( buildNumber == null || System.getenv("FORCE_SNAPSHOT") != null ? "-SNAPSHOT" : "-$buildNumber" )
+        if (!project.findProperty("dokka_version")) {
+            final String buildNumber = System.getenv("BUILD_NUMBER")
+            dokka_version = dokka_version_base + (buildNumber == null || System.getenv("FORCE_SNAPSHOT") != null ? "-SNAPSHOT" : "-$buildNumber")
+        }
     }
 
     if (project == rootProject) {
