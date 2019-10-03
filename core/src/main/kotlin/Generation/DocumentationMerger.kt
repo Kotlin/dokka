@@ -164,7 +164,13 @@ class DocumentationMerger(
 
         if (groupNode.kind == NodeKind.ExternalClass){
             val refs = nodes.flatMap { it.allReferences() }.filter { it.kind != RefKind.Owner && it.kind != RefKind.TopLevelPage }
-            refs.forEach { groupNode.append(it.to, RefKind.Member) }
+            refs.forEach {
+                if (it.kind != RefKind.Link) {
+                    it.to.dropReferences { ref -> ref.kind == RefKind.Owner }
+                    it.to.append(groupNode, RefKind.Owner)
+                }
+                groupNode.append(it.to, it.kind)
+            }
         }
 
         // if nodes are classes, nested members should be also merged and
