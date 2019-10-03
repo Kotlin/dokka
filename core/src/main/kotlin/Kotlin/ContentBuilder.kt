@@ -161,6 +161,10 @@ fun buildContentTo(tree: MarkdownNode, target: ContentBlock, linkResolver: LinkR
             MarkdownElementTypes.LINK_DEFINITION -> {
             }
 
+            MarkdownTokenTypes.EMAIL_AUTOLINK -> {
+                parent.append(ContentText(node.text)) // TODO: create new ContentType for email to create mailto: links
+            }
+
             else -> {
                 processChildren()
             }
