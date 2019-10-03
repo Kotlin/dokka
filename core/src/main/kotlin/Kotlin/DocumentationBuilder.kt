@@ -423,7 +423,7 @@ class DocumentationBuilder
     fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
                                             packageContent: Map<String, Content>,
                                             packageDocumentationBuilder: PackageDocumentationBuilder) {
-        val allFqNames = fragments.map { it.fqName }.distinct()
+        val allFqNames = fragments.filter{ it.isDocumented(passConfiguration) }.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
             if (packageName.isRoot && !passConfiguration.includeRootPackage) continue
