@@ -126,15 +126,7 @@ abstract class BasePackageTest(val analysisPlatform: Platform) {
                 analysisPlatform = analysisPlatform
             )
         ) { model ->
-            assertEquals(1, model.members.count())
-            with(model.members.elementAt(0)) {
-                assertEquals(NodeKind.Package, kind)
-                assertEquals("simple.name", name)
-                assertEquals(Content.Empty, content)
-                assertTrue(details.none())
-                assertTrue(members.none())
-                assertTrue(links.none())
-            }
+            assertEquals(0, model.members.count())
         }
     }
 }

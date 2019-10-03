@@ -900,17 +900,16 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
                         val platforms = effectivePlatformsForNode(type)
                         appendIndexRow(platforms) {
                             appendPlatforms(platforms)
-                            appendHeader(level = 5) {
-                                appendLink(link(node, type) {
-                                    if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
-                                })
-                            }
-
                             if (type.kind == NodeKind.ExternalClass) {
                                 val packageName = type.owner?.name
                                 if (packageName != null) {
                                     appendText(" (extensions in package $packageName)")
                                 }
+                            }
+                            appendHeader(level = 5) {
+                                appendLink(link(node, type) {
+                                    if (it.kind == NodeKind.ExternalClass) it.name else it.qualifiedName()
+                                })
                             }
 
                             appendContent(type.summary)
