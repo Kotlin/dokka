@@ -38,7 +38,9 @@ import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.util.supertypesWithAny
-import com.google.inject.name.Named as GuiceNamed
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 private fun isExtensionForExternalClass(extensionFunctionDescriptor: DeclarationDescriptor,
                                         extensionReceiverDescriptor: DeclarationDescriptor,
@@ -156,7 +158,7 @@ class DocumentationBuilder
         if (unwrappedType is AbbreviatedType) {
             appendSupertype(descriptor, unwrappedType.abbreviation, backref)
         } else {
-            appendType(unwrappedType, NodeKind.Supertype)
+            appendType(unwrappedType, NodeKind.Supertype, decl = descriptor)
             val superclass = unwrappedType.constructor.declarationDescriptor
             if (backref) {
                 link(superclass, descriptor, RefKind.Inheritor)
@@ -169,15 +171,15 @@ class DocumentationBuilder
         if (projection.isStarProjection) {
             appendTextNode("*", NodeKind.Type)
         } else {
-            appendType(projection.type, kind, projection.projectionKind.label)
+            appendType(projection.type, kind, projection.projectionKind.label, decl = null)
         }
     }
 
-    fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "") {
+    fun DocumentationNode.appendType(kotlinType: KotlinType?, kind: NodeKind = NodeKind.Type, prefix: String = "", decl: DeclarationDescriptor?) {
         if (kotlinType == null)
             return
         (kotlinType.unwrap() as? AbbreviatedType)?.let {
-            return appendType(it.abbreviation)
+            return appendType(it.abbreviation, decl = decl)
         }
 
         if (kotlinType.isDynamic()) {
@@ -185,17 +187,25 @@ class DocumentationBuilder
             return
         }
 
+        val a = decl?.signatureWithSourceLocation() ?: "no decl"
+
         val classifierDescriptor = kotlinType.constructor.declarationDescriptor
-        val name = when (classifierDescriptor) {
-            is ClassDescriptor -> {
+        val name = when  {
+            kotlinType is UnresolvedType -> kotlinType.presentableName // if type not on classpath, just return the plain String name. It won't get linked, but at least it's presentable
+            classifierDescriptor is ClassDescriptor -> {
                 if (classifierDescriptor.isCompanionObject) {
                     classifierDescriptor.containingDeclaration.name.asString() +
                             "." + classifierDescriptor.name.asString()
                 } else {
-                    classifierDescriptor.name.asString()
+                    val classDescriptorName = classifierDescriptor.name.asString()
+                    if(classDescriptorName == "<ERROR CLASS>") {
+                        val rawText = decl?.getTypeTextFromSource()
+                        rawText ?: classDescriptorName
+                    }
+                    else classDescriptorName
                 }
             }
-            is Named -> classifierDescriptor.name.asString()
+            classifierDescriptor is Named -> classifierDescriptor.name.asString()
             else -> "<anonymous>"
         }
         val node = DocumentationNode(name, Content.Empty, kind)
@@ -605,7 +615,7 @@ class DocumentationBuilder
         node.appendModifiers(this)
         node.appendInPageChildren(typeConstructor.parameters, RefKind.Detail)
 
-        node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType)
+        node.appendType(underlyingType, NodeKind.TypeAliasUnderlyingType, decl = this)
 
         if (!external) {
             node.appendSourceLink(source)
@@ -722,7 +732,7 @@ class DocumentationBuilder
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
         node.appendInPageChildren(valueParameters, RefKind.Detail)
-        node.appendType(returnType)
+        node.appendType(returnType, decl = this)
         if (!external) {
             node.appendDefaultSinceKotlin()
         }
@@ -762,7 +772,7 @@ class DocumentationBuilder
         )
         node.appendInPageChildren(typeParameters, RefKind.Detail)
         extensionReceiverParameter?.let { node.appendChild(it, RefKind.Detail) }
-        node.appendType(returnType)
+        node.appendType(returnType, decl = this)
         if (!external) {
             node.appendDefaultSinceKotlin()
         }
@@ -819,7 +829,7 @@ class DocumentationBuilder
 
     fun ValueParameterDescriptor.build(): DocumentationNode {
         val node = nodeForDescriptor(this, NodeKind.Parameter)
-        node.appendType(varargElementType ?: type)
+        node.appendType(varargElementType ?: type, decl = this)
         if (declaresDefaultValue()) {
             val psi = source.getPsi() as? KtParameter
             if (psi != null) {
@@ -856,7 +866,7 @@ class DocumentationBuilder
             if (KotlinBuiltIns.isDefaultBound(constraint)) {
                 continue
             }
-            node.appendType(constraint, NodeKind.UpperBound)
+            node.appendType(constraint, NodeKind.UpperBound, decl = this)
         }
         register(this, node)
         return node
@@ -878,7 +888,7 @@ class DocumentationBuilder
         }
 
         val node = DocumentationNode(name.asString(), Content.Empty, NodeKind.Receiver)
-        node.appendType(type)
+        node.appendType(type, decl = this)
         register(this, node)
         return node
     }
@@ -1162,3 +1172,13 @@ fun PassConfiguration.effectivePackageOptions(pack: String): DokkaConfiguration.
 
 fun PassConfiguration.effectivePackageOptions(pack: FqName): DokkaConfiguration.PackageOptions = effectivePackageOptions(pack.asString())
 
+
+
+fun DeclarationDescriptor.getTypeTextFromSource() : String? {
+    val psi = sourcePsi()
+    return when(psi?.toString() ?: "") {
+        "FUN" -> psi?.children?.getOrNull(1)?.text
+        "PROPERTY" -> psi?.children?.getOrNull(0)?.text
+        else -> "<ERROR CLASS>"
+    }
+}
