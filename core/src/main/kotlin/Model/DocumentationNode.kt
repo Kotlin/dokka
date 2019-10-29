@@ -1,89 +1,160 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import java.util.*
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
-enum class NodeKind {
-    Unknown,
+class DocumentationNodes {
 
-    Package,
-    Class,
-    Interface,
-    Enum,
-    AnnotationClass,
-    Exception,
-    EnumItem,
-    Object,
-    TypeAlias,
+    class Unknown(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
 
-    Constructor,
-    Function,
-    Property,
-    Field,
+    class Package(name: String) :
+        DocumentationNode(name)
 
-    CompanionObjectProperty,
-    CompanionObjectFunction,
-
-    Parameter,
-    Receiver,
-    TypeParameter,
-    Type,
-    Supertype,
-    UpperBound,
-    LowerBound,
-
-    TypeAliasUnderlyingType,
-
-    Modifier,
-    NullabilityModifier,
-
-    Module,
-
-    ExternalClass,
-    Annotation,
-
-    Value,
-
-    SourceUrl,
-    SourcePosition,
-    Signature,
-
-    ExternalLink,
-    QualifiedName,
-    Platform,
-
-    AllTypes,
-
-    /**
-     * A note which is rendered once on a page documenting a group of overloaded functions.
-     * Needs to be generated equally on all overloads.
-     */
-    OverloadGroupNote,
-
-    GroupNode;
-
-    companion object {
-        val classLike = setOf(Class, Interface, Enum, AnnotationClass, Exception, Object, TypeAlias)
-        val memberLike = setOf(Function, Property, Field, Constructor, CompanionObjectFunction, CompanionObjectProperty, EnumItem)
+    class Class(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
     }
+
+    class Interface(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
+        override val superclassType: DocumentationNode? = null
+    }
+
+    class Enum(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
+    }
+
+    class AnnotationClass(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
+    }
+
+    class Exception(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
+    }
+
+    class EnumItem(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class Object(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val classLike: Boolean = true
+    }
+
+    class TypeAlias(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Constructor(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class Function(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class Property(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class Field(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class CompanionObjectProperty(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class CompanionObjectFunction(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val memberLike = true
+    }
+
+    class Parameter(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Receiver(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class TypeParameter(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Type(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Supertype(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor) {
+        override val superclassType: DocumentationNode? =
+            (links + listOfNotNull(externalType)).firstOrNull { it.classLike }?.superclassType
+    }
+
+    class UpperBound(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class LowerBound(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class TypeAliasUnderlyingType(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class NullabilityModifier(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Module(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class ExternalClass(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Annotation(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Value(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class SourceUrl(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class SourcePosition(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class ExternalLink(name: String) : DocumentationNode(name)
+
+    class QualifiedName(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class Platform(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class AllTypes(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
+
+    class OverloadGroupNote(name: String, descriptor: DeclarationDescriptor?) :
+        DocumentationNode(name, descriptor)
 }
 
-open class DocumentationNode(val name: String,
-                             content: Content,
-                             val kind: NodeKind) {
+abstract class DocumentationNode(
+    var name: String,
+    val descriptor: DeclarationDescriptor? = null
+) {
 
     private val references = LinkedHashSet<DocumentationReference>()
 
-    var content: Content = content
-        private set
+    open val classLike = false
 
-    val summary: ContentNode get() = when (kind) {
-        NodeKind.GroupNode -> this.origins
-                .map { it.content }
-                .firstOrNull { !it.isEmpty() }
-                ?.summary ?: ContentEmpty
-        else -> content.summary
-    }
-
+    open val memberLike = false
 
     val owner: DocumentationNode?
         get() = references(RefKind.Owner).singleOrNull()?.to
@@ -119,29 +190,12 @@ open class DocumentationNode(val name: String,
     val externalType: DocumentationNode?
         get() = references(RefKind.ExternalType).map { it.to }.firstOrNull()
 
-    var sinceKotlin: String?
-        get() = references(RefKind.SinceKotlin).singleOrNull()?.to?.name
-        set(value) {
-            dropReferences { it.kind == RefKind.SinceKotlin }
-            if (value != null) {
-                append(DocumentationNode(value, Content.Empty, NodeKind.Value), RefKind.SinceKotlin)
-            }
-        }
-
-    val supertypes: List<DocumentationNode>
-        get() = details(NodeKind.Supertype)
-
-    val superclassType: DocumentationNode?
-        get() = when (kind) {
-            NodeKind.Supertype -> {
-                (links + listOfNotNull(externalType)).firstOrNull { it.kind in NodeKind.classLike }?.superclassType
-            }
-            NodeKind.Interface -> null
-            in NodeKind.classLike -> supertypes.firstOrNull {
+    open val superclassType: DocumentationNode?
+        get() = if (classLike) {
+            supertypes.firstOrNull {
                 (it.links + listOfNotNull(it.externalType)).any { it.isSuperclassFor(this) }
             }
-            else -> null
-        }
+        } else null
 
     val superclassTypeSequence: Sequence<DocumentationNode>
         get() = generateSequence(superclassType) {
@@ -165,59 +219,52 @@ open class DocumentationNode(val name: String,
         references.addAll(other.references)
     }
 
-    fun updateContent(body: MutableContent.() -> Unit) {
-        if (content !is MutableContent) {
-            content = MutableContent()
-        }
-        (content as MutableContent).body()
-    }
-    fun details(kind: NodeKind): List<DocumentationNode> = details.filter { it.kind == kind }
-    fun members(kind: NodeKind): List<DocumentationNode> = members.filter { it.kind == kind }
-    fun inheritedMembers(kind: NodeKind): List<DocumentationNode> = inheritedMembers.filter { it.kind == kind }
-    fun inheritedCompanionObjectMembers(kind: NodeKind): List<DocumentationNode> = inheritedCompanionObjectMembers.filter { it.kind == kind }
-    fun links(kind: NodeKind): List<DocumentationNode> = links.filter { it.kind == kind }
+    private fun Collection<DocumentationNode>.filterByKind(kind: KClass<out DocumentationNode>) =
+        filter { node: DocumentationNode -> node::class == kind }
 
-    fun detail(kind: NodeKind): DocumentationNode = details.single { it.kind == kind }
-    fun detailOrNull(kind: NodeKind): DocumentationNode? = details.singleOrNull { it.kind == kind }
-    fun member(kind: NodeKind): DocumentationNode = members.single { it.kind == kind }
-    fun link(kind: NodeKind): DocumentationNode = links.single { it.kind == kind }
+    private fun Collection<DocumentationNode>.singleByKind(kind: KClass<out DocumentationNode>) =
+        single { node: DocumentationNode -> node::class == kind }
+
+    fun details(kind: KClass<out DocumentationNode>) = details.filterByKind(kind)
+    fun members(kind: KClass<out DocumentationNode>) = members.filterByKind(kind)
+    fun inheritedMembers(kind: KClass<out DocumentationNode>): List<DocumentationNode> =
+        inheritedMembers.filterByKind(kind)
+
+    fun inheritedCompanionObjectMembers(kind: KClass<out DocumentationNode>): List<DocumentationNode> =
+        inheritedCompanionObjectMembers.filterByKind(kind)
+
+    fun links(kind: KClass<out DocumentationNode>): List<DocumentationNode> = links.filterByKind(kind)
+
+    fun detail(kind: KClass<out DocumentationNode>): DocumentationNode = details.singleByKind(kind)
+    fun detailOrNull(kind: KClass<out DocumentationNode>): DocumentationNode? =
+        details.singleOrNull { it::class == kind }
+
+    fun member(kind: KClass<out DocumentationNode>): DocumentationNode = members.singleByKind(kind)
+    fun link(kind: KClass<out DocumentationNode>): DocumentationNode = links.singleByKind(kind)
 
 
     fun references(kind: RefKind): List<DocumentationReference> = references.filter { it.kind == kind }
     fun allReferences(): Set<DocumentationReference> = references
 
     override fun toString(): String {
-        return "$kind:$name"
+        return "${javaClass.name}:$name"
     }
 }
 
-class DocumentationModule(name: String, content: Content = Content.Empty, val nodeRefGraph: NodeReferenceGraph = NodeReferenceGraph())
-    : DocumentationNode(name, content, NodeKind.Module) {
+fun KClass<out DocumentationNode>.createNode(name: String, descriptor: DeclarationDescriptor? = null) =
+    primaryConstructor?.call(name, descriptor)
+            ?: throw IllegalArgumentException("Cannot create node of type ${this::class}: invalid primary constructor")
 
-}
+val DocumentationNode.supertypes: List<DocumentationNode>
+    get() = details(DocumentationNodes.Supertype::class)
+
+class DocumentationModule(name: String) : DocumentationNode(name)
 
 val DocumentationNode.path: List<DocumentationNode>
     get() {
         val parent = owner ?: return listOf(this)
         return parent.path + this
     }
-
-fun findOrCreatePackageNode(module: DocumentationNode?, packageName: String, packageContent: Map<String, Content>, refGraph: NodeReferenceGraph): DocumentationNode {
-    val node = refGraph.lookup(packageName)  ?: run {
-        val newNode = DocumentationNode(
-            packageName,
-            packageContent.getOrElse(packageName) { Content.Empty },
-            NodeKind.Package
-        )
-
-        refGraph.register(packageName, newNode)
-        newNode
-    }
-    if (module != null && node !in module.members) {
-        module.append(node, RefKind.Member)
-    }
-    return node
-}
 
 fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
     addReferenceTo(child, kind)
@@ -231,19 +278,23 @@ fun DocumentationNode.append(child: DocumentationNode, kind: RefKind) {
     }
 }
 
-fun DocumentationNode.appendTextNode(text: String,
-                                     kind: NodeKind,
-                                     refKind: RefKind = RefKind.Detail) {
-    append(DocumentationNode(text, Content.Empty, kind), refKind)
+fun DocumentationNode.appendTextNode(
+    text: String,
+    kind: KClass<out DocumentationNode>,
+    descriptor: DeclarationDescriptor? = null,
+    refKind: RefKind = RefKind.Detail
+) {
+    append(kind.createNode(text, descriptor), refKind)
 }
 
 fun DocumentationNode.qualifiedName(): String {
-    if (kind == NodeKind.Type) {
+    if (this is DocumentationNodes.Type) {
         return qualifiedNameFromType()
-    } else if (kind == NodeKind.Package) {
+    } else if (this is DocumentationNodes.Package) {
         return name
     }
-    return path.dropWhile { it.kind == NodeKind.Module }.map { it.name }.filter { it.isNotEmpty() }.joinToString(".")
+    return path.dropWhile { it is DocumentationNodes.Module }.map { it.name }.filter { it.isNotEmpty() }
+        .joinToString(".")
 }
 
 fun DocumentationNode.simpleName() = name.substringAfterLast('.')
@@ -257,20 +308,23 @@ private fun DocumentationNode.recursiveInheritedMembers(): List<DocumentationNod
 private fun DocumentationNode.recursiveInheritedMembers(allInheritedMembers: MutableList<DocumentationNode>) {
     allInheritedMembers.addAll(inheritedMembers)
     System.out.println(allInheritedMembers.size)
-    inheritedMembers.groupBy { it.owner!! } .forEach { (node, _) ->
+    inheritedMembers.groupBy { it.owner!! }.forEach { (node, _) ->
         node.recursiveInheritedMembers(allInheritedMembers)
     }
 }
 
 private fun DocumentationNode.isSuperclassFor(node: DocumentationNode): Boolean {
-    return when(node.kind) {
-        NodeKind.Object, NodeKind.Class, NodeKind.Enum -> kind == NodeKind.Class
-        NodeKind.Exception -> kind == NodeKind.Class || kind == NodeKind.Exception
+    return when (node) {
+        is DocumentationNodes.Object,
+        is DocumentationNodes.Class,
+        is DocumentationNodes.Enum -> this is DocumentationNodes.Class
+        is DocumentationNodes.Exception -> this is DocumentationNodes.Class || this is DocumentationNodes.Exception
         else -> false
     }
 }
 
 fun DocumentationNode.classNodeNameWithOuterClass(): String {
-    assert(kind in NodeKind.classLike)
-    return path.dropWhile { it.kind == NodeKind.Package || it.kind == NodeKind.Module }.joinToString(separator = ".") { it.name }
+    assert(classLike)
+    return path.dropWhile { it is DocumentationNodes.Package || it is DocumentationNodes.Module }
+        .joinToString(separator = ".") { it.name }
 }

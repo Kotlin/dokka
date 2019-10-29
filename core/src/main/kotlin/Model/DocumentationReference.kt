@@ -113,14 +113,3 @@ class NodeReferenceGraph {
         references.forEach { it.resolve(this) }
     }
 }
-
-@Singleton
-class PlatformNodeRegistry {
-    private val platformNodes = hashMapOf<String, DocumentationNode>()
-
-    operator fun get(platform: String): DocumentationNode {
-        return platformNodes.getOrPut(platform) {
-            DocumentationNode(platform, Content.Empty, NodeKind.Platform)
-        }
-    }
-}
