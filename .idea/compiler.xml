@@ -52,6 +52,8 @@
       <module name="dokka.runners.maven-plugin.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
+      <module name="gradle-integration-tests.org.jetbrains.dokka.gradle-integration-tests.main" target="1.8" />
+      <module name="gradle-integration-tests.org.jetbrains.dokka.gradle-integration-tests.test" target="1.8" />
       <module name="gradle-integration-tests_main" target="1.8" />
       <module name="gradle-integration-tests_test" target="1.8" />
       <module name="gradle-plugin_main" target="1.8" />
@@ -70,6 +72,8 @@
       <module name="org.jetbrains.dokka.cli.test" target="1.8" />
       <module name="org.jetbrains.dokka.core.main" target="1.8" />
       <module name="org.jetbrains.dokka.core.test" target="1.8" />
+      <module name="org.jetbrains.dokka.coreDependencies.main" target="1.8" />
+      <module name="org.jetbrains.dokka.coreDependencies.test" target="1.8" />
       <module name="org.jetbrains.dokka.fatjar.main" target="1.8" />
       <module name="org.jetbrains.dokka.fatjar.test" target="1.8" />
       <module name="org.jetbrains.dokka.gradle-integration-tests.main" target="1.8" />
@@ -78,8 +82,14 @@
       <module name="org.jetbrains.dokka.gradle-plugin.test" target="1.8" />
       <module name="org.jetbrains.dokka.integration.main" target="1.8" />
       <module name="org.jetbrains.dokka.integration.test" target="1.8" />
+      <module name="org.jetbrains.dokka.javadoc8.main" target="1.8" />
+      <module name="org.jetbrains.dokka.javadoc8.test" target="1.8" />
       <module name="org.jetbrains.dokka.maven-plugin.main" target="1.8" />
       <module name="org.jetbrains.dokka.maven-plugin.test" target="1.8" />
+      <module name="org.jetbrains.dokka.plugins.main" target="1.8" />
+      <module name="org.jetbrains.dokka.plugins.test" target="1.8" />
+      <module name="org.jetbrains.dokka.testApi.main" target="1.8" />
+      <module name="org.jetbrains.dokka.testApi.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

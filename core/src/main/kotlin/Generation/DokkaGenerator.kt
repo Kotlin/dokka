@@ -7,9 +7,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.dokka.Generation.DocumentationMerger
 import org.jetbrains.dokka.Utilities.DokkaAnalysisModule
-import org.jetbrains.dokka.Utilities.DokkaOutputModule
 import org.jetbrains.dokka.Utilities.DokkaRunModule
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -24,12 +22,13 @@ import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
-import kotlin.system.measureTimeMillis
 
-class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
-                     val logger: DokkaLogger) {
+class DokkaGenerator(
+    val dokkaConfiguration: DokkaConfiguration,
+    val logger: DokkaLogger
+) {
 
-    private val documentationModules: MutableList<DocumentationModule> = mutableListOf()
+    private val documentationModules: MutableList<DocumentationNodes.Module> = mutableListOf()
     private val globalInjector = Guice.createInjector(DokkaRunModule(dokkaConfiguration))
 
 
@@ -37,26 +36,15 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
 
 
         for (pass in passesConfigurations) {
-            val documentationModule = DocumentationModule(pass.moduleName)
+            val documentationModule = DocumentationNodes.Module(pass.moduleName)
             appendSourceModule(pass, documentationModule)
             documentationModules.add(documentationModule)
         }
-
-        val totalDocumentationModule = DocumentationMerger(documentationModules, logger).merge()
-        totalDocumentationModule.prepareForGeneration(dokkaConfiguration)
-
-        val timeBuild = measureTimeMillis {
-            logger.info("Generating pages... ")
-            val outputInjector = globalInjector.createChildInjector(DokkaOutputModule(dokkaConfiguration, logger))
-            val instance = outputInjector.getInstance(Generator::class.java)
-            instance.buildAll(totalDocumentationModule)
-        }
-        logger.info("done in ${timeBuild / 1000} secs")
     }
 
     private fun appendSourceModule(
         passConfiguration: DokkaConfiguration.PassConfiguration,
-        documentationModule: DocumentationModule
+        documentationModule: DocumentationNodes.Module
     ) = with(passConfiguration) {
 
         val sourcePaths = passConfiguration.sourceRoots.map { it.path }
@@ -84,9 +72,15 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         }
 
         val injector = globalInjector.createChildInjector(
-                DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, documentationModule.nodeRefGraph, passConfiguration, logger))
+            DokkaAnalysisModule(environment, dokkaConfiguration, defaultPlatformsProvider, passConfiguration, logger)
+        )
 
-        buildDocumentationModule(injector, documentationModule, { isNotSample(it, passConfiguration.samples) }, includes)
+        buildDocumentationModule(
+            injector,
+            documentationModule,
+            { isNotSample(it, passConfiguration.samples) },
+            includes
+        )
 
         val timeAnalyse = System.currentTimeMillis() - startAnalyse
         logger.info("done in ${timeAnalyse / 1000} secs")
@@ -118,7 +112,7 @@ class DokkaGenerator(val dokkaConfiguration: DokkaConfiguration,
         return environment
     }
 
-   private fun isNotSample(file: PsiFile, samples: List<String>): Boolean {
+    private fun isNotSample(file: PsiFile, samples: List<String>): Boolean {
         val sourceFile = File(file.virtualFile!!.path)
         return samples.none { sample ->
             val canonicalSample = File(sample).canonicalPath
@@ -145,10 +139,12 @@ class DokkaMessageCollector(val logger: DokkaLogger) : MessageCollector {
     override fun hasErrors() = seenErrors
 }
 
-fun buildDocumentationModule(injector: Injector,
-                             documentationModule: DocumentationModule,
-                             filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
-                             includes: List<String> = listOf()) {
+fun buildDocumentationModule(
+    injector: Injector,
+    documentationModule: DocumentationNodes.Module,
+    filesToDocumentFilter: (PsiFile) -> Boolean = { file -> true },
+    includes: List<String> = listOf()
+) {
 
     val coreEnvironment = injector.getInstance(KotlinCoreEnvironment::class.java)
     val fragmentFiles = coreEnvironment.getSourceFiles().filter(filesToDocumentFilter)
@@ -158,25 +154,20 @@ fun buildDocumentationModule(injector: Injector,
     analyzer.analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, fragmentFiles)
 
     val fragments = fragmentFiles.mapNotNull { resolutionFacade.resolveSession.getPackageFragment(it.packageFqName) }
-            .distinct()
+        .distinct()
 
     val packageDocs = injector.getInstance(PackageDocs::class.java)
     for (include in includes) {
         packageDocs.parse(include, fragments)
     }
-    if (documentationModule.content.isEmpty()) {
-        documentationModule.updateContent {
-            for (node in packageDocs.moduleContent.children) {
-                append(node)
-            }
-        }
-    }
 
     parseJavaPackageDocs(packageDocs, coreEnvironment)
 
     with(injector.getInstance(DocumentationBuilder::class.java)) {
-        documentationModule.appendFragments(fragments, packageDocs.packageContent,
-                injector.getInstance(PackageDocumentationBuilder::class.java))
+        documentationModule.appendFragments(
+            fragments,
+            injector.getInstance(PackageDocumentationBuilder::class.java)
+        )
 
         propagateExtensionFunctionsToSubclasses(fragments, resolutionFacade)
     }
@@ -189,8 +180,8 @@ fun buildDocumentationModule(injector: Injector,
 
 fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEnvironment) {
     val contentRoots = coreEnvironment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
-            ?.filterIsInstance<JavaSourceRoot>()
-            ?.map { it.file }
+        ?.filterIsInstance<JavaSourceRoot>()
+        ?.map { it.file }
             ?: listOf()
     contentRoots.forEach { root ->
         root.walkTopDown().filter { it.name == "overview.html" }.forEach {
@@ -202,8 +193,8 @@ fun parseJavaPackageDocs(packageDocs: PackageDocs, coreEnvironment: KotlinCoreEn
 
 fun KotlinCoreEnvironment.getJavaSourceFiles(): List<PsiJavaFile> {
     val sourceRoots = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
-            ?.filterIsInstance<JavaSourceRoot>()
-            ?.map { it.file }
+        ?.filterIsInstance<JavaSourceRoot>()
+        ?.map { it.file }
             ?: listOf()
 
     val result = arrayListOf<PsiJavaFile>()

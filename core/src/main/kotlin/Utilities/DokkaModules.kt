@@ -26,7 +26,6 @@ class DokkaRunModule(val configuration: DokkaConfiguration) : Module {
 class DokkaAnalysisModule(val environment: AnalysisEnvironment,
                           val configuration: DokkaConfiguration,
                           val defaultPlatformsProvider: DefaultPlatformsProvider,
-                          val nodeReferenceGraph: NodeReferenceGraph,
                           val passConfiguration: DokkaConfiguration.PassConfiguration,
                           val logger: DokkaLogger) : Module {
     override fun configure(binder: Binder) {
@@ -42,8 +41,6 @@ class DokkaAnalysisModule(val environment: AnalysisEnvironment,
         binder.bind<DokkaConfiguration.PassConfiguration>().toInstance(passConfiguration)
 
         binder.bind<DefaultPlatformsProvider>().toInstance(defaultPlatformsProvider)
-
-        binder.bind<NodeReferenceGraph>().toInstance(nodeReferenceGraph)
 
         val descriptor = ServiceLocator.lookup<FormatDescriptor>("format", configuration.format)
         descriptor.configureAnalysis(binder)

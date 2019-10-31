@@ -66,5 +66,7 @@ data class Callable(val name: String, val receiver: String, val returnType: Stri
     }
 }
 
+data class ClassReference(val dri: DRI, val subs: MutableList<ClassReference> = mutableListOf())
+
 private operator fun <T> List<T>.component6(): T = get(5)
 
