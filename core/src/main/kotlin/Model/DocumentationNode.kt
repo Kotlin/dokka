@@ -1,75 +1,94 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.links.ClassReference
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.kotlin.descriptors.*
 
-class DocumentationNodes {
-
-    class Module(name: String, parent: DocumentationNode<*>? = null):
-        DocumentationNode<Nothing>(name, parent = parent)
-
-    class Package(name: String, parent: DocumentationNode<*>):
-        DocumentationNode<Nothing>(name, parent = parent)
-
-    class Class(name: String, descriptor: ClassDescriptor, parent: DocumentationNode<*>? = null) :
-        DocumentationNode<ClassDescriptor>(name, descriptor, parent) {
-        override val classLike: Boolean = true
-        val supertypes = mutableListOf<ClassReference>()
-        val isInterface: Boolean
-            get() = descriptor?.kind == ClassKind.CLASS
-        val isEnum: Boolean
-            get() = descriptor?.kind == ClassKind.ENUM_CLASS
-        val isEnumEntry: Boolean
-            get() = descriptor?.kind == ClassKind.ENUM_ENTRY
-        val isAnnotationClass: Boolean
-            get() = descriptor?.kind == ClassKind.ANNOTATION_CLASS
-        val isObject: Boolean
-            get() = descriptor?.kind == ClassKind.OBJECT
-    }
-
-    class Constructor(name: String, descriptor: ConstructorDescriptor) :
-        DocumentationNode<ConstructorDescriptor>(name, descriptor) {
-        override val memberLike = true
-    }
-
-    class Function(name: String, descriptor: FunctionDescriptor) :
-        DocumentationNode<FunctionDescriptor>(name, descriptor) {
-        override val memberLike = true
-    }
-
-    class Property(name: String, descriptor: PropertyDescriptor) :
-        DocumentationNode<PropertyDescriptor>(name, descriptor) {
-        override val memberLike = true
-    }
-/*
-    class Field(name: String, descriptor: FieldDescriptor) :
-        DocumentationNode<FieldDescriptor>(name, descriptor) {
-        override val memberLike = true
-    }*/
-
-    class Parameter(name: String, descriptor: ParameterDescriptor?) :
-        DocumentationNode<ParameterDescriptor>(name, descriptor)
-/*
-    class Annotation(name: String, descriptor: AnnotationDescriptor?) :
-        DocumentationNode<AnnotationDescriptor>(name, descriptor)*/
+class Module(val packages: List<Package>) : DocumentationNode<Nothing>(DRI.topLevel, DRI.topLevel) {
+    override val children: List<Package>
+        get() = packages
 }
 
-abstract class DocumentationNode<T: DeclarationDescriptor>(
-    var name: String,
-    val descriptor: T? = null,
-    val parent: DocumentationNode<*>? = null
+class Package(
+    val name: String,
+    override val functions: List<Function>,
+    override val properties: List<Property>,
+    override val classes: List<Class>
+) : ScopeNode<Nothing>(DRI(packageName = name), DRI.topLevel)
+
+class Class(
+    val name: String,
+    override val functions: List<Function>,
+    override val properties: List<Property>,
+    override val classes: List<Class>,
+    override val descriptor: ClassDescriptor,
+    parent: DRI
+) : ScopeNode<ClassDescriptor>(parent.withClass(name), parent)
+
+class Function(
+    val name: String,
+    override val receiver: Parameter?,
+    val parameters: List<Parameter>,
+    override val descriptor: FunctionDescriptor,
+    parent: DRI
+) : CallableNode<FunctionDescriptor>(parent, descriptor) {
+    override val children: List<Parameter>
+        get() = listOfNotNull(receiver) + parameters
+}
+
+class Property(
+    val name: String,
+    override val receiver: Parameter?,
+    override val descriptor: PropertyDescriptor,
+    parent: DRI
+) : CallableNode<PropertyDescriptor>(parent, descriptor) {
+    override val children: List<Parameter>
+        get() = listOfNotNull(receiver)
+}
+
+class Parameter(
+    val name: String,
+    override val descriptor: ParameterDescriptor,
+    parent: DRI,
+    index: Int
+) : DocumentationNode<ParameterDescriptor>(parent, parent.copy(target = index)) {
+    override val children: List<DocumentationNode<*>>
+        get() = emptyList()
+}
+
+abstract class DocumentationNode<out T : DeclarationDescriptor>(
+    val dri: DRI,
+    val parent: DRI
 ) {
+    open val descriptor: T? = null
 
-    private val children = mutableListOf<DocumentationNode<*>>()
-
-    open val classLike = false
-
-    open val memberLike = false
-
-    fun addChild(child: DocumentationNode<*>) =
-        children.add(child)
+    abstract val children: List<DocumentationNode<*>>
 
     override fun toString(): String {
-        return "${javaClass.name}:$name"
+        return "${javaClass.name}($dri)"
     }
+
+    override fun equals(other: Any?) = other is DocumentationNode<*> && this.dri == other.dri
+
+    override fun hashCode() = dri.hashCode()
+}
+
+abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor>(
+    dri: DRI,
+    parent: DRI
+) : DocumentationNode<T>(dri, parent) {
+    abstract val functions: List<Function>
+    abstract val properties: List<Property>
+    abstract val classes: List<Class>
+
+    override val children: List<DocumentationNode<MemberDescriptor>>
+        get() = functions + properties + classes
+}
+
+abstract class CallableNode<out T: CallableDescriptor>(
+    parent: DRI,
+    descriptor: CallableDescriptor
+) : DocumentationNode<T>(parent.copy(callable = Callable.from(descriptor)), parent) {
+    abstract val receiver: Parameter?
 }
