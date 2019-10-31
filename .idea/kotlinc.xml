@@ -5,7 +5,7 @@
     <option name="sourceMapPrefix" />
   </component>
   <component name="KotlinCommonCompilerArguments">
-    <option name="apiVersion" value="1.1" />
-    <option name="languageVersion" value="1.2" />
+    <option name="apiVersion" value="1.3" />
+    <option name="languageVersion" value="1.3" />
   </component>
 </project>

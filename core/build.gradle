@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    compile project(":integration")
+//    compile project(":integration")
     compile project(path: ":coreDependencies", configuration: "shadow")
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$bundled_kotlin_compiler_version"
@@ -50,7 +50,7 @@ dependencies {
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib-js:$bundled_kotlin_compiler_version"
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib-common:$bundled_kotlin_compiler_version"
-    testImplementation project(":core:testApi")
+//    testImplementation project(":core:testApi")
 
     testCompile ideaRT()
 }

@@ -34,8 +34,18 @@
       <module name="dokka.buildSrc.test" target="1.8" />
       <module name="dokka.core.main" target="1.8" />
       <module name="dokka.core.test" target="1.8" />
+      <module name="dokka.core.testApi.main" target="1.8" />
+      <module name="dokka.core.testApi.test" target="1.8" />
+      <module name="dokka.coreDependencies.main" target="1.8" />
+      <module name="dokka.coreDependencies.test" target="1.8" />
+      <module name="dokka.integration-tests.gradle-integration-tests.main" target="1.8" />
+      <module name="dokka.integration-tests.gradle-integration-tests.test" target="1.8" />
       <module name="dokka.integration.main" target="1.8" />
       <module name="dokka.integration.test" target="1.8" />
+      <module name="dokka.plugins.javadoc8.main" target="1.8" />
+      <module name="dokka.plugins.javadoc8.test" target="1.8" />
+      <module name="dokka.plugins.main" target="1.8" />
+      <module name="dokka.plugins.test" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.main" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.test" target="1.8" />
       <module name="dokka.runners.ant.main" target="1.8" />
