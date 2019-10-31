@@ -1,72 +1,73 @@
 package org.jetbrains.dokka.Model
 
-import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.withClass
 import org.jetbrains.kotlin.descriptors.*
 
-class Module(val packages: List<Package>) : DocumentationNode<Nothing>(DRI.topLevel, DRI.topLevel) {
+class Module(val packages: List<Package>) : DocumentationNode<Nothing>() {
+    override val dri: DRI
+        get() = DRI.topLevel
+
     override val children: List<Package>
         get() = packages
 }
 
 class Package(
-    val name: String,
+    override val dri: DRI,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classes: List<Class>
-) : ScopeNode<Nothing>(DRI(packageName = name), DRI.topLevel)
+) : ScopeNode<Nothing>() {
+    val name = dri.packageName.orEmpty()
+}
 
 class Class(
+    override val dri: DRI,
     val name: String,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classes: List<Class>,
-    override val descriptor: ClassDescriptor,
-    parent: DRI
-) : ScopeNode<ClassDescriptor>(parent.withClass(name), parent)
+    override val descriptor: ClassDescriptor
+) : ScopeNode<ClassDescriptor>()
 
 class Function(
+    override val dri: DRI,
     val name: String,
     override val receiver: Parameter?,
     val parameters: List<Parameter>,
-    override val descriptor: FunctionDescriptor,
-    parent: DRI
-) : CallableNode<FunctionDescriptor>(parent, descriptor) {
+    override val descriptor: FunctionDescriptor
+) : CallableNode<FunctionDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
 }
 
 class Property(
+    override val dri: DRI,
     val name: String,
     override val receiver: Parameter?,
-    override val descriptor: PropertyDescriptor,
-    parent: DRI
-) : CallableNode<PropertyDescriptor>(parent, descriptor) {
+    override val descriptor: PropertyDescriptor
+) : CallableNode<PropertyDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
 }
 
 class Parameter(
-    val name: String,
-    override val descriptor: ParameterDescriptor,
-    parent: DRI,
-    index: Int
-) : DocumentationNode<ParameterDescriptor>(parent, parent.copy(target = index)) {
+    override val dri: DRI,
+    val name: String?,
+    override val descriptor: ParameterDescriptor
+) : DocumentationNode<ParameterDescriptor>() {
     override val children: List<DocumentationNode<*>>
         get() = emptyList()
 }
 
-abstract class DocumentationNode<out T : DeclarationDescriptor>(
-    val dri: DRI,
-    val parent: DRI
-) {
+abstract class DocumentationNode<out T : DeclarationDescriptor> {
     open val descriptor: T? = null
+
+    abstract val dri: DRI
 
     abstract val children: List<DocumentationNode<*>>
 
     override fun toString(): String {
-        return "${javaClass.name}($dri)"
+        return "${javaClass.simpleName}($dri)"
     }
 
     override fun equals(other: Any?) = other is DocumentationNode<*> && this.dri == other.dri
@@ -74,10 +75,7 @@ abstract class DocumentationNode<out T : DeclarationDescriptor>(
     override fun hashCode() = dri.hashCode()
 }
 
-abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor>(
-    dri: DRI,
-    parent: DRI
-) : DocumentationNode<T>(dri, parent) {
+abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor> : DocumentationNode<T>() {
     abstract val functions: List<Function>
     abstract val properties: List<Property>
     abstract val classes: List<Class>
@@ -86,9 +84,6 @@ abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor>(
         get() = functions + properties + classes
 }
 
-abstract class CallableNode<out T: CallableDescriptor>(
-    parent: DRI,
-    descriptor: CallableDescriptor
-) : DocumentationNode<T>(parent.copy(callable = Callable.from(descriptor)), parent) {
+abstract class CallableNode<out T : CallableDescriptor> : DocumentationNode<T>() {
     abstract val receiver: Parameter?
 }

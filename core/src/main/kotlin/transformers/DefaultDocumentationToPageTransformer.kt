@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.transformers
 
-import org.jetbrains.dokka.DocumentationNode
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentSymbol
 import org.jetbrains.dokka.pages.ModulePageNode
