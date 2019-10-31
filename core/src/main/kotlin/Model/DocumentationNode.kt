@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.Model
 
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
