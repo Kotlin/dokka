@@ -16,15 +16,17 @@ abstract class DefaultRenderer(val outputDir: String, val fileWriter: FileWriter
     protected open fun buildSymbol(parts: List<ContentNode>): String = parts.joinToString { it.build() }
     protected open fun buildBlock(name: String, content: List<ContentNode>) = buildHeader(2, name) + content.joinToString("\n") { it.build() }
 
-    protected open fun ContentNode.build(): String =
-        when(this) {
-            is ContentText -> buildText(this.text)
-            is ContentComment -> buildComment(this.parts)
-            is ContentSymbol -> buildSymbol(this.parts)
-            is ContentCode -> buildCode(this.code)
-            is ContentBlock -> buildBlock(this.name, this.children)
-            is ContentLink -> buildLink(this.text, locationProvider.resolve(this.address, this.platforms))
-            is ContentGroup -> buildGroup(this.children)
+    protected open fun ContentNode.build(): String = buildContentNode(this)
+
+    protected open fun buildContentNode(node: ContentNode) =
+        when(node) {
+            is ContentText -> buildText(node.text)
+            is ContentComment -> buildComment(node.parts)
+            is ContentSymbol -> buildSymbol(node.parts)
+            is ContentCode -> buildCode(node.code)
+            is ContentBlock -> buildBlock(node.name, node.children)
+            is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.platforms))
+            is ContentGroup -> buildGroup(node.children)
             else -> ""
         }
 

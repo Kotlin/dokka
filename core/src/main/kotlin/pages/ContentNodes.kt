@@ -20,28 +20,29 @@ data class ContentText(val text: String,
 ): ContentNode
 
 ///** Headers */  TODO for next iteration
-//data class ContentHeader(val text: String,
-//                         val level: Int,
-//                        override val platforms: List<PlatformData>,
-//                        override val annotations: List<Annotation> = emptyList()
-//): ContentNode
-//
-///** Lists */
-//data class ContentList(val items: List<ContentNode>,
-//                         val ordered: Boolean,
-//                         override val platforms: List<PlatformData>,
-//                         override val annotations: List<Annotation> = emptyList()
-//): ContentNode
-//
-///** Styled elements, eg. bold, strikethrough, emphasis and so on **/
-//data class ContentStyle(val items: List<ContentNode>,
-//                       val ordered: Boolean,
-//                       override val platforms: List<PlatformData>,
-//                       override val annotations: List<Annotation> = emptyList()
-//): ContentNode
+data class ContentHeader(val text: String,
+                         val level: Int,
+                        override val platforms: List<PlatformData>,
+                        override val annotations: List<Annotation> = emptyList()
+): ContentNode
+
+/** Lists */
+data class ContentList(val items: List<ContentNode>,
+                         val ordered: Boolean,
+                         override val platforms: List<PlatformData>,
+                         override val annotations: List<Annotation> = emptyList()
+): ContentNode
+
+/** Styled elements, eg. bold, strikethrough, emphasis and so on **/
+data class ContentStyle(val items: List<ContentNode>,
+                       val style: ContentNode,
+                       override val platforms: List<PlatformData>,
+                       override val annotations: List<Annotation> = emptyList()
+): ContentNode
 
 /** Code blocks */
 data class ContentCode(val code: String,
+                       val language: String,
                        override val platforms: List<PlatformData>,
                        override val annotations: List<Annotation> = emptyList()
 ): ContentNode
