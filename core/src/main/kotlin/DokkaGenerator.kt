@@ -1,9 +1,12 @@
 package org.jetbrains.dokka
 
-import kotlinx.html.DD
 import org.jetbrains.dokka.Model.Module
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.renderers.FileWriter
+import org.jetbrains.dokka.renderers.HtmlRenderer
+import org.jetbrains.dokka.resolvers.DefaultLocationProvider
+import org.jetbrains.dokka.transformers.DefaultDocumentationToPageTransformer
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -15,35 +18,41 @@ class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
-    fun generate() = configuration.passesConfigurations.forEach { pass ->
-        AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
-            if (analysisPlatform == Platform.jvm) {
-                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
-            }
-            for (element in pass.classpath) {
-                addClasspath(File(element))
-            }
+    fun generate(): Unit {
+        configuration.passesConfigurations.map { pass ->
+            AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
+                if (analysisPlatform == Platform.jvm) {
+                    addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
+                }
+                for (element in pass.classpath) {
+                    addClasspath(File(element))
+                }
 
-            addSources(pass.sourceRoots.map { it.path })
+                addSources(pass.sourceRoots.map { it.path })
 
-            loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
+                loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
 
-            val environment = createCoreEnvironment()
-            val (facade, _) = createResolutionFacade(environment)
+                val environment = createCoreEnvironment()
+                val (facade, _) = createResolutionFacade(environment)
 
-            environment.getSourceFiles().asSequence()
-                .map { it.packageFqName }
-                .distinct()
-                .mapNotNull { facade.resolveSession.getPackageFragment(it) }
-                .map { DokkaDescriptorVisitor.visitPackageFragmentDescriptor(it, DRI.topLevel) }
-                .toList()
-                .let { Module(it) }
-        }.also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
+                environment.getSourceFiles().asSequence()
+                    .map { it.packageFqName }
+                    .distinct()
+                    .mapNotNull { facade.resolveSession.getPackageFragment(it) }
+                    .map { DokkaDescriptorVisitor.visitPackageFragmentDescriptor(it, DRI.topLevel) }
+                    .toList()
+                    .let { Pair(pass, Module(it)) }
+            }.also { println("${pass.analysisPlatform}:\n${it.second.pretty()}\n\n") }
+        }.let {
+            DefaultDocumentationToPageTransformer().transform(it)
+        }.also {
+            HtmlRenderer(
+                FileWriter(configuration.outputDir, ""),
+                DefaultLocationProvider(it, configuration, ".${configuration.format}")
+            ).render(it)
+        }
     }
-
-
 }
-
 private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
     override fun clear() {
         seenErrors = false

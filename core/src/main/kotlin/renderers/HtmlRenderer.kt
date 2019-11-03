@@ -5,11 +5,11 @@ import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.resolvers.LocationProvider
 
-open class HtmlRenderer(outputDir: String, fileWriter: FileWriter, locationProvider: LocationProvider): DefaultRenderer(outputDir, fileWriter, locationProvider) {
+open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvider): DefaultRenderer(fileWriter, locationProvider) {
 
-    override fun buildComment(parts: List<ContentNode>): String = "<p>${super.buildComment(parts)}</p>"
+    override fun buildComment(parts: List<ContentNode>, pageContext: PageNode): String = "<p>${super.buildComment(parts, pageContext)}</p>"
 
-    override fun buildSymbol(parts: List<ContentNode>): String = "<code>${super.buildSymbol(parts)}</code>"
+    override fun buildSymbol(parts: List<ContentNode>, pageContext: PageNode): String = "<code>${super.buildSymbol(parts, pageContext)}</code>"
 
     override fun buildHeader(level: Int, text: String): String = "<h$level>$text</h$level>\n"
 
@@ -21,17 +21,16 @@ open class HtmlRenderer(outputDir: String, fileWriter: FileWriter, locationProvi
 
     override fun buildNavigation(): String = "" // TODO implement
 
-    override fun buildGroup(children: List<ContentNode>): String = "<tr>\n" +
-            "<td>" + children.find { it is ContentLink }?.build() + "</td>\n" +
-            "<td>" + children.filterNot { it is ContentLink }.joinToString("\n") { it.build() } + "</td>\n" +
-            "</tr>\n"
+    override fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String =
+             children.find { it is ContentLink }?.build(pageContext) + "</td>\n" +
+            "<td>" + children.filterNot { it is ContentLink }.joinToString("\n") { it.build(pageContext) }
 
-    override fun buildBlock(name: String, content: List<ContentNode>): String =
-        buildHeader(2, name) + "<table>\n" + content.joinToString("\n") { it.build() } + "</table>"
+    override fun buildBlock(name: String, content: List<ContentNode>, pageContext: PageNode): String =
+        buildHeader(3, name) + "<table>\n<tr>\n<td>\n" + content.joinToString("</td>\n</tr>\n<tr>\n<td>") { it.build(pageContext) } + "</td></tr>\n</table>"
 
     override fun renderPage(page: PageNode) {
         val pageText = buildStartHtml(page) + buildPageContent(page) + buildEndHtml()
-        fileWriter.write(locationProvider.resolve(page), pageText)
+        fileWriter.write(locationProvider.resolve(page), pageText, "")
     }
 
     protected open fun buildStartHtml(page: PageNode) = """<!DOCTYPE html>

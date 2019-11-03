@@ -5,6 +5,6 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.PlatformData
 
 interface LocationProvider {
-    fun resolve(dri: DRI, platforms: List<PlatformData>): String
-    fun resolve(node: PageNode): String
+    fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode? = null): String
+    fun resolve(node: PageNode, context: PageNode? = null): String
 }

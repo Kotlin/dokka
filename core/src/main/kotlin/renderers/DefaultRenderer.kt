@@ -3,7 +3,7 @@ package org.jetbrains.dokka.renderers
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.resolvers.LocationProvider
 
-abstract class DefaultRenderer(val outputDir: String, val fileWriter: FileWriter, val locationProvider: LocationProvider): Renderer {
+abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider: LocationProvider): Renderer {
 
     protected abstract fun buildHeader(level: Int, text: String): String
     protected abstract fun buildNewLine(): String
@@ -11,29 +11,31 @@ abstract class DefaultRenderer(val outputDir: String, val fileWriter: FileWriter
     protected abstract fun buildCode(code: String): String
     protected abstract fun buildNavigation(): String // TODO
     protected open fun buildText(text: String): String = text
-    protected open fun buildGroup(children: List<ContentNode>): String = children.joinToString { it.build() }
-    protected open fun buildComment(parts: List<ContentNode>): String = parts.joinToString { it.build() }
-    protected open fun buildSymbol(parts: List<ContentNode>): String = parts.joinToString { it.build() }
-    protected open fun buildBlock(name: String, content: List<ContentNode>) = buildHeader(2, name) + content.joinToString("\n") { it.build() }
+    protected open fun buildHeader(level: Int, content: List<ContentNode>, pageContext: PageNode): String = buildHeader(level, content.joinToString { it.build(pageContext) })
+    protected open fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String = children.joinToString { it.build(pageContext) }
+    protected open fun buildComment(parts: List<ContentNode>, pageContext: PageNode): String = parts.joinToString { it.build(pageContext) }
+    protected open fun buildSymbol(parts: List<ContentNode>, pageContext: PageNode): String = parts.joinToString { it.build(pageContext) }
+    protected open fun buildBlock(name: String, content: List<ContentNode>, pageContext: PageNode) = buildHeader(3, name) + content.joinToString("\n") { it.build(pageContext) }
 
-    protected open fun ContentNode.build(): String = buildContentNode(this)
+    protected open fun ContentNode.build(pageContext: PageNode): String = buildContentNode(this, pageContext)
 
-    protected open fun buildContentNode(node: ContentNode) =
+    protected open fun buildContentNode(node: ContentNode, pageContext: PageNode) =
         when(node) {
             is ContentText -> buildText(node.text)
-            is ContentComment -> buildComment(node.parts)
-            is ContentSymbol -> buildSymbol(node.parts)
+            is ContentComment -> buildComment(node.parts, pageContext)
+            is ContentSymbol -> buildSymbol(node.parts, pageContext)
             is ContentCode -> buildCode(node.code)
-            is ContentBlock -> buildBlock(node.name, node.children)
-            is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.platforms))
-            is ContentGroup -> buildGroup(node.children)
+            is ContentBlock -> buildBlock(node.name, node.children, pageContext)
+            is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.platforms, pageContext))
+            is ContentGroup -> buildGroup(node.children, pageContext)
+            is ContentHeader -> buildHeader(node.level, node.items, pageContext)
             else -> ""
         }
 
     protected open fun buildPageContent(page: PageNode): String =
-        buildHeader(1, page.name) + page.content.joinToString("\n") { it.build() }
+        /*buildHeader(1, page.name) + */ page.content.joinToString("\n") { it.build(page) }
 
-    protected open fun renderPage(page: PageNode) = fileWriter.write(locationProvider.resolve(page), buildPageContent(page))
+    protected open fun renderPage(page: PageNode) = fileWriter.write(locationProvider.resolve(page), buildPageContent(page), "")
 
     protected open fun renderPages(root: PageNode) {
         renderPage(root)

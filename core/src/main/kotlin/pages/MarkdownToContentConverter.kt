@@ -4,7 +4,7 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.dokka.MarkdownNode
 
-class NewContentBuilder {
+class MarkdownToContentConverter {
     fun buildContent(node: MarkdownNode, platforms: List<PlatformData>): List<ContentNode> {
 //    println(tree.toTestString())
 

@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.tests.markdownParser
 
-import org.jetbrains.dokka.pages.NewContentBuilder
+import org.jetbrains.dokka.pages.MarkdownToContentConverter
 import org.jetbrains.dokka.parseMarkdown
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -16,7 +16,7 @@ class MarkdownParserTest {
             let's say there are some parentheses, like ( and )
         """.trimIndent()
         val node = parseMarkdown(markdown)
-        val content = NewContentBuilder().buildContent(node, emptyList())
+        val content = MarkdownToContentConverter().buildContent(node, emptyList())
         assertTrue(content.isNotEmpty())
     }
 

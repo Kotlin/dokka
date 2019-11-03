@@ -6,10 +6,10 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 
 open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val configuration: DokkaConfiguration, val extension: String): LocationProvider { // TODO: cache
-    override fun resolve(node: PageNode): String = pathTo(node) + extension
+    override fun resolve(node: PageNode, context: PageNode?): String = pathTo(node, context) + extension
 
-    override fun resolve(dri: DRI, platforms: List<PlatformData>): String {
-        findInPageGraph(dri, platforms)?.let { return resolve(it) }
+    override fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode?): String {
+        findInPageGraph(dri, platforms)?.let { return resolve(it, context) }
         // Not found in PageGraph, that means it's an external link
 
         val externalDocs = configuration.passesConfigurations
@@ -21,19 +21,25 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
 
     protected open fun findInPageGraph(dri: DRI, platforms: List<PlatformData>): PageNode? = pageGraphRoot.dfs { it.dri == dri }
 
-    protected open fun pathTo(node: PageNode): String { // TODO: can be refactored probably, also we should think about root
-        fun parentPath(parent: PageNode?): String {
-            if(parent == null) return ""
-            val parts = parent.parent?.let(::parentPath) ?: ""
-            return if(parent is PackagePageNode) {"$parts/${parent.name}"} else { "$parts/${identifierToFilename(parent.name)}" }
+    protected open fun pathTo(node: PageNode, context: PageNode?): String { // TODO: can be refactored probably, also we should think about root
+        fun parentPath(node: PageNode?): String {
+            if (node == null) return ""
+            val parts = node.parent?.let(::parentPath) ?: ""
+            return if(node is PackagePageNode) {
+                "$parts${node.name}/"
+            } else if (parts.isNotBlank()) {
+                "$parts${identifierToFilename(node.name)}/"
+            } else {
+                identifierToFilename(node.name) + "/"
+            }
         }
-
-        return parentPath(node.parent) + "/${identifierToFilename(node.name)}" +
+        val resolved = parentPath(node.parent) + identifierToFilename(node.name) +
                 if (node.children.isEmpty()) {
                     ""
                 } else {
                     "/index"
                 }
+        return context?.let { resolved.replace(pathTo(it, null).dropLastWhile { it != '/' }, "") } ?: resolved
     }
 }
 
