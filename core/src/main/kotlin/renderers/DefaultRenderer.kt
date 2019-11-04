@@ -19,7 +19,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
 
     protected open fun ContentNode.build(pageContext: PageNode): String = buildContentNode(this, pageContext)
 
-    protected open fun buildContentNode(node: ContentNode, pageContext: PageNode) =
+    protected open fun buildContentNode(node: ContentNode, pageContext: PageNode): String =
         when(node) {
             is ContentText -> buildText(node.text)
             is ContentComment -> buildComment(node.parts, pageContext)
@@ -29,6 +29,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
             is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.platforms, pageContext))
             is ContentGroup -> buildGroup(node.children, pageContext)
             is ContentHeader -> buildHeader(node.level, node.items, pageContext)
+            is ContentStyle -> node.items.joinToString(separator = "\n") { buildContentNode(it, pageContext) }
             else -> ""
         }
 

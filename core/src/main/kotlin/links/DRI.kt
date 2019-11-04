@@ -1,7 +1,9 @@
 package org.jetbrains.dokka.links
 
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.text.ParseException
 
 /**
@@ -46,6 +48,19 @@ data class DRI(
                 }
         } catch (e: Throwable) {
             throw ParseException(s, 0)
+        }
+
+        fun from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
+            val callable = firstIsInstanceOrNull<CallableDescriptor>()
+            val params = callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
+            DRI(
+                firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString(),
+                filterIsInstance<ClassDescriptor>().toList().takeIf { it.isNotEmpty() }?.asReversed()
+                    ?.joinToString(separator = ".") { it.name.asString() },
+                callable?.let { Callable.from(it) },
+                firstIsInstanceOrNull<ParameterDescriptor>()?.let { params.indexOf(it) },
+                null
+            )
         }
 
         val topLevel = DRI()

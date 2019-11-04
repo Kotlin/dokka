@@ -4,18 +4,22 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.Function
 import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.parseMarkdown
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 
-class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
-    override fun transform(modules: Collection<Pair<DokkaConfiguration.PassConfiguration, Module>>): PageNode {
-        val module = modules.first().second // TODO only one module for starters
-        val platformData = modules.first().first.targets.map { PlatformData(it, modules.first().first.analysisPlatform) }
+class DefaultDocumentationToPageTransformer(
+    private val markdownConverter: MarkdownToContentConverter
+) : DocumentationToPageTransformer {
+    override fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): PageNode {
+        val platformData = passConfiguration.targets.map { PlatformData(it, passConfiguration.analysisPlatform) }
         return PageBuilder(platformData).pageForModule(module)
     }
 
-    class PageBuilder(private val platformData: List<PlatformData>) {
+    private inner class PageBuilder(private val platformData: List<PlatformData>) {
         fun pageForModule(m: Module) =
             ModulePageNode("root", contentForModule(m), documentationNode = m).apply {
                 // TODO change name
@@ -44,62 +48,92 @@ class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
                 else -> throw IllegalStateException("$m should not be present here")
             }
 
-        private fun contentForModule(m: Module) = listOf(
-            ContentHeader(listOf(ContentText("root", platformData)), 1, platformData),
-            ContentBlock("Packages", m.packages.map { ContentLink(it.name, it.dri, platformData) }, platformData),
-            ContentText("Index", platformData),
-            ContentText("Link to allpage here", platformData)
-        )
+        private fun contentForModule(m: Module) = content(platformData) {
+            header(1) { text("root") }
+            block("Packages", m.packages) { link(it.name, it.dri) }
+            text("Index")
+            text("Link to allpage here")
+        }
 
-        private fun contentForPackage(p: Package) = listOf(
-            ContentHeader(listOf(ContentText("Package ${p.name}", platformData)), 1, platformData),
-            ContentBlock("Types", p.classes.map { ContentGroup(
-                listOf(
-                    ContentLink(it.name, it.dri, platformData),
-                    ContentText(it.briefDocstring, platformData),
-                ContentText("signature for class", platformData)
-                ), platformData)
-            }, platformData),
-            ContentBlock("Functions", p.functions.map { ContentGroup(
-                listOf(
-                    ContentLink(it.name, it.dri, platformData),
-                    ContentText(it.briefDocstring, platformData),
-                    ContentText("signature for function", platformData)
-                ), platformData)
-            }, platformData)
-        )
+        private fun contentForPackage(p: Package) = content(platformData) {
+            header(1) { text("Package ${p.name}") }
+            block("Types", p.classes) {
+                link(it.name, it.dri)
+                text(it.briefDocstring)
+                text("signature for class")
+            }
+            block("Functions", p.functions) {
+                link(it.name, it.dri)
+                text(it.briefDocstring)
+                text("signature for function")
+            }
+        }
 
-        private fun contentForClass(c: Class) = listOf(
-            ContentHeader(listOf(ContentText(c.name, platformData)), 1, platformData),
-            ContentText(c.rawDocstring, platformData),
-            ContentBlock("Constructors", c.descriptor.constructors.map { ContentGroup(
-                listOf(
-                    ContentLink(it.fqNameSafe.asString(), c.dri.copy(callable = Callable(it.fqNameSafe.asString() /* TODO: identifier for filename here */, "", "", it.valueParameters.map {it.fqNameSafe.asString()})), platformData),
-                    ContentText("message to Pawel from the future: you forgot about extracting constructors, didn't you?", platformData),
-                    ContentText("signature for constructor", platformData)
-                ), platformData)
-            }, platformData),
-            ContentBlock("Functions", c.functions.map { ContentGroup(
-                listOf(
-                    ContentLink(it.name, it.dri, platformData),
-                    ContentText(it.briefDocstring, platformData),
-                    ContentText("signature for function", platformData)
-                ), platformData)
-            }, platformData)
-        )
+        private fun contentForClass(c: Class) = content(platformData) {
+            header(1) { text(c.name) }
+            markdown(c.rawDocstring, c)
+            text("PING PAWEL TO ADD CONSTRUCTORS TO MODEL!!!")
+            block("Constructors", emptyList<Function>() /* TODO: CONSTRUCTORS*/) {
+                link(it.name, it.dri)
+                text(it.briefDocstring)
+                text("message to Pawel from the future: you forgot about extracting constructors, didn't you?")
+            }
+            block("Functions", c.functions) {
+                link(it.name, it.dri)
+                text(it.briefDocstring)
+                text("signature for function")
+            }
+        }
 
-        private fun contentForFunction(f: Function) = listOf(
-            ContentHeader(listOf(ContentText(f.name, platformData)), 1, platformData),
-            ContentText("signature for function", platformData),
-            ContentText(f.rawDocstring, platformData),
-            ContentBlock("Parameters", f.parameters.map { ContentGroup(
-                listOf(
-                    ContentText(it.name ?: "?", platformData),
-                    ContentText(it.rawDocstring, platformData)
-                ), platformData)
-            }, platformData)
-        )
+        private fun contentForFunction(f: Function) = content(platformData) {
+            header(1) { text(f.name) }
+            text("signature for function")
+            markdown(f.rawDocstring, f)
+            block("Parameters", f.children) {
+                group {
+                    text(it.name ?: "RECEIVER")
+                    markdown(it.rawDocstring, it)
+                }
+            }
+        }
     }
+
+    // TODO: Make some public builder or merge it with page builder, whateva
+    private inner class ContentBuilder(private val platformData: List<PlatformData>) {
+        private val contents = mutableListOf<ContentNode>()
+
+        fun build() = contents.toList()
+
+        fun header(level: Int, block: ContentBuilder.() -> Unit) {
+            contents += ContentHeader(content(block), level, platformData)
+        }
+
+        fun text(text: String) {
+            contents += ContentText(text, platformData)
+        }
+
+        fun <T> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
+            contents += ContentBlock(name, content { elements.forEach { block(it) } }, platformData)
+        }
+
+        fun group(block: ContentBuilder.() -> Unit) {
+            contents += ContentGroup(content(block), platformData)
+        }
+
+        fun link(text: String, address: DRI) {
+            contents += ContentLink(text, address, platformData)
+        }
+
+        fun markdown(raw: String, node: DocumentationNode<*>) {
+            contents += markdownConverter.buildContent(parseMarkdown(raw), platformData, node)
+        }
+
+        private fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(platformData, block)
+    }
+
+    private fun content(platformData: List<PlatformData>, block: ContentBuilder.() -> Unit): List<ContentNode> =
+        ContentBuilder(platformData).apply(block).build()
+
 }
 
 fun DocumentationNode<*>.identifier(platformData: List<PlatformData>): List<ContentNode> {

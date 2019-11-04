@@ -6,5 +6,5 @@ import org.jetbrains.dokka.Model.Module
 import org.jetbrains.dokka.pages.PageNode
 
 interface DocumentationToPageTransformer {
-    fun transform (modules: Collection<Pair<DokkaConfiguration.PassConfiguration, Module>>): PageNode // TODO refactor this
+    fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): PageNode // TODO refactor this... some more?
 }

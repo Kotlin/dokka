@@ -3,6 +3,8 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.Model.Module
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.pages.MarkdownToContentConverter
+import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
@@ -35,24 +37,32 @@ class DokkaGenerator(
                 val environment = createCoreEnvironment()
                 val (facade, _) = createResolutionFacade(environment)
 
-                environment.getSourceFiles().asSequence()
+                val markdownConverter = MarkdownToContentConverter(facade, logger)
+
+                val module = environment.getSourceFiles().asSequence()
                     .map { it.packageFqName }
                     .distinct()
                     .mapNotNull { facade.resolveSession.getPackageFragment(it) }
                     .map { DokkaDescriptorVisitor.visitPackageFragmentDescriptor(it, DRI.topLevel) }
                     .toList()
-                    .let { Pair(pass, Module(it)) }
-            }.also { println("${pass.analysisPlatform}:\n${it.second.pretty()}\n\n") }
-        }.let {
-            DefaultDocumentationToPageTransformer().transform(it)
-        }.also {
-            HtmlRenderer(
-                FileWriter(configuration.outputDir, ""),
-                DefaultLocationProvider(it, configuration, ".${configuration.format}")
-            ).render(it)
+                    .let { Module(it) }
+                    .also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
+
+                DefaultDocumentationToPageTransformer(markdownConverter).transform(pass, module)
+            }
         }
+            .merge()
+            .also {
+                HtmlRenderer(
+                    FileWriter(configuration.outputDir, ""),
+                    DefaultLocationProvider(it, configuration, ".${configuration.format}")
+                ).render(it)
+            }
     }
 }
+
+private fun Iterable<PageNode>.merge(): PageNode = first() // TODO: implement
+
 private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
     override fun clear() {
         seenErrors = false

@@ -2,13 +2,28 @@ package org.jetbrains.dokka.pages
 
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
+import org.jetbrains.dokka.DokkaLogger
+import org.jetbrains.dokka.DokkaResolutionFacade
 import org.jetbrains.dokka.MarkdownNode
+import org.jetbrains.dokka.Model.DocumentationNode
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.visit
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 
-class MarkdownToContentConverter {
-    fun buildContent(node: MarkdownNode, platforms: List<PlatformData>): List<ContentNode> {
+class MarkdownToContentConverter(
+    private val resolutionFacade: DokkaResolutionFacade,
+    private val logger: DokkaLogger
+) {
+    fun buildContent(
+        node: MarkdownNode,
+        platforms: List<PlatformData>,
+        documentationNode: DocumentationNode<*>
+    ): List<ContentNode> {
 //    println(tree.toTestString())
 
-        fun buildChildren(node: MarkdownNode) = node.children.flatMap { buildContent(it, platforms) }.coalesceText()
+        fun buildChildren(node: MarkdownNode) = node.children.flatMap {
+            buildContent(it, platforms, documentationNode)
+        }.coalesceText()
 
         return when (node.type) {
             MarkdownElementTypes.ATX_1 -> listOf(ContentHeader(buildChildren(node), 1, platforms))
@@ -47,7 +62,13 @@ class MarkdownToContentConverter {
                 val language = node.child(MarkdownTokenTypes.FENCE_LANG)?.text?.trim() ?: ""
                 listOf(ContentCode(buildChildren(node).toString(), language, platforms)) // TODO
             }
-            MarkdownElementTypes.PARAGRAPH -> listOf(ContentStyle(buildChildren(node), Style.Paragraph, platforms)) // TODO
+            MarkdownElementTypes.PARAGRAPH -> listOf(
+                ContentStyle(
+                    buildChildren(node),
+                    Style.Paragraph,
+                    platforms
+                )
+            ) // TODO
 
             MarkdownElementTypes.INLINE_LINK -> {
 //            val linkTextNode = node.child(MarkdownElementTypes.LINK_TEXT)
@@ -69,23 +90,27 @@ class MarkdownToContentConverter {
             }
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK -> {
-//            val labelElement = node.child(MarkdownElementTypes.LINK_LABEL)
-//            if (labelElement != null) {
-//                val linkInfo = linkResolver.getLinkInfo(labelElement.text)
-//                val labelText = labelElement.getLabelText()
-//                val link =
-//                    linkInfo?.let { linkResolver.resolve(it.destination.toString()) } ?: linkResolver.resolve(
-//                        labelText
-//                    )
-//                val linkText = node.child(MarkdownElementTypes.LINK_TEXT)
-//                if (linkText != null) {
-//                    renderLinkTextTo(linkText, link, linkResolver)
-//                } else {
-//                    link.append(ContentText(labelText))
-//                }
-//                parent.append(link)
-//            }
-                TODO()
+                val descriptor = documentationNode.descriptor
+                if (descriptor != null) {
+                    val destinationNode = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
+                            ?: node.children.first { it.type == MarkdownElementTypes.LINK_LABEL }
+                    val destination = destinationNode.children.find { it.type == MarkdownTokenTypes.TEXT }?.text
+                            ?:destinationNode.text
+
+                    resolveKDocLink(
+                        resolutionFacade.resolveSession.bindingContext,
+                        resolutionFacade,
+                        descriptor,
+                        null,
+                        destination.split('.')
+                    )
+                        .firstOrNull()
+                        ?.let { ContentLink(destination, DRI.from(it), platforms) }
+                        .let(::listOfNotNull)
+                } else {
+                    logger.error("Apparently descriptor for $documentationNode was needed in model")
+                    emptyList()
+                }
             }
             MarkdownTokenTypes.WHITE_SPACE -> {
                 // Don't append first space if start of header (it is added during formatting later)
@@ -169,23 +194,28 @@ class MarkdownToContentConverter {
             .sliceWhen { prev, next -> prev::class != next::class }
             .flatMap { nodes ->
                 when (nodes.first()) {
-                    is ContentText -> listOf(ContentText(nodes.joinToString("") { (it as ContentText).text }, nodes.first().platforms))
+                    is ContentText -> listOf(
+                        ContentText(
+                            nodes.joinToString("") { (it as ContentText).text },
+                            nodes.first().platforms
+                        )
+                    )
                     else -> nodes
                 }
             }
 }
 
-fun <T> Collection<T>.sliceWhen(predicate: (before: T, after: T)->Boolean): Collection<Collection<T>> {
+fun <T> Collection<T>.sliceWhen(predicate: (before: T, after: T) -> Boolean): Collection<Collection<T>> {
     val newCollection = mutableListOf<Collection<T>>()
     var currentSlice = mutableListOf<T>()
     for ((prev, next) in this.windowed(2, 1, false)) {
         currentSlice.add(prev)
-        if(predicate(prev, next)) {
+        if (predicate(prev, next)) {
             newCollection.add(currentSlice)
             currentSlice = mutableListOf<T>()
         }
     }
-    if(this.isNotEmpty()) {
+    if (this.isNotEmpty()) {
         currentSlice.add(this.last())
         newCollection.add(currentSlice)
     }
