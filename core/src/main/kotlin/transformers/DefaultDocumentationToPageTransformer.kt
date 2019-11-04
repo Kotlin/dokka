@@ -9,10 +9,10 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 
 class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
-    override fun transform(modules: Collection<Pair<DokkaConfiguration.PassConfiguration, DocumentationNode<*>>>): PageNode {
+    override fun transform(modules: Collection<Pair<DokkaConfiguration.PassConfiguration, Module>>): PageNode {
         val module = modules.first().second // TODO only one module for starters
         val platformData = modules.first().first.targets.map { PlatformData(it, modules.first().first.analysisPlatform) }
-        return PageBuilder(platformData).pageForModule(module as Module)
+        return PageBuilder(platformData).pageForModule(module)
     }
 
     class PageBuilder(private val platformData: List<PlatformData>) {
@@ -56,14 +56,14 @@ class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
             ContentBlock("Types", p.classes.map { ContentGroup(
                 listOf(
                     ContentLink(it.name, it.dri, platformData),
-                    ContentText("comment from class", platformData),
+                    ContentText(it.briefDocstring, platformData),
                 ContentText("signature for class", platformData)
                 ), platformData)
             }, platformData),
             ContentBlock("Functions", p.functions.map { ContentGroup(
                 listOf(
                     ContentLink(it.name, it.dri, platformData),
-                    ContentText("comment for function", platformData),
+                    ContentText(it.briefDocstring, platformData),
                     ContentText("signature for function", platformData)
                 ), platformData)
             }, platformData)
@@ -71,18 +71,18 @@ class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
 
         private fun contentForClass(c: Class) = listOf(
             ContentHeader(listOf(ContentText(c.name, platformData)), 1, platformData),
-            ContentText("comment for class", platformData),
+            ContentText(c.rawDocstring, platformData),
             ContentBlock("Constructors", c.descriptor.constructors.map { ContentGroup(
                 listOf(
                     ContentLink(it.fqNameSafe.asString(), c.dri.copy(callable = Callable(it.fqNameSafe.asString() /* TODO: identifier for filename here */, "", "", it.valueParameters.map {it.fqNameSafe.asString()})), platformData),
-                    ContentText("comment from constructor", platformData),
+                    ContentText("message to Pawel from the future: you forgot about extracting constructors, didn't you?", platformData),
                     ContentText("signature for constructor", platformData)
                 ), platformData)
             }, platformData),
             ContentBlock("Functions", c.functions.map { ContentGroup(
                 listOf(
                     ContentLink(it.name, it.dri, platformData),
-                    ContentText("comment for function", platformData),
+                    ContentText(it.briefDocstring, platformData),
                     ContentText("signature for function", platformData)
                 ), platformData)
             }, platformData)
@@ -91,11 +91,11 @@ class DefaultDocumentationToPageTransformer: DocumentationToPageTransformer {
         private fun contentForFunction(f: Function) = listOf(
             ContentHeader(listOf(ContentText(f.name, platformData)), 1, platformData),
             ContentText("signature for function", platformData),
-            ContentText("comment for function", platformData),
+            ContentText(f.rawDocstring, platformData),
             ContentBlock("Parameters", f.parameters.map { ContentGroup(
                 listOf(
                     ContentText(it.name ?: "?", platformData),
-                    ContentText("comment from param", platformData)
+                    ContentText(it.rawDocstring, platformData)
                 ), platformData)
             }, platformData)
         )
