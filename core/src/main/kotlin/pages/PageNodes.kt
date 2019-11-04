@@ -18,6 +18,12 @@ abstract class PageNode(
 
     fun appendChildren(children: List<PageNode>) = _children.addAll(children)
     fun appendChild(child: PageNode) = _children.add(child)
+
+    override fun equals(other: Any?): Boolean =
+        if (other is PageNode) {
+            dri?.equals(other.dri) ?: (other.dri == null && name == other.name)
+        }
+        else false
 }
 
 class ModulePageNode(
