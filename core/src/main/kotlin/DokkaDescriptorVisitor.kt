@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
 
 object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
@@ -20,43 +21,48 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
         parent: DRI
     ): Package {
         val dri = DRI(packageName = descriptor.fqName.asString())
+        val scope = descriptor.getMemberScope()
         return Package(
             dri,
-            descriptor.getMemberScope().functions(dri),
-            descriptor.getMemberScope().properties(dri),
-            descriptor.getMemberScope().classes(dri)
+            scope.functions(dri),
+            scope.properties(dri),
+            scope.classes(dri)
         )
     }
 
     override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
         val dri = parent.withClass(descriptor.name.asString())
+        val scope = descriptor.getMemberScope(emptyList())
         return Class(
             dri,
             descriptor.name.asString(),
-            descriptor.getMemberScope(emptyList()).functions(dri),
-            descriptor.getMemberScope(emptyList()).properties(dri),
-            descriptor.getMemberScope(emptyList()).classes(dri),
+            scope.functions(dri),
+            scope.properties(dri),
+            scope.classes(dri),
+            descriptor.findKDoc(),
             descriptor
         )
     }
 
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRI): Property {
-        val dri = parent.copy(callable = Callable.Companion.from(descriptor))
+        val dri = parent.copy(callable = Callable.from(descriptor))
         return Property(
             dri,
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
+            descriptor.findKDoc(),
             descriptor
         )
     }
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRI): Function {
-        val dri = parent.copy(callable = Callable.Companion.from(descriptor))
+        val dri = parent.copy(callable = Callable.from(descriptor))
         return Function(
             dri,
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
+            descriptor.findKDoc(),
             descriptor
         )
     }
@@ -64,10 +70,10 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
     override fun visitReceiverParameterDescriptor(
         descriptor: ReceiverParameterDescriptor,
         parent: DRI
-    ) = Parameter(parent.copy(target = 0), null, descriptor)
+    ) = Parameter(parent.copy(target = 0), null, descriptor.findKDoc(), descriptor)
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRI) =
-        Parameter(parent.copy(target = index + 1), descriptor.name.asString(), descriptor)
+        Parameter(parent.copy(target = index + 1), descriptor.name.asString(), descriptor.findKDoc(), descriptor)
 
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
