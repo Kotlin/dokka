@@ -61,7 +61,7 @@ class DokkaGenerator(
     }
 }
 
-private fun Iterable<PageNode>.merge(): PageNode = first() // TODO: implement
+private fun Iterable<PageNode>.merge(): PageNode = last() // TODO: implement
 
 private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
     override fun clear() {
