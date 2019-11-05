@@ -21,29 +21,25 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
 
     protected open fun pathTo(node: PageNode, context: PageNode?): String {
 
-        fun getPath(pathNode: PageNode?, path: MutableList<String> = mutableListOf()): List<String> =
-            if (pathNode == null || pathNode == pageGraphRoot)
-                path
-            else
-                getPath(pathNode.parent, path.apply {
-                    add(if (node is PackagePageNode) {
-                        node.name
-                    } else {
-                        identifierToFilename(node.name)
-                    })
-                })
+        fun PageNode.pathName(): String =
+            if (this is PackagePageNode) name
+            else identifierToFilename(name)
+
+        fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> =
+            if (pathNode == null) path
+            else getPath(pathNode.parent, path + pathNode.pathName() )
 
         val nodePath = getPath(node).reversed()
         val contextPath = getPath(context).reversed()
 
         val commonPathElements = nodePath.zip(contextPath).takeWhile { (a, b) -> a == b }.size
 
-        return ( List(contextPath.size - commonPathElements) { ".." } + nodePath.drop(commonPathElements) ).joinToString("/") +
-                if(node.children.isNotEmpty()) PAGE_WITH_CHILDREN_SUFFIX else ""
+        return ( List(contextPath.size - commonPathElements) { ".." } + nodePath.drop(commonPathElements) +
+                if(node.children.isNotEmpty()) listOf(PAGE_WITH_CHILDREN_SUFFIX) else emptyList()).joinToString("/")
     }
 
     private companion object {
-        const val PAGE_WITH_CHILDREN_SUFFIX = "/index"
+        const val PAGE_WITH_CHILDREN_SUFFIX = "index"
     }
 }
 
