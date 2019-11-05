@@ -57,6 +57,7 @@ class Property(
         get() = listOfNotNull(receiver)
 }
 
+// TODO: treat named Parameters and receivers differently
 class Parameter(
     override val dri: DRI,
     val name: String?,

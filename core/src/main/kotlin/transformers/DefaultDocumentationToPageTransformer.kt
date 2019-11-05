@@ -1,18 +1,19 @@
 package org.jetbrains.dokka.transformers
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.Function
-import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.parseMarkdown
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.types.KotlinType
 
 
 class DefaultDocumentationToPageTransformer(
-    private val markdownConverter: MarkdownToContentConverter
+    private val markdownConverter: MarkdownToContentConverter,
+    private val logger: DokkaLogger
 ) : DocumentationToPageTransformer {
     override fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): PageNode {
         val platformData = passConfiguration.targets.map { PlatformData(it, passConfiguration.analysisPlatform) }
@@ -65,7 +66,7 @@ class DefaultDocumentationToPageTransformer(
             block("Functions", p.functions) {
                 link(it.name, it.dri)
                 text(it.briefDocstring)
-                text("signature for function")
+                signature(it)
             }
         }
 
@@ -73,19 +74,19 @@ class DefaultDocumentationToPageTransformer(
             header(1) { text(c.name) }
             markdown(c.rawDocstring, c)
             block("Constructors", c.constructors) {
-                link("signature for constructor", it.dri)
+                signature(it)
                 text(it.briefDocstring)
             }
             block("Functions", c.functions) {
                 link(it.name, it.dri)
                 text(it.briefDocstring)
-                text("signature for function")
+                signature(it)
             }
         }
 
         private fun contentForFunction(f: Function) = content(platformData) {
             header(1) { text(f.name) }
-            text("signature for function")
+            signature(f)
             markdown(f.rawDocstring, f)
             block("Parameters", f.children) {
                 group {
@@ -100,9 +101,9 @@ class DefaultDocumentationToPageTransformer(
     private inner class ContentBuilder(private val platformData: List<PlatformData>) {
         private val contents = mutableListOf<ContentNode>()
 
-        fun build() = contents.toList()
+        fun build() = contents.toList() // should include nodes coalescence
 
-        fun header(level: Int, block: ContentBuilder.() -> Unit) {
+        inline fun header(level: Int, block: ContentBuilder.() -> Unit) {
             contents += ContentHeader(content(block), level, platformData)
         }
 
@@ -110,12 +111,30 @@ class DefaultDocumentationToPageTransformer(
             contents += ContentText(text, platformData)
         }
 
-        fun <T> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
+        inline fun <T> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
             contents += ContentBlock(name, content { elements.forEach { block(it) } }, platformData)
         }
 
-        fun group(block: ContentBuilder.() -> Unit) {
+        inline fun group(block: ContentBuilder.() -> Unit) {
             contents += ContentGroup(content(block), platformData)
+        }
+
+        inline fun <T> list(
+            elements: List<T>,
+            prefix: String = "",
+            suffix: String = "",
+            separator: String = ", ",
+            block: ContentBuilder.(T) -> Unit
+        ) {
+            if (elements.isNotEmpty()) {
+                if (prefix.isNotEmpty()) text(prefix)
+                elements.dropLast(1).forEach {
+                    block(it)
+                    text(separator)
+                }
+                block(elements.last())
+                if (suffix.isNotEmpty()) text(suffix)
+            }
         }
 
         fun link(text: String, address: DRI) {
@@ -126,12 +145,39 @@ class DefaultDocumentationToPageTransformer(
             contents += markdownConverter.buildContent(parseMarkdown(raw), platformData, node)
         }
 
-        private fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(platformData, block)
+        private inline fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(platformData, block)
     }
 
-    private fun content(platformData: List<PlatformData>, block: ContentBuilder.() -> Unit): List<ContentNode> =
+    private inline fun content(platformData: List<PlatformData>, block: ContentBuilder.() -> Unit): List<ContentNode> =
         ContentBuilder(platformData).apply(block).build()
 
+    // When builder is made public it will be moved as extension method to someplace near Function model
+    private fun ContentBuilder.signature(f: Function) {
+        text("fun ")
+        if (f.receiver is Parameter) {
+           type(f.receiver.descriptor.type)
+            text(".")
+        }
+        link(f.name, f.dri)
+        text("(")
+        list(f.parameters) {
+            link(it.name!!, it.dri)
+            text(": ")
+            type(it.descriptor.type)
+        }
+        text(")")
+    }
+
+    private fun ContentBuilder.type(t: KotlinType) {
+        t.constructor.declarationDescriptor?.also { link(it.fqNameSafe.asString(), DRI.from(it)) }
+                ?: run {
+                    logger.error("type $t cannot be resolved")
+                    text("???")
+                }
+        list(t.arguments, prefix = "<", suffix = ">") {
+            type(it.type)
+        }
+    }
 }
 
 fun DocumentationNode<*>.identifier(platformData: List<PlatformData>): List<ContentNode> {

@@ -48,7 +48,7 @@ class DokkaGenerator(
                     .let { Module(it) }
                     .also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
 
-                DefaultDocumentationToPageTransformer(markdownConverter).transform(pass, module)
+                DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(pass, module)
             }
         }
             .merge()
