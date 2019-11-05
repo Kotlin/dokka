@@ -111,6 +111,10 @@ class DefaultDocumentationToPageTransformer(
             contents += ContentText(text, platformData)
         }
 
+        inline fun symbol(block: ContentBuilder.() -> Unit) {
+            contents += ContentSymbol(content(block), platformData)
+        }
+
         inline fun <T> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
             contents += ContentBlock(name, content { elements.forEach { block(it) } }, platformData)
         }
@@ -152,10 +156,10 @@ class DefaultDocumentationToPageTransformer(
         ContentBuilder(platformData).apply(block).build()
 
     // When builder is made public it will be moved as extension method to someplace near Function model
-    private fun ContentBuilder.signature(f: Function) {
+    private fun ContentBuilder.signature(f: Function) = symbol {
         text("fun ")
         if (f.receiver is Parameter) {
-           type(f.receiver.descriptor.type)
+            type(f.receiver.descriptor.type)
             text(".")
         }
         link(f.name, f.dri)
@@ -166,6 +170,12 @@ class DefaultDocumentationToPageTransformer(
             type(it.descriptor.type)
         }
         text(")")
+        val returnType = f.descriptor.returnType
+        if (returnType != null &&
+            returnType.constructor.declarationDescriptor?.fqNameSafe?.asString() != Unit::class.qualifiedName) {
+            text(": ")
+            type(returnType)
+        }
     }
 
     private fun ContentBuilder.type(t: KotlinType) {

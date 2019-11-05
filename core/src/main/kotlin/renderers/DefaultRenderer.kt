@@ -14,7 +14,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
     protected open fun buildHeader(level: Int, content: List<ContentNode>, pageContext: PageNode): String = buildHeader(level, content.joinToString { it.build(pageContext) })
     protected open fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String = children.joinToString { it.build(pageContext) }
     protected open fun buildComment(parts: List<ContentNode>, pageContext: PageNode): String = parts.joinToString { it.build(pageContext) }
-    protected open fun buildSymbol(parts: List<ContentNode>, pageContext: PageNode): String = parts.joinToString { it.build(pageContext) }
+    protected open fun buildSymbol(parts: List<ContentNode>, pageContext: PageNode): String = parts.joinToString(separator = "") { it.build(pageContext) }
     protected open fun buildBlock(name: String, content: List<ContentNode>, pageContext: PageNode) = buildHeader(3, name) + content.joinToString("\n") { it.build(pageContext) }
 
     protected open fun ContentNode.build(pageContext: PageNode): String = buildContentNode(this, pageContext)
