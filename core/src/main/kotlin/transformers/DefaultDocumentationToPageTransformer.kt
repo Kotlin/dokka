@@ -35,7 +35,7 @@ class DefaultDocumentationToPageTransformer(
 
         private fun pageForClass(c: Class, parent: PageNode): ClassPageNode =
             ClassPageNode(c.name, contentForClass(c), parent, c.dri, c).apply {
-                // TODO: Pages for constructors
+                appendChildren(c.constructors.map { pageForMember(it, this) })
                 appendChildren(c.classes.map { pageForClass(it, this) })
                 appendChildren(c.functions.map { pageForMember(it, this) })
                 appendChildren(c.properties.map { pageForMember(it, this) })
@@ -72,11 +72,9 @@ class DefaultDocumentationToPageTransformer(
         private fun contentForClass(c: Class) = content(platformData) {
             header(1) { text(c.name) }
             markdown(c.rawDocstring, c)
-            text("PING PAWEL TO ADD CONSTRUCTORS TO MODEL!!!")
-            block("Constructors", emptyList<Function>() /* TODO: CONSTRUCTORS*/) {
-                link(it.name, it.dri)
+            block("Constructors", c.constructors) {
+                link("signature for constructor", it.dri)
                 text(it.briefDocstring)
-                text("message to Pawel from the future: you forgot about extracting constructors, didn't you?")
             }
             block("Functions", c.functions) {
                 link(it.name, it.dri)
@@ -91,7 +89,7 @@ class DefaultDocumentationToPageTransformer(
             markdown(f.rawDocstring, f)
             block("Parameters", f.children) {
                 group {
-                    text(it.name ?: "RECEIVER")
+                    text(it.name ?: "<receiver>")
                     markdown(it.rawDocstring, it)
                 }
             }

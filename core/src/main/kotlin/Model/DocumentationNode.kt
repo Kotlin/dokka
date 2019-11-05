@@ -26,6 +26,7 @@ class Package(
 class Class(
     override val dri: DRI,
     val name: String,
+    val constructors: List<Function>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classes: List<Class>,

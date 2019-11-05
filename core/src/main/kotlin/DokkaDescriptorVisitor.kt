@@ -36,6 +36,7 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
         return Class(
             dri,
             descriptor.name.asString(),
+            descriptor.constructors.map { visitConstructorDescriptor(it, dri) },
             scope.functions(dri),
             scope.properties(dri),
             scope.classes(dri),
@@ -66,6 +67,11 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             descriptor
         )
     }
+
+    override fun visitConstructorDescriptor(
+        descriptor: ConstructorDescriptor,
+        parent: DRI
+    ) = visitFunctionDescriptor(descriptor, parent)
 
     override fun visitReceiverParameterDescriptor(
         descriptor: ReceiverParameterDescriptor,
