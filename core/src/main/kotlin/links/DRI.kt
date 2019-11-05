@@ -67,7 +67,7 @@ data class DRI(
     }
 }
 
-fun DRI.withClass(name: String) = copy(classNames = classNames.orEmpty() + ".$name")
+fun DRI.withClass(name: String) = copy(classNames = if(classNames.isNullOrBlank()) name else "$classNames.$name")
 
 val DRI.parent: DRI
     get() = when {
