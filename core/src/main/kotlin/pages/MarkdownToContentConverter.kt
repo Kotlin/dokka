@@ -7,7 +7,6 @@ import org.jetbrains.dokka.DokkaResolutionFacade
 import org.jetbrains.dokka.MarkdownNode
 import org.jetbrains.dokka.Model.DocumentationNode
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.visit
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 
 class MarkdownToContentConverter(
@@ -90,20 +89,21 @@ class MarkdownToContentConverter(
             }
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK -> {
-                val descriptor = documentationNode.descriptor
-                if (descriptor != null) {
+                if (documentationNode.descriptors.isNotEmpty()) {
                     val destinationNode = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
                             ?: node.children.first { it.type == MarkdownElementTypes.LINK_LABEL }
                     val destination = destinationNode.children.find { it.type == MarkdownTokenTypes.TEXT }?.text
-                            ?:destinationNode.text
+                            ?: destinationNode.text
 
-                    resolveKDocLink(
-                        resolutionFacade.resolveSession.bindingContext,
-                        resolutionFacade,
-                        descriptor,
-                        null,
-                        destination.split('.')
-                    )
+                    documentationNode.descriptors.flatMap {
+                        resolveKDocLink(
+                            resolutionFacade.resolveSession.bindingContext,
+                            resolutionFacade,
+                            it,
+                            null,
+                            destination.split('.')
+                        )
+                    }
                         .firstOrNull()
                         ?.let { ContentLink(destination, DRI.from(it), platforms) }
                         .let(::listOfNotNull)

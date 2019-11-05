@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
 class Module(val packages: List<Package>) : DocumentationNode<Nothing>() {
-    override val docTag: KDocTag? = null
+    override val docTags: List<KDocTag> = emptyList()
 
     override val dri: DRI = DRI.topLevel
 
@@ -20,7 +20,7 @@ class Package(
 ) : ScopeNode<Nothing>() {
     val name = dri.packageName.orEmpty()
 
-    override val docTag: KDocTag? = null
+    override val docTags: List<KDocTag> = emptyList()
 }
 
 class Class(
@@ -30,8 +30,8 @@ class Class(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classes: List<Class>,
-    override val docTag: KDocTag?,
-    override val descriptor: ClassDescriptor
+    override val docTags: List<KDocTag>,
+    override val descriptors: List<ClassDescriptor>
 ) : ScopeNode<ClassDescriptor>()
 
 class Function(
@@ -39,8 +39,8 @@ class Function(
     val name: String,
     override val receiver: Parameter?,
     val parameters: List<Parameter>,
-    override val docTag: KDocTag?,
-    override val descriptor: FunctionDescriptor
+    override val docTags: List<KDocTag>,
+    override val descriptors: List<FunctionDescriptor>
 ) : CallableNode<FunctionDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
@@ -50,8 +50,8 @@ class Property(
     override val dri: DRI,
     val name: String,
     override val receiver: Parameter?,
-    override val docTag: KDocTag?,
-    override val descriptor: PropertyDescriptor
+    override val docTags: List<KDocTag>,
+    override val descriptors: List<PropertyDescriptor>
 ) : CallableNode<PropertyDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
@@ -61,17 +61,17 @@ class Property(
 class Parameter(
     override val dri: DRI,
     val name: String?,
-    override val docTag: KDocTag?,
-    override val descriptor: ParameterDescriptor
+    override val docTags: List<KDocTag>,
+    override val descriptors: List<ParameterDescriptor>
 ) : DocumentationNode<ParameterDescriptor>() {
     override val children: List<DocumentationNode<*>>
         get() = emptyList()
 }
 
 abstract class DocumentationNode<out T : DeclarationDescriptor> {
-    open val descriptor: T? = null
+    open val descriptors: List<T> = emptyList()
 
-    abstract val docTag: KDocTag? // TODO: replace in the future with more robust doc-comment model
+    abstract val docTags: List<KDocTag> // TODO: replace in the future with more robust doc-comment model
 
     abstract val dri: DRI
 
@@ -85,11 +85,11 @@ abstract class DocumentationNode<out T : DeclarationDescriptor> {
 
     override fun hashCode() = dri.hashCode()
 
-    val rawDocstring: String
-        get() = docTag?.getContent().orEmpty()
+    val rawDocstrings: List<String>
+        get() = docTags.map(KDocTag::getContent)
 
     val briefDocstring: String
-        get() = rawDocstring.shorten(40)
+        get() = rawDocstrings.firstOrNull().orEmpty().shorten(40)
 }
 
 abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor> : DocumentationNode<T>() {

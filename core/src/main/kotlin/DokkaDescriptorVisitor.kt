@@ -40,8 +40,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             scope.functions(dri),
             scope.properties(dri),
             scope.classes(dri),
-            descriptor.findKDoc(),
-            descriptor
+            listOfNotNull(descriptor.findKDoc()),
+            listOf(descriptor)
         )
     }
 
@@ -51,8 +51,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             dri,
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
-            descriptor.findKDoc(),
-            descriptor
+            listOfNotNull(descriptor.findKDoc()),
+            listOf(descriptor)
         )
     }
 
@@ -63,8 +63,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-            descriptor.findKDoc(),
-            descriptor
+            listOfNotNull(descriptor.findKDoc()),
+            listOf(descriptor)
         )
     }
 
@@ -75,18 +75,28 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             "<init>",
             null,
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-            descriptor.findKDoc(),
-            descriptor
+            listOfNotNull(descriptor.findKDoc()),
+            listOf(descriptor)
         )
     }
 
     override fun visitReceiverParameterDescriptor(
         descriptor: ReceiverParameterDescriptor,
         parent: DRI
-    ) = Parameter(parent.copy(target = 0), null, descriptor.findKDoc(), descriptor)
+    ) = Parameter(
+        parent.copy(target = 0),
+        null,
+        listOfNotNull(descriptor.findKDoc()),
+        listOf(descriptor)
+    )
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRI) =
-        Parameter(parent.copy(target = index + 1), descriptor.name.asString(), descriptor.findKDoc(), descriptor)
+        Parameter(
+            parent.copy(target = index + 1),
+            descriptor.name.asString(),
+            listOfNotNull(descriptor.findKDoc()),
+            listOf(descriptor)
+        )
 
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }

@@ -72,7 +72,7 @@ class DefaultDocumentationToPageTransformer(
 
         private fun contentForClass(c: Class) = content(platformData) {
             header(1) { text(c.name) }
-            markdown(c.rawDocstring, c)
+            c.rawDocstrings.forEach { markdown(it, c) }
             block("Constructors", c.constructors) {
                 signature(it)
                 text(it.briefDocstring)
@@ -87,11 +87,11 @@ class DefaultDocumentationToPageTransformer(
         private fun contentForFunction(f: Function) = content(platformData) {
             header(1) { text(f.name) }
             signature(f)
-            markdown(f.rawDocstring, f)
-            block("Parameters", f.children) {
+            f.rawDocstrings.forEach { markdown(it, f) }
+            block("Parameters", f.children) { param ->
                 group {
-                    text(it.name ?: "<receiver>")
-                    markdown(it.rawDocstring, it)
+                    text(param.name ?: "<receiver>")
+                    param.rawDocstrings.forEach { markdown(it, param) }
                 }
             }
         }
@@ -159,7 +159,7 @@ class DefaultDocumentationToPageTransformer(
     private fun ContentBuilder.signature(f: Function) = symbol {
         text("fun ")
         if (f.receiver is Parameter) {
-            type(f.receiver.descriptor.type)
+            type(f.receiver.descriptors.first().type)
             text(".")
         }
         link(f.name, f.dri)
@@ -167,11 +167,11 @@ class DefaultDocumentationToPageTransformer(
         list(f.parameters) {
             link(it.name!!, it.dri)
             text(": ")
-            type(it.descriptor.type)
+            type(it.descriptors.first().type)
         }
         text(")")
-        val returnType = f.descriptor.returnType
-        if (f.descriptor !is ConstructorDescriptor && returnType != null &&
+        val returnType = f.descriptors.first().returnType
+        if (f.descriptors.first() !is ConstructorDescriptor && returnType != null &&
             returnType.constructor.declarationDescriptor?.fqNameSafe?.asString() != Unit::class.qualifiedName) {
             text(": ")
             type(returnType)
