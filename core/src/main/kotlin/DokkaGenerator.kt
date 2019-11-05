@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
+import org.jetbrains.dokka.Model.transformers.ActualExpectedMerger
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
@@ -46,6 +47,7 @@ class DokkaGenerator(
                     .map { DokkaDescriptorVisitor.visitPackageFragmentDescriptor(it, DRI.topLevel) }
                     .toList()
                     .let { Module(it) }
+                    .let { ActualExpectedMerger(it) }
                     .also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
 
                 DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(pass, module)
