@@ -23,8 +23,12 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
     override fun buildCode(code: String): String = "<code>$code</code>"
 
     override fun buildText(text: String) = super.buildText(text).htmlEscape()
-
-    override fun buildNavigation(): String = "" // TODO implement
+    
+    override fun buildNavigation(page: PageNode): String {
+        fun buildNavigationWithContext(page: PageNode, context: PageNode): String =
+            page.parent?.let { buildNavigationWithContext(it, context) }.orEmpty() + "/" + buildLink(page.name, locationProvider.resolve(page, context))
+        return buildNavigationWithContext(page, page)
+    }
 
     override fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String =
              children.find { it is ContentLink }?.build(pageContext) + "</td>\n" +

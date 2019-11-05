@@ -9,7 +9,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
     protected abstract fun buildNewLine(): String
     protected abstract fun buildLink(text: String, address: String): String
     protected abstract fun buildCode(code: String): String
-    protected abstract fun buildNavigation(): String // TODO
+    protected abstract fun buildNavigation(page: PageNode): String
     protected open fun buildText(text: String): String = text
     protected open fun buildHeader(level: Int, content: List<ContentNode>, pageContext: PageNode): String = buildHeader(level, content.joinToString { it.build(pageContext) })
     protected open fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String = children.joinToString { it.build(pageContext) }
@@ -33,8 +33,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
             else -> ""
         }
 
-    protected open fun buildPageContent(page: PageNode): String =
-        /*buildHeader(1, page.name) + */ page.content.joinToString("\n") { it.build(page) }
+    protected open fun buildPageContent(page: PageNode): String = buildNavigation(page) + page.content.joinToString("\n") { it.build(page) }
 
     protected open fun renderPage(page: PageNode) = fileWriter.write(locationProvider.resolve(page), buildPageContent(page), "")
 
