@@ -13,8 +13,8 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
         // Not found in PageGraph, that means it's an external link
         ExternalLocationProvider.getLocation(dri,
             configuration.passesConfigurations
-            .filter { passConfig -> passConfig.targets.toSet() == platforms.toSet() } // TODO: change targets to something better?
-            .flatMap { it.externalDocumentationLinks }.map { it.packageListUrl }.distinct()
+            .filter { passConfig -> passConfig.targets.map { PlatformData(it, passConfig.analysisPlatform)}.toSet() == platforms.toSet() } // TODO: change targets to something better?
+            .flatMap { it.externalDocumentationLinks }.distinct()
         )
 
     override fun resolveRoot(node: PageNode): String = "../${pathTo(pageGraphRoot, node).removeSuffix(

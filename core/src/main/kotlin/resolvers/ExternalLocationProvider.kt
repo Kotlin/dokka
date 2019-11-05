@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.resolvers
 
+import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.links.DRI
 import java.net.HttpURLConnection
 import java.net.URL
@@ -10,22 +11,22 @@ object ExternalLocationProvider { // TODO: Refactor this!!!
 
     private val cache: MutableMap<URL, LocationInfo> = mutableMapOf()
 
-    fun getLocation(dri: DRI, packageLocations: List<URL>): String {
-        val toResolve: MutableList<URL> = mutableListOf()
-        for(url in packageLocations){
-            val info = cache[url]
+    fun getLocation(dri: DRI, externalDocumentationLinks: List<ExternalDocumentationLink>): String {
+        val toResolve: MutableList<ExternalDocumentationLink> = mutableListOf()
+        for(link in externalDocumentationLinks){
+            val info = cache[link.packageListUrl]
             if(info == null) {
-                toResolve.add(url)
+                toResolve.add(link)
             } else if(info.packages.contains(dri.packageName)) {
-                return getLink(dri, info)
+                return link.url.toExternalForm() + getLink(dri, info)
             }
         }
         // Not in cache, resolve packageLists
         while (toResolve.isNotEmpty()){
-            val loc = toResolve.first().also { toResolve.remove(it) }
-            val locationInfo = loadPackageList(loc)
+            val link = toResolve.first().also { toResolve.remove(it) }
+            val locationInfo = loadPackageList(link.packageListUrl)
             if(locationInfo.packages.contains(dri.packageName)) {
-                return getLink(dri, locationInfo)
+                return link.url.toExternalForm() + getLink(dri, locationInfo)
             }
         }
         return ""
