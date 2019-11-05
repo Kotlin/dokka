@@ -57,9 +57,15 @@ class MemberPageNode(
     documentationNode: DocumentationNode<*>?
 ): PageNode(name, content, parent, dri, documentationNode) // functions, extension functions, properties
 
-data class PlatformData(val platformName: String, val platformType: Platform)
+data class PlatformData(val platformName: String, val platformType: Platform) {
+    override fun toString() = platformName
+}
 
-fun PageNode.platforms(): List<PlatformData> = this.content.flatMap { it.platforms }.distinct() // TODO: Override equals???
+data class DCI(val dri: DRI, val platformDataList: List<PlatformData>) {
+    override fun toString() = "$dri[$platformDataList]"
+}
+
+fun PageNode.platforms(): List<PlatformData> = this.content.flatMap { it.dci.platformDataList }.distinct() // TODO: Override equals???
 fun PageNode.dfs(predicate: (PageNode) -> Boolean): PageNode? = if (predicate(this)) { this } else { this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull() }
 
 

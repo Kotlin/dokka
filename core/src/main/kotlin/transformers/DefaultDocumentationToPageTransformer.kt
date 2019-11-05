@@ -16,7 +16,7 @@ class DefaultDocumentationToPageTransformer(
     private val markdownConverter: MarkdownToContentConverter,
     private val logger: DokkaLogger
 ) : DocumentationToPageTransformer {
-    override fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): PageNode {
+    override fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): ModulePageNode {
         val platformData = passConfiguration.targets.map { PlatformData(it, passConfiguration.analysisPlatform) }
         return PageBuilder(platformData).pageForModule(module)
     }
@@ -50,14 +50,14 @@ class DefaultDocumentationToPageTransformer(
                 else -> throw IllegalStateException("$m should not be present here")
             }
 
-        private fun contentForModule(m: Module) = content(platformData) {
+        private fun contentForModule(m: Module) = content(DCI(m.dri, platformData)) {
             header(1) { text("root") }
             block("Packages", m.packages) { link(it.name, it.dri) }
-            text("Index")
+            text("Index\n")
             text("Link to allpage here")
         }
 
-        private fun contentForPackage(p: Package) = content(platformData) {
+        private fun contentForPackage(p: Package) = content(DCI(p.dri, platformData)) {
             header(1) { text("Package ${p.name}") }
             block("Types", p.classes) {
                 link(it.name, it.dri)
@@ -70,7 +70,7 @@ class DefaultDocumentationToPageTransformer(
             }
         }
 
-        private fun contentForClass(c: Class) = content(platformData) {
+        private fun contentForClass(c: Class) = content(DCI(c.dri, platformData)) {
             header(1) { text(c.name) }
             c.rawDocstrings.forEach { markdown(it, c) }
             block("Constructors", c.constructors) {
@@ -84,7 +84,7 @@ class DefaultDocumentationToPageTransformer(
             }
         }
 
-        private fun contentForFunction(f: Function) = content(platformData) {
+        private fun contentForFunction(f: Function) = content(DCI(f.dri, platformData)) {
             header(1) { text(f.name) }
             signature(f)
             f.rawDocstrings.forEach { markdown(it, f) }
@@ -98,29 +98,29 @@ class DefaultDocumentationToPageTransformer(
     }
 
     // TODO: Make some public builder or merge it with page builder, whateva
-    private inner class ContentBuilder(private val platformData: List<PlatformData>) {
+    private inner class ContentBuilder(private val dci: DCI) {
         private val contents = mutableListOf<ContentNode>()
 
         fun build() = contents.toList() // should include nodes coalescence
 
         inline fun header(level: Int, block: ContentBuilder.() -> Unit) {
-            contents += ContentHeader(content(block), level, platformData)
+            contents += ContentHeader(content(block), level, dci)
         }
 
         fun text(text: String) {
-            contents += ContentText(text, platformData)
+            contents += ContentText(text, dci)
         }
 
         inline fun symbol(block: ContentBuilder.() -> Unit) {
-            contents += ContentSymbol(content(block), platformData)
+            contents += ContentSymbol(content(block), dci)
         }
 
-        inline fun <T> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
-            contents += ContentBlock(name, content { elements.forEach { block(it) } }, platformData)
+        inline fun <T: DocumentationNode<*>> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
+            contents += ContentBlock(name, elements.flatMap { content(dci.copy(dri = it.dri)) { group { block(it) } } }, dci)
         }
 
         inline fun group(block: ContentBuilder.() -> Unit) {
-            contents += ContentGroup(content(block), platformData)
+            contents += ContentGroup(content(block), dci)
         }
 
         inline fun <T> list(
@@ -142,18 +142,18 @@ class DefaultDocumentationToPageTransformer(
         }
 
         fun link(text: String, address: DRI) {
-            contents += ContentLink(text, address, platformData)
+            contents += ContentLink(text, address, dci)
         }
 
         fun markdown(raw: String, node: DocumentationNode<*>) {
-            contents += markdownConverter.buildContent(parseMarkdown(raw), platformData, node)
+            contents += markdownConverter.buildContent(parseMarkdown(raw), dci, node)
         }
 
-        private inline fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(platformData, block)
+        private inline fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(dci, block)
     }
 
-    private inline fun content(platformData: List<PlatformData>, block: ContentBuilder.() -> Unit): List<ContentNode> =
-        ContentBuilder(platformData).apply(block).build()
+    private inline fun content(dci: DCI, block: ContentBuilder.() -> Unit): List<ContentNode> =
+        ContentBuilder(dci).apply(block).build()
 
     // When builder is made public it will be moved as extension method to someplace near Function model
     private fun ContentBuilder.signature(f: Function) = symbol {

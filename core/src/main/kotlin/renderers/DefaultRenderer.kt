@@ -26,7 +26,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
             is ContentSymbol -> buildSymbol(node.parts, pageContext)
             is ContentCode -> buildCode(node.code)
             is ContentBlock -> buildBlock(node.name, node.children, pageContext)
-            is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.platforms, pageContext))
+            is ContentLink -> buildLink(node.text, locationProvider.resolve(node.address, node.dci.platformDataList, pageContext))
             is ContentGroup -> buildGroup(node.children, pageContext)
             is ContentHeader -> buildHeader(node.level, node.items, pageContext)
             is ContentStyle -> node.items.joinToString(separator = "\n") { buildContentNode(it, pageContext) }

@@ -1,15 +1,18 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
+import org.jetbrains.dokka.Utilities.genericPretty
 import org.jetbrains.dokka.Model.transformers.ActualExpectedMerger
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
+import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
 import org.jetbrains.dokka.transformers.DefaultDocumentationToPageTransformer
+import org.jetbrains.dokka.transformers.TopDownPageNodeMerger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -63,7 +66,12 @@ class DokkaGenerator(
     }
 }
 
-private fun Iterable<PageNode>.merge(): PageNode = last() // TODO: implement
+private fun Iterable<ModulePageNode>.merge(): PageNode {
+    this.forEach { it.genericPretty().also(::println) }
+    return TopDownPageNodeMerger().mergeModules(this).also {
+        it.genericPretty().also(::println)
+    }
+}
 
 private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
     override fun clear() {

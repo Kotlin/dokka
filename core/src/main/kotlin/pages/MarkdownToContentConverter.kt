@@ -15,37 +15,37 @@ class MarkdownToContentConverter(
 ) {
     fun buildContent(
         node: MarkdownNode,
-        platforms: List<PlatformData>,
+        dci: DCI,
         documentationNode: DocumentationNode<*>
     ): List<ContentNode> {
 //    println(tree.toTestString())
 
         fun buildChildren(node: MarkdownNode) = node.children.flatMap {
-            buildContent(it, platforms, documentationNode)
+            buildContent(it, dci, documentationNode)
         }.coalesceText()
 
         return when (node.type) {
-            MarkdownElementTypes.ATX_1 -> listOf(ContentHeader(buildChildren(node), 1, platforms))
-            MarkdownElementTypes.ATX_2 -> listOf(ContentHeader(buildChildren(node), 2, platforms))
-            MarkdownElementTypes.ATX_3 -> listOf(ContentHeader(buildChildren(node), 3, platforms))
-            MarkdownElementTypes.ATX_4 -> listOf(ContentHeader(buildChildren(node), 4, platforms))
-            MarkdownElementTypes.ATX_5 -> listOf(ContentHeader(buildChildren(node), 5, platforms))
-            MarkdownElementTypes.ATX_6 -> listOf(ContentHeader(buildChildren(node), 6, platforms))
-            MarkdownElementTypes.UNORDERED_LIST -> listOf(ContentList(buildChildren(node), false, platforms))
-            MarkdownElementTypes.ORDERED_LIST -> listOf(ContentList(buildChildren(node), true, platforms))
+            MarkdownElementTypes.ATX_1 -> listOf(ContentHeader(buildChildren(node), 1, dci))
+            MarkdownElementTypes.ATX_2 -> listOf(ContentHeader(buildChildren(node), 2, dci))
+            MarkdownElementTypes.ATX_3 -> listOf(ContentHeader(buildChildren(node), 3, dci))
+            MarkdownElementTypes.ATX_4 -> listOf(ContentHeader(buildChildren(node), 4, dci))
+            MarkdownElementTypes.ATX_5 -> listOf(ContentHeader(buildChildren(node), 5, dci))
+            MarkdownElementTypes.ATX_6 -> listOf(ContentHeader(buildChildren(node), 6, dci))
+            MarkdownElementTypes.UNORDERED_LIST -> listOf(ContentList(buildChildren(node), false, dci))
+            MarkdownElementTypes.ORDERED_LIST -> listOf(ContentList(buildChildren(node), true, dci))
             MarkdownElementTypes.LIST_ITEM -> TODO()
             MarkdownElementTypes.EMPH -> listOf(
                 ContentStyle(
                     buildChildren(node),
                     Style.Emphasis,
-                    platforms
+                    dci
                 )
             )// TODO
             MarkdownElementTypes.STRONG -> listOf(
                 ContentStyle(
                     buildChildren(node),
                     Style.Strong,
-                    platforms
+                    dci
                 )
             ) // TODO
             MarkdownElementTypes.CODE_SPAN -> TODO()
@@ -59,13 +59,13 @@ class MarkdownToContentConverter(
             MarkdownElementTypes.CODE_BLOCK,
             MarkdownElementTypes.CODE_FENCE -> {
                 val language = node.child(MarkdownTokenTypes.FENCE_LANG)?.text?.trim() ?: ""
-                listOf(ContentCode(buildChildren(node).toString(), language, platforms)) // TODO
+                listOf(ContentCode(buildChildren(node).toString(), language, dci)) // TODO
             }
             MarkdownElementTypes.PARAGRAPH -> listOf(
                 ContentStyle(
                     buildChildren(node),
                     Style.Paragraph,
-                    platforms
+                    dci
                 )
             ) // TODO
 
@@ -105,7 +105,7 @@ class MarkdownToContentConverter(
                         )
                     }
                         .firstOrNull()
-                        ?.let { ContentLink(destination, DRI.from(it), platforms) }
+                        ?.let { ContentLink(destination, DRI.from(it), dci) }
                         .let(::listOfNotNull)
                 } else {
                     logger.error("Apparently descriptor for $documentationNode was needed in model")
@@ -119,7 +119,7 @@ class MarkdownToContentConverter(
 //            if (nodeStack.peek() !is ContentHeading || node.parent?.children?.first() != node) {
 //                parent.append(ContentText(node.text))
 //            }
-                listOf(ContentText(" ", platforms))
+                listOf(ContentText(" ", dci))
             }
             MarkdownTokenTypes.EOL -> {
 //            if ((keepEol(nodeStack.peek()) && node.parent?.children?.last() != node) ||
@@ -131,7 +131,7 @@ class MarkdownToContentConverter(
             }
 
             MarkdownTokenTypes.CODE_LINE -> {
-                listOf(ContentText(node.text, platforms)) // TODO check
+                listOf(ContentText(node.text, dci)) // TODO check
 //            if (parent is ContentBlockCode) {
 //                parent.append(content)
 //            } else {
@@ -155,7 +155,7 @@ class MarkdownToContentConverter(
 //            }
 //
 //            parent.append(createEntityOrText(node.text))
-                listOf(ContentText(node.text, platforms)) // TODO
+                listOf(ContentText(node.text, dci)) // TODO
 
 
             MarkdownTokenTypes.EMPH ->
@@ -163,7 +163,7 @@ class MarkdownToContentConverter(
 //            if (parentNodeType != MarkdownElementTypes.EMPH && parentNodeType != MarkdownElementTypes.STRONG) {
 //                parent.append(ContentText(node.text))
 //            }
-                listOf(ContentStyle(buildChildren(node), Style.Emphasis, platforms)) // TODO
+                listOf(ContentStyle(buildChildren(node), Style.Emphasis, dci)) // TODO
 
             MarkdownTokenTypes.COLON,
             MarkdownTokenTypes.SINGLE_QUOTE,
@@ -177,13 +177,13 @@ class MarkdownToContentConverter(
             MarkdownTokenTypes.EXCLAMATION_MARK,
             MarkdownTokenTypes.BACKTICK,
             MarkdownTokenTypes.CODE_FENCE_CONTENT -> {
-                listOf(ContentText(node.text, platforms))
+                listOf(ContentText(node.text, dci))
             }
 
             MarkdownElementTypes.LINK_DEFINITION -> TODO()
 
             MarkdownTokenTypes.EMAIL_AUTOLINK ->
-                listOf(ContentResolvedLink(node.text, "mailto:${node.text}", platforms))
+                listOf(ContentResolvedLink(node.text, "mailto:${node.text}", dci))
 
             else -> buildChildren(node)
         }
@@ -197,7 +197,7 @@ class MarkdownToContentConverter(
                     is ContentText -> listOf(
                         ContentText(
                             nodes.joinToString("") { (it as ContentText).text },
-                            nodes.first().platforms
+                            nodes.first().dci
                         )
                     )
                     else -> nodes
