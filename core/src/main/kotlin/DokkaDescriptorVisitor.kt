@@ -68,10 +68,17 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
         )
     }
 
-    override fun visitConstructorDescriptor(
-        descriptor: ConstructorDescriptor,
-        parent: DRI
-    ) = visitFunctionDescriptor(descriptor, parent)
+    override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRI): Function {
+        val dri = parent.copy(callable = Callable.from(descriptor))
+        return Function(
+            dri,
+            "<init>",
+            null,
+            descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
+            descriptor.findKDoc(),
+            descriptor
+        )
+    }
 
     override fun visitReceiverParameterDescriptor(
         descriptor: ReceiverParameterDescriptor,

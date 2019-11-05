@@ -7,6 +7,7 @@ import org.jetbrains.dokka.Model.Function
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.parseMarkdown
+import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.types.KotlinType
 
@@ -61,7 +62,6 @@ class DefaultDocumentationToPageTransformer(
             block("Types", p.classes) {
                 link(it.name, it.dri)
                 text(it.briefDocstring)
-                text("signature for class")
             }
             block("Functions", p.functions) {
                 link(it.name, it.dri)
@@ -171,7 +171,7 @@ class DefaultDocumentationToPageTransformer(
         }
         text(")")
         val returnType = f.descriptor.returnType
-        if (returnType != null &&
+        if (f.descriptor !is ConstructorDescriptor && returnType != null &&
             returnType.constructor.declarationDescriptor?.fqNameSafe?.asString() != Unit::class.qualifiedName) {
             text(": ")
             type(returnType)
