@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.renderers
 
+import org.jetbrains.dokka.htmlEscape
 import org.jetbrains.dokka.pages.ContentLink
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.PageNode
@@ -15,9 +16,11 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
 
     override fun buildNewLine(): String = "<br/>"
 
-    override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
+    override fun buildLink(text: String, address: String): String = "<a href=\"$address\">${text.htmlEscape()}</a>"
 
     override fun buildCode(code: String): String = "<code>$code</code>"
+
+    override fun buildText(text: String) = super.buildText(text).htmlEscape()
 
     override fun buildNavigation(): String = "" // TODO implement
 
