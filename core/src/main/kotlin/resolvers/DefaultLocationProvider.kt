@@ -17,6 +17,9 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
             .flatMap { it.externalDocumentationLinks }.map { it.packageListUrl }.distinct()
         )
 
+    override fun resolveRoot(node: PageNode): String = "../${pathTo(pageGraphRoot, node).removeSuffix(
+        PAGE_WITH_CHILDREN_SUFFIX)}"
+
     protected open fun findInPageGraph(dri: DRI, platforms: List<PlatformData>): PageNode? = pageGraphRoot.dfs { it.dri == dri }
 
     protected open fun pathTo(node: PageNode, context: PageNode?): String {
@@ -25,12 +28,15 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
             if (this is PackagePageNode) name
             else identifierToFilename(name)
 
-        fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> =
-            if (pathNode == null) path
-            else getPath(pathNode.parent, path + pathNode.pathName() )
+        fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> = when(pathNode) {
+            null -> path
+            pageGraphRoot -> path + "root"
+            else -> getPath(pathNode.parent, path + pathNode.pathName())
+        }
 
+        val contextNode = if (context?.children?.isEmpty() == true) context.parent else context
         val nodePath = getPath(node).reversed()
-        val contextPath = getPath(context).reversed()
+        val contextPath = getPath(contextNode).reversed()
 
         val commonPathElements = nodePath.zip(contextPath).takeWhile { (a, b) -> a == b }.size
 

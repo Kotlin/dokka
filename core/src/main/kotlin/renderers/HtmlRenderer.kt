@@ -5,6 +5,8 @@ import org.jetbrains.dokka.pages.ContentLink
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.resolvers.LocationProvider
+import java.io.File
+import java.io.InputStreamReader
 
 open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvider): DefaultRenderer(fileWriter, locationProvider) {
 
@@ -36,10 +38,16 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
         fileWriter.write(locationProvider.resolve(page), pageText, "")
     }
 
+    override fun buildSupportFiles() {
+        fileWriter.write("style.css",
+            InputStreamReader(javaClass.getResourceAsStream("/dokka/styles/style.css")).readText())
+    }
+
     protected open fun buildStartHtml(page: PageNode) = """<!DOCTYPE html>
         |<html>
         |<head>
         |<title>${page.name}</title>
+        |<link rel="stylesheet" href="${locationProvider.resolveRoot(page)}style.css" />
         |</head>
         |<body>
         |""".trimMargin()

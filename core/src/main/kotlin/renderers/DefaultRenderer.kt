@@ -43,6 +43,8 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
         root.children.forEach { renderPages(it) }
     }
 
+    protected open fun buildSupportFiles() {}
+
     protected open fun renderPackageList(root: PageNode) =
         getPackageNamesAndPlatforms(root)
             .keys
@@ -61,6 +63,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
 
     override fun render(root: PageNode) {
         renderPackageList(root)
+        buildSupportFiles()
         renderPages(root)
     }
 }
