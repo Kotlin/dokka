@@ -15,6 +15,10 @@ table {
     padding:5px;
 }
 
+td:first-child {
+    width: 20vw;
+}
+
 .keyword {
     color:black;
     font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;

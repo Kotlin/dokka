@@ -72,7 +72,7 @@ class DefaultDocumentationToPageTransformer(
 
         private fun contentForClass(c: Class) = content(DCI(c.dri, platformData)) {
             header(1) { text(c.name) }
-            c.rawDocstrings.forEach { markdown(it, c) }
+            c.rawDocstrings.forEach { comment(it, c) }
             block("Constructors", c.constructors) {
                 link(it.name, it.dri)
                 signature(it)
@@ -144,6 +144,9 @@ class DefaultDocumentationToPageTransformer(
 
         fun link(text: String, address: DRI) {
             contents += ContentLink(text, address, dci)
+        }
+        fun comment(raw: String, node: DocumentationNode<*>) {
+            contents += ContentComment(markdownConverter.buildContent(parseMarkdown(raw), dci, node), dci)
         }
 
         fun markdown(raw: String, node: DocumentationNode<*>) {

@@ -10,7 +10,7 @@ import java.io.InputStreamReader
 
 open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvider): DefaultRenderer(fileWriter, locationProvider) {
 
-    override fun buildComment(parts: List<ContentNode>, pageContext: PageNode): String = "<p>${super.buildComment(parts, pageContext)}</p>"
+    override fun buildComment(parts: List<ContentNode>, pageContext: PageNode): String = "<p>" + parts.joinToString("<br>") { it.build(pageContext) } + "</p>"
 
     override fun buildSymbol(parts: List<ContentNode>, pageContext: PageNode): String = "<code>${super.buildSymbol(parts, pageContext)}</code>"
 

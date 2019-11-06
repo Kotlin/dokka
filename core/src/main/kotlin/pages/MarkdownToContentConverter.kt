@@ -127,7 +127,7 @@ class MarkdownToContentConverter(
 //                (processingList(nodeStack.peek()) && node.previous?.type == MarkdownTokenTypes.EOL)) {
 //                parent.append(ContentText(node.text))
 //            }
-                emptyList()
+                listOf(ContentText(" ", dci))
             }
 
             MarkdownTokenTypes.CODE_LINE -> {
