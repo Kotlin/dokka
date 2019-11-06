@@ -29,16 +29,22 @@ class TopDownPageNodeMerger {
 
 
 
-    private fun List<ContentBlock>.mergeContent(): List<ContentNode>  =
-        this.flatMap { it.children }.groupBy { it.dci.dri }.flatMap { (_, list) -> list.mergeList() }
+    private fun List<ContentBlock>.mergeContent(): ContentBlock  =
+        ContentBlock(this.first().name, this.flatMap { it.children }.groupBy { it.dci.dri }.flatMap { (_, list) -> list.mergeList() }, DCI(this.first().dci.dri, this.flatMap { it.dci.platformDataList }.distinct()), this.flatMap { it.annotations })
 
     private fun List<ContentNode>.mergeList(): List<ContentNode> =
         this.groupBy { it::class }.flatMap { (_, list) ->
             val thisClass = list.first()
+            val newDCI = DCI(thisClass.dci.dri, list.flatMap { it.dci.platformDataList }.distinct())
             when(thisClass) {
-                is ContentBlock -> listOf(ContentBlock(thisClass.name, (list as List<ContentBlock>).mergeContent(), thisClass.dci, list.flatMap { it.annotations }.distinct()))
-                else -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "")}
+                is ContentBlock -> list.groupBy{ (it as ContentBlock).name }.map { (it.value as List<ContentBlock>).mergeContent() } //(ContentBlock(thisClass.name, (list as List<ContentBlock>).mergeContent(), newDCI, list.flatMap { it.annotations }.distinct()))
+                is ContentHeader -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentHeader).copy(dci = newDCI)}
+                is ContentStyle -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentStyle).copy(dci = newDCI)}
+                is ContentSymbol -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentSymbol).copy(dci = newDCI)}
+                is ContentComment -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentComment).copy(dci = newDCI)}
+                is ContentGroup -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentGroup).copy(dci = newDCI)}
+                is ContentList -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }.map { (it as ContentList).copy(dci = newDCI)}
+                else -> list.distinctBy { it.toString().replace("dci=.*,".toRegex(), "") }
             }
         }
-
 }

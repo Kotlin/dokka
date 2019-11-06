@@ -65,8 +65,8 @@ class DefaultDocumentationToPageTransformer(
             }
             block("Functions", p.functions) {
                 link(it.name, it.dri)
-                text(it.briefDocstring)
                 signature(it)
+                text(it.briefDocstring)
             }
         }
 
@@ -74,13 +74,14 @@ class DefaultDocumentationToPageTransformer(
             header(1) { text(c.name) }
             c.rawDocstrings.forEach { markdown(it, c) }
             block("Constructors", c.constructors) {
+                link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocstring)
             }
             block("Functions", c.functions) {
                 link(it.name, it.dri)
-                text(it.briefDocstring)
                 signature(it)
+                text(it.briefDocstring)
             }
         }
 
