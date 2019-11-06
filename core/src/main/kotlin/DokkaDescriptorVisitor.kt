@@ -7,6 +7,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
+import org.jetbrains.kotlin.resolve.calls.tower.isSynthesized
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -101,6 +102,7 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
             .filterIsInstance<FunctionDescriptor>()
+            .filterNot {  it.isSynthesized }
             .map { visitFunctionDescriptor(it, parent) }
 
     private fun MemberScope.properties(parent: DRI): List<Property> =
