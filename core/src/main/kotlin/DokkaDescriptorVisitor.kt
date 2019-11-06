@@ -11,6 +11,8 @@ import org.jetbrains.kotlin.resolve.calls.tower.isSynthesized
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.resolve.descriptorUtil.overriddenTreeUniqueAsSequence
 
 object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
@@ -102,7 +104,10 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
             .filterIsInstance<FunctionDescriptor>()
-            .filterNot {  it.isSynthesized }
+            .filterNot {
+                it.overriddenTreeUniqueAsSequence(false).last().containingDeclaration.fqNameSafe.asString() == Any::class.qualifiedName &&
+                        it.findKDoc() == null
+            }
             .map { visitFunctionDescriptor(it, parent) }
 
     private fun MemberScope.properties(parent: DRI): List<Property> =
