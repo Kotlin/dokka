@@ -7,12 +7,11 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
-import org.jetbrains.kotlin.resolve.calls.tower.isSynthesized
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.overriddenTreeUniqueAsSequence
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
 
 object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
@@ -101,13 +100,13 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             listOf(descriptor)
         )
 
+    private val FunctionDescriptor.isSynthetic: Boolean
+    get() = (kind == FAKE_OVERRIDE || kind == SYNTHESIZED) && findKDoc() == null
+
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
             .filterIsInstance<FunctionDescriptor>()
-            .filterNot {
-                it.overriddenTreeUniqueAsSequence(false).last().containingDeclaration.fqNameSafe.asString() == Any::class.qualifiedName &&
-                        it.findKDoc() == null
-            }
+            .filterNot { it.isSynthetic }
             .map { visitFunctionDescriptor(it, parent) }
 
     private fun MemberScope.properties(parent: DRI): List<Property> =
