@@ -180,7 +180,7 @@ class DefaultDocumentationToPageTransformer(
     }
 
     private fun ContentBuilder.type(t: KotlinType) {
-        t.constructor.declarationDescriptor?.also { link(it.fqNameSafe.asString(), DRI.from(it)) }
+        t.constructor.declarationDescriptor?.also { link(it.fqNameSafe.pathSegments().last().asString(), DRI.from(it)) }
                 ?: run {
                     logger.error("type $t cannot be resolved")
                     text("???")
@@ -190,20 +190,3 @@ class DefaultDocumentationToPageTransformer(
         }
     }
 }
-
-fun DocumentationNode<*>.identifier(platformData: List<PlatformData>): List<ContentNode> {
-//    when(this) {
-//        is Class -> ContentText(this.descriptor.toString(), platforms), ContentText("(") this.properties.map { ContentText(it.descriptor.visibility + " " + it.descriptor.name + ":" + ),}
-//        is Function ->
-//        is Property ->
-//        else -> return emptyList()
-//    }
-    TODO()
-}
-// take this ^ from old dokka
-/*
-pages are equal if the content and the children are equal
-we then can merge the content by merging the platforms
-and take an arbitrary set of the children
-but we need to recursively process all of the children anyway
- */

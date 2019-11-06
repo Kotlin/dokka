@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:300i,400,700);
 
-body, table {
+body, table{
     padding:50px;
     font:14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     color:#555;
@@ -8,6 +8,11 @@ body, table {
     margin-left: auto;
     margin-right: auto;
     max-width: 1440px;
+}
+
+table {
+    display: flex;
+    padding:5px;
 }
 
 .keyword {

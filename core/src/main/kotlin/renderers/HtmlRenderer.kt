@@ -30,13 +30,11 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
         return buildNavigationWithContext(page, page)
     }
 
-    override fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String =
-             children.find { it is ContentLink }?.build(pageContext) + "</td>\n" +
-            "<td>" + children.filterNot { it is ContentLink }.joinToString("\n") { it.build(pageContext) }
+    override fun buildGroup(children: List<ContentNode>, pageContext: PageNode): String = children.joinToString("</td>\n<td>\n") { it.build(pageContext) }
 
     override fun buildBlock(name: String, content: List<ContentNode>, pageContext: PageNode): String =
         buildHeader(3, name) + "<table>\n<tr>\n<td>\n" +
-                content.joinToString("</td>\n</tr>\n<tr>\n<td>") { "(" + it.dci.platformDataList.map {it.platformName}.joinToString() + ") " + it.build(pageContext) } + "</td></tr>\n</table>"
+                content.joinToString("</td>\n</tr>\n<tr>\n<td>") { "(" + it.dci.platformDataList.map { it.platformName }.joinToString() + ") " + it.build(pageContext) } + "</td></tr>\n</table>"
 
     override fun renderPage(page: PageNode) {
         val pageText = buildStartHtml(page) + buildPageContent(page) + buildEndHtml()
