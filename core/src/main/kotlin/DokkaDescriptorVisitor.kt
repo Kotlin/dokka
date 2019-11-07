@@ -6,14 +6,20 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
-import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
-import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
+import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
+import org.jetbrains.kotlin.resolve.scopes.MemberScope
 
-object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
+class DokkaDescriptorVisitor(
+    val platform: List<String>,
+    private val resolutionFacade: DokkaResolutionFacade
+) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
         throw IllegalStateException("${javaClass.simpleName} should never enter ${descriptor.javaClass.simpleName}")
     }
@@ -35,6 +41,9 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
     override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
         val dri = parent.withClass(descriptor.name.asString())
         val scope = descriptor.getMemberScope(emptyList())
+        val kdoc = descriptor.findKDoc()?.let {
+            parseMarkdown(it.text)
+        }
         return Class(
             dri,
             descriptor.name.asString(),
@@ -42,8 +51,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             scope.functions(dri),
             scope.properties(dri),
             scope.classes(dri),
-            listOfNotNull(descriptor.findKDoc()),
-            listOf(descriptor)
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         )
     }
 
@@ -53,8 +62,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             dri,
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
-            listOfNotNull(descriptor.findKDoc()),
-            listOf(descriptor)
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         )
     }
 
@@ -65,8 +74,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             descriptor.name.asString(),
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-            listOfNotNull(descriptor.findKDoc()),
-            listOf(descriptor)
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         )
     }
 
@@ -77,8 +86,8 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
             "<init>",
             null,
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-            listOfNotNull(descriptor.findKDoc()),
-            listOf(descriptor)
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         )
     }
 
@@ -88,20 +97,18 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
     ) = Parameter(
         parent.copy(target = 0),
         null,
-        listOfNotNull(descriptor.findKDoc()),
-        listOf(descriptor)
+        listOf(descriptor.resolveDescriptorData())
     )
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRI) =
         Parameter(
             parent.copy(target = index + 1),
             descriptor.name.asString(),
-            listOfNotNull(descriptor.findKDoc()),
-            listOf(descriptor)
+            listOf(descriptor.resolveDescriptorData())
         )
 
     private val FunctionDescriptor.isSynthetic: Boolean
-    get() = (kind == FAKE_OVERRIDE || kind == SYNTHESIZED) && findKDoc() == null
+        get() = (kind == FAKE_OVERRIDE || kind == SYNTHESIZED) && findKDoc() == null
 
     private fun MemberScope.functions(parent: DRI): List<Function> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
@@ -118,4 +125,19 @@ object DokkaDescriptorVisitor : DeclarationDescriptorVisitorEmptyBodies<Document
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .map { visitClassDescriptor(it, parent) }
+
+    private fun <T : DeclarationDescriptor> T.resolveDescriptorData(): Descriptor<T> {
+        val doc = findKDoc()
+        val links = doc?.children?.filter { it is KDocLink }?.flatMap { link ->
+            val destination = link.children.first { it is KDocName }.text
+            resolveKDocLink(
+                resolutionFacade.resolveSession.bindingContext,
+                resolutionFacade,
+                this,
+                null,
+                destination.split('.')
+            ).map { Pair(destination, DRI.from(it)) }
+        }?.toMap() ?: emptyMap()
+        return Descriptor(this, doc, links, platform)
+    }
 }

@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.transformers
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaLogger
 import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.Function
@@ -16,8 +15,8 @@ class DefaultDocumentationToPageTransformer(
     private val markdownConverter: MarkdownToContentConverter,
     private val logger: DokkaLogger
 ) : DocumentationToPageTransformer {
-    override fun transform(passConfiguration: DokkaConfiguration.PassConfiguration, module: Module): ModulePageNode {
-        val platformData = passConfiguration.targets.map { PlatformData(it, passConfiguration.analysisPlatform) }
+    override fun transform(module: Module): ModulePageNode {
+        val platformData = emptyList<PlatformData>()
         return PageBuilder(platformData).pageForModule(module)
     }
 
@@ -72,7 +71,7 @@ class DefaultDocumentationToPageTransformer(
 
         private fun contentForClass(c: Class) = content(DCI(c.dri, platformData)) {
             header(1) { text(c.name) }
-            c.rawDocstrings.forEach { comment(it, c) }
+            c.commentsData.forEach { (doc, links) -> comment(doc, links) }
             block("Constructors", c.constructors) {
                 link(it.name, it.dri)
                 signature(it)
@@ -88,11 +87,11 @@ class DefaultDocumentationToPageTransformer(
         private fun contentForFunction(f: Function) = content(DCI(f.dri, platformData)) {
             header(1) { text(f.name) }
             signature(f)
-            f.rawDocstrings.forEach { markdown(it, f) }
+            f.commentsData.forEach {  (doc, links) -> markdown(doc, links)  }
             block("Parameters", f.children) { param ->
                 group {
                     text(param.name ?: "<receiver>")
-                    param.rawDocstrings.forEach { markdown(it, param) }
+                    param.commentsData.forEach { (doc, links) -> markdown(doc, links) }
                 }
             }
         }
@@ -145,12 +144,12 @@ class DefaultDocumentationToPageTransformer(
         fun link(text: String, address: DRI) {
             contents += ContentLink(text, address, dci)
         }
-        fun comment(raw: String, node: DocumentationNode<*>) {
-            contents += ContentComment(markdownConverter.buildContent(parseMarkdown(raw), dci, node), dci)
+        fun comment(raw: String, links: Map<String, DRI>) {
+            contents += ContentComment(markdownConverter.buildContent(parseMarkdown(raw), dci, links), dci)
         }
 
-        fun markdown(raw: String, node: DocumentationNode<*>) {
-            contents += markdownConverter.buildContent(parseMarkdown(raw), dci, node)
+        fun markdown(raw: String, links: Map<String, DRI>) {
+            contents += markdownConverter.buildContent(parseMarkdown(raw), dci, links)
         }
 
         private inline fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(dci, block)
@@ -163,7 +162,7 @@ class DefaultDocumentationToPageTransformer(
     private fun ContentBuilder.signature(f: Function) = symbol {
         text("fun ")
         if (f.receiver is Parameter) {
-            type(f.receiver.descriptors.first().type)
+            type(f.receiver.descriptors.first().descriptor.type)
             text(".")
         }
         link(f.name, f.dri)
@@ -171,11 +170,11 @@ class DefaultDocumentationToPageTransformer(
         list(f.parameters) {
             link(it.name!!, it.dri)
             text(": ")
-            type(it.descriptors.first().type)
+            type(it.descriptors.first().descriptor.type)
         }
         text(")")
-        val returnType = f.descriptors.first().returnType
-        if (f.descriptors.first() !is ConstructorDescriptor && returnType != null &&
+        val returnType = f.descriptors.first().descriptor.returnType
+        if (f.descriptors.first().descriptor !is ConstructorDescriptor && returnType != null &&
             returnType.constructor.declarationDescriptor?.fqNameSafe?.asString() != Unit::class.qualifiedName) {
             text(": ")
             type(returnType)

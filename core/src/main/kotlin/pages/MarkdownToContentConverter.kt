@@ -3,25 +3,21 @@ package org.jetbrains.dokka.pages
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.dokka.DokkaLogger
-import org.jetbrains.dokka.DokkaResolutionFacade
 import org.jetbrains.dokka.MarkdownNode
-import org.jetbrains.dokka.Model.DocumentationNode
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 
 class MarkdownToContentConverter(
-    private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) {
     fun buildContent(
         node: MarkdownNode,
         dci: DCI,
-        documentationNode: DocumentationNode<*>
+        links: Map<String, DRI> = emptyMap()
     ): List<ContentNode> {
 //    println(tree.toTestString())
 
         fun buildChildren(node: MarkdownNode) = node.children.flatMap {
-            buildContent(it, dci, documentationNode)
+            buildContent(it, dci, links)
         }.coalesceText()
 
         return when (node.type) {
@@ -89,27 +85,15 @@ class MarkdownToContentConverter(
             }
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK -> {
-                if (documentationNode.descriptors.isNotEmpty()) {
-                    val destinationNode = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
-                            ?: node.children.first { it.type == MarkdownElementTypes.LINK_LABEL }
-                    val destination = destinationNode.children.find { it.type == MarkdownTokenTypes.TEXT }?.text
-                            ?: destinationNode.text
-
-                    documentationNode.descriptors.flatMap {
-                        resolveKDocLink(
-                            resolutionFacade.resolveSession.bindingContext,
-                            resolutionFacade,
-                            it,
-                            null,
-                            destination.split('.')
-                        )
-                    }
-                        .firstOrNull()
-                        ?.let { ContentLink(destination, DRI.from(it), dci) }
-                        .let(::listOfNotNull)
-                } else {
-                    logger.error("Apparently descriptor for $documentationNode was needed in model")
-                    emptyList()
+                val destinationNode = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
+                        ?: node.children.first { it.type == MarkdownElementTypes.LINK_LABEL }
+                val destination = destinationNode.children.find { it.type == MarkdownTokenTypes.TEXT }?.text
+                        ?: destinationNode.text
+                links[destination]?.let { dri ->
+                    listOf(ContentLink(destination, dri, dci))
+                } ?: let {
+                    logger.error("Apparently there is no link resolved for $destination")
+                    emptyList<ContentNode>()
                 }
             }
             MarkdownTokenTypes.WHITE_SPACE -> {

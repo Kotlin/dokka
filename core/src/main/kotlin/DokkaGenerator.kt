@@ -1,18 +1,15 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
+import org.jetbrains.dokka.Model.transformers.DocumentationNodesMerger
 import org.jetbrains.dokka.Utilities.genericPretty
-import org.jetbrains.dokka.Model.transformers.ActualExpectedMerger
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
-import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
 import org.jetbrains.dokka.transformers.DefaultDocumentationToPageTransformer
-import org.jetbrains.dokka.transformers.TopDownPageNodeMerger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -41,23 +38,28 @@ class DokkaGenerator(
                 val environment = createCoreEnvironment()
                 val (facade, _) = createResolutionFacade(environment)
 
-                val markdownConverter = MarkdownToContentConverter(facade, logger)
-
-                val module = environment.getSourceFiles().asSequence()
+                environment.getSourceFiles().asSequence()
                     .map { it.packageFqName }
                     .distinct()
                     .mapNotNull { facade.resolveSession.getPackageFragment(it) }
-                    .map { DokkaDescriptorVisitor.visitPackageFragmentDescriptor(it, DRI.topLevel) }
+                    .map {
+                        DokkaDescriptorVisitor(pass.targets, facade).visitPackageFragmentDescriptor(
+                            it,
+                            DRI.topLevel
+                        )
+                    }
                     .toList()
                     .let { Module(it) }
-                    .let { ActualExpectedMerger(it) }
+                    .let { DocumentationNodesMerger(it) }
                     .also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
-
-                DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(pass, module)
             }
+        }.let {
+            val markdownConverter = MarkdownToContentConverter(logger)
+            it.forEach { it.genericPretty().also(::nierzigoj) }
+            DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(DocumentationNodesMerger(it))
         }
-            .merge()
             .also {
+                it.genericPretty().also(::nierzigoj)
                 HtmlRenderer(
                     FileWriter(configuration.outputDir, ""),
                     DefaultLocationProvider(it, configuration, ".${configuration.format}")
@@ -66,12 +68,7 @@ class DokkaGenerator(
     }
 }
 
-private fun Iterable<ModulePageNode>.merge(): PageNode {
-    this.forEach { it.genericPretty().also(::println) }
-    return TopDownPageNodeMerger().mergeModules(this).also {
-        it.genericPretty().also(::println)
-    }
-}
+private fun nierzigoj(niczym: String) {}
 
 private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
     override fun clear() {

@@ -5,10 +5,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
 class Module(val packages: List<Package>) : DocumentationNode<Nothing>() {
-    override val docTags: List<KDocTag> = emptyList()
-
     override val dri: DRI = DRI.topLevel
-
     override val children: List<Package> = packages
 }
 
@@ -19,8 +16,6 @@ class Package(
     override val classes: List<Class>
 ) : ScopeNode<Nothing>() {
     val name = dri.packageName.orEmpty()
-
-    override val docTags: List<KDocTag> = emptyList()
 }
 
 class Class(
@@ -30,8 +25,8 @@ class Class(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classes: List<Class>,
-    override val docTags: List<KDocTag>,
-    override val descriptors: List<ClassDescriptor>
+    override val expectDescriptor: Descriptor<ClassDescriptor>?,
+    override val actualDescriptors: List<Descriptor<ClassDescriptor>>
 ) : ScopeNode<ClassDescriptor>()
 
 class Function(
@@ -39,8 +34,8 @@ class Function(
     val name: String,
     override val receiver: Parameter?,
     val parameters: List<Parameter>,
-    override val docTags: List<KDocTag>,
-    override val descriptors: List<FunctionDescriptor>
+    override val expectDescriptor: Descriptor<FunctionDescriptor>?,
+    override val actualDescriptors: List<Descriptor<FunctionDescriptor>>
 ) : CallableNode<FunctionDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
@@ -50,8 +45,8 @@ class Property(
     override val dri: DRI,
     val name: String,
     override val receiver: Parameter?,
-    override val docTags: List<KDocTag>,
-    override val descriptors: List<PropertyDescriptor>
+    override val expectDescriptor: Descriptor<PropertyDescriptor>?,
+    override val actualDescriptors: List<Descriptor<PropertyDescriptor>>
 ) : CallableNode<PropertyDescriptor>() {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
@@ -61,35 +56,51 @@ class Property(
 class Parameter(
     override val dri: DRI,
     val name: String?,
-    override val docTags: List<KDocTag>,
-    override val descriptors: List<ParameterDescriptor>
+    override val actualDescriptors: List<Descriptor<ParameterDescriptor>>
 ) : DocumentationNode<ParameterDescriptor>() {
     override val children: List<DocumentationNode<*>>
         get() = emptyList()
 }
 
-abstract class DocumentationNode<out T : DeclarationDescriptor> {
-    open val descriptors: List<T> = emptyList()
+class Descriptor<out T : DeclarationDescriptor>(
+    val descriptor: T,
+    val docTag: KDocTag?,
+    val links: Map<String, DRI>,
+    val passes: List<String>
+) : DeclarationDescriptor by descriptor {
 
-    abstract val docTags: List<KDocTag> // TODO: replace in the future with more robust doc-comment model
+    override fun equals(other: Any?): Boolean =
+        other is Descriptor<*> && (
+                descriptor.toString() == other.descriptor.toString() &&
+                        docTag?.text == other.docTag?.text &&
+                        links == other.links)
+
+    override fun hashCode(): Int =
+        listOf(descriptor.toString(), docTag?.text, links).hashCode()
+}
+
+abstract class DocumentationNode<out T : DeclarationDescriptor> {
+    open val expectDescriptor: Descriptor<T>? = null
+    open val actualDescriptors: List<Descriptor<T>> = emptyList()
+    val descriptors by lazy { listOfNotNull(expectDescriptor) + actualDescriptors }
 
     abstract val dri: DRI
 
     abstract val children: List<DocumentationNode<*>>
 
     override fun toString(): String {
-        return "${javaClass.simpleName}($dri)" + briefDocstring.takeIf { it.isNotBlank() }?.let { " [$it]"}.orEmpty()
+        return "${javaClass.simpleName}($dri)" + briefDocstring.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
     }
 
     override fun equals(other: Any?) = other is DocumentationNode<*> && this.dri == other.dri
 
     override fun hashCode() = dri.hashCode()
 
-    val rawDocstrings: List<String>
-        get() = docTags.map(KDocTag::getContent)
+    val commentsData: List<Pair<String, Map<String, DRI>>>
+        get() = descriptors.mapNotNull { it.docTag?.let { tag -> Pair(tag.getContent(), it.links) } }
 
     val briefDocstring: String
-        get() = rawDocstrings.firstOrNull().orEmpty().shorten(40)
+        get() = descriptors.firstOrNull()?.docTag?.getContent().orEmpty().shorten(40)
 }
 
 abstract class ScopeNode<out T : ClassOrPackageFragmentDescriptor> : DocumentationNode<T>() {
