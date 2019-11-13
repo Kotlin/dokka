@@ -68,6 +68,7 @@ data class ContentResolvedLink(
 /** All links that do not need to be resolved */
 data class ContentEmbeddedResource(
     val address: String,
+    val altText: String?,
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style> = emptySet(),
@@ -80,6 +81,16 @@ data class ContentEmbeddedResource(
 interface ContentComposite : ContentNode {
     val children: List<ContentNode>
 }
+
+/** Tables */
+data class ContentTable(
+    val header: List<ContentGroup>,
+    override val children: List<ContentGroup>,
+    override val dci: DCI,
+    override val platforms: Set<PlatformData>,
+    override val style: Set<Style>,
+    override val extras: Set<Extra>
+) : ContentComposite
 
 /** Lists */
 data class ContentList(
@@ -110,11 +121,13 @@ enum class ContentKind : Kind {
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, TableHeader
+    Bold, Italic, Strong, Strikethrough
 }
 
-enum class RenderStyle : Style {
-    Block, Inline, Table, Paragraph
+interface HTMLMetadata: Extra {
+    val key: String
+    val value: String
 }
 
-//data class HTMLMetadata(val key: String, val value: String): Extra
+data class HTMLSimpleAttr(override val key: String, override val value: String): HTMLMetadata
+data class HTMLTableMetadata(val item: String, override val key: String, override val value: String): HTMLMetadata
