@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import java.io.File
 import java.net.URL
 
 enum class Platform(val key: String) {
@@ -30,6 +31,7 @@ interface DokkaConfiguration {
     val cacheRoot: String?
     val passesConfigurations: List<PassConfiguration>
     val impliedPlatforms: List<String>
+    var pluginsClasspath: List<File>
 
     interface PassConfiguration {
         val moduleName: String

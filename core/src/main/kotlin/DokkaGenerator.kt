@@ -2,11 +2,11 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
 import org.jetbrains.dokka.Model.transformers.DocumentationNodesMerger
-//import org.jetbrains.dokka.Utilities.genericPretty
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
@@ -23,6 +23,18 @@ class DokkaGenerator(
     private val logger: DokkaLogger
 ) {
     fun generate(): Unit {
+
+        logger.info("Initializing plugins")
+        val context = DokkaContext.from(configuration.pluginsClasspath)
+        context.pluginNames.also { names ->
+            logger.info("Loaded plugins: $names")
+            names.groupingBy { it }.eachCount().filter { it.value > 1 }.forEach {
+                logger.warn("Duplicate plugin name: ${it.key}. It will make debugging much harder.")
+            }
+        }
+
+
+
         configuration.passesConfigurations.map { pass ->
             AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
                 if (analysisPlatform == Platform.jvm) {

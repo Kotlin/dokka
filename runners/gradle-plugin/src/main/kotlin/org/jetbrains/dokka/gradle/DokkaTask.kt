@@ -63,6 +63,9 @@ open class DokkaTask : DefaultTask() {
     @Input
     var cacheRoot: String? = null
 
+    @Classpath
+    lateinit var pluginsConfiguration: Configuration
+
     var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
         @Nested get() = (DslObject(this).extensions.getByName(MULTIPLATFORM_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>)
@@ -155,13 +158,15 @@ open class DokkaTask : DefaultTask() {
             val passConfigurationList = collectConfigurations()
                 .map { defaultPassConfiguration(it, globalConfig) }
 
-            val configuration = GradleDokkaConfigurationImpl()
-            configuration.outputDir = outputDirectory
-            configuration.format = outputFormat
-            configuration.generateIndexPages = true
-            configuration.cacheRoot = cacheRoot
-            configuration.impliedPlatforms = impliedPlatforms
-            configuration.passesConfigurations = passConfigurationList
+            val configuration = GradleDokkaConfigurationImpl().apply {
+                outputDir = outputDirectory
+                format = outputFormat
+                generateIndexPages = true
+                cacheRoot = cacheRoot
+                impliedPlatforms = impliedPlatforms
+                passesConfigurations = passConfigurationList
+                pluginsClasspath = pluginsConfiguration.resolve().toList()
+            }
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->

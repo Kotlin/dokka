@@ -153,6 +153,7 @@ class DokkaAntTask: Task(), DokkaConfiguration {
 
     override var cacheRoot: String? = null
     override val passesConfigurations: MutableList<AntPassConfig> = mutableListOf()
+    override var pluginsClasspath: List<File> = mutableListOf()
 
     fun createPassConfig() = AntPassConfig(this).apply { passesConfigurations.add(this) }
     fun createImpliedPlatform(): TextProperty = TextProperty().apply { buildImpliedPlatforms.add(this) }

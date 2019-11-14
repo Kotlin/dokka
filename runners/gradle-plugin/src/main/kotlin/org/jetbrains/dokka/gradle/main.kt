@@ -17,7 +17,8 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         loadDokkaVersion()
         val dokkaRuntimeConfiguration = addConfiguration(project)
-        addTasks(project, dokkaRuntimeConfiguration, DokkaTask::class.java)
+        val pluginsConfiguration = project.configurations.create("dokkaPlugins")
+        addTasks(project, dokkaRuntimeConfiguration, pluginsConfiguration, DokkaTask::class.java)
     }
 
     private fun loadDokkaVersion() = DokkaVersion.loadFrom(javaClass.getResourceAsStream("/META-INF/gradle-plugins/org.jetbrains.dokka.properties"))
@@ -27,7 +28,12 @@ open class DokkaPlugin : Plugin<Project> {
             defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
         }
 
-    private fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
+    private fun addTasks(
+        project: Project,
+        runtimeConfiguration: Configuration,
+        pluginsConfiguration: Configuration,
+        taskClass: Class<out DokkaTask>
+    ) {
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
             project.tasks.register(taskName, taskClass)
         } else {
@@ -37,6 +43,7 @@ open class DokkaPlugin : Plugin<Project> {
             task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = runtimeConfiguration
+            task.pluginsConfiguration = pluginsConfiguration
             task.outputDirectory = File(project.buildDir, taskName).absolutePath
         }
     }

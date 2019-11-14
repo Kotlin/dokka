@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.jetbrains.PluginXmlTransformer
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -18,7 +19,6 @@ jar {
 shadowJar {
     baseName = 'dokka-fatjar'
     classifier = ''
-
     configurations {
         exclude compileOnly
     }
@@ -36,6 +36,29 @@ shadowJar {
     relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
+task apiShadow(type: ShadowJar) {
+    baseName = 'dokka-fatapi'
+    classifier = ''
+
+    configurations = [project.configurations.compile]
+    configurations {
+        exclude compileOnly
+    }
+
+    transform(ServiceFileTransformer)
+    transform(PluginXmlTransformer)
+
+    exclude 'kotlin/**'
+    exclude 'colorScheme/**'
+    exclude 'fileTemplates/**'
+    exclude 'inspectionDescriptions/**'
+    exclude 'intentionDescriptions/**'
+
+    exclude 'src/**'
+
+    relocate('kotlin.reflect.full', 'kotlin.reflect')
+}
+
 apply plugin: 'maven-publish'
 
 publishing {
@@ -43,6 +66,11 @@ publishing {
         dokkaFatJar(MavenPublication) { publication ->
             artifactId = 'dokka-fatjar'
             project.shadow.component(publication)
+        }
+
+        dokkaFatApi(MavenPublication) {publication ->
+            artifactId = 'dokka-fatapi'
+            publication.artifact(project.tasks.apiShadow)
         }
     }
 }

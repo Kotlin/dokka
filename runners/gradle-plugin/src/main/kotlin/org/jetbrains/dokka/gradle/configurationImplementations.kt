@@ -124,6 +124,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var cacheRoot: String? = null
     override var impliedPlatforms: List<String> = emptyList()
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
+    override var pluginsClasspath: List<File> = emptyList()
 }
 
 class GradlePackageOptionsImpl: PackageOptions, Serializable {

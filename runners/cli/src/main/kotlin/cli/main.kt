@@ -35,6 +35,8 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     ) {
         Arguments(parser)
     }
+
+    override var pluginsClasspath: List<File> = emptyList()
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
