@@ -171,7 +171,9 @@ open class DokkaTask : DefaultTask() {
             bootstrapProxy.configure(
                 BiConsumer { level, message ->
                     when (level) {
+                        "debug" -> logger.debug(message)
                         "info" -> logger.info(message)
+                        "progress" -> logger.lifecycle(message)
                         "warn" -> logger.warn(message)
                         "error" -> logger.error(message)
                     }

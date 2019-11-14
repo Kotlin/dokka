@@ -10,7 +10,9 @@ import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {
-    override fun info(message: String) = task.log(message, Project.MSG_INFO)
+    override fun debug(message: String) = task.log(message, Project.MSG_DEBUG)
+    override fun info(message: String) = task.log(message, Project.MSG_VERBOSE)
+    override fun progress(message: String) = task.log(message, Project.MSG_INFO)
     override fun warn(message: String) = task.log(message, Project.MSG_WARN)
     override fun error(message: String) = task.log(message, Project.MSG_ERR)
 }

@@ -25,8 +25,16 @@ fun parsePerPackageOptions(arg: String): List<PackageOptions> {
 class DokkaBootstrapImpl : DokkaBootstrap {
 
     private class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+        override fun debug(message: String) {
+            consumer.accept("debug", message)
+        }
+
         override fun info(message: String) {
             consumer.accept("info", message)
+        }
+
+        override fun progress(message: String) {
+            consumer.accept("progress", message)
         }
 
         override fun warn(message: String) {

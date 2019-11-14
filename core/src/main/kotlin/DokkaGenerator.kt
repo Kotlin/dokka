@@ -24,10 +24,10 @@ class DokkaGenerator(
 ) {
     fun generate(): Unit {
 
-        logger.info("Initializing plugins")
+        logger.debug("Initializing plugins")
         val context = DokkaContext.from(configuration.pluginsClasspath)
         context.pluginNames.also { names ->
-            logger.info("Loaded plugins: $names")
+            logger.progress("Loaded plugins: $names")
             names.groupingBy { it }.eachCount().filter { it.value > 1 }.forEach {
                 logger.warn("Duplicate plugin name: ${it.key}. It will make debugging much harder.")
             }
