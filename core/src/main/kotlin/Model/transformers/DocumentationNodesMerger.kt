@@ -28,7 +28,7 @@ fun <T:DeclarationDescriptor> Descriptor<T>.mergeWith(other: Descriptor<T>?) = D
     descriptor,
     docTag,
     links,
-    (passes + (other?.passes ?: emptyList())).distinct()
+    (platformData + (other?.platformData ?: emptyList())).distinct()
 )
 
 fun <T:DeclarationDescriptor> List<Descriptor<T>>.merge() : List<Descriptor<T>> =

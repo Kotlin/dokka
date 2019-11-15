@@ -54,7 +54,7 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
         }
 
     protected open fun buildPageContent(page: PageNode): String =
-        buildNavigation(page) + page.content.joinToString("\n") { it.build(page) }
+        buildNavigation(page) + page.content.build(page)
 
     protected open fun renderPage(page: PageNode) =
         fileWriter.write(locationProvider.resolve(page), buildPageContent(page), "")
@@ -88,3 +88,5 @@ abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider:
         renderPages(root)
     }
 }
+
+fun PageNode.platforms() = this.content.platforms.toList()

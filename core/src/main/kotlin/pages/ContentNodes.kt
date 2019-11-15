@@ -29,8 +29,10 @@ data class ContentHeader(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra>
-) : ContentComposite
+    override val extras: Set<Extra> = emptySet()
+) : ContentComposite {
+    constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.platforms, c.style, c.extras)
+}
 
 /** Code blocks */
 data class ContentCode(
@@ -117,11 +119,11 @@ interface Style
 interface Kind
 
 enum class ContentKind : Kind {
-    Comment, Functions, Parameters, Properties, Classes, Packages, Symbol, Sample
+    Comment, Functions, Parameters, Properties, Classes, Packages, Symbol, Sample, Main
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough
+    Bold, Italic, Strong, Strikethrough, Paragraph
 }
 
 interface HTMLMetadata: Extra {

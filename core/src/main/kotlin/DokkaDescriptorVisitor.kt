@@ -5,6 +5,7 @@ import org.jetbrains.dokka.Model.Function
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
@@ -17,7 +18,7 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 
 class DokkaDescriptorVisitor(
-    val platform: List<String>,
+    val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
 ) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode<*>, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
@@ -138,6 +139,6 @@ class DokkaDescriptorVisitor(
                 destination.split('.')
             ).map { Pair(destination, DRI.from(it)) }
         }?.toMap() ?: emptyMap()
-        return Descriptor(this, doc, links, platform)
+        return Descriptor(this, doc, links, listOf(platformData))
     }
 }

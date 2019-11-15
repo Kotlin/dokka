@@ -13,7 +13,7 @@ open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val conf
         // Not found in PageGraph, that means it's an external link
         ExternalLocationProvider.getLocation(dri,
             configuration.passesConfigurations
-            .filter { passConfig -> passConfig.targets.map { PlatformData(it, passConfig.analysisPlatform)}.toSet() == platforms.toSet() } // TODO: change targets to something better?
+            .filter { passConfig -> platforms.toSet().contains(PlatformData(passConfig.analysisPlatform, passConfig.targets)) } // TODO: change targets to something better?
             .flatMap { it.externalDocumentationLinks }.distinct()
         )
 

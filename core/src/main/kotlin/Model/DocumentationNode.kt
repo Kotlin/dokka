@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.Model
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
@@ -66,7 +67,7 @@ class Descriptor<out T : DeclarationDescriptor>(
     val descriptor: T,
     val docTag: KDocTag?,
     val links: Map<String, DRI>,
-    val passes: List<String>
+    val platformData: List<PlatformData>
 ) : DeclarationDescriptor by descriptor {
 
     override fun equals(other: Any?): Boolean =
@@ -83,6 +84,7 @@ abstract class DocumentationNode<out T : DeclarationDescriptor> {
     open val expectDescriptor: Descriptor<T>? = null
     open val actualDescriptors: List<Descriptor<T>> = emptyList()
     val descriptors by lazy { listOfNotNull(expectDescriptor) + actualDescriptors }
+    val platformData by lazy { descriptors.flatMap { it.platformData }.toSet() }
 
     abstract val dri: DRI
 

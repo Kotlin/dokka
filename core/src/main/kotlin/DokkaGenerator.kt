@@ -2,10 +2,11 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
 import org.jetbrains.dokka.Model.transformers.DocumentationNodesMerger
-import org.jetbrains.dokka.Utilities.genericPretty
+//import org.jetbrains.dokka.Utilities.genericPretty
 import org.jetbrains.dokka.Utilities.pretty
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
+import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
@@ -43,7 +44,7 @@ class DokkaGenerator(
                     .distinct()
                     .mapNotNull { facade.resolveSession.getPackageFragment(it) }
                     .map {
-                        DokkaDescriptorVisitor(pass.targets, facade).visitPackageFragmentDescriptor(
+                        DokkaDescriptorVisitor(PlatformData(pass.analysisPlatform, pass.targets), facade).visitPackageFragmentDescriptor(
                             it,
                             DRI.topLevel
                         )
@@ -55,11 +56,11 @@ class DokkaGenerator(
             }
         }.let {
             val markdownConverter = MarkdownToContentConverter(logger)
-            it.forEach { it.genericPretty().also(::nierzigoj) }
+//            it.forEach { it.genericPretty().also(::nierzigoj) }
             DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(DocumentationNodesMerger(it))
         }
             .also {
-                it.genericPretty().also(::nierzigoj)
+//                it.genericPretty().also(::nierzigoj)
                 HtmlRenderer(
                     FileWriter(configuration.outputDir, ""),
                     DefaultLocationProvider(it, configuration, ".${configuration.format}")

@@ -15,112 +15,129 @@ class DefaultDocumentationToPageTransformer(
     private val markdownConverter: MarkdownToContentConverter,
     private val logger: DokkaLogger
 ) : DocumentationToPageTransformer {
-    override fun transform(module: Module): ModulePageNode {
-        val platformData = emptyList<PlatformData>()
-        return PageBuilder(platformData).pageForModule(module)
-    }
+    override fun transform(module: Module): ModulePageNode =
+        PageBuilder().pageForModule(module)
 
-    private inner class PageBuilder(private val platformData: List<PlatformData>) {
-        fun pageForModule(m: Module) =
-            ModulePageNode("root", contentForModule(m), documentationNode = m).apply {
-                // TODO change name
-                appendChildren(m.packages.map { pageForPackage(it, this) })
-            }
+    private inner class PageBuilder {
+        fun pageForModule(m: Module): ModulePageNode =
+            ModulePageNode("root", contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
-        private fun pageForPackage(p: Package, parent: PageNode) =
-            PackagePageNode(p.name, contentForPackage(p), parent, p.dri, p).apply {
-                appendChildren(p.classes.map { pageForClass(it, this) })
-                appendChildren(p.functions.map { pageForMember(it, this) })
-                appendChildren(p.properties.map { pageForMember(it, this) })
-            }
+        private fun pageForPackage(p: Package) =
+            PackagePageNode(p.name, contentForPackage(p), p.dri, p,
+                p.classes.map { pageForClass(it) } +
+                        p.functions.map { pageForMember(it) } +
+                        p.properties.map { pageForMember(it) })
 
-        private fun pageForClass(c: Class, parent: PageNode): ClassPageNode =
-            ClassPageNode(c.name, contentForClass(c), parent, c.dri, c).apply {
-                appendChildren(c.constructors.map { pageForMember(it, this) })
-                appendChildren(c.classes.map { pageForClass(it, this) })
-                appendChildren(c.functions.map { pageForMember(it, this) })
-                appendChildren(c.properties.map { pageForMember(it, this) })
-            }
+        private fun pageForClass(c: Class): ClassPageNode =
+            ClassPageNode(c.name, contentForClass(c), c.dri, c,
+                c.constructors.map { pageForMember(it) } +
+                        c.classes.map { pageForClass(it) } +
+                        c.functions.map { pageForMember(it) })
 
-        private fun pageForMember(m: CallableNode<*>, parent: PageNode): MemberPageNode =
+        private fun pageForMember(m: CallableNode<*>): MemberPageNode =
             when (m) {
-                is Function -> MemberPageNode(m.name, contentForFunction(m), parent, m.dri, m)
-                is Property -> MemberPageNode(m.name, emptyList(), parent, m.dri, m)
+                is Function ->
+                    MemberPageNode(m.name, contentForFunction(m), m.dri, m)
                 else -> throw IllegalStateException("$m should not be present here")
             }
 
-        private fun contentForModule(m: Module) = content(DCI(m.dri, platformData)) {
+        private fun contentForModule(m: Module) = group(m) {
             header(1) { text("root") }
-            block("Packages", m.packages) { link(it.name, it.dri) }
+            block("Packages", 2, ContentKind.Packages, m.packages, m.platformData) {
+                link(it.name, it.dri)
+            }
             text("Index\n")
             text("Link to allpage here")
         }
 
-        private fun contentForPackage(p: Package) = content(DCI(p.dri, platformData)) {
+        private fun contentForPackage(p: Package) = group(p) {
             header(1) { text("Package ${p.name}") }
-            block("Types", p.classes) {
+            block("Types", 2, ContentKind.Properties, p.classes, p.platformData) {
                 link(it.name, it.dri)
                 text(it.briefDocstring)
             }
-            block("Functions", p.functions) {
+            block("Functions", 2, ContentKind.Functions, p.functions, p.platformData) {
                 link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocstring)
             }
         }
 
-        private fun contentForClass(c: Class) = content(DCI(c.dri, platformData)) {
+        private fun contentForClass(c: Class) = group(c) {
             header(1) { text(c.name) }
             c.commentsData.forEach { (doc, links) -> comment(doc, links) }
-            block("Constructors", c.constructors) {
+            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
                 link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocstring)
             }
-            block("Functions", c.functions) {
+            block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
                 link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocstring)
             }
         }
 
-        private fun contentForFunction(f: Function) = content(DCI(f.dri, platformData)) {
+        private fun contentForFunction(f: Function) = group(f) {
             header(1) { text(f.name) }
             signature(f)
-            f.commentsData.forEach {  (doc, links) -> markdown(doc, links)  }
-            block("Parameters", f.children) { param ->
-                group {
-                    text(param.name ?: "<receiver>")
-                    param.commentsData.forEach { (doc, links) -> markdown(doc, links) }
-                }
+            f.commentsData.forEach { (doc, links) -> markdown(doc, links) }
+            block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
+                text(it.name ?: "<receiver>")
+                it.commentsData.forEach { (doc, links) -> markdown(doc, links) }
             }
         }
     }
 
     // TODO: Make some public builder or merge it with page builder, whateva
-    private inner class ContentBuilder(private val dci: DCI) {
+    private inner class ContentBuilder(
+        val node: DocumentationNode<*>,
+        val kind: Kind,
+        val styles: Set<Style> = emptySet(),
+        val extras: Set<Extra> = emptySet()
+    ) {
         private val contents = mutableListOf<ContentNode>()
 
-        fun build() = contents.toList() // should include nodes coalescence
+        fun build() = ContentGroup(
+            contents.toList(),
+            DCI(node.dri, kind),
+            node.platformData,
+            styles,
+            extras
+        )
 
-        inline fun header(level: Int, block: ContentBuilder.() -> Unit) {
-            contents += ContentHeader(content(block), level, dci)
+        fun header(level: Int, block: ContentBuilder.() -> Unit) {
+            contents += ContentHeader(level, group(ContentKind.Symbol, block))
         }
+
+        private fun createText(text: String) =
+            ContentText(text, DCI(node.dri, ContentKind.Symbol), node.platformData, styles, extras)
 
         fun text(text: String) {
-            contents += ContentText(text, dci)
+            contents += createText(text)
         }
 
-        inline fun symbol(block: ContentBuilder.() -> Unit) {
-            contents += ContentSymbol(content(block), dci)
+        inline fun signature(f: Function, block: ContentBuilder.() -> Unit) {
+            contents += group(f, ContentKind.Symbol, block)
         }
 
-        inline fun <T: DocumentationNode<*>> block(name: String, elements: Iterable<T>, block: ContentBuilder.(T) -> Unit) {
-            contents += ContentBlock(name, elements.flatMap { content(dci.copy(dri = it.dri)) { group { block(it) } } }, dci)
-        }
+        inline fun <T : DocumentationNode<*>> block(
+            name: String,
+            level: Int,
+            kind: Kind,
+            elements: Iterable<T>,
+            platformData: Set<PlatformData>,
+            operation: ContentBuilder.(T) -> Unit
+        ) {
+            header(level) { text(name) }
 
-        inline fun group(block: ContentBuilder.() -> Unit) {
-            contents += ContentGroup(content(block), dci)
+            contents += ContentGroup(
+                elements.map {
+                    group(it, kind) { operation(it) }
+                },
+                DCI(node.dri, kind),
+                platformData, styles, extras
+            )
         }
 
         inline fun <T> list(
@@ -142,24 +159,45 @@ class DefaultDocumentationToPageTransformer(
         }
 
         fun link(text: String, address: DRI) {
-            contents += ContentLink(text, address, dci)
+            contents += ContentDRILink(
+                listOf(createText(text)),
+                address,
+                DCI(node.dri, ContentKind.Symbol),
+                node.platformData
+            )
         }
+
         fun comment(raw: String, links: Map<String, DRI>) {
-            contents += ContentComment(markdownConverter.buildContent(parseMarkdown(raw), dci, links), dci)
+            contents += group(ContentKind.Comment) {
+                contents += markdownConverter.buildContent(
+                    parseMarkdown(raw),
+                    DCI(node.dri, ContentKind.Comment),
+                    node.platformData,
+                    links
+                )
+            }
         }
 
         fun markdown(raw: String, links: Map<String, DRI>) {
-            contents += markdownConverter.buildContent(parseMarkdown(raw), dci, links)
+            contents += markdownConverter.buildContent(
+                parseMarkdown(raw), DCI(node.dri, ContentKind.Sample),
+                node.platformData,
+                links
+            )
         }
 
-        private inline fun content(block: ContentBuilder.() -> Unit): List<ContentNode> = content(dci, block)
+        private inline fun group(kind: Kind, block: ContentBuilder.() -> Unit): ContentGroup =
+            group(node, kind, block)
     }
 
-    private inline fun content(dci: DCI, block: ContentBuilder.() -> Unit): List<ContentNode> =
-        ContentBuilder(dci).apply(block).build()
+    private inline fun group(
+        node: DocumentationNode<*>,
+        kind: Kind = ContentKind.Main,
+        block: ContentBuilder.() -> Unit
+    ) = ContentBuilder(node, kind).apply(block).build()
 
     // When builder is made public it will be moved as extension method to someplace near Function model
-    private fun ContentBuilder.signature(f: Function) = symbol {
+    private fun ContentBuilder.signature(f: Function) = signature(f) {
         text("fun ")
         if (f.receiver is Parameter) {
             type(f.receiver.descriptors.first().descriptor.type)
