@@ -20,8 +20,17 @@ class DokkaContext private constructor() {
         fun from(pluginsClasspath: Iterable<File>) = DokkaContext().apply {
             pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
                 .toTypedArray()
-                .let { ServiceLoader.load(DokkaPlugin::class.java, URLClassLoader(it, this.javaClass.classLoader)) }
+                .let { URLClassLoader(it, this.javaClass.classLoader) }
+                .also { checkClasspath(it) }
+                .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
                 .forEach { install(it) }
+        }
+    }
+
+    private fun checkClasspath(classLoader: URLClassLoader) {
+        classLoader.findResource(javaClass.name.replace('.','/') + ".class")?.also {
+            throw AssertionError("Dokka API found on plugins classpath. This will lead to subtle bugs. " +
+                    "Please fix your plugins dependencies or exclude dokka api artifact from plugin classpath")
         }
     }
 }
