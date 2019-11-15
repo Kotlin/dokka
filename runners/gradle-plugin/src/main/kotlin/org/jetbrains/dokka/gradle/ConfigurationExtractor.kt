@@ -24,13 +24,13 @@ import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
-    fun extractConfiguration(targetName: String, variantName: String?) = if (project.isMultiplatformProject()) {
-        extractFromMultiPlatform(targetName, variantName)
+    fun extractConfiguration(targetName: String, variantNames: List<String?>) = if (project.isMultiplatformProject()) {
+        extractFromMultiPlatform(targetName, variantNames)
     } else {
-        extractFromSinglePlatform(variantName)
+        extractFromSinglePlatform(variantNames)
     }
 
-    fun extractFromSinglePlatform(variantName: String? = null): PlatformData? {
+    private fun extractFromSinglePlatform(variantNames: List<String?> = listOf(null)): PlatformData? {
         val target: KotlinTarget
         try {
             target = project.extensions.getByType(KotlinSingleTargetExtension::class.java).target
@@ -43,13 +43,14 @@ class ConfigurationExtractor(private val project: Project) {
         }
 
         return try {
-            PlatformData(null, getClasspath(target, variantName), getSourceSet(target, variantName), getPlatformName(target.platformType))
+
+            PlatformData(null, accumulateClassPaths(variantNames, target), accumulateSourceSets(variantNames, target), getPlatformName(target.platformType))
         } catch(e: NoSuchMethodError){
             null
         }
     }
 
-    private fun extractFromMultiPlatform(targetName: String, variantName: String?): PlatformData? =
+    private fun extractFromMultiPlatform(targetName: String, variantNames: List<String?> = listOf(null)): PlatformData? =
         try {
             project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
         } catch (e: Throwable) {
@@ -61,7 +62,8 @@ class ConfigurationExtractor(private val project: Project) {
         }?.let {
             val fixedName = if(targetName.toLowerCase() == "common") "metadata" else targetName.toLowerCase()
             it.find { target -> target.name.toLowerCase() == fixedName }?.let { target ->
-                PlatformData(fixedName, getClasspath(target, variantName), getSourceSet(target, variantName), target.platformType.toString())
+
+                PlatformData(fixedName, accumulateClassPaths(variantNames, target), accumulateSourceSets(variantNames, target), target.platformType.toString())
             }
         }
 
@@ -207,6 +209,10 @@ class ConfigurationExtractor(private val project: Project) {
 
     private fun getPlatformName(platform: KotlinPlatformType): String =
         if (platform == KotlinPlatformType.androidJvm) KotlinPlatformType.jvm.toString() else platform.toString()
+
+    private fun accumulateClassPaths(variantNames: List<String?>, target: KotlinTarget) = variantNames.flatMap { getClasspath(target, it) }.distinct()
+    private fun accumulateSourceSets(variantNames: List<String?>, target: KotlinTarget) = variantNames.flatMap { getSourceSet(target, it) }.distinct()
+
 
     data class PlatformData(val name: String?,
                             val classpath: List<File>,
