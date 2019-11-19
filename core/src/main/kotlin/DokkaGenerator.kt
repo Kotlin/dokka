@@ -7,6 +7,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.pages.transformers.XmlAttributesTransformer
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
@@ -50,7 +51,10 @@ class DokkaGenerator(
                     .distinct()
                     .mapNotNull { facade.resolveSession.getPackageFragment(it) }
                     .map {
-                        DokkaDescriptorVisitor(PlatformData(pass.analysisPlatform, pass.targets), facade).visitPackageFragmentDescriptor(
+                        DokkaDescriptorVisitor(
+                            PlatformData(pass.analysisPlatform, pass.targets),
+                            facade
+                        ).visitPackageFragmentDescriptor(
                             it,
                             DRI.topLevel
                         )
@@ -71,6 +75,16 @@ class DokkaGenerator(
                     DefaultLocationProvider(it, configuration, ".${configuration.format}")
                 ).render(it)
             }
+                .let {
+                    XmlAttributesTransformer(it)
+                }
+        }.also {
+            //                it.genericPretty().also(::nierzigoj)
+            HtmlRenderer(
+                FileWriter(configuration.outputDir, ""),
+                DefaultLocationProvider(it, configuration, ".${configuration.format}")
+            ).render(it)
+        }
     }
 
     private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {

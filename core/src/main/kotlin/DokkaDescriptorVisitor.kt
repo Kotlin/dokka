@@ -42,9 +42,7 @@ class DokkaDescriptorVisitor(
     override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
         val dri = parent.withClass(descriptor.name.asString())
         val scope = descriptor.getMemberScope(emptyList())
-        val kdoc = descriptor.findKDoc()?.let {
-            parseMarkdown(it.text)
-        }
+
         return Class(
             dri,
             descriptor.name.asString(),
@@ -53,7 +51,8 @@ class DokkaDescriptorVisitor(
             scope.properties(dri),
             scope.classes(dri),
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+            getXMLDRIs(listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())).toMutableSet()
         )
     }
 
@@ -141,4 +140,19 @@ class DokkaDescriptorVisitor(
         }?.toMap() ?: emptyMap()
         return Descriptor(this, doc, links, listOf(platformData))
     }
+
+    private fun getXMLDRIs(descriptors: List<Descriptor<*>>) =
+        descriptors.mapNotNull { it.docTag?.children?.findLast { it.text.contains("@attr") }?.text }.flatMap { ref ->
+            val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref)
+            val toFind = matchResult?.groups?.last()?.value.orEmpty()
+            resolveKDocLink(
+                resolutionFacade.resolveSession.bindingContext,
+                resolutionFacade,
+                descriptors.first().descriptor,
+                null,
+                toFind.split('.')
+            ).map { DefaultExtra("@attr ref", DRI.from(it).toString()) }
+        }
 }
+
+data class DefaultExtra(val key: String, val value: String) : Extra
