@@ -5,6 +5,7 @@ import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.Function
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.Extra
 import org.jetbrains.dokka.parseMarkdown
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -196,7 +197,7 @@ class DefaultDocumentationToPageTransformer(
     ) = ContentBuilder(node, kind).apply(block).build()
 
     // When builder is made public it will be moved as extension method to someplace near Function model
-    private fun ContentBuilder.signature(f: Function) = signature(f) {
+    private fun ContentBuilder.signature(f: Function) = signature(f) { // TODO: wrap this in ContentCode
         text("fun ")
         if (f.receiver is Parameter) {
             type(f.receiver.descriptors.first().descriptor.type)
