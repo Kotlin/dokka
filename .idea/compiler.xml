@@ -94,12 +94,16 @@
       <module name="org.jetbrains.dokka.integration.test" target="1.8" />
       <module name="org.jetbrains.dokka.javadoc8.main" target="1.8" />
       <module name="org.jetbrains.dokka.javadoc8.test" target="1.8" />
+      <module name="org.jetbrains.dokka.mathjax.main" target="1.8" />
+      <module name="org.jetbrains.dokka.mathjax.test" target="1.8" />
       <module name="org.jetbrains.dokka.maven-plugin.main" target="1.8" />
       <module name="org.jetbrains.dokka.maven-plugin.test" target="1.8" />
       <module name="org.jetbrains.dokka.plugins.main" target="1.8" />
       <module name="org.jetbrains.dokka.plugins.test" target="1.8" />
       <module name="org.jetbrains.dokka.testApi.main" target="1.8" />
       <module name="org.jetbrains.dokka.testApi.test" target="1.8" />
+      <module name="org.jetbrains.dokka.xml.main" target="1.8" />
+      <module name="org.jetbrains.dokka.xml.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

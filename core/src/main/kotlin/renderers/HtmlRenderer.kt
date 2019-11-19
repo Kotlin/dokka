@@ -35,21 +35,23 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
                 |</tr>
                 |</thead>""".trimMargin()
 
-        return """<table>```
+        return """<table>
             |$tableHeader
             |<tbody>
             |<tr>
-            |<td>${node.children.joinToString("<td>\n</tr>\n<tr>\n<td>") { it.build(pageContext) }}</td>
+            |<td>${node.children.joinToString("</td>\n</tr>\n<tr>\n<td>\n") { it.buildTableRow(pageContext) }}</td>
             |</tr>
             |</tbody>
             |</table>""".trimMargin()
     }
 
+    protected open fun ContentGroup.buildTableRow(pageContext: PageNode) = children.joinToString("</td>\n<td>\n") { it.build(pageContext) }
+
     override fun buildHeader(level: Int, text: String): String = "<h$level>$text</h$level>\n"
 
     override fun buildNewLine(): String = "<br/>"
 
-    override fun buildLink(text: String, address: String): String = "<a href=\"$address\">${text.htmlEscape()}</a>"
+    override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
 
     override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = "<code>$code</code>"
 

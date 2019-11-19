@@ -131,10 +131,9 @@ class DefaultDocumentationToPageTransformer(
         ) {
             header(level) { text(name) }
 
-            contents += ContentGroup(
-                elements.map {
-                    group(it, kind) { operation(it) }
-                },
+            contents += ContentTable(
+                emptyList(),
+                elements.map { group(it, kind) { operation(it) } },
                 DCI(node.dri, kind),
                 platformData, styles, extras
             )
