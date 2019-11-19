@@ -133,3 +133,13 @@ interface HTMLMetadata: Extra {
 
 data class HTMLSimpleAttr(override val key: String, override val value: String): HTMLMetadata
 data class HTMLTableMetadata(val item: String, override val key: String, override val value: String): HTMLMetadata
+
+fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
+    this
+} else {
+    if (this is ContentComposite) {
+        this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
+    } else {
+        null
+    }
+}

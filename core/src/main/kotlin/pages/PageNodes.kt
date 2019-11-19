@@ -6,7 +6,7 @@ import org.jetbrains.dokka.links.DRI
 
 interface PageNode {
     val name: String
-    val content: ContentNode
+    var content: ContentNode
     val parent: PageNode?
     val dri: DRI
     val documentationNode: DocumentationNode<*>?
@@ -42,7 +42,7 @@ abstract class BasicPageNode(children: List<PageNode>) : PageNode {
 
 class ModulePageNode(
     override val name: String,
-    override val content: ContentNode,
+    override var content: ContentNode,
     override val documentationNode: DocumentationNode<*>?,
     children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
@@ -62,7 +62,7 @@ class ModulePageNode(
 
 class PackagePageNode(
     override val name: String,
-    override val content: ContentNode,
+    override var content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode<*>?,
     children: List<PageNode>,
@@ -81,7 +81,7 @@ class PackagePageNode(
 
 class ClassPageNode(
     override val name: String,
-    override val content: ContentNode,
+    override var content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode<*>?,
     children: List<PageNode>,
@@ -100,7 +100,7 @@ class ClassPageNode(
 
 class MemberPageNode(
     override val name: String,
-    override val content: ContentNode,
+    override var content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode<*>?,
     children: List<PageNode> = emptyList(),
