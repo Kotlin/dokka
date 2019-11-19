@@ -90,7 +90,7 @@ data class Callable(val name: String, val receiver: String, val returnType: Stri
                         name.toString(),
                         receiver,
                         returnType,
-                        params.split('#')
+                        params.split('#').filter { it.isNotBlank() }
                     )
                 }
         } catch (e: Throwable) {
