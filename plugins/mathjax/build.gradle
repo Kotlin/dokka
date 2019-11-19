@@ -1,0 +1,6 @@
+import javax.tools.ToolProvider
+
+
+dependencies {
+    compileOnly project(':core')
+}

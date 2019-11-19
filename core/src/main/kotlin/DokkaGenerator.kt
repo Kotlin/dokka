@@ -26,14 +26,8 @@ class DokkaGenerator(
 
         logger.debug("Initializing plugins")
         val context = DokkaContext.from(configuration.pluginsClasspath)
-        context.pluginNames.also { names ->
-            logger.progress("Loaded plugins: $names")
-            names.groupingBy { it }.eachCount().filter { it.value > 1 }.forEach {
-                logger.warn("Duplicate plugin name: ${it.key}. It will make debugging much harder.")
-            }
-        }
-
-
+        logger.progress("Loaded plugins: ${context.pluginNames}")
+        logger.progress("Loaded: ${context.loadedListForDebug}")
 
         configuration.passesConfigurations.map { pass ->
             AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
@@ -79,23 +73,23 @@ class DokkaGenerator(
                 ).render(it)
             }
     }
-}
 
-private fun nierzigoj(niczym: String) {}
+    private fun nierzigoj(niczym: String) {}
 
-private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
-    override fun clear() {
-        seenErrors = false
-    }
-
-    private var seenErrors = false
-
-    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
-        if (severity == CompilerMessageSeverity.ERROR) {
-            seenErrors = true
+    private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
+        override fun clear() {
+            seenErrors = false
         }
-        logger.error(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
-    }
 
-    override fun hasErrors() = seenErrors
+        private var seenErrors = false
+
+        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
+            if (severity == CompilerMessageSeverity.ERROR) {
+                seenErrors = true
+            }
+            logger.error(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
+        }
+
+        override fun hasErrors() = seenErrors
+    }
 }

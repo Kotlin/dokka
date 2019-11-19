@@ -33,7 +33,7 @@ shadowJar {
 
     exclude 'src/**'
 
-    relocate('kotlin.reflect.full', 'kotlin.reflect')
+//    relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
 task apiShadow(type: ShadowJar) {
@@ -56,7 +56,7 @@ task apiShadow(type: ShadowJar) {
 
     exclude 'src/**'
 
-    relocate('kotlin.reflect.full', 'kotlin.reflect')
+//    relocate('kotlin.reflect.full', 'kotlin.reflect')
 }
 
 apply plugin: 'maven-publish'

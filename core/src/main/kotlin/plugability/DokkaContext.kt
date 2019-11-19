@@ -3,17 +3,27 @@ package org.jetbrains.dokka.plugability
 import java.io.File
 import java.net.URLClassLoader
 import java.util.*
+import kotlin.reflect.KClass
 
 
 class DokkaContext private constructor() {
-    private val plugins = mutableListOf<DokkaPlugin>()
+    private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
+
+    internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
+
+    @PublishedApi
+    internal fun plugin(kclass: KClass<*>) = plugins[kclass]
 
     val pluginNames: List<String>
-        get() = plugins.map { it.name }
+        get() = plugins.values.map { it::class.qualifiedName.toString() }
+
+    val loadedListForDebug
+        get() = extensions.run { keys + values.flatten() }.toList()
+            .joinToString(prefix = "[\n", separator = ",\n", postfix = "\n]") { "\t$it" }
 
     private fun install(plugin: DokkaPlugin) {
-        plugins += plugin
-        plugin.install(this)
+        plugins[plugin::class] = plugin
+        plugin.internalInstall(this)
     }
 
     companion object {
@@ -28,9 +38,15 @@ class DokkaContext private constructor() {
     }
 
     private fun checkClasspath(classLoader: URLClassLoader) {
-        classLoader.findResource(javaClass.name.replace('.','/') + ".class")?.also {
-            throw AssertionError("Dokka API found on plugins classpath. This will lead to subtle bugs. " +
-                    "Please fix your plugins dependencies or exclude dokka api artifact from plugin classpath")
+        classLoader.findResource(javaClass.name.replace('.', '/') + ".class")?.also {
+            throw AssertionError(
+                "Dokka API found on plugins classpath. This will lead to subtle bugs. " +
+                        "Please fix your plugins dependencies or exclude dokka api artifact from plugin classpath"
+            )
         }
+    }
+
+    internal fun addExtension(it: Extension<*>) {
+        extensions.getOrPut(it.extensionPoint, ::mutableListOf) += it
     }
 }
