@@ -73,8 +73,6 @@ class DokkaGenerator(
             }
     }
 
-    private fun nierzigoj(niczym: String) {}
-
     private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
         override fun clear() {
             seenErrors = false
