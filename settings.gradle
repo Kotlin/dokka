@@ -11,4 +11,5 @@ include 'core',
 //        'runners:maven-plugin',
         'runners:gradle-plugin',
 //        'plugins:javadoc8'
-        'plugins:mathjax'
+        'plugins:mathjax',
+        'plugins:xml'
