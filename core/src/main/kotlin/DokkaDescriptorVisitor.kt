@@ -142,8 +142,13 @@ class DokkaDescriptorVisitor(
     }
 
     private fun getXMLDRIs(descriptors: List<Descriptor<*>>) =
-        descriptors.mapNotNull { it.docTag?.children?.findLast { it.text.contains("@attr") }?.text }.flatMap { ref ->
-            val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref)
+        descriptors.flatMap {
+            it.docTag?.children
+                ?.filter {
+                    it.text.contains("@attr")
+                }.orEmpty()
+        }.flatMap { ref ->
+            val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref.text)
             val toFind = matchResult?.groups?.last()?.value.orEmpty()
             resolveKDocLink(
                 resolutionFacade.resolveSession.bindingContext,
