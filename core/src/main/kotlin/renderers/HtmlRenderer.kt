@@ -4,6 +4,9 @@ import org.jetbrains.dokka.htmlEscape
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.resolvers.LocationProvider
 import java.io.File
+import java.net.URL
+import java.nio.file.Path
+import java.nio.file.Paths
 
 open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvider) : DefaultRenderer(fileWriter, locationProvider) {
 
@@ -69,11 +72,16 @@ open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvid
         )
     }
 
+    protected open fun buildScripts(page: PageNode) =
+        page.embeddedResources.filter { URL(it).path.substringAfterLast('.') == "js" }
+            .joinToString(separator = "") { """<script type = "text/javascript" async src = "$it"></script>""" + "\n" }
+
     protected open fun buildStartHtml(page: PageNode) = """<!DOCTYPE html>
         |<html>
         |<head>
         |<title>${page.name}</title>
         |<link rel="stylesheet" href="${locationProvider.resolveRoot(page)}style.css" />
+        |${buildScripts(page)}
         |</head>
         |<body>
         |""".trimMargin()

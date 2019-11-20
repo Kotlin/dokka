@@ -11,6 +11,9 @@ class DokkaContext private constructor() {
 
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
 
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T: Any, E: ExtensionPoint<T>> get(point: E) = extensions[point] as List<Extension<T>>
+
     @PublishedApi
     internal fun plugin(kclass: KClass<*>) = plugins[kclass]
 

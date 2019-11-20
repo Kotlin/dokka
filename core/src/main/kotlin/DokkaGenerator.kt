@@ -62,11 +62,10 @@ class DokkaGenerator(
             }
         }.let {
             val markdownConverter = MarkdownToContentConverter(logger)
-//            it.forEach { it.genericPretty().also(::nierzigoj) }
             DefaultDocumentationToPageTransformer(markdownConverter, logger).transform(DocumentationNodesMerger(it))
-        }
-            .also {
-//                it.genericPretty().also(::nierzigoj)
+        }.let {
+            context[CoreExtensions.pageTransformer].fold(it) { pn, t -> t.action.invoke(pn, context) }
+        }.also {
                 HtmlRenderer(
                     FileWriter(configuration.outputDir, ""),
                     DefaultLocationProvider(it, configuration, ".${configuration.format}")
