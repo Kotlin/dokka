@@ -6,10 +6,10 @@ import org.jetbrains.dokka.links.DRI
 
 interface PageNode {
     val name: String
-    var content: ContentNode
+    val content: ContentNode
     val parent: PageNode?
     val dri: DRI
-    val documentationNode: DocumentationNode<*>?
+    val documentationNode: DocumentationNode?
     val embeddedResources: List<String>
     val children: List<PageNode>
 
@@ -42,8 +42,8 @@ abstract class BasicPageNode(children: List<PageNode>) : PageNode {
 
 class ModulePageNode(
     override val name: String,
-    override var content: ContentNode,
-    override val documentationNode: DocumentationNode<*>?,
+    override val content: ContentNode,
+    override val documentationNode: DocumentationNode?,
     children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : BasicPageNode(children) {
@@ -62,9 +62,9 @@ class ModulePageNode(
 
 class PackagePageNode(
     override val name: String,
-    override var content: ContentNode,
+    override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode<*>?,
+    override val documentationNode: DocumentationNode?,
     children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : BasicPageNode(children) {
@@ -81,9 +81,9 @@ class PackagePageNode(
 
 class ClassPageNode(
     override val name: String,
-    override var content: ContentNode,
+    override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode<*>?,
+    override val documentationNode: DocumentationNode?,
     children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : BasicPageNode(children) {
@@ -100,9 +100,9 @@ class ClassPageNode(
 
 class MemberPageNode(
     override val name: String,
-    override var content: ContentNode,
+    override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode<*>?,
+    override val documentationNode: DocumentationNode?,
     children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : BasicPageNode(children) {
