@@ -4,6 +4,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaContextConfiguration
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.PageNodeTransformer
 

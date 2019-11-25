@@ -25,9 +25,7 @@ class DokkaGenerator(
     fun generate(): Unit {
 
         logger.debug("Initializing plugins")
-        val context = DokkaContext.from(configuration.pluginsClasspath)
-        logger.progress("Loaded plugins: ${context.pluginNames}")
-        logger.progress("Loaded: ${context.loadedListForDebug}")
+        val context = DokkaContext.create(configuration.pluginsClasspath, logger)
 
         configuration.passesConfigurations.map { pass ->
             AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {

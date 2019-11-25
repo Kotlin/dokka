@@ -3,12 +3,7 @@ package org.jetbrains.dokka.plugability
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.jvmErasure
 
 private typealias ExtensionDelegate<T> = ReadOnlyProperty<DokkaPlugin, Extension<T>>
 
@@ -18,10 +13,8 @@ abstract class DokkaPlugin {
     @PublishedApi
     internal var context: DokkaContext? = null
 
-    protected open fun install(context: DokkaContext) {}
-
     protected inline fun <reified T : DokkaPlugin> plugin(): T =
-        context?.plugin(T::class) as? T ?: T::class.createInstance().also { it.context = this.context }
+        context?.plugin(T::class) ?: T::class.createInstance().also { it.context = this.context }
 
     protected fun <T : Any> extensionPoint() =
         object : ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> {
@@ -44,10 +37,7 @@ abstract class DokkaPlugin {
         }.also { thisRef.extensionDelegates += property }
     }
 
-    internal fun internalInstall(ctx: DokkaContext) {
-        context = ctx
-        install(ctx)
-
+    internal fun internalInstall(ctx: DokkaContextConfiguration) {
         extensionDelegates.asSequence()
             .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // always true
             .map { it.get(this) }
