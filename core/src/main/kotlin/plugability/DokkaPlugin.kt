@@ -3,7 +3,6 @@ package org.jetbrains.dokka.plugability
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.createInstance
 
 private typealias ExtensionDelegate<T> = ReadOnlyProperty<DokkaPlugin, Extension<T>>
 
@@ -13,8 +12,8 @@ abstract class DokkaPlugin {
     @PublishedApi
     internal var context: DokkaContext? = null
 
-    protected inline fun <reified T : DokkaPlugin> plugin(): T =
-        context?.plugin(T::class) ?: T::class.createInstance().also { it.context = this.context }
+    protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class)
+            ?: throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
 
     protected fun <T : Any> extensionPoint() =
         object : ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> {
@@ -24,9 +23,9 @@ abstract class DokkaPlugin {
             )
         }
 
-    protected fun <T: Any> extending(definition: ExtendingDSL.() -> Extension<T>) = ExtensionProvider(definition)
+    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extension<T>) = ExtensionProvider(definition)
 
-    protected class ExtensionProvider<T: Any> internal constructor(
+    protected class ExtensionProvider<T : Any> internal constructor(
         private val definition: ExtendingDSL.() -> Extension<T>
     ) {
         operator fun provideDelegate(thisRef: DokkaPlugin, property: KProperty<*>) = lazy {
@@ -39,7 +38,7 @@ abstract class DokkaPlugin {
 
     internal fun internalInstall(ctx: DokkaContextConfiguration) {
         extensionDelegates.asSequence()
-            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // always true
+            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // should be always true
             .map { it.get(this) }
             .forEach { ctx.addExtension(it) }
     }

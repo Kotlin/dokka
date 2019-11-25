@@ -5,6 +5,7 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.*
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 
 interface DokkaContext {
     operator fun <T : Any, E : ExtensionPoint<T>> get(point: E): List<Extension<T>>
@@ -35,13 +36,18 @@ private class DokkaContextConfigurationImpl(
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
 
+    private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
+
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
 
     @Suppress("UNCHECKED_CAST")
     override operator fun <T : Any, E : ExtensionPoint<T>> get(point: E) = extensions[point] as List<Extension<T>>
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : DokkaPlugin> plugin(kclass: KClass<T>) = plugins[kclass] as T
+    override fun <T : DokkaPlugin> plugin(kclass: KClass<T>) = (plugins[kclass] ?: pluginStubFor(kclass)) as T
+
+    private fun <T : DokkaPlugin> pluginStubFor(kclass: KClass<T>): DokkaPlugin =
+        pluginStubs.getOrPut(kclass) { kclass.createInstance().also { it.context = this } }
 
     fun install(plugin: DokkaPlugin) {
         plugins[plugin::class] = plugin
@@ -59,8 +65,8 @@ private class DokkaContextConfigurationImpl(
         val loadedListForDebug = extensions.run { keys + values.flatten() }.toList()
             .joinToString(prefix = "[\n", separator = ",\n", postfix = "\n]") { "\t$it" }
 
-        logger.progress("Loaded plugins: ${pluginNames}")
-        logger.progress("Loaded: ${loadedListForDebug}")
+        logger.progress("Loaded plugins: $pluginNames")
+        logger.progress("Loaded: $loadedListForDebug")
 
     }
 }
