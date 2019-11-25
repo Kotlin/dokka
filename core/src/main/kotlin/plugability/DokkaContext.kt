@@ -8,7 +8,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 interface DokkaContext {
-    operator fun <T : Any, E : ExtensionPoint<T>> get(point: E): List<Extension<T>>
+    operator fun <T, E> get(point: E, askDefault: AskDefault = AskDefault.WhenEmpty): List<Extension<T>>
+            where T : Any, E : ExtensionPoint<T>
 
     fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
@@ -16,7 +17,7 @@ interface DokkaContext {
 
     companion object {
         fun create(pluginsClasspath: Iterable<File>, logger: DokkaLogger): DokkaContext =
-            DokkaContextConfigurationImpl(logger).apply {
+            DokkaContextConfigurationImpl(logger, DefaultContext(logger)).apply {
                 pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
                     .toTypedArray()
                     .let { URLClassLoader(it, this.javaClass.classLoader) }
@@ -32,7 +33,8 @@ interface DokkaContextConfiguration {
 }
 
 private class DokkaContextConfigurationImpl(
-    override val logger: DokkaLogger
+    override val logger: DokkaLogger,
+    private val defaultContext: DokkaContext?
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
 
@@ -41,10 +43,17 @@ private class DokkaContextConfigurationImpl(
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
 
     @Suppress("UNCHECKED_CAST")
-    override operator fun <T : Any, E : ExtensionPoint<T>> get(point: E) = extensions[point] as List<Extension<T>>
+    override operator fun <T, E> get(point: E, askDefault: AskDefault) where T : Any, E : ExtensionPoint<T> =
+        when (askDefault) {
+            AskDefault.Never -> extensions[point].orEmpty()
+            AskDefault.Always -> extensions[point].orEmpty() + defaultContext?.get(point, askDefault).orEmpty()
+            AskDefault.WhenEmpty ->
+                extensions[point]?.takeIf { it.isNotEmpty() } ?: defaultContext?.get(point, askDefault).orEmpty()
+        } as List<Extension<T>>
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : DokkaPlugin> plugin(kclass: KClass<T>) = (plugins[kclass] ?: pluginStubFor(kclass)) as T
+    override fun <T : DokkaPlugin> plugin(kclass: KClass<T>) =
+        (plugins[kclass] ?: defaultContext?.plugin(kclass) ?: pluginStubFor(kclass)) as T
 
     private fun <T : DokkaPlugin> pluginStubFor(kclass: KClass<T>): DokkaPlugin =
         pluginStubs.getOrPut(kclass) { kclass.createInstance().also { it.context = this } }
@@ -78,4 +87,18 @@ private fun checkClasspath(classLoader: URLClassLoader) {
                     "Please fix your plugins dependencies or exclude dokka api artifact from plugin classpath"
         )
     }
+}
+
+class DefaultContext(override val logger: DokkaLogger) : DokkaContext {
+    override fun <T : Any, E : ExtensionPoint<T>> get(point: E, askDefault: AskDefault): List<Extension<T>> =
+        when (point) {
+
+            else -> emptyList()
+        }
+
+    override fun <T : DokkaPlugin> plugin(kclass: KClass<T>): Nothing? = null
+}
+
+enum class AskDefault {
+    Always, Never, WhenEmpty
 }
