@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import java.text.ParseException
 
 /**
  * [DRI] stands for DokkaResourceIdentifier
@@ -19,40 +18,10 @@ data class DRI(
     val target: Int? = null,
     val extra: String? = null
 ) {
-
-    constructor(
-        packageName: String? = null,
-        classNames: String? = null,
-        callableName: String? = null,
-        signature: String? = null,
-        target: Int? = null,
-        extra: String? = null
-    ) : this(packageName, classNames, Callable.from(callableName, signature), target, extra)
-
     override fun toString(): String =
         "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature().orEmpty()}/${target?.toString().orEmpty()}/${extra.orEmpty()}"
 
     companion object {
-        fun from(s: String): DRI = try {
-            s.split('/')
-                .map { it.takeIf(String::isNotBlank) }
-                .let { (packageName, classNames, callableName, callableSignature, target, ext) ->
-                    DRI(
-                        packageName,
-                        classNames,
-                        try {
-                            Callable.from(callableName, callableSignature)
-                        } catch (e: ParseException) {
-                            null
-                        },
-                        target?.toInt(),
-                        ext
-                    )
-                }
-        } catch (e: Throwable) {
-            throw ParseException("Can not create DRI from $s", 0)
-        }
-
         fun from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
             val callable = firstIsInstanceOrNull<CallableDescriptor>()
             val params = callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
@@ -83,46 +52,23 @@ val DRI.parent: DRI
 
 data class Callable(
     val name: String,
-    val receiver: ClassReference? = null,
-    val returnType: String,
-    val params: List<ClassReference>
+    val receiver: TypeReference? = null,
+    val params: List<TypeReference>
 ) {
-    fun signature() = "$receiver#$returnType#${params.joinToString("#")}"
+    fun signature() = "${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
 
     companion object {
-        fun from(name: String?, signature: String?): Callable = try {
-            signature.toString()
-                .split('#', ignoreCase = false, limit = 3)
-                .let { (receiver, returnType, params) ->
-                    Callable(
-                        name.toString(),
-                        ClassReference.from(receiver),
-                        returnType,
-                        params.split('#').mapNotNull { if (it.isNotBlank()) ClassReference.from(it) else null }
-                    )
-                }
-        } catch (e: Throwable) {
-            throw ParseException(signature, 0)
-        }
-
-        fun from(s: String): Callable = try {
-            s.split('/').let { (name, signature) -> from(name, signature) }
-        } catch (e: Throwable) {
-            throw ParseException(s, 0)
-        }
-
         fun from(descriptor: CallableDescriptor) = with(descriptor) {
             Callable(
                 name.asString(),
-                extensionReceiverParameter?.let { ClassReference.from(it) },
-                returnType?.constructorName.orEmpty(),
-                valueParameters.map { ClassReference.from(it.type.constructorName.orEmpty()) }
+                extensionReceiverParameter?.let { TypeReference.from(it) },
+                valueParameters.mapNotNull { TypeReference.from(it) }
             )
         }
     }
 }
 
-data class ClassReference(val classNames: String, val typeBounds: List<ClassReference> = emptyList()) {
+data class TypeReference(val classNames: String, val typeBounds: List<TypeReference> = emptyList()) {
     override fun toString() = classNames + if (typeBounds.isNotEmpty()) {
         "[${typeBounds.joinToString(",")}]"
     } else {
@@ -130,49 +76,42 @@ data class ClassReference(val classNames: String, val typeBounds: List<ClassRefe
     }
 
     companion object {
-
-        fun from(s: String?): ClassReference =
-            s?.let {
-                "((?:\\w+\\.?)+)(?:\\[((?:\\w+,?)+)])?".toRegex() // This regex matches class names with or without typebounds
-                    .matchEntire(it)
-                    ?.let { m ->
-                        ClassReference(m.groupValues[1], typeBoundsFrom(m.groupValues[2]))
-                    }
-            } ?: throw ParseException(s, 0)
-
-        fun from(d: ReceiverParameterDescriptor): ClassReference =
+        fun from(d: ReceiverParameterDescriptor): TypeReference? =
             when (val value = d.value) {
-                is ExtensionReceiver -> ClassReference(
+                is ExtensionReceiver -> TypeReference(
                     classNames = value.type.constructorName.orEmpty(),
-                    typeBounds = value.declarationDescriptor.typeParameters.map {
-                        ClassReference(
-                            it.fqNameSafe.toString(),
-                            it.upperBounds.map { from(it) }
-                        )
-                    }
+                    typeBounds = value.type.arguments.map { from(it) }
                 )
-                else -> ClassReference(d.value.type.constructorName.orEmpty())
+                else -> run {
+                    println("Unknown value type for $d")
+                    null
+                }
             }
 
-        private fun from(t: KotlinType): ClassReference =
-            ClassReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
+        fun from(d: ValueParameterDescriptor): TypeReference? = from(d.type)
 
-        private fun from(t: TypeProjection): ClassReference =
+        private fun from(tp: TypeParameterDescriptor): TypeReference =
+            TypeReference("", tp.upperBounds.map { from(it) })
+
+        private fun from(t: KotlinType): TypeReference =
+            when (val d = t.constructor.declarationDescriptor) {
+                is TypeParameterDescriptor -> from(d)
+                else -> TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
+            }
+
+        private fun from(t: TypeProjection): TypeReference =
             if (t.isStarProjection) {
                 starProjection
             } else {
                 from(t.type)
             }
 
-        private fun typeBoundsFrom(s: String) =
-            s.split(",").filter { it.isNotBlank() }.map { ClassReference.from(it) }
-
-        val starProjection = ClassReference("*")
+        val starProjection = TypeReference("*")
     }
 }
 
 private operator fun <T> List<T>.component6(): T = get(5)
 
 private val KotlinType.constructorName
-    get() = constructor.declarationDescriptor?.name?.asString()
+    get() = constructor.declarationDescriptor?.fqNameSafe?.asString()
 
