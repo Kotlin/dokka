@@ -5,16 +5,17 @@ import java.io.IOException
 import java.nio.file.Paths
 
 class FileWriter(val root: String, val extension: String){
-    private val createdFiles: MutableMap<String, Int> = mutableMapOf()
+    private val createdFiles: MutableSet<String> = mutableSetOf()
 
     fun write(path: String, text: String, ext: String = extension){
-        if (createdFiles.getOrDefault(path, 0) > 0) {
+        if (createdFiles.contains(path)) {
             println("ERROR. An attempt to write $root/$path several times!")
             return
         }
+        createdFiles.add(path)
 
         try {
-            println("Writing $root/$path$ext")
+//            println("Writing $root/$path$ext")
             val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
             dir.mkdirsOrFail()
             Paths.get(root, "$path$ext").toFile().writeText(text)
