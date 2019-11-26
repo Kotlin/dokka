@@ -165,11 +165,11 @@ class DokkaDescriptorVisitor(
                     descriptor,
                     null,
                     toFind.split('.')
-                ).map { DefaultExtra("@attr ref", DRI.from(it).toString()) }
+                ).map { XMLMega("@attr ref", DRI.from(it)) }
             }.orEmpty()
 }
 
-data class DefaultExtra(val key: String, val value: String) : Extra
+data class XMLMega(val key: String, val dri: DRI) : Extra
 
 enum class KotlinClassKindTypes : ClassKind {
     CLASS,

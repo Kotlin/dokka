@@ -1,16 +1,14 @@
 package org.jetbrains.dokka.xml
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DefaultExtra
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.Model.DocumentationNode
 import org.jetbrains.dokka.Model.dfs
-import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.XMLMega
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.PageNodeTransformer
-import javax.xml.bind.annotation.XmlList
 
 class XmlPlugin : DokkaPlugin() {
     val transformer by extending {
@@ -28,13 +26,12 @@ object XmlTransformer : PageNodeTransformer {
             if (node !is ClassPageNode) node
             else {
                 val refs =
-                    node.documentationNode?.extra?.filterIsInstance<DefaultExtra>()?.filter { it.key == "@attr ref" }
+                    node.documentationNode?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
                         .orEmpty()
                 val elementsToAdd = mutableListOf<DocumentationNode>()
 
                 refs.forEach { ref ->
-                    val toFind = DRI.from(ref.value)
-                    input.documentationNode?.dfs { it.dri == toFind }?.let { elementsToAdd.add(it) }
+                    input.documentationNode?.dfs { it.dri == ref.dri }?.let { elementsToAdd.add(it) }
                 }
                 val platformData = node.platforms().toSet()
                 val refTable = DefaultPageContentBuilder.group(
@@ -57,7 +54,7 @@ object XmlTransformer : PageNodeTransformer {
                 val children = (node.content as ContentGroup).children
                 node.modified(content = content.copy(children = children + refTable))
             }
-    }
+        }
 
     private fun PageNode.platforms() = this.content.platforms.toList()
 }
