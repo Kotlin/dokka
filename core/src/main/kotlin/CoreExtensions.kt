@@ -26,8 +26,8 @@ object CoreExtensions {
     val markdownToContentConverterFactory by coreExtension<(DokkaContext) -> MarkdownToContentConverter>()
     val documentationToPageTranslator by coreExtension<DocumentationToPageTranslator>()
     val pageTransformer by coreExtension<PageNodeTransformer>()
-    val renderer by coreExtension<(FileWriter, LocationProvider, DokkaContext) -> Renderer>()
-    val locationProvider by coreExtension<(root: PageNode, DokkaConfiguration, DokkaContext) -> LocationProvider>()
+    val rendererFactory by coreExtension<(FileWriter, LocationProvider, DokkaContext) -> Renderer>()
+    val locationProviderFactory by coreExtension<(root: PageNode, DokkaConfiguration, DokkaContext) -> LocationProvider>()
     val fileExtension by coreExtension<String>()
 
     private fun <T: Any> coreExtension() = object {

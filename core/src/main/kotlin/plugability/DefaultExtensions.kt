@@ -2,7 +2,6 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.DefaultMarkdownToContentConverter
-import org.jetbrains.dokka.renderers.DefaultRenderer
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
@@ -17,8 +16,8 @@ object DefaultExtensions : DokkaExtensionHandler {
             CoreExtensions.documentationMerger -> DefaultDocumentationNodeMerger
             CoreExtensions.markdownToContentConverterFactory -> ::DefaultMarkdownToContentConverter
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
-            CoreExtensions.renderer -> ::HtmlRenderer
-            CoreExtensions.locationProvider -> ::DefaultLocationProvider
+            CoreExtensions.rendererFactory -> ::HtmlRenderer
+            CoreExtensions.locationProviderFactory -> ::DefaultLocationProvider
             CoreExtensions.fileExtension -> ".html"
             else -> null
         }.let { listOfNotNull(it) as List<T> }

@@ -1,19 +1,10 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.Model.Module
-import org.jetbrains.dokka.Utilities.pretty
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.DefaultMarkdownToContentConverter
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.renderers.FileWriter
-import org.jetbrains.dokka.renderers.HtmlRenderer
-import org.jetbrains.dokka.resolvers.DefaultLocationProvider
-import org.jetbrains.dokka.resolvers.LocationProvider
-import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
-import org.jetbrains.dokka.transformers.descriptors.DokkaDescriptorVisitor
-import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMerger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -57,9 +48,9 @@ class DokkaGenerator(
 
         logger.debug("Rendering")
         val fileWriter = FileWriter(configuration.outputDir, "")
-        val locationProvider = context.single(CoreExtensions.locationProvider)
+        val locationProvider = context.single(CoreExtensions.locationProviderFactory)
             .invoke(transformedPages, configuration, context)
-        val renderer = context.single(CoreExtensions.renderer)
+        val renderer = context.single(CoreExtensions.rendererFactory)
             .invoke(fileWriter, locationProvider, context)
 
         renderer.render(transformedPages)
