@@ -50,6 +50,8 @@
       <module name="dokka.plugins.mathjax.main" target="1.8" />
       <module name="dokka.plugins.mathjax.test" target="1.8" />
       <module name="dokka.plugins.test" target="1.8" />
+      <module name="dokka.plugins.xml.main" target="1.8" />
+      <module name="dokka.plugins.xml.test" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.main" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.test" target="1.8" />
       <module name="dokka.runners.ant.main" target="1.8" />

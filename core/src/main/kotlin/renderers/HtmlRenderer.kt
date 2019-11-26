@@ -2,13 +2,18 @@ package org.jetbrains.dokka.renderers
 
 import org.jetbrains.dokka.htmlEscape
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.resolvers.LocationProvider
 import java.io.File
 import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class HtmlRenderer(fileWriter: FileWriter, locationProvider: LocationProvider) : DefaultRenderer(fileWriter, locationProvider) {
+open class HtmlRenderer(
+    fileWriter: FileWriter,
+    locationProvider: LocationProvider,
+    context: DokkaContext
+) : DefaultRenderer(fileWriter, locationProvider, context) {
 
     override fun buildList(node: ContentList, pageContext: PageNode): String = if (node.ordered) {
         "<ol>${buildListItems(node.children, pageContext)}</ol>"

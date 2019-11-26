@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.Model
 
-import org.jetbrains.dokka.KotlinTypeWrapper
+import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag

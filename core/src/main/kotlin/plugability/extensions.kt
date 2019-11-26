@@ -11,7 +11,7 @@ class Extension<T : Any> internal constructor(
     internal val extensionPoint: ExtensionPoint<T>,
     internal val pluginClass: String,
     internal val extensionName: String,
-    internal val action: T,
+    val action: T,
     internal val ordering: (OrderDsl.() -> Unit)? = null
 ) {
     override fun toString() = "Extension: $pluginClass/$extensionName"

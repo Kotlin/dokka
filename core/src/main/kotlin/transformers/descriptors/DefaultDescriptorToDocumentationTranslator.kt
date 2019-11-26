@@ -1,5 +1,6 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.transformers.descriptors
 
+import org.jetbrains.dokka.DokkaResolutionFacade
 import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.ClassKind
 import org.jetbrains.dokka.Model.Function
@@ -7,6 +8,7 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -19,6 +21,17 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
+
+object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
+    override fun invoke(
+        packageFragments: Iterable<PackageFragmentDescriptor>,
+        platformData: PlatformData,
+        context: DokkaContext
+    ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
+        packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel) }
+    }.let { Module(it) }
+
+}
 
 class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
@@ -186,6 +199,10 @@ class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
     override val constructorFqName = fqNameSafe?.asString()
     override val constructorNamePathSegments: List<String> =
         fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
-    override val arguments: List<KotlinTypeWrapper> by lazy { kotlinType.arguments.map { KotlinTypeWrapper(it.type) } }
+    override val arguments: List<KotlinTypeWrapper> by lazy { kotlinType.arguments.map {
+        KotlinTypeWrapper(
+            it.type
+        )
+    } }
     override val dri: DRI? by lazy { declarationDescriptor?.let { DRI.from(it) } }
 }

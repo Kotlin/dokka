@@ -1,9 +1,14 @@
 package org.jetbrains.dokka.renderers
 
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.resolvers.LocationProvider
 
-abstract class DefaultRenderer(val fileWriter: FileWriter, val locationProvider: LocationProvider) : Renderer {
+abstract class DefaultRenderer(
+    protected val fileWriter: FileWriter,
+    protected val locationProvider: LocationProvider,
+    protected val context: DokkaContext
+) : Renderer {
 
     protected abstract fun buildHeader(level: Int, text: String): String
     protected abstract fun buildLink(text: String, address: String): String

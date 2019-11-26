@@ -4,11 +4,12 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConsoleLogger
 import org.jetbrains.dokka.Model.DocumentationNode
 import org.jetbrains.dokka.Model.dfs
-import org.jetbrains.dokka.XMLMega
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.transformers.PageNodeTransformer
+import org.jetbrains.dokka.plugability.single
+import org.jetbrains.dokka.transformers.descriptors.XMLMega
+import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 class XmlPlugin : DokkaPlugin() {
     val transformer by extending {
@@ -38,9 +39,8 @@ object XmlTransformer : PageNodeTransformer {
                     node.dri,
                     platformData,
                     XMLKind.XmlList,
-                    //Following parameters will soon be drawn from context, so we can leave them like this for the time being
-                    MarkdownToContentConverter(DokkaConsoleLogger),
-                    DokkaConsoleLogger
+                    dokkaContext.single(CoreExtensions.markdownToContentConverterFactory).invoke(dokkaContext),
+                    dokkaContext.logger
                 ) {
                     block("XML Attributes", 2, XMLKind.XmlList, elementsToAdd, platformData) { element ->
                         link(element.dri, XMLKind.XmlList) {

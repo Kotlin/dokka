@@ -1,22 +1,18 @@
-package org.jetbrains.dokka.Model.transformers
+package org.jetbrains.dokka.transformers.documentation
 
 import org.jetbrains.dokka.Model.*
 import org.jetbrains.dokka.Model.Function
+import org.jetbrains.dokka.plugability.DokkaContext
 
-internal object DocumentationNodesMerger : DocumentationNodeTransformer {
-    override fun invoke(original: Module) = Module(
-        original.packages.map { mergePackageContent(it) }
-    )
-    override fun invoke(modules: Collection<Module>): Module =
-        Module(merge(modules.flatMap { it.packages }, Package::mergeWith))
+internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
+    override fun invoke(modules: Collection<Module>, context: DokkaContext): Module =
+        Module(
+            merge(
+                modules.flatMap { it.packages },
+                Package::mergeWith
+            )
+        )
 }
-
-private fun mergePackageContent(original: Package) = Package(
-    original.dri,
-    merge(original.functions, Function::mergeWith),
-    merge(original.properties, Property::mergeWith),
-    merge(original.classes, Class::mergeWith)
-)
 
 private fun <T: DocumentationNode> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
     elements.groupingBy { it.dri }

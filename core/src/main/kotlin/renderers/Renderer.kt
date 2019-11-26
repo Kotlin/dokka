@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.renderers
 
 import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.plugability.DokkaContext
 
 interface Renderer {
     fun render(root: PageNode)

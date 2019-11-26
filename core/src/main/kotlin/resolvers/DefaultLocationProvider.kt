@@ -1,11 +1,20 @@
 package org.jetbrains.dokka.resolvers
 
+import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.htmlEscape
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.single
 
-open class DefaultLocationProvider(private val pageGraphRoot: PageNode, val configuration: DokkaConfiguration, val extension: String): LocationProvider { // TODO: cache
+open class DefaultLocationProvider(
+    private val pageGraphRoot: PageNode,
+    private val configuration: DokkaConfiguration,
+    context: DokkaContext
+): LocationProvider { // TODO: cache
+    private val extension = context.single(CoreExtensions.fileExtension)
+
     override fun resolve(node: PageNode, context: PageNode?): String = pathTo(node, context) + extension
 
     override fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode?): String =
