@@ -58,6 +58,14 @@ class ModulePageNode(
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
         else ModulePageNode(name, content, documentationNode, children, embeddedResources)
+
+    private fun PageNode.transformNode(operation: (PageNode) -> PageNode): PageNode =
+        operation(this).let { newNode ->
+            newNode.modified(children = newNode.children.map { it.transformNode(operation) })
+        }
+
+    fun transformPageNodeTree(operation: (PageNode) -> PageNode) =
+        this.transformNode(operation) as ModulePageNode
 }
 
 class PackagePageNode(

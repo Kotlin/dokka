@@ -18,12 +18,12 @@ class Package(
     override val classes: List<Class>,
     override val extra: MutableSet<Extra> = mutableSetOf()
 ) : ScopeNode() {
-    val name = dri.packageName.orEmpty()
+    override val name = dri.packageName.orEmpty()
 }
 
 class Class(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     val kind: ClassKind,
     val constructors: List<Function>,
     override val functions: List<Function>,
@@ -38,7 +38,7 @@ class Class(
 
 class Function(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     val returnType: TypeWrapper?,
     val isConstructor: Boolean,
     override val receiver: Parameter?,
@@ -53,7 +53,7 @@ class Function(
 
 class Property(
     override val dri: DRI,
-    val name: String,
+    override val name: String,
     override val receiver: Parameter?,
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
@@ -66,7 +66,7 @@ class Property(
 // TODO: treat named Parameters and receivers differently
 class Parameter(
     override val dri: DRI,
-    val name: String?,
+    override val name: String?,
     val type: TypeWrapper,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
@@ -102,6 +102,7 @@ class ClassPlatformInfo(
 abstract class DocumentationNode {
     open val expected: PlatformInfo? = null
     open val actual: List<PlatformInfo> = emptyList()
+    open val name: String? = null
     val platformInfo by lazy { listOfNotNull(expected) + actual }
     val platformData by lazy { platformInfo.flatMap { it.platformData }.toSet() }
 
@@ -151,26 +152,11 @@ interface TypeWrapper {
 }
 interface ClassKind
 
-fun DocumentationNode.walk(process: DocumentationNode.() -> Unit) {
-    this.process()
-    this.children.forEach { it.process() }
-}
-
 fun DocumentationNode.dfs(predicate: (DocumentationNode) -> Boolean): DocumentationNode? =
     if (predicate(this)) {
         this
     } else {
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
-
-fun DocumentationNode.findAll(predicate: (DocumentationNode) -> Boolean): Set<DocumentationNode> {
-    val found = mutableSetOf<DocumentationNode>()
-    if (predicate(this)) {
-        found.add(this)
-    } else {
-        this.children.asSequence().mapNotNull { it.findAll(predicate) }.forEach { found.addAll(it) }
-    }
-    return found
-}
 
 interface Extra

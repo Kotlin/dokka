@@ -28,7 +28,7 @@ object MathjaxTransformer : PageNodeTransformer {
 
 
     private val PageNode.isNeedingMathjax
-        get() = documentationNode?.descriptors
+        get() = documentationNode?.platformInfo
             ?.flatMap { it.docTag?.children?.toList().orEmpty() }
             .orEmpty()
             .any { it.text == ANNOTATION }

@@ -14,7 +14,7 @@ class DefaultDocumentationToPageTransformer(
 ) : DocumentationToPageTransformer {
     override fun transform(module: Module): ModulePageNode =
         DefaultPageBuilder { node, kind, operation ->
-            DefaultPageContentBuilder.group(node, kind, markdownConverter, logger, operation)
+            DefaultPageContentBuilder.group(node.dri, node.platformData, kind, markdownConverter, logger, operation)
         }.pageForModule(module)
 
 }

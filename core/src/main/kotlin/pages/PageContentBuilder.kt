@@ -9,7 +9,8 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.parseMarkdown
 
 class DefaultPageContentBuilder(
-    private val node: DocumentationNode,
+    private val dri: DRI,
+    private val platformData: Set<PlatformData>,
     private val kind: Kind,
     private val markdownConverter: MarkdownToContentConverter,
     val logger: DokkaLogger,
@@ -18,13 +19,13 @@ class DefaultPageContentBuilder(
 ) : PageContentBuilder {
     private val contents = mutableListOf<ContentNode>()
 
-    private fun createText(text: String) =
-        ContentText(text, DCI(node.dri, ContentKind.Symbol), node.platformData, styles, extras)
+    private fun createText(text: String, kind: Kind = ContentKind.Symbol) =
+        ContentText(text, DCI(dri, kind), platformData, styles, extras)
 
     private fun build() = ContentGroup(
         contents.toList(),
-        DCI(node.dri, kind),
-        node.platformData,
+        DCI(dri, kind),
+        platformData,
         styles,
         extras
     )
@@ -33,12 +34,12 @@ class DefaultPageContentBuilder(
         contents += ContentHeader(level, group(ContentKind.Symbol, block))
     }
 
-    override fun text(text: String) {
-        contents += createText(text)
+    override fun text(text: String, kind: Kind) {
+        contents += createText(text, kind)
     }
 
     private fun signature(f: Function, block: PageContentBuilderFunction) {
-        contents += group(f, ContentKind.Symbol, block)
+        contents += group(f.dri, f.platformData, ContentKind.Symbol, block)
     }
 
     override fun signature(f: Function) = signature(f) {
@@ -49,7 +50,7 @@ class DefaultPageContentBuilder(
         }
         link(f.name, f.dri)
         text("(")
-        list(f.parameters, "", "", ", ") {
+        list(f.parameters) {
             link(it.name!!, it.dri)
             text(": ")
             type(it.type)
@@ -66,9 +67,9 @@ class DefaultPageContentBuilder(
     override fun linkTable(elements: List<DRI>) {
         contents += ContentTable(
             emptyList(),
-            elements.map { group(node, ContentKind.Classes) { link(it.classNames ?: "", it) } },
-            DCI(node.dri, kind),
-            node.platformData, styles, extras
+            elements.map { group(dri, platformData, ContentKind.Classes) { link(it.classNames ?: "", it) } },
+            DCI(dri, kind),
+            platformData, styles, extras
         )
     }
 
@@ -84,8 +85,8 @@ class DefaultPageContentBuilder(
 
         contents += ContentTable(
             emptyList(),
-            elements.map { group(it, kind) { operation(it) } },
-            DCI(node.dri, kind),
+            elements.map { group(it.dri, it.platformData, kind) { operation(it) } },
+            DCI(dri, kind),
             platformData, styles, extras
         )
     }
@@ -108,12 +109,21 @@ class DefaultPageContentBuilder(
         }
     }
 
-    override fun link(text: String, address: DRI) {
+    override fun link(text: String, address: DRI, kind: Kind) {
         contents += ContentDRILink(
             listOf(createText(text)),
             address,
-            DCI(node.dri, ContentKind.Symbol),
-            node.platformData
+            DCI(dri, kind),
+            platformData
+        )
+    }
+
+    override fun link(address: DRI, kind: Kind, block: PageContentBuilderFunction) {
+        contents += ContentDRILink(
+            group(ContentKind.Main, block).children,
+            address,
+            DCI(dri, kind),
+            platformData
         )
     }
 
@@ -122,8 +132,8 @@ class DefaultPageContentBuilder(
             with(this as DefaultPageContentBuilder) {
                 contents += markdownConverter.buildContent(
                     parseMarkdown(raw),
-                    DCI(node.dri, ContentKind.Comment),
-                    node.platformData,
+                    DCI(dri, ContentKind.Comment),
+                    platformData,
                     links
                 )
             }
@@ -132,30 +142,32 @@ class DefaultPageContentBuilder(
 
     override fun markdown(raw: String, links: Map<String, DRI>) {
         contents += markdownConverter.buildContent(
-            parseMarkdown(raw), DCI(node.dri, ContentKind.Sample),
-            node.platformData,
+            parseMarkdown(raw), DCI(dri, ContentKind.Sample),
+            platformData,
             links
         )
     }
 
-    private fun group(kind: Kind, block: PageContentBuilderFunction): ContentGroup =
-        group(node, kind, block)
+    fun group(kind: Kind, block: PageContentBuilderFunction): ContentGroup =
+        group(dri, platformData, kind, block)
 
     override fun group(
-        node: DocumentationNode,
+        dri: DRI,
+        platformData: Set<PlatformData>,
         kind: Kind,
         block: PageContentBuilderFunction
-    ): ContentGroup = group(node, kind, markdownConverter, logger, block)
+    ): ContentGroup = group(dri, platformData, kind, markdownConverter, logger, block)
 
     companion object {
         fun group(
-            node: DocumentationNode,
+            dri: DRI,
+            platformData: Set<PlatformData>,
             kind: Kind,
             markdownConverter: MarkdownToContentConverter,
             logger: DokkaLogger,
             block: PageContentBuilderFunction
         ): ContentGroup =
-            DefaultPageContentBuilder(node, kind, markdownConverter, logger).apply(block).build()
+            DefaultPageContentBuilder(dri, platformData, kind, markdownConverter, logger).apply(block).build()
     }
 }
 
@@ -167,7 +179,7 @@ private fun PageContentBuilder.type(t: TypeWrapper) {
             logger.error("type $t cannot be resolved")
             text("???")
         }
-    list(t.arguments, prefix = "<", suffix = ">", separator = ", ") {
+    list(t.arguments, prefix = "<", suffix = ">") {
         type(it)
     }
 }
@@ -179,19 +191,23 @@ annotation class ContentMarker
 
 @ContentMarker
 interface PageContentBuilder {
-    fun group(node: DocumentationNode, kind: Kind, block: PageContentBuilderFunction): ContentGroup
-    fun text(text: String)
+    fun group(
+        dri: DRI,
+        platformData: Set<PlatformData>,
+        kind: Kind, block: PageContentBuilderFunction): ContentGroup
+    fun text(text: String, kind: Kind = ContentKind.Symbol)
     fun signature(f: Function)
-    fun link(text: String, address: DRI)
+    fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
+    fun link(address: DRI, kind: Kind = ContentKind.Symbol, block: PageContentBuilderFunction)
     fun linkTable(elements: List<DRI>)
     fun comment(raw: String, links: Map<String, DRI>)
     fun markdown(raw: String, links: Map<String, DRI>)
-    fun header(level: Int, block: PageContentBuilder.() -> Unit)
+    fun header(level: Int, block: PageContentBuilderFunction)
     fun <T> list(
         elements: List<T>,
-        prefix: String,
-        suffix: String,
-        separator: String,
+        prefix: String =  "",
+        suffix: String =  "",
+        separator: String = ",",
         operation: PageContentBuilder.(T) -> Unit
     )
 
