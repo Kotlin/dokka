@@ -7,6 +7,7 @@ import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {

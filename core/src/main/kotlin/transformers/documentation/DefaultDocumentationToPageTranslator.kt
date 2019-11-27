@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.transformers.documentation
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.Model.Module
+import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.DefaultPageBuilder
 import org.jetbrains.dokka.pages.DefaultPageContentBuilder
 import org.jetbrains.dokka.pages.ModulePageNode

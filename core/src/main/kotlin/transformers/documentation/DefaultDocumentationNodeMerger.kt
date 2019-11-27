@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.transformers.documentation
 
-import org.jetbrains.dokka.Model.*
-import org.jetbrains.dokka.Model.Function
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
 
 internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {

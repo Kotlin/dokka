@@ -1,9 +1,8 @@
 package org.jetbrains.dokka.xml
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConsoleLogger
-import org.jetbrains.dokka.Model.DocumentationNode
-import org.jetbrains.dokka.Model.dfs
+import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.analysis
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.BaseComponent

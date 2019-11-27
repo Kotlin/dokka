@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
+import org.jetbrains.dokka.utilities.DokkaLogger
 
 import java.util.function.BiConsumer
 

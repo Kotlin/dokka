@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.analysis
 
 import com.google.common.collect.ImmutableMap
 import com.intellij.core.CoreApplicationEnvironment
@@ -17,8 +17,7 @@ import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.io.URLUtil
-import org.jetbrains.dokka.Analysis.DokkaJsAnalyzerFacade
-import org.jetbrains.dokka.Analysis.DokkaNativeAnalyzerFacade
+import org.jetbrains.dokka.Platform
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
 import org.jetbrains.kotlin.analyzer.common.CommonAnalyzerFacade

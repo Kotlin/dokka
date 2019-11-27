@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
@@ -94,12 +95,12 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val languageVersion: String? by parser.stringOption(
         listOf("-languageVersion"),
-        "Language Version to pass to Kotlin Analysis",
+        "Language Version to pass to Kotlin analysis",
         null)
 
     override val apiVersion: String? by parser.stringOption(
         listOf("-apiVersion"),
-        "Kotlin Api Version to pass to Kotlin Analysis",
+        "Kotlin Api Version to pass to Kotlin analysis",
         null
     )
 

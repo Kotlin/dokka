@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.plugability
 
-import org.jetbrains.dokka.DokkaLogger
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.EnvironmentAndFacade
 import org.jetbrains.dokka.pages.PlatformData
 import java.io.File

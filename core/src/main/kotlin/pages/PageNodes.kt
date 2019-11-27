@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.Model.DocumentationNode
+import org.jetbrains.dokka.model.DocumentationNode
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 

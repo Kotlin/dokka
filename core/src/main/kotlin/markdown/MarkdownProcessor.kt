@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.markdown
 
 import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
@@ -43,7 +43,7 @@ fun MarkdownNode.toTestString(): String {
 
 private fun MarkdownNode.presentTo(sb: StringBuilder) {
     sb.append(type.toString())
-    sb.append(":" + text.replace("\n", "\u23CE"))
+    sb.append(":" + text.replace("w\n", "\u23CE"))
 }
 
 fun parseMarkdown(markdown: String): MarkdownNode {

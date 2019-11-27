@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.Model
+package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI

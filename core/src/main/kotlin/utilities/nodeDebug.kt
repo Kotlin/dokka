@@ -1,8 +1,7 @@
-package org.jetbrains.dokka.Utilities
+package org.jetbrains.dokka.utilities
 
-import org.jetbrains.dokka.Model.DocumentationNode
+import org.jetbrains.dokka.model.DocumentationNode
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
 const val DOWN = '\u2503'
 const val BRANCH = '\u2523'

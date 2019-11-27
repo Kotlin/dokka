@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.DokkaLogger
-import org.jetbrains.dokka.Model.DocumentationNode
-import org.jetbrains.dokka.Model.Function
-import org.jetbrains.dokka.Model.Parameter
-import org.jetbrains.dokka.Model.TypeWrapper
+import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.Parameter
+import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.parseMarkdown
+import org.jetbrains.dokka.markdown.parseMarkdown
 
 class DefaultPageContentBuilder(
     private val dri: DRI,

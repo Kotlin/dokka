@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.Model.*
-import org.jetbrains.dokka.Model.Function
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Function
 
 class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder

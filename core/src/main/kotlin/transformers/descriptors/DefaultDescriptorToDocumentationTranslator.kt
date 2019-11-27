@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.transformers.descriptors
 
-import org.jetbrains.dokka.DokkaResolutionFacade
-import org.jetbrains.dokka.Model.*
-import org.jetbrains.dokka.Model.ClassKind
-import org.jetbrains.dokka.Model.Function
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.ClassKind
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass

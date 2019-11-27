@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.Utilities
+package org.jetbrains.dokka.utilities
 
 import java.io.File
 import java.net.URISyntaxException

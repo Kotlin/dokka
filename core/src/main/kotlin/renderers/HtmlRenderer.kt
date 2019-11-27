@@ -1,13 +1,11 @@
 package org.jetbrains.dokka.renderers
 
-import org.jetbrains.dokka.htmlEscape
+import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.resolvers.LocationProvider
 import java.io.File
 import java.net.URL
-import java.nio.file.Path
-import java.nio.file.Paths
 
 open class HtmlRenderer(
     fileWriter: FileWriter,

@@ -16,7 +16,7 @@
 
 @file:JvmName("JavaResolutionUtils")
 
-package org.jetbrains.dokka
+package org.jetbrains.dokka.analysis
 
 import com.intellij.psi.*
 import org.jetbrains.kotlin.asJava.classes.KtLightClass

@@ -2,7 +2,7 @@ package org.jetbrains.dokka.resolvers
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.htmlEscape
+import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext

@@ -1,10 +1,13 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.Model.Module
+import org.jetbrains.dokka.analysis.AnalysisEnvironment
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.renderers.FileWriter
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.Analysis
+package org.jetbrains.dokka.analysis
 
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.caches.project.LibraryModuleInfo

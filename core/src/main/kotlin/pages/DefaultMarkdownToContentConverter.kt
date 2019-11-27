@@ -2,7 +2,7 @@ package org.jetbrains.dokka.pages
 
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
-import org.jetbrains.dokka.MarkdownNode
+import org.jetbrains.dokka.markdown.MarkdownNode
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 

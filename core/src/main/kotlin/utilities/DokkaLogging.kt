@@ -1,4 +1,4 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.utilities
 
 interface DokkaLogger {
     fun debug(message: String)
