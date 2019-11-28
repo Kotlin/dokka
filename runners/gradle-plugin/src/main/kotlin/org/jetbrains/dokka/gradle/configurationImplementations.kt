@@ -143,8 +143,8 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
 class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var prefix: String = ""
     override var includeNonPublic: Boolean = false
-    override var reportUndocumented: Boolean = true
-    override var skipDeprecated: Boolean = true
+    override var reportUndocumented: Boolean = false
+    override var skipDeprecated: Boolean = false
     override var suppress: Boolean = false
 }
 
