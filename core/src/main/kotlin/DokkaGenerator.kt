@@ -59,65 +59,6 @@ class DokkaGenerator(
         renderer.render(transformedPages)
     }
 
-//    fun generate(int: Int) {
-//
-//        logger.debug("Initializing plugins")
-//        val context = DokkaContext.create(configuration.pluginsClasspath, logger, platforms)
-//
-//        configuration.passesConfigurations.map { pass ->
-//            AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
-//                if (analysisPlatform == Platform.jvm) {
-//                    addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
-//                }
-//                for (element in pass.classpath) {
-//                    addClasspath(File(element))
-//                }
-//
-//                addSources(pass.sourceRoots.map { it.path })
-//
-//                loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
-//
-//                val environment = createCoreEnvironment()
-//                val (facade, _) = createResolutionFacade(environment)
-//
-//                environment.getSourceFiles().asSequence()
-//                        .map { it.packageFqName }
-//                        .distinct()
-//                        .mapNotNull { facade.resolveSession.getPackageFragment(it) }
-//                        .map {
-//                        DokkaDescriptorVisitor(
-//                            PlatformData(
-//                                pass.analysisPlatform,
-//                                pass.targets
-//                            ), facade
-//                        )
-//                            .visitPackageFragmentDescriptor(it, DRI.topLevel)
-//                    }
-//                    .toList()
-//                    .let { Module(it) }
-//                    .let { DefaultDocumentationNodeMerger(it) }
-//                    .also { println("${pass.analysisPlatform}:\n${it.pretty()}\n\n") }
-//            }
-//        }.let {
-//            val markdownConverter = DefaultMarkdownToContentConverter(logger)
-//            DefaultDocumentationToPageTranslator(
-//                markdownConverter,
-//                logger
-//            ).transform(
-//                DefaultDocumentationNodeMerger(
-//                    it
-//                )
-//            )
-//        }.let {
-//            context[CoreExtensions.pageTransformer].fold(it) { pn, t -> t(pn, context) }
-//        }.also {
-//            HtmlRenderer(
-//                FileWriter(configuration.outputDir, ""),
-//                DefaultLocationProvider(it, configuration, ".${configuration.format}")
-//            ).render(it)
-//        }
-//    }
-
     private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
         AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
