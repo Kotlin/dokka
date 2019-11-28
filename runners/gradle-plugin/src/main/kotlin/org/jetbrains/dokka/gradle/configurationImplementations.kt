@@ -51,7 +51,7 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input override var targets: List<String> = emptyList()
     @Input @Optional override var sinceKotlin: String? = null
     @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
-    @Input @Optional @Transient var androidVariants: List<String> = emptyList()
+    @Input @Transient var androidVariants: List<String> = emptyList()
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }
@@ -95,14 +95,14 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     }
 
     fun externalDocumentationLink(c: Closure<Unit>) {
-        val link = ConfigureUtil.configure(c, GradleExternalDocumentationLinkImpl())
-        externalDocumentationLinks.add(link)
+        val builder = ConfigureUtil.configure(c, GradleExternalDocumentationLinkImpl.Builder())
+        externalDocumentationLinks.add(builder.build())
     }
 
-    fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkImpl>) {
-        val link = GradleExternalDocumentationLinkImpl()
-        action.execute(link)
-        externalDocumentationLinks.add(link)
+    fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkImpl.Builder>) {
+        val builder = GradleExternalDocumentationLinkImpl.Builder()
+        action.execute(builder)
+        externalDocumentationLinks.add(builder.build())
     }
 }
 
@@ -112,9 +112,23 @@ class GradleSourceLinkDefinitionImpl : SourceLinkDefinition, Serializable {
     override var lineSuffix: String? = null
 }
 
-class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink, Serializable {
-    override var url: URL = URL("http://")
-    override var packageListUrl: URL = URL("http://")
+class GradleExternalDocumentationLinkImpl(
+    override val url: URL,
+    override val packageListUrl: URL
+): ExternalDocumentationLink, Serializable {
+    open class Builder(open var url: URL? = null,
+                       open var packageListUrl: URL? = null) {
+
+        constructor(root: String, packageList: String? = null) : this(URL(root), packageList?.let { URL(it) })
+
+        fun build(): ExternalDocumentationLink =
+            if (packageListUrl != null && url != null)
+                GradleExternalDocumentationLinkImpl(url!!, packageListUrl!!)
+            else if (url != null)
+                GradleExternalDocumentationLinkImpl(url!!, URL(url!!, "package-list"))
+            else
+                throw IllegalArgumentException("url or url && packageListUrl must not be null for external documentation link")
+    }
 }
 
 class GradleDokkaConfigurationImpl: DokkaConfiguration {
