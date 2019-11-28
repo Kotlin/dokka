@@ -200,7 +200,7 @@ open class DokkaTask : DefaultTask() {
 
         if (disableAutoconfiguration) return userConfig
 
-        val baseConfig = configExtractor.extractConfiguration(userConfig.name, userConfig.androidVariant)
+        val baseConfig = configExtractor.extractConfiguration(userConfig.name, userConfig.androidVariants)
             ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
                 ?: if (this.isMultiplatformProject()) {
                     if (outputDiagnosticInfo)
@@ -217,7 +217,7 @@ open class DokkaTask : DefaultTask() {
                 subProjects.toProjects().fold(baseConfig) { config, subProject ->
                     mergeUserConfigurationAndPlatformData(
                         config,
-                        ConfigurationExtractor(subProject).extractConfiguration(config.name, config.androidVariant)!!
+                        ConfigurationExtractor(subProject).extractConfiguration(config.name, config.androidVariants)!!
                     )
                 }
             } catch(e: NullPointerException) {
