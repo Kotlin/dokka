@@ -52,11 +52,12 @@ def configureDokkaTypeSafely(DokkaTask dokka) {
                 sourceRoot.path = "some String"
             }
         })
-        externalDocumentationLink(new Action<GradleExternalDocumentationLinkImpl>() {
+        externalDocumentationLink(new Action<GradleExternalDocumentationLinkImpl.Builder>() {
             @Override
-            void execute(GradleExternalDocumentationLinkImpl link) {
-                link.url = uri("some URI").toURL()
-                link.packageListUrl = uri("some URI").toURL()
+            void execute(GradleExternalDocumentationLinkImpl.Builder builder) {
+                builder.url = uri("some URI").toURL()
+                builder.packageListUrl = uri("some URI").toURL()
+                builder.build()
             }
         })
         kotlinTasks(new Callable<List<Object>>() {
