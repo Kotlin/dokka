@@ -102,9 +102,9 @@ class DefaultMarkdownToContentConverter(
                         ?: destinationNode.text
                 links[destination]?.let { dri ->
                     listOf(
-                        ContentResolvedLink(
+                        ContentDRILink( // TODO: differentiate between KDoc link and some external link (http://...)
                             buildChildren(node),
-                            destination,
+                            dri,
                             DCI(dri, ContentKind.Symbol),
                             platforms,
                             styles,
