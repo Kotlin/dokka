@@ -8,7 +8,6 @@ import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Platform
@@ -165,6 +164,11 @@ open class DokkaTask : DefaultTask() {
             configuration.cacheRoot = cacheRoot
             configuration.impliedPlatforms = impliedPlatforms
             configuration.passesConfigurations = passConfigurationList
+
+            if(passConfigurationList.isEmpty() || passConfigurationList == listOf(globalConfig)) {
+                println("No pass configurations for generation detected!")
+                return
+            }
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->
