@@ -8,4 +8,5 @@ interface LocationProvider {
     fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode? = null): String
     fun resolve(node: PageNode, context: PageNode? = null): String
     fun resolveRoot(node: PageNode): String
+    fun ancestors(node: PageNode?): List<PageNode>
 }

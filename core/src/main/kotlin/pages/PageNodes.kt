@@ -3,11 +3,11 @@ package org.jetbrains.dokka.pages
 import org.jetbrains.dokka.model.DocumentationNode
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
+import java.util.*
 
 interface PageNode {
     val name: String
     val content: ContentNode
-    val parent: PageNode?
     val dri: DRI
     val documentationNode: DocumentationNode?
     val embeddedResources: List<String>
@@ -21,33 +21,13 @@ interface PageNode {
     ): PageNode
 }
 
-abstract class BasicPageNode(children: List<PageNode>) : PageNode {
-
-    private lateinit var _parent: PageNode
-    override val parent: PageNode? by lazy { _parent }
-    override val children = children
-
-    override fun equals(other: Any?): Boolean =
-        if (other is PageNode) {
-            dri == other.dri && name == other.name
-        } else false
-
-    override fun hashCode(): Int =
-        (name + dri).hashCode()
-
-    init {
-        children.forEach { if (it is BasicPageNode) it._parent = this }
-    }
-}
-
 class ModulePageNode(
     override val name: String,
     override val content: ContentNode,
     override val documentationNode: DocumentationNode?,
-    children: List<PageNode>,
+    override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : BasicPageNode(children) {
-    override val parent: Nothing? = null
+) : PageNode {
     override val dri: DRI = DRI.topLevel
 
     override fun modified(
@@ -66,6 +46,18 @@ class ModulePageNode(
 
     fun transformPageNodeTree(operation: (PageNode) -> PageNode) =
         this.transformNode(operation) as ModulePageNode
+
+    val parentMap: IdentityHashMap<PageNode, PageNode> by lazy {
+        IdentityHashMap<PageNode, PageNode>().apply {
+            fun addParent(parent: PageNode) {
+                parent.children.forEach {  child ->
+                    put(child, parent)
+                    addParent(child)
+                }
+            }
+            addParent(this@ModulePageNode)
+        }
+    }
 }
 
 class PackagePageNode(
@@ -73,9 +65,9 @@ class PackagePageNode(
     override val content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode?,
-    children: List<PageNode>,
+    override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : BasicPageNode(children) {
+) : PageNode {
 
     override fun modified(
         name: String,
@@ -92,9 +84,9 @@ class ClassPageNode(
     override val content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode?,
-    children: List<PageNode>,
+    override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : BasicPageNode(children) {
+) : PageNode {
 
     override fun modified(
         name: String,
@@ -111,9 +103,9 @@ class MemberPageNode(
     override val content: ContentNode,
     override val dri: DRI,
     override val documentationNode: DocumentationNode?,
-    children: List<PageNode> = emptyList(),
+    override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : BasicPageNode(children) {
+) : PageNode {
 
     override fun modified(
         name: String,

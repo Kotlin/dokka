@@ -30,14 +30,11 @@ abstract class DefaultRenderer(
     protected open fun buildHeader(node: ContentHeader, pageContext: PageNode): String =
         buildHeader(node.level, node.children.joinToString { it.build(pageContext) })
 
-    protected open fun buildNavigation(page: PageNode): String {
-        fun buildNavigationWithContext(page: PageNode, context: PageNode): String =
-            page.parent?.let { buildNavigationWithContext(it, context) }.orEmpty() + "/" + buildLink(
-                page.name,
-                locationProvider.resolve(page, context)
-            )
-        return buildNavigationWithContext(page, page)
-    }
+    protected open fun buildNavigation(page: PageNode): String =
+        locationProvider.ancestors(page).fold("") { acc, node -> "$acc/${buildLink(
+            node.name,
+            locationProvider.resolve(node, page)
+        )}" }
 
     protected open fun ContentNode.build(pageContext: PageNode): String = buildContentNode(this, pageContext)
 
