@@ -1,9 +1,11 @@
 package org.jetbrains.dokka.model
 
+import model.doc.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.PlatformData
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import parsers.MarkdownParser
+import parsers.Parser
 
 class Module(val packages: List<Package>) : DocumentationNode() {
     override val dri: DRI = DRI.topLevel
@@ -76,23 +78,19 @@ class Parameter(
 }
 
 interface PlatformInfo {
-    val docTag: KDocTag?
-    val links: Map<String, DRI>
+    val docHeader: DocHeader
     val platformData: List<PlatformData>
 }
 
 class BasePlatformInfo(
-    override val docTag: KDocTag?,
-    override val links: Map<String, DRI>,
+    override val docHeader: DocHeader,
     override val platformData: List<PlatformData>) : PlatformInfo {
 
     override fun equals(other: Any?): Boolean =
-        other is PlatformInfo && (
-                docTag?.text == other.docTag?.text &&
-                        links == other.links)
+        other is PlatformInfo && docHeader == other.docHeader
 
     override fun hashCode(): Int =
-        listOf(docTag?.text, links).hashCode()
+        docHeader.hashCode()
 }
 
 class ClassPlatformInfo(
@@ -105,7 +103,6 @@ abstract class DocumentationNode {
     open val name: String? = null
     val platformInfo by lazy { listOfNotNull(expected) + actual }
     val platformData by lazy { platformInfo.flatMap { it.platformData }.toSet() }
-
     abstract val dri: DRI
 
     abstract val children: List<DocumentationNode>
@@ -118,11 +115,20 @@ abstract class DocumentationNode {
 
     override fun hashCode() = dri.hashCode()
 
-    val commentsData: List<Pair<String, Map<String, DRI>>>
-        get() = platformInfo.mapNotNull { it.docTag?.let { tag -> Pair(tag.getContent(), it.links) } }
+
+
+    val commentsData: List<DocHeader>
+        get() = platformInfo.map { it.docHeader }
 
     val briefDocstring: String
-        get() = platformInfo.firstOrNull()?.docTag?.getContent().orEmpty().shorten(40)
+        get() = docNodeSummary(platformInfo.firstOrNull()?.docHeader?.properties?.firstOrNull()?.root ?: Text(body = "")).shorten(40)
+
+    private fun docNodeSummary(docNode: DocNode): String {
+        if(docNode.children.isEmpty() && docNode is Text)
+            return docNode.body
+
+        return docNode.children.joinToString(" ") { docNodeSummary(it) }
+    }
 
     open val extra: MutableSet<Extra> = mutableSetOf()
 }

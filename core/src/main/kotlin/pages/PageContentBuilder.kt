@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.pages
 
+import model.doc.DocHeader
+import model.doc.DocNode
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.model.DocumentationNode
 import org.jetbrains.dokka.model.Function
@@ -127,25 +129,16 @@ class DefaultPageContentBuilder(
         )
     }
 
-    override fun comment(raw: String, links: Map<String, DRI>) {
+    override fun comment(docNode: DocNode) {
         contents += group(ContentKind.Comment) {
             with(this as DefaultPageContentBuilder) {
                 contents += markdownConverter.buildContent(
-                    parseMarkdown(raw),
+                    docNode,
                     DCI(dri, ContentKind.Comment),
-                    platformData,
-                    links
+                    platformData
                 )
             }
         }
-    }
-
-    override fun markdown(raw: String, links: Map<String, DRI>) {
-        contents += markdownConverter.buildContent(
-            parseMarkdown(raw), DCI(dri, ContentKind.Sample),
-            platformData,
-            links
-        )
     }
 
     fun group(kind: Kind, block: PageContentBuilderFunction): ContentGroup =
@@ -200,8 +193,7 @@ interface PageContentBuilder {
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
     fun link(address: DRI, kind: Kind = ContentKind.Symbol, block: PageContentBuilderFunction)
     fun linkTable(elements: List<DRI>)
-    fun comment(raw: String, links: Map<String, DRI>)
-    fun markdown(raw: String, links: Map<String, DRI>)
+    fun comment(docNode: DocNode)
     fun header(level: Int, block: PageContentBuilderFunction)
     fun <T> list(
         elements: List<T>,

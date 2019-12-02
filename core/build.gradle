@@ -28,7 +28,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$bundled_kotlin_compiler_version"
 
     compile group: 'com.google.inject', name: 'guice', version: '3.0'
-    compile "org.jsoup:jsoup:1.8.3"
+    implementation "org.jsoup:jsoup:1.12.1"
 
     compile "org.jetbrains.kotlin:kotlin-compiler:$bundled_kotlin_compiler_version"
     compile "org.jetbrains.kotlin:kotlin-script-runtime:$bundled_kotlin_compiler_version"

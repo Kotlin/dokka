@@ -1,0 +1,18 @@
+package model.doc
+
+sealed class DocType(val root: DocNode)
+class Description(root: DocNode) : DocType(root)
+class Author(root: DocNode) : DocType(root)
+class Version(root: DocNode) : DocType(root)
+class Since(root: DocNode) : DocType(root)
+class See(root: DocNode, val name: String) : DocType(root)
+class Param(root: DocNode, val name: String) : DocType(root)
+class Return(root: DocNode) : DocType(root)
+class Receiver(root: DocNode) : DocType(root)
+class Constructor(root: DocNode) : DocType(root)
+class Throws(root: DocNode, val name: String) : DocType(root)
+class Sample(root: DocNode, val name: String) : DocType(root)
+class Deprecated(root: DocNode) : DocType(root)
+class Property(root: DocNode, val name: String) : DocType(root)
+class Suppress(root: DocNode) : DocType(root)
+class CustomTag(root: DocNode, val name: String) : DocType(root)

@@ -13,14 +13,13 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
+import parsers.MarkdownParser
 
 object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
     override fun invoke(
@@ -69,7 +68,7 @@ class DokkaDescriptorVisitor(
             scope.classes(dri),
             descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
             listOfNotNull(descriptorData),
-            getXMLDRIs(descriptor, descriptorData).toMutableSet()
+            mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
         )
     }
 
@@ -147,17 +146,9 @@ class DokkaDescriptorVisitor(
 
     private fun DeclarationDescriptor.resolveDescriptorData(): PlatformInfo {
         val doc = findKDoc()
-        val links = doc?.children?.filter { it is KDocLink }?.flatMap { link ->
-            val destination = link.children.first { it is KDocName }.text
-            resolveKDocLink(
-                resolutionFacade.resolveSession.bindingContext,
-                resolutionFacade,
-                this,
-                null,
-                destination.split('.')
-            ).map { Pair(destination, DRI.from(it)) }
-        }?.toMap() ?: emptyMap()
-        return BasePlatformInfo(doc, links, listOf(platformData))
+        val parser: MarkdownParser = MarkdownParser(resolutionFacade, this)
+        val docHeader = parser.parseFromKDocTag(doc)
+        return BasePlatformInfo(docHeader, listOf(platformData))
     }
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassPlatformInfo {
@@ -166,20 +157,23 @@ class DokkaDescriptorVisitor(
     }
 
     private fun getXMLDRIs(descriptor: DeclarationDescriptor, platformInfo: PlatformInfo?) =
-        platformInfo?.docTag?.children
-            ?.filter {
-                it.text.contains("@attr")
-            }?.flatMap { ref ->
-                val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref.text)
-                val toFind = matchResult?.groups?.last()?.value.orEmpty()
-                resolveKDocLink(
-                    resolutionFacade.resolveSession.bindingContext,
-                    resolutionFacade,
-                    descriptor,
-                    null,
-                    toFind.split('.')
-                ).map { XMLMega("@attr ref", DRI.from(it)) }
-            }.orEmpty()
+
+        //TODO from Platform Info rip out the DRI Tree
+        Unit
+//        platformInfo?.docTag?.children
+//            ?.filter {
+//                it.text.contains("@attr")
+//            }?.flatMap { ref ->
+//                val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref.text)
+//                val toFind = matchResult?.groups?.last()?.value.orEmpty()
+//                resolveKDocLink(
+//                    resolutionFacade.resolveSession.bindingContext,
+//                    resolutionFacade,
+//                    descriptor,
+//                    null,
+//                    toFind.split('.')
+//                ).map { XMLMega("@attr ref", DRI.from(it)) }
+//            }.orEmpty()
 }
 
 data class XMLMega(val key: String, val dri: DRI) : Extra

@@ -20,8 +20,7 @@ private fun <T: DocumentationNode> merge(elements: List<T>, reducer: (T, T) -> T
         .values.toList()
 
 fun PlatformInfo.mergeWith(other: PlatformInfo?) = BasePlatformInfo(
-    docTag,
-    links,
+    docHeader,
     (platformData + (other?.platformData ?: emptyList())).distinct()
 )
 
@@ -31,12 +30,12 @@ fun ClassPlatformInfo.mergeWith(other: ClassPlatformInfo?) = ClassPlatformInfo(
 )
 
 fun List<ClassPlatformInfo>.mergeClassPlatformInfo() : List<ClassPlatformInfo> =
-    groupingBy { it.docTag.toString() + it.links + it.inherited}.reduce {
+    groupingBy { it.docHeader.properties + it.inherited}.reduce {
             _, left, right -> left.mergeWith(right)
     }.values.toList()
 
 fun List<PlatformInfo>.merge() : List<PlatformInfo> =
-    groupingBy { it.docTag.toString() + it.links }.reduce {
+    groupingBy { it.docHeader }.reduce {
         _, left, right -> left.mergeWith(right)
     }.values.toList()
 

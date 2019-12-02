@@ -60,7 +60,13 @@ class DefaultPageBuilder(
             header(2) { text("SuperInterfaces") }
             linkTable(it)
         }
-        c.commentsData.forEach { (doc, links) -> comment(doc, links) }
+        c.commentsData.forEach {
+            it.properties.forEach {
+                header(3) { text(it.javaClass.toGenericString().split('.').last()) }
+                comment(it.root)
+                text("\n")
+            }
+        }
         block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
             link(it.name, it.dri)
             signature(it)
@@ -76,10 +82,12 @@ class DefaultPageBuilder(
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        f.commentsData.forEach { (doc, links) -> markdown(doc, links) }
+        //f.commentsData.forEach { comment(it) }
+        f.commentsData.forEach { it.properties.forEach { comment(it.root) } }
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
-            it.commentsData.forEach { (doc, links) -> markdown(doc, links) }
+            //it.commentsData.forEach { comment(it) }
+            it.commentsData.forEach { it.properties.forEach { comment(it.root) } }
         }
     }
 }
