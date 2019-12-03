@@ -586,7 +586,7 @@ Inside the `dokka` tag you can create another tags named `<passconfig/>` that su
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar-0.10.0.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <arguments>
