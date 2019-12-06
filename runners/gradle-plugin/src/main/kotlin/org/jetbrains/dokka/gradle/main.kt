@@ -11,7 +11,10 @@ import java.util.*
 internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
 internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
 
-open class DokkaPlugin : Plugin<Project> {
+open class DokkaPlugin(
+        private val taskClass: Class<out DokkaTask> = DokkaTask::class.java
+) : Plugin<Project> {
+
     private val taskName = "dokka"
 
     override fun apply(project: Project) {

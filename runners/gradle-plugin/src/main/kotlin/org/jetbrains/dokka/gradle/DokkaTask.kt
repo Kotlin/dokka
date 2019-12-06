@@ -124,7 +124,7 @@ open class DokkaTask : DefaultTask() {
     private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
     private fun Iterable<String>.toProjects(): List<Project> = project.subprojects.toList().filter { this.contains(it.name) }
 
-    private fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
         if(project.isAndroidProject()) {
             val generatedRoot = project.buildDir.resolve("generated").absoluteFile
             sourceRoots
