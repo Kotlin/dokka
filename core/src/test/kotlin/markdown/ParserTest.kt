@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.tests
 
+import org.jetbrains.dokka.markdown.parseMarkdown
+import org.jetbrains.dokka.markdown.toTestString
 import org.junit.Test
-import org.jetbrains.dokka.toTestString
-import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
 
 @Ignore public class ParserTest {

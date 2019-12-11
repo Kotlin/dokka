@@ -30,31 +30,36 @@ class DokkaGenerator(
         logger.debug("Initializing plugins")
         val context = DokkaContext.create(configuration.pluginsClasspath, logger, platforms)
 
+        logger.debug("transforming EnvironmentAndFacade and refreshing context")
+        val transformedPlatforms: Map<PlatformData, EnvironmentAndFacade> =
+            context.single(CoreExtensions.analysis).transform(platforms)
+        val ctx = DokkaContext.create(configuration.pluginsClasspath, logger, transformedPlatforms)
+
         logger.debug("Creating documentation models")
-        val modulesFromPlatforms = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
+        val modulesFromPlatforms = transformedPlatforms.map { (pdata, _) -> translateDescriptors(pdata, ctx) }
 
         logger.debug("Merging documentation models")
-        val documentationModel = context.single(CoreExtensions.documentationMerger)
-            .invoke(modulesFromPlatforms, context)
+        val documentationModel = ctx.single(CoreExtensions.documentationMerger)
+            .invoke(modulesFromPlatforms, ctx)
 
         logger.debug("Transforming documentation model")
-        val transformedDocumentation = context[CoreExtensions.documentationTransformer]
-            .fold(documentationModel) { acc, t -> t(acc, context) }
+        val transformedDocumentation = ctx[CoreExtensions.documentationTransformer]
+            .fold(documentationModel) { acc, t -> t(acc, ctx) }
 
         logger.debug("Creating pages")
-        val pages = context.single(CoreExtensions.documentationToPageTranslator)
-            .invoke(transformedDocumentation, context)
+        val pages = ctx.single(CoreExtensions.documentationToPageTranslator)
+            .invoke(transformedDocumentation, ctx)
 
         logger.debug("Transforming pages")
-        val transformedPages = context[CoreExtensions.pageTransformer]
-            .fold(pages) { acc, t -> t(acc, context) }
+        val transformedPages = ctx[CoreExtensions.pageTransformer]
+            .fold(pages) { acc, t -> t(acc, ctx) }
 
         logger.debug("Rendering")
         val fileWriter = FileWriter(configuration.outputDir, "")
-        val locationProvider = context.single(CoreExtensions.locationProviderFactory)
-            .invoke(transformedPages, configuration, context)
-        val renderer = context.single(CoreExtensions.rendererFactory)
-            .invoke(fileWriter, locationProvider, context)
+        val locationProvider = ctx.single(CoreExtensions.locationProviderFactory)
+            .invoke(transformedPages, configuration, ctx)
+        val renderer = ctx.single(CoreExtensions.rendererFactory)
+            .invoke(fileWriter, locationProvider, ctx)
 
         renderer.render(transformedPages)
     }

@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.analysis.AnalysisTransformer
 import org.jetbrains.dokka.pages.MarkdownToContentConverter
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -29,6 +30,7 @@ object CoreExtensions {
     val rendererFactory by coreExtension<(FileWriter, LocationProvider, DokkaContext) -> Renderer>()
     val locationProviderFactory by coreExtension<(root: PageNode, DokkaConfiguration, DokkaContext) -> LocationProvider>()
     val fileExtension by coreExtension<String>()
+    val analysis by coreExtension<AnalysisTransformer>()
 
     private fun <T: Any> coreExtension() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
