@@ -4,6 +4,8 @@ import model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.LeafASTNode
+import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
@@ -36,29 +38,43 @@ class MarkdownParser (
         private fun blockquotesHandler(node: ASTNode): DocNode =
             DocNodesFromIElementFactory.getInstance(node.type, children = node.children.drop(1).map { visitNode(it) })
 
-        private fun listsHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(
+        private fun listsHandler(node: ASTNode): DocNode {
+
+            val children = node.children.filterIsInstance<ListItemCompositeNode>().flatMap {
+                if( it.children.last().type in listOf(MarkdownElementTypes.ORDERED_LIST, MarkdownElementTypes.UNORDERED_LIST) ) {
+                    val nestedList = it.children.last()
+                    (it.children as MutableList).removeAt(it.children.lastIndex)
+                    listOf(it, nestedList)
+                }
+                else
+                    listOf(it)
+            }
+
+            return DocNodesFromIElementFactory.getInstance(
                 node.type,
-                children = node
-                    .children
-                    .filter { it.type == MarkdownElementTypes.LIST_ITEM }
+                children =
+                children
                     .map {
-                        DocNodesFromIElementFactory.getInstance(
-                            it.type,
-                            children = it
-                                .children
-                                .drop(1)
-                                .map { visitNode(it) }
-                        )
+                        if(it.type == MarkdownElementTypes.LIST_ITEM)
+                            DocNodesFromIElementFactory.getInstance(
+                                it.type,
+                                children = it
+                                    .children
+                                    .drop(1)
+                                    .filter { it.type !in listOf(MarkdownTokenTypes.WHITE_SPACE, MarkdownTokenTypes.EOL) }
+                                    .map { visitNode(it) }
+                            )
+                        else
+                            visitNode(it)
                     },
                 params =
-                        if(node.type == MarkdownElementTypes.ORDERED_LIST) {
-                            val listNumberNode = node.children.first().children.first()
-                            mapOf("start" to text.substring(listNumberNode.startOffset, listNumberNode.endOffset).dropLast(2))
-                        }
-                        else
-                            emptyMap()
+                if (node.type == MarkdownElementTypes.ORDERED_LIST) {
+                    val listNumberNode = node.children.first().children.first()
+                    mapOf("start" to text.substring(listNumberNode.startOffset, listNumberNode.endOffset).dropLast(2))
+                } else
+                    emptyMap()
             )
+        }
 
         private fun linksHandler(node: ASTNode): DocNode {
             val linkNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
@@ -77,7 +93,6 @@ class MarkdownParser (
                     ).single()
                 )
             }
-
             val href = mapOf("href" to link)
             return when (node.type) {
                 MarkdownElementTypes.FULL_REFERENCE_LINK -> DocNodesFromIElementFactory.getInstance(node.type, params = href, children = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!.children.drop(1).dropLast(1).map { visitNode(it) }, dri = dri)
@@ -142,12 +157,12 @@ class MarkdownParser (
     override fun preparse(text: String) = text
 
     fun parseFromKDocTag(kDocTag: KDocTag?): DocHeader {
-        val test = if(kDocTag == null)
+        return if(kDocTag == null)
             DocHeader(emptyList())
         else
             DocHeader(
-                (listOf(kDocTag) + kDocTag.children).filter { it is KDocTag }.map {
-                    when( (it as KDocTag).knownTag ) {
+                (listOf(kDocTag) + kDocTag.children).filterIsInstance<KDocTag>().map {
+                    when( it.knownTag ) {
                         null                        -> Description(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.AUTHOR         -> Author(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.THROWS         -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
@@ -164,7 +179,6 @@ class MarkdownParser (
                     }
                 }
             )
-        return test
     }
 
 

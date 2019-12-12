@@ -20,7 +20,12 @@ open class HtmlRenderer(
     }
 
     protected open fun buildListItems(items: List<ContentNode>, pageContext: PageNode) =
-        "<li>\n${items.joinToString("\n</li>\n<li>\n") { it.build(pageContext) }}\n</li>"
+        items.joinToString("") {
+            if (it is ContentText) "<li>\n${it.build(pageContext)}\n</li>\n" else buildList(
+                it as ContentList,
+                pageContext
+            )
+        }
 
     override fun buildResource(node: ContentEmbeddedResource, pageContext: PageNode): String { // TODO: extension point there
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")

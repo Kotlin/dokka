@@ -32,7 +32,6 @@ object DocNodesFromStringFactory {
             "h6" -> H6(children, params)
             "head" -> Head(children, params)
             "header" -> Header(children, params)
-            "hr" -> Hr(children, params)
             "html" -> Html(children, params)
             "i" -> I(children, params)
             "iframe" -> IFrame(children, params)
@@ -71,7 +70,7 @@ object DocNodesFromStringFactory {
             "ul" -> Ul(children, params)
             "var" -> Var(children, params)
             "documentationlink" -> DocumentationLink(children, params, dri ?: throw NullPointerException("DRI cannot be passed null while constructing documentation link!"))
-            "horizontalrule" -> HorizontalRule()
+            "hr" -> HorizontalRule()
             else -> CustomNode(children, params)
         }
 }

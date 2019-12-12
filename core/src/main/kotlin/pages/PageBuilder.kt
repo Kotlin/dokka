@@ -77,16 +77,18 @@ class DefaultPageBuilder(
             signature(it)
             text(it.briefDocstring)
         }
+        block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
+            link(it.name, it.dri)
+            text(it.briefDocstring)
+        }
     }
 
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        //f.commentsData.forEach { comment(it) }
         f.commentsData.forEach { it.properties.forEach { comment(it.root) } }
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
-            //it.commentsData.forEach { comment(it) }
             it.commentsData.forEach { it.properties.forEach { comment(it.root) } }
         }
     }

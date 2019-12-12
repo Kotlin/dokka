@@ -32,7 +32,6 @@ class H5(children: List<DocNode> = emptyList(), params: Map<String, String> = em
 class H6(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())               : DocNode(children, params)
 class Head(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())             : DocNode(children, params)
 class Header(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())           : DocNode(children, params)
-class Hr(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())               : DocNode(children, params)
 class Html(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())             : DocNode(children, params)
 class I(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())                : DocNode(children, params)
 class IFrame(children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap())           : DocNode(children, params)
