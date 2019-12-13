@@ -1,6 +1,6 @@
-package parsers
+package org.jetbrains.dokka.parsers
 
-import model.doc.*
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.parsers.factories.DocNodesFromStringFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Node
@@ -11,10 +11,10 @@ class HtmlParser : Parser() {
 
     inner class NodeFilterImpl : NodeFilter {
 
-        private val nodesCache: MutableMap<Int, MutableList<DocNode>> = mutableMapOf()
+        private val nodesCache: MutableMap<Int, MutableList<DocTag>> = mutableMapOf()
         private var currentDepth = 0
 
-        fun collect(): DocNode = nodesCache[currentDepth]!![0]
+        fun collect(): DocTag = nodesCache[currentDepth]!![0]
 
         override fun tail(node: Node?, depth: Int): NodeFilter.FilterResult {
             val nodeName = node!!.nodeName()
@@ -65,7 +65,7 @@ class HtmlParser : Parser() {
     }
 
 
-    private fun htmlToDocNode(string: String): DocNode {
+    private fun htmlToDocNode(string: String): DocTag {
         val document = Jsoup.parse(string)
         val nodeFilterImpl = NodeFilterImpl()
         NodeTraversor.filter(nodeFilterImpl, document.root())

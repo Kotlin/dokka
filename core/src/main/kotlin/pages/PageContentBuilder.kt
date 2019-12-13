@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.pages
 
-import model.doc.DocNode
+import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
@@ -12,7 +12,7 @@ class DefaultPageContentBuilder(
     private val dri: DRI,
     private val platformData: Set<PlatformData>,
     private val kind: Kind,
-    private val markdownConverter: MarkdownToContentConverter,
+    private val commentsConverter: CommentsToContentConverter,
     val logger: DokkaLogger,
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
@@ -127,11 +127,11 @@ class DefaultPageContentBuilder(
         )
     }
 
-    override fun comment(docNode: DocNode) {
+    override fun comment(docTag: DocTag) {
         contents += group(ContentKind.Comment) {
             with(this as DefaultPageContentBuilder) {
-                contents += markdownConverter.buildContent(
-                    docNode,
+                contents += commentsConverter.buildContent(
+                    docTag,
                     DCI(dri, ContentKind.Comment),
                     platformData
                 )
@@ -147,18 +147,18 @@ class DefaultPageContentBuilder(
         platformData: Set<PlatformData>,
         kind: Kind,
         block: PageContentBuilderFunction
-    ): ContentGroup = group(dri, platformData, kind, markdownConverter, logger, block)
+    ): ContentGroup = group(dri, platformData, kind, commentsConverter, logger, block)
 
     companion object {
         fun group(
             dri: DRI,
             platformData: Set<PlatformData>,
             kind: Kind,
-            markdownConverter: MarkdownToContentConverter,
+            commentsConverter: CommentsToContentConverter,
             logger: DokkaLogger,
             block: PageContentBuilderFunction
         ): ContentGroup =
-            DefaultPageContentBuilder(dri, platformData, kind, markdownConverter, logger).apply(block).build()
+            DefaultPageContentBuilder(dri, platformData, kind, commentsConverter, logger).apply(block).build()
     }
 }
 
@@ -191,7 +191,7 @@ interface PageContentBuilder {
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
     fun link(address: DRI, kind: Kind = ContentKind.Symbol, block: PageContentBuilderFunction)
     fun linkTable(elements: List<DRI>)
-    fun comment(docNode: DocNode)
+    fun comment(docTag: DocTag)
     fun header(level: Int, block: PageContentBuilderFunction)
     fun <T> list(
         elements: List<T>,

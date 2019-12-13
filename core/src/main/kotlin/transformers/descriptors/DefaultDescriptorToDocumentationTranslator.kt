@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
-import parsers.MarkdownParser
+import org.jetbrains.dokka.parsers.MarkdownParser
 
 object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
     override fun invoke(

@@ -1,6 +1,6 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.pages.MarkdownToContentConverter
+import org.jetbrains.dokka.pages.CommentsToContentConverter
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.ExtensionPoint
@@ -23,7 +23,7 @@ object CoreExtensions {
     val descriptorToDocumentationTranslator by coreExtension<DescriptorToDocumentationTranslator>()
     val documentationMerger by coreExtension<DocumentationNodeMerger>()
     val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
-    val markdownToContentConverterFactory by coreExtension<(DokkaContext) -> MarkdownToContentConverter>()
+    val commentsToContentConverterFactory by coreExtension<(DokkaContext) -> CommentsToContentConverter>()
     val documentationToPageTranslator by coreExtension<DocumentationToPageTranslator>()
     val pageTransformer by coreExtension<PageNodeTransformer>()
     val rendererFactory by coreExtension<(FileWriter, LocationProvider, DokkaContext) -> Renderer>()
