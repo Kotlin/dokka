@@ -1,6 +1,7 @@
 *.ipr
 *.iml
 
+doc
 ### Maven template
 target/
 pom.xml.tag

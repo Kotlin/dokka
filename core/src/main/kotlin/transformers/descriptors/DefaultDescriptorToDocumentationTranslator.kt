@@ -154,25 +154,6 @@ class DokkaDescriptorVisitor(
         return ClassPlatformInfo(resolveDescriptorData(),
             (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) })
     }
-
-    private fun getXMLDRIs(descriptor: DeclarationDescriptor, platformInfo: PlatformInfo?) =
-
-        //TODO from Platform Info rip out the DRI Tree
-        Unit
-//        platformInfo?.docTag?.children
-//            ?.filter {
-//                it.text.contains("@attr")
-//            }?.flatMap { ref ->
-//                val matchResult = "@attr\\s+ref\\s+(.+)".toRegex().matchEntire(ref.text)
-//                val toFind = matchResult?.groups?.last()?.value.orEmpty()
-//                resolveKDocLink(
-//                    resolutionFacade.resolveSession.bindingContext,
-//                    resolutionFacade,
-//                    descriptor,
-//                    null,
-//                    toFind.split('.')
-//                ).map { XMLMega("@attr ref", DRI.from(it)) }
-//            }.orEmpty()
 }
 
 data class XMLMega(val key: String, val dri: DRI) : Extra
