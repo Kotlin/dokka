@@ -38,14 +38,14 @@ object XmlTransformer : PageNodeTransformer {
                     node.dri,
                     platformData,
                     XMLKind.XmlList,
-                    dokkaContext.single(CoreExtensions.markdownToContentConverterFactory).invoke(dokkaContext),
+                    dokkaContext.single(CoreExtensions.commentsToContentConverterFactory).invoke(dokkaContext),
                     dokkaContext.logger
                 ) {
                     block("XML Attributes", 2, XMLKind.XmlList, elementsToAdd, platformData) { element ->
                         link(element.dri, XMLKind.XmlList) {
                             text(element.name ?: "<unnamed>", XMLKind.Main)
                         }
-                        text(element.briefDocstring, XMLKind.XmlList)
+                        text(element.briefDocTagString, XMLKind.XmlList)
                     }
                 }
 

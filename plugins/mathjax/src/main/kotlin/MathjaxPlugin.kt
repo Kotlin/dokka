@@ -1,6 +1,7 @@
 package  org.jetbrains.dokka.mathjax
 
-import model.doc.CustomTag
+
+import org.jetbrains.dokka.model.doc.CustomWrapperTag
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PageNode
@@ -14,7 +15,7 @@ class MathjaxPlugin : DokkaPlugin() {
     }
 }
 
-private const val ANNOTATION = "@usesMathJax"
+private const val ANNOTATION = "usesMathJax"
 private const val LIB_PATH = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
 
 object MathjaxTransformer : PageNodeTransformer {
@@ -32,9 +33,5 @@ object MathjaxTransformer : PageNodeTransformer {
         get() = documentable?.platformInfo
             ?.flatMap { it.documentationNode.children }
             .orEmpty()
-            .filterIsInstance<CustomTag>()
-            .let { true }
-//            .any { it.name.contains("ref") && it.root.children.any {it.name} }
-
-
+            .any { (it as? CustomWrapperTag)?.name == ANNOTATION }
 }

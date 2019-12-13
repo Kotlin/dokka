@@ -1,9 +1,10 @@
-package parsers
+package org.jetbrains.dokka.parsers
 
-import model.doc.*
+import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.CompositeASTNode
 import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
@@ -22,19 +23,25 @@ class MarkdownParser (
 
     inner class MarkdownVisitor(val text: String) {
 
-        private fun headersHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(node.type, visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT }!!).children.drop(1))
+        private fun headersHandler(node: ASTNode): DocTag =
+            DocNodesFromIElementFactory.getInstance(
+                node.type,
+                visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT }!!).children
+            )
 
-        private fun horizontalRulesHandler(node: ASTNode): DocNode =
+        private fun horizontalRulesHandler(node: ASTNode): DocTag =
             DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.HORIZONTAL_RULE)
 
-        private fun emphasisHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(node.type, children = listOf(visitNode(node.children[node.children.size/2])))
+        private fun emphasisHandler(node: ASTNode): DocTag =
+            DocNodesFromIElementFactory.getInstance(
+                node.type,
+                children = listOf(visitNode(node.children[node.children.size / 2]))
+            )
 
-        private fun blockquotesHandler(node: ASTNode): DocNode =
+        private fun blockquotesHandler(node: ASTNode): DocTag =
             DocNodesFromIElementFactory.getInstance(node.type, children = node.children.drop(1).map { visitNode(it) })
 
-        private fun listsHandler(node: ASTNode): DocNode {
+        private fun listsHandler(node: ASTNode): DocTag {
 
             val children = node.children.filterIsInstance<ListItemCompositeNode>().flatMap {
                 if( it.children.last().type in listOf(MarkdownElementTypes.ORDERED_LIST, MarkdownElementTypes.UNORDERED_LIST) ) {
@@ -57,8 +64,7 @@ class MarkdownParser (
                                 children = it
                                     .children
                                     .drop(1)
-                                    .filter { it.type !in listOf(MarkdownTokenTypes.WHITE_SPACE, MarkdownTokenTypes.EOL) }
-                                    .map { visitNode(it) }
+                                    .evaluateChildren()
                             )
                         else
                             visitNode(it)
@@ -72,7 +78,7 @@ class MarkdownParser (
             )
         }
 
-        private fun linksHandler(node: ASTNode): DocNode {
+        private fun linksHandler(node: ASTNode): DocTag {
             val linkNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!
             val link = text.substring(linkNode.startOffset+1, linkNode.endOffset-1)
 
@@ -91,19 +97,20 @@ class MarkdownParser (
             }
             val href = mapOf("href" to link)
             return when (node.type) {
-                MarkdownElementTypes.FULL_REFERENCE_LINK -> DocNodesFromIElementFactory.getInstance(node.type, params = href, children = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!.children.drop(1).dropLast(1).map { visitNode(it) }, dri = dri)
+                MarkdownElementTypes.FULL_REFERENCE_LINK -> DocNodesFromIElementFactory.getInstance(node.type, params = href, children = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!.children.drop(1).dropLast(1).evaluateChildren(), dri = dri)
                 else                                     -> DocNodesFromIElementFactory.getInstance(node.type, params = href, children = listOf(visitNode(linkNode)), dri = dri)
             }
         }
 
-        private fun imagesHandler(node: ASTNode): DocNode {
-            val linkNode = node.children.last().children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
+        private fun imagesHandler(node: ASTNode): DocTag {
+            val linkNode =
+                node.children.last().children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
             val link = text.substring(linkNode.startOffset, linkNode.endOffset)
             val src = mapOf("src" to link)
             return DocNodesFromIElementFactory.getInstance(node.type, params = src, children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!)))
         }
 
-        private fun codeSpansHandler(node: ASTNode): DocNode =
+        private fun codeSpansHandler(node: ASTNode): DocTag =
             DocNodesFromIElementFactory.getInstance(
                 node.type,
                 children = listOf(
@@ -115,7 +122,7 @@ class MarkdownParser (
                 )
             )
 
-        private fun codeFencesHandler(node: ASTNode): DocNode =
+        private fun codeFencesHandler(node: ASTNode): DocTag =
             DocNodesFromIElementFactory.getInstance(
                 node.type,
                 children = node
@@ -129,13 +136,15 @@ class MarkdownParser (
                         ?: emptyMap()
             )
 
-        private fun codeBlocksHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(node.type, children = node.children.map { visitNode(it) })
+        private fun codeBlocksHandler(node: ASTNode): DocTag =
+            DocNodesFromIElementFactory.getInstance(node.type, children = node.children.evaluateChildren())
 
-        private fun defaultHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(MarkdownElementTypes.PARAGRAPH, children = node.children.map { visitNode(it) })
+        private fun defaultHandler(node: ASTNode): DocTag =
+            DocNodesFromIElementFactory.getInstance(
+                MarkdownElementTypes.PARAGRAPH,
+                children = node.children.evaluateChildren())
 
-        fun visitNode(node: ASTNode): DocNode =
+        fun visitNode(node: ASTNode): DocTag =
             when (node.type) {
                 MarkdownElementTypes.ATX_1,
                 MarkdownElementTypes.ATX_2,
@@ -155,16 +164,17 @@ class MarkdownParser (
                 MarkdownElementTypes.CODE_FENCE             -> codeFencesHandler(node)
                 MarkdownElementTypes.CODE_SPAN              -> codeSpansHandler(node)
                 MarkdownElementTypes.IMAGE                  -> imagesHandler(node)
-                MarkdownTokenTypes.EOL                      -> DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.TEXT, body = "\n")
-                MarkdownTokenTypes.WHITE_SPACE              -> DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.TEXT, body = " ")
                 MarkdownTokenTypes.CODE_FENCE_CONTENT,
                 MarkdownTokenTypes.CODE_LINE,
                 MarkdownTokenTypes.TEXT                     -> DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.TEXT, body = text.substring(node.startOffset, node.endOffset))
                 else                                        -> defaultHandler(node)
             }
+
+        private fun List<ASTNode>.evaluateChildren(): List<DocTag> =
+            this.filter { it is CompositeASTNode || it.type == MarkdownTokenTypes.TEXT }.map { visitNode(it) }
     }
 
-    private fun markdownToDocNode(text: String): DocNode {
+    private fun markdownToDocNode(text: String): DocTag {
 
         val flavourDescriptor = CommonMarkFlavourDescriptor()
         val markdownAstRoot: ASTNode = IntellijMarkdownParser(flavourDescriptor).buildMarkdownTreeFromString(text)
@@ -181,20 +191,23 @@ class MarkdownParser (
         else
             DocumentationNode(
                 (listOf(kDocTag) + kDocTag.children).filterIsInstance<KDocTag>().map {
-                    when( it.knownTag ) {
-                        null                        -> Description(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.AUTHOR         -> Author(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.THROWS         -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.EXCEPTION      -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.PARAM          -> Param(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.RECEIVER       -> Receiver(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.RETURN         -> Return(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.SEE            -> See(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.SINCE          -> Since(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.CONSTRUCTOR    -> Constructor(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.PROPERTY       -> Property(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.SAMPLE         -> Sample(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.SUPPRESS       -> Suppress(parseStringToDocNode(it.getContent()))
+                    when (it.knownTag) {
+                        null -> if (it.name == null) Description(parseStringToDocNode(it.getContent())) else CustomWrapperTag(
+                            parseStringToDocNode(it.getContent()),
+                            it.name!!
+                        )
+                        KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.THROWS -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.EXCEPTION -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.PARAM -> Param(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.SEE -> See(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.PROPERTY -> Property(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.SAMPLE -> Sample(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.SUPPRESS -> Suppress(parseStringToDocNode(it.getContent()))
                     }
                 }
             )

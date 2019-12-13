@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.model
 
-import model.doc.*
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.PlatformData
@@ -106,7 +106,7 @@ abstract class Documentable {
     abstract val children: List<Documentable>
 
     override fun toString(): String {
-        return "${javaClass.simpleName}($dri)" + briefDocstring.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
+        return "${javaClass.simpleName}($dri)" + briefDocTagString.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
     }
 
     override fun equals(other: Any?) = other is Documentable && this.dri == other.dri
@@ -118,15 +118,16 @@ abstract class Documentable {
     val commentsData: List<DocumentationNode>
         get() = platformInfo.map { it.documentationNode }
 
-    val briefDocstring: String
-        get() = docNodeSummary(platformInfo.firstOrNull()?.documentationNode?.children?.firstOrNull()?.root ?: Text(body = "")).shorten(40)
-
-    private fun docNodeSummary(docNode: DocNode): String {
-        if(docNode.children.isEmpty() && docNode is Text)
-            return docNode.body
-
-        return docNode.children.joinToString(" ") { docNodeSummary(it) }
-    }
+    val briefDocTagString: String
+        get() =
+            platformInfo
+            .firstOrNull()
+            ?.documentationNode
+            ?.children
+            ?.firstOrNull()
+            ?.root
+            ?.docTagSummary()
+            ?.shorten(40) ?: ""
 
     open val extra: MutableSet<Extra> = mutableSetOf()
 }

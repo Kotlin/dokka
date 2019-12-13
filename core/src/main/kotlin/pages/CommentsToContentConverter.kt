@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.pages
 
-import model.doc.DocNode
-import org.jetbrains.dokka.markdown.MarkdownNode
-import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.doc.DocTag
 
-interface MarkdownToContentConverter {
+interface CommentsToContentConverter {
     fun buildContent(
-        docNode: DocNode,
+        docTag: DocTag,
         dci: DCI,
         platforms: Set<PlatformData>,
         styles: Set<Style> = emptySet(),

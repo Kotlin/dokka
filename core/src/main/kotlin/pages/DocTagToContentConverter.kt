@@ -1,16 +1,13 @@
 package org.jetbrains.dokka.pages
 
-import model.doc.*
-import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.MarkdownTokenTypes
-import org.jetbrains.dokka.markdown.MarkdownNode
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class DocNodeToContentConverter(
+class DocTagToContentConverter(
     private val context: DokkaContext
-) : MarkdownToContentConverter {
+) : CommentsToContentConverter {
     override fun buildContent(
-        docNode: DocNode,
+        docTag: DocTag,
         dci: DCI,
         platforms: Set<PlatformData>,
         styles: Set<Style>,
@@ -18,18 +15,18 @@ class DocNodeToContentConverter(
 
     ): List<ContentNode> {
 
-        fun buildChildren(docNode: DocNode, newStyles: Set<Style> = emptySet(), newExtras: Set<Extra> = emptySet()) =
-            docNode.children.flatMap {
+        fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: Set<Extra> = emptySet()) =
+            docTag.children.flatMap {
                 buildContent(it, dci, platforms, styles + newStyles, extras + newExtras)
             }
 
         fun buildHeader(level: Int) =
-            listOf(ContentHeader(buildChildren(docNode), level, dci, platforms, styles, extras))
+            listOf(ContentHeader(buildChildren(docTag), level, dci, platforms, styles, extras))
 
         fun buildList(ordered: Boolean) =
-            listOf(ContentList(buildChildren(docNode), ordered, dci, platforms, styles, extras))
+            listOf(ContentList(buildChildren(docTag), ordered, dci, platforms, styles, extras))
 
-        return when (docNode) {
+        return when (docTag) {
             is H1 -> buildHeader(1)
             is H2 -> buildHeader(2)
             is H3 -> buildHeader(3)
@@ -38,14 +35,14 @@ class DocNodeToContentConverter(
             is H6 -> buildHeader(6)
             is Ul -> buildList(false)
             is Ol -> buildList(true)
-            is Li -> buildChildren(docNode)
-            is B -> buildChildren(docNode, setOf(TextStyle.Strong))
-            is I -> buildChildren(docNode, setOf(TextStyle.Italic))
-            is P -> buildChildren(docNode, newStyles = setOf(TextStyle.Paragraph))
+            is Li -> buildChildren(docTag)
+            is B -> buildChildren(docTag, setOf(TextStyle.Strong))
+            is I -> buildChildren(docTag, setOf(TextStyle.Italic))
+            is P -> buildChildren(docTag, newStyles = setOf(TextStyle.Paragraph))
             is A -> listOf(
                 ContentResolvedLink(
-                    buildChildren(docNode),
-                    docNode.params.get("href")!!,
+                    buildChildren(docTag),
+                    docTag.params.get("href")!!,
                     dci,
                     platforms,
                     styles,
@@ -54,18 +51,18 @@ class DocNodeToContentConverter(
             )
             is DocumentationLink -> listOf(
                 ContentDRILink(
-                    buildChildren(docNode),
-                    docNode.dri,
-                    DCI(docNode.dri, ContentKind.Symbol),
+                    buildChildren(docTag),
+                    docTag.dri,
+                    DCI(docTag.dri, ContentKind.Symbol),
                     platforms,
                     styles,
                     extras
                 )
             )
-            is BlockQuote -> throw NotImplementedError("Implement DocNotToContent BlockQuote!")
+            is BlockQuote -> TODO("Implement DocNotToContent BlockQuote!")
             is Code -> listOf(
                 ContentCode(
-                    buildChildren(docNode),
+                    buildChildren(docTag),
                     "",
                     dci,
                     platforms,
@@ -73,10 +70,10 @@ class DocNodeToContentConverter(
                     extras
                 )
             )
-            is Img -> throw NotImplementedError("Implement DocNotToContent Img!")
+            is Img -> TODO("Implement DocNotToContent Img!")
             is HorizontalRule -> listOf(ContentText("", dci, platforms, setOf()))
-            is Text -> listOf(ContentText(docNode.body, dci, platforms, styles, extras))
-            else -> buildChildren(docNode)
+            is Text -> listOf(ContentText(docTag.body, dci, platforms, styles, extras))
+            else -> buildChildren(docTag)
         }
     }
 }

@@ -1,19 +1,19 @@
-package parsers
+package org.jetbrains.dokka.parsers
 
-import model.doc.*
-import model.doc.Deprecated
+import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
 
 
 abstract class Parser {
 
-    abstract fun parseStringToDocNode(extractedString: String): DocNode
+    abstract fun parseStringToDocNode(extractedString: String): DocTag
     abstract fun preparse(text: String): String
 
     fun parse(text: String): DocumentationNode {
 
         val list = jkdocToListOfPairs(preparse(text))
 
-        val mappedList: List<DocType> = list.map {
+        val mappedList: List<TagWrapper> = list.map {
             when(it.first) {
                 "description"         -> Description(parseStringToDocNode(it.second))
                 "author"              -> Author(parseStringToDocNode(it.second))
@@ -29,7 +29,7 @@ abstract class Parser {
                 "deprecated"          -> Deprecated(parseStringToDocNode(it.second))
                 "sample"              -> Sample(parseStringToDocNode(it.second.substringAfter(' ')), it.second.substringBefore(' '))
                 "suppress"            -> Suppress(parseStringToDocNode(it.second))
-                else                  -> CustomTag(parseStringToDocNode(it.second), it.first)
+                else                  -> CustomWrapperTag(parseStringToDocNode(it.second), it.first)
             }
         }
         return DocumentationNode(mappedList)

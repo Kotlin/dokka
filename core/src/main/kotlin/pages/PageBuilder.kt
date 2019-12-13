@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.pages
 
-import model.doc.DocType
+import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 
@@ -46,12 +46,12 @@ class DefaultPageBuilder(
         header(1) { text("Package ${p.name}") }
         block("Types", 2, ContentKind.Properties, p.classes, p.platformData) {
             link(it.name, it.dri)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, p.functions, p.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
     }
 
@@ -71,16 +71,16 @@ class DefaultPageBuilder(
         block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
         block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
             link(it.name, it.dri)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
     }
 
@@ -94,7 +94,7 @@ class DefaultPageBuilder(
         }
     }
 
-    private fun DocType.toHeaderString() = this.javaClass.toGenericString().split('.').last()
+    private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }
 
 typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup

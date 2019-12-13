@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.parsers.factories
 
-import model.doc.*
+import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -8,7 +8,7 @@ import org.jetbrains.dokka.links.DRI
 import java.lang.NullPointerException
 
 object DocNodesFromIElementFactory {
-    fun getInstance(type: IElementType, children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
+    fun getInstance(type: IElementType, children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
         when(type) {
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK    -> if(dri == null) A(children, params) else DocumentationLink(children, params, dri)
@@ -31,6 +31,6 @@ object DocNodesFromIElementFactory {
             MarkdownElementTypes.PARAGRAPH              -> P(children, params)
             MarkdownTokenTypes.TEXT                     -> Text(children, params, body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"))
             MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule()
-            else                                        -> CustomNode(children, params)
+            else                                        -> CustomDocTag(children, params)
         }
 }

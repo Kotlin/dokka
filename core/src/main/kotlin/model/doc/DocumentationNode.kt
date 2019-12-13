@@ -1,3 +1,3 @@
-package model.doc
+package org.jetbrains.dokka.model.doc
 
-data class DocumentationNode(val children: List<DocType>)
+data class DocumentationNode(val children: List<TagWrapper>)

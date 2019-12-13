@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.parsers.factories
 
-import model.doc.*
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.links.DRI
 import java.lang.NullPointerException
 
 object DocNodesFromStringFactory {
-    fun getInstance(name: String, children: List<DocNode> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
+    fun getInstance(name: String, children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
         when(name) {
             "a" -> A(children, params)
             "big" -> Big(children, params)
@@ -71,6 +71,6 @@ object DocNodesFromStringFactory {
             "var" -> Var(children, params)
             "documentationlink" -> DocumentationLink(children, params, dri ?: throw NullPointerException("DRI cannot be passed null while constructing documentation link!"))
             "hr" -> HorizontalRule()
-            else -> CustomNode(children, params)
+            else -> CustomDocTag(children, params)
         }
 }
