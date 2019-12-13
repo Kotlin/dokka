@@ -12,7 +12,6 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
-import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
@@ -35,7 +34,7 @@ object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTran
 class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
-) : DeclarationDescriptorVisitorEmptyBodies<DocumentationNode, DRI>() {
+) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRI>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRI): Nothing {
         throw IllegalStateException("${javaClass.simpleName} should never enter ${descriptor.javaClass.simpleName}")
     }

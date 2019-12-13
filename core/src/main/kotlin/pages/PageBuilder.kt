@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.pages
 
+import model.doc.DocType
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 
@@ -29,7 +30,7 @@ class DefaultPageBuilder(
             else -> throw IllegalStateException("$m should not be present here")
         }
 
-    private fun group(node: DocumentationNode, content: PageContentBuilderFunction) =
+    private fun group(node: Documentable, content: PageContentBuilderFunction) =
         rootContentGroup(node, ContentKind.Main, content)
 
     private fun contentForModule(m: Module) = group(m) {
@@ -61,8 +62,8 @@ class DefaultPageBuilder(
             linkTable(it)
         }
         c.commentsData.forEach {
-            it.properties.forEach {
-                header(3) { text(it.javaClass.toGenericString().split('.').last()) }
+            it.children.forEach {
+                header(3) { text(it.toHeaderString()) }
                 comment(it.root)
                 text("\n")
             }
@@ -86,15 +87,17 @@ class DefaultPageBuilder(
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        f.commentsData.forEach { it.properties.forEach { comment(it.root) } }
+        f.commentsData.forEach { it.children.forEach { comment(it.root) } }
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
-            it.commentsData.forEach { it.properties.forEach { comment(it.root) } }
+            it.commentsData.forEach { it.children.forEach { comment(it.root) } }
         }
     }
+
+    private fun DocType.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }
 
-typealias RootContentBuilder = (DocumentationNode, Kind, PageContentBuilderFunction) -> ContentGroup
+typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup
 
 interface PageBuilder {
     val rootContentGroup: RootContentBuilder

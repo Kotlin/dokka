@@ -1,13 +1,13 @@
 package org.jetbrains.dokka.utilities
 
-import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 
 const val DOWN = '\u2503'
 const val BRANCH = '\u2523'
 const val LAST = '\u2517'
 
-fun DocumentationNode.pretty(prefix: String = "", isLast: Boolean = true): String {
+fun Documentable.pretty(prefix: String = "", isLast: Boolean = true): String {
     val nextPrefix = prefix + (if (isLast) ' ' else DOWN) + ' '
 
     return prefix + (if (isLast) LAST else BRANCH) + this.toString() +

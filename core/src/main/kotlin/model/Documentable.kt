@@ -4,10 +4,8 @@ import model.doc.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.PlatformData
-import parsers.MarkdownParser
-import parsers.Parser
 
-class Module(val packages: List<Package>) : DocumentationNode() {
+class Module(val packages: List<Package>) : Documentable() {
     override val dri: DRI = DRI.topLevel
     override val children: List<Package> = packages
     override val extra: MutableSet<Extra> = mutableSetOf()
@@ -72,32 +70,32 @@ class Parameter(
     val type: TypeWrapper,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
-) : DocumentationNode() {
-    override val children: List<DocumentationNode>
+) : Documentable() {
+    override val children: List<Documentable>
         get() = emptyList()
 }
 
 interface PlatformInfo {
-    val docHeader: DocHeader
+    val documentationNode: DocumentationNode
     val platformData: List<PlatformData>
 }
 
 class BasePlatformInfo(
-    override val docHeader: DocHeader,
+    override val documentationNode: DocumentationNode,
     override val platformData: List<PlatformData>) : PlatformInfo {
 
     override fun equals(other: Any?): Boolean =
-        other is PlatformInfo && docHeader == other.docHeader
+        other is PlatformInfo && documentationNode == other.documentationNode
 
     override fun hashCode(): Int =
-        docHeader.hashCode()
+        documentationNode.hashCode()
 }
 
 class ClassPlatformInfo(
     val info: PlatformInfo,
     val inherited: List<DRI>) : PlatformInfo by info
 
-abstract class DocumentationNode {
+abstract class Documentable {
     open val expected: PlatformInfo? = null
     open val actual: List<PlatformInfo> = emptyList()
     open val name: String? = null
@@ -105,23 +103,23 @@ abstract class DocumentationNode {
     val platformData by lazy { platformInfo.flatMap { it.platformData }.toSet() }
     abstract val dri: DRI
 
-    abstract val children: List<DocumentationNode>
+    abstract val children: List<Documentable>
 
     override fun toString(): String {
         return "${javaClass.simpleName}($dri)" + briefDocstring.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
     }
 
-    override fun equals(other: Any?) = other is DocumentationNode && this.dri == other.dri
+    override fun equals(other: Any?) = other is Documentable && this.dri == other.dri
 
     override fun hashCode() = dri.hashCode()
 
 
 
-    val commentsData: List<DocHeader>
-        get() = platformInfo.map { it.docHeader }
+    val commentsData: List<DocumentationNode>
+        get() = platformInfo.map { it.documentationNode }
 
     val briefDocstring: String
-        get() = docNodeSummary(platformInfo.firstOrNull()?.docHeader?.properties?.firstOrNull()?.root ?: Text(body = "")).shorten(40)
+        get() = docNodeSummary(platformInfo.firstOrNull()?.documentationNode?.children?.firstOrNull()?.root ?: Text(body = "")).shorten(40)
 
     private fun docNodeSummary(docNode: DocNode): String {
         if(docNode.children.isEmpty() && docNode is Text)
@@ -133,16 +131,16 @@ abstract class DocumentationNode {
     open val extra: MutableSet<Extra> = mutableSetOf()
 }
 
-abstract class ScopeNode : DocumentationNode() {
+abstract class ScopeNode : Documentable() {
     abstract val functions: List<Function>
     abstract val properties: List<Property>
     abstract val classes: List<Class>
 
-    override val children: List<DocumentationNode>
+    override val children: List<Documentable>
         get() = functions + properties + classes
 }
 
-abstract class CallableNode : DocumentationNode() {
+abstract class CallableNode : Documentable() {
     abstract val receiver: Parameter?
 }
 
@@ -158,7 +156,7 @@ interface TypeWrapper {
 }
 interface ClassKind
 
-fun DocumentationNode.dfs(predicate: (DocumentationNode) -> Boolean): DocumentationNode? =
+fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     if (predicate(this)) {
         this
     } else {

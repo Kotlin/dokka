@@ -74,7 +74,7 @@ class DocNodeToContentConverter(
                 )
             )
             is Img -> throw NotImplementedError("Implement DocNotToContent Img!")
-            is HorizontalRule -> throw NotImplementedError("Implement DocNotToContent HorizontalRule!")
+            is HorizontalRule -> listOf(ContentText("", dci, platforms, setOf()))
             is Text -> listOf(ContentText(docNode.body, dci, platforms, styles, extras))
             else -> buildChildren(docNode)
         }

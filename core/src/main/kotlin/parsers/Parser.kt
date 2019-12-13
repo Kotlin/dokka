@@ -2,7 +2,6 @@ package parsers
 
 import model.doc.*
 import model.doc.Deprecated
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 
 
 abstract class Parser {
@@ -10,7 +9,7 @@ abstract class Parser {
     abstract fun parseStringToDocNode(extractedString: String): DocNode
     abstract fun preparse(text: String): String
 
-    fun parse(text: String): DocHeader {
+    fun parse(text: String): DocumentationNode {
 
         val list = jkdocToListOfPairs(preparse(text))
 
@@ -33,7 +32,7 @@ abstract class Parser {
                 else                  -> CustomTag(parseStringToDocNode(it.second), it.first)
             }
         }
-        return DocHeader(mappedList)
+        return DocumentationNode(mappedList)
     }
 
     private fun jkdocToListOfPairs(javadoc: String): List<Pair<String, String>> =

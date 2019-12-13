@@ -1,14 +1,12 @@
 package org.jetbrains.dokka.pages
 
-import model.doc.DocHeader
 import model.doc.DocNode
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.markdown.parseMarkdown
 
 class DefaultPageContentBuilder(
     private val dri: DRI,
@@ -75,7 +73,7 @@ class DefaultPageContentBuilder(
         )
     }
 
-    override fun <T : DocumentationNode> block(
+    override fun <T : Documentable> block(
         name: String,
         level: Int,
         kind: Kind,
@@ -203,7 +201,7 @@ interface PageContentBuilder {
         operation: PageContentBuilder.(T) -> Unit
     )
 
-    fun <T : DocumentationNode> block(
+    fun <T : Documentable> block(
         name: String,
         level: Int,
         kind: Kind,

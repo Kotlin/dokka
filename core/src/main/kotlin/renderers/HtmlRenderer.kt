@@ -64,7 +64,7 @@ open class HtmlRenderer(
 
     override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
 
-    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = "<code>$code</code>"
+    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = buildNewLine() + "<code>${code.joinToString("") { (it as ContentText).text + buildNewLine() }}</code>"
 
     override fun buildText(textNode: ContentText): String = super.buildText(textNode).htmlEscape()
 

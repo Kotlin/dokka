@@ -4,18 +4,14 @@ import model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.ast.LeafASTNode
 import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.factories.DocNodesFromIElementFactory
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
@@ -107,8 +103,31 @@ class MarkdownParser (
             return DocNodesFromIElementFactory.getInstance(node.type, params = src, children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!)))
         }
 
-        private fun codeSpansAndFencesHandler(node: ASTNode): DocNode =
-            DocNodesFromIElementFactory.getInstance(node.type, children = node.children.drop(1).dropLast(1).map { visitNode(it) })
+        private fun codeSpansHandler(node: ASTNode): DocNode =
+            DocNodesFromIElementFactory.getInstance(
+                node.type,
+                children = listOf(
+                    DocNodesFromIElementFactory.getInstance(
+                        MarkdownTokenTypes.TEXT,
+                        body = text.substring(node.startOffset+1, node.endOffset-1).replace('\n', ' ').trimIndent()
+                    )
+
+                )
+            )
+
+        private fun codeFencesHandler(node: ASTNode): DocNode =
+            DocNodesFromIElementFactory.getInstance(
+                node.type,
+                children = node
+                    .children
+                    .filter { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }
+                    .map { visitNode(it) },
+                params = node
+                    .children
+                    .find { it.type == MarkdownTokenTypes.FENCE_LANG }
+                    ?.let { mapOf("lang" to text.substring(it.startOffset, it.endOffset)) }
+                        ?: emptyMap()
+            )
 
         private fun codeBlocksHandler(node: ASTNode): DocNode =
             DocNodesFromIElementFactory.getInstance(node.type, children = node.children.map { visitNode(it) })
@@ -133,8 +152,8 @@ class MarkdownParser (
                 MarkdownElementTypes.UNORDERED_LIST,
                 MarkdownElementTypes.ORDERED_LIST           -> listsHandler(node)
                 MarkdownElementTypes.CODE_BLOCK             -> codeBlocksHandler(node)
-                MarkdownElementTypes.CODE_FENCE,
-                MarkdownElementTypes.CODE_SPAN              -> codeSpansAndFencesHandler(node)
+                MarkdownElementTypes.CODE_FENCE             -> codeFencesHandler(node)
+                MarkdownElementTypes.CODE_SPAN              -> codeSpansHandler(node)
                 MarkdownElementTypes.IMAGE                  -> imagesHandler(node)
                 MarkdownTokenTypes.EOL                      -> DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.TEXT, body = "\n")
                 MarkdownTokenTypes.WHITE_SPACE              -> DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.TEXT, body = " ")
@@ -156,11 +175,11 @@ class MarkdownParser (
     override fun parseStringToDocNode(extractedString: String) = markdownToDocNode(extractedString)
     override fun preparse(text: String) = text
 
-    fun parseFromKDocTag(kDocTag: KDocTag?): DocHeader {
+    fun parseFromKDocTag(kDocTag: KDocTag?): DocumentationNode {
         return if(kDocTag == null)
-            DocHeader(emptyList())
+            DocumentationNode(emptyList())
         else
-            DocHeader(
+            DocumentationNode(
                 (listOf(kDocTag) + kDocTag.children).filterIsInstance<KDocTag>().map {
                     when( it.knownTag ) {
                         null                        -> Description(parseStringToDocNode(it.getContent()))
