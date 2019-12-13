@@ -10,8 +10,7 @@ import org.jetbrains.dokka.plugability.single
 
 open class DefaultLocationProvider(
     private val pageGraphRoot: ModulePageNode,
-    private val configuration: DokkaConfiguration,
-    context: DokkaContext
+    private val context: DokkaContext
 ) : LocationProvider { // TODO: cache
     private val extension = context.single(CoreExtensions.fileExtension)
 
@@ -21,7 +20,7 @@ open class DefaultLocationProvider(
         findInPageGraph(dri, platforms)?.let { resolve(it, context) } ?:
         // Not found in PageGraph, that means it's an external link
         ExternalLocationProvider.getLocation(dri,
-            configuration.passesConfigurations
+            this@DefaultLocationProvider.context.configuration.passesConfigurations
                 .filter { passConfig ->
                     platforms.toSet().contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?

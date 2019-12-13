@@ -1,14 +1,19 @@
 package org.jetbrains.dokka.renderers
 
+import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.resolvers.LocationProvider
 
+
 abstract class DefaultRenderer<T>(
-    protected val writer: Writer,
-    protected val locationProvider: LocationProvider,
+    protected val outputWriter: OutputWriter,
     protected val context: DokkaContext
 ) : Renderer {
+
+    protected lateinit var locationProvider: LocationProvider
+        private set
 
     protected abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
     protected abstract fun T.buildLink(address: String, content: T.() -> Unit)
@@ -64,7 +69,7 @@ abstract class DefaultRenderer<T>(
     }
 
     protected open fun renderPage(page: PageNode) =
-        writer.write(locationProvider.resolve(page), buildPage(page, ::buildPageContent), "")
+        outputWriter.write(locationProvider.resolve(page), buildPage(page, ::buildPageContent), "")
 
     protected open fun renderPages(root: PageNode) {
         renderPage(root)
@@ -77,7 +82,7 @@ abstract class DefaultRenderer<T>(
         getPackageNamesAndPlatforms(root)
             .keys
             .joinToString("\n")
-            .also { writer.write("${root.name}/package-list", it, "") }
+            .also { outputWriter.write("${root.name}/package-list", it, "") }
 
     protected open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
         root.children
@@ -90,6 +95,7 @@ abstract class DefaultRenderer<T>(
                 }
 
     override fun render(root: PageNode) {
+        locationProvider = context.single(CoreExtensions.locationProviderFactory).getLocationProvider(root, context)
         renderPackageList(root)
         buildSupportFiles()
         renderPages(root)

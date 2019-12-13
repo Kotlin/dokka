@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.plugability
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.EnvironmentAndFacade
 import org.jetbrains.dokka.pages.PlatformData
@@ -20,17 +21,17 @@ interface DokkaContext : DokkaExtensionHandler {
     fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
     val logger: DokkaLogger
-
+    val configuration: DokkaConfiguration
     val platforms: Map<PlatformData, EnvironmentAndFacade>
 
     companion object {
         fun create(
-            pluginsClasspath: Iterable<File>,
+            configuration: DokkaConfiguration,
             logger: DokkaLogger,
             platforms: Map<PlatformData, EnvironmentAndFacade>
         ): DokkaContext =
-            DokkaContextConfigurationImpl(logger, DefaultExtensions, platforms).apply {
-                pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
+            DokkaContextConfigurationImpl(logger, configuration, platforms).apply {
+                configuration.pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
                     .toTypedArray()
                     .let { URLClassLoader(it, this.javaClass.classLoader) }
                     .also { checkClasspath(it) }
@@ -60,7 +61,7 @@ interface DokkaContextConfiguration {
 
 private class DokkaContextConfigurationImpl(
     override val logger: DokkaLogger,
-    private val defaultHandler: DokkaExtensionHandler?,
+    override val configuration: DokkaConfiguration,
     override val platforms: Map<PlatformData, EnvironmentAndFacade>
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
@@ -105,12 +106,12 @@ private class DokkaContextConfigurationImpl(
     override operator fun <T, E> get(point: E, askDefault: AskDefault) where T : Any, E : ExtensionPoint<T> =
         when (askDefault) {
             AskDefault.Never -> actions(point).orEmpty()
-            AskDefault.Always -> actions(point).orEmpty() + defaultHandler?.get(point, askDefault).orEmpty()
+            AskDefault.Always -> actions(point).orEmpty() + DefaultExtensions.get(point, this)
             AskDefault.WhenEmpty ->
-                actions(point)?.takeIf { it.isNotEmpty() } ?: defaultHandler?.get(point, askDefault).orEmpty()
+                actions(point)?.takeIf { it.isNotEmpty() } ?: DefaultExtensions?.get(point, this)
         } as List<T>
 
-    private fun <E : ExtensionPoint<*>> actions(point: E) = extensions[point]?.map { it.action }
+    private fun <E : ExtensionPoint<*>> actions(point: E) = extensions[point]?.map { it.action.get(this) }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : DokkaPlugin> plugin(kclass: KClass<T>) = (plugins[kclass] ?: pluginStubFor(kclass)) as T

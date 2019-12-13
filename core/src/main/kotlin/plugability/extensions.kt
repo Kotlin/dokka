@@ -11,7 +11,7 @@ abstract class Extension<T : Any> internal constructor(
     internal val extensionPoint: ExtensionPoint<T>,
     internal val pluginClass: String,
     internal val extensionName: String,
-    val action: T,
+    internal val action: LazyEvaluated<T>,
     internal val ordering: (OrderDsl.() -> Unit)? = null
 ) {
     override fun toString() = "Extension: $pluginClass/$extensionName"
@@ -23,11 +23,11 @@ abstract class Extension<T : Any> internal constructor(
     override fun hashCode() = listOf(pluginClass, extensionName).hashCode()
 }
 
-class ExtensionOrdered<T : Any>(
+class ExtensionOrdered<T : Any> internal constructor(
     extensionPoint: ExtensionPoint<T>,
     pluginClass: String,
     extensionName: String,
-    action: T,
+    action: LazyEvaluated<T>,
     ordering: (OrderDsl.() -> Unit)
 ) : Extension<T>(
     extensionPoint,
@@ -37,11 +37,11 @@ class ExtensionOrdered<T : Any>(
     ordering
 )
 
-class ExtensionUnordered<T : Any>(
+class ExtensionUnordered<T : Any> internal constructor(
     extensionPoint: ExtensionPoint<T>,
     pluginClass: String,
     extensionName: String,
-    action: T
+    action: LazyEvaluated<T>
 ) : Extension<T>(
     extensionPoint,
     pluginClass,
@@ -57,8 +57,12 @@ annotation class ExtensionsDsl
 
 @ExtensionsDsl
 class ExtendingDSL(private val pluginClass: String, private val extensionName: String) {
-    infix fun <T: Any> ExtensionPoint<T>.with(action: T) =
-        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, action)
+
+    infix fun <T : Any> ExtensionPoint<T>.with(action: T) =
+        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromInstance(action))
+
+    infix fun <T : Any> ExtensionPoint<T>.providing(action: (DokkaContext) -> T) =
+        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromRecipe(action))
 
     infix fun <T: Any> ExtensionUnordered<T>.order(block: OrderDsl.() -> Unit) =
         ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, block)

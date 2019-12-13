@@ -38,7 +38,7 @@ object XmlTransformer : PageNodeTransformer {
                     node.dri,
                     platformData,
                     XMLKind.XmlList,
-                    dokkaContext.single(CoreExtensions.commentsToContentConverterFactory).invoke(dokkaContext),
+                    dokkaContext.single(CoreExtensions.commentsToContentConverter),
                     dokkaContext.logger
                 ) {
                     block("XML Attributes", 2, XMLKind.XmlList, elementsToAdd, platformData) { element ->
