@@ -1,17 +1,17 @@
 package org.jetbrains.dokka.tests
 
 import org.junit.Test
-import org.jetbrains.dokka.toTestString
-import org.jetbrains.dokka.parseMarkdown
+//import org.jetbrains.dokkatoTestString
+//import org.jetbrains.dokka.parseMarkdown
 import org.junit.Ignore
 
 @Ignore public class ParserTest {
     fun runTestFor(text : String) {
         println("MD: ---")
         println(text)
-        val markdownTree = parseMarkdown(text)
+//        val markdownTree = parseMarkdown(text)
         println("AST: ---")
-        println(markdownTree.toTestString())
+//        println(markdownTree.toTestString())
         println()
     }
 

@@ -14,14 +14,13 @@ internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
         )
 }
 
-private fun <T: DocumentationNode> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
+private fun <T: Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
     elements.groupingBy { it.dri }
         .reduce { _, left, right -> reducer(left, right)}
         .values.toList()
 
 fun PlatformInfo.mergeWith(other: PlatformInfo?) = BasePlatformInfo(
-    docTag,
-    links,
+    documentationNode,
     (platformData + (other?.platformData ?: emptyList())).distinct()
 )
 
@@ -31,12 +30,12 @@ fun ClassPlatformInfo.mergeWith(other: ClassPlatformInfo?) = ClassPlatformInfo(
 )
 
 fun List<ClassPlatformInfo>.mergeClassPlatformInfo() : List<ClassPlatformInfo> =
-    groupingBy { it.docTag.toString() + it.links + it.inherited}.reduce {
+    groupingBy { it.documentationNode.children + it.inherited}.reduce {
             _, left, right -> left.mergeWith(right)
     }.values.toList()
 
 fun List<PlatformInfo>.merge() : List<PlatformInfo> =
-    groupingBy { it.docTag.toString() + it.links }.reduce {
+    groupingBy { it.documentationNode }.reduce {
         _, left, right -> left.mergeWith(right)
     }.values.toList()
 

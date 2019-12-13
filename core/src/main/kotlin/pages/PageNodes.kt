@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 import java.util.*
@@ -9,7 +9,7 @@ interface PageNode {
     val name: String
     val content: ContentNode
     val dri: DRI
-    val documentationNode: DocumentationNode?
+    val documentable: Documentable?
     val embeddedResources: List<String>
     val children: List<PageNode>
 
@@ -24,7 +24,8 @@ interface PageNode {
 class ModulePageNode(
     override val name: String,
     override val content: ContentNode,
-    override val documentationNode: DocumentationNode?,
+
+    override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : PageNode {
@@ -37,7 +38,7 @@ class ModulePageNode(
         children: List<PageNode>
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ModulePageNode(name, content, documentationNode, children, embeddedResources)
+        else ModulePageNode(name, content, documentable, children, embeddedResources)
 
     private fun PageNode.transformNode(operation: (PageNode) -> PageNode): PageNode =
         operation(this).let { newNode ->
@@ -64,7 +65,8 @@ class PackagePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode?,
+
+    override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : PageNode {
@@ -76,14 +78,14 @@ class PackagePageNode(
         children: List<PageNode>
     ): PackagePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else PackagePageNode(name, content, dri, documentationNode, children, embeddedResources)
+        else PackagePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 class ClassPageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode?,
+    override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : PageNode {
@@ -95,14 +97,14 @@ class ClassPageNode(
         children: List<PageNode>
     ): ClassPageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ClassPageNode(name, content, dri, documentationNode, children, embeddedResources)
+        else ClassPageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 class MemberPageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: DRI,
-    override val documentationNode: DocumentationNode?,
+    override val documentable: Documentable?,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : PageNode {
@@ -114,7 +116,7 @@ class MemberPageNode(
         children: List<PageNode>
     ): MemberPageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else MemberPageNode(name, content, dri, documentationNode, children, embeddedResources)
+        else MemberPageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 data class PlatformData(val platformType: Platform, val targets: List<String>) {

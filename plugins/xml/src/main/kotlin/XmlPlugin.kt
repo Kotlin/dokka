@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.xml
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -26,12 +26,12 @@ object XmlTransformer : PageNodeTransformer {
             if (node !is ClassPageNode) node
             else {
                 val refs =
-                    node.documentationNode?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
+                    node.documentable?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
                         .orEmpty()
-                val elementsToAdd = mutableListOf<DocumentationNode>()
+                val elementsToAdd = mutableListOf<Documentable>()
 
                 refs.forEach { ref ->
-                    input.documentationNode?.dfs { it.dri == ref.dri }?.let { elementsToAdd.add(it) }
+                    input.documentable?.dfs { it.dri == ref.dri }?.let { elementsToAdd.add(it) }
                 }
                 val platformData = node.platforms().toSet()
                 val refTable = DefaultPageContentBuilder.group(
