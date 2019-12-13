@@ -73,8 +73,8 @@ class MarkdownParser (
         }
 
         private fun linksHandler(node: ASTNode): DocNode {
-            val linkNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
-            val link = text.substring(linkNode.startOffset, linkNode.endOffset)
+            val linkNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!
+            val link = text.substring(linkNode.startOffset+1, linkNode.endOffset-1)
 
             val dri: DRI? = if (link.startsWith("http") || link.startsWith("www")) {
                 null
