@@ -4,15 +4,13 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.resolvers.LocationProvider
 import java.io.File
 import java.net.URL
 
 open class HtmlRenderer(
-    writer: Writer,
-    locationProvider: LocationProvider,
+    outputWriter: OutputWriter,
     context: DokkaContext
-) : DefaultRenderer<FlowContent>(writer, locationProvider, context) {
+) : DefaultRenderer<FlowContent>(outputWriter, context) {
 
     override fun FlowContent.buildList(node: ContentList, pageContext: PageNode) =
         if (node.ordered) ol {
@@ -120,8 +118,9 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
+
     override fun buildSupportFiles() { // TODO copy file instead of reading
-        writer.write(
+        outputWriter.write(
             "style.css",
             javaClass.getResourceAsStream("/dokka/styles/style.css").reader().readText()
         )

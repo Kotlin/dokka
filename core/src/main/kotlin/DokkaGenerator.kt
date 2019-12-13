@@ -30,7 +30,7 @@ class DokkaGenerator(
         val platforms: Map<PlatformData, EnvironmentAndFacade> = setUpAnalysis(configuration)
 
         logger.progress("Initializing plugins")
-        val context = initializePlugins(configuration.pluginsClasspath, logger, platforms)
+        val context = initializePlugins(configuration, logger, platforms)
 
         logger.progress("Creating documentation models")
         val modulesFromPlatforms = createDocumentationModels(platforms, context)
@@ -48,7 +48,7 @@ class DokkaGenerator(
         val transformedPages = transformPages(pages, context)
 
         logger.progress("Rendering")
-        render(transformedPages, configuration, context)
+        render(transformedPages, context)
     }
 
     internal fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
@@ -57,10 +57,10 @@ class DokkaGenerator(
         }.toMap()
 
     internal fun initializePlugins(
-        pluginsClasspath: List<File>,
+        configuration: DokkaConfiguration,
         logger: DokkaLogger,
         platforms: Map<PlatformData, EnvironmentAndFacade>
-    ) = DokkaContext.create(pluginsClasspath, logger, platforms)
+    ) = DokkaContext.create(configuration, logger, platforms)
 
     internal fun createDocumentationModels(
         platforms: Map<PlatformData, EnvironmentAndFacade>,
@@ -89,15 +89,9 @@ class DokkaGenerator(
 
     internal fun render(
         transformedPages: ModulePageNode,
-        configuration: DokkaConfiguration,
         context: DokkaContext
     ) {
-        val fileWriter = FileWriter(configuration.outputDir, "")
-        val locationProvider = context.single(CoreExtensions.locationProviderFactory)
-            .invoke(transformedPages, configuration, context)
-        val renderer = context.single(CoreExtensions.rendererFactory)
-            .invoke(fileWriter, locationProvider, context)
-
+        val renderer = context.single(CoreExtensions.renderer)
         renderer.render(transformedPages)
     }
 

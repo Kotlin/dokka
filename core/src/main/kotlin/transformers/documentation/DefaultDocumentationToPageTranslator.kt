@@ -16,7 +16,7 @@ object DefaultDocumentationToPageTranslator : DocumentationToPageTranslator {
                 node.dri,
                 node.platformData,
                 kind,
-                context.single(CoreExtensions.commentsToContentConverterFactory).invoke(context),
+                context.single(CoreExtensions.commentsToContentConverter),
                 context.logger,
                 operation
             )
