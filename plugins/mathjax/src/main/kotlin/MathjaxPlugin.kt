@@ -1,5 +1,6 @@
 package  org.jetbrains.dokka.mathjax
 
+import model.doc.CustomTag
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PageNode
@@ -29,7 +30,11 @@ object MathjaxTransformer : PageNodeTransformer {
 
     private val PageNode.isNeedingMathjax
         get() = documentable?.platformInfo
-            ?.flatMap { it.docTag?.children?.toList().orEmpty() }
+            ?.flatMap { it.documentationNode.children }
             .orEmpty()
-            .any { it.text == ANNOTATION }
+            .filterIsInstance<CustomTag>()
+            .let { true }
+//            .any { it.name.contains("ref") && it.root.children.any {it.name} }
+
+
 }
