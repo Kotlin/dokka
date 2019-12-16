@@ -9,13 +9,12 @@ class DefaultPageBuilder(
 ) : PageBuilder {
 
     override fun pageForModule(m: Module): ModulePageNode =
-        ModulePageNode("root", contentForModule(m), m, m.packages.map { pageForPackage(it) })
+        ModulePageNode(m.name ?: "root", contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
     override fun pageForPackage(p: Package) =
         PackagePageNode(p.name, contentForPackage(p), p.dri, p,
             p.classes.map { pageForClass(it) } +
-                    p.functions.map { pageForMember(it) } +
-                    p.properties.map { pageForMember(it) })
+                    p.functions.map { pageForMember(it) })
 
     override fun pageForClass(c: Class): ClassPageNode =
         ClassPageNode(c.name, contentForClass(c), c.dri, c,

@@ -22,12 +22,13 @@ import org.jetbrains.dokka.parsers.MarkdownParser
 
 object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
     override fun invoke(
+        moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
         platformData: PlatformData,
         context: DokkaContext
     ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
         packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel) }
-    }.let { Module(it) }
+    }.let { Module(moduleName, it) }
 
 }
 

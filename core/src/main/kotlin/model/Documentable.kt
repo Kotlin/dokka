@@ -5,7 +5,7 @@ import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.PlatformData
 
-class Module(val packages: List<Package>) : Documentable() {
+class Module(override val name: String?, val packages: List<Package>) : Documentable() {
     override val dri: DRI = DRI.topLevel
     override val children: List<Package> = packages
     override val extra: MutableSet<Extra> = mutableSetOf()
