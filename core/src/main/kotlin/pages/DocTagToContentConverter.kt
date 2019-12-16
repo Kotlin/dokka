@@ -59,7 +59,16 @@ class DocTagToContentConverter(
                     extras
                 )
             )
-            is BlockQuote -> TODO("Implement DocNotToContent BlockQuote!")
+            is BlockQuote -> listOf(
+                ContentCode(
+                    buildChildren(docTag),
+                    "",
+                    dci,
+                    platforms,
+                    styles,
+                    extras
+                )
+            )
             is Code -> listOf(
                 ContentCode(
                     buildChildren(docTag),
@@ -70,7 +79,16 @@ class DocTagToContentConverter(
                     extras
                 )
             )
-            is Img -> TODO("Implement DocNotToContent Img!")
+            is Img -> listOf(
+                ContentEmbeddedResource(
+                    address = docTag.params.get("href")!!,
+                    altText = docTag.params.get("alt"),
+                    dci = dci,
+                    platforms = platforms,
+                    style = styles,
+                    extras = extras
+                )
+            )
             is HorizontalRule -> listOf(ContentText("", dci, platforms, setOf()))
             is Text -> listOf(ContentText(docTag.body, dci, platforms, styles, extras))
             else -> buildChildren(docTag)
