@@ -50,7 +50,6 @@ open class DefaultLocationProvider(
 
         fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> = when (pathNode) {
             null -> path
-            pageGraphRoot -> path + "root"
             else -> getPath(pathNode.parent(), path + pathNode.pathName())
         }
 
