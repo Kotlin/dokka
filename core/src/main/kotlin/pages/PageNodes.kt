@@ -119,7 +119,7 @@ class MemberPageNode(
         else MemberPageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-data class PlatformData(val platformType: Platform, val targets: List<String>) {
+data class PlatformData(val name: String, val platformType: Platform, val targets: List<String>) {
     override fun toString() = targets.toString()
 }
 

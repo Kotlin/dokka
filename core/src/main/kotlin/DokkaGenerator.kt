@@ -24,14 +24,14 @@ class DokkaGenerator(
     fun generate() {
         logger.debug("Setting up analysis environments")
         val platforms: Map<PlatformData, EnvironmentAndFacade> = configuration.passesConfigurations.map {
-            PlatformData(it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
+            PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
         }.toMap()
 
         logger.debug("Initializing plugins")
         val context = DokkaContext.create(configuration.pluginsClasspath, logger, platforms)
 
         logger.debug("Creating documentation models")
-        val modulesFromPlatforms = platforms.map { (pdata, _) -> translateDescriptors(configuration.passesConfigurations.first().moduleName, pdata, context) }
+        val modulesFromPlatforms = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
 
         logger.debug("Merging documentation models")
         val documentationModel = context.single(CoreExtensions.documentationMerger)
@@ -75,7 +75,7 @@ class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateDescriptors(moduleName: String, platformData: PlatformData, context: DokkaContext): Module {
+    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): Module {
         val (environment, facade) = context.platforms.getValue(platformData)
 
         val packageFragments = environment.getSourceFiles().asSequence()
@@ -85,7 +85,7 @@ class DokkaGenerator(
             .toList()
 
         return context.single(CoreExtensions.descriptorToDocumentationTranslator)
-            .invoke(moduleName, packageFragments, platformData, context)
+            .invoke(platformData.name, packageFragments, platformData, context)
     }
 
     private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
