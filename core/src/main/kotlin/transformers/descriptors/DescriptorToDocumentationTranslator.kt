@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 
 interface DescriptorToDocumentationTranslator {
     fun invoke(
+        moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
         platformData: PlatformData,
         context: DokkaContext

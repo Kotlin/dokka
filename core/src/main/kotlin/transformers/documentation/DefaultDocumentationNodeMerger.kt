@@ -7,6 +7,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
     override fun invoke(modules: Collection<Module>, context: DokkaContext): Module =
         Module(
+            modules.first().name,
             merge(
                 modules.flatMap { it.packages },
                 Package::mergeWith
