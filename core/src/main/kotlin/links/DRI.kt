@@ -95,7 +95,7 @@ data class TypeReference(val classNames: String, val typeBounds: List<TypeRefere
 
         private fun from(t: KotlinType): TypeReference =
             when (val d = t.constructor.declarationDescriptor) {
-                is TypeParameterDescriptor -> from(d)
+                is TypeParameterDescriptor -> TypeReference("todo:${d.name}")
                 else -> TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
             }
 
