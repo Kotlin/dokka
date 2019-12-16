@@ -21,13 +21,16 @@ open class HtmlRenderer(
 
     protected open fun buildListItems(items: List<ContentNode>, pageContext: PageNode) =
         items.joinToString("") {
-            if (it is ContentText) "<li>\n${it.build(pageContext)}\n</li>\n" else buildList(
-                it as ContentList,
+            if (it is ContentList) buildList(
+                it,
                 pageContext
-            )
+            ) else "<li>\n${it.build(pageContext)}\n</li>\n"
         }
 
-    override fun buildResource(node: ContentEmbeddedResource, pageContext: PageNode): String { // TODO: extension point there
+    override fun buildResource(
+        node: ContentEmbeddedResource,
+        pageContext: PageNode
+    ): String { // TODO: extension point there
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
         return if (File(node.address).extension.toLowerCase() in imageExtensions) {
             val imgAttrs = node.extras.filterIsInstance<HTMLSimpleAttr>().joinAttr()
@@ -56,7 +59,8 @@ open class HtmlRenderer(
             |</table>""".trimMargin()
     }
 
-    protected open fun ContentGroup.buildTableRow(pageContext: PageNode) = children.joinToString("</td>\n<td>\n") { it.build(pageContext) }
+    protected open fun ContentGroup.buildTableRow(pageContext: PageNode) =
+        children.joinToString("</td>\n<td>\n") { it.build(pageContext) }
 
     override fun buildHeader(level: Int, text: String): String = "<h$level>$text</h$level>\n"
 
@@ -64,7 +68,8 @@ open class HtmlRenderer(
 
     override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
 
-    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = buildNewLine() + "<code>${code.joinToString("") { (it as ContentText).text + buildNewLine() }}</code>"
+    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String =
+        buildNewLine() + "<code>${code.joinToString("") { (it as ContentText).text + buildNewLine() }}</code>"
 
     override fun buildText(textNode: ContentText): String = super.buildText(textNode).htmlEscape()
 
