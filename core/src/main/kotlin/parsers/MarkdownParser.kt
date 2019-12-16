@@ -10,6 +10,7 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.parsers.factories.DocNodesFromIElementFactory
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -91,7 +92,7 @@ class MarkdownParser (
                         declarationDescriptor,
                         null,
                         link.split('.')
-                    ).also { if (it.size > 1) println("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
+                    ).also { if (it.size > 1) DokkaConsoleLogger.warn("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
                         ?.let { DRI.from(it) }
 
             }

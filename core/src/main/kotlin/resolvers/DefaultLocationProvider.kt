@@ -23,7 +23,7 @@ open class DefaultLocationProvider(
         ExternalLocationProvider.getLocation(dri,
             configuration.passesConfigurations
                 .filter { passConfig ->
-                    platforms.toSet().contains(PlatformData(passConfig.analysisPlatform, passConfig.targets))
+                    platforms.toSet().contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?
                 .flatMap { it.externalDocumentationLinks }.distinct()
         )
