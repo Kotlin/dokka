@@ -50,7 +50,7 @@ open class DefaultLocationProvider(
 
         fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> = when (pathNode) {
             null -> path
-            else -> getPath(pathNode.parent(), path + pathNode.pathName())
+            else -> getPath(pathNode.parent(), path + pathNode.pathName().ifEmpty { "root" })
         }
 
         val contextNode = if (context?.children?.isEmpty() == true) context.parent() else context
