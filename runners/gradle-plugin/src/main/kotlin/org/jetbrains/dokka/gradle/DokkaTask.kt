@@ -75,7 +75,6 @@ open class DokkaTask : DefaultTask() {
     // Configure Dokka with closure in Gradle Kotlin DSL
     fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
 
-
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks(configuration.collectKotlinTasks ?: { defaultKotlinTasks() }) }
 
     private val configExtractor = ConfigurationExtractor(project)
@@ -126,7 +125,7 @@ open class DokkaTask : DefaultTask() {
     private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
     private fun Iterable<String>.toProjects(): List<Project> = project.subprojects.toList().filter { this.contains(it.name) }
 
-    private fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
         if(project.isAndroidProject()) {
             val generatedRoot = project.buildDir.resolve("generated").absoluteFile
             sourceRoots
@@ -188,14 +187,14 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    private fun collectConfigurations() =
+    protected open fun collectConfigurations() =
         if (this.isMultiplatformProject()) collectMultiplatform() else listOf(collectSinglePlatform(configuration))
 
-    private fun collectMultiplatform() = multiplatform
+    protected open fun collectMultiplatform() = multiplatform
         .filterNot { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }
         .map { collectSinglePlatform(it) }
 
-    private fun collectSinglePlatform(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
+    protected open fun collectSinglePlatform(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
         val userConfig = config.let {
             if (it.collectKotlinTasks != null) {
                 configExtractor.extractFromKotlinTasks(extractKotlinCompileTasks(it.collectKotlinTasks!!))
@@ -237,14 +236,14 @@ open class DokkaTask : DefaultTask() {
         }
     }
 
-    private fun collectFromSinglePlatformOldPlugin() =
+    protected open fun collectFromSinglePlatformOldPlugin() =
         configExtractor.extractFromKotlinTasks(kotlinTasks)
             ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
                 ?: configExtractor.extractFromJavaPlugin()
                     ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
                 ?: configuration
 
-    private fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl, autoConfig: PlatformData) =
+    protected open fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl, autoConfig: PlatformData) =
         userConfig.copy().apply {
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
             classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
@@ -252,7 +251,7 @@ open class DokkaTask : DefaultTask() {
                 platform = autoConfig.platform
         }
 
-    private fun defaultPassConfiguration(
+    protected open fun defaultPassConfiguration(
         config: GradlePassConfigurationImpl,
         globalConfig: GradlePassConfigurationImpl?
     ): GradlePassConfigurationImpl {
