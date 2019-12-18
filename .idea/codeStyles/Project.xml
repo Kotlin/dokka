@@ -1,6 +1,8 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <JetCodeStyleSettings>
+      <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="2147483647" />
+      <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="2147483647" />
       <option name="CONTINUATION_INDENT_IN_PARAMETER_LISTS" value="false" />
       <option name="CONTINUATION_INDENT_IN_ARGUMENT_LISTS" value="false" />
       <option name="CONTINUATION_INDENT_FOR_EXPRESSION_BODIES" value="false" />

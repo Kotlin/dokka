@@ -1,0 +1,16 @@
+
+apply plugin: 'maven-publish'
+
+dependencies {
+    compileOnly project(':core')
+}
+
+publishing {
+    publications {
+        dokkaCore(MavenPublication) { publication ->
+            artifactId = 'tc-plugin'
+
+            from components.java
+        }
+    }
+}

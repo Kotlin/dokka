@@ -11,14 +11,6 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="dokka-maven-plugin" />
-      </profile>
-    </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="android-gradle-plugin_main" target="1.8" />
       <module name="android-gradle-plugin_test" target="1.8" />
@@ -30,40 +22,18 @@
       <module name="cli_test" target="1.8" />
       <module name="core_main" target="1.8" />
       <module name="core_test" target="1.8" />
-      <module name="dokka.buildSrc.main" target="1.8" />
-      <module name="dokka.buildSrc.test" target="1.8" />
-      <module name="dokka.core.main" target="1.8" />
-      <module name="dokka.core.test" target="1.8" />
       <module name="dokka.core.testApi.main" target="1.8" />
       <module name="dokka.core.testApi.test" target="1.8" />
-      <module name="dokka.coreDependencies.main" target="1.8" />
-      <module name="dokka.coreDependencies.test" target="1.8" />
       <module name="dokka.integration-tests.gradle-integration-tests.main" target="1.8" />
       <module name="dokka.integration-tests.gradle-integration-tests.test" target="1.8" />
-      <module name="dokka.integration.main" target="1.8" />
-      <module name="dokka.integration.test" target="1.8" />
       <module name="dokka.plugins.javadoc8.main" target="1.8" />
       <module name="dokka.plugins.javadoc8.test" target="1.8" />
       <module name="dokka.plugins.ma.main" target="1.8" />
       <module name="dokka.plugins.ma.test" target="1.8" />
-      <module name="dokka.plugins.main" target="1.8" />
-      <module name="dokka.plugins.mathjax.main" target="1.8" />
-      <module name="dokka.plugins.mathjax.test" target="1.8" />
-      <module name="dokka.plugins.test" target="1.8" />
-      <module name="dokka.plugins.xml.main" target="1.8" />
-      <module name="dokka.plugins.xml.test" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.main" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.test" target="1.8" />
-      <module name="dokka.runners.ant.main" target="1.8" />
-      <module name="dokka.runners.ant.test" target="1.8" />
-      <module name="dokka.runners.cli.main" target="1.8" />
-      <module name="dokka.runners.cli.test" target="1.8" />
-      <module name="dokka.runners.fatjar.main" target="1.8" />
-      <module name="dokka.runners.fatjar.test" target="1.8" />
       <module name="dokka.runners.gradle-integration-tests.main" target="1.8" />
       <module name="dokka.runners.gradle-integration-tests.test" target="1.8" />
-      <module name="dokka.runners.gradle-plugin.main" target="1.8" />
-      <module name="dokka.runners.gradle-plugin.test" target="1.8" />
       <module name="dokka.runners.maven-plugin.main" target="1.8" />
       <module name="dokka.runners.maven-plugin.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
