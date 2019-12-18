@@ -8,7 +8,7 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 
 internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
     override fun invoke(modules: Collection<Module>, context: DokkaContext): Module {
-        if (!modules.drop(1).all { it.name == modules.first().name })
+        if (!modules.all { it.name == modules.first().name })
             DokkaConsoleLogger.error("All module names need to be the same")
         return Module(
             modules.first().name,
