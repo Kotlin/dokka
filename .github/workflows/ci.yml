@@ -1,0 +1,18 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  dokka-example:
+    name: "dokka example"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: 'git@github.com:kamilok1965/dokka-example.git'
+          path: 'example'
+      - name: Generate dokka for example project
+        run: bin/example-dokka.sh
