@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.DefaultMarkdownToContentConverter
+import org.jetbrains.dokka.pages.DocTagToContentConverter
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
@@ -14,7 +14,7 @@ object DefaultExtensions : DokkaExtensionHandler {
         when (point) {
             CoreExtensions.descriptorToDocumentationTranslator -> DefaultDescriptorToDocumentationTranslator
             CoreExtensions.documentationMerger -> DefaultDocumentationNodeMerger
-            CoreExtensions.markdownToContentConverterFactory -> ::DefaultMarkdownToContentConverter
+            CoreExtensions.commentsToContentConverterFactory -> ::DocTagToContentConverter
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
             CoreExtensions.rendererFactory -> ::HtmlRenderer
             CoreExtensions.locationProviderFactory -> ::DefaultLocationProvider

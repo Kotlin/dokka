@@ -1,18 +1,18 @@
 package org.jetbrains.dokka.pages
 
+import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.model.DocumentationNode
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.markdown.parseMarkdown
 
 class DefaultPageContentBuilder(
     private val dri: DRI,
     private val platformData: Set<PlatformData>,
     private val kind: Kind,
-    private val markdownConverter: MarkdownToContentConverter,
+    private val commentsConverter: CommentsToContentConverter,
     val logger: DokkaLogger,
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
@@ -73,7 +73,7 @@ class DefaultPageContentBuilder(
         )
     }
 
-    override fun <T : DocumentationNode> block(
+    override fun <T : Documentable> block(
         name: String,
         level: Int,
         kind: Kind,
@@ -127,25 +127,16 @@ class DefaultPageContentBuilder(
         )
     }
 
-    override fun comment(raw: String, links: Map<String, DRI>) {
+    override fun comment(docTag: DocTag) {
         contents += group(ContentKind.Comment) {
             with(this as DefaultPageContentBuilder) {
-                contents += markdownConverter.buildContent(
-                    parseMarkdown(raw),
+                contents += commentsConverter.buildContent(
+                    docTag,
                     DCI(dri, ContentKind.Comment),
-                    platformData,
-                    links
+                    platformData
                 )
             }
         }
-    }
-
-    override fun markdown(raw: String, links: Map<String, DRI>) {
-        contents += markdownConverter.buildContent(
-            parseMarkdown(raw), DCI(dri, ContentKind.Sample),
-            platformData,
-            links
-        )
     }
 
     fun group(kind: Kind, block: PageContentBuilderFunction): ContentGroup =
@@ -156,18 +147,18 @@ class DefaultPageContentBuilder(
         platformData: Set<PlatformData>,
         kind: Kind,
         block: PageContentBuilderFunction
-    ): ContentGroup = group(dri, platformData, kind, markdownConverter, logger, block)
+    ): ContentGroup = group(dri, platformData, kind, commentsConverter, logger, block)
 
     companion object {
         fun group(
             dri: DRI,
             platformData: Set<PlatformData>,
             kind: Kind,
-            markdownConverter: MarkdownToContentConverter,
+            commentsConverter: CommentsToContentConverter,
             logger: DokkaLogger,
             block: PageContentBuilderFunction
         ): ContentGroup =
-            DefaultPageContentBuilder(dri, platformData, kind, markdownConverter, logger).apply(block).build()
+            DefaultPageContentBuilder(dri, platformData, kind, commentsConverter, logger).apply(block).build()
     }
 }
 
@@ -200,8 +191,7 @@ interface PageContentBuilder {
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
     fun link(address: DRI, kind: Kind = ContentKind.Symbol, block: PageContentBuilderFunction)
     fun linkTable(elements: List<DRI>)
-    fun comment(raw: String, links: Map<String, DRI>)
-    fun markdown(raw: String, links: Map<String, DRI>)
+    fun comment(docTag: DocTag)
     fun header(level: Int, block: PageContentBuilderFunction)
     fun <T> list(
         elements: List<T>,
@@ -211,7 +201,7 @@ interface PageContentBuilder {
         operation: PageContentBuilder.(T) -> Unit
     )
 
-    fun <T : DocumentationNode> block(
+    fun <T : Documentable> block(
         name: String,
         level: Int,
         kind: Kind,

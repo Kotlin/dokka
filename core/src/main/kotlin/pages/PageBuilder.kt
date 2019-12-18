@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.pages
 
+import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 
@@ -29,7 +30,7 @@ class DefaultPageBuilder(
             else -> throw IllegalStateException("$m should not be present here")
         }
 
-    private fun group(node: DocumentationNode, content: PageContentBuilderFunction) =
+    private fun group(node: Documentable, content: PageContentBuilderFunction) =
         rootContentGroup(node, ContentKind.Main, content)
 
     private fun contentForModule(m: Module) = group(m) {
@@ -45,12 +46,12 @@ class DefaultPageBuilder(
         header(1) { text("Package ${p.name}") }
         block("Types", 2, ContentKind.Properties, p.classes, p.platformData) {
             link(it.name, it.dri)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, p.functions, p.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
     }
 
@@ -60,31 +61,43 @@ class DefaultPageBuilder(
             header(2) { text("SuperInterfaces") }
             linkTable(it)
         }
-        c.commentsData.forEach { (doc, links) -> comment(doc, links) }
+        c.commentsData.forEach {
+            it.children.forEach {
+                header(3) { text(it.toHeaderString()) }
+                comment(it.root)
+                text("\n")
+            }
+        }
         block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
             link(it.name, it.dri)
             signature(it)
-            text(it.briefDocstring)
+            text(it.briefDocTagString)
+        }
+        block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
+            link(it.name, it.dri)
+            text(it.briefDocTagString)
         }
     }
 
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        f.commentsData.forEach { (doc, links) -> markdown(doc, links) }
+        f.commentsData.forEach { it.children.forEach { comment(it.root) } }
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
-            it.commentsData.forEach { (doc, links) -> markdown(doc, links) }
+            it.commentsData.forEach { it.children.forEach { comment(it.root) } }
         }
     }
+
+    private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }
 
-typealias RootContentBuilder = (DocumentationNode, Kind, PageContentBuilderFunction) -> ContentGroup
+typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup
 
 interface PageBuilder {
     val rootContentGroup: RootContentBuilder

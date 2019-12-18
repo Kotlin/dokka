@@ -20,7 +20,12 @@ open class HtmlRenderer(
     }
 
     protected open fun buildListItems(items: List<ContentNode>, pageContext: PageNode) =
-        "<li>\n${items.joinToString("\n</li>\n<li>\n") { it.build(pageContext) }}\n</li>"
+        items.joinToString("") {
+            if (it is ContentText) "<li>\n${it.build(pageContext)}\n</li>\n" else buildList(
+                it as ContentList,
+                pageContext
+            )
+        }
 
     override fun buildResource(node: ContentEmbeddedResource, pageContext: PageNode): String { // TODO: extension point there
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
@@ -59,7 +64,7 @@ open class HtmlRenderer(
 
     override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
 
-    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = "<code>$code</code>"
+    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String = buildNewLine() + "<code>${code.joinToString("") { (it as ContentText).text + buildNewLine() }}</code>"
 
     override fun buildText(textNode: ContentText): String = super.buildText(textNode).htmlEscape()
 

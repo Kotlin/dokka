@@ -1,0 +1,81 @@
+package org.jetbrains.dokka.model.doc
+
+import org.jetbrains.dokka.links.DRI
+
+sealed class DocTag(
+    val children: List<DocTag>,
+    val params: Map<String, String>
+) {
+    fun docTagSummary(): String {
+        if(this.children.isEmpty() && this is Text)
+            return this.body
+
+        return this.children.joinToString(" ") { it.docTagSummary() }
+    }
+}
+
+class A(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())                : DocTag(children, params)
+class Big(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class B(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())                : DocTag(children, params)
+class BlockQuote(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())       : DocTag(children, params)
+class Cite(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Code(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Dd(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Dfn(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Dir(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Div(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Dl(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Dt(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Em(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Font(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Footer(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
+class Frame(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class FrameSet(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())         : DocTag(children, params)
+class H1(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class H2(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class H3(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class H4(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class H5(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class H6(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Head(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Header(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
+class Html(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class I(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())                : DocTag(children, params)
+class IFrame(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
+class Img(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Input(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Li(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Link(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Listing(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())          : DocTag(children, params)
+class Main(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Menu(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Meta(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Nav(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class NoFrames(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())         : DocTag(children, params)
+class NoScript(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())         : DocTag(children, params)
+class Ol(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class P(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())                : DocTag(children, params)
+class Pre(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Script(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
+class Section(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())          : DocTag(children, params)
+class Small(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Span(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Strong(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
+class Sub(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Sup(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class Table(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Text(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), val body: String = "") : DocTag(children, params)
+class TBody(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Td(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class TFoot(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Th(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class THead(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Title(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
+class Tr(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Tt(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class U(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())                : DocTag(children, params)
+class Ul(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())               : DocTag(children, params)
+class Var(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
+class DocumentationLink(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), val dri: DRI) : DocTag(children, params)
+class HorizontalRule                                                                                   : DocTag(emptyList(), emptyMap())
+class CustomDocTag(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())     : DocTag(children, params)
