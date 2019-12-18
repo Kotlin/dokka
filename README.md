@@ -377,11 +377,11 @@ apply plugin: 'org.jetbrains.dokka'
 
 There is also a `noAndroidSdkLink` configuration parameter that works similar to `noJdkLink` and `noStdlibLink`
 By default the variant documented by dokka is the first release variant encountered. 
-You can override that by setting the `androidVariant` property inside the `configuration` (or specific platform) block:
+You can override that by setting the `androidVariants` property inside the `configuration` (or specific platform) block:
 ```groovy
 dokka {
     configuration {
-        androidVariant = "debug"
+        androidVariants = ["debug", "release"]
     }
 }
 ```
