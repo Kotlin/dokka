@@ -7,7 +7,7 @@ data class ExtensionPoint<T : Any> internal constructor(
     override fun toString() = "ExtensionPoint: $pluginClass/$pointName"
 }
 
-class Extension<T : Any> internal constructor(
+abstract class Extension<T : Any> internal constructor(
     internal val extensionPoint: ExtensionPoint<T>,
     internal val pluginClass: String,
     internal val extensionName: String,
@@ -17,11 +17,38 @@ class Extension<T : Any> internal constructor(
     override fun toString() = "Extension: $pluginClass/$extensionName"
 
     override fun equals(other: Any?) =
-        if (other is Extension<*>) this.pluginClass == other.extensionName && this.extensionName == other.extensionName
+        if (other is Extension<*>) this.pluginClass == other.pluginClass && this.extensionName == other.extensionName
         else false
 
     override fun hashCode() = listOf(pluginClass, extensionName).hashCode()
 }
+
+class ExtensionOrdered<T : Any>(
+    extensionPoint: ExtensionPoint<T>,
+    pluginClass: String,
+    extensionName: String,
+    action: T,
+    ordering: (OrderDsl.() -> Unit)
+) : Extension<T>(
+    extensionPoint,
+    pluginClass,
+    extensionName,
+    action,
+    ordering
+)
+
+class ExtensionUnordered<T : Any>(
+    extensionPoint: ExtensionPoint<T>,
+    pluginClass: String,
+    extensionName: String,
+    action: T
+) : Extension<T>(
+    extensionPoint,
+    pluginClass,
+    extensionName,
+    action,
+    null
+)
 
 internal data class Ordering(val previous: Set<Extension<*>>, val following: Set<Extension<*>>)
 
@@ -31,16 +58,16 @@ annotation class ExtensionsDsl
 @ExtensionsDsl
 class ExtendingDSL(private val pluginClass: String, private val extensionName: String) {
     infix fun <T: Any> ExtensionPoint<T>.with(action: T) =
-        Extension(this, this@ExtendingDSL.pluginClass, extensionName, action)
+        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, action)
 
-    infix fun <T: Any> Extension<T>.order(block: OrderDsl.() -> Unit) =
-        Extension(extensionPoint, pluginClass, extensionName, action, block)
+    infix fun <T: Any> ExtensionUnordered<T>.order(block: OrderDsl.() -> Unit) =
+        ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, block)
 }
 
 @ExtensionsDsl
 class OrderDsl {
-    private val previous = mutableSetOf<Extension<*>>()
-    private val following = mutableSetOf<Extension<*>>()
+    internal val previous = mutableSetOf<Extension<*>>()
+    internal val following = mutableSetOf<Extension<*>>()
 
     fun after(vararg extensions: Extension<*>) {
         previous += extensions

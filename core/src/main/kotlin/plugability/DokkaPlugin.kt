@@ -40,8 +40,6 @@ abstract class DokkaPlugin {
         extensionDelegates.asSequence()
             .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // should be always true
             .map { it.get(this) }
-            .forEach { ctx.addExtension(it) }
+            .forEach { ctx.addExtensionDependencies(it) }
     }
-
-
 }

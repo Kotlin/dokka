@@ -36,6 +36,7 @@ interface DokkaContext : DokkaExtensionHandler {
                     .also { checkClasspath(it) }
                     .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
                     .forEach { install(it) }
+                applyExtensions()
             }.also { it.logInitialisationInfo() }
     }
 }
@@ -54,7 +55,7 @@ fun <T, E> DokkaContext.single(point: E): T where T : Any, E : ExtensionPoint<T>
 }
 
 interface DokkaContextConfiguration {
-    fun addExtension(extension: Extension<*>)
+    fun addExtensionDependencies(extension: Extension<*>)
 }
 
 private class DokkaContextConfigurationImpl(
@@ -63,10 +64,42 @@ private class DokkaContextConfigurationImpl(
     override val platforms: Map<PlatformData, EnvironmentAndFacade>
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
-
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
-
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
+
+    private enum class State {
+        UNVISITED,
+        VISITING,
+        VISITED;
+    }
+
+    internal val verticesWithState = mutableMapOf<Extension<*>, State>()
+    internal val adjacencyList: MutableMap<Extension<*>, MutableList<Extension<*>>> = mutableMapOf()
+
+    private fun topologicalSort() {
+
+        val result: MutableList<Extension<*>> = mutableListOf()
+
+        fun visit(n: Extension<*>) {
+            val state = verticesWithState[n]
+            if(state == State.VISITED)
+                return
+            if(state == State.VISITING)
+                throw Error("Detected cycle in plugins graph")
+            verticesWithState[n] = State.VISITING
+            adjacencyList[n]?.forEach { visit(it) }
+            verticesWithState[n] = State.VISITED
+            result += n
+        }
+
+        for((vertex, state) in verticesWithState) {
+            if(state == State.UNVISITED)
+                visit(vertex)
+        }
+        result.asReversed().forEach {
+            extensions.getOrPut(it.extensionPoint, ::mutableListOf) += it
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     override operator fun <T, E> get(point: E, askDefault: AskDefault) where T : Any, E : ExtensionPoint<T> =
@@ -91,8 +124,13 @@ private class DokkaContextConfigurationImpl(
         plugin.internalInstall(this)
     }
 
-    override fun addExtension(extension: Extension<*>) {
-        extensions.getOrPut(extension.extensionPoint, ::mutableListOf) += extension
+    override fun addExtensionDependencies(extension: Extension<*>) {
+        val orderDsl = OrderDsl()
+        extension.ordering?.invoke(orderDsl)
+
+        verticesWithState += extension to State.UNVISITED
+        adjacencyList.getOrPut(extension, ::mutableListOf) += orderDsl.following.toList()
+        orderDsl.previous.forEach { adjacencyList.getOrPut(it, ::mutableListOf) += extension }
     }
 
     fun logInitialisationInfo() {
@@ -104,6 +142,10 @@ private class DokkaContextConfigurationImpl(
         logger.progress("Loaded plugins: $pluginNames")
         logger.progress("Loaded: $loadedListForDebug")
 
+    }
+
+    fun applyExtensions() {
+        topologicalSort()
     }
 }
 
