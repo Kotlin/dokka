@@ -35,7 +35,7 @@ dependencies {
 
     compile "org.jetbrains:markdown:$markdownVersion"
 
-    compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.8'
+    compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10'
 
     //tools.jar
 //    def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })

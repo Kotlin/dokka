@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.renderers
 
-import org.jetbrains.dokka.utilities.htmlEscape
+import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.resolvers.LocationProvider
@@ -11,71 +12,112 @@ open class HtmlRenderer(
     fileWriter: FileWriter,
     locationProvider: LocationProvider,
     context: DokkaContext
-) : DefaultRenderer(fileWriter, locationProvider, context) {
+) : DefaultRenderer<FlowContent>(fileWriter, locationProvider, context) {
 
-    override fun buildList(node: ContentList, pageContext: PageNode): String = if (node.ordered) {
-        "<ol>${buildListItems(node.children, pageContext)}</ol>"
-    } else {
-        "<ul>${buildListItems(node.children, pageContext)}</ul>"
-    }
-
-    protected open fun buildListItems(items: List<ContentNode>, pageContext: PageNode) =
-        items.joinToString("") {
-            if (it is ContentList) buildList(
-                it,
-                pageContext
-            ) else "<li>\n${it.build(pageContext)}\n</li>\n"
+    override fun FlowContent.buildList(node: ContentList, pageContext: PageNode) =
+        if (node.ordered) ol {
+            buildListItems(node.children, pageContext)
+        }
+        else ul {
+            buildListItems(node.children, pageContext)
         }
 
-    override fun buildResource(
+    protected open fun OL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
+        items.forEach {
+            if (it is ContentText)
+                li { it.build(this, pageContext) }
+            else buildList(it as ContentList, pageContext)
+        }
+    }
+
+    protected open fun UL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
+        items.forEach {
+            if (it is ContentText)
+                li { it.build(this, pageContext) }
+            else buildList(it as ContentList, pageContext)
+        }
+    }
+
+    override fun FlowContent.buildResource(
         node: ContentEmbeddedResource,
         pageContext: PageNode
-    ): String { // TODO: extension point there
+    ) { // TODO: extension point there
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
         return if (File(node.address).extension.toLowerCase() in imageExtensions) {
+            //TODO: add imgAttrs parsing
             val imgAttrs = node.extras.filterIsInstance<HTMLSimpleAttr>().joinAttr()
-            """<img src="${node.address}" alt="${node.altText}" $imgAttrs>"""
+            img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
-            ""
         }
     }
 
-    override fun buildTable(node: ContentTable, pageContext: PageNode): String {
-        val tableHeader =
-            """<thead>
-                |<tr>
-                |<th> ${node.header.joinToString("<th>\n</tr>\n<tr>\n<th>") { it.build(pageContext) }} </th>
-                |</tr>
-                |</thead>""".trimMargin()
-
-        return """<table>
-            |$tableHeader
-            |<tbody>
-            |<tr>
-            |<td>${node.children.joinToString("</td>\n</tr>\n<tr>\n<td>\n") { it.buildTableRow(pageContext) }}</td>
-            |</tr>
-            |</tbody>
-            |</table>""".trimMargin()
+    override fun FlowContent.buildTable(node: ContentTable, pageContext: PageNode) {
+        table {
+            thead {
+                node.header.forEach {
+                    tr {
+                        it.children.forEach {
+                            th {
+                                it.build(this@table, pageContext)
+                            }
+                        }
+                    }
+                }
+            }
+            tbody {
+                node.children.forEach {
+                    tr {
+                        it.children.forEach {
+                            td {
+                                it.build(this, pageContext)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    protected open fun ContentGroup.buildTableRow(pageContext: PageNode) =
-        children.joinToString("</td>\n<td>\n") { it.build(pageContext) }
+    override fun FlowContent.buildHeader(level: Int, content: FlowContent.() -> Unit) {
+        when (level) {
+            1 -> h1(block = content)
+            2 -> h2(block = content)
+            3 -> h3(block = content)
+            4 -> h4(block = content)
+            else -> h5(block = content)
+        }
+    }
 
-    override fun buildHeader(level: Int, text: String): String = "<h$level>$text</h$level>\n"
+    override fun FlowContent.buildNavigation(page: PageNode) {
+        locationProvider.ancestors(page).forEach { node ->
+            text("/")
+            buildLink(locationProvider.resolve(node, page)) {
+                text(node.name)
+            }
+        }
+    }
 
-    override fun buildNewLine(): String = "<br/>"
+    override fun buildError(node: ContentNode) {
+        context.logger.error("Unknown ContentNode type: $node")
+    }
 
-    override fun buildLink(text: String, address: String): String = "<a href=\"$address\">$text</a>"
+    override fun FlowContent.buildNewLine() { br() }
 
-    override fun buildCode(code: List<ContentNode>, language: String, pageContext: PageNode): String =
-        buildNewLine() + "<code>${code.joinToString("") { (it as ContentText).text + buildNewLine() }}</code>"
+    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) {
+        a (href = address, block = content)
+    }
 
-    override fun buildText(textNode: ContentText): String = super.buildText(textNode).htmlEscape()
+    override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: PageNode) {
+        buildNewLine()
+        code.forEach {
+            + (it as ContentText).text
+            buildNewLine()
+        }
+    }
 
-    override fun renderPage(page: PageNode) {
-        val pageText = buildStartHtml(page) + buildPageContent(page) + buildEndHtml()
-        fileWriter.write(locationProvider.resolve(page), pageText, "")
+    override fun FlowContent.buildText(textNode: ContentText) {
+        text(textNode.text)
     }
 
     override fun buildSupportFiles() { // TODO copy file instead of reading
@@ -85,26 +127,17 @@ open class HtmlRenderer(
         )
     }
 
-    protected open fun buildScripts(page: PageNode) =
-        page.embeddedResources.filter { URL(it).path.substringAfterLast('.') == "js" }
-            .joinToString(separator = "") { """<script type = "text/javascript" async src = "$it"></script>""" + "\n" }
-
-    protected open fun buildStartHtml(page: PageNode) = """<!DOCTYPE html>
-        |<html>
-        |<head>
-        |<title>${page.name}</title>
-        |<link rel="stylesheet" href="${locationProvider.resolveRoot(page)}style.css" />
-        |${buildScripts(page)}
-        |</head>
-        |<body>
-        |""".trimMargin()
-
-    protected open fun buildEndHtml() =
-        """
-        |
-        |</body>
-        |</html>
-    """.trimMargin()
+    override fun buildPage(page: PageNode, content: (FlowContent, PageNode) -> Unit): String = StringBuilder().appendHTML().html {
+        head {
+            title(page.name)
+            link(rel = LinkRel.stylesheet, href = "${locationProvider.resolveRoot(page)}style.css")
+            page.embeddedResources.filter { URL(it).path.substringAfterLast('.') == "js" }
+                .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
+        }
+        body {
+            content(this, page)
+        }
+    }.toString()
 
     protected open fun List<HTMLMetadata>.joinAttr() = this.joinToString(" ") { it.key + "=" + it.value }
 }
