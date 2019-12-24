@@ -224,10 +224,14 @@ class ConfigurationExtractor(private val project: Project) {
         if (platform == KotlinPlatformType.androidJvm) KotlinPlatformType.jvm.toString() else platform.toString()
 
     private fun accumulateClassPaths(variantNames: List<String>, target: KotlinTarget) =
-        if (variantNames.isNotEmpty())
+        if (variantNames.isNotEmpty()) {
             variantNames.flatMap { getClasspath(target, it) }.distinct()
-        else
-            getClasspath(getMainCompilation(target))
+        } else {
+            if (target.isAndroidTarget())
+                getClasspathFromAndroidTask(getMainCompilation(target))
+            else
+                getClasspath(getMainCompilation(target))
+        }
 
     private fun accumulateSourceSets(variantNames: List<String>, target: KotlinTarget) =
         if (variantNames.isNotEmpty())
