@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.renderers
 
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths

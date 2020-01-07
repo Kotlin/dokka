@@ -95,10 +95,6 @@ data class TypeReference(val classNames: String, val typeBounds: List<TypeRefere
 
         private fun from(t: KotlinType): TypeReference =
             TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
-//            when (val d = t.constructor.declarationDescriptor) {
-//                is TypeParameterDescriptor -> TypeReference("todo:${d.name}")
-//                else -> TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
-//            }
 
         private fun from(t: TypeProjection): TypeReference =
             if (t.isStarProjection) {
