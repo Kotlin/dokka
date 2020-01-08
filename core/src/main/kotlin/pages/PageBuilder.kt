@@ -1,8 +1,9 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.doc.TagWrapper
 
 class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder
@@ -13,14 +14,21 @@ class DefaultPageBuilder(
 
     override fun pageForPackage(p: Package) =
         PackagePageNode(p.name, contentForPackage(p), p.dri, p,
-            p.classes.map { pageForClass(it) } +
+            p.classlikes.map { pageForClasslike(it) } +
                     p.functions.map { pageForMember(it) })
 
-    override fun pageForClass(c: Class): ClassPageNode =
-        ClassPageNode(c.name, contentForClass(c), c.dri, c,
-            c.constructors.map { pageForMember(it) } +
-                    c.classes.map { pageForClass(it) } +
+    override fun pageForClasslike(c: Classlike): ClasslikePageNode {
+        val constructors = when (c) {
+            is Class -> c.constructors
+            is Enum -> c.constructors
+            else -> emptyList()
+        }
+
+        return ClasslikePageNode(c.name, contentForClasslike(c), c.dri, c,
+            constructors.map { pageForMember(it) } +
+                    c.classlikes.map { pageForClasslike(it) } +
                     c.functions.map { pageForMember(it) })
+    }
 
     override fun pageForMember(m: CallableNode): MemberPageNode =
         when (m) {
@@ -43,7 +51,7 @@ class DefaultPageBuilder(
 
     private fun contentForPackage(p: Package) = group(p) {
         header(1) { text("Package ${p.name}") }
-        block("Types", 2, ContentKind.Properties, p.classes, p.platformData) {
+        block("Types", 2, ContentKind.Properties, p.classlikes, p.platformData) {
             link(it.name, it.dri)
             text(it.briefDocTagString)
         }
@@ -54,24 +62,58 @@ class DefaultPageBuilder(
         }
     }
 
-    private fun contentForClass(c: Class) = group(c) {
-        header(1) { text(c.name) }
+    private fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
+        is Class -> contentForClass(c)
+        is Enum -> contentForEnum(c)
+        else -> throw IllegalStateException("$c should not be present here")
+    }
+
+    fun contentForClass(c: Class): ContentGroup = group(c) {
+        header(1) { text("class ${c.name}") }
+        group(c) {
+            c.inherited.takeIf { it.isNotEmpty() }?.let {
+                header(2) { text("SuperInterfaces") }
+                linkTable(it)
+            }
+            contentForComments(c)
+            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
+                link(it.name, it.dri)
+                signature(it)
+                text(it.briefDocTagString)
+            }
+
+            block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
+                link(it.name, it.dri)
+                signature(it)
+                text(it.briefDocTagString)
+            }
+            block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
+                link(it.name, it.dri)
+                text(it.briefDocTagString)
+            }
+        }
+    }
+
+    fun contentForEnum(c: Enum): ContentGroup = group(c) {
+        header(1) { text("enum ${c.name}") }
+
+        block("Entries", 2, ContentKind.Properties, c.entries, c.platformData) { entry ->
+            link(entry.name, entry.dri)
+            contentForComments(entry)
+        }
+
         c.inherited.takeIf { it.isNotEmpty() }?.let {
             header(2) { text("SuperInterfaces") }
             linkTable(it)
         }
-        c.commentsData.forEach {
-            it.children.forEach {
-                header(3) { text(it.toHeaderString()) }
-                comment(it.root)
-                text("\n")
-            }
-        }
+        contentForComments(c)
         block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
             link(it.name, it.dri)
             signature(it)
             text(it.briefDocTagString)
         }
+
+
         block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
             link(it.name, it.dri)
             signature(it)
@@ -82,6 +124,15 @@ class DefaultPageBuilder(
             text(it.briefDocTagString)
         }
     }
+
+    private fun PageContentBuilder.contentForComments(d: Documentable) =
+        d.commentsData.forEach {
+            it.children.forEach {
+                header(3) { text(it.toHeaderString()) }
+                comment(it.root)
+                text("\n")
+            }
+        }
 
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
@@ -103,5 +154,5 @@ interface PageBuilder {
     fun pageForModule(m: Module): ModulePageNode
     fun pageForPackage(p: Package): PackagePageNode
     fun pageForMember(m: CallableNode): MemberPageNode
-    fun pageForClass(c: Class): ClassPageNode
+    fun pageForClasslike(c: Classlike): ClasslikePageNode
 }

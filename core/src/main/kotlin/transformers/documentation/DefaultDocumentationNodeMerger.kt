@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.transformers.documentation
 
-import com.intellij.openapi.diagnostic.logger
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
@@ -20,9 +20,9 @@ internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
     }
 }
 
-private fun <T: Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
+private fun <T : Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =
     elements.groupingBy { it.dri }
-        .reduce { _, left, right -> reducer(left, right)}
+        .reduce { _, left, right -> reducer(left, right) }
         .values.toList()
 
 fun PlatformInfo.mergeWith(other: PlatformInfo?) = BasePlatformInfo(
@@ -35,17 +35,17 @@ fun ClassPlatformInfo.mergeWith(other: ClassPlatformInfo?) = ClassPlatformInfo(
     (inherited + (other?.inherited ?: emptyList())).distinct()
 )
 
-fun List<ClassPlatformInfo>.mergeClassPlatformInfo() : List<ClassPlatformInfo> =
-    groupingBy { it.documentationNode.children + it.inherited}.reduce {
-            _, left, right -> left.mergeWith(right)
+fun List<ClassPlatformInfo>.mergeClassPlatformInfo(): List<ClassPlatformInfo> =
+    groupingBy { it.documentationNode.children + it.inherited }.reduce { _, left, right ->
+        left.mergeWith(right)
     }.values.toList()
 
-fun List<PlatformInfo>.merge() : List<PlatformInfo> =
-    groupingBy { it.documentationNode }.reduce {
-        _, left, right -> left.mergeWith(right)
+fun List<PlatformInfo>.merge(): List<PlatformInfo> =
+    groupingBy { it.documentationNode }.reduce { _, left, right ->
+        left.mergeWith(right)
     }.values.toList()
 
-fun Function.mergeWith(other: Function) = Function(
+fun Function.mergeWith(other: Function): Function = Function(
     dri,
     name,
     returnType,
@@ -64,16 +64,34 @@ fun Property.mergeWith(other: Property) = Property(
     (actual + other.actual).merge()
 )
 
+fun Classlike.mergeWith(other: Classlike): Classlike = when {
+    this is Class && other is Class -> mergeWith(other)
+    this is Enum && other is Enum -> mergeWith(other)
+    else -> throw IllegalStateException("${this::class.qualifiedName} ${this.name} cannot be merged with ${other::class.qualifiedName} ${other.name}")
+}
+
 fun Class.mergeWith(other: Class) = Class(
-    dri,
-    name,
-    kind,
-    merge(constructors + other.constructors, Function::mergeWith),
-    merge(functions + other.functions, Function::mergeWith),
-    merge(properties + other.properties, Property::mergeWith),
-    merge(classes + other.classes, Class::mergeWith),
-    expected?.mergeWith(other.expected),
-    (actual + other.actual).mergeClassPlatformInfo()
+    dri = dri,
+    name = name,
+    kind = kind,
+    constructors = merge(constructors + other.constructors, Function::mergeWith),
+    functions = merge(functions + other.functions, Function::mergeWith),
+    properties = merge(properties + other.properties, Property::mergeWith),
+    classlikes = merge(classlikes + other.classlikes, Classlike::mergeWith),
+    expected = expected?.mergeWith(other.expected),
+    actual = (actual + other.actual).mergeClassPlatformInfo()
+)
+
+fun Enum.mergeWith(other: Enum) = Enum(
+    dri = dri,
+    name = name,
+    functions = merge(functions + other.functions, Function::mergeWith),
+    properties = merge(properties + other.properties, Property::mergeWith),
+    classlikes = merge(classlikes + other.classlikes, Classlike::mergeWith),
+    expected = expected?.mergeWith(other.expected),
+    actual = (actual + other.actual).mergeClassPlatformInfo(),
+    entries = (this.entries + other.entries.distinctBy { it.dri }.toList()),
+    constructors = merge(constructors + other.constructors, Function::mergeWith)
 )
 
 fun Parameter.mergeWith(other: Parameter) = Parameter(
@@ -83,9 +101,9 @@ fun Parameter.mergeWith(other: Parameter) = Parameter(
     (actual + other.actual).merge()
 )
 
-fun Package.mergeWith(other: Package) = Package(
+fun Package.mergeWith(other: Package): Package = Package(
     dri,
     merge(functions + other.functions, Function::mergeWith),
     merge(properties + other.properties, Property::mergeWith),
-    merge(classes + other.classes, Class::mergeWith)
+    merge(classlikes + other.classlikes, Classlike::mergeWith)
 )
