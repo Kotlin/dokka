@@ -68,19 +68,15 @@ data class Callable(
     }
 }
 
-data class TypeReference(val classNames: String, val typeBounds: List<TypeReference> = emptyList()) {
-    override fun toString() = classNames + if (typeBounds.isNotEmpty()) {
-        "[${typeBounds.joinToString(",")}]"
-    } else {
-        ""
-    }
+sealed class TypeReference {
 
     companion object {
         fun from(d: ReceiverParameterDescriptor): TypeReference? =
             when (val value = d.value) {
-                is ExtensionReceiver -> TypeReference(
-                    classNames = value.type.constructorName.orEmpty(),
-                    typeBounds = value.type.arguments.map { from(it) }
+                is ExtensionReceiver -> Bound(
+                    fullyQualifiedName = value.type.constructorName.orEmpty(),
+                    params = value.type.arguments.map { from(it) },
+                    isNullable = value.type.isMarkedNullable
                 )
                 else -> run {
                     println("Unknown value type for $d")
@@ -88,24 +84,86 @@ data class TypeReference(val classNames: String, val typeBounds: List<TypeRefere
                 }
             }
 
-        fun from(d: ValueParameterDescriptor): TypeReference? = from(d.type)
+        fun from(d: ValueParameterDescriptor): TypeReference? =
+            from(d.type)
 
-        private fun from(tp: TypeParameterDescriptor): TypeReference =
-            TypeReference("", tp.upperBounds.map { from(it) })
+        private fun from(tp: TypeParameterDescriptor, r: KotlinType?): Param =
+            Param(tp.upperBounds.map { from(it, r) })
 
-        private fun from(t: KotlinType): TypeReference =
-            TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
 
-        private fun from(t: TypeProjection): TypeReference =
+        private fun from(t: KotlinType, r: KotlinType? = null): TypeReference =
+            if(t == r)
+                Self
+            else
+                when (val d = t.constructor.declarationDescriptor) {
+                    is TypeParameterDescriptor -> from(d, r ?: t)
+                    else -> Bound(t.constructorName.orEmpty(), t.arguments.map { from(it, r ?: t) }, t.isMarkedNullable)
+                }
+
+
+
+        private fun from(t: TypeProjection, r: KotlinType? = null): TypeReference =
             if (t.isStarProjection) {
                 starProjection
             } else {
-                from(t.type)
+                from(t.type, r)
             }
 
-        val starProjection = TypeReference("*")
+        private val starProjection = Param(listOf(Bound("*", emptyList(), true)))
     }
 }
+data class Param(val bounds: List<TypeReference>) : TypeReference()
+data class Bound(val fullyQualifiedName: String, val params: List<TypeReference>, val isNullable: Boolean) : TypeReference() {
+    override fun toString() = fullyQualifiedName + if (params.isNotEmpty()) {
+        "[${params.joinToString(",")}]" //TODO params can be Param or Self, handle naming
+    } else {
+        ""
+    }
+}
+object Self : TypeReference()
+
+
+//data class TypeReference(val classNames: String, val typeBounds: List<TypeReference> = emptyList()) {
+//    override fun toString() = classNames + if (typeBounds.isNotEmpty()) {
+//        "[${typeBounds.joinToString(",")}]"
+//    } else {
+//        ""
+//    }
+//
+//    companion object {
+//        fun from(d: ReceiverParameterDescriptor): TypeReference? =
+//            when (val value = d.value) {
+//                is ExtensionReceiver -> TypeReference(
+//                    classNames = value.type.constructorName.orEmpty(),
+//                    typeBounds = value.type.arguments.map { from(it) }
+//                )
+//                else -> run {
+//                    println("Unknown value type for $d")
+//                    null
+//                }
+//            }
+//
+//        fun from(d: ValueParameterDescriptor): TypeReference? = from(d.type)
+//
+//        private fun from(tp: TypeParameterDescriptor): TypeReference =
+//            TypeReference("", tp.upperBounds.map { from(it) })
+//
+//        private fun from(t: KotlinType): TypeReference =
+//            when (val d = t.constructor.declarationDescriptor) {
+//                is TypeParameterDescriptor -> from(d)
+//                else -> TypeReference(t.constructorName.orEmpty(), t.arguments.map { from(it) })
+//            }
+//
+//        private fun from(t: TypeProjection): TypeReference =
+//            if (t.isStarProjection) {
+//                starProjection
+//            } else {
+//                from(t.type)
+//            }
+//
+//        val starProjection = TypeReference("*")
+//    }
+//}
 
 private operator fun <T> List<T>.component6(): T = get(5)
 
