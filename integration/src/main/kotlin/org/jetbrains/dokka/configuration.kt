@@ -35,7 +35,8 @@ interface DokkaConfiguration {
 
     interface PassConfiguration {
         val moduleName: String
-        val classpath: List<String>
+        val classpath: List<File>
+        val runtimeClassPath: List<File>
         val sourceRoots: List<SourceRoot>
         val samples: List<String>
         val includes: List<String>

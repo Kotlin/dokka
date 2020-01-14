@@ -15,7 +15,8 @@ data class DokkaConfigurationImpl(
 
 data class PassConfigurationImpl (
     override val moduleName: String,
-    override val classpath: List<String>,
+    override val classpath: List<File>,
+    override val runtimeClassPath: List<File>,
     override val sourceRoots: List<SourceRootImpl>,
     override val samples: List<String>,
     override val includes: List<String>,

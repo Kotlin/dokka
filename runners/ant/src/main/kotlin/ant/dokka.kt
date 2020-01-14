@@ -30,9 +30,10 @@ class TextProperty(var value: String = "")
 
 class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
     override var moduleName: String = ""
-    override val classpath: List<String>
-        get() = buildClassPath.list().toList()
-
+    override val classpath: List<File>
+        get() = buildClassPath.list().map {File(it)}
+    override val runtimeClassPath: List<File>
+        get() = TODO("unimplemented")
     override val sourceRoots: List<DokkaConfiguration.SourceRoot>
         get() = sourcePath.list().map { SourceRootImpl(it) } + antSourceRoots.mapNotNull { it.toSourceRoot() }
 

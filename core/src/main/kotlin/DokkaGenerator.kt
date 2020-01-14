@@ -64,7 +64,7 @@ class DokkaGenerator(
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
-            pass.classpath.forEach { addClasspath(File(it)) }
+            pass.classpath.forEach { addClasspath(File(it.path)) }
 
             addSources(pass.sourceRoots.map { it.path })
 
