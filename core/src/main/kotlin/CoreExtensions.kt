@@ -4,8 +4,8 @@ import org.jetbrains.dokka.pages.CommentsToContentConverter
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.ExtensionPoint
-import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.renderers.Writer
 import org.jetbrains.dokka.resolvers.LocationProvider
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeMerger
@@ -26,7 +26,7 @@ object CoreExtensions {
     val commentsToContentConverterFactory by coreExtension<(DokkaContext) -> CommentsToContentConverter>()
     val documentationToPageTranslator by coreExtension<DocumentationToPageTranslator>()
     val pageTransformer by coreExtension<PageNodeTransformer>()
-    val rendererFactory by coreExtension<(FileWriter, LocationProvider, DokkaContext) -> Renderer>()
+    val rendererFactory by coreExtension<(Writer, LocationProvider, DokkaContext) -> Renderer>()
     val locationProviderFactory by coreExtension<(root: PageNode, DokkaConfiguration, DokkaContext) -> LocationProvider>()
     val fileExtension by coreExtension<String>()
 

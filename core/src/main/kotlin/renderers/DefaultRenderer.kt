@@ -5,7 +5,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.resolvers.LocationProvider
 
 abstract class DefaultRenderer<T>(
-    protected val fileWriter: FileWriter,
+    protected val writer: Writer,
     protected val locationProvider: LocationProvider,
     protected val context: DokkaContext
 ) : Renderer {
@@ -64,7 +64,7 @@ abstract class DefaultRenderer<T>(
     }
 
     protected open fun renderPage(page: PageNode) =
-        fileWriter.write(locationProvider.resolve(page), buildPage(page, ::buildPageContent), "")
+        writer.write(locationProvider.resolve(page), buildPage(page, ::buildPageContent), "")
 
     protected open fun renderPages(root: PageNode) {
         renderPage(root)
@@ -77,7 +77,7 @@ abstract class DefaultRenderer<T>(
         getPackageNamesAndPlatforms(root)
             .keys
             .joinToString("\n")
-            .also { fileWriter.write("${root.name}/package-list", it, "") }
+            .also { writer.write("${root.name}/package-list", it, "") }
 
     protected open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
         root.children

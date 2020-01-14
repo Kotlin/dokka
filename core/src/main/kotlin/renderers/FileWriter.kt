@@ -4,10 +4,10 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
 
-class FileWriter(val root: String, val extension: String){
+class FileWriter(override val root: String, override val extension: String) : Writer {
     private val createdFiles: MutableSet<String> = mutableSetOf()
 
-    fun write(path: String, text: String, ext: String = extension){
+    override fun write(path: String, text: String, ext: String){
         if (createdFiles.contains(path)) {
             println("ERROR. An attempt to write $root/$path several times!")
             return
