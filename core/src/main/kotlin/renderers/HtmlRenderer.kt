@@ -9,10 +9,10 @@ import java.io.File
 import java.net.URL
 
 open class HtmlRenderer(
-    fileWriter: FileWriter,
+    writer: Writer,
     locationProvider: LocationProvider,
     context: DokkaContext
-) : DefaultRenderer<FlowContent>(fileWriter, locationProvider, context) {
+) : DefaultRenderer<FlowContent>(writer, locationProvider, context) {
 
     override fun FlowContent.buildList(node: ContentList, pageContext: PageNode) =
         if (node.ordered) ol {
@@ -121,7 +121,7 @@ open class HtmlRenderer(
     }
 
     override fun buildSupportFiles() { // TODO copy file instead of reading
-        fileWriter.write(
+        writer.write(
             "style.css",
             javaClass.getResourceAsStream("/dokka/styles/style.css").reader().readText()
         )

@@ -16,12 +16,12 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
-class DokkaGenerator(
+open class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
 
-    fun generate() {
+    open fun generate() {
         logger.debug("Setting up analysis environments")
         val platforms: Map<PlatformData, EnvironmentAndFacade> = configuration.passesConfigurations.map {
             PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
@@ -59,7 +59,7 @@ class DokkaGenerator(
         renderer.render(transformedPages)
     }
 
-    private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
+    protected fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
         AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
@@ -75,7 +75,7 @@ class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): Module {
+    protected fun translateDescriptors(platformData: PlatformData, context: DokkaContext): Module {
         val (environment, facade) = context.platforms.getValue(platformData)
 
         val packageFragments = environment.getSourceFiles().asSequence()
@@ -88,7 +88,7 @@ class DokkaGenerator(
             .invoke(platformData.name, packageFragments, platformData, context)
     }
 
-    private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
+    protected class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
         override fun clear() {
             seenErrors = false
         }
