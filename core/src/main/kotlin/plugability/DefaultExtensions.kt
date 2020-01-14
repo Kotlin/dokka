@@ -2,6 +2,7 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.DocTagToContentConverter
+import org.jetbrains.dokka.postProcess.DefaultPostProcess
 import org.jetbrains.dokka.renderers.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProvider
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
@@ -19,6 +20,7 @@ object DefaultExtensions : DokkaExtensionHandler {
             CoreExtensions.rendererFactory -> ::HtmlRenderer
             CoreExtensions.locationProviderFactory -> ::DefaultLocationProvider
             CoreExtensions.fileExtension -> ".html"
+            CoreExtensions.postProcess -> DefaultPostProcess
             else -> null
         }.let { listOfNotNull(it) as List<T> }
 }

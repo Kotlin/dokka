@@ -1,11 +1,13 @@
 package org.jetbrains.dokka
 
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
+import org.jetbrains.dokka.postProcess.PostProcess
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -57,6 +59,9 @@ class DokkaGenerator(
             .invoke(fileWriter, locationProvider, context)
 
         renderer.render(transformedPages)
+
+        logger.debug("Run PostProcesses")
+        runBlocking { context[CoreExtensions.postProcess].compute(configuration, context) }
     }
 
     private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
@@ -104,6 +109,20 @@ class DokkaGenerator(
 
         override fun hasErrors() = seenErrors
     }
+
+    private suspend fun List<PostProcess>.compute(
+        conf: DokkaConfiguration,
+        ctx: DokkaContext
+    ): Unit =
+        forEach {
+            try {
+                println("\nPostProcess:${it.name} starts\n")
+                it.run(conf, ctx)
+            } catch (exp: Throwable) {
+                println("\nPostProcess:${it.name} throws errors!\n")
+                exp.printStackTrace(System.out)
+            }
+        }
 }
 
 // It is not data class due to ill-defined equals
