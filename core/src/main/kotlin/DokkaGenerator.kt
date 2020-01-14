@@ -24,7 +24,7 @@ class DokkaGenerator(
     fun generate() {
         logger.debug("Setting up analysis environments")
         val platforms: Map<PlatformData, EnvironmentAndFacade> = configuration.passesConfigurations.map {
-            PlatformData(it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
+            PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
         }.toMap()
 
         logger.debug("Initializing plugins")
@@ -85,7 +85,7 @@ class DokkaGenerator(
             .toList()
 
         return context.single(CoreExtensions.descriptorToDocumentationTranslator)
-            .invoke(packageFragments, platformData, context)
+            .invoke(platformData.name, packageFragments, platformData, context)
     }
 
     private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {

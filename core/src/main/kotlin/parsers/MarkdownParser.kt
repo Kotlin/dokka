@@ -10,6 +10,7 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.parsers.factories.DocNodesFromIElementFactory
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -80,20 +81,20 @@ class MarkdownParser (
 
         private fun linksHandler(node: ASTNode): DocTag {
             val linkNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!
-            val link = text.substring(linkNode.startOffset+1, linkNode.endOffset-1)
+            val link = text.substring(linkNode.startOffset + 1, linkNode.endOffset - 1)
 
             val dri: DRI? = if (link.startsWith("http") || link.startsWith("www")) {
                 null
             } else {
-                DRI.from(
-                        resolveKDocLink(
+                    resolveKDocLink(
                         resolutionFacade.resolveSession.bindingContext,
                         resolutionFacade,
                         declarationDescriptor,
                         null,
                         link.split('.')
-                    ).single()
-                )
+                    ).also { if (it.size > 1) DokkaConsoleLogger.warn("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
+                        ?.let { DRI.from(it) }
+
             }
             val href = mapOf("href" to link)
             return when (node.type) {
@@ -197,23 +198,21 @@ class MarkdownParser (
                             it.name!!
                         )
                         KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.THROWS -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.EXCEPTION -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.PARAM -> Param(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.THROWS -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.EXCEPTION -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.PARAM -> Param(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
                         KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.SEE -> See(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.SEE -> See(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
                         KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.PROPERTY -> Property(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
-                        KDocKnownTag.SAMPLE -> Sample(parseStringToDocNode(it.getContent()), it.getSubjectName()!!)
+                        KDocKnownTag.PROPERTY -> Property(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.SAMPLE -> Sample(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
                         KDocKnownTag.SUPPRESS -> Suppress(parseStringToDocNode(it.getContent()))
                     }
                 }
             )
     }
-
-
 
 
 }

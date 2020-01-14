@@ -23,7 +23,7 @@ open class DefaultLocationProvider(
         ExternalLocationProvider.getLocation(dri,
             configuration.passesConfigurations
                 .filter { passConfig ->
-                    platforms.toSet().contains(PlatformData(passConfig.analysisPlatform, passConfig.targets))
+                    platforms.toSet().contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?
                 .flatMap { it.externalDocumentationLinks }.distinct()
         )
@@ -50,8 +50,7 @@ open class DefaultLocationProvider(
 
         fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> = when (pathNode) {
             null -> path
-            pageGraphRoot -> path + "root"
-            else -> getPath(pathNode.parent(), path + pathNode.pathName())
+            else -> getPath(pathNode.parent(), path + pathNode.pathName().ifEmpty { "root" })
         }
 
         val contextNode = if (context?.children?.isEmpty() == true) context.parent() else context

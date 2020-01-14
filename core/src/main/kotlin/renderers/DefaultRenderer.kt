@@ -72,7 +72,7 @@ abstract class DefaultRenderer(
         getPackageNamesAndPlatforms(root)
             .keys
             .joinToString("\n")
-            .also { fileWriter.write("package-list", it, "") }
+            .also { fileWriter.write("${root.name}/package-list", it, "") }
 
     protected open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
         root.children
