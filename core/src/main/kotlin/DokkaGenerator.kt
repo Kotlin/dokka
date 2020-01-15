@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.Module
+import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
@@ -16,40 +17,81 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
-open class DokkaGenerator(
+/**
+ * DokkaGenerator is the main entry point for generating documentation
+ * [generate] method has been split into submethods for test reasons
+ */
+class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
+    fun generate() {
+        logger.progress("Setting up analysis environments")
+        val platforms: Map<PlatformData, EnvironmentAndFacade> = setUpAnalysis(configuration)
 
-    open fun generate() {
-        logger.debug("Setting up analysis environments")
-        val platforms: Map<PlatformData, EnvironmentAndFacade> = configuration.passesConfigurations.map {
+        logger.progress("Initializing plugins")
+        val context = initializePlugins(configuration.pluginsClasspath, logger, platforms)
+
+        logger.progress("Creating documentation models")
+        val modulesFromPlatforms = createDocumentationModels(platforms, context)
+
+        logger.progress("Merging documentation models")
+        val documentationModel = mergeDocumentationModels(modulesFromPlatforms, context)
+
+        logger.progress("Transforming documentation model")
+        val transformedDocumentation = transformDocumentationModel(documentationModel, context)
+
+        logger.progress("Creating pages")
+        val pages = createPages(transformedDocumentation, context)
+
+        logger.progress("Transforming pages")
+        val transformedPages = transformPages(pages, context)
+
+        logger.progress("Rendering")
+        render(transformedPages, configuration, context)
+    }
+
+    internal fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
+        configuration.passesConfigurations.map {
             PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
         }.toMap()
 
-        logger.debug("Initializing plugins")
-        val context = DokkaContext.create(configuration.pluginsClasspath, logger, platforms)
+    internal fun initializePlugins(
+        pluginsClasspath: List<File>,
+        logger: DokkaLogger,
+        platforms: Map<PlatformData, EnvironmentAndFacade>
+    ) = DokkaContext.create(pluginsClasspath, logger, platforms)
 
-        logger.debug("Creating documentation models")
-        val modulesFromPlatforms = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
+    internal fun createDocumentationModels(
+        platforms: Map<PlatformData, EnvironmentAndFacade>,
+        context: DokkaContext
+    ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
 
-        logger.debug("Merging documentation models")
-        val documentationModel = context.single(CoreExtensions.documentationMerger)
-            .invoke(modulesFromPlatforms, context)
+    internal fun mergeDocumentationModels(
+        modulesFromPlatforms: List<Module>,
+        context: DokkaContext
+    ) = context.single(CoreExtensions.documentationMerger).invoke(modulesFromPlatforms, context)
 
-        logger.debug("Transforming documentation model")
-        val transformedDocumentation = context[CoreExtensions.documentationTransformer]
-            .fold(documentationModel) { acc, t -> t(acc, context) }
+    internal fun transformDocumentationModel(
+        documentationModel: Module,
+        context: DokkaContext
+    ) = context[CoreExtensions.documentationTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
-        logger.debug("Creating pages")
-        val pages = context.single(CoreExtensions.documentationToPageTranslator)
-            .invoke(transformedDocumentation, context)
+    internal fun createPages(
+        transformedDocumentation: Module,
+        context: DokkaContext
+    ) = context.single(CoreExtensions.documentationToPageTranslator).invoke(transformedDocumentation, context)
 
-        logger.debug("Transforming pages")
-        val transformedPages = context[CoreExtensions.pageTransformer]
-            .fold(pages) { acc, t -> t(acc, context) }
+    internal fun transformPages(
+        pages: ModulePageNode,
+        context: DokkaContext
+    ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc, context) }
 
-        logger.debug("Rendering")
+    internal fun render(
+        transformedPages: ModulePageNode,
+        configuration: DokkaConfiguration,
+        context: DokkaContext
+    ) {
         val fileWriter = FileWriter(configuration.outputDir, "")
         val locationProvider = context.single(CoreExtensions.locationProviderFactory)
             .invoke(transformedPages, configuration, context)
@@ -59,7 +101,7 @@ open class DokkaGenerator(
         renderer.render(transformedPages)
     }
 
-    protected fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
+    private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
         AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
@@ -75,7 +117,7 @@ open class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    protected fun translateDescriptors(platformData: PlatformData, context: DokkaContext): Module {
+    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): Module {
         val (environment, facade) = context.platforms.getValue(platformData)
 
         val packageFragments = environment.getSourceFiles().asSequence()
@@ -88,7 +130,7 @@ open class DokkaGenerator(
             .invoke(platformData.name, packageFragments, platformData, context)
     }
 
-    protected class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
+    private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
         override fun clear() {
             seenErrors = false
         }

@@ -47,7 +47,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         }
     }
 
-    lateinit var generator: DokkaGenerator
+    private lateinit var generator: DokkaGenerator
     val gson = Gson()
 
     fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) = with(configuration) {
