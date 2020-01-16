@@ -11,14 +11,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 
-interface DokkaExtensionHandler {
+interface DokkaContext {
+    fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
+
     operator fun <T, E> get(point: E, askDefault: AskDefault = AskDefault.WhenEmpty): List<T>
             where T : Any, E : ExtensionPoint<T>
-
-}
-
-interface DokkaContext : DokkaExtensionHandler {
-    fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
     val logger: DokkaLogger
     val configuration: DokkaConfiguration

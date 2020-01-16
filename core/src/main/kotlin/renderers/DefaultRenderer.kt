@@ -95,7 +95,7 @@ abstract class DefaultRenderer<T>(
                 }
 
     override fun render(root: PageNode) {
-        locationProvider = context.single(CoreExtensions.locationProviderFactory).getLocationProvider(root, context)
+        locationProvider = context.single(CoreExtensions.locationProviderFactory).getLocationProvider(root as ModulePageNode)
         renderPackageList(root)
         buildSupportFiles()
         renderPages(root)
