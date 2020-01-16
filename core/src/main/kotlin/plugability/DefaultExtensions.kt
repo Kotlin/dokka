@@ -10,15 +10,21 @@ import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMe
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
 
 internal object DefaultExtensions {
+
+    private val renderer: LazyEvaluated<HtmlRenderer> = LazyEvaluated.fromRecipe { HtmlRenderer(it.single(CoreExtensions.outputWriter), it) }
+    private val converter: LazyEvaluated<DocTagToContentConverter> = LazyEvaluated.fromRecipe {DocTagToContentConverter(it) }
+    private val providerFactory: LazyEvaluated<DefaultLocationProviderFactory> = LazyEvaluated.fromRecipe { DefaultLocationProviderFactory(it) }
+
+
     @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
     internal fun <T : Any, E : ExtensionPoint<T>> get(point: E, fullContext: DokkaContext): List<T> =
         when (point) {
             CoreExtensions.descriptorToDocumentationTranslator ->  DefaultDescriptorToDocumentationTranslator
             CoreExtensions.documentationMerger -> DefaultDocumentationNodeMerger
-            CoreExtensions.commentsToContentConverter -> DocTagToContentConverter(fullContext)
+            CoreExtensions.commentsToContentConverter -> converter.get(fullContext)
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
-            CoreExtensions.renderer -> HtmlRenderer(fullContext.single(CoreExtensions.outputWriter), fullContext)
-            CoreExtensions.locationProviderFactory -> DefaultLocationProviderFactory
+            CoreExtensions.renderer -> renderer.get(fullContext)
+            CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)
             CoreExtensions.outputWriter ->  FileWriter(fullContext.configuration.outputDir, "")
             CoreExtensions.fileExtension -> ".html"
             else -> null
