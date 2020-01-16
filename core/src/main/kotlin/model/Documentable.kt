@@ -113,11 +113,6 @@ abstract class Documentable {
 
     override fun hashCode() = dri.hashCode()
 
-
-
-    val commentsData: List<DocumentationNode>
-        get() = platformInfo.map { it.documentationNode }
-
     val briefDocTagString: String
         get() =
             platformInfo

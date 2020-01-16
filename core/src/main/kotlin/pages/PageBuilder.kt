@@ -60,9 +60,12 @@ class DefaultPageBuilder(
             header(2) { text("SuperInterfaces") }
             linkTable(it)
         }
-        c.commentsData.forEach {
-            it.children.forEach {
-                header(3) { text(it.toHeaderString()) }
+        c.platformInfo.forEach { platformInfo ->
+            platformInfo.documentationNode.children.forEach {
+                header(3) {
+                    text(it.toHeaderString())
+                    text("[${platformInfo.platformData.joinToString(", ") { it.platformType.name }}]")
+                }
                 comment(it.root)
                 text("\n")
             }
@@ -86,10 +89,19 @@ class DefaultPageBuilder(
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        f.commentsData.forEach { it.children.forEach { comment(it.root) } }
+        f.platformInfo.forEach { platformInfo ->
+            platformInfo.documentationNode.children.forEach {
+                header(3) {
+                    text(it.toHeaderString())
+                    text("[${platformInfo.platformData.joinToString(", ") { it.platformType.name }}]")
+                }
+                comment(it.root)
+                text("\n")
+            }
+        }
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
-            it.commentsData.forEach { it.children.forEach { comment(it.root) } }
+            it.platformInfo.forEach { it.documentationNode.children.forEach { comment(it.root) } }
         }
     }
 

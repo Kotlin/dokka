@@ -98,7 +98,8 @@ open class HtmlRenderer(
             2 -> h2(block = content)
             3 -> h3(block = content)
             4 -> h4(block = content)
-            else -> h5(block = content)
+            5 -> h5(block = content)
+            else -> h6(block = content)
         }
     }
 
