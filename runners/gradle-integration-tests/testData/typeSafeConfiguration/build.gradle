@@ -1,0 +1,73 @@
+import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.*
+import org.jetbrains.kotlin.gradle.tasks.*
+
+import groovy.transform.CompileStatic
+import java.util.concurrent.Callable
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.dokka'
+}
+
+apply plugin: 'kotlin'
+
+@CompileStatic
+def configureDokkaTypeSafely(DokkaTask dokka) {
+    dokka.with {
+        outputFormat = "some String"
+        outputDirectory = "some String"
+        cacheRoot = null as String
+        impliedPlatforms = new ArrayList<String>()
+    }
+    dokka.configuration.with {
+        moduleName = "some String"
+        classpath = Arrays.asList("someClassDir")
+        includes = Collections.<String> emptyList()
+        samples = Collections.<String> emptyList()
+        jdkVersion = 6
+        sourceRoots = new ArrayList<GradleSourceRootImpl>() as List<DokkaConfiguration.SourceRoot>
+
+        includeNonPublic = false
+        skipDeprecated = false
+        skipEmptyPackages = true
+        reportUndocumented = true
+        perPackageOptions = new ArrayList<GradlePackageOptionsImpl>() as List<DokkaConfiguration.PackageOptions>
+        externalDocumentationLinks = new ArrayList<DokkaConfiguration.ExternalDocumentationLink>()
+        noStdlibLink = false
+        languageVersion = null as String
+        apiVersion = null as String
+        sourceRoot(new Action<GradleSourceRootImpl>() {
+            @Override
+            void execute(GradleSourceRootImpl sourceRoot) {
+                sourceRoot.path = "some String"
+            }
+        })
+        externalDocumentationLink(new Action<GradleExternalDocumentationLinkImpl>() {
+            @Override
+            void execute(GradleExternalDocumentationLinkImpl link) {
+                link.url = uri("some URI").toURL()
+                link.packageListUrl = uri("some URI").toURL()
+            }
+        })
+        kotlinTasks(new Callable<List<Object>>() {
+            @Override
+            List<Object> call() {
+                return defaultKotlinTasks()
+            }
+        })
+    }
+}
+
+project.tasks.withType(DokkaTask) { dokka ->
+    configureDokkaTypeSafely(dokka)
+}

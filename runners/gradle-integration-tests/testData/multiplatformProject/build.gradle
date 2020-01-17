@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$test_kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.dokka'
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+group 'org.test'
+version '1.0-SNAPSHOT'
+
+apply plugin: "org.jetbrains.kotlin.multiplatform"
+
+kotlin {
+    jvm() // Create a JVM target with the default name 'jvm'
+    js()
+    sourceSets {
+        jsMain {
+            dependencies{
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-js"
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib-jdk8')
+            }
+        }
+    }
+}
+
+dependencies {
+    dokkaRuntime files(dokka_fatjar)
+}
+
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+
+    multiplatform {
+        javascript {
+            targets = ["js"]
+            platform = "js"
+            kotlinTasks { [tasks.getByPath(":compileKotlinJs")] }
+        }
+        jvm {}
+    }
+}
