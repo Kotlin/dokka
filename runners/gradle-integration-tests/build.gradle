@@ -1,0 +1,60 @@
+apply plugin: 'kotlin'
+
+sourceCompatibility = 1.8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        languageVersion = language_version
+        apiVersion = language_version
+        jvmTarget = "1.8"
+    }
+}
+
+configurations {
+    dokkaPlugin
+    dokkaFatJar
+    kotlinGradle
+}
+
+dependencies {
+
+    testCompileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_for_gradle_runtime_version
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_for_gradle_runtime_version
+    testCompile ideaRT()
+
+    dokkaPlugin project(path: ':runners:gradle-plugin', configuration: 'shadow')
+    dokkaFatJar project(path: ":runners:fatjar", configuration: 'shadow')
+
+    kotlinGradle "org.jetbrains.kotlin:kotlin-gradle-plugin"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile gradleTestKit()
+}
+
+
+
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files(configurations.dokkaPlugin + configurations.dokkaFatJar)
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/dokka-plugin-classpath.txt").text = configurations.dokkaPlugin.join("\n")
+        file("$outputDir/fatjar.txt").text = configurations.dokkaFatJar.join("\n")
+        file("$outputDir/kotlin-gradle.txt").text = configurations.kotlinGradle.join("\n")
+    }
+}
+
+
+createClasspathManifest.mustRunAfter project(":runners:fatjar").getTasksByName("shadowJar", true)
+testClasses.dependsOn project(":runners:fatjar").shadowJar
+testClasses.dependsOn createClasspathManifest
+
+test {
+    systemProperty "android.licenses.overwrite", project.findProperty("android.licenses.overwrite") ?: ""
+    inputs.dir(file('testData'))
+    exclude '*' // TODO: Remove this exclude when tests are migrated
+}

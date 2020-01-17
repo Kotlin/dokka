@@ -1,0 +1,18 @@
+/
+    multiplatform-project-root/
+        alltypes/
+            index.html
+        index-outline.html
+        index.html
+        org.kotlintestmpp/
+            get-current-date.html
+            index.html
+            js.html
+            jvm.html
+            kotlin.-string/
+                index.html
+                my-extension.html
+            main.html
+            shared.html
+        package-list
+    style.css
