@@ -46,10 +46,15 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "Name of the documentation module",
         "")
 
-    override val classpath: List<String> by parser.repeatableOption(
+    override val classpath: List<File> by parser.repeatableOption(
         listOf("-classpath"),
         "Classpath for symbol resolution"
-    )
+    ) { File(it) }
+
+    override val runtimeClassPath: List<File> by parser.repeatableOption(
+        listOf("-runtimeClasspath"),
+        "Classpath for dokka plugin resolution"
+    ) { File(it) }
 
     override val sourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
         listOf("-src"),
