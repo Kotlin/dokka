@@ -18,7 +18,7 @@ internal class DokkaTestGenerator(
         val platforms: Map<PlatformData, EnvironmentAndFacade> = dokkaGenerator.setUpAnalysis(configuration)
         analysisSetupStage(platforms)
 
-        val context = dokkaGenerator.initializePlugins(configuration.pluginsClasspath, logger, platforms)
+        val context = dokkaGenerator.initializePlugins(configuration, logger, platforms)
         pluginsSetupStage(context)
 
         val modulesFromPlatforms = dokkaGenerator.createDocumentationModels(platforms, context)
@@ -36,6 +36,6 @@ internal class DokkaTestGenerator(
         val transformedPages = dokkaGenerator.transformPages(pages, context)
         pagesTransformationStage(transformedPages)
 
-        dokkaGenerator.render(transformedPages, configuration, context)
+        dokkaGenerator.render(transformedPages, context)
     }
 }
