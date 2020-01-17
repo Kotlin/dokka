@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.parsers
 
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.doc.Deprecated
-
 
 abstract class Parser {
 
