@@ -6,10 +6,11 @@ repositories {
 }
 
 dependencies {
-    runtime "org.jetbrains.kotlin:kotlin-compiler:$kotlinVersion"
-    runtime "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
     compile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
     compile "org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion"
+    runtime "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
+    runtime "org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion"
+    compile("net.java.dev.jna:jna:5.3.1")
     compileOnly(project(':core'))
 }
 
