@@ -1,0 +1,17 @@
+rootProject.name = "dokka"
+
+include 'core',
+//        'core:testApi',
+        'coreDependencies',
+        'integration',
+        'runners:gradle-integration-tests',
+        'runners:fatjar',
+        'runners:ant',
+        'runners:cli',
+//        'runners:maven-plugin',
+        'runners:gradle-plugin',
+//        'plugins:javadoc8'
+        'plugins:mathjax',
+        'plugins:xml',
+        "plugins:kotlin-as-java",
+        'testApi'
