@@ -6,7 +6,6 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.resolvers.LocationProvider
 
-
 abstract class DefaultRenderer<T>(
     protected val outputWriter: OutputWriter,
     protected val context: DokkaContext
