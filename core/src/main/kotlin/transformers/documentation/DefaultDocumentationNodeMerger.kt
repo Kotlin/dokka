@@ -52,7 +52,8 @@ fun Function.mergeWith(other: Function): Function = Function(
     if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
-    (actual + other.actual).merge()
+    (actual + other.actual).merge(),
+    visibility = (visibility + other.visibility)
 )
 
 fun Property.mergeWith(other: Property) = Property(
@@ -60,7 +61,9 @@ fun Property.mergeWith(other: Property) = Property(
     name,
     if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
     expected?.mergeWith(other.expected),
-    (actual + other.actual).merge()
+    (actual + other.actual).merge(),
+    accessors = (this.accessors + other.accessors).distinct(),
+    visibility = (visibility + other.visibility)
 )
 
 fun Classlike.mergeWith(other: Classlike): Classlike = when {
@@ -78,7 +81,8 @@ fun Class.mergeWith(other: Class) = Class(
     properties = merge(properties + other.properties, Property::mergeWith),
     classlikes = merge(classlikes + other.classlikes, Classlike::mergeWith),
     expected = expected?.mergeWith(other.expected),
-    actual = (actual + other.actual).mergeClassPlatformInfo()
+    actual = (actual + other.actual).mergeClassPlatformInfo(),
+    visibility = (visibility + other.visibility)
 )
 
 fun Enum.mergeWith(other: Enum) = Enum(
@@ -90,7 +94,8 @@ fun Enum.mergeWith(other: Enum) = Enum(
     expected = expected?.mergeWith(other.expected),
     actual = (actual + other.actual).mergeClassPlatformInfo(),
     entries = (this.entries + other.entries.distinctBy { it.dri }.toList()),
-    constructors = merge(constructors + other.constructors, Function::mergeWith)
+    constructors = merge(constructors + other.constructors, Function::mergeWith),
+    visibility = visibility
 )
 
 fun Parameter.mergeWith(other: Parameter) = Parameter(

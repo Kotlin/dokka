@@ -38,6 +38,8 @@
       <module name="dokka.integration.test" target="1.8" />
       <module name="dokka.plugins.javadoc8.main" target="1.8" />
       <module name="dokka.plugins.javadoc8.test" target="1.8" />
+      <module name="dokka.plugins.kotlin-as-java.main" target="1.8" />
+      <module name="dokka.plugins.kotlin-as-java.test" target="1.8" />
       <module name="dokka.plugins.ma.main" target="1.8" />
       <module name="dokka.plugins.ma.test" target="1.8" />
       <module name="dokka.plugins.main" target="1.8" />

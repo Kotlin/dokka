@@ -8,21 +8,21 @@ import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-class DefaultPageContentBuilder(
+open class DefaultPageContentBuilder(
     private val dri: Set<DRI>,
     private val platformData: Set<PlatformData>,
     private val kind: Kind,
     private val commentsConverter: CommentsToContentConverter,
-    val logger: DokkaLogger,
+    open val logger: DokkaLogger,
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
 ) : PageContentBuilder {
     private val contents = mutableListOf<ContentNode>()
 
-    private fun createText(text: String, kind: Kind = ContentKind.Symbol) =
+    protected fun createText(text: String, kind: Kind = ContentKind.Symbol) =
         ContentText(text, DCI(dri, kind), platformData, styles, extras)
 
-    private fun build() = ContentGroup(
+    protected fun build() = ContentGroup(
         contents.toList(),
         DCI(dri, kind),
         platformData,
@@ -38,7 +38,7 @@ class DefaultPageContentBuilder(
         contents += createText(text, kind)
     }
 
-    private fun signature(f: Function, block: PageContentBuilderFunction) {
+    protected fun signature(f: Function, block: PageContentBuilderFunction) {
         contents += group(setOf(f.dri), f.platformData, ContentKind.Symbol, block)
     }
 
@@ -163,7 +163,7 @@ class DefaultPageContentBuilder(
 }
 
 
-private fun PageContentBuilder.type(t: TypeWrapper) {
+fun PageContentBuilder.type(t: TypeWrapper) {
     if (t.constructorNamePathSegments.isNotEmpty() && t.dri != null)
         link(t.constructorNamePathSegments.last(), t.dri!!)
     else if (t.constructorNamePathSegments.isNotEmpty() && t.dri == null)

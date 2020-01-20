@@ -12,6 +12,7 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.descriptors.Visibilities
 
 object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
 
@@ -47,6 +48,14 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
             return listOf(BasePlatformInfo(comment, listOf(platformData)))
         }
 
+        private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
+            when {
+                ml.any { it.text == PsiKeyword.PUBLIC } -> Visibilities.PUBLIC
+                ml.any { it.text == PsiKeyword.PROTECTED } -> Visibilities.PROTECTED
+                else -> Visibilities.PRIVATE
+            }
+        } ?: Visibilities.PRIVATE
+
         fun parseClass(psi: PsiClass, parent: DRI): Class = with(psi) {
             val kind = when {
                 isAnnotationType -> JavaClassKindTypes.ANNOTATION_CLASS
@@ -62,6 +71,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 link(superClass, node, RefKind.Inheritor)
             }
         }*/
+
             return Class(
                 dri,
                 name.orEmpty(),
@@ -72,7 +82,8 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 innerClasses.map { parseClass(it, dri) },
                 null,
                 emptyList(),
-                mutableSetOf()
+                mutableSetOf(),
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
 
@@ -101,7 +112,8 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                     )
                 },
                 null,
-                getComment(psi)
+                getComment(psi),
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
 
@@ -118,7 +130,9 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 psi.name,
                 null,
                 null,
-                getComment(psi)
+                getComment(psi),
+                accessors = emptyList(),
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
     }
@@ -132,16 +146,28 @@ enum class JavaClassKindTypes : ClassKind {
     ANNOTATION_CLASS;
 }
 
-class JavaTypeWrapper(
-    type: PsiType
-) : TypeWrapper {
+class JavaTypeWrapper : TypeWrapper {
 
     override val constructorFqName: String?
     override val constructorNamePathSegments: List<String>
-    override val arguments: List<JavaTypeWrapper>
+    override val arguments: List<TypeWrapper>
     override val dri: DRI?
+    val isPrimitive: Boolean
 
-    init {
+    constructor(
+        constructorNamePathSegments: List<String>,
+        arguments: List<TypeWrapper>,
+        dri: DRI?,
+        isPrimitiveType: Boolean
+    ) {
+        this.constructorFqName = constructorNamePathSegments.joinToString(".")
+        this.constructorNamePathSegments = constructorNamePathSegments
+        this.arguments = arguments
+        this.dri = dri
+        this.isPrimitive = isPrimitiveType
+    }
+
+    constructor(type: PsiType) {
         if (type is PsiClassReferenceType) {
             val resolved = type.resolve()
             constructorFqName = resolved?.qualifiedName
@@ -150,22 +176,26 @@ class JavaTypeWrapper(
                 if (it is PsiClassReferenceType) JavaTypeWrapper(it) else null
             }
             dri = fromPsi(type)
+            this.isPrimitive = false
         } else if (type is PsiEllipsisType) {
             constructorFqName = type.canonicalText
             constructorNamePathSegments = listOf(type.canonicalText) // TODO
             arguments = emptyList()
             dri = DRI("java.lang", "Object") // TODO
+            this.isPrimitive = false
         } else if (type is PsiArrayType) {
             constructorFqName = type.canonicalText
             constructorNamePathSegments = listOf(type.canonicalText)
             arguments = emptyList()
             dri = (type as? PsiClassReferenceType)?.let { fromPsi(it) } // TODO
+            this.isPrimitive = false
         } else {
             type as PsiPrimitiveType
             constructorFqName = type.name
             constructorNamePathSegments = type.name.split('.')
             arguments = emptyList()
             dri = null
+            this.isPrimitive = true
         }
     }
 
