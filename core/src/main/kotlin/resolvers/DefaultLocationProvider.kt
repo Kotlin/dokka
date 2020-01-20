@@ -38,6 +38,8 @@ open class DefaultLocationProvider(
         else -> ancestors(node.parent()) + node
     }
 
+    override fun top(): PageNode = pageGraphRoot
+
     protected open fun findInPageGraph(dri: DRI, platforms: List<PlatformData>): PageNode? =
         pageGraphRoot.dfs { it.dri == dri }
 
@@ -52,7 +54,7 @@ open class DefaultLocationProvider(
             else -> getPath(pathNode.parent(), path + pathNode.pathName().ifEmpty { "root" })
         }
 
-        val contextNode = if (context?.children?.isEmpty() == true) context.parent() else context
+        val contextNode = if (context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
         val nodePath = getPath(node).reversed()
         val contextPath = getPath(contextNode).reversed()
 

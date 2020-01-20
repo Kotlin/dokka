@@ -1,9 +1,68 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:300i,400,700);
 
+
+#content {
+    margin-top: 3em;
+    margin-left: 15em;
+}
+
+#navigation {
+    position: relative
+}
+
+#sideMenu, #searchBar {
+    position: absolute;
+}
+
+#sideMenu {
+    width: 14em;
+    padding-left: 0.5em;
+}
+
+#sideMenu .sideMenuPart {
+    margin-left: 0.25em;
+}
+
+#sideMenu img {
+    margin: 1em 0.25em;
+}
+
+#sideMenu hr {
+    background: #DADFE6;
+}
+
+#searchBar {
+    width: 100%;
+}
+
+#searchForm {
+    float: right;
+}
+
+.sideMenuPart > .navButton {
+    margin-left:0.25em
+}
+
+.sideMenuPart > .overview .navButtonContent::after {
+    float: right;
+    content: url("../images/arrow_down.svg");
+}
+
+.sideMenuPart.hidden > .navButton .navButtonContent::after {
+    content: '\02192';
+}
+
+.sideMenuPart.hidden > .sideMenuPart {
+    display: none;
+}
+
+.filtered > a, .filtered > .navButton {
+    display: none;
+}
+
 body, table{
-    padding:50px;
     font:14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color:#555;
+    background: #F4F4F4;
     font-weight:300;
     margin-left: auto;
     margin-right: auto;
