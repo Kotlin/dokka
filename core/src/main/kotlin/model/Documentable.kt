@@ -152,7 +152,7 @@ private fun String.shorten(maxLength: Int) = lineSequence().first().let {
 interface TypeWrapper {
     val constructorFqName: String?
     val constructorNamePathSegments: List<String>
-    val arguments: List<KotlinTypeWrapper>
+    val arguments: List<TypeWrapper>
     val dri: DRI?
 }
 interface ClassKind
