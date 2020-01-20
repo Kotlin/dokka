@@ -1,5 +1,8 @@
 package org.jetbrains.dokka
 
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.Module
@@ -8,11 +11,13 @@ import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
@@ -64,7 +69,8 @@ class DokkaGenerator(
     fun createDocumentationModels(
         platforms: Map<PlatformData, EnvironmentAndFacade>,
         context: DokkaContext
-    ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
+    ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) } +
+            platforms.map { (pdata, _)  -> translatePsi(pdata, context) }
 
     fun mergeDocumentationModels(
         modulesFromPlatforms: List<Module>,
@@ -121,6 +127,28 @@ class DokkaGenerator(
 
         return context.single(CoreExtensions.descriptorToDocumentationTranslator)
             .invoke(platformData.name, packageFragments, platformData, context)
+    }
+
+    private fun translatePsi(platformData: PlatformData, context: DokkaContext): Module {
+        val (environment, _) = context.platforms.getValue(platformData)
+
+        val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.map { it.file }
+                ?: listOf()
+        val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
+
+        val psiFiles = sourceRoots.map { sourceRoot ->
+            sourceRoot.absoluteFile.walkTopDown().mapNotNull {
+                localFileSystem.findFileByPath(it.path)?.let { vFile ->
+                    PsiManager.getInstance(environment.project).findFile(vFile) as? PsiJavaFile
+                }
+            }.toList()
+        }.flatten()
+
+        return context.single(CoreExtensions.psiToDocumentationTranslator)
+            .invoke(psiFiles, platformData, context)
+
     }
 
     private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {

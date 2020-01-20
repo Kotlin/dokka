@@ -110,6 +110,11 @@ sealed class TypeReference {
     }
 }
 
+data class JavaClassReference(val name: String): TypeReference() {
+    override val isNullable = true
+    override fun toString(): String = name
+}
+
 data class TypeParam(val bounds: List<TypeReference>, override val isNullable: Boolean) : TypeReference()
 
 data class TypeConstructor(

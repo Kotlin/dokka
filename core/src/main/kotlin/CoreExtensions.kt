@@ -10,6 +10,7 @@ import org.jetbrains.dokka.transformers.documentation.DocumentationNodeMerger
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeTransformer
 import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
+import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
 import kotlin.reflect.KProperty
 
 
@@ -19,6 +20,7 @@ import kotlin.reflect.KProperty
  */
 object CoreExtensions {
     val descriptorToDocumentationTranslator by coreExtension<DescriptorToDocumentationTranslator>()
+    val psiToDocumentationTranslator by coreExtension<PsiToDocumentationTranslator>()
     val documentationMerger by coreExtension<DocumentationNodeMerger>()
     val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
     val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
