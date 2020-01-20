@@ -5,7 +5,7 @@ import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
 
-class DefaultPageBuilder(
+open class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder
 ) : PageBuilder {
 
@@ -37,10 +37,10 @@ class DefaultPageBuilder(
             else -> throw IllegalStateException("$m should not be present here")
         }
 
-    private fun group(node: Documentable, content: PageContentBuilderFunction) =
+    protected open fun group(node: Documentable, content: PageContentBuilderFunction) =
         rootContentGroup(node, ContentKind.Main, content)
 
-    private fun contentForModule(m: Module) = group(m) {
+    protected open fun contentForModule(m: Module) = group(m) {
         header(1) { text("root") }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData) {
             link(it.name, it.dri)
@@ -49,7 +49,7 @@ class DefaultPageBuilder(
         text("Link to allpage here")
     }
 
-    private fun contentForPackage(p: Package) = group(p) {
+    protected open fun contentForPackage(p: Package) = group(p) {
         header(1) { text("Package ${p.name}") }
         block("Types", 2, ContentKind.Properties, p.classlikes, p.platformData) {
             link(it.name, it.dri)
@@ -62,13 +62,13 @@ class DefaultPageBuilder(
         }
     }
 
-    private fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
+    fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
         is Class -> contentForClass(c)
         is Enum -> contentForEnum(c)
         else -> throw IllegalStateException("$c should not be present here")
     }
 
-    private fun contentForClass(c: Class) = group(c) {
+    protected fun contentForClass(c: Class) = group(c) {
         header(1) { text(c.name) }
 
         c.inherited.takeIf { it.isNotEmpty() }?.let {

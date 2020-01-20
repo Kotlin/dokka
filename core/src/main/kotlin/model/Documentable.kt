@@ -4,7 +4,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
-import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.Visibility
 
 class Module(override val name: String, val packages: List<Package>) : Documentable() {
     override val dri: DRI = DRI.topLevel
@@ -32,7 +34,8 @@ class Class(
     override val classlikes: List<Classlike>,
     override val expected: ClassPlatformInfo?,
     override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
 ) : Classlike(
     name = name,
     dri = dri,
@@ -43,7 +46,7 @@ class Class(
     expected = expected,
     actual = actual,
     extra = extra
-)
+), WithVisibility
 
 class Enum(
     override val dri: DRI,
@@ -55,8 +58,9 @@ class Enum(
     override val classlikes: List<Classlike> = emptyList(),
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
-) : Classlike(dri = dri, name = name, kind = KotlinClassKindTypes.ENUM_CLASS, actual = actual) {
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
+) : Classlike(dri = dri, name = name, kind = KotlinClassKindTypes.ENUM_CLASS, actual = actual), WithVisibility {
     constructor(c: Classlike, entries: List<EnumEntry>, ctors: List<Function>) : this(
         dri = c.dri,
         name = c.name,
@@ -67,7 +71,8 @@ class Enum(
         classlikes = c.classlikes,
         expected = c.expected,
         actual = c.actual,
-        extra = c.extra
+        extra = c.extra,
+        visibility = c.visibility
     )
 
     override val children: List<Documentable>
@@ -79,7 +84,8 @@ class EnumEntry(
     override val name: String,
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
 ) : Classlike(
     dri = dri,
     name = name,
@@ -93,7 +99,8 @@ class EnumEntry(
         name = c.name,
         actual = c.actual,
         expected = c.expected,
-        extra = c.extra
+        extra = c.extra,
+        visibility = c.visibility
     )
 
     override val children: List<Parameter>
@@ -109,8 +116,9 @@ class Function(
     val parameters: List<Parameter>,
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
-) : CallableNode() {
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
+) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
 }
@@ -121,8 +129,10 @@ class Property(
     override val receiver: Parameter?,
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
-) : CallableNode() {
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    val accessors: List<Function>,
+    override val visibility: Map<PlatformData, Visibility>
+) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
 }
@@ -208,7 +218,7 @@ abstract class Classlike(
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
-) : ScopeNode() {
+) : ScopeNode(), WithVisibility {
     val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
 }
 
@@ -217,8 +227,12 @@ abstract class ScopeNode : Documentable() {
     abstract val properties: List<Property>
     abstract val classlikes: List<Classlike>
 
-    override val children: List<Documentable>
-        get() = functions + properties + classlikes
+    override val children: List<Documentable> // It is written so awkwardly because of type inference being lost here
+        get() = mutableListOf<Documentable>().apply {
+            addAll(functions)
+            addAll(properties)
+            addAll(classlikes)
+        }
 }
 
 abstract class CallableNode : Documentable() {
@@ -235,6 +249,7 @@ interface TypeWrapper {
     val arguments: List<TypeWrapper>
     val dri: DRI?
 }
+
 interface ClassKind
 
 fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
@@ -245,3 +260,8 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     }
 
 interface Extra
+object STATIC : Extra
+
+interface WithVisibility {
+    val visibility: Map<PlatformData, Visibility>
+}
