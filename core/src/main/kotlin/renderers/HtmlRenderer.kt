@@ -1,9 +1,13 @@
 package org.jetbrains.dokka.renderers
 
 import kotlinx.html.*
+import kotlinx.html.dom.document
 import kotlinx.html.stream.appendHTML
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 import java.net.URL
 
@@ -11,6 +15,29 @@ open class HtmlRenderer(
     outputWriter: OutputWriter,
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(outputWriter, context) {
+
+    private val pageList = mutableListOf<String>()
+
+    private var idCounter = 0
+        get() = ++field
+
+    private fun FlowContent.buildSideMenu(context: PageNode, node: PageNode) {
+        val children = node.children.filter { it !is MemberPageNode }
+        val className = children.ifNotEmpty { "nav$idCounter" }
+        div("sideMenuPart") {
+            className?.let { id = it }
+            div("overview") {
+                buildLink(node, context)
+                className?.let {
+                    span("navButton") {
+                        onClick = """document.getElementById("$it").classList.toggle("hidden");"""
+                        span("navButtonContent")
+                    }
+                }
+            }
+            children.forEach { buildSideMenu(context, it) }
+        }
+    }
 
     override fun FlowContent.buildList(node: ContentList, pageContext: PageNode) =
         if (node.ordered) ol {
@@ -87,24 +114,27 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildNavigation(page: PageNode) {
+    override fun FlowContent.buildNavigation(page: PageNode) =
         locationProvider.ancestors(page).forEach { node ->
             text("/")
-            buildLink(locationProvider.resolve(node, page)) {
-                text(node.name)
-            }
+            buildLink(node, page)
         }
-    }
+
+    private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
+        buildLink(locationProvider.resolve(to, from)) {
+            text(to.name)
+        }
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
     }
 
-    override fun FlowContent.buildNewLine() { br() }
-
-    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) {
-        a (href = address, block = content)
+    override fun FlowContent.buildNewLine() {
+        br()
     }
+
+    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
+        a(href = address, block = content)
 
     override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: PageNode) {
         buildNewLine()
@@ -114,29 +144,126 @@ open class HtmlRenderer(
         }
     }
 
+    override fun renderPage(page: PageNode) {
+        super.renderPage(page)
+        pageList.add("""{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(page)}" }""")
+    }
+
     override fun FlowContent.buildText(textNode: ContentText) {
         text(textNode.text)
     }
 
+    override fun render(root: PageNode) {
+        super.render(root)
+        outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+    }
 
     override fun buildSupportFiles() { // TODO copy file instead of reading
         outputWriter.write(
             "style.css",
             javaClass.getResourceAsStream("/dokka/styles/style.css").reader().readText()
         )
+        renderPage(searchPageNode)
+        outputWriter.writeResources("/dokka/styles", "styles")
+        outputWriter.writeResources("/dokka/scripts", "scripts")
+        outputWriter.writeResources("/dokka/images", "images")
     }
 
-    override fun buildPage(page: PageNode, content: (FlowContent, PageNode) -> Unit): String = StringBuilder().appendHTML().html {
-        head {
-            title(page.name)
-            link(rel = LinkRel.stylesheet, href = "${locationProvider.resolveRoot(page)}style.css")
-            page.embeddedResources.filter { URL(it).path.substringAfterLast('.') == "js" }
-                .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
-        }
-        body {
-            content(this, page)
-        }
-    }.toString()
+    private fun PageNode.root(path: String) =
+        "${if (this != searchPageNode) locationProvider.resolveRoot(this) else ""}$path"
+
+    override fun buildPage(page: PageNode, content: (FlowContent, PageNode) -> Unit): String =
+        StringBuilder().appendHTML().html {
+            document {
+
+            }
+            head {
+                title(page.name)
+                link(rel = LinkRel.stylesheet, href = page.root("styles/style.css"))
+                page.embeddedResources.filter {
+                    URL(it).path.substringAfterLast('.') == "js"
+                }.forEach {
+                    script(type = ScriptType.textJavaScript, src = it) { async = true }
+                }
+                if (page == searchPageNode) {
+                    script(
+                        type = ScriptType.textJavaScript,
+                        src = page.root("scripts/pages.js")
+                    ) { async = true }
+                }
+            }
+            body {
+                div {
+                    id = "navigation"
+                    div {
+                        id = "searchBar"
+                        form(action = page.root("-search.html"), method = FormMethod.get) {
+                            id = "searchForm"
+                            input(type = InputType.search, name = "query")
+                            input(type = InputType.submit) { value = "Search" }
+                        }
+                    }
+                    div {
+                        id = "sideMenu"
+                        img(src = page.root("images/logo-icon.svg"))
+                        img(src = page.root("images/logo-text.svg"))
+                        hr()
+                        input(type = InputType.search) {
+                            id = "navigationFilter"
+                        }
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/scripts.js")
+                        ) { async = true }
+                        buildSideMenu(page, locationProvider.top())
+                    }
+                }
+                div {
+                    id = "content"
+                    if (page != searchPageNode) content(this, page)
+                    else {
+                        h1 {
+                            id = "searchTitle"
+                            text("Search results for ")
+                        }
+                        table {
+                            tbody {
+                                id = "searchTable"
+                            }
+                        }
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/search.js")
+                        ) { async = true }
+                    }
+                }
+            }
+        }.toString()
 
     protected open fun List<HTMLMetadata>.joinAttr() = this.joinToString(" ") { it.key + "=" + it.value }
+
+    private val searchPageNode =
+        object: PageNode {
+            override val name: String
+                get() = "Search"
+            override val content = object: ContentNode{
+                override val dci: DCI = DCI(DRI.topLevel, ContentKind.Main)
+                override val platforms: Set<PlatformData> = emptySet()
+                override val style: Set<Style> = emptySet()
+                override val extras: Set<Extra> = emptySet()
+
+            }
+            override val dri: DRI = DRI.topLevel
+            override val documentable: Documentable? = null
+            override val embeddedResources: List<String> = emptyList()
+            override val children: List<PageNode> = emptyList()
+
+            override fun modified(
+                name: String,
+                content: ContentNode,
+                embeddedResources: List<String>,
+                children: List<PageNode>
+            ): PageNode = this
+
+        }
 }
