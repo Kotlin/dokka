@@ -17,3 +17,9 @@ allprojects {
         }
     }
 }
+
+subprojects {
+    dependencies {
+        testCompile project(':testApi')
+    }
+}

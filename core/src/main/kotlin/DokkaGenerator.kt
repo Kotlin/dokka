@@ -7,7 +7,6 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
-import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -51,43 +50,43 @@ class DokkaGenerator(
         render(transformedPages, context)
     }
 
-    internal fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
+    fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
         configuration.passesConfigurations.map {
             PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
         }.toMap()
 
-    internal fun initializePlugins(
+    fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
         platforms: Map<PlatformData, EnvironmentAndFacade>
     ) = DokkaContext.create(configuration, logger, platforms)
 
-    internal fun createDocumentationModels(
+    fun createDocumentationModels(
         platforms: Map<PlatformData, EnvironmentAndFacade>,
         context: DokkaContext
     ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) }
 
-    internal fun mergeDocumentationModels(
+    fun mergeDocumentationModels(
         modulesFromPlatforms: List<Module>,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentationMerger).invoke(modulesFromPlatforms, context)
 
-    internal fun transformDocumentationModel(
+    fun transformDocumentationModel(
         documentationModel: Module,
         context: DokkaContext
     ) = context[CoreExtensions.documentationTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
-    internal fun createPages(
+    fun createPages(
         transformedDocumentation: Module,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentationToPageTranslator).invoke(transformedDocumentation, context)
 
-    internal fun transformPages(
+    fun transformPages(
         pages: ModulePageNode,
         context: DokkaContext
     ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc, context) }
 
-    internal fun render(
+    fun render(
         transformedPages: ModulePageNode,
         context: DokkaContext
     ) {
