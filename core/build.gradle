@@ -21,6 +21,7 @@ allprojects {
 }
 
 dependencies {
+    testCompile project(':testApi')
     compile project(":integration")
     compile project(path: ":coreDependencies", configuration: "shadow")
 

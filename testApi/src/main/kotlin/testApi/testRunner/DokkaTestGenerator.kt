@@ -1,4 +1,4 @@
-package testRunner
+package testApi.testRunner
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator

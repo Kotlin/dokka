@@ -17,3 +17,7 @@ allprojects {
         }
     }
 }
+
+dependencies {
+    testCompile project(':testApi')
+}

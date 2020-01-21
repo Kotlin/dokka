@@ -12,4 +12,5 @@ include 'core',
         'runners:gradle-plugin',
 //        'plugins:javadoc8'
         'plugins:mathjax',
-        'plugins:xml'
+        'plugins:xml',
+        'testApi'
