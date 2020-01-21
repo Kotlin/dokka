@@ -9,26 +9,32 @@ import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 
 class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
     fun pageForModule(m: Module): ModulePageNode =
-            ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
+        ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
-    fun pageForPackage(p: Package): PackagePageNode {
+    private fun pageForPackage(p: Package): PackagePageNode {
         fun Function.withClass(className: String, dri: DRI): Function {
             val nDri = dri.withClass(className).copy(
-                    callable = getDescriptor()?.let { Callable.from(it) }
+                callable = getDescriptor()?.let { Callable.from(it) }
             )
             return Function(
-                    nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation
+                nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation
             )
         }
 
         fun Function.asStatic() = also { it.extra.add(STATIC) }
 
-        fun Property.withDRI(nDri: DRI) = Property(
+        fun Property.withClass(className: String, dri: DRI): Property {
+            val nDri = dri.withClass(className).copy(
+                callable = getDescriptor()?.let { Callable.from(it) }
+            )
+            return Property(
                 nDri, name, receiver, expected, actual, extra, type, accessors, isVar, sourceLocation
-        )
+            )
+        }
 
         val funs = p.functions.filter { it.sourceLocation != null }.groupBy { function ->
             function.sourceLocation!!.let { it.split("/").last().split(".").first() + "Kt" }
@@ -41,66 +47,67 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
         val fClasses = funs.map { (key, value) ->
             val nDri = p.dri.withClass(key)
             Class(
-                    dri = nDri,
-                    name = key,
-                    kind = KotlinClassKindTypes.CLASS,
-                    constructors = emptyList(),
-                    functions = value.map { it.withClass(key, nDri).asStatic() },
-                    properties = emptyList(),
-                    classes = emptyList(),
-                    actual = emptyList(),
-                    expected = null
+                dri = nDri,
+                name = key,
+                kind = KotlinClassKindTypes.CLASS,
+                constructors = emptyList(),
+                functions = value.map { it.withClass(key, nDri).asStatic() },
+                properties = emptyList(),
+                classes = emptyList(),
+                actual = emptyList(),
+                expected = null
             )
         }
 
         val pClasses = props.map { (key, value) ->
             val nDri = p.dri.withClass(key)
             Class(
-                    dri = nDri,
-                    name = key,
-                    kind = KotlinClassKindTypes.CLASS,
-                    constructors = emptyList(),
-                    functions = emptyList(),
-                    properties = value.map { it.withDRI(nDri) },
-                    classes = emptyList(),
-                    actual = emptyList(),
-                    expected = null
+                dri = nDri,
+                name = key,
+                kind = KotlinClassKindTypes.CLASS,
+                constructors = emptyList(),
+                functions = emptyList(),
+                properties = value.map { it.withClass(key, nDri) },
+                classes = emptyList(),
+                actual = emptyList(),
+                expected = null
             )
         }
 
         fun Class.merge(other: Class) = Class(
-                dri = dri,
-                name = name,
-                kind = KotlinClassKindTypes.CLASS,
-                constructors = emptyList(),
-                functions = functions + other.functions,
-                properties = properties + other.properties,
-                classes = emptyList(),
-                actual = emptyList(),
-                expected = null
+            dri = dri,
+            name = name,
+            kind = KotlinClassKindTypes.CLASS,
+            constructors = emptyList(),
+            functions = functions + other.functions,
+            properties = properties + other.properties,
+            classes = emptyList(),
+            actual = emptyList(),
+            expected = null
         )
 
         val classes = (fClasses + pClasses).groupBy { it.name }.map { (_, v) ->
             v.reduce(Class::merge)
         }
 
-        return PackagePageNode(p.name, contentForPackage(p, classes), p.dri, p,
-                (p.classes + classes).map { pageForClass(it) }
+        return PackagePageNode(
+            p.name, contentForPackage(p, classes), p.dri, p,
+            (p.classes + classes).map(::pageForClass)
         )
     }
 
-    fun pageForMember(m: CallableNode): MemberPageNode =
-            when (m) {
-                is Function ->
-                    MemberPageNode(m.name, contentForFunction(m), m.dri, m)
-                else -> throw IllegalStateException("$m should not be present here")
-            }
+    private fun pageForMember(m: CallableNode): MemberPageNode =
+        when (m) {
+            is Function ->
+                MemberPageNode(m.name, contentForFunction(m), m.dri, m)
+            else -> throw IllegalStateException("$m should not be present here")
+        }
 
-    fun pageForClass(c: Class): ClassPageNode =
-            ClassPageNode(c.name, contentForClass(c), c.dri, c,
-                    c.constructors.map { pageForMember(it) } +
-                            c.classes.map { pageForClass(it) } +
-                            c.functions.map { pageForMember(it) })
+    private fun pageForClass(c: Class): ClassPageNode =
+        ClassPageNode(c.name, contentForClass(c), c.dri, c,
+            c.constructors.map { pageForMember(it) } +
+                    c.classes.map { pageForClass(it) } +
+                    c.functions.map { pageForMember(it) })
 
     private fun contentForModule(m: Module) = group(m) {
         header(1) { text("root") }
@@ -164,10 +171,13 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
     private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 
     private fun group(node: Documentable, content: KotlinAsJavaPageContentBuilderFunction) =
-            rootContentGroup(node, ContentKind.Main, content)
+        rootContentGroup(node, ContentKind.Main, content)
 
-    fun Function.getDescriptor(): FunctionDescriptor? = platformInfo.mapNotNull { it.descriptor }.firstOrNull()
-            ?.takeIf { it is FunctionDescriptor }?.let { it as FunctionDescriptor }
+    private fun Function.getDescriptor(): FunctionDescriptor? = platformInfo.mapNotNull { it.descriptor }.firstOrNull()
+        ?.let { it as? FunctionDescriptor }
+
+    private fun Property.getDescriptor(): PropertyDescriptor? = platformInfo.mapNotNull { it.descriptor }.firstOrNull()
+        ?.let { it as? PropertyDescriptor }
 }
 
 typealias RootContentBuilder = (Documentable, Kind, KotlinAsJavaPageContentBuilderFunction) -> ContentGroup
