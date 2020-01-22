@@ -7,6 +7,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 
 interface PsiToDocumentationTranslator {
     fun invoke(
+        moduleName: String,
         psiFiles: List<PsiJavaFile>,
         platformData: PlatformData,
         context: DokkaContext
