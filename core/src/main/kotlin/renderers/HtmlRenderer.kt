@@ -22,17 +22,19 @@ open class HtmlRenderer(
 
     protected open fun OL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
         items.forEach {
-            if (it is ContentText)
+            if (it is ContentList)
+                buildList(it, pageContext)
+            else
                 li { it.build(this, pageContext) }
-            else buildList(it as ContentList, pageContext)
         }
     }
 
     protected open fun UL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
         items.forEach {
-            if (it is ContentText)
+            if (it is ContentList)
+                buildList(it, pageContext)
+            else
                 li { it.build(this, pageContext) }
-            else buildList(it as ContentList, pageContext)
         }
     }
 
@@ -109,7 +111,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: PageNode) {
         buildNewLine()
         code.forEach {
-            + (it as ContentText).text
+            + ((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); ""} )
             buildNewLine()
         }
     }

@@ -8,11 +8,11 @@ class FileWriter(val root: String, override val extension: String): OutputWriter
     private val createdFiles: MutableSet<String> = mutableSetOf()
 
     override fun write(path: String, text: String, ext: String) {
-        if (createdFiles.contains(path)) {
-            println("ERROR. An attempt to write $root/$path several times!")
-            return
-        }
-        createdFiles.add(path)
+//        if (createdFiles.contains(path)) { TODO
+//            println("ERROR. An attempt to write $root/$path several times!")
+//            return
+//        }
+//        createdFiles.add(path)
 
         try {
 //            println("Writing $root/$path$ext")

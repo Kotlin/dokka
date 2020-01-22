@@ -18,7 +18,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
         context: DokkaContext
     ): Module {
         val docParser = DokkaPsiParser(platformData, context.logger)
-        return Module( "JavaModule",
+        return Module("JavaModule",
             psiFiles.map { psiFile ->
                 val dri = DRI(packageName = psiFile.packageName)
                 Package(
@@ -145,6 +145,16 @@ class JavaTypeWrapper(
                 if (it is PsiClassReferenceType) JavaTypeWrapper(it) else null
             }
             dri = fromPsi(type)
+        } else if (type is PsiEllipsisType) {
+            constructorFqName = type.canonicalText
+            constructorNamePathSegments = listOf(type.canonicalText) // TODO
+            arguments = emptyList()
+            dri = DRI("java.lang", "Object") // TODO
+        } else if (type is PsiArrayType) {
+            constructorFqName = type.canonicalText
+            constructorNamePathSegments = listOf(type.canonicalText)
+            arguments = emptyList()
+            dri = (type as? PsiClassReferenceType)?.let { fromPsi(it) } // TODO
         } else {
             type as PsiPrimitiveType
             constructorFqName = type.name
