@@ -9,7 +9,7 @@ dependencies {
     compileOnly toolsJar
     testCompile toolsJar
 
-    testImplementation project(":core:testApi")
+//    testImplementation project(":core:testApi")
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlin_version
 }

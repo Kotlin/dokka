@@ -151,7 +151,7 @@ open class HtmlRenderer(
     override fun renderPage(page: PageNode) {
         super.renderPage(page)
         pageList.add(
-            """{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
+            """{ "name": "${page.name}", ${if (page is ClasslikePageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
                 page
             )}", "kind": "${page.pageKind()}" }"""
         )
@@ -288,7 +288,7 @@ open class HtmlRenderer(
 
     private fun PageNode.pageKind() = when (this) {
         is PackagePageNode -> "package"
-        is ClassPageNode -> "class"
+        is ClasslikePageNode -> "class"
         is MemberPageNode -> when (this.documentable) {
             is Function -> "function"
             else -> "other"

@@ -1,4 +1,4 @@
-package testRunner
+package testApi.testRunner
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.Module
@@ -59,7 +59,8 @@ abstract class AbstractCoreTest {
         DokkaTestGenerator(newConfiguration, logger, testMethods).generate()
     }
 
-    private fun String.toFileMap(): Map<String, String> = this.replace("\r\n", "\n")
+    private fun String.toFileMap(): Map<String, String> = this.trimMargin().removePrefix("|")
+        .replace("\r\n", "\n")
         .split("\n/")
         .map { fileString ->
             fileString.split("\n", limit = 2)

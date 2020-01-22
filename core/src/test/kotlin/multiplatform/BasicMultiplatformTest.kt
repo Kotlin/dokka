@@ -1,7 +1,7 @@
 package multiplatform
 
 import org.junit.Test
-import testRunner.AbstractCoreTest
+import testApi.testRunner.AbstractCoreTest
 import kotlin.test.assertEquals
 
 class BasicMultiplatformTest : AbstractCoreTest() {

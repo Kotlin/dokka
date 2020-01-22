@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Documentable
 import java.util.*
 
 interface PageNode {
@@ -51,7 +51,7 @@ class ModulePageNode(
     val parentMap: IdentityHashMap<PageNode, PageNode> by lazy {
         IdentityHashMap<PageNode, PageNode>().apply {
             fun addParent(parent: PageNode) {
-                parent.children.forEach {  child ->
+                parent.children.forEach { child ->
                     put(child, parent)
                     addParent(child)
                 }
@@ -81,7 +81,7 @@ class PackagePageNode(
         else PackagePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-class ClassPageNode(
+class ClasslikePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: DRI,
@@ -95,9 +95,9 @@ class ClassPageNode(
         content: ContentNode,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ClassPageNode =
+    ): ClasslikePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ClassPageNode(name, content, dri, documentable, children, embeddedResources)
+        else ClasslikePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 class MemberPageNode(

@@ -13,3 +13,4 @@ include 'core',
 //        'plugins:javadoc8'
         'plugins:mathjax',
         'plugins:xml'
+//        'testApi'
