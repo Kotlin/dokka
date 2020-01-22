@@ -5,8 +5,9 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.*
 
-class FileWriter(val root: String, override val extension: String): OutputWriter {
+class FileWriter(val root: String, override val extension: String) : OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
+    private val jarUriPrefix = "jar:file:"
 
     override fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {
@@ -25,7 +26,21 @@ class FileWriter(val root: String, override val extension: String): OutputWriter
         }
     }
 
-    override fun writeResources(pathFrom: String, pathTo: String) {
+    override fun writeResources(pathFrom: String, pathTo: String) =
+        if (javaClass.getResource(pathFrom).toURI().toString().startsWith(jarUriPrefix)) {
+            copyFromJar(pathFrom, pathTo)
+        } else {
+            copyFromDirectory(pathFrom, pathTo)
+        }
+
+
+    private fun copyFromDirectory(pathFrom: String, pathTo: String) {
+        val dest = Paths.get(root, pathTo).toFile()
+        val uri = javaClass.getResource(pathFrom).toURI()
+        File(uri).copyRecursively(dest, true)
+    }
+
+    private fun copyFromJar(pathFrom: String, pathTo: String) {
         val rebase = fun(path: String) =
             "$pathTo/${path.removePrefix(pathFrom)}"
         val dest = Paths.get(root, pathTo).toFile()
