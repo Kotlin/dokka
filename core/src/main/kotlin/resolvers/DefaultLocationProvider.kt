@@ -1,18 +1,21 @@
 package org.jetbrains.dokka.resolvers
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.utilities.htmlEscape
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
+import org.jetbrains.dokka.utilities.htmlEscape
+import java.util.*
 
 open class DefaultLocationProvider(
     private val pageGraphRoot: ModulePageNode,
     private val dokkaContext: DokkaContext
 ) : LocationProvider { // TODO: cache
     private val extension = dokkaContext.single(CoreExtensions.fileExtension)
+
+    private val pagesCache = mutableMapOf<DRI, Maybe<PageNode>>()
+    private val pathCache: MutableMap<PageNode, List<String>> = IdentityHashMap<PageNode, List<String>>()
 
     override fun resolve(node: PageNode, context: PageNode?): String = pathTo(node, context) + extension
 
@@ -22,7 +25,8 @@ open class DefaultLocationProvider(
         ExternalLocationProvider.getLocation(dri,
             this.dokkaContext.configuration.passesConfigurations
                 .filter { passConfig ->
-                    platforms.toSet().contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
+                    platforms.toSet()
+                        .contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?
                 .flatMap { it.externalDocumentationLinks }.distinct()
         )
@@ -41,7 +45,8 @@ open class DefaultLocationProvider(
     override fun top(): PageNode = pageGraphRoot
 
     protected open fun findInPageGraph(dri: DRI, platforms: List<PlatformData>): PageNode? =
-        pageGraphRoot.dfs { it.dri == dri }
+        pagesCache.getOrPut(dri) { pageGraphRoot.dfs { it.dri == dri }.wrapped }.unwrapped
+
 
     protected open fun pathTo(node: PageNode, context: PageNode?): String {
 
@@ -49,14 +54,17 @@ open class DefaultLocationProvider(
             if (this is PackagePageNode) name
             else identifierToFilename(name)
 
-        fun getPath(pathNode: PageNode?, path: List<String> = mutableListOf()): List<String> = when (pathNode) {
+        fun getPathInternal(pathNode: PageNode?, path: List<String>): List<String> = when (pathNode) {
             null -> path
-            else -> getPath(pathNode.parent(), path + pathNode.pathName().ifEmpty { "root" })
+            else -> getPathInternal(pathNode.parent(), path + pathNode.pathName().ifEmpty { "root" })
         }
 
-        val contextNode = if (context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
+        fun getPath(pathNode: PageNode) = pathCache.getOrPut(pathNode) { getPathInternal(pathNode, emptyList()) }
+
+        val contextNode =
+            if (context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
         val nodePath = getPath(node).reversed()
-        val contextPath = getPath(contextNode).reversed()
+        val contextPath = contextNode?.let(::getPath).orEmpty().reversed()
 
         val commonPathElements = nodePath.zip(contextPath).takeWhile { (a, b) -> a == b }.size
 
@@ -113,3 +121,7 @@ private fun identifierToFilename(name: String): String {
     val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
     return if (lowercase in reservedFilenames) "--$lowercase--" else lowercase
 }
+
+private class Maybe<T : Any>(val unwrapped: T?)
+
+private val <T : Any> T?.wrapped: Maybe<T> get() = Maybe(this)
