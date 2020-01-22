@@ -5,6 +5,8 @@ import kotlinx.html.dom.document
 import kotlinx.html.stream.appendHTML
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
@@ -141,14 +143,18 @@ open class HtmlRenderer(
     override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: PageNode) {
         buildNewLine()
         code.forEach {
-            + ((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); ""} )
+            +((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); "" })
             buildNewLine()
         }
     }
 
     override fun renderPage(page: PageNode) {
         super.renderPage(page)
-        pageList.add("""{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(page)}" }""")
+        pageList.add(
+            """{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
+                page
+            )}", "kind": "${page.pageKind()}" }"""
+        )
     }
 
     override fun FlowContent.buildText(textNode: ContentText) {
@@ -187,23 +193,17 @@ open class HtmlRenderer(
                 }.forEach {
                     script(type = ScriptType.textJavaScript, src = it) { async = true }
                 }
-                if (page == searchPageNode) {
-                    script(
-                        type = ScriptType.textJavaScript,
-                        src = page.root("scripts/pages.js")
-                    ) { async = true }
-                }
+                script(
+                    type = ScriptType.textJavaScript,
+                    src = page.root("scripts/pages.js")
+                ) { async = true }
+
             }
             body {
                 div {
                     id = "navigation"
                     div {
                         id = "searchBar"
-                        form(action = page.root("-search.html"), method = FormMethod.get) {
-                            id = "searchForm"
-                            input(type = InputType.search, name = "query")
-                            input(type = InputType.submit) { value = "Search" }
-                        }
                     }
                     div {
                         id = "sideMenu"
@@ -222,8 +222,17 @@ open class HtmlRenderer(
                 }
                 div {
                     id = "content"
-                    if (page != searchPageNode) content(this, page)
-                    else {
+                    if (page != searchPageNode) {
+                        content(this, page)
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/searchConfig.js")
+                        ) { async = true }
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/fuzzySearch.js")
+                        ) { async = true }
+                    } else {
                         h1 {
                             id = "searchTitle"
                             text("Search results for ")
@@ -237,6 +246,14 @@ open class HtmlRenderer(
                             type = ScriptType.textJavaScript,
                             src = page.root("scripts/search.js")
                         ) { async = true }
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/searchConfig.js")
+                        ) { async = true }
+                        script(
+                            type = ScriptType.textJavaScript,
+                            src = page.root("scripts/fuzzySearch.js")
+                        ) { async = true }
                     }
                 }
             }
@@ -245,10 +262,10 @@ open class HtmlRenderer(
     protected open fun List<HTMLMetadata>.joinAttr() = this.joinToString(" ") { it.key + "=" + it.value }
 
     private val searchPageNode =
-        object: PageNode {
+        object : PageNode {
             override val name: String
                 get() = "Search"
-            override val content = object: ContentNode{
+            override val content = object : ContentNode {
                 override val dci: DCI = DCI(DRI.topLevel, ContentKind.Main)
                 override val platforms: Set<PlatformData> = emptySet()
                 override val style: Set<Style> = emptySet()
@@ -268,4 +285,14 @@ open class HtmlRenderer(
             ): PageNode = this
 
         }
+
+    private fun PageNode.pageKind() = when (this) {
+        is PackagePageNode -> "package"
+        is ClassPageNode -> "class"
+        is MemberPageNode -> when (this.documentable) {
+            is Function -> "function"
+            else -> "other"
+        }
+        else -> "other"
+    }
 }
