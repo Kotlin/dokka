@@ -1,13 +1,15 @@
 package org.jetbrains.dokka.transformers.descriptors
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.ClassKind
-import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.ClassKind
+import org.jetbrains.dokka.model.Enum
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
@@ -18,9 +20,8 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.dokka.parsers.MarkdownParser
 
-object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
+object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
@@ -50,11 +51,35 @@ class DokkaDescriptorVisitor(
             dri,
             scope.functions(dri),
             scope.properties(dri),
-            scope.classes(dri)
+            scope.classlikes(dri)
         )
     }
 
-    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
+    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Classlike = when (descriptor.kind) {
+        org.jetbrains.kotlin.descriptors.ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
+        else -> classDescriptor(descriptor, parent)
+    }
+
+    fun enumDescriptor(descriptor: ClassDescriptor, parent: DRI): Enum {
+        val dri = parent.withClass(descriptor.name.asString())
+        val scope = descriptor.getMemberScope(emptyList())
+        val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
+
+        return Enum(
+            dri = dri,
+            name = descriptor.name.asString(),
+            entries = scope.classlikes(dri).filter { it.kind == KotlinClassKindTypes.ENUM_ENTRY }.map { EnumEntry(it) },
+            constructors = descriptor.constructors.map { visitConstructorDescriptor(it, dri) },
+            functions = scope.functions(dri),
+            properties = scope.properties(dri),
+            classlikes = scope.classlikes(dri),
+            expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
+            actual = listOfNotNull(descriptorData),
+            extra = mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
+        )
+    }
+
+    fun classDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
         val dri = parent.withClass(descriptor.name.asString())
         val scope = descriptor.getMemberScope(emptyList())
         val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
@@ -65,7 +90,7 @@ class DokkaDescriptorVisitor(
             descriptor.constructors.map { visitConstructorDescriptor(it, dri) },
             scope.functions(dri),
             scope.properties(dri),
-            scope.classes(dri),
+            scope.classlikes(dri),
             descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
             listOfNotNull(descriptorData),
             mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
@@ -139,7 +164,7 @@ class DokkaDescriptorVisitor(
             .filterIsInstance<PropertyDescriptor>()
             .map { visitPropertyDescriptor(it, parent) }
 
-    private fun MemberScope.classes(parent: DRI): List<Class> =
+    private fun MemberScope.classlikes(parent: DRI): List<Classlike> =
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .map { visitClassDescriptor(it, parent) }
@@ -174,10 +199,12 @@ class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
     override val constructorFqName = fqNameSafe?.asString()
     override val constructorNamePathSegments: List<String> =
         fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
-    override val arguments: List<KotlinTypeWrapper> by lazy { kotlinType.arguments.map {
-        KotlinTypeWrapper(
-            it.type
-        )
-    } }
+    override val arguments: List<KotlinTypeWrapper> by lazy {
+        kotlinType.arguments.map {
+            KotlinTypeWrapper(
+                it.type
+            )
+        }
+    }
     override val dri: DRI? by lazy { declarationDescriptor?.let { DRI.from(it) } }
 }
