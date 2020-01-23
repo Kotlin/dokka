@@ -1,15 +1,17 @@
 package org.jetbrains.dokka.transformers.descriptors
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.ClassKind
-import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Enum
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Property
+import org.jetbrains.dokka.model.ClassKind
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
@@ -20,10 +22,9 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.dokka.parsers.MarkdownParser
 import kotlin.reflect.KClass
 
-object DefaultDescriptorToDocumentationTranslator: DescriptorToDocumentationTranslator {
+object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
@@ -42,6 +43,8 @@ internal data class DRIWithPlatformInfo(
     val actual: List<PlatformInfo>
 )
 
+private fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, null, emptyList())
+
 internal class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
@@ -54,18 +57,42 @@ internal class DokkaDescriptorVisitor(
         descriptor: PackageFragmentDescriptor,
         parent: DRIWithPlatformInfo
     ): Package {
-        val driWithPlatform = DRIWithPlatformInfo(DRI(packageName = descriptor.fqName.asString()), null, emptyList())
+        val driWithPlatform = DRI(packageName = descriptor.fqName.asString()).withEmptyInfo()
         val scope = descriptor.getMemberScope()
         return Package(
             dri = driWithPlatform.dri,
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            classes = scope.classes(driWithPlatform)
+            classlikes = scope.classlikes(driWithPlatform)
         )
     }
 
-    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
-        val driWithPlatform = DRIWithPlatformInfo(parent.dri.withClass(descriptor.name.asString()), null, emptyList())
+    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Classlike = when (descriptor.kind) {
+        org.jetbrains.kotlin.descriptors.ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
+        else -> classDescriptor(descriptor, parent)
+    }
+
+    fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
+        val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
+        val scope = descriptor.getMemberScope(emptyList())
+        val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
+
+        return Enum(
+            dri = driWithPlatform.dri,
+            name = descriptor.name.asString(),
+            entries = scope.classlikes(driWithPlatform).filter { it.kind == KotlinClassKindTypes.ENUM_ENTRY }.map { EnumEntry(it) },
+            constructors = descriptor.constructors.map { visitConstructorDescriptor(it, driWithPlatform) },
+            functions = scope.functions(driWithPlatform),
+            properties = scope.properties(driWithPlatform),
+            classlikes = scope.classlikes(driWithPlatform),
+            expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
+            actual = listOfNotNull(descriptorData),
+            extra = mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
+        )
+    }
+
+    fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
+        val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.getMemberScope(emptyList())
         val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
         val expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData()
@@ -87,7 +114,7 @@ internal class DokkaDescriptorVisitor(
             ) },
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            classes = scope.classes(driWithPlatform),
+            classlikes = scope.classlikes(driWithPlatform),
             expected = expected,
             actual = actual,
             extra = mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
@@ -193,7 +220,7 @@ internal class DokkaDescriptorVisitor(
             .filterIsInstance<PropertyDescriptor>()
             .map { visitPropertyDescriptor(it, parent) }
 
-    private fun MemberScope.classes(parent: DRIWithPlatformInfo): List<Class> =
+    private fun MemberScope.classlikes(parent: DRIWithPlatformInfo): List<Classlike> =
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .map { visitClassDescriptor(it, parent) }
@@ -242,10 +269,12 @@ class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
     override val constructorFqName = fqNameSafe?.asString()
     override val constructorNamePathSegments: List<String> =
         fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
-    override val arguments: List<KotlinTypeWrapper> by lazy { kotlinType.arguments.map {
-        KotlinTypeWrapper(
-            it.type
-        )
-    } }
+    override val arguments: List<KotlinTypeWrapper> by lazy {
+        kotlinType.arguments.map {
+            KotlinTypeWrapper(
+                it.type
+            )
+        }
+    }
     override val dri: DRI? by lazy { declarationDescriptor?.let { DRI.from(it) } }
 }

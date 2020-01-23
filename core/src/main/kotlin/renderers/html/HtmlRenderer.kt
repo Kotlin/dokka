@@ -145,7 +145,7 @@ open class HtmlRenderer(
         super.renderPage(page)
         if (page is ContentPage) {
             pageList.add(
-                """{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
+                """{ "name": "${page.name}", ${if (page is ClasslikePageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
                     page
                 )}" }"""
             )
@@ -205,7 +205,7 @@ fun List<HTMLMetadata>.joinAttr() = joinToString(" ") { it.key + "=" + it.value 
 
 private fun PageNode.pageKind() = when (this) {
     is PackagePageNode -> "package"
-    is ClassPageNode -> "class"
+    is ClasslikePageNode -> "class"
     is MemberPageNode -> when (this.documentable) {
         is Function -> "function"
         else -> "other"

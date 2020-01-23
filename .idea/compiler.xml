@@ -32,6 +32,8 @@
       <module name="dokka.coreDependencies.test" target="1.8" />
       <module name="dokka.integration-tests.gradle-integration-tests.main" target="1.8" />
       <module name="dokka.integration-tests.gradle-integration-tests.test" target="1.8" />
+      <module name="dokka.integration-tests.main" target="1.8" />
+      <module name="dokka.integration-tests.test" target="1.8" />
       <module name="dokka.integration.main" target="1.8" />
       <module name="dokka.integration.test" target="1.8" />
       <module name="dokka.plugins.javadoc8.main" target="1.8" />
@@ -56,8 +58,10 @@
       <module name="dokka.runners.gradle-integration-tests.test" target="1.8" />
       <module name="dokka.runners.gradle-plugin.main" target="1.8" />
       <module name="dokka.runners.gradle-plugin.test" target="1.8" />
+      <module name="dokka.runners.main" target="1.8" />
       <module name="dokka.runners.maven-plugin.main" target="1.8" />
       <module name="dokka.runners.maven-plugin.test" target="1.8" />
+      <module name="dokka.runners.test" target="1.8" />
       <module name="dokka.testApi.main" target="1.8" />
       <module name="dokka.testApi.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
