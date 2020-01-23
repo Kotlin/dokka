@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.model.doc.DocTag
-import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
-import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.utilities.DokkaLogger
 
 class DefaultPageContentBuilder(
     private val dri: DRI,
@@ -167,9 +167,9 @@ private fun PageContentBuilder.type(t: TypeWrapper) {
     if (t.constructorNamePathSegments.isNotEmpty() && t.dri != null)
         link(t.constructorNamePathSegments.last(), t.dri!!)
     else (this as? DefaultPageContentBuilder)?.let {
-            logger.error("type $t cannot be resolved")
-            text("???")
-        }
+        logger.error("type $t cannot be resolved")
+        text("???")
+    }
     list(t.arguments, prefix = "<", suffix = ">") {
         type(it)
     }
@@ -185,7 +185,9 @@ interface PageContentBuilder {
     fun group(
         dri: DRI,
         platformData: Set<PlatformData>,
-        kind: Kind, block: PageContentBuilderFunction): ContentGroup
+        kind: Kind, block: PageContentBuilderFunction
+    ): ContentGroup
+
     fun text(text: String, kind: Kind = ContentKind.Symbol)
     fun signature(f: Function)
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
@@ -195,8 +197,8 @@ interface PageContentBuilder {
     fun header(level: Int, block: PageContentBuilderFunction)
     fun <T> list(
         elements: List<T>,
-        prefix: String =  "",
-        suffix: String =  "",
+        prefix: String = "",
+        suffix: String = "",
         separator: String = ",",
         operation: PageContentBuilder.(T) -> Unit
     )

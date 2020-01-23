@@ -23,7 +23,7 @@ object XmlTransformer : PageNodeTransformer {
 
     override fun invoke(input: ModulePageNode, dokkaContext: DokkaContext): ModulePageNode =
         input.transformPageNodeTree { node ->
-            if (node !is ClassPageNode) node
+            if (node !is ClasslikePageNode) node
             else {
                 val refs =
                     node.documentable?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
