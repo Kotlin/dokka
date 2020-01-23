@@ -27,7 +27,7 @@ class XmlTransformer(private val dokkaContext: DokkaContext) : PageNodeTransform
         input.transformPageNodeTree { if (it is ModulePageNode) transformModule(it) else it }
 
     private fun transformModule(module: ModulePageNode) = module.transformContentPagesTree { node ->
-        if (node !is ClassPageNode) node
+        if (node !is ClasslikePageNode) node
         else {
             val refs =
                 node.documentable?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
