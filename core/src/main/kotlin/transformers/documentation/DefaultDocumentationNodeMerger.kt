@@ -1,15 +1,13 @@
 package org.jetbrains.dokka.transformers.documentation
 
-import com.intellij.openapi.diagnostic.logger
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 
 internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
     override fun invoke(modules: Collection<Module>, context: DokkaContext): Module {
         if (!modules.all { it.name == modules.first().name })
-            DokkaConsoleLogger.error("All module names need to be the same")
+            context.logger.error("All module names need to be the same")
         return Module(
             modules.first().name,
             merge(
