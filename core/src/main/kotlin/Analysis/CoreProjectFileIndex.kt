@@ -15,6 +15,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.StandardFileSystems
+import com.intellij.openapi.vfs.VfsUtilCore.getVirtualFileForJar
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileFilter
 import com.intellij.psi.search.GlobalSearchScope
@@ -328,7 +329,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun <R : Any?> processOrder(p0: RootPolicy<R>?, p1: R): R {
+        override fun <R : Any?> processOrder(p0: RootPolicy<R>, p1: R): R {
             throw UnsupportedOperationException()
         }
 
@@ -403,7 +404,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun isDependsOn(p0: Module?): Boolean {
+        override fun isDependsOn(p0: Module): Boolean {
             throw UnsupportedOperationException()
         }
 
@@ -515,7 +516,7 @@ class CoreProjectRootManager(val projectFileIndex: CoreProjectFileIndex) : Proje
         throw UnsupportedOperationException()
     }
 
-    override fun getContentRootsFromAllModules(): Array<out VirtualFile>? {
+    override fun getContentRootsFromAllModules(): Array<out VirtualFile> {
         throw UnsupportedOperationException()
     }
 
@@ -523,7 +524,7 @@ class CoreProjectRootManager(val projectFileIndex: CoreProjectFileIndex) : Proje
         throw UnsupportedOperationException()
     }
 
-    override fun setProjectSdkName(p0: String?) {
+    override fun setProjectSdkName(p0: String) {
         throw UnsupportedOperationException()
     }
 
@@ -558,7 +559,7 @@ class CoreProjectRootManager(val projectFileIndex: CoreProjectFileIndex) : Proje
 fun ContentRoot.contains(file: VirtualFile) = when (this) {
     is JvmContentRoot -> {
         val path = if (file.fileSystem.protocol == StandardFileSystems.JAR_PROTOCOL)
-            StandardFileSystems.getVirtualFileForJar(file)?.path ?: file.path
+            getVirtualFileForJar(file)?.path ?: file.path
         else
             file.path
         File(path).startsWith(this.file.absoluteFile)

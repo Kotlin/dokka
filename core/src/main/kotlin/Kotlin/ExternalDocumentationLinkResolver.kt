@@ -42,7 +42,7 @@ class PackageListProvider @Inject constructor(
         configuration.cacheRoot == "default" -> Paths.get(System.getProperty("user.home"), ".cache", "dokka")
         configuration.cacheRoot != null -> Paths.get(configuration.cacheRoot)
         else -> null
-    }?.resolve("packageListCache")?.apply { createDirectories() }
+    }?.resolve("packageListCache")?.apply { toFile().mkdirs() }
 
     val cachedProtocols = setOf("http", "https", "ftp")
 
@@ -105,13 +105,13 @@ class PackageListProvider @Inject constructor(
 
             val digest = MessageDigest.getInstance("SHA-256")
             val hash = digest.digest(packageListLink.toByteArray(Charsets.UTF_8)).toHexString()
-            val cacheEntry = cacheDir.resolve(hash)
+            val cacheEntry = cacheDir.resolve(hash).toFile()
 
             if (cacheEntry.exists()) {
                 try {
                     val connection = packageListUrl.doOpenConnectionToReadContent()
                     val originModifiedDate = connection.date
-                    val cacheDate = cacheEntry.lastModified().toMillis()
+                    val cacheDate = cacheEntry.lastModified()
                     if (originModifiedDate > cacheDate || originModifiedDate == 0L) {
                         if (originModifiedDate == 0L)
                             logger.warn("No date header for $packageListUrl, downloading anyway")
