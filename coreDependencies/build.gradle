@@ -1,26 +1,6 @@
-repositories {
-    ivy(ivyrepo)
-}
-
-configurations {
-    kotlin_plugin_full
-}
-
-dependencies {
-    final String ijVersion = "20" + ideaVersion.take(2) + "." + ideaVersion[2]
-    kotlin_plugin_full "teamcity:kotlin-plugin-$bundled_kotlin_compiler_version-IJ$ijVersion-1:$bundled_kotlin_compiler_version@zip"
-}
-
 def intellijCoreAnalysis() {
     return zipTree(project(":").configurations.intellijCore.singleFile).matching ({
         include("intellij-core-analysis.jar")
-    })
-}
-
-def kotlinPluginDependency() {
-
-    return zipTree(project.configurations.kotlin_plugin_full.singleFile).matching({
-        include("Kotlin/lib/kotlin-plugin.jar")
     })
 }
 
@@ -28,9 +8,8 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    compile kotlinPluginDependency()
     compile intellijCoreAnalysis()
-    compile "teamcity:kotlin-ide-common:$bundled_kotlin_compiler_version"
+    compile "org.jetbrains.kotlin:kotlin-plugin-ij193:$kotlin_plugin_version" //TODO: parametrize ij version after 1.3.70
 }
 
 shadowJar {

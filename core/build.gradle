@@ -34,9 +34,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-compiler:$bundled_kotlin_compiler_version"
     compile "org.jetbrains.kotlin:kotlin-script-runtime:$bundled_kotlin_compiler_version"
 
-    compile "org.jetbrains:markdown:$markdownVersion"
+    compile "org.jetbrains:markdown:0.1.41"
 
     compile 'org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10'
+
 
     //tools.jar
 //    def toolsJar = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs().findAll { it.path.endsWith("jar") })

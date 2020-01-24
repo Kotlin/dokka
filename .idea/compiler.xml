@@ -58,6 +58,8 @@
       <module name="dokka.runners.gradle-plugin.test" target="1.8" />
       <module name="dokka.runners.maven-plugin.main" target="1.8" />
       <module name="dokka.runners.maven-plugin.test" target="1.8" />
+      <module name="dokka.testApi.main" target="1.8" />
+      <module name="dokka.testApi.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
       <module name="gradle-integration-tests.org.jetbrains.dokka.gradle-integration-tests.main" target="1.8" />

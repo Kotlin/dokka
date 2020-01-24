@@ -1,5 +1,3 @@
-import org.jetbrains.DependenciesVersionGetter
-
 allprojects {
     ext {
         if (!project.findProperty("dokka_version")) {
@@ -35,6 +33,8 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
+        maven { url 'https://kotlin.bintray.com/kotlin-plugin' }
+        maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
         maven { url "https://dl.bintray.com/jetbrains/markdown" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
@@ -72,6 +72,21 @@ def bintrayPublication(project, List<String> _publications) {
 }
 
 
+configurations {
+    ideaIC
+    intellijCore
+}
+
+repositories {
+    maven { url 'https://kotlin.bintray.com/kotlin-plugin' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
+}
+
+dependencies {
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$idea_version"
+    ideaIC "com.jetbrains.intellij.idea:ideaIC:$idea_version"
+}
 
 def ideaRT() {
     return zipTree(project.configurations.ideaIC.singleFile).matching ({
@@ -102,30 +117,4 @@ allprojects {
         }
 
     }
-}
-
-ext.ivyrepo = {
-    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/internal/[module](.[ext])")
-    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/[revision]/[module](.[ext])")
-    artifactPattern("https://teamcity.jetbrains.com/guestAuth/repository/download/IntelliJMarkdownParser_Build/[revision]/([module]_[ext]/)[module](.[ext])")
-}
-
-repositories {
-    ivy(ivyrepo)
-    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
-    maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
-}
-
-configurations {
-    ideaIC
-    intellijCore
-}
-def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
-
-ext.ideaVersion = versions["idea.build.id"]
-ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
-
-dependencies {
-    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
-    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
 }
