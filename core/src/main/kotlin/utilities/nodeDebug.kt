@@ -34,7 +34,7 @@ fun Documentable.pretty(prefix: String = "", isLast: Boolean = true): String {
 //}
 private fun Any.stringify() = when(this) {
     is ContentNode -> toString() + this.dci
-    is PageNode -> this.name + this::class.simpleName
+    is ContentPage -> this.name + this::class.simpleName
     else -> toString()
 }
 //private fun Any.allChildren() = when(this){
