@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.renderers
 
-import com.intellij.util.io.isDirectory
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -17,10 +16,9 @@ class FileWriter(val root: String, override val extension: String): OutputWriter
         createdFiles.add(path)
 
         try {
-//            println("Writing $root/$path$ext")
             val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
             dir.mkdirsOrFail()
-            Paths.get(root, "$path$ext").toFile().writeText(text)
+            Files.write(Paths.get(root, "$path$ext"), text.lines())
         } catch (e: Throwable) {
             println("Failed to write $this. ${e.message}")
             e.printStackTrace()
@@ -36,7 +34,7 @@ class FileWriter(val root: String, override val extension: String): OutputWriter
         val fs = getFileSystemForURI(uri)
         val path = fs.getPath(pathFrom)
         for (file in Files.walk(path).iterator()) {
-            if (file.isDirectory()) {
+            if (Files.isDirectory(file)) {
                 val dirPath = file.toAbsolutePath().toString()
                 Paths.get(root, rebase(dirPath)).toFile().mkdirsOrFail()
             } else {

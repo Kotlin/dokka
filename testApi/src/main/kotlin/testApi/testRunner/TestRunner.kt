@@ -4,6 +4,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.rules.TemporaryFolder
@@ -93,7 +94,7 @@ abstract class AbstractCoreTest {
         var documentablesMergingStage: (Module) -> Unit = {}
         var documentablesTransformationStage: (Module) -> Unit = {}
         var pagesGenerationStage: (ModulePageNode) -> Unit = {}
-        var pagesTransformationStage: (ModulePageNode) -> Unit = {}
+        var pagesTransformationStage: (RootPageNode) -> Unit = {}
 
         fun build() = TestMethods(
             analysisSetupStage,
@@ -203,5 +204,5 @@ data class TestMethods(
     val documentablesMergingStage: (Module) -> Unit,
     val documentablesTransformationStage: (Module) -> Unit,
     val pagesGenerationStage: (ModulePageNode) -> Unit,
-    val pagesTransformationStage: (ModulePageNode) -> Unit
+    val pagesTransformationStage: (RootPageNode) -> Unit
 )

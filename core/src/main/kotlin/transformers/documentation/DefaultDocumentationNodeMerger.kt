@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.transformers.documentation
 
-import com.intellij.openapi.diagnostic.logger
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
