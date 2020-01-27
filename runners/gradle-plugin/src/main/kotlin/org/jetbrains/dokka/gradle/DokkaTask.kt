@@ -90,7 +90,12 @@ open class DokkaTask : DefaultTask() {
         return try {
             configuration!!.resolve()
         } catch (e: Exception) {
-            project.parent?.let { tryResolveFatJar(configuration) } ?: throw e
+            // Unless I'm missing something, this retries the resolution but I
+            // don't see what could make it succeed after a retry if it fail the first time.
+            // project.parent?.let { tryResolveFatJar(configuration) } ?: throw e
+            
+            // Instead, rethrow the exception which will contain detail about why the resolution failed.
+            throw e
         }
     }
 
