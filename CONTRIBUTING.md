@@ -8,7 +8,7 @@ Development happens in several branches:
 * dev-0.x.{y + 1} is the development branch for the next patch version
 * dev-0.{x + 1}.0 is the development branch for the next minor version
 
-If you're doing a pull request for a bug fix, use the patch branch. For new features, 
+If you're doing a pull request for a bug fix, please use the patch branch as base. For new features, 
 use the minor branch.  
 
 ## Building dokka
