@@ -3,7 +3,7 @@ package kotlinAsJavaPlugin
 import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentTable
 import org.junit.Test
-import testRunner.AbstractCoreTest
+import testApi.testRunner.AbstractCoreTest
 import kotlin.test.fail
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
@@ -22,7 +22,12 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
             |package kotlinAsJavaPlugin
             |
+            |object TestObj {}
+            |
             |fun testF() {}
+            |fun testF2(i: Int) = i
+            |fun testF3(to: TestObj) = to
+            |fun <T : Char> testF4(t: T) = listOf(t)
             |val testV = 1
         """,
             configuration,
@@ -57,12 +62,12 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
             |package kotlinAsJavaPlugin
             |
-            |class Test { 
+            |class Test {
             |   fun testFC() {}
             |   val testVC = 1
             |}
             |
-            |fun testF() {}
+            |fun testF(i: Int) = i
             |val testV = 1
         """,
             configuration,

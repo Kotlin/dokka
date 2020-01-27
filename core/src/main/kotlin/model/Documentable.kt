@@ -3,7 +3,6 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
-import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
 class Module(override val name: String, val packages: List<Package>) : Documentable() {

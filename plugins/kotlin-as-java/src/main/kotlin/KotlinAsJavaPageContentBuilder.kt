@@ -48,7 +48,10 @@ class KotlinAsJavaPageContentBuilder(
         if (!f.isConstructor) {
             if (returnType != null &&
                 returnType.constructorFqName != Unit::class.qualifiedName) {
-                type(returnType)
+                if ((returnType as? JavaTypeWrapper)?.isPrimitive == true)
+                    text(returnType.constructorFqName ?: "")
+                else
+                    type(returnType)
                 text(" ")
             } else text("void ")
 
@@ -58,7 +61,11 @@ class KotlinAsJavaPageContentBuilder(
         text("(")
         val params = listOfNotNull(f.receiver) + f.parameters
         list(params) {
-            type(it.type)
+            if ((it.type as? JavaTypeWrapper)?.isPrimitive == true)
+                text(it.type.constructorFqName ?: "")
+            else
+                type(it.type)
+
             text(" ")
             link(it.name ?: "receiver", it.dri)
         }
