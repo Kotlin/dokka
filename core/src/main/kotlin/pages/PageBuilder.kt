@@ -70,6 +70,7 @@ class DefaultPageBuilder(
 
     private fun contentForClass(c: Class) = group(c) {
         header(1) { text(c.name) }
+
         c.inherited.takeIf { it.isNotEmpty() }?.let {
             header(2) { text("SuperInterfaces") }
             linkTable(it)
@@ -82,6 +83,12 @@ class DefaultPageBuilder(
                 }
                 comment(it.root)
                 text("\n")
+            }
+            contentForComments(c)
+            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
+                link(it.name, it.dri)
+                signature(it)
+                text(it.briefDocTagString)
             }
 
             block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
