@@ -1,15 +1,10 @@
 ## Branches
 
-Dokka follows [semantic versioning](https://semver.org/).
+As of late January 2020:
 
-Development happens in several branches:
-
-* master is the latest released version (0.x.y) 
-* dev-0.x.{y + 1} is the development branch for the next patch version
-* dev-0.{x + 1}.0 is the development branch for the next minor version
-
-If you're doing a pull request for a bug fix, please use the patch branch as base. For new features, 
-use the minor branch.  
+* master is the latest released version (0.10.0).
+* dev-0.10.1 is the maintenance branch for 0.10.0. It will contain mostly bugfixes.
+* dev-0.11.0 is a big rewrite of dokka, it's changing fast and things may break but this is where new features should be developed.
 
 ## Building dokka
 
