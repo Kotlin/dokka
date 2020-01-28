@@ -113,7 +113,7 @@ class ClasslikePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
-    override fun modified(name: String, children: List<PageNode>): ClassPageNode =
+    override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
 
     override fun modified(
