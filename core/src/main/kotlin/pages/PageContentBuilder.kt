@@ -166,10 +166,13 @@ class DefaultPageContentBuilder(
 private fun PageContentBuilder.type(t: TypeWrapper) {
     if (t.constructorNamePathSegments.isNotEmpty() && t.dri != null)
         link(t.constructorNamePathSegments.last(), t.dri!!)
+    else if (t.constructorNamePathSegments.isNotEmpty() && t.dri == null)
+        text(t.toString())
     else (this as? DefaultPageContentBuilder)?.let {
             logger.error("type $t cannot be resolved")
-            text(t.toString())
+            text("???")
         }
+
     list(t.arguments, prefix = "<", suffix = ">") {
         type(it)
     }

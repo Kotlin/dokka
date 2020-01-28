@@ -147,7 +147,7 @@ class DokkaGenerator(
         }.flatten()
 
         return context.single(CoreExtensions.psiToDocumentationTranslator)
-            .invoke(psiFiles, platformData, context)
+            .invoke(platformData.name, psiFiles, platformData, context)
 
     }
 
