@@ -70,28 +70,28 @@ class DefaultPageBuilder(
 
     fun contentForClass(c: Class): ContentGroup = group(c) {
         header(1) { text("class ${c.name}") }
-        group(c) {
-            c.inherited.takeIf { it.isNotEmpty() }?.let {
-                header(2) { text("SuperInterfaces") }
-                linkTable(it)
-            }
-            contentForComments(c)
-            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
-                link(it.name, it.dri)
-                signature(it)
-                text(it.briefDocTagString)
-            }
 
-            block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
-                link(it.name, it.dri)
-                signature(it)
-                text(it.briefDocTagString)
-            }
-            block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
-                link(it.name, it.dri)
-                text(it.briefDocTagString)
-            }
+        c.inherited.takeIf { it.isNotEmpty() }?.let {
+            header(2) { text("SuperInterfaces") }
+            linkTable(it)
         }
+        contentForComments(c)
+        block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
+            link(it.name, it.dri)
+            signature(it)
+            text(it.briefDocTagString)
+        }
+
+        block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
+            link(it.name, it.dri)
+            signature(it)
+            text(it.briefDocTagString)
+        }
+        block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
+            link(it.name, it.dri)
+            text(it.briefDocTagString)
+        }
+
     }
 
     fun contentForEnum(c: Enum): ContentGroup = group(c) {
