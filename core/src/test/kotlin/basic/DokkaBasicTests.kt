@@ -1,5 +1,7 @@
 package basic
 
+import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.ModulePageNode
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
 
@@ -29,7 +31,11 @@ class DokkaBasicTests : AbstractCoreTest() {
         ) {
             pagesGenerationStage = {
                 println(it.dri)
+                assert(it.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 5)
             }
         }
     }
+
+    fun ModulePageNode.getClasslikeToMemberMap() =
+        this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy ({it.value}){it.key}
 }
