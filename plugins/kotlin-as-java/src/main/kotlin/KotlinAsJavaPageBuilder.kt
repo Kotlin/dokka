@@ -1,119 +1,15 @@
 package org.jetbrains.dokka.kotlinAsJava
 
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.kotlinAsJava.conversions.asJava
+import org.jetbrains.dokka.kotlinAsJava.conversions.asStatic
+import org.jetbrains.dokka.kotlinAsJava.conversions.withClass
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
-import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
-
-
-fun Function.withClass(className: String, dri: DRI): Function {
-    val nDri = dri.withClass(className).copy(
-        callable = getDescriptor()?.let { Callable.from(it) }
-    )
-    return Function(
-        nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation
-    )
-}
-
-fun Function.asStatic() = also { it.extra.add(STATIC) }
-
-fun Parameter.asJava() = Parameter(
-    dri.copy(callable = dri.callable?.asJava()),
-    name,
-    type.asJava()!!,
-    actual,
-    extra
-)
-
-fun Function.asJava(): Function {
-    val newName = when {
-        isConstructor -> "init"
-        else -> name
-    }
-    return Function(
-        dri,
-        newName,
-        returnType.asJava(),
-        isConstructor,
-        receiver,
-        parameters.map(Parameter::asJava),
-        expected,
-        actual,
-        extra,
-        sourceLocation
-    )
-}
-
-fun Property.withClass(className: String, dri: DRI): Property {
-    val nDri = dri.withClass(className).copy(
-        callable = getDescriptor()?.let { Callable.from(it) }
-    )
-    return Property(
-        nDri, name, receiver, expected, actual, extra, type, accessors, isVar, sourceLocation
-    )
-}
-
-fun ClassId.classNames(): String =
-    shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")
-
-fun TypeReference.asJava(): TypeReference = (this as? TypeConstructor)?.let { tc ->
-    JavaToKotlinClassMap.mapKotlinToJava(org.jetbrains.kotlin.name.FqName(tc.fullyQualifiedName).toUnsafe())
-        ?.let { TypeConstructor(it.asString(), tc.params.map { it.asJava() }, tc.isNullable) }
-} ?: this
-
-fun Callable.asJava() = this.let {
-    it.copy(params = it.params.mapNotNull { (it as? TypeConstructor)?.asJava() }) ?: this
-}
-
-fun ClassId.toDRI(dri: DRI?): DRI = DRI(
-    packageName = packageFqName.asString(),
-    classNames = classNames(),
-    callable = dri?.callable?.asJava(),
-    extra = null,
-    target = null
-)
-
-fun String.getAsPrimitive() = org.jetbrains.kotlin.builtins.PrimitiveType.values()
-    .find { it.typeFqName.asString() == this }
-    ?.let { JvmPrimitiveType.get(it) }
-
-fun TypeWrapper.getAsType(classId: ClassId, fqName: String, top: Boolean): TypeWrapper {
-    val ctorFqName = fqName.takeIf { top }?.getAsPrimitive()?.name?.toLowerCase()
-    return JavaTypeWrapper(
-        constructorFqName = ctorFqName ?: classId.asString(),
-        arguments = arguments.mapNotNull { it.asJava(false) },
-        dri = classId.toDRI(dri),
-        isPrimitive = ctorFqName != null
-    )
-}
-
-fun TypeWrapper?.asJava(top: Boolean = true): TypeWrapper? = this?.constructorFqName
-    ?.takeUnless { it.endsWith(".Unit") }
-    ?.let { fqName ->
-        fqName.let { org.jetbrains.kotlin.name.FqName(it).toUnsafe() }
-            .let { JavaToKotlinClassMap.mapKotlinToJava(it) }
-            ?.let { getAsType(it, fqName, top) } ?: this
-    }
-
-fun Class.asJava(): Class = Class(
-    dri, name, kind,
-    constructors.map(Function::asJava),
-    (functions + properties.flatMap { it.accessors }).map(Function::asJava),
-    properties, classes.map(Class::asJava), expected, actual, extra
-)
-
-fun Function.getDescriptor(): FunctionDescriptor? = platformInfo.mapNotNull { it.descriptor }
-    .firstOrNull()?.let { it as? FunctionDescriptor }
-
-fun Property.getDescriptor(): PropertyDescriptor? = platformInfo.mapNotNull { it.descriptor }
-    .firstOrNull()?.let { it as? PropertyDescriptor }
 
 class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
     fun pageForModule(m: Module): ModulePageNode =
@@ -147,7 +43,7 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
                 actual = emptyList(),
                 expected = null
             )
-        }).map(Class::asJava)
+        }).map { it.asJava() }
 
         return PackagePageNode(
             p.name, contentForPackage(p, classes), p.dri, p,
