@@ -44,7 +44,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
 
         private fun getComment(psi: PsiNamedElement): List<PlatformInfo> {
             val comment = javadocParser.parseDocumentation(psi)
-            return listOf(BasePlatformInfo(comment, listOf(platformData)))
+            return listOf(BasePlatformInfo(comment, listOf(platformData), null))
         }
 
         fun parseClass(psi: PsiClass, parent: DRI): Class = with(psi) {
@@ -107,17 +107,19 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
         private fun parseField(psi: PsiField, parent: DRI): Property {
             val dri = parent.copy(
                 callable = Callable(
-                    psi.name,
+                    psi.name ?: "",
                     JavaClassReference(psi.containingClass?.name.orEmpty()),
                     emptyList()
                 )
             )
             return Property(
                 dri,
-                psi.name,
+                psi.name ?: "",
                 null,
                 null,
-                getComment(psi)
+                getComment(psi),
+                 accessors = emptyList(),
+                type = null
             )
         }
     }

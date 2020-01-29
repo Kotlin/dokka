@@ -59,7 +59,7 @@ class Property(
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
-    val type: TypeWrapper,
+    val type: TypeWrapper?,
     val accessors: List<Function>,
     val isVar: Boolean = false,
     override val sourceLocation: String? = null

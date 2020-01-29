@@ -124,11 +124,11 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
 
     private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 
-    private fun group(node: Documentable, content: KotlinAsJavaPageContentBuilderFunction) =
+    private fun group(node: Documentable, content: PageContentBuilderFunction) =
         rootContentGroup(node, ContentKind.Main, content)
 }
 
-typealias RootContentBuilder = (Documentable, Kind, KotlinAsJavaPageContentBuilderFunction) -> ContentGroup
+typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup
 
 class JavaTypeWrapper(
     override val constructorFqName: String?,

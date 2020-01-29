@@ -16,7 +16,7 @@ class KotlinAsJavaPageContentBuilder(
     val logger: DokkaLogger,
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
-) {
+): PageContentBuilder {
     private val contents = mutableListOf<ContentNode>()
 
     private fun createText(text: String, kind: Kind = ContentKind.Symbol) =
@@ -30,19 +30,19 @@ class KotlinAsJavaPageContentBuilder(
         extras
     )
 
-    fun header(level: Int, block: KotlinAsJavaPageContentBuilderFunction) {
+    override fun header(level: Int, block: PageContentBuilderFunction) {
         contents += ContentHeader(level, group(ContentKind.Symbol, block))
     }
 
-    fun text(text: String, kind: Kind = ContentKind.Symbol) {
+    override fun text(text: String, kind: Kind) {
         contents += createText(text, kind)
     }
 
-    private fun signature(f: Function, block: KotlinAsJavaPageContentBuilderFunction) {
+    private fun signature(f: Function, block: PageContentBuilderFunction) {
         contents += group(f.dri, f.platformData, ContentKind.Symbol, block)
     }
 
-    fun signature(f: Function) = signature(f) {
+    override fun signature(f: Function) = signature(f) {
 
         val returnType = f.returnType
         if (!f.isConstructor) {
@@ -72,7 +72,7 @@ class KotlinAsJavaPageContentBuilder(
         text(")")
     }
 
-    fun linkTable(elements: List<DRI>) {
+    override fun linkTable(elements: List<DRI>) {
         contents += ContentTable(
             emptyList(),
             elements.map { group(dri, platformData, ContentKind.Classes) { link(it.classNames ?: "", it) } },
@@ -81,13 +81,13 @@ class KotlinAsJavaPageContentBuilder(
         )
     }
 
-    fun <T : Documentable> block(
+    override fun <T : Documentable> block(
         name: String,
         level: Int,
         kind: Kind,
         elements: Iterable<T>,
         platformData: Set<PlatformData>,
-        operation: KotlinAsJavaPageContentBuilder.(T) -> Unit
+        operation: PageContentBuilder.(T) -> Unit
     ) {
         header(level) { text(name) }
 
@@ -99,12 +99,12 @@ class KotlinAsJavaPageContentBuilder(
         )
     }
 
-    fun <T> list(
+    override fun <T> list(
         elements: List<T>,
-        prefix: String = "",
-        suffix: String = "",
-        separator: String = ",",
-        operation: KotlinAsJavaPageContentBuilder.(T) -> Unit
+        prefix: String,
+        suffix: String,
+        separator: String,
+        operation: PageContentBuilder.(T) -> Unit
     ) {
         if (elements.isNotEmpty()) {
             if (prefix.isNotEmpty()) text(prefix)
@@ -117,7 +117,7 @@ class KotlinAsJavaPageContentBuilder(
         }
     }
 
-    fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol) {
+    override fun link(text: String, address: DRI, kind: Kind) {
         contents += ContentDRILink(
             listOf(createText(text)),
             address,
@@ -126,7 +126,7 @@ class KotlinAsJavaPageContentBuilder(
         )
     }
 
-    fun link(address: DRI, kind: Kind, block: KotlinAsJavaPageContentBuilderFunction) {
+    override fun link(address: DRI, kind: Kind, block: PageContentBuilderFunction) {
         contents += ContentDRILink(
             group(ContentKind.Main, block).children,
             address,
@@ -135,7 +135,7 @@ class KotlinAsJavaPageContentBuilder(
         )
     }
 
-    fun comment(docTag: DocTag) {
+    override fun comment(docTag: DocTag) {
         contents += group(ContentKind.Comment) {
             with(this as KotlinAsJavaPageContentBuilder) {
                 contents += commentsConverter.buildContent(
@@ -147,14 +147,14 @@ class KotlinAsJavaPageContentBuilder(
         }
     }
 
-    fun group(kind: Kind, block: KotlinAsJavaPageContentBuilderFunction): ContentGroup =
+    fun group(kind: Kind, block: PageContentBuilderFunction): ContentGroup =
         group(dri, platformData, kind, block)
 
-    fun group(
+    override fun group(
         dri: DRI,
         platformData: Set<PlatformData>,
         kind: Kind,
-        block: KotlinAsJavaPageContentBuilderFunction
+        block: PageContentBuilderFunction
     ): ContentGroup = group(dri, platformData, kind, commentsConverter, logger, block)
 
     companion object {
@@ -164,13 +164,13 @@ class KotlinAsJavaPageContentBuilder(
             kind: Kind,
             commentsConverter: CommentsToContentConverter,
             logger: DokkaLogger,
-            block: KotlinAsJavaPageContentBuilderFunction
+            block: PageContentBuilderFunction
         ): ContentGroup =
             KotlinAsJavaPageContentBuilder(dri, platformData, kind, commentsConverter, logger).apply(block).build()
     }
 }
 
-private fun KotlinAsJavaPageContentBuilder.type(t: TypeWrapper) {
+private fun PageContentBuilder.type(t: TypeWrapper) {
     if (t.constructorNamePathSegments.isNotEmpty() && t.dri != null)
         link(t.constructorNamePathSegments.last(), t.dri!!)
     else (this as? KotlinAsJavaPageContentBuilder)?.let {
@@ -181,5 +181,3 @@ private fun KotlinAsJavaPageContentBuilder.type(t: TypeWrapper) {
         type(it)
     }
 }
-
-typealias KotlinAsJavaPageContentBuilderFunction = KotlinAsJavaPageContentBuilder.() -> Unit
