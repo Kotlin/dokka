@@ -24,6 +24,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |
             |object TestObj {}
             |
+            |fun testFL(l: List<String>) = l
             |fun testF() {}
             |fun testF2(i: Int) = i
             |fun testF3(to: TestObj) = to

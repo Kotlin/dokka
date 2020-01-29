@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava
 
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
@@ -27,7 +25,7 @@ fun Function.withClass(className: String, dri: DRI): Function {
 fun Function.asStatic() = also { it.extra.add(STATIC) }
 
 fun Parameter.asJava() = Parameter(
-    dri,
+    dri.copy(callable = dri.callable?.asJava()),
     name,
     type.asJava()!!,
     actual,
@@ -35,9 +33,13 @@ fun Parameter.asJava() = Parameter(
 )
 
 fun Function.asJava(): Function {
+    val newName = when {
+        isConstructor -> "init"
+        else -> name
+    }
     return Function(
         dri,
-        name,
+        newName,
         returnType.asJava(),
         isConstructor,
         receiver,
@@ -59,14 +61,21 @@ fun Property.withClass(className: String, dri: DRI): Property {
 }
 
 fun ClassId.classNames(): String =
-    shortClassName.identifier + outerClassId?.classNames()
-        ?.takeUnless { it == "null" }
-        ?.let { ".$it" } ?: ""
+    shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")
 
-fun ClassId.toDRI(dri: DRI?) = DRI(
+fun TypeReference.asJava(): TypeReference = (this as? TypeConstructor)?.let { tc ->
+    JavaToKotlinClassMap.mapKotlinToJava(org.jetbrains.kotlin.name.FqName(tc.fullyQualifiedName).toUnsafe())
+        ?.let { TypeConstructor(it.asString(), tc.params.map { it.asJava() }, tc.isNullable) }
+} ?: this
+
+fun Callable.asJava() = this.let {
+    it.copy(params = it.params.mapNotNull { (it as? TypeConstructor)?.asJava() }) ?: this
+}
+
+fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     packageName = packageFqName.asString(),
-    classNames = classNames().removeSuffix("null"),
-    callable = dri?.callable,
+    classNames = classNames(),
+    callable = dri?.callable?.asJava(),
     extra = null,
     target = null
 )
@@ -93,6 +102,13 @@ fun TypeWrapper?.asJava(top: Boolean = true): TypeWrapper? = this?.constructorFq
             ?.let { getAsType(it, fqName, top) } ?: this
     }
 
+fun Class.asJava(): Class = Class(
+    dri, name, kind,
+    constructors.map(Function::asJava),
+    (functions + properties.flatMap { it.accessors }).map(Function::asJava),
+    properties, classes.map(Class::asJava), expected, actual, extra
+)
+
 fun Function.getDescriptor(): FunctionDescriptor? = platformInfo.mapNotNull { it.descriptor }
     .firstOrNull()?.let { it as? FunctionDescriptor }
 
@@ -118,24 +134,24 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
         val zipped = (funs.keys + props.keys)
             .map { k -> FunsAndProps(k, funs[k].orEmpty(), props[k].orEmpty()) }
 
-        val classes = zipped.map {(key, funs, props) ->
+        val classes = (p.classes + zipped.map { (key, funs, props) ->
             val dri = p.dri.withClass(key)
             Class(
-            dri = dri,
-            name = key,
-            kind = KotlinClassKindTypes.CLASS,
-            constructors = emptyList(),
-            functions = funs.map { it.withClass(key, dri).asStatic() },
-            properties = props.map { it.withClass(key, dri) },
-            classes = emptyList(),
-            actual = emptyList(),
-            expected = null
-        )
-        }
+                dri = dri,
+                name = key,
+                kind = KotlinClassKindTypes.CLASS,
+                constructors = emptyList(),
+                functions = funs.map { it.withClass(key, dri).asStatic() },
+                properties = props.map { it.withClass(key, dri) },
+                classes = emptyList(),
+                actual = emptyList(),
+                expected = null
+            )
+        }).map(Class::asJava)
 
         return PackagePageNode(
             p.name, contentForPackage(p, classes), p.dri, p,
-            (p.classes + classes).map(::pageForClass)
+            classes.map(::pageForClass)
         )
     }
 
@@ -163,7 +179,7 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
 
     private fun contentForPackage(p: Package, nClasses: List<Class>) = group(p) {
         header(1) { text("Package ${p.name}") }
-        block("Types", 2, ContentKind.Properties, p.classes + nClasses, p.platformData) {
+        block("Types", 2, ContentKind.Properties, nClasses, p.platformData) {
             link(it.name, it.dri)
             text(it.briefDocTagString)
         }
@@ -188,8 +204,7 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
             text(it.briefDocTagString)
         }
 
-        val functions = (c.functions + c.properties.flatMap { it.accessors }).map { it.asJava() }
-        block("Functions", 2, ContentKind.Functions, functions, c.platformData) {
+        block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
             link(it.name, it.dri)
             signature(it)
             text(it.briefDocTagString)
