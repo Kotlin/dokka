@@ -4,6 +4,8 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.Visibility
 
 class Module(override val name: String, val packages: List<Package>) : Documentable() {
     override val dri: DRI = DRI.topLevel
@@ -12,72 +14,77 @@ class Module(override val name: String, val packages: List<Package>) : Documenta
 }
 
 class Package(
-    override val dri: DRI,
-    override val functions: List<Function>,
-    override val properties: List<Property>,
-    override val classes: List<Class>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+        override val dri: DRI,
+        override val functions: List<Function>,
+        override val properties: List<Property>,
+        override val classes: List<Class>,
+        override val extra: MutableSet<Extra> = mutableSetOf()
 ) : ScopeNode() {
     override val name = dri.packageName.orEmpty()
 }
 
 class Class(
-    override val dri: DRI,
-    override val name: String,
-    val kind: ClassKind,
-    val constructors: List<Function>,
-    override val functions: List<Function>,
-    override val properties: List<Property>,
-    override val classes: List<Class>,
-    override val expected: ClassPlatformInfo?,
-    override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
-) : ScopeNode() {
+        override val dri: DRI,
+        override val name: String,
+        val kind: ClassKind,
+        val constructors: List<Function>,
+        override val functions: List<Function>,
+        override val properties: List<Property>,
+        override val classes: List<Class>,
+        override val expected: ClassPlatformInfo?,
+        override val actual: List<ClassPlatformInfo>,
+        override val extra: MutableSet<Extra> = mutableSetOf(),
+        override val visibility: Visibility
+) : ScopeNode(), WithVisibility {
     val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
 }
 
 class Function(
-    override val dri: DRI,
-    override val name: String,
-    val returnType: TypeWrapper?,
-    val isConstructor: Boolean,
-    override val receiver: Parameter?,
-    val parameters: List<Parameter>,
-    override val expected: PlatformInfo?,
-    override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf(),
-    override val sourceLocation: String? = null
-) : CallableNode() {
+        override val dri: DRI,
+        override val name: String,
+        val returnType: TypeWrapper?,
+        val isConstructor: Boolean,
+        override val receiver: Parameter?,
+        val parameters: List<Parameter>,
+        override val expected: PlatformInfo?,
+        override val actual: List<PlatformInfo>,
+        override val extra: MutableSet<Extra> = mutableSetOf(),
+        override val sourceLocation: String? = null,
+        override val visibility: Visibility
+) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
 }
 
 class Property(
-    override val dri: DRI,
-    override val name: String,
-    override val receiver: Parameter?,
-    override val expected: PlatformInfo?,
-    override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf(),
-    val type: TypeWrapper?,
-    val accessors: List<Function>,
-    val isVar: Boolean = false,
-    override val sourceLocation: String? = null
-) : CallableNode() {
+        override val dri: DRI,
+        override val name: String,
+        override val receiver: Parameter?,
+        override val expected: PlatformInfo?,
+        override val actual: List<PlatformInfo>,
+        override val extra: MutableSet<Extra> = mutableSetOf(),
+        val type: TypeWrapper?,
+        val accessors: List<Function>,
+        val isVar: Boolean = false,
+        override val sourceLocation: String? = null,
+        override val visibility: Visibility
+) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
 }
 
 // TODO: treat named Parameters and receivers differently
 class Parameter(
-    override val dri: DRI,
-    override val name: String?,
-    val type: TypeWrapper,
-    override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
-) : Documentable() {
+        override val dri: DRI,
+        override val name: String?,
+        val type: TypeWrapper,
+        override val actual: List<PlatformInfo>,
+        override val extra: MutableSet<Extra> = mutableSetOf()
+) : Documentable(), WithVisibility {
     override val children: List<Documentable>
         get() = emptyList()
+
+    override val visibility: Visibility = Visibilities.PUBLIC
 }
 
 interface PlatformInfo {
@@ -92,15 +99,15 @@ class BasePlatformInfo(
         override val descriptor: DeclarationDescriptor?) : PlatformInfo {
 
     override fun equals(other: Any?): Boolean =
-        other is PlatformInfo && documentationNode == other.documentationNode
+            other is PlatformInfo && documentationNode == other.documentationNode
 
     override fun hashCode(): Int =
-        documentationNode.hashCode()
+            documentationNode.hashCode()
 }
 
 class ClassPlatformInfo(
-    val info: PlatformInfo,
-    val inherited: List<DRI>) : PlatformInfo by info
+        val info: PlatformInfo,
+        val inherited: List<DRI>) : PlatformInfo by info
 
 abstract class Documentable {
     open val expected: PlatformInfo? = null
@@ -122,20 +129,19 @@ abstract class Documentable {
     override fun hashCode() = dri.hashCode()
 
 
-
     val commentsData: List<DocumentationNode>
         get() = platformInfo.map { it.documentationNode }
 
     val briefDocTagString: String
         get() =
             platformInfo
-            .firstOrNull()
-            ?.documentationNode
-            ?.children
-            ?.firstOrNull()
-            ?.root
-            ?.docTagSummary()
-            ?.shorten(40) ?: ""
+                    .firstOrNull()
+                    ?.documentationNode
+                    ?.children
+                    ?.firstOrNull()
+                    ?.root
+                    ?.docTagSummary()
+                    ?.shorten(40) ?: ""
 
     open val extra: MutableSet<Extra> = mutableSetOf()
 }
@@ -146,7 +152,10 @@ abstract class ScopeNode : Documentable() {
     abstract val classes: List<Class>
 
     override val children: List<Documentable>
-        get() = functions + properties + classes
+        get() {
+            val list = (classes as List<Documentable> + functions)
+            return list + properties
+        }
 }
 
 abstract class CallableNode : Documentable() {
@@ -163,14 +172,19 @@ interface TypeWrapper {
     val arguments: List<TypeWrapper>
     val dri: DRI?
 }
+
 interface ClassKind
 
 fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
-    if (predicate(this)) {
-        this
-    } else {
-        this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
-    }
+        if (predicate(this)) {
+            this
+        } else {
+            this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
+        }
 
 interface Extra
 object STATIC : Extra
+
+interface WithVisibility {
+    val visibility: Visibility
+}

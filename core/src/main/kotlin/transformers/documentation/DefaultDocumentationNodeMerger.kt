@@ -53,7 +53,8 @@ fun Function.mergeWith(other: Function) = Function(
         merge(parameters + other.parameters, Parameter::mergeWith),
         expected?.mergeWith(other.expected),
         (actual + other.actual).merge(),
-        sourceLocation = listOfNotNull(this.sourceLocation, other.sourceLocation).firstOrNull()
+        sourceLocation = listOfNotNull(this.sourceLocation, other.sourceLocation).firstOrNull(),
+        visibility = visibility
 )
 
 fun Property.mergeWith(other: Property) = Property(
@@ -64,7 +65,8 @@ fun Property.mergeWith(other: Property) = Property(
         (actual + other.actual).merge(),
         type = type,
         isVar = isVar,
-        accessors = (this.accessors + other.accessors).distinct()
+        accessors = (this.accessors + other.accessors).distinct(),
+        visibility = visibility
 )
 
 fun Class.mergeWith(other: Class) = Class(
@@ -76,7 +78,8 @@ fun Class.mergeWith(other: Class) = Class(
         merge(properties + other.properties, Property::mergeWith),
         merge(classes + other.classes, Class::mergeWith),
         expected?.mergeWith(other.expected),
-        (actual + other.actual).mergeClassPlatformInfo()
+        (actual + other.actual).mergeClassPlatformInfo(),
+        visibility = visibility
 )
 
 fun Parameter.mergeWith(other: Parameter) = Parameter(

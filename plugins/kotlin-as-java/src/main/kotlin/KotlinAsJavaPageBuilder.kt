@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
+import org.jetbrains.kotlin.descriptors.Visibilities
 
 class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
     fun pageForModule(m: Module): ModulePageNode =
@@ -41,7 +42,8 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
                 properties = props.map { it.withClass(key, dri) },
                 classes = emptyList(),
                 actual = emptyList(),
-                expected = null
+                expected = null,
+                visibility = Visibilities.PUBLIC
             )
         }).map { it.asJava() }
 
@@ -129,13 +131,3 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
 }
 
 typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup
-
-class JavaTypeWrapper(
-    override val constructorFqName: String?,
-    override val arguments: List<TypeWrapper>,
-    override val dri: DRI?,
-    val isPrimitive: Boolean = false
-) : TypeWrapper {
-    override val constructorNamePathSegments: List<String>
-        get() = constructorFqName?.split(".")?.flatMap { it.split("/") } ?: emptyList()
-}

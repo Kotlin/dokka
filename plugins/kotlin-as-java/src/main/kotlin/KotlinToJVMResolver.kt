@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.kotlinAsJava.conversions
 
-import org.jetbrains.dokka.kotlinAsJava.JavaTypeWrapper
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.transformers.psi.JavaTypeWrapper
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -16,12 +16,13 @@ fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.builtins.P
     ?.let { JvmPrimitiveType.get(it) }
 
 fun TypeWrapper.getAsType(classId: ClassId, fqName: String, top: Boolean): TypeWrapper {
-    val ctorFqName = fqName.takeIf { top }?.getAsPrimitive()?.name?.toLowerCase()
+    val fqNameSplitted = fqName.takeIf { top }?.getAsPrimitive()?.name?.toLowerCase()
+        ?.let { listOf(it) } ?: classId.asString().split("/")
     return JavaTypeWrapper(
-        constructorFqName = ctorFqName ?: classId.asString(),
-        arguments = arguments.mapNotNull { it.asJava(false) },
-        dri = classId.toDRI(dri),
-        isPrimitive = ctorFqName != null
+        fqNameSplitted,
+        arguments.mapNotNull { it.asJava(false) },
+        classId.toDRI(dri),
+        fqNameSplitted.last()[0].isLowerCase()
     )
 }
 
@@ -36,18 +37,20 @@ fun Class.asJava(): Class = Class(
     dri, name, kind,
     constructors.map { it.asJava() },
     (functions + properties.flatMap { it.accessors }).map { it.asJava() },
-    properties, classes.map { it.asJava() }, expected, actual, extra
+    properties, classes.map { it.asJava() }, expected, actual, extra, visibility
 )
 
 fun tcAsJava(tc: TypeConstructor): TypeReference =
     tc.fullyQualifiedName.mapToJava()
-        ?.let { tc.copy(
-            fullyQualifiedName = it.asString(),
-            params = tc.params.map { it.asJava() }
-        ) } ?: tc
+        ?.let {
+            tc.copy(
+                fullyQualifiedName = it.asString(),
+                params = tc.params.map { it.asJava() }
+            )
+        } ?: tc
 
 fun tpAsJava(tp: TypeParam): TypeReference =
-    tp.copy(bounds = tp.bounds.map{it.asJava()})
+    tp.copy(bounds = tp.bounds.map { it.asJava() })
 
 fun TypeReference.asJava(): TypeReference = when (this) {
     is TypeConstructor -> tcAsJava(this)
@@ -73,7 +76,7 @@ fun Function.asJava(): Function {
         else -> name
     }
     return Function(
-        dri,
+        dri.copy(callable = dri.callable?.asJava()),
         newName,
         returnType.asJava(),
         isConstructor,
@@ -82,7 +85,8 @@ fun Function.asJava(): Function {
         expected,
         actual,
         extra,
-        sourceLocation
+        sourceLocation,
+        visibility
     )
 }
 
@@ -107,7 +111,7 @@ fun Property.withClass(className: String, dri: DRI): Property {
         callable = getDescriptor()?.let { Callable.from(it) }
     )
     return Property(
-        nDri, name, receiver, expected, actual, extra, type, accessors, isVar, sourceLocation
+        nDri, name, receiver, expected, actual, extra, type, accessors, isVar, sourceLocation, visibility
     )
 }
 
@@ -116,7 +120,7 @@ fun Function.withClass(className: String, dri: DRI): Function {
         callable = getDescriptor()?.let { Callable.from(it) }
     )
     return Function(
-        nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation
+        nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation, visibility
     )
 }
 
