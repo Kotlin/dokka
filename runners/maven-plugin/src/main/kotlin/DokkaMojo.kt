@@ -189,7 +189,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
             passesConfigurations = listOf(passConfiguration),
-            generateIndexPages = generateIndexPages
+            generateIndexPages = generateIndexPages,
+            pluginsClasspath = emptyList() //TODO fix this
         )
 
         val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))

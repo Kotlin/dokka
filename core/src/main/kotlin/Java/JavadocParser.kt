@@ -4,16 +4,12 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.isNullOrEmpty
-import kotlinx.html.P
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
-import java.net.URI
 
 interface JavaDocumentationParser {
     fun parseDocumentation(element: PsiNamedElement): DocumentationNode
