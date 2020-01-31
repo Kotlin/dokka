@@ -193,6 +193,8 @@ open class DokkaDescriptorVisitor(
             },
             expected = expected,
             actual = actual,
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
             visibility = mapOf(platformData to descriptor.visibility)
         )
     }
