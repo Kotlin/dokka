@@ -3,7 +3,7 @@ package org.jetbrains.dokka.plugability
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.DocTagToContentConverter
 import org.jetbrains.dokka.renderers.FileWriter
-import org.jetbrains.dokka.renderers.HtmlRenderer
+import org.jetbrains.dokka.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMerger
