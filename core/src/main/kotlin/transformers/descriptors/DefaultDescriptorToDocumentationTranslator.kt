@@ -86,7 +86,9 @@ open class DokkaDescriptorVisitor(
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+
             accessors = descriptor.accessors.map { visitPropertyAccessorDescriptor(it, descriptor, dri) },
+
             visibility = mapOf(platformData to descriptor.visibility)
         )
     }
@@ -103,6 +105,7 @@ open class DokkaDescriptorVisitor(
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+
             visibility = mapOf(platformData to descriptor.visibility)
         )
     }

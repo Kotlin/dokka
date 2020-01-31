@@ -61,7 +61,8 @@ class Property(
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
-    val accessors: List<Function>,
+    val  accessors: List<Function>,
+
     override val visibility: Map<PlatformData, Visibility>
 ) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
@@ -88,6 +89,7 @@ interface PlatformInfo {
 class BasePlatformInfo(
     override val documentationNode: DocumentationNode,
     override val platformData: List<PlatformData>
+
 ) : PlatformInfo {
 
     override fun equals(other: Any?): Boolean =

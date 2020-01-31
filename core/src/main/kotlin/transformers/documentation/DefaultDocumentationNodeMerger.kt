@@ -52,6 +52,7 @@ fun Function.mergeWith(other: Function) = Function(
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
+
     visibility = visibility
 )
 
@@ -61,6 +62,7 @@ fun Property.mergeWith(other: Property) = Property(
     if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
+
     accessors = (this.accessors + other.accessors).distinct(),
     visibility = visibility
 )
