@@ -9,12 +9,10 @@ fun Project.configureDistMaven() { // TODO: This can probably be written cleaner
     val repoLocation = uri(file("${rootProject.buildDir}/dist-maven"))
     var distMaven: MavenArtifactRepository? = null
     pluginManager.withPlugin("maven-publish") {
-        this@configureDistMaven.extensions.findByType(PublishingExtension::class.java)?.let {
-            it.repositories {
-                distMaven = maven {
-                    name = "distMaven"
-                    url = repoLocation
-                }
+        this@configureDistMaven.extensions.findByType(PublishingExtension::class.java)?.repositories {
+            distMaven = maven {
+                name = "distMaven"
+                url = repoLocation
             }
         }
     }

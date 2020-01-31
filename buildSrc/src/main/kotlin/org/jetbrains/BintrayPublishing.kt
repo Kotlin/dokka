@@ -4,9 +4,7 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.provideDelegate
 
-fun Project.configureBintrayPublication(publication: String) = configureBintrayPublication(listOf(publication))
-
-fun Project.configureBintrayPublication(publications: List<String>) {
+fun Project.configureBintrayPublication(vararg publications: String) {
     val dokka_version: String by this
     val dokka_publication_channel: String by this
     extensions.configure<BintrayExtension>("bintray") {
@@ -24,6 +22,6 @@ fun Project.configureBintrayPublication(publications: List<String>) {
                 name = dokka_version
             }
         }
-        setPublications(*publications.toTypedArray())
+        setPublications(*publications)
     }
 }

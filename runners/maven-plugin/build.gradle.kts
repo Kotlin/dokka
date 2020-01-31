@@ -1,29 +1,28 @@
 import org.jetbrains.configureBintrayPublication
-
+import org.jetbrains.CrossPlatformExec
 /**
  * [mavenBin] configuration is used to download Maven Plugin Plugin
  * for generating plugin-help.xml and plugin.xml files
  */
 val mavenBin: Configuration by configurations.creating
 
-val maven_version: String by project
+val mavenVersion = "3.5.0"
+val mavenPluginToolsVersion = "3.5.2"
 
 dependencies {
     implementation(project(":core"))
-    implementation("org.apache.maven:maven-core:$maven_version")
-    implementation("org.apache.maven:maven-plugin-api:$maven_version")
-    val maven_plugin_tools_version: String by project
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$maven_plugin_tools_version")
-    val maven_archiver_version: String by project
-    implementation("org.apache.maven:maven-archiver:$maven_archiver_version")
-
-    mavenBin(group = "org.apache.maven", name = "apache-maven", version = maven_version, classifier = "bin", ext = "zip")
+    implementation("org.apache.maven:maven-core:$mavenVersion")
+    implementation("org.apache.maven:maven-plugin-api:$mavenVersion")
+    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginToolsVersion")
+    implementation("org.apache.maven:maven-archiver:2.5")
     compileOnly(kotlin("stdlib-jdk8"))
+
+    mavenBin(group = "org.apache.maven", name = "apache-maven", version = mavenVersion, classifier = "bin", ext = "zip")
 }
 
 val mavenBinDir = "$buildDir/maven-bin"
 val mavenBuildDir = "$buildDir/maven"
-val mvn = File(mavenBinDir, "apache-maven-$maven_version/bin/mvn")
+val mvn = File(mavenBinDir, "apache-maven-$mavenVersion/bin/mvn")
 
 tasks.named<Delete>("clean") {
     delete(mavenBinDir)
@@ -42,7 +41,6 @@ val setupMaven by tasks.registering(Sync::class) {
  */
 val generatePom by tasks.registering(Copy::class) {
     val dokka_version: String by project
-    val maven_plugin_tools_version: String by project
 
     from("$projectDir/pom.tpl.xml") {
         rename("(.*).tpl.xml", "$1.xml")
@@ -51,13 +49,13 @@ val generatePom by tasks.registering(Copy::class) {
 
     eachFile {
         filter { line ->
-            line.replace("<maven.version></maven.version>", "<maven.version>$maven_version</maven.version>")
+            line.replace("<maven.version></maven.version>", "<maven.version>$mavenVersion</maven.version>")
         }
         filter { line ->
             line.replace("<version>dokka_version</version>", "<version>$dokka_version</version>")
         }
         filter { line ->
-            line.replace("<version>maven-plugin-plugin</version>", "<version>$maven_plugin_tools_version</version>")
+            line.replace("<version>maven-plugin-plugin</version>", "<version>$mavenPluginToolsVersion</version>")
         }
     }
 }
@@ -75,13 +73,13 @@ val syncClasses by tasks.registering(Sync::class) {
     }
 }
 
-val helpMojo by tasks.registering(org.jetbrains.CrossPlatformExec::class) {
+val helpMojo by tasks.registering(CrossPlatformExec::class) {
     dependsOn(setupMaven, generatePom, syncClasses)
     workingDir(mavenBuildDir)
     commandLine(mvn, "-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
 }
 
-val pluginDescriptor by tasks.registering(org.jetbrains.CrossPlatformExec::class) {
+val pluginDescriptor by tasks.registering(CrossPlatformExec::class) {
     dependsOn(setupMaven, generatePom, syncClasses)
     workingDir(mavenBuildDir)
     commandLine(mvn, "-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
