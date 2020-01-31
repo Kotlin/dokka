@@ -1,27 +1,29 @@
 package org.jetbrains.dokka.renderers
 
+import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.nio.file.*
 
-class FileWriter(val root: String, override val extension: String) : OutputWriter {
+class FileWriter(val context: DokkaContext, override val extension: String): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val jarUriPrefix = "jar:file:"
-
+    private val root = context.configuration.outputDir
     override fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {
-            println("ERROR. An attempt to write $root/$path several times!")
+            context.logger.error("An attempt to write ${root}/$path several times!")
             return
         }
         createdFiles.add(path)
 
         try {
+//          println("Writing $root/$path$ext")
             val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
             dir.mkdirsOrFail()
             Files.write(Paths.get(root, "$path$ext"), text.lines())
-        } catch (e: Throwable) {
-            println("Failed to write $this. ${e.message}")
+        } catch (e : Throwable) {
+            context.logger.error("Failed to write $this. ${e.message}")
             e.printStackTrace()
         }
     }

@@ -10,6 +10,7 @@ interface DokkaLogger {
 
 object DokkaConsoleLogger : DokkaLogger {
     var warningCount: Int = 0
+    var errorCount: Int = 0
 
     override fun debug(message: String)= println(message)
 
@@ -19,11 +20,15 @@ object DokkaConsoleLogger : DokkaLogger {
 
     override fun warn(message: String) = println("WARN: $message").also { warningCount++ }
 
-    override fun error(message: String) = println("ERROR: $message")
+    override fun error(message: String) = println("ERROR: $message").also { errorCount++ }
 
     fun report() {
-        if (warningCount > 0) {
-            println("generation completed with $warningCount warnings")
+        if (warningCount > 0 || errorCount > 0) {
+            println("generation completed with $warningCount warning" +
+                    (if(warningCount == 1) "" else "s") +
+                    " and $errorCount error" +
+                    if(errorCount == 1) "" else "s"
+            )
         } else {
             println("generation completed successfully")
         }
