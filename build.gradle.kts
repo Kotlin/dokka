@@ -1,23 +1,22 @@
 import org.jetbrains.configureDistMaven
 import org.jetbrains.configureDokkaVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") apply false
     id("com.jfrog.bintray") apply false
 }
 
+val dokka_version: String by project
+
 allprojects {
     configureDokkaVersion()
-    val dokka_version: String by this
 
-    if (this == rootProject) {
-        println("Publication version: $dokka_version")
-    }
     group = "org.jetbrains.dokka"
     version = dokka_version
 
     val language_version: String by project
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
+    tasks.withType(KotlinCompile::class).all {
         kotlinOptions {
             freeCompilerArgs += "-Xjsr305=strict"
             languageVersion = language_version
@@ -41,3 +40,5 @@ subprojects {
         plugin("org.jetbrains.kotlin.jvm")
     }
 }
+
+println("Publication version: $dokka_version")
