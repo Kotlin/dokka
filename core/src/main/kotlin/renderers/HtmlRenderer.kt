@@ -5,7 +5,6 @@ import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
 
 open class HtmlRenderer(
@@ -20,12 +19,12 @@ open class HtmlRenderer(
 
     private fun FlowContent.buildSideMenu(context: PageNode, node: PageNode) {
         val children = node.children.filter { it !is MemberPageNode }
-        val className = children.ifNotEmpty { "nav$idCounter" }
+        val submenuId = if (children.isNotEmpty()) "nav$idCounter" else null
         div("sideMenuPart") {
-            className?.let { id = it }
+            submenuId?.also { id = it }
             div("overview") {
                 buildLink(node, context)
-                className?.let {
+                submenuId?.also {
                     span("navButton") {
                         onClick = """document.getElementById("$it").classList.toggle("hidden");"""
                         span("navButtonContent")
