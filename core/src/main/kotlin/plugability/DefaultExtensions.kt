@@ -27,7 +27,7 @@ internal object DefaultExtensions {
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
             CoreExtensions.renderer -> renderer.get(fullContext)
             CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)
-            CoreExtensions.outputWriter ->  FileWriter(fullContext.configuration.outputDir, "")
+            CoreExtensions.outputWriter ->  FileWriter(fullContext, "")
             CoreExtensions.fileExtension -> ".html"
             else -> null
         }.let { listOfNotNull( it ) as List<T> }

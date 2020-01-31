@@ -162,7 +162,7 @@ class DokkaGenerator(
             if (severity == CompilerMessageSeverity.ERROR) {
                 seenErrors = true
             }
-            logger.error(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
+            logger.info(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
         }
 
         override fun hasErrors() = seenErrors
