@@ -20,15 +20,11 @@ open class CrossPlatformExec : AbstractExecTask<CrossPlatformExec>(CrossPlatform
             commandLine[0] = findCommand(commandLine[0])
         }
 
-        if (isWindows) {
-            if (commandLine.isNotEmpty() && commandLine[0].isNotBlank()) {
-                commandLine
-            }
-            commandLine.add(0, "/c")
-            commandLine.add(0, "cmd")
+        if (isWindows && commandLine.isNotEmpty() && commandLine[0].isNotBlank()) {
+            this.commandLine = listOf("cmd", "/c") + commandLine
+        } else {
+            this.commandLine = commandLine
         }
-
-        this.commandLine = commandLine
 
         super.exec()
     }
