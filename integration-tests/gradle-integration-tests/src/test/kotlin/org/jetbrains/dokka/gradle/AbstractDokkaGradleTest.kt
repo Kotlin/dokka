@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.gradle
 
 
-import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.ComparisonFailure
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
@@ -42,7 +42,7 @@ abstract class AbstractDokkaGradleTest {
             val noErrorClasses = text.replace(errorClassMarker, "?!")
 
             if (noErrorClasses != text) {
-                throw FileComparisonFailure("", noErrorClasses, text, null)
+                throw ComparisonFailure("", noErrorClasses, text)
             }
 
             checked++
@@ -59,7 +59,7 @@ abstract class AbstractDokkaGradleTest {
             val noErrorClasses = text.replace(marker, "?!")
 
             if (noErrorClasses != text) {
-                throw FileComparisonFailure("", noErrorClasses, text, null)
+                throw ComparisonFailure("", noErrorClasses, text)
             }
 
             checked++
@@ -86,7 +86,7 @@ abstract class AbstractDokkaGradleTest {
                 val expected = textWithoutNonMatches.replace(notMatch, fullLink).replace(match, fullLink)
                 val actual = textWithoutMatches.replace(match, fullLink)
 
-                throw FileComparisonFailure("", expected, actual, null)
+                throw ComparisonFailure("", expected, actual)
             }
             if (text != textWithoutMatches)
                 totalEntries++
