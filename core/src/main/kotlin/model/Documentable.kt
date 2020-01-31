@@ -3,7 +3,6 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.Visibility
 
@@ -34,7 +33,7 @@ class Class(
     override val expected: ClassPlatformInfo?,
     override val actual: List<ClassPlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
-    override val visibility: Visibility
+    override val visibility: Map<PlatformData, Visibility>
 ) : ScopeNode(), WithVisibility {
     val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
 }
@@ -49,8 +48,7 @@ class Function(
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
-    override val sourceLocation: String? = null,
-    override val visibility: Visibility
+    override val visibility: Map<PlatformData, Visibility>
 ) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver) + parameters
@@ -63,11 +61,8 @@ class Property(
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
-    val type: TypeWrapper?,
     val accessors: List<Function>,
-    val isVar: Boolean = false,
-    override val sourceLocation: String? = null,
-    override val visibility: Visibility
+    override val visibility: Map<PlatformData, Visibility>
 ) : CallableNode(), WithVisibility {
     override val children: List<Parameter>
         get() = listOfNotNull(receiver)
@@ -80,23 +75,19 @@ class Parameter(
     val type: TypeWrapper,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
-) : Documentable(), WithVisibility {
+) : Documentable() {
     override val children: List<Documentable>
         get() = emptyList()
-
-    override val visibility: Visibility = Visibilities.PUBLIC
 }
 
 interface PlatformInfo {
     val documentationNode: DocumentationNode
     val platformData: List<PlatformData>
-    val descriptor: DeclarationDescriptor?
 }
 
 class BasePlatformInfo(
     override val documentationNode: DocumentationNode,
-    override val platformData: List<PlatformData>,
-    override val descriptor: DeclarationDescriptor?
+    override val platformData: List<PlatformData>
 ) : PlatformInfo {
 
     override fun equals(other: Any?): Boolean =
@@ -115,7 +106,6 @@ abstract class Documentable {
     open val expected: PlatformInfo? = null
     open val actual: List<PlatformInfo> = emptyList()
     open val name: String? = null
-    open val sourceLocation: String? = null
     val platformInfo by lazy { listOfNotNull(expected) + actual }
     val platformData by lazy { platformInfo.flatMap { it.platformData }.toSet() }
     abstract val dri: DRI
@@ -188,5 +178,5 @@ interface Extra
 object STATIC : Extra
 
 interface WithVisibility {
-    val visibility: Visibility
+    val visibility: Map<PlatformData, Visibility>
 }

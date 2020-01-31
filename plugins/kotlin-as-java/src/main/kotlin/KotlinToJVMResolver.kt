@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.conversions
 
+import org.jetbrains.dokka.kotlinAsJava.DescriptorCache
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
@@ -85,7 +86,6 @@ fun Function.asJava(): Function {
         expected,
         actual,
         extra,
-        sourceLocation,
         visibility
     )
 }
@@ -111,7 +111,7 @@ fun Property.withClass(className: String, dri: DRI): Property {
         callable = getDescriptor()?.let { Callable.from(it) }
     )
     return Property(
-        nDri, name, receiver, expected, actual, extra, type, accessors, isVar, sourceLocation, visibility
+        nDri, name, receiver, expected, actual, extra, accessors, visibility
     )
 }
 
@@ -120,12 +120,10 @@ fun Function.withClass(className: String, dri: DRI): Function {
         callable = getDescriptor()?.let { Callable.from(it) }
     )
     return Function(
-        nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, sourceLocation, visibility
+        nDri, name, returnType, isConstructor, receiver, parameters, expected, actual, extra, visibility
     )
 }
 
-fun Function.getDescriptor(): FunctionDescriptor? = platformInfo.mapNotNull { it.descriptor }
-    .firstOrNull()?.let { it as? FunctionDescriptor }
+fun Function.getDescriptor(): FunctionDescriptor? = DescriptorCache[dri].let { it as? FunctionDescriptor }
 
-fun Property.getDescriptor(): PropertyDescriptor? = platformInfo.mapNotNull { it.descriptor }
-    .firstOrNull()?.let { it as? PropertyDescriptor }
+fun Property.getDescriptor(): PropertyDescriptor? = DescriptorCache[dri].let { it as? PropertyDescriptor }

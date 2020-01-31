@@ -4,7 +4,7 @@ import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 
-class DefaultPageBuilder(
+open class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder
 ) : PageBuilder {
 
@@ -29,10 +29,10 @@ class DefaultPageBuilder(
             else -> throw IllegalStateException("$m should not be present here")
         }
 
-    private fun group(node: Documentable, content: PageContentBuilderFunction) =
+    protected open fun group(node: Documentable, content: PageContentBuilderFunction) =
         rootContentGroup(node, ContentKind.Main, content)
 
-    private fun contentForModule(m: Module) = group(m) {
+    protected open fun contentForModule(m: Module) = group(m) {
         header(1) { text("root") }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData) {
             link(it.name, it.dri)
@@ -41,7 +41,7 @@ class DefaultPageBuilder(
         text("Link to allpage here")
     }
 
-    private fun contentForPackage(p: Package) = group(p) {
+    protected open fun contentForPackage(p: Package) = group(p) {
         header(1) { text("Package ${p.name}") }
         block("Types", 2, ContentKind.Properties, p.classes, p.platformData) {
             link(it.name, it.dri)
@@ -54,7 +54,7 @@ class DefaultPageBuilder(
         }
     }
 
-    private fun contentForClass(c: Class) = group(c) {
+    protected open fun contentForClass(c: Class) = group(c) {
         header(1) { text(c.name) }
         c.inherited.takeIf { it.isNotEmpty() }?.let {
             header(2) { text("SuperInterfaces") }
@@ -83,7 +83,7 @@ class DefaultPageBuilder(
         }
     }
 
-    private fun contentForFunction(f: Function) = group(f) {
+    protected open fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
         f.commentsData.forEach { it.children.forEach { comment(it.root) } }

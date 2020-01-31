@@ -7,25 +7,31 @@ import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.DefaultPageBuilder
+import org.jetbrains.dokka.pages.PackagePageNode
+import org.jetbrains.dokka.pages.RootContentBuilder
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 
-class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
-    fun pageForModule(m: Module): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
+fun DeclarationDescriptor.sourceLocation(): String? = this.findPsi()?.containingFile?.virtualFile?.path
+fun <T : Documentable> List<T>.groupedByLocation(): Map<String, List<T>> =
+    this.map { DescriptorCache[it.dri]?.sourceLocation() to it }
+        .filter { it.first != null }.groupBy({ (location, _) ->
+            location!!.let { it.split("/").last().split(".").first() + "Kt" }
+        }) { it.second }
+
+class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPageBuilder(rootContentGroup) {
 
     data class FunsAndProps(val key: String, val funs: List<Function>, val props: List<Property>)
 
-    private fun pageForPackage(p: Package): PackagePageNode {
+    override fun pageForPackage(p: Package): PackagePageNode {
 
-        val funs = p.functions.filter { it.sourceLocation != null }.groupBy { function ->
-            function.sourceLocation!!.let { it.split("/").last().split(".").first() + "Kt" }
-        }
+        val funs = p.functions.groupedByLocation()
 
-        val props = p.properties.filter { it.sourceLocation != null }.groupBy { property ->
-            property.sourceLocation!!.let { it.split("/").last().split(".").first() + "Kt" }
-        }
+        val props = p.properties.groupedByLocation()
 
         val zipped = (funs.keys + props.keys)
             .map { k -> FunsAndProps(k, funs[k].orEmpty(), props[k].orEmpty()) }
@@ -42,7 +48,7 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
                 classes = emptyList(),
                 actual = emptyList(),
                 expected = null,
-                visibility = Visibilities.PUBLIC
+                visibility = p.platformData.map { it to Visibilities.PUBLIC }.toMap()
             )
         }).map { it.asJava() }
 
@@ -50,28 +56,6 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
             p.name, contentForPackage(p, classes), p.dri, p,
             classes.map(::pageForClass)
         )
-    }
-
-    private fun pageForMember(m: CallableNode): MemberPageNode =
-        when (m) {
-            is Function ->
-                MemberPageNode(m.name, contentForFunction(m), m.dri, m)
-            else -> throw IllegalStateException("$m should not be present here")
-        }
-
-    private fun pageForClass(c: Class): ClassPageNode =
-        ClassPageNode(c.name, contentForClass(c), c.dri, c,
-            c.constructors.map { pageForMember(it) } +
-                    c.classes.map { pageForClass(it) } +
-                    c.functions.map { pageForMember(it) })
-
-    private fun contentForModule(m: Module) = group(m) {
-        header(1) { text("root") }
-        block("Packages", 2, ContentKind.Packages, m.packages, m.platformData) {
-            link(it.name, it.dri)
-        }
-        text("Index\n")
-        text("Link to allpage here")
     }
 
     private fun contentForPackage(p: Package, nClasses: List<Class>) = group(p) {
@@ -82,7 +66,7 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
         }
     }
 
-    private fun contentForClass(c: Class) = group(c) {
+    override fun contentForClass(c: Class) = group(c) {
         header(1) { text(c.name) }
         c.inherited.takeIf { it.isNotEmpty() }?.let {
             header(2) { text("SuperInterfaces") }
@@ -112,21 +96,5 @@ class KotlinAsJavaPageBuilder(val rootContentGroup: RootContentBuilder) {
         }
     }
 
-    private fun contentForFunction(f: Function) = group(f) {
-        header(1) { text(f.name) }
-        signature(f)
-        text(" ")
-        f.commentsData.forEach { it.children.forEach { comment(it.root) } }
-        block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) { param ->
-            text(param.name ?: "<receiver>")
-            param.commentsData.forEach { node -> node.children.forEach { comment(it.root) } }
-        }
-    }
-
     private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
-
-    private fun group(node: Documentable, content: PageContentBuilderFunction) =
-        rootContentGroup(node, ContentKind.Main, content)
 }
-
-typealias RootContentBuilder = (Documentable, Kind, PageContentBuilderFunction) -> ContentGroup

@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.transformers.descriptors
 
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
@@ -35,7 +34,7 @@ object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTra
 
 }
 
-class DokkaDescriptorVisitor(
+open class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRI>() {
@@ -74,7 +73,7 @@ class DokkaDescriptorVisitor(
             descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
             listOfNotNull(descriptorData),
             mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
-            visibility = descriptor.visibility
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 
@@ -90,11 +89,8 @@ class DokkaDescriptorVisitor(
             descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-            type = KotlinTypeWrapper(descriptor.type),
             accessors = descriptor.accessors.map { visitPropertyAccessorDescriptor(it, descriptor, dri) },
-            isVar = descriptor.isVar,
-            sourceLocation = src,
-            visibility = descriptor.visibility
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 
@@ -111,8 +107,7 @@ class DokkaDescriptorVisitor(
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-            sourceLocation = src,
-            visibility = descriptor.visibility
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 
@@ -127,7 +122,7 @@ class DokkaDescriptorVisitor(
             descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-            visibility = descriptor.visibility
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 
@@ -141,7 +136,7 @@ class DokkaDescriptorVisitor(
         listOf(descriptor.resolveDescriptorData())
     )
 
-    fun visitPropertyAccessorDescriptor(
+    open fun visitPropertyAccessorDescriptor(
         descriptor: PropertyAccessorDescriptor,
         propertyDescriptor: PropertyDescriptor,
         parent: DRI
@@ -180,7 +175,7 @@ class DokkaDescriptorVisitor(
             parameters,
             descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
             listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-            visibility = descriptor.visibility
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 
@@ -211,9 +206,8 @@ class DokkaDescriptorVisitor(
         val doc = findKDoc()
         val parser: MarkdownParser = MarkdownParser(resolutionFacade, this)
         val docHeader = parser.parseFromKDocTag(doc)
-        val descriptor = this.takeIf { platformData.platformType == Platform.jvm }
 
-        return BasePlatformInfo(docHeader, listOf(platformData), descriptor)
+        return BasePlatformInfo(docHeader, listOf(platformData))
     }
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassPlatformInfo {

@@ -45,7 +45,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
 
         private fun getComment(psi: PsiNamedElement): List<PlatformInfo> {
             val comment = javadocParser.parseDocumentation(psi)
-            return listOf(BasePlatformInfo(comment, listOf(platformData), null))
+            return listOf(BasePlatformInfo(comment, listOf(platformData)))
         }
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
@@ -83,7 +83,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 null,
                 emptyList(),
                 mutableSetOf(),
-                visibility = psi.getVisibility()
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
 
@@ -112,7 +112,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 },
                 null,
                 getComment(psi),
-                visibility = psi.getVisibility()
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
 
@@ -131,8 +131,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 null,
                 getComment(psi),
                 accessors = emptyList(),
-                type = null,
-                visibility = psi.getVisibility()
+                visibility = mapOf(platformData to psi.getVisibility())
             )
         }
     }

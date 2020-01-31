@@ -25,8 +25,7 @@ private fun <T : Documentable> merge(elements: List<T>, reducer: (T, T) -> T): L
 
 fun PlatformInfo.mergeWith(other: PlatformInfo?) = BasePlatformInfo(
     documentationNode,
-    (platformData + (other?.platformData ?: emptyList())).distinct(),
-    listOf(this, other).mapNotNull { it?.descriptor }.firstOrNull()
+    (platformData + (other?.platformData ?: emptyList())).distinct()
 )
 
 fun ClassPlatformInfo.mergeWith(other: ClassPlatformInfo?) = ClassPlatformInfo(
@@ -53,7 +52,6 @@ fun Function.mergeWith(other: Function) = Function(
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
-    sourceLocation = listOfNotNull(this.sourceLocation, other.sourceLocation).firstOrNull(),
     visibility = visibility
 )
 
@@ -63,8 +61,6 @@ fun Property.mergeWith(other: Property) = Property(
     if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
-    type = type,
-    isVar = isVar,
     accessors = (this.accessors + other.accessors).distinct(),
     visibility = visibility
 )
