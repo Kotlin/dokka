@@ -2,6 +2,10 @@ val dokkaPlugin by configurations.creating
 val dokkaCore by configurations.creating
 val kotlinGradle by configurations.creating
 
+repositories {
+    maven(url = "https://kotlin.bintray.com/kotlin-plugin")
+}
+
 dependencies {
     val kotlin_version: String by project
     testCompileOnly(group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version = kotlin_version)
@@ -48,5 +52,3 @@ tasks {
         exclude("*") // TODO: Remove this exclude when tests are migrated
     }
 }
-
-// TODO: see if this file makes any sense

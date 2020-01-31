@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.gradle
 
-import com.intellij.rt.execution.junit.FileComparisonFailure
+import org.junit.ComparisonFailure
 import java.io.File
 import java.io.IOException
 import java.nio.file.*
@@ -26,7 +26,7 @@ fun assertEqualsIgnoringSeparators(expectedFile: File, output: String) {
     val actualText = output.replace("\r\n", "\n")
 
     if (expectedText != actualText)
-        throw FileComparisonFailure("", expectedText, actualText, expectedFile.canonicalPath)
+        throw ComparisonFailure("Output differs! Expected file path: ${expectedFile.canonicalPath}", expectedText, actualText)
 }
 
 class CopyFileVisitor(private var sourcePath: Path?, private val targetPath: Path) : SimpleFileVisitor<Path>() {

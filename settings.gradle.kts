@@ -8,7 +8,7 @@ include("runners:cli")
 include("runners:maven-plugin")
 include("plugins:xml")
 include("plugins:mathjax")
-//include("integration-tests:gradle-integration-tests")
+include("integration-tests:gradle-integration-tests")
 
 
 pluginManagement {
