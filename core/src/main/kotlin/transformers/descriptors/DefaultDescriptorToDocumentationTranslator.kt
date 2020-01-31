@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -279,7 +280,8 @@ open class DokkaDescriptorVisitor(
             name = descriptor.name.asString(),
             type = KotlinTypeWrapper(descriptor.type),
             expected = parent.expected,
-            actual = parent.actual
+            actual = parent.actual,
+            isExtension = descriptor.type.isExtensionFunctionType
         )
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<Function> =
@@ -342,7 +344,7 @@ enum class KotlinClassKindTypes : ClassKind {
     OBJECT;
 }
 
-class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
+class KotlinTypeWrapper(val kotlinType: KotlinType) : TypeWrapper {
     private val declarationDescriptor = kotlinType.constructor.declarationDescriptor
     private val fqNameSafe = declarationDescriptor?.fqNameSafe
     override val constructorFqName = fqNameSafe?.asString()

@@ -6,7 +6,9 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.builtins.isFunctionType
 
 open class DefaultPageContentBuilder(
     private val dri: Set<DRI>,
@@ -53,12 +55,15 @@ open class DefaultPageContentBuilder(
         list(f.parameters) {
             link(it.name!!, it.dri)
             text(": ")
-            type(it.type)
+//            if (it.type.constructorNamePathSegments.last().matches("Function[0-9]+".toRegex())) {
+            if ((it.type as? KotlinTypeWrapper)?.kotlinType?.isFunctionType == true) funParam(it)
+            else type(it.type)
         }
         text(")")
         val returnType = f.returnType
         if (!f.isConstructor && returnType != null &&
-            returnType.constructorFqName != Unit::class.qualifiedName) {
+            returnType.constructorFqName != Unit::class.qualifiedName
+        ) {
             text(": ")
             type(returnType)
         }
@@ -175,6 +180,24 @@ fun PageContentBuilder.type(t: TypeWrapper) {
     list(t.arguments, prefix = "<", suffix = ">") {
         type(it)
     }
+}
+
+private fun PageContentBuilder.funParam(parameter: Parameter) {
+    val type = parameter.type
+    val args = if (parameter.isExtension) {
+        type(type.arguments.first())
+        text(".")
+        type.arguments.drop(1)
+    } else
+        type.arguments
+
+    text("(")
+    args.subList(0, args.size - 1).forEachIndexed { i, arg ->
+        type(arg)
+        if (i < args.size - 2) text(", ")
+    }
+    text(") -> ")
+    type(args.last())
 }
 
 typealias PageContentBuilderFunction = PageContentBuilder.() -> Unit
