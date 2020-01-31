@@ -51,10 +51,10 @@ class DokkaDescriptorVisitor(
         val scope = descriptor.getMemberScope()
 
         return Package(
-                dri,
-                scope.functions(dri),
-                scope.properties(dri),
-                scope.classes(dri)
+            dri,
+            scope.functions(dri),
+            scope.properties(dri),
+            scope.classes(dri)
         )
     }
 
@@ -64,17 +64,17 @@ class DokkaDescriptorVisitor(
         val scope = descriptor.getMemberScope(emptyList())
         val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
         return Class(
-                dri,
-                descriptor.name.asString(),
-                KotlinClassKindTypes.valueOf(descriptor.kind.toString()),
-                descriptor.constructors.map { visitConstructorDescriptor(it, dri) },
-                scope.functions(dri),
-                scope.properties(dri),
-                scope.classes(dri),
-                descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
-                listOfNotNull(descriptorData),
-                mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
-                visibility = descriptor.visibility
+            dri,
+            descriptor.name.asString(),
+            KotlinClassKindTypes.valueOf(descriptor.kind.toString()),
+            descriptor.constructors.map { visitConstructorDescriptor(it, dri) },
+            scope.functions(dri),
+            scope.properties(dri),
+            scope.classes(dri),
+            descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
+            listOfNotNull(descriptorData),
+            mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
+            visibility = descriptor.visibility
         )
     }
 
@@ -85,16 +85,16 @@ class DokkaDescriptorVisitor(
             it.containingFile.takeIf { it is PsiSourceFile }?.let { (it as PsiSourceFile).psiFile.virtualFile.path }
         }
         return Property(
-                dri,
-                descriptor.name.asString(),
-                descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
-                descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-                listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-                type = KotlinTypeWrapper(descriptor.type),
-                accessors = descriptor.accessors.map { visitPropertyAccessorDescriptor(it, descriptor, dri) },
-                isVar = descriptor.isVar,
-                sourceLocation = src,
-                visibility = descriptor.visibility
+            dri,
+            descriptor.name.asString(),
+            descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+            type = KotlinTypeWrapper(descriptor.type),
+            accessors = descriptor.accessors.map { visitPropertyAccessorDescriptor(it, descriptor, dri) },
+            isVar = descriptor.isVar,
+            sourceLocation = src,
+            visibility = descriptor.visibility
         )
     }
 
@@ -103,59 +103,59 @@ class DokkaDescriptorVisitor(
 
         val src = descriptor.source.takeIf { it != SourceElement.NO_SOURCE }?.let { descriptor.sourceFilePath }
         return Function(
-                dri,
-                descriptor.name.asString(),
-                descriptor.returnType?.let { KotlinTypeWrapper(it) },
-                false,
-                descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
-                descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-                descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-                listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-                sourceLocation = src,
-                visibility = descriptor.visibility
+            dri,
+            descriptor.name.asString(),
+            descriptor.returnType?.let { KotlinTypeWrapper(it) },
+            false,
+            descriptor.extensionReceiverParameter?.let { visitReceiverParameterDescriptor(it, dri) },
+            descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+            sourceLocation = src,
+            visibility = descriptor.visibility
         )
     }
 
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRI): Function {
         val dri = parent.copy(callable = Callable.from(descriptor))
         return Function(
-                dri,
-                "<init>",
-                KotlinTypeWrapper(descriptor.returnType),
-                true,
-                null,
-                descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
-                descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-                listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-                visibility = descriptor.visibility
+            dri,
+            "<init>",
+            KotlinTypeWrapper(descriptor.returnType),
+            true,
+            null,
+            descriptor.valueParameters.mapIndexed { index, desc -> parameter(index, desc, dri) },
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+            visibility = descriptor.visibility
         )
     }
 
     override fun visitReceiverParameterDescriptor(
-            descriptor: ReceiverParameterDescriptor,
-            parent: DRI
+        descriptor: ReceiverParameterDescriptor,
+        parent: DRI
     ) = Parameter(
-            parent.copy(target = 0),
-            null,
-            KotlinTypeWrapper(descriptor.type),
-            listOf(descriptor.resolveDescriptorData())
+        parent.copy(target = 0),
+        null,
+        KotlinTypeWrapper(descriptor.type),
+        listOf(descriptor.resolveDescriptorData())
     )
 
     fun visitPropertyAccessorDescriptor(
-            descriptor: PropertyAccessorDescriptor,
-            propertyDescriptor: PropertyDescriptor,
-            parent: DRI
+        descriptor: PropertyAccessorDescriptor,
+        propertyDescriptor: PropertyDescriptor,
+        parent: DRI
     ): Function {
         val dri = parent.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
 
         fun PropertyDescriptor.asParameter(parent: DRI) =
-                Parameter(
-                        parent.copy(target = 1),
-                        this.name.asString(),
-                        KotlinTypeWrapper(this.type),
-                        listOf(this.resolveDescriptorData())
-                )
+            Parameter(
+                parent.copy(target = 1),
+                this.name.asString(),
+                KotlinTypeWrapper(this.type),
+                listOf(this.resolveDescriptorData())
+            )
 
         val name = run {
             val modifier = if (isGetter) "get" else "set"
@@ -165,47 +165,47 @@ class DokkaDescriptorVisitor(
 
         descriptor.visibility
         val parameters =
-                if (isGetter) {
-                    emptyList()
-                } else {
-                    listOf(propertyDescriptor.asParameter(dri))
-                }
+            if (isGetter) {
+                emptyList()
+            } else {
+                listOf(propertyDescriptor.asParameter(dri))
+            }
 
         return Function(
-                dri,
-                name,
-                descriptor.returnType?.let { KotlinTypeWrapper(it) },
-                false,
-                null,
-                parameters,
-                descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-                listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-                visibility = descriptor.visibility
+            dri,
+            name,
+            descriptor.returnType?.let { KotlinTypeWrapper(it) },
+            false,
+            null,
+            parameters,
+            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
+            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
+            visibility = descriptor.visibility
         )
     }
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRI) =
-            Parameter(
-                    parent.copy(target = index + 1),
-                    descriptor.name.asString(),
-                    KotlinTypeWrapper(descriptor.type),
-                    listOf(descriptor.resolveDescriptorData())
-            )
+        Parameter(
+            parent.copy(target = index + 1),
+            descriptor.name.asString(),
+            KotlinTypeWrapper(descriptor.type),
+            listOf(descriptor.resolveDescriptorData())
+        )
 
     private fun MemberScope.functions(parent: DRI): List<Function> =
-            getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
-                    .filterIsInstance<FunctionDescriptor>()
-                    .map { visitFunctionDescriptor(it, parent) }
+        getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
+            .filterIsInstance<FunctionDescriptor>()
+            .map { visitFunctionDescriptor(it, parent) }
 
     private fun MemberScope.properties(parent: DRI): List<Property> =
-            getContributedDescriptors(DescriptorKindFilter.VALUES) { true }
-                    .filterIsInstance<PropertyDescriptor>()
-                    .map { visitPropertyDescriptor(it, parent) }
+        getContributedDescriptors(DescriptorKindFilter.VALUES) { true }
+            .filterIsInstance<PropertyDescriptor>()
+            .map { visitPropertyDescriptor(it, parent) }
 
     private fun MemberScope.classes(parent: DRI): List<Class> =
-            getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
-                    .filterIsInstance<ClassDescriptor>()
-                    .map { visitClassDescriptor(it, parent) }
+        getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
+            .filterIsInstance<ClassDescriptor>()
+            .map { visitClassDescriptor(it, parent) }
 
     private fun DeclarationDescriptor.resolveDescriptorData(): PlatformInfo {
         val doc = findKDoc()
@@ -218,7 +218,7 @@ class DokkaDescriptorVisitor(
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassPlatformInfo {
         return ClassPlatformInfo(resolveDescriptorData(),
-                (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) })
+            (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) })
     }
 }
 
@@ -238,11 +238,11 @@ class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
     private val fqNameSafe = declarationDescriptor?.fqNameSafe
     override val constructorFqName = fqNameSafe?.asString()
     override val constructorNamePathSegments: List<String> =
-            fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
+        fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
     override val arguments: List<KotlinTypeWrapper> by lazy {
         kotlinType.arguments.map {
             KotlinTypeWrapper(
-                    it.type
+                it.type
             )
         }
     }

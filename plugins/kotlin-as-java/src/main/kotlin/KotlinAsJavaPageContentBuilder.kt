@@ -17,7 +17,7 @@ class KotlinAsJavaPageContentBuilder(
     val logger: DokkaLogger,
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
-): PageContentBuilder {
+) : PageContentBuilder {
     private val contents = mutableListOf<ContentNode>()
 
     private fun createText(text: String, kind: Kind = ContentKind.Symbol) =
@@ -48,7 +48,8 @@ class KotlinAsJavaPageContentBuilder(
         val returnType = f.returnType
         if (!f.isConstructor) {
             if (returnType != null &&
-                returnType.constructorFqName != Unit::class.qualifiedName) {
+                returnType.constructorFqName != Unit::class.qualifiedName
+            ) {
                 if ((returnType as? JavaTypeWrapper)?.isPrimitive == true)
                     text(returnType.constructorFqName ?: "")
                 else

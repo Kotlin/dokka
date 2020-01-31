@@ -3,7 +3,6 @@ package org.jetbrains.dokka.kotlinAsJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asStatic
 import org.jetbrains.dokka.kotlinAsJava.conversions.withClass
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function

@@ -154,7 +154,12 @@ class JavaTypeWrapper : TypeWrapper {
     override val dri: DRI?
     val isPrimitive: Boolean
 
-    constructor(constructorNamePathSegments: List<String>, arguments: List<TypeWrapper>, dri: DRI?, isPrimitiveType: Boolean) {
+    constructor(
+        constructorNamePathSegments: List<String>,
+        arguments: List<TypeWrapper>,
+        dri: DRI?,
+        isPrimitiveType: Boolean
+    ) {
         this.constructorFqName = constructorNamePathSegments.joinToString(".")
         this.constructorNamePathSegments = constructorNamePathSegments
         this.arguments = arguments
