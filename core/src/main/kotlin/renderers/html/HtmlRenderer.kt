@@ -16,28 +16,13 @@ open class HtmlRenderer(
 
     private val pageList = mutableListOf<String>()
 
-    private var idCounter = 0
-        get() = ++field
-
-    private fun FlowContent.buildSideMenu(context: PageNode, node: PageNode) {
-        val children = node.children.filter { it !is MemberPageNode }
-        val submenuId = if (children.isNotEmpty()) "nav$idCounter" else null
-        div("sideMenuPart") {
-            submenuId?.also { id = it }
-            div("overview") {
-                buildLink(node, context)
-                submenuId?.also {
-                    span("navButton") {
-                        onClick = """document.getElementById("$it").classList.toggle("hidden");"""
-                        span("navButtonContent")
-                    }
-                }
-            }
-            children.forEach { buildSideMenu(context, it) }
-        }
-    }
-
-    override val preprocessors = listOf(RootCreator, SearchPageInstaller, ResourceInstaller, StyleAndScriptsAppender)
+    override val preprocessors = listOf(
+        RootCreator,
+        SearchPageInstaller,
+        ResourceInstaller,
+        NavigationInstaller,
+        StyleAndScriptsAppender
+    )
 
     override fun FlowContent.buildList(node: ContentList, pageContext: ContentPage) =
         if (node.ordered) ol {
@@ -47,7 +32,7 @@ open class HtmlRenderer(
             buildListItems(node.children, pageContext)
         }
 
-    protected open fun OL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
+    open fun OL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
@@ -56,7 +41,7 @@ open class HtmlRenderer(
         }
     }
 
-    protected open fun UL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
+    open fun UL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)

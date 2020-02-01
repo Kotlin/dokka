@@ -19,38 +19,38 @@ abstract class DefaultRenderer<T>(
 
     protected open val preprocessors: Iterable<PageNodeTransformer> = emptyList()
 
-    protected abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
-    protected abstract fun T.buildLink(address: String, content: T.() -> Unit)
-    protected abstract fun T.buildList(node: ContentList, pageContext: ContentPage)
-    protected abstract fun T.buildNewLine()
-    protected abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
-    protected abstract fun T.buildTable(node: ContentTable, pageContext: ContentPage)
-    protected abstract fun T.buildText(textNode: ContentText)
-    protected abstract fun T.buildNavigation(page: PageNode)
+    abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
+    abstract fun T.buildLink(address: String, content: T.() -> Unit)
+    abstract fun T.buildList(node: ContentList, pageContext: ContentPage)
+    abstract fun T.buildNewLine()
+    abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
+    abstract fun T.buildTable(node: ContentTable, pageContext: ContentPage)
+    abstract fun T.buildText(textNode: ContentText)
+    abstract fun T.buildNavigation(page: PageNode)
 
-    protected abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
-    protected abstract fun buildError(node: ContentNode)
+    abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
+    abstract fun buildError(node: ContentNode)
 
-    protected open fun T.buildGroup(node: ContentGroup, pageContext: ContentPage) {
+    open fun T.buildGroup(node: ContentGroup, pageContext: ContentPage) {
         node.children.forEach { it.build(this, pageContext) }
     }
 
-    protected open fun T.buildLinkText(nodes: List<ContentNode>, pageContext: ContentPage) {
+    open fun T.buildLinkText(nodes: List<ContentNode>, pageContext: ContentPage) {
         nodes.forEach { it.build(this, pageContext) }
     }
 
-    protected open fun T.buildCode(code: List<ContentNode>, language: String, pageContext: ContentPage) {
+    open fun T.buildCode(code: List<ContentNode>, language: String, pageContext: ContentPage) {
         code.forEach { it.build(this, pageContext) }
     }
 
-    protected open fun T.buildHeader(node: ContentHeader, pageContext: ContentPage) {
+    open fun T.buildHeader(node: ContentHeader, pageContext: ContentPage) {
         buildHeader(node.level) { node.children.forEach { it.build(this, pageContext) } }
     }
 
-    protected open fun ContentNode.build(builder: T, pageContext: ContentPage) =
+    open fun ContentNode.build(builder: T, pageContext: ContentPage) =
         builder.buildContentNode(this, pageContext)
 
-    protected open fun T.buildContentNode(node: ContentNode, pageContext: ContentPage) {
+    open fun T.buildContentNode(node: ContentNode, pageContext: ContentPage) {
         when (node) {
             is ContentText -> buildText(node)
             is ContentHeader -> buildHeader(node, pageContext)
@@ -69,12 +69,12 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    protected open fun buildPageContent(context: T, page: ContentPage) {
+    open fun buildPageContent(context: T, page: ContentPage) {
         context.buildNavigation(page)
         page.content.build(context, page)
     }
 
-    protected open fun renderPage(page: PageNode) {
+    open fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
             is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, extension)
@@ -90,19 +90,19 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    protected open fun renderPages(root: PageNode) {
+    open fun renderPages(root: PageNode) {
         renderPage(root)
         root.children.forEach { renderPages(it) }
     }
 
     // reimplement this as preprocessor
-    protected open fun renderPackageList(root: ContentPage) =
+    open fun renderPackageList(root: ContentPage) =
         getPackageNamesAndPlatforms(root)
             .keys
             .joinToString("\n")
             .also { outputWriter.write("${root.name}/package-list", it, "") }
 
-    protected open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
+    open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
         root.children
             .map(::getPackageNamesAndPlatforms)
             .fold(emptyMap<String, List<PlatformData>>()) { e, acc -> acc + e } +
