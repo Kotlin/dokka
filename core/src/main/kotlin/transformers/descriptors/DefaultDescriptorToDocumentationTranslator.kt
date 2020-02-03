@@ -31,12 +31,7 @@ object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTra
         platformData: PlatformData,
         context: DokkaContext
     ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
-        packageFragments.map {
-            visitPackageFragmentDescriptor(
-                it,
-                DRIWithPlatformInfo(DRI.topLevel, null, emptyList())
-            )
-        }
+        packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel) }
     }.let { Module(moduleName, it) }
 
 }

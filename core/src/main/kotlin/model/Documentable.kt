@@ -145,7 +145,8 @@ class Parameter(
     val type: TypeWrapper,
     override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    val isExtension: Boolean = false
 ) : Documentable() {
     override val children: List<Documentable>
         get() = emptyList()
