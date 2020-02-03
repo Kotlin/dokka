@@ -2,11 +2,13 @@ package org.jetbrains.dokka.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.DefaultRenderer
 import org.jetbrains.dokka.renderers.OutputWriter
+import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 import java.io.File
 
 open class HtmlRenderer(
@@ -20,7 +22,7 @@ open class HtmlRenderer(
         RootCreator,
         SearchPageInstaller,
         ResourceInstaller,
-        NavigationInstaller,
+        NavigationPageInstaller,
         StyleAndScriptsAppender
     )
 
@@ -112,6 +114,13 @@ open class HtmlRenderer(
             text(to.name)
         }
 
+    fun FlowContent.buildLink(
+        to: DRI,
+        platforms: List<PlatformData>,
+        from: PageNode? = null,
+        block: FlowContent.() -> Unit
+    ) = buildLink(locationProvider.resolve(to, platforms, from), block)
+
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
     }
@@ -166,6 +175,7 @@ open class HtmlRenderer(
                     filter { it.substringBefore('?').substringAfterLast('.') == "js" }
                         .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
                 }
+                script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
             }
             body {
                 div {
