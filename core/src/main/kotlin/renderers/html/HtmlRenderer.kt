@@ -8,7 +8,6 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.DefaultRenderer
 import org.jetbrains.dokka.renderers.OutputWriter
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 import java.io.File
 
 open class HtmlRenderer(
@@ -104,9 +103,10 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildNavigation(page: PageNode) =
-        locationProvider.ancestors(page).forEach { node ->
+        locationProvider.ancestors(page).asReversed().forEach { node ->
             text("/")
-            buildLink(node, page)
+            if (node.isNavigable) buildLink(node, page)
+            else text(node.name)
         }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
@@ -211,3 +211,6 @@ private fun PageNode.pageKind() = when (this) {
     }
     else -> "other"
 }
+
+private val PageNode.isNavigable: Boolean
+    get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
