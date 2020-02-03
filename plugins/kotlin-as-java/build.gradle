@@ -4,11 +4,10 @@ apply plugin: 'maven-publish'
 apply plugin: 'kotlin'
 
 dependencies {
-    compileOnly project(':core')
+    implementation project(':core')
     testCompile project(':core')
-    testCompile project(':core').sourceSets.test.output
-    testCompile project(':integration')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile project(':testApi')
+    testCompile project(':integration-tests')
 }
 
 publishing {

@@ -10,10 +10,10 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.kotlin.codegen.inline.sourceFilePath
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
@@ -80,9 +80,6 @@ open class DokkaDescriptorVisitor(
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRI): Property {
         val dri = parent.copy(callable = Callable.from(descriptor))
 
-        val src = descriptor.source.takeIf { it != SourceElement.NO_SOURCE }?.let {
-            it.containingFile.takeIf { it is PsiSourceFile }?.let { (it as PsiSourceFile).psiFile.virtualFile.path }
-        }
         return Property(
             dri,
             descriptor.name.asString(),
@@ -97,7 +94,6 @@ open class DokkaDescriptorVisitor(
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRI): Function {
         val dri = parent.copy(callable = Callable.from(descriptor))
 
-        val src = descriptor.source.takeIf { it != SourceElement.NO_SOURCE }?.let { descriptor.sourceFilePath }
         return Function(
             dri,
             descriptor.name.asString(),
