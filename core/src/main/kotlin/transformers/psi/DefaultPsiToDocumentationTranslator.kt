@@ -96,6 +96,7 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                         dri.copy(target = index + 1),
                         psiParameter.name,
                         JavaTypeWrapper(psiParameter.type),
+                        null,
                         getComment(psi)
                     )
                 },

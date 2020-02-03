@@ -78,6 +78,7 @@ fun Parameter.mergeWith(other: Parameter) = Parameter(
     dri,
     name,
     type,
+    expected?.mergeWith(other.expected),
     (actual + other.actual).merge()
 )
 

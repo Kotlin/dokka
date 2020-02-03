@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.parsers
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -14,6 +15,9 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocImpl
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
@@ -186,12 +190,18 @@ class MarkdownParser (
     override fun parseStringToDocNode(extractedString: String) = markdownToDocNode(extractedString)
     override fun preparse(text: String) = text
 
+    private fun findParent(kDoc: PsiElement): PsiElement =
+        if(kDoc is KDocSection) findParent(kDoc.parent) else kDoc
+
+    private fun getAllKDocTags(kDocImpl: PsiElement): List<KDocTag> =
+        kDocImpl.children.filterIsInstance<KDocTag>().filterNot { it is KDocSection } + kDocImpl.children.flatMap { getAllKDocTags(it) }
+
     fun parseFromKDocTag(kDocTag: KDocTag?): DocumentationNode {
         return if(kDocTag == null)
             DocumentationNode(emptyList())
         else
             DocumentationNode(
-                (listOf(kDocTag) + kDocTag.children).filterIsInstance<KDocTag>().map {
+                (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag) as KDocImpl)).map {
                     when (it.knownTag) {
                         null -> if (it.name == null) Description(parseStringToDocNode(it.getContent())) else CustomWrapperTag(
                             parseStringToDocNode(it.getContent()),
@@ -213,6 +223,4 @@ class MarkdownParser (
                 }
             )
     }
-
-
 }
