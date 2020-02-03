@@ -68,6 +68,7 @@ class Parameter(
     override val dri: DRI,
     override val name: String?,
     val type: TypeWrapper,
+    override val expected: PlatformInfo?,
     override val actual: List<PlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
 ) : Documentable() {
