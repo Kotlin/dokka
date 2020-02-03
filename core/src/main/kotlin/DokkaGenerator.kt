@@ -53,6 +53,8 @@ class DokkaGenerator(
 
         logger.progress("Rendering")
         render(transformedPages, context)
+
+        logger.report()
     }
 
     fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =

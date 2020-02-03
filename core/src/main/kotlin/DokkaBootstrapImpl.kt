@@ -2,6 +2,7 @@ package org.jetbrains.dokka
 
 import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 import java.util.function.BiConsumer
@@ -26,6 +27,9 @@ fun parsePerPackageOptions(arg: String): List<PackageOptions> {
 class DokkaBootstrapImpl : DokkaBootstrap {
 
     private class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+        override var warningsCount: Int = 0
+        override var errorsCount: Int = 0
+
         override fun debug(message: String) {
             consumer.accept("debug", message)
         }
@@ -39,11 +43,23 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         }
 
         override fun warn(message: String) {
-            consumer.accept("warn", message)
+            consumer.accept("warn", message).also { warningsCount++ }
         }
 
         override fun error(message: String) {
-            consumer.accept("error", message)
+            consumer.accept("error", message).also { errorsCount++ }
+        }
+
+        override fun report() {
+            if (warningsCount > 0 || errorsCount > 0) {
+                println("Generation completed with $warningsCount warning" +
+                        (if(DokkaConsoleLogger.warningsCount == 1) "" else "s") +
+                        " and $errorsCount error" +
+                        if(DokkaConsoleLogger.errorsCount == 1) "" else "s"
+                )
+            } else {
+                println("generation completed successfully")
+            }
         }
     }
 
