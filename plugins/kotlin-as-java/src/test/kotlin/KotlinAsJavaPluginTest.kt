@@ -1,6 +1,7 @@
 package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.pages.ContentGroup
+import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentTable
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
@@ -35,9 +36,11 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content = root.children.firstOrNull()?.children?.firstOrNull()?.content ?: run {
-                    fail("Either children or content is null")
-                }
+                val content =
+                    root.children.firstOrNull()?.children?.mapNotNull { it as? ContentPage }?.firstOrNull()?.content
+                            ?: run {
+                                fail("Either children or content is null")
+                            }
 
                 val children =
                     if (content is ContentGroup)
@@ -75,7 +78,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val contentList = root.children.flatMap { it.children }.map { it.content }
+                val contentList =
+                    root.children.flatMap { it.children.mapNotNull { it as? ContentPage } }.map { it.content }
 
                 val children = contentList.flatMap { content ->
                     if (content is ContentGroup)
