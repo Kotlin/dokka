@@ -20,7 +20,7 @@
 }
 
 #sideMenu .sideMenuPart {
-    margin-left: 0.25em;
+    margin-left: 1em;
 }
 
 #sideMenu img {
@@ -33,10 +33,12 @@
 
 #searchBar {
     width: 100%;
+    pointer-events: none;
 }
 
 #searchForm {
     float: right;
+    pointer-events: all;
 }
 
 .sideMenuPart > .navButton {
