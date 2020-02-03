@@ -4,10 +4,8 @@ import kotlinx.html.h1
 import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RendererSpecificRootPage
-import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.renderers.platforms
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 object RootCreator : PageNodeTransformer {
@@ -19,22 +17,35 @@ object SearchPageInstaller : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.modified(children = input.children + searchPage)
 
     private val searchPage = RendererSpecificResourcePage(
-            name = "Search",
-            children = emptyList(),
-            strategy = RenderingStrategy<HtmlRenderer> {
-                buildHtml(it, listOf("styles/style.css", "scripts/pages.js")) {
-                    h1 {
-                        id = "searchTitle"
-                        text("Search results for ")
-                    }
-                    table {
-                        tbody {
-                            id = "searchTable"
-                        }
+        name = "Search",
+        children = emptyList(),
+        strategy = RenderingStrategy<HtmlRenderer> {
+            buildHtml(it, listOf("styles/style.css", "scripts/pages.js")) {
+                h1 {
+                    id = "searchTitle"
+                    text("Search results for ")
+                }
+                table {
+                    tbody {
+                        id = "searchTable"
                     }
                 }
-            })
+            }
+        })
+}
 
+object NavigationPageInstaller : PageNodeTransformer {
+    override fun invoke(input: RootPageNode) = input.modified(
+        children = input.children + NavigationPage(
+            input.children.filterIsInstance<ContentPage>().single().let(::visit)
+        )
+    )
+
+    private fun visit(page: ContentPage): NavigationNode = NavigationNode(
+        page.name,
+        page.dri,
+        page.platforms(),
+        page.children.filterIsInstance<ContentPage>().map { visit(it) })
 }
 
 object ResourceInstaller : PageNodeTransformer {
