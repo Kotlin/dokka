@@ -34,6 +34,8 @@ object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTra
 
 }
 
+fun DeclarationDescriptor.getSourcePath() = this.toSourceElement.containingFile.toString()
+
 open class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
