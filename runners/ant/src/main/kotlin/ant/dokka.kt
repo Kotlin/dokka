@@ -7,15 +7,29 @@ import org.apache.tools.ant.types.Path
 import org.apache.tools.ant.types.Reference
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 
 class AntLogger(val task: Task): DokkaLogger {
+    override var warningsCount: Int = 0
+    override var errorsCount: Int = 0
     override fun debug(message: String) = task.log(message, Project.MSG_DEBUG)
     override fun info(message: String) = task.log(message, Project.MSG_VERBOSE)
     override fun progress(message: String) = task.log(message, Project.MSG_INFO)
-    override fun warn(message: String) = task.log(message, Project.MSG_WARN)
-    override fun error(message: String) = task.log(message, Project.MSG_ERR)
+    override fun warn(message: String) = task.log(message, Project.MSG_WARN).also { warningsCount++ }
+    override fun error(message: String) = task.log(message, Project.MSG_ERR).also { errorsCount++ }
+    override fun report() {
+        if (warningsCount > 0 || errorsCount > 0) {
+            task.log("Generation completed with $warningsCount warning" +
+                    (if(warningsCount == 1) "" else "s") +
+                    " and $errorsCount error" +
+                    if(errorsCount == 1) "" else "s"
+            )
+        } else {
+            task.log("generation completed successfully")
+        }
+    }
 }
 
 class AntSourceLinkDefinition(var path: String? = null, var url: String? = null, var lineSuffix: String? = null)

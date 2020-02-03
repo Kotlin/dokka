@@ -13,7 +13,7 @@ import org.jetbrains.dokka.transformers.psi.DefaultPsiToDocumentationTranslator
 internal object DefaultExtensions {
 
     private val renderer: LazyEvaluated<HtmlRenderer> = LazyEvaluated.fromRecipe { HtmlRenderer(it.single(CoreExtensions.outputWriter), it) }
-    private val converter: LazyEvaluated<DocTagToContentConverter> = LazyEvaluated.fromRecipe {DocTagToContentConverter(it) }
+    private val converter: LazyEvaluated<DocTagToContentConverter> = LazyEvaluated.fromRecipe { DocTagToContentConverter(it) }
     private val providerFactory: LazyEvaluated<DefaultLocationProviderFactory> = LazyEvaluated.fromRecipe { DefaultLocationProviderFactory(it) }
 
 

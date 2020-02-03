@@ -196,9 +196,9 @@ object MainKt {
         val javaHome = System.getProperty("java.home")
         val default = File(javaHome, "../lib/tools.jar")
         val mac = File(javaHome, "../Classes/classes.jar")
-        when {
-            default.exists() -> return default
-            mac.exists() -> return mac
+        return when {
+            default.exists() -> default
+            mac.exists() -> mac
             else -> {
                 throw Exception("tools.jar not found, please check it, also you can provide it manually, using -cp")
             }
