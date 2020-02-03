@@ -76,5 +76,15 @@
       <option name="name" value="Google" />
       <option name="url" value="https://dl.google.com/dl/android/maven2/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven10" />
+      <option name="name" value="maven10" />
+      <option name="url" value="https://kotlin.bintray.com/kotlin-plugin" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven6" />
+      <option name="name" value="maven6" />
+      <option name="url" value="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_dev_CompilerAllPlugins/1.3.61/maven" />
+    </remote-repository>
   </component>
 </project>

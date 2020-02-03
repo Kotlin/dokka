@@ -1,18 +1,43 @@
 package org.jetbrains.dokka.renderers
 
 import kotlinx.html.*
-import kotlinx.html.stream.appendHTML
+import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
-import java.net.URL
 
 open class HtmlRenderer(
     outputWriter: OutputWriter,
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(outputWriter, context) {
 
-    override fun FlowContent.buildList(node: ContentList, pageContext: PageNode) =
+    private val pageList = mutableListOf<String>()
+
+    private var idCounter = 0
+        get() = ++field
+
+    private fun FlowContent.buildSideMenu(context: PageNode, node: PageNode) {
+        val children = node.children.filter { it !is MemberPageNode }
+        val submenuId = if (children.isNotEmpty()) "nav$idCounter" else null
+        div("sideMenuPart") {
+            submenuId?.also { id = it }
+            div("overview") {
+                buildLink(node, context)
+                submenuId?.also {
+                    span("navButton") {
+                        onClick = """document.getElementById("$it").classList.toggle("hidden");"""
+                        span("navButtonContent")
+                    }
+                }
+            }
+            children.forEach { buildSideMenu(context, it) }
+        }
+    }
+
+    override val preprocessors = listOf(RootCreator, SearchPageInstaller, ResourceInstaller, StyleAndScriptsAppender)
+
+    override fun FlowContent.buildList(node: ContentList, pageContext: ContentPage) =
         if (node.ordered) ol {
             buildListItems(node.children, pageContext)
         }
@@ -20,7 +45,7 @@ open class HtmlRenderer(
             buildListItems(node.children, pageContext)
         }
 
-    protected open fun OL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
+    protected open fun OL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
@@ -29,7 +54,7 @@ open class HtmlRenderer(
         }
     }
 
-    protected open fun UL.buildListItems(items: List<ContentNode>, pageContext: PageNode) {
+    protected open fun UL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
@@ -40,7 +65,7 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildResource(
         node: ContentEmbeddedResource,
-        pageContext: PageNode
+        pageContext: ContentPage
     ) { // TODO: extension point there
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
         return if (File(node.address).extension.toLowerCase() in imageExtensions) {
@@ -52,7 +77,7 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildTable(node: ContentTable, pageContext: PageNode) {
+    override fun FlowContent.buildTable(node: ContentTable, pageContext: ContentPage) {
         table {
             thead {
                 node.header.forEach {
@@ -89,30 +114,44 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildNavigation(page: PageNode) {
+    override fun FlowContent.buildNavigation(page: PageNode) =
         locationProvider.ancestors(page).forEach { node ->
             text("/")
-            buildLink(locationProvider.resolve(node, page)) {
-                text(node.name)
-            }
+            buildLink(node, page)
         }
-    }
+
+    private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
+        buildLink(locationProvider.resolve(to, from)) {
+            text(to.name)
+        }
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")
     }
 
-    override fun FlowContent.buildNewLine() { br() }
-
-    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) {
-        a (href = address, block = content)
+    override fun FlowContent.buildNewLine() {
+        br()
     }
 
-    override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: PageNode) {
+    override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
+        a(href = address, block = content)
+
+    override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: ContentPage) {
         buildNewLine()
         code.forEach {
-            + ((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); ""} )
+            +((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); "" })
             buildNewLine()
+        }
+    }
+
+    override fun renderPage(page: PageNode) {
+        super.renderPage(page)
+        if (page is ContentPage) {
+            pageList.add(
+                """{ "name": "${page.name}", ${if (page is ClassPageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
+                    page
+                )}" }"""
+            )
         }
     }
 
@@ -120,25 +159,58 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
-
-    override fun buildSupportFiles() { // TODO copy file instead of reading
-        outputWriter.write(
-            "style.css",
-            javaClass.getResourceAsStream("/dokka/styles/style.css").reader().readText()
-        )
+    override fun render(root: RootPageNode) {
+        super.render(root)
+        outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
     }
 
-    override fun buildPage(page: PageNode, content: (FlowContent, PageNode) -> Unit): String = StringBuilder().appendHTML().html {
-        head {
-            title(page.name)
-            link(rel = LinkRel.stylesheet, href = "${locationProvider.resolveRoot(page)}style.css")
-            page.embeddedResources.filter { URL(it).path.substringAfterLast('.') == "js" }
-                .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
-        }
-        body {
-            content(this, page)
-        }
-    }.toString()
+    private fun PageNode.root(path: String) = locationProvider.resolveRoot(this) + path
 
-    protected open fun List<HTMLMetadata>.joinAttr() = this.joinToString(" ") { it.key + "=" + it.value }
+    override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
+        buildHtml(page, page.embeddedResources) { content(this, page) }
+
+    open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
+        createHTML().html {
+            head {
+                title(page.name)
+                with(resources) {
+                    filter { it.substringAfterLast('.') == "css" }
+                        .forEach { link(rel = LinkRel.stylesheet, href = page.root(it)) }
+                    filter { it.substringAfterLast('.') == "js" }
+                        .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
+                }
+            }
+            body {
+                div {
+                    id = "navigation"
+                    div {
+                        id = "searchBar"
+                        form(action = page.root("-search.html"), method = FormMethod.get) {
+                            id = "searchForm"
+                            input(type = InputType.search, name = "query")
+                            input(type = InputType.submit) { value = "Search" }
+                        }
+                    }
+                    div {
+                        id = "sideMenu"
+                    }
+                }
+                div {
+                    id = "content"
+                    content()
+                }
+            }
+        }
+}
+
+fun List<HTMLMetadata>.joinAttr() = joinToString(" ") { it.key + "=" + it.value }
+
+private fun PageNode.pageKind() = when (this) {
+    is PackagePageNode -> "package"
+    is ClassPageNode -> "class"
+    is MemberPageNode -> when (this.documentable) {
+        is Function -> "function"
+        else -> "other"
+    }
+    else -> "other"
 }

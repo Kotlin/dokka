@@ -53,9 +53,9 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         override fun report() {
             if (warningsCount > 0 || errorsCount > 0) {
                 println("Generation completed with $warningsCount warning" +
-                        (if(DokkaConsoleLogger.warningsCount == 1) "" else "s") +
+                        (if(warningsCount == 1) "" else "s") +
                         " and $errorsCount error" +
-                        if(DokkaConsoleLogger.errorsCount == 1) "" else "s"
+                        if(errorsCount == 1) "" else "s"
                 )
             } else {
                 println("generation completed successfully")

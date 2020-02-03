@@ -3,9 +3,9 @@ package  org.jetbrains.dokka.mathjax
 
 import org.jetbrains.dokka.model.doc.CustomWrapperTag
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.ModulePageNode
+import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
@@ -19,17 +19,13 @@ private const val ANNOTATION = "usesMathJax"
 private const val LIB_PATH = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
 
 object MathjaxTransformer : PageNodeTransformer {
-    override fun invoke(input: ModulePageNode, dokkaContext: DokkaContext) = input.modified(
-        children = input.children.map { transform(it) }
-    )
+    override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
+        it.modified(
+            embeddedResources = it.embeddedResources + if (it.isNeedingMathjax) listOf(LIB_PATH) else emptyList()
+        )
+    }
 
-    private fun transform(input: PageNode): PageNode = input.modified(
-        embeddedResources = input.embeddedResources + if (input.isNeedingMathjax) listOf(LIB_PATH) else emptyList(),
-        children = input.children.map { transform(it) }
-    )
-
-
-    private val PageNode.isNeedingMathjax
+    private val ContentPage.isNeedingMathjax
         get() = documentable?.platformInfo
             ?.flatMap { it.documentationNode.children }
             .orEmpty()

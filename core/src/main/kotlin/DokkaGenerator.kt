@@ -8,6 +8,7 @@ import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -90,12 +91,12 @@ class DokkaGenerator(
     ) = context.single(CoreExtensions.documentationToPageTranslator).invoke(transformedDocumentation, context)
 
     fun transformPages(
-        pages: ModulePageNode,
+        pages: RootPageNode,
         context: DokkaContext
-    ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc, context) }
+    ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc) }
 
     fun render(
-        transformedPages: ModulePageNode,
+        transformedPages: RootPageNode,
         context: DokkaContext
     ) {
         val renderer = context.single(CoreExtensions.renderer)

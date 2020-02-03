@@ -12,48 +12,52 @@ import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 class XmlPlugin : DokkaPlugin() {
     val transformer by extending {
-        CoreExtensions.pageTransformer with XmlTransformer
+        CoreExtensions.pageTransformer providing ::XmlTransformer
     }
 }
 
-object XmlTransformer : PageNodeTransformer {
+class XmlTransformer(private val dokkaContext: DokkaContext) : PageNodeTransformer {
+    private val commentsToContentConverter by lazy { dokkaContext.single(CoreExtensions.commentsToContentConverter) }
+
     enum class XMLKind : Kind {
         Main, XmlList
     }
 
-    override fun invoke(input: ModulePageNode, dokkaContext: DokkaContext): ModulePageNode =
-        input.transformPageNodeTree { node ->
-            if (node !is ClassPageNode) node
-            else {
-                val refs =
-                    node.documentable?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
-                        .orEmpty()
-                val elementsToAdd = mutableListOf<Documentable>()
+    override fun invoke(input: RootPageNode): RootPageNode =
+        input.transformPageNodeTree { if (it is ModulePageNode) transformModule(it) else it }
 
-                refs.forEach { ref ->
-                    input.documentable?.dfs { it.dri == ref.dri }?.let { elementsToAdd.add(it) }
-                }
-                val platformData = node.platforms().toSet()
-                val refTable = DefaultPageContentBuilder.group(
-                    node.dri,
-                    platformData,
-                    XMLKind.XmlList,
-                    dokkaContext.single(CoreExtensions.commentsToContentConverter),
-                    dokkaContext.logger
-                ) {
-                    block("XML Attributes", 2, XMLKind.XmlList, elementsToAdd, platformData) { element ->
-                        link(element.dri, XMLKind.XmlList) {
-                            text(element.name ?: "<unnamed>", XMLKind.Main)
-                        }
-                        text(element.briefDocTagString, XMLKind.XmlList)
-                    }
-                }
+    private fun transformModule(module: ModulePageNode) = module.transformContentPagesTree { node ->
+        if (node !is ClassPageNode) node
+        else {
+            val refs =
+                node.documentable?.extra?.filterIsInstance<XMLMega>()?.filter { it.key == "@attr ref" }
+                    .orEmpty()
+            val elementsToAdd = mutableListOf<Documentable>()
 
-                val content = node.content as ContentGroup
-                val children = (node.content as ContentGroup).children
-                node.modified(content = content.copy(children = children + refTable))
+            refs.forEach { ref ->
+                module.documentable?.dfs { it.dri == ref.dri }?.let { elementsToAdd.add(it) }
             }
-        }
+            val platformData = node.platforms().toSet()
+            val refTable = DefaultPageContentBuilder.group(
+                node.dri,
+                platformData,
+                XMLKind.XmlList,
+                commentsToContentConverter,
+                dokkaContext.logger
+            ) {
+                block("XML Attributes", 2, XMLKind.XmlList, elementsToAdd, platformData) { element ->
+                    link(element.dri, XMLKind.XmlList) {
+                        text(element.name ?: "<unnamed>", XMLKind.Main)
+                    }
+                    text(element.briefDocTagString, XMLKind.XmlList)
+                }
+            }
 
-    private fun PageNode.platforms() = this.content.platforms.toList()
+            val content = node.content as ContentGroup
+            val children = (node.content as ContentGroup).children
+            node.modified(content = content.copy(children = children + refTable))
+        }
+    }
+
+    private fun ContentPage.platforms() = this.content.platforms.toList()
 }

@@ -7,18 +7,57 @@ import java.util.*
 
 interface PageNode {
     val name: String
+    val children: List<PageNode>
+
+    fun modified(
+        name: String = this.name,
+        children: List<PageNode> = this.children
+    ): PageNode
+}
+
+interface ContentPage: PageNode {
     val content: ContentNode
     val dri: DRI
     val documentable: Documentable?
     val embeddedResources: List<String>
-    val children: List<PageNode>
 
     fun modified(
         name: String = this.name,
         content: ContentNode = this.content,
         embeddedResources: List<String> = this.embeddedResources,
         children: List<PageNode> = this.children
-    ): PageNode
+    ): ContentPage
+}
+
+abstract class RootPageNode: PageNode {
+    val parentMap: Map<PageNode, PageNode> by lazy {
+        IdentityHashMap<PageNode, PageNode>().apply {
+            fun process(parent: PageNode) {
+                parent.children.forEach {  child ->
+                    put(child, parent)
+                    process(child)
+                }
+            }
+            process(this@RootPageNode)
+        }
+    }
+
+    fun transformPageNodeTree(operation: (PageNode) -> PageNode) =
+        this.transformNode(operation) as RootPageNode
+
+    fun transformContentPagesTree(operation: (ContentPage) -> ContentPage) = transformPageNodeTree {
+        if (it is ContentPage) operation(it) else it
+    } as RootPageNode
+
+    private fun PageNode.transformNode(operation: (PageNode) -> PageNode): PageNode =
+        operation(this).let { newNode ->
+            newNode.modified(children = newNode.children.map { it.transformNode(operation) })
+        }
+
+    abstract override fun modified(
+        name: String,
+        children: List<PageNode>
+    ): RootPageNode
 }
 
 class ModulePageNode(
@@ -28,8 +67,11 @@ class ModulePageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : PageNode {
+) : RootPageNode(), ContentPage {
     override val dri: DRI = DRI.topLevel
+
+    override fun modified(name: String, children: List<PageNode>): ModulePageNode =
+        modified(name = name, content = this.content, children = children)
 
     override fun modified(
         name: String,
@@ -39,26 +81,6 @@ class ModulePageNode(
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
         else ModulePageNode(name, content, documentable, children, embeddedResources)
-
-    private fun PageNode.transformNode(operation: (PageNode) -> PageNode): PageNode =
-        operation(this).let { newNode ->
-            newNode.modified(children = newNode.children.map { it.transformNode(operation) })
-        }
-
-    fun transformPageNodeTree(operation: (PageNode) -> PageNode) =
-        this.transformNode(operation) as ModulePageNode
-
-    val parentMap: IdentityHashMap<PageNode, PageNode> by lazy {
-        IdentityHashMap<PageNode, PageNode>().apply {
-            fun addParent(parent: PageNode) {
-                parent.children.forEach {  child ->
-                    put(child, parent)
-                    addParent(child)
-                }
-            }
-            addParent(this@ModulePageNode)
-        }
-    }
 }
 
 class PackagePageNode(
@@ -69,7 +91,9 @@ class PackagePageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : PageNode {
+) : ContentPage {
+    override fun modified(name: String, children: List<PageNode>): PackagePageNode =
+        modified(name = name, content = this.content, children = children)
 
     override fun modified(
         name: String,
@@ -88,7 +112,9 @@ class ClassPageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
-) : PageNode {
+) : ContentPage {
+    override fun modified(name: String, children: List<PageNode>): ClassPageNode =
+        modified(name = name, content = this.content, children = children)
 
     override fun modified(
         name: String,
@@ -107,7 +133,9 @@ class MemberPageNode(
     override val documentable: Documentable?,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
-) : PageNode {
+) : ContentPage {
+    override fun modified(name: String, children: List<PageNode>): MemberPageNode =
+        modified(name = name, content = this.content, children = children)
 
     override fun modified(
         name: String,
@@ -129,10 +157,12 @@ fun PageNode.dfs(predicate: (PageNode) -> Boolean): PageNode? = if (predicate(th
     this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
 }
 
+fun PageNode.asSequence(): Sequence<PageNode> = sequence {
+    yield(this@asSequence)
+    children.asSequence().flatMap { it.asSequence() }.forEach { yield(it) }
+}
+
+inline fun <reified T: PageNode> PageNode.children() = children.filterIsInstance<T>()
+
 private infix fun <T> List<T>.shallowEq(other: List<T>) =
     this === other || (this.size == other.size && (this zip other).all { (a, b) -> a === b })
-
-// Navigation??
-
-// content modifier?
-//data class ContentLink(val link: String): ContentNode

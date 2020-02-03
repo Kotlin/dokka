@@ -89,17 +89,9 @@ open class DokkaTask : DefaultTask() {
 
     private var outputDiagnosticInfo: Boolean = false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
 
-    private fun tryResolveFatJar(configuration: Configuration?): Set<File> {
-        return try {
-            configuration!!.resolve()
-        } catch (e: Exception) {
-            project.parent?.let { tryResolveFatJar(configuration) } ?: throw e
-        }
-    }
-
     private fun loadFatJar() {
         if (ClassloaderContainer.fatJarClassLoader == null) {
-            val jars = tryResolveFatJar(dokkaRuntime).toList()
+            val jars = dokkaRuntime!!.resolve()
             ClassloaderContainer.fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
         }
     }

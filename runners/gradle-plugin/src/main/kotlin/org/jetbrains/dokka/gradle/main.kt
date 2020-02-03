@@ -25,7 +25,7 @@ open class DokkaPlugin : Plugin<Project> {
 
     private fun addConfiguration(project: Project) =
         project.configurations.create("dokkaRuntime").apply {
-            defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
+            defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}")) }
         }
 
     private fun addTasks(

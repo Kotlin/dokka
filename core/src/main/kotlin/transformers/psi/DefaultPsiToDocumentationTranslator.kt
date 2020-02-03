@@ -3,7 +3,10 @@ package org.jetbrains.dokka.transformers.psi
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.JavadocParser
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.JavaClassReference
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
