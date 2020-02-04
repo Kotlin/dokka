@@ -18,11 +18,10 @@ class FileWriter(val context: DokkaContext, override val extension: String): Out
         createdFiles.add(path)
 
         try {
-//          println("Writing $root/$path$ext")
             val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
             dir.mkdirsOrFail()
             Files.write(Paths.get(root, "$path$ext"), text.lines())
-        } catch (e : Throwable) {
+        } catch (e: Throwable) {
             context.logger.error("Failed to write $this. ${e.message}")
             e.printStackTrace()
         }
