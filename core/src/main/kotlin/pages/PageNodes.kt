@@ -17,7 +17,7 @@ interface PageNode {
 
 interface ContentPage: PageNode {
     val content: ContentNode
-    val dri: DRI
+    val dri: Set<DRI>
     val documentable: Documentable?
     val embeddedResources: List<String>
 
@@ -68,7 +68,7 @@ class ModulePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : RootPageNode(), ContentPage {
-    override val dri: DRI = DRI.topLevel
+    override val dri: Set<DRI> = setOf(DRI.topLevel)
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
         modified(name = name, content = this.content, children = children)
@@ -86,7 +86,7 @@ class ModulePageNode(
 class PackagePageNode(
     override val name: String,
     override val content: ContentNode,
-    override val dri: DRI,
+    override val dri: Set<DRI>,
 
     override val documentable: Documentable?,
     override val children: List<PageNode>,
@@ -108,7 +108,7 @@ class PackagePageNode(
 class ClassPageNode(
     override val name: String,
     override val content: ContentNode,
-    override val dri: DRI,
+    override val dri: Set<DRI>,
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
@@ -129,7 +129,7 @@ class ClassPageNode(
 class MemberPageNode(
     override val name: String,
     override val content: ContentNode,
-    override val dri: DRI,
+    override val dri: Set<DRI>,
     override val documentable: Documentable?,
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()

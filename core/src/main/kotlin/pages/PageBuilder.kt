@@ -12,12 +12,12 @@ class DefaultPageBuilder(
         ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
     override fun pageForPackage(p: Package) =
-        PackagePageNode(p.name, contentForPackage(p), p.dri, p,
+        PackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
             p.classes.map { pageForClass(it) } +
                     p.functions.map { pageForMember(it) })
 
     override fun pageForClass(c: Class): ClassPageNode =
-        ClassPageNode(c.name, contentForClass(c), c.dri, c,
+        ClassPageNode(c.name, contentForClass(c), setOf(c.dri), c,
             c.constructors.map { pageForMember(it) } +
                     c.classes.map { pageForClass(it) } +
                     c.functions.map { pageForMember(it) })
@@ -25,7 +25,7 @@ class DefaultPageBuilder(
     override fun pageForMember(m: CallableNode): MemberPageNode =
         when (m) {
             is Function ->
-                MemberPageNode(m.name, contentForFunction(m), m.dri, m)
+                MemberPageNode(m.name, contentForFunction(m), setOf(m.dri), m)
             else -> throw IllegalStateException("$m should not be present here")
         }
 

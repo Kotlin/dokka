@@ -2,7 +2,7 @@ package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
 
-data class DCI(val dri: DRI, val kind: Kind) {
+data class DCI(val dri: Set<DRI>, val kind: Kind) {
     override fun toString() = "$dri[$kind]"
 }
 

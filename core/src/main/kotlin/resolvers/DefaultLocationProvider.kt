@@ -17,8 +17,9 @@ open class DefaultLocationProvider(
     protected val extension = dokkaContext.single(CoreExtensions.fileExtension)
 
     protected val pagesIndex: Map<DRI, ContentPage> = pageGraphRoot.asSequence().filterIsInstance<ContentPage>()
-        .groupingBy { it.dri }
-        .aggregate { dri, _, page, first ->
+        .map { it.dri.map { dri -> dri to it } }.flatten()
+        .groupingBy { it.first }
+        .aggregate { dri, _, (_, page), first ->
             if (first) page else throw AssertionError("Multiple pages associated with dri: $dri")
         }
 

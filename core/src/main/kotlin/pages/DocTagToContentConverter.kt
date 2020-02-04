@@ -53,7 +53,7 @@ class DocTagToContentConverter(
                 ContentDRILink(
                     buildChildren(docTag),
                     docTag.dri,
-                    DCI(docTag.dri, ContentKind.Symbol),
+                    DCI(setOf(docTag.dri), ContentKind.Symbol),
                     platforms,
                     styles,
                     extras
