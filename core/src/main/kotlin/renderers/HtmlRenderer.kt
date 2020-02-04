@@ -174,9 +174,9 @@ open class HtmlRenderer(
             head {
                 title(page.name)
                 with(resources) {
-                    filter { it.substringAfterLast('.') == "css" }
+                    filter { it.substringBefore('?').substringAfterLast('.') == "css" }
                         .forEach { link(rel = LinkRel.stylesheet, href = page.root(it)) }
-                    filter { it.substringAfterLast('.') == "js" }
+                    filter { it.substringBefore('?').substringAfterLast('.') == "js" }
                         .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
                 }
             }
