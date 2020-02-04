@@ -173,7 +173,7 @@ open class HtmlRenderer(
                     filter { it.substringBefore('?').substringAfterLast('.') == "css" }
                         .forEach { link(rel = LinkRel.stylesheet, href = page.root(it)) }
                     filter { it.substringBefore('?').substringAfterLast('.') == "js" }
-                        .forEach { script(type = ScriptType.textJavaScript, src = it) { async = true } }
+                        .forEach { script(type = ScriptType.textJavaScript, src = page.root(it)) { async = true } }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
             }
