@@ -13,7 +13,7 @@ object DefaultDocumentationToPageTranslator : DocumentationToPageTranslator {
     override fun invoke(module: Module, context: DokkaContext): ModulePageNode =
         DefaultPageBuilder { node, kind, operation ->
             DefaultPageContentBuilder.group(
-                node.dri,
+                setOf(node.dri),
                 node.platformData,
                 kind,
                 context.single(CoreExtensions.commentsToContentConverter),

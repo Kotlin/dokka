@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.links.DRI
 
 class DefaultPageContentBuilder(
-    private val dri: DRI,
+    private val dri: Set<DRI>,
     private val platformData: Set<PlatformData>,
     private val kind: Kind,
     private val commentsConverter: CommentsToContentConverter,
@@ -39,7 +39,7 @@ class DefaultPageContentBuilder(
     }
 
     private fun signature(f: Function, block: PageContentBuilderFunction) {
-        contents += group(f.dri, f.platformData, ContentKind.Symbol, block)
+        contents += group(setOf(f.dri), f.platformData, ContentKind.Symbol, block)
     }
 
     override fun signature(f: Function) = signature(f) {
@@ -85,7 +85,7 @@ class DefaultPageContentBuilder(
 
         contents += ContentTable(
             emptyList(),
-            elements.map { group(it.dri, it.platformData, kind) { operation(it) } },
+            elements.map { group(setOf(it.dri), it.platformData, kind) { operation(it) } },
             DCI(dri, kind),
             platformData, styles, extras
         )
@@ -143,7 +143,7 @@ class DefaultPageContentBuilder(
         group(dri, platformData, kind, block)
 
     override fun group(
-        dri: DRI,
+        dri: Set<DRI>,
         platformData: Set<PlatformData>,
         kind: Kind,
         block: PageContentBuilderFunction
@@ -151,7 +151,7 @@ class DefaultPageContentBuilder(
 
     companion object {
         fun group(
-            dri: DRI,
+            dri: Set<DRI>,
             platformData: Set<PlatformData>,
             kind: Kind,
             commentsConverter: CommentsToContentConverter,
@@ -186,9 +186,10 @@ annotation class ContentMarker
 @ContentMarker
 interface PageContentBuilder {
     fun group(
-        dri: DRI,
+        dri: Set<DRI>,
         platformData: Set<PlatformData>,
-        kind: Kind, block: PageContentBuilderFunction): ContentGroup
+        kind: Kind, block: PageContentBuilderFunction
+    ): ContentGroup
     fun text(text: String, kind: Kind = ContentKind.Symbol)
     fun signature(f: Function)
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
