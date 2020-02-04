@@ -53,7 +53,7 @@ class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPag
         }).map { it.asJava() }
 
         return PackagePageNode(
-            p.name, contentForPackage(p, classes), p.dri, p,
+            p.name, contentForPackage(p, classes), setOf(p.dri), p,
             classes.map(::pageForClass)
         )
     }

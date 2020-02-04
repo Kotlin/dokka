@@ -9,7 +9,7 @@ include("runners:maven-plugin")
 include("plugins:xml")
 include("plugins:mathjax")
 include("plugins:kotlin-as-java")
-include("integration-tests:gradle-integration-tests")
+//include("integration-tests:gradle-integration-tests")
 
 pluginManagement {
     val kotlin_version: String by settings

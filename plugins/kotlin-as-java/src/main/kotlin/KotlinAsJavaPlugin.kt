@@ -27,7 +27,7 @@ object KotlinAsJavaDocumentationToPageTranslator : DocumentationToPageTranslator
     override fun invoke(module: Module, context: DokkaContext): ModulePageNode =
         KotlinAsJavaPageBuilder { node, kind, operation ->
             KotlinAsJavaPageContentBuilder.group(
-                node.dri,
+                setOf(node.dri),
                 node.platformData,
                 kind,
                 context.single(CoreExtensions.commentsToContentConverter),
