@@ -311,6 +311,7 @@ abstract class StructuredOutputBuilder(val to: StringBuilder,
 
         val signatureAsCode = ContentCode()
         signatureAsCode.append(this)
+        appendLine()
         appendContent(signatureAsCode)
     }
 
