@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.plugability
 
+import org.jetbrains.dokka.DokkaConfiguration
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -36,10 +37,10 @@ abstract class DokkaPlugin {
         }.also { thisRef.extensionDelegates += property }
     }
 
-    internal fun internalInstall(ctx: DokkaContextConfiguration) {
+    internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaConfiguration) {
         extensionDelegates.asSequence()
             .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // should be always true
             .map { it.get(this) }
-            .forEach { ctx.addExtensionDependencies(it) }
+            .forEach { if(it.condition.invoke(configuration)) ctx.addExtensionDependencies(it) }
     }
 }

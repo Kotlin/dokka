@@ -105,7 +105,7 @@ private class DokkaContextConfigurationImpl(
             AskDefault.Never -> actions(point).orEmpty()
             AskDefault.Always -> actions(point).orEmpty() + DefaultExtensions.get(point, this)
             AskDefault.WhenEmpty ->
-                actions(point)?.takeIf { it.isNotEmpty() } ?: DefaultExtensions?.get(point, this)
+                actions(point)?.takeIf { it.isNotEmpty() } ?: DefaultExtensions.get(point, this)
         } as List<T>
 
     private fun <E : ExtensionPoint<*>> actions(point: E) = extensions[point]?.map { it.action.get(this) }
@@ -119,7 +119,7 @@ private class DokkaContextConfigurationImpl(
     fun install(plugin: DokkaPlugin) {
         plugins[plugin::class] = plugin
         plugin.context = this
-        plugin.internalInstall(this)
+        plugin.internalInstall(this, this.configuration)
     }
 
     override fun addExtensionDependencies(extension: Extension<*>) {
