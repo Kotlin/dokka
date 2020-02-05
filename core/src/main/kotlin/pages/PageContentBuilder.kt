@@ -6,8 +6,8 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
-import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 import org.jetbrains.kotlin.builtins.isFunctionType
 
 class DefaultPageContentBuilder(
@@ -177,7 +177,6 @@ private fun PageContentBuilder.type(t: TypeWrapper) {
         logger.error("type $t cannot be resolved")
         text("???")
     }
-
     list(t.arguments, prefix = "<", suffix = ">") {
         type(it)
     }

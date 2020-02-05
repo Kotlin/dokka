@@ -107,7 +107,7 @@ class PackagePageNode(
         else PackagePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-class ClassPageNode(
+class ClasslikePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: Set<DRI>,
@@ -115,7 +115,7 @@ class ClassPageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
-    override fun modified(name: String, children: List<PageNode>): ClassPageNode =
+    override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
 
     override fun modified(
@@ -124,9 +124,9 @@ class ClassPageNode(
         dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
-    ): ClassPageNode =
+    ): ClasslikePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ClassPageNode(name, content, dri, documentable, children, embeddedResources)
+        else ClasslikePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 class MemberPageNode(

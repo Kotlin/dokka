@@ -5,6 +5,8 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.Visibility
+import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
+import org.jetbrains.dokka.transformers.descriptors.KotlinTypeWrapper
 
 class Module(override val name: String, val packages: List<Package>) : Documentable() {
     override val dri: DRI = DRI.topLevel
@@ -16,7 +18,7 @@ class Package(
     override val dri: DRI,
     override val functions: List<Function>,
     override val properties: List<Property>,
-    override val classes: List<Class>,
+    override val classlikes: List<Classlike>,
     override val extra: MutableSet<Extra> = mutableSetOf()
 ) : ScopeNode() {
     override val name = dri.packageName.orEmpty()
@@ -25,17 +27,77 @@ class Package(
 class Class(
     override val dri: DRI,
     override val name: String,
-    val kind: ClassKind,
+    override val kind: ClassKind,
     val constructors: List<Function>,
     override val functions: List<Function>,
     override val properties: List<Property>,
-    override val classes: List<Class>,
+    override val classlikes: List<Classlike>,
     override val expected: ClassPlatformInfo?,
     override val actual: List<ClassPlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf(),
     override val visibility: Map<PlatformData, Visibility>
-) : ScopeNode(), WithVisibility {
-    val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
+) : Classlike(
+    dri = dri,
+    name = name,
+    actual = actual,
+    expected = expected,
+    extra = extra,
+    kind = KotlinClassKindTypes.ENUM_ENTRY
+), WithVisibility
+
+class Enum(
+    override val dri: DRI,
+    override val name: String,
+    val entries: List<EnumEntry>,
+    val constructors: List<Function>,
+    override val functions: List<Function> = emptyList(),
+    override val properties: List<Property> = emptyList(),
+    override val classlikes: List<Classlike> = emptyList(),
+    override val expected: ClassPlatformInfo? = null,
+    override val actual: List<ClassPlatformInfo>,
+    override val extra: MutableSet<Extra> = mutableSetOf()
+) : Classlike(dri = dri, name = name, kind = KotlinClassKindTypes.ENUM_CLASS, actual = actual) {
+    constructor(c: Classlike, entries: List<EnumEntry>, ctors: List<Function>) : this(
+        dri = c.dri,
+        name = c.name,
+        entries = entries,
+        constructors = ctors,
+        functions = c.functions,
+        properties = c.properties,
+        classlikes = c.classlikes,
+        expected = c.expected,
+        actual = c.actual,
+        extra = c.extra
+    )
+
+    override val children: List<Documentable>
+        get() = entries
+}
+
+class EnumEntry(
+    override val dri: DRI,
+    override val name: String,
+    override val expected: ClassPlatformInfo? = null,
+    override val actual: List<ClassPlatformInfo>,
+    override val extra: MutableSet<Extra> = mutableSetOf()
+) : Classlike(
+    dri = dri,
+    name = name,
+    actual = actual,
+    expected = expected,
+    extra = extra,
+    kind = KotlinClassKindTypes.ENUM_ENTRY
+) {
+    constructor(c: Classlike) : this(
+        dri = c.dri,
+        name = c.name,
+        actual = c.actual,
+        expected = c.expected,
+        extra = c.extra
+    )
+
+    override val children: List<Parameter>
+        get() = emptyList()
 }
 
 class Function(
@@ -141,14 +203,28 @@ abstract class Documentable {
     open val extra: MutableSet<Extra> = mutableSetOf()
 }
 
+abstract class Classlike(
+    override val dri: DRI,
+    override val name: String,
+    open val kind: ClassKind,
+    override val functions: List<Function> = emptyList(),
+    override val properties: List<Property> = emptyList(),
+    override val classlikes: List<Classlike> = emptyList(),
+    override val expected: ClassPlatformInfo? = null,
+    override val actual: List<ClassPlatformInfo>,
+    override val extra: MutableSet<Extra> = mutableSetOf()
+) : ScopeNode() {
+    val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
+}
+
 abstract class ScopeNode : Documentable() {
     abstract val functions: List<Function>
     abstract val properties: List<Property>
-    abstract val classes: List<Class>
+    abstract val classlikes: List<Classlike>
 
     override val children: List<Documentable>
         get() {
-            val list = (classes as List<Documentable> + functions)
+            val list = (classlikes as List<Documentable> + functions)
             return list + properties
         }
 }
