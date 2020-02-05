@@ -141,6 +141,13 @@ abstract class AbstractCoreTest {
     protected class Passes : ArrayList<PassConfigurationImpl>() {
         fun pass(block: DokkaPassConfigurationBuilder.() -> Unit) =
             add(DokkaPassConfigurationBuilder().apply(block).build())
+
+        fun passOnPlatforms(vararg analysisPlatforms: String, block: DokkaPassConfigurationBuilder.() -> Unit) =
+            analysisPlatforms.forEach {
+                add(DokkaPassConfigurationBuilder().apply(block).apply {
+                    analysisPlatform = it
+                }.build())
+            }
     }
 
     @DokkaConfigurationDsl

@@ -29,8 +29,9 @@ class BasicMultiplatformTest : AbstractCoreTest() {
     fun inlineTestExample() {
         val configuration = dokkaConfiguration {
             passes {
-                pass {
+                passOnPlatforms("jvm", "js") {
                     sourceRoots = listOf("src/main/kotlin/multiplatform/Test.kt")
+                    targets = listOf("jvm", "js")
                 }
             }
         }
