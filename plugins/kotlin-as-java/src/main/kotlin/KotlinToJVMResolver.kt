@@ -3,6 +3,7 @@ package org.jetbrains.dokka.kotlinAsJava.conversions
 import org.jetbrains.dokka.kotlinAsJava.DescriptorCache
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.transformers.psi.JavaTypeWrapper
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
@@ -34,11 +35,32 @@ fun TypeWrapper?.asJava(top: Boolean = true): TypeWrapper? = this?.constructorFq
             ?.let { getAsType(it, fqName, top) } ?: this
     }
 
+fun Classlike.asJava(): Classlike = when {
+    this is Class -> this.asJava()
+    this is Enum -> this.asJava()
+    this is EnumEntry -> this
+    else -> throw IllegalArgumentException("$this shouldn't be here")
+}
+
 fun Class.asJava(): Class = Class(
     dri, name, kind,
     constructors.map { it.asJava() },
     (functions + properties.flatMap { it.accessors }).map { it.asJava() },
-    properties, classes.map { it.asJava() }, expected, actual, extra, visibility
+    properties, classlikes.mapNotNull { (it as? Class)?.asJava() }, expected, actual, extra, visibility
+)
+
+fun Enum.asJava(): Enum = Enum(
+    dri = dri,
+    name = name,
+    entries = entries.mapNotNull { it.asJava() as? EnumEntry },
+    constructors = constructors.map(Function::asJava),
+    functions = (functions + properties.flatMap { it.accessors }).map(Function::asJava),
+    properties = properties,
+    classlikes = classlikes.map(Classlike::asJava),
+    expected = expected,
+    actual = actual,
+    extra = extra,
+    visibility = visibility
 )
 
 fun tcAsJava(tc: TypeConstructor): TypeReference =

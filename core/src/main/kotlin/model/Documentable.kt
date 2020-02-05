@@ -55,7 +55,8 @@ class Enum(
     override val classlikes: List<Classlike> = emptyList(),
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
 ) : Classlike(dri = dri, name = name, kind = KotlinClassKindTypes.ENUM_CLASS, actual = actual) {
     constructor(c: Classlike, entries: List<EnumEntry>, ctors: List<Function>) : this(
         dri = c.dri,
@@ -67,7 +68,8 @@ class Enum(
         classlikes = c.classlikes,
         expected = c.expected,
         actual = c.actual,
-        extra = c.extra
+        extra = c.extra,
+        visibility = c.visibility
     )
 
     override val children: List<Documentable>
@@ -79,7 +81,8 @@ class EnumEntry(
     override val name: String,
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
-    override val extra: MutableSet<Extra> = mutableSetOf()
+    override val extra: MutableSet<Extra> = mutableSetOf(),
+    override val visibility: Map<PlatformData, Visibility>
 ) : Classlike(
     dri = dri,
     name = name,
@@ -93,7 +96,8 @@ class EnumEntry(
         name = c.name,
         actual = c.actual,
         expected = c.expected,
-        extra = c.extra
+        extra = c.extra,
+        visibility = c.visibility
     )
 
     override val children: List<Parameter>
@@ -213,7 +217,7 @@ abstract class Classlike(
     override val expected: ClassPlatformInfo? = null,
     override val actual: List<ClassPlatformInfo>,
     override val extra: MutableSet<Extra> = mutableSetOf()
-) : ScopeNode() {
+) : ScopeNode(), WithVisibility {
     val inherited by lazy { platformInfo.mapNotNull { (it as? ClassPlatformInfo)?.inherited }.flatten() }
 }
 

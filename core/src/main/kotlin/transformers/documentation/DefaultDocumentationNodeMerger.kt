@@ -53,41 +53,39 @@ fun Function.mergeWith(other: Function): Function = Function(
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
-
-    visibility = visibility
+    visibility = visibility + other.visibility
 )
 
-fun Property.mergeWith(other: Property) = Property(
+fun Property.mergeWith(other: Property): Property = Property(
     dri,
     name,
     if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
-
     accessors = (this.accessors + other.accessors).distinct(),
-    visibility = visibility
+    visibility = visibility + other.visibility
 )
 
 fun Classlike.mergeWith(other: Classlike): Classlike = when {
-    this is Class && other is Class -> mergeWith(other)
-    this is Enum && other is Enum -> mergeWith(other)
+    this is Class && other is Class -> this.mergeWith(other)
+    this is Enum && other is Enum -> this.mergeWith(other)
     else -> throw IllegalStateException("${this::class.qualifiedName} ${this.name} cannot be merged with ${other::class.qualifiedName} ${other.name}")
 }
 
-fun Class.mergeWith(other: Class) = Class(
+fun Class.mergeWith(other: Class): Class = Class(
     dri,
     name,
     kind,
     merge(constructors + other.constructors, Function::mergeWith),
     merge(functions + other.functions, Function::mergeWith),
     merge(properties + other.properties, Property::mergeWith),
-    merge(classlikes + other.classelikes, Class::mergeWith),
+    merge(classlikes + other.classlikes, Classlike::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).mergeClassPlatformInfo(),
-    visibility = visibility
+    visibility = visibility + other.visibility
 )
 
-fun Enum.mergeWith(other: Enum) = Enum(
+fun Enum.mergeWith(other: Enum): Enum = Enum(
     dri = dri,
     name = name,
     functions = merge(functions + other.functions, Function::mergeWith),
@@ -96,10 +94,11 @@ fun Enum.mergeWith(other: Enum) = Enum(
     expected = expected?.mergeWith(other.expected),
     actual = (actual + other.actual).mergeClassPlatformInfo(),
     entries = (this.entries + other.entries.distinctBy { it.dri }.toList()),
-    constructors = merge(constructors + other.constructors, Function::mergeWith)
+    constructors = merge(constructors + other.constructors, Function::mergeWith),
+    visibility = visibility + other.visibility
 )
 
-fun Parameter.mergeWith(other: Parameter) = Parameter(
+fun Parameter.mergeWith(other: Parameter): Parameter = Parameter(
     dri,
     name,
     type,

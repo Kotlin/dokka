@@ -24,10 +24,12 @@ open class DefaultPageBuilder(
             else -> emptyList()
         }
 
-        return ClasslikePageNode(c.name, contentForClasslike(c), setOf(c.dri), c,
-            constructors.map { pageForMember(it) } +
-                    c.classlikes.map { pageForClasslike(it) } +
-                    c.functions.map { pageForMember(it) })
+        return ClasslikePageNode(
+            c.name, contentForClasslike(c), setOf(c.dri), c,
+            constructors.map(this::pageForMember) +
+                    c.classlikes.map(this::pageForClasslike) +
+                    c.functions.map(this::pageForMember)
+        )
     }
 
     override fun pageForMember(m: CallableNode): MemberPageNode =
@@ -68,7 +70,7 @@ open class DefaultPageBuilder(
         else -> throw IllegalStateException("$c should not be present here")
     }
 
-    fun contentForClass(c: Class): ContentGroup = group(c) {
+    open fun contentForClass(c: Class): ContentGroup = group(c) {
         header(1) { text("class ${c.name}") }
         c.inherited.takeIf { it.isNotEmpty() }?.let {
             header(2) { text("SuperInterfaces") }
@@ -93,7 +95,7 @@ open class DefaultPageBuilder(
 
     }
 
-    fun contentForEnum(c: Enum): ContentGroup = group(c) {
+    open fun contentForEnum(c: Enum): ContentGroup = group(c) {
         header(1) { text("enum ${c.name}") }
 
         block("Entries", 2, ContentKind.Properties, c.entries, c.platformData) { entry ->
@@ -122,7 +124,7 @@ open class DefaultPageBuilder(
         }
     }
 
-    private fun PageContentBuilder.contentForComments(d: Documentable) =
+    protected fun PageContentBuilder.contentForComments(d: Documentable) =
         d.commentsData.forEach {
             it.children.forEach {
                 header(3) { text(it.toHeaderString()) }

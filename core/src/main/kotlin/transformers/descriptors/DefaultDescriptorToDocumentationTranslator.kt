@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.resolve.source.PsiSourceFile
 import org.jetbrains.kotlin.types.KotlinType
 
 object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTranslator {
@@ -82,7 +81,8 @@ open class DokkaDescriptorVisitor(
             classlikes = scope.classlikes(dri),
             expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
             actual = listOfNotNull(descriptorData),
-            extra = mutableSetOf() // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
+            extra = mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
+            visibility = mapOf(platformData to descriptor.visibility)
         )
     }
 

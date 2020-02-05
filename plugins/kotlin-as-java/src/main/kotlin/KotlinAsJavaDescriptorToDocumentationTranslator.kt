@@ -37,7 +37,7 @@ class KotlinAsJavaDokkaDescriptorVisitor(
         return super.visitPackageFragmentDescriptor(descriptor, parent)
     }
 
-    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Class {
+    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRI): Classlike {
         val dri = parent.withClass(descriptor.name.asString())
         DescriptorCache.add(dri, descriptor)
         return super.visitClassDescriptor(descriptor, parent)
