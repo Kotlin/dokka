@@ -3,6 +3,7 @@ package org.jetbrains.dokka.plugability
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.DocTagToContentConverter
 import org.jetbrains.dokka.renderers.FileWriter
+import org.jetbrains.dokka.renderers.OutputWriter
 import org.jetbrains.dokka.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
@@ -20,7 +21,7 @@ internal object DefaultExtensions {
     }
     private val converter: LazyEvaluated<DocTagToContentConverter> = LazyEvaluated.fromRecipe { DocTagToContentConverter(it) }
     private val providerFactory: LazyEvaluated<DefaultLocationProviderFactory> = LazyEvaluated.fromRecipe { DefaultLocationProviderFactory(it) }
-
+    private val outputWriter: LazyEvaluated<OutputWriter> = LazyEvaluated.fromRecipe { FileWriter(it) }
 
     @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
     internal fun <T : Any, E : ExtensionPoint<T>> get(point: E, fullContext: DokkaContext): List<T> =
@@ -32,7 +33,7 @@ internal object DefaultExtensions {
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
             CoreExtensions.renderer -> renderer.get(fullContext)
             CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)
-            CoreExtensions.outputWriter ->  FileWriter(fullContext, "")
+            CoreExtensions.outputWriter ->  outputWriter.get(fullContext)
             CoreExtensions.fileExtension -> ".html"
             else -> null
         }.let { listOfNotNull( it ) as List<T> }

@@ -12,8 +12,6 @@ abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
 ) : Renderer {
 
-    private val extension = context.single(CoreExtensions.fileExtension)
-
     protected lateinit var locationProvider: LocationProvider
         private set
 
@@ -77,7 +75,7 @@ abstract class DefaultRenderer<T>(
     open fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, extension)
+            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) })
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
