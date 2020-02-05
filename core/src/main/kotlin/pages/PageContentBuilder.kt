@@ -45,7 +45,8 @@ class DefaultPageContentBuilder(
     }
 
     override fun signature(f: Function) = signature(f) {
-        text("fun ")
+        val visibility = f.visibility.values.first()
+        text("${visibility.externalDisplayName} fun ")
         if (f.receiver is Parameter) {
             type(f.receiver.type)
             text(".")
@@ -55,7 +56,6 @@ class DefaultPageContentBuilder(
         list(f.parameters) {
             link(it.name!!, it.dri)
             text(": ")
-//            if (it.type.constructorNamePathSegments.last().matches("Function[0-9]+".toRegex())) {
             if ((it.type as? KotlinTypeWrapper)?.kotlinType?.isFunctionType == true) funParam(it)
             else type(it.type)
         }
@@ -213,6 +213,7 @@ interface PageContentBuilder {
         platformData: Set<PlatformData>,
         kind: Kind, block: PageContentBuilderFunction
     ): ContentGroup
+
     fun text(text: String, kind: Kind = ContentKind.Symbol)
     fun signature(f: Function)
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
