@@ -1,11 +1,8 @@
 package kotlinAsJavaPlugin
 
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.ContentTable
+import org.jetbrains.dokka.pages.PageNode
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
-import kotlin.test.fail
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
@@ -23,8 +20,6 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
             |package kotlinAsJavaPlugin
             |
-            |object TestObj {}
-            |
             |fun testFL(l: List<String>) = l
             |fun testF() {}
             |fun testF2(i: Int) = i
@@ -36,63 +31,33 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content =
-                    root.children.firstOrNull()?.children?.mapNotNull { it as? ContentPage }?.firstOrNull()?.content
-                            ?: run {
-                                fail("Either children or content is null")
-                            }
+                root.assertChildrenCount(1)
 
-                val children =
-                    if (content is ContentGroup)
-                        content.children.filterIsInstance<ContentTable>().filter { it.children.isNotEmpty() }
-                    else emptyList()
+                val pkg = root.children.first()
+                pkg.assertChildrenCount(1)
 
-                children.assertCount(2)
+                val clazz = pkg.children.first()
+                "testFL, testF, testF2, testF3, testF4, getTestV".split(",").map { it.trim() }
+                    .assertSameElementsIgnoreOrder(clazz.children.map { it.name })
             }
         }
     }
 
-    @Test
-    fun topLevelWithClassTest() {
-        val configuration = dokkaConfiguration {
-            passes {
-                pass {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
-        testInline(
-            """
-            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
-            |package kotlinAsJavaPlugin
-            |
-            |class Test {
-            |   fun testFC() {}
-            |   val testVC = 1
-            |}
-            |
-            |fun testF(i: Int) = i
-            |val testV = 1
-        """,
-            configuration,
-            cleanupOutput = true
-        ) {
-            pagesGenerationStage = { root ->
-                val contentList =
-                    root.children.flatMap { it.children.mapNotNull { it as? ContentPage } }.map { it.content }
+    private fun PageNode.assertChildrenCount(n: Int) = children.assertCount(n, "$name:")
 
-                val children = contentList.flatMap { content ->
-                    if (content is ContentGroup)
-                        content.children.filterIsInstance<ContentTable>().filter { it.children.isNotEmpty() }
-                    else emptyList()
-                }.filterNot { it.toString().contains("<init>") }
+    private fun <T> Collection<T>.assertCount(n: Int, msgPrefix: String = "") =
+        assert(count() == n) { "$msgPrefix Expected $n, got ${count()}".trim() }
 
-                children.assertCount(4)
-            }
+    private fun <T> Collection<T>.assertSameElementsIgnoreOrder(
+        col: Collection<T>,
+        block: (T) -> String = { it.toString() }
+    ) {
+        assert(this.size == col.size) { "Collections must be equal in size, e: ${count()}, o: ${col.count()}" }
+        assert(this.all { col.contains(it) }) {
+            "Collections are not equal\n" +
+                    "Expected: ${this.map(block)},\n" +
+                    "Obtained: ${col.map(block)}"
         }
     }
-
-    private fun <T> Collection<T>.assertCount(n: Int) =
-        assert(count() == n) { "Expected $n, got ${count()}" }
 
 }
