@@ -11,7 +11,8 @@ object DocNodesFromIElementFactory {
     fun getInstance(type: IElementType, children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
         when(type) {
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
-            MarkdownElementTypes.FULL_REFERENCE_LINK    -> if(dri == null) A(children, params) else DocumentationLink(children, params, dri)
+            MarkdownElementTypes.FULL_REFERENCE_LINK,
+            MarkdownElementTypes.INLINE_LINK            -> if(dri == null) A(children, params) else DocumentationLink(children, params, dri)
             MarkdownElementTypes.STRONG                 -> B(children, params)
             MarkdownElementTypes.BLOCK_QUOTE            -> BlockQuote(children, params)
             MarkdownElementTypes.CODE_SPAN,
@@ -30,7 +31,7 @@ object DocNodesFromIElementFactory {
             MarkdownElementTypes.UNORDERED_LIST         -> Ul(children, params)
             MarkdownElementTypes.PARAGRAPH              -> P(children, params)
             MarkdownTokenTypes.TEXT                     -> Text(children, params, body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"))
-            MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule()
+            MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule
             else                                        -> CustomDocTag(children, params)
         }
 }

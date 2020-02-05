@@ -2,12 +2,15 @@ package testApi.testRunner
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.Module
+import org.jetbrains.dokka.model.Package
+import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
+import org.junit.Assert
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.charset.Charset
@@ -199,6 +202,48 @@ abstract class AbstractCoreTest {
         )
     }
 }
+
+abstract class AbstractKDocTest : AbstractCoreTest() {
+
+    private val configuration = dokkaConfiguration {
+        passes {
+            pass {
+                sourceRoots = listOf("src/main/kotlin/example/Test.kt")
+            }
+        }
+    }
+
+    private fun interpolateKdoc(kdoc: String) = """
+            |/src/main/kotlin/example/Test.kt
+            |package example
+            | /**
+            ${kdoc.split("\n").joinToString("") { "| * $it\n" } }
+            | */
+            |class Test
+        """.trimMargin()
+
+    private fun actualDocumentationNode(modulePageNode: ModulePageNode) =
+        (modulePageNode.documentable?.children?.first() as Package)
+            .classlikes.first()
+            .platformInfo.first()
+            .documentationNode
+
+
+    protected fun executeTest(kdoc: String, expectedDocumentationNode: DocumentationNode) {
+        testInline(
+            interpolateKdoc(kdoc),
+            configuration
+        ) {
+            pagesGenerationStage = {
+                Assert.assertEquals(
+                    expectedDocumentationNode,
+                    actualDocumentationNode(it)
+                )
+            }
+        }
+    }
+}
+
 
 data class TestMethods(
     val analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit,

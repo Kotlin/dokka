@@ -93,5 +93,5 @@ class DocumentationLink(children: List<DocTag> = emptyList(), params: Map<String
     override fun equals(other: Any?): Boolean = super.equals(other) && this.dri == (other as DocumentationLink).dri
     override fun hashCode(): Int = super.hashCode() + dri.hashCode()
 }
-class HorizontalRule                                                                                   : DocTag(emptyList(), emptyMap())
+object HorizontalRule                                                                                  : DocTag(emptyList(), emptyMap())
 class CustomDocTag(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())     : DocTag(children, params)
