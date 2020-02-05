@@ -6,10 +6,11 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.*
 
-class FileWriter(val context: DokkaContext, override val extension: String): OutputWriter {
+class FileWriter(override val context: DokkaContext): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val jarUriPrefix = "jar:file:"
     private val root = context.configuration.outputDir
+
     override fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {
             context.logger.error("An attempt to write ${root}/$path several times!")
