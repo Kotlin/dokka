@@ -24,6 +24,7 @@ interface ContentPage: PageNode {
     fun modified(
         name: String = this.name,
         content: ContentNode = this.content,
+        dri: Set<DRI> = this.dri,
         embeddedResources: List<String> = this.embeddedResources,
         children: List<PageNode> = this.children
     ): ContentPage
@@ -63,7 +64,6 @@ abstract class RootPageNode: PageNode {
 class ModulePageNode(
     override val name: String,
     override val content: ContentNode,
-
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
@@ -71,11 +71,12 @@ class ModulePageNode(
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
-        modified(name = name, content = this.content, children = children)
+        modified(name = name, content = this.content, dri = dri, children = children)
 
     override fun modified(
         name: String,
         content: ContentNode,
+        dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
     ): ModulePageNode =
@@ -98,6 +99,7 @@ class PackagePageNode(
     override fun modified(
         name: String,
         content: ContentNode,
+        dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
     ): PackagePageNode =
@@ -119,6 +121,7 @@ class ClassPageNode(
     override fun modified(
         name: String,
         content: ContentNode,
+        dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
     ): ClassPageNode =
@@ -135,11 +138,12 @@ class MemberPageNode(
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
-        modified(name = name, content = this.content, children = children)
+        modified(name = name, content = this.content, children = children) as MemberPageNode
 
     override fun modified(
         name: String,
         content: ContentNode,
+        dri: Set<DRI>,
         embeddedResources: List<String>,
         children: List<PageNode>
     ): MemberPageNode =
