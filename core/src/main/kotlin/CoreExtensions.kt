@@ -9,6 +9,7 @@ import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTra
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeMerger
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeTransformer
 import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
+import org.jetbrains.dokka.transformers.pages.PageMergerStrategy
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
 import kotlin.reflect.KProperty
@@ -29,6 +30,8 @@ object CoreExtensions {
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()
     val renderer by coreExtension<Renderer>()
+    val fileExtension by coreExtension<String>()
+    val pageMergerStrategy by coreExtension<PageMergerStrategy>()
 
     private fun <T: Any> coreExtension() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
