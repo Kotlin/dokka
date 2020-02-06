@@ -8,6 +8,7 @@ import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMerger
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
+import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
 import org.jetbrains.dokka.transformers.psi.DefaultPsiToDocumentationTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageNodeMerger
 
@@ -31,10 +32,11 @@ internal object DefaultExtensions {
             CoreExtensions.documentationMerger -> DefaultDocumentationNodeMerger
             CoreExtensions.commentsToContentConverter -> converter.get(fullContext)
             CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
-            CoreExtensions.pageTransformer -> DefaultPageNodeMerger
+            CoreExtensions.pageTransformer -> DefaultPageNodeMerger(fullContext)
             CoreExtensions.renderer -> renderer.get(fullContext)
             CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)
-            CoreExtensions.outputWriter ->  FileWriter(fullContext, "")
+            CoreExtensions.outputWriter -> FileWriter(fullContext, "")
+            CoreExtensions.pageMergerStrategy -> DefaultPageMergerStrategy
             CoreExtensions.fileExtension -> ".html"
             else -> null
         }.let { listOfNotNull( it ) as List<T> }
