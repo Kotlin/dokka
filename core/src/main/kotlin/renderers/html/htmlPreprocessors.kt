@@ -43,7 +43,7 @@ object NavigationPageInstaller : PageNodeTransformer {
 
     private fun visit(page: ContentPage): NavigationNode = NavigationNode(
         page.name,
-        page.dri,
+        page.dri.first(),
         page.platforms(),
         page.children.filterIsInstance<ContentPage>().map { visit(it) })
 }
