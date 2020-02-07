@@ -1,5 +1,6 @@
 package kotlinAsJavaPlugin
 
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentTable
@@ -139,5 +140,52 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
+
+    @Test
+    fun signatureTest() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |fun testFL(l: List<String>) = l
+            """, configuration, cleanupOutput = false
+        ) {
+            pagesGenerationStage = { root ->
+                val funs = root.children.first()
+                    .children.mapNotNull { (it as? ClasslikePageNode)?.children }.flatten()
+                    .mapNotNull { it as? MemberPageNode }.mapNotNull { page ->
+                        page.let { page.content as? ContentGroup }
+                            ?.let { page.name to (page.content as ContentGroup).children.filterIsInstance<ContentGroup>().first() }
+                    }.toMap()
+
+                assert(funs.size == 1) { "Package page should contain 1 function" }
+
+                funs["testFL"].let { f ->
+                    val expected = "List<String> testFL(List<String> l)"
+                    val obtained = f?.children.orEmpty().join()
+                    assert(expected == obtained) { "Expected: $expected\nObtained: $obtained" }
+                }
+            }
+        }
+    }
+
+    private fun <T> Collection<T>.assertCount(n: Int) =
+        assert(count() == n) { "Expected $n, got ${count()}" }
+
+    fun List<ContentNode>.join(): String = this.mapNotNull {
+        when (val n = it) {
+            is ContentText -> n.text
+            is ContentDRILink -> n.children.join()
+            else -> null
+        }
+    }.joinToString(separator = "")
 
 }

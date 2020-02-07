@@ -10,7 +10,7 @@ class SignatureTest : AbstractCoreTest() {
     fun signatureTest1() {
         val configuration = dokkaConfiguration {
             passes {
-                passOnPlatforms("jvm", "js") {
+                pass {
                     sourceRoots = listOf("src/main/kotlin/signature/Test.kt")
                     targets = listOf("jvm", "js")
                 }
@@ -38,13 +38,13 @@ class SignatureTest : AbstractCoreTest() {
                 funs["test"].let { f ->
                     val expected = "public fun test(blk: (Int, String) -> String): String"
                     val obtained = f?.children?.join()
-                    assert(expected == obtained) { "Expected: ${expected}\nObtained: ${obtained}" }
+                    assert(expected == obtained) { "Expected: $expected\nObtained: $obtained" }
                 }
 
                 funs["test2"].let { f ->
-                    val expected = "public fun String.test2(blk: (String) -> String): String"
+                    val expected = "public fun String.test2(blk: String.() -> String): String"
                     val obtained = f?.children?.join()
-                    assert(expected == obtained) { "Expected: ${expected}\nObtained: ${obtained}" }
+                    assert(expected == obtained) { "Expected: $expected\nObtained: $obtained" }
                 }
 
             }

@@ -32,7 +32,7 @@ object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTra
         platformData: PlatformData,
         context: DokkaContext
     ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
-        packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel) }
+        packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel.withEmptyInfo()) }
     }.let { Module(moduleName, it) }
 
 }
@@ -189,8 +189,6 @@ open class DokkaDescriptorVisitor(
             },
             expected = expected,
             actual = actual,
-            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
             visibility = mapOf(platformData to descriptor.visibility)
         )
     }
