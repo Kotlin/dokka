@@ -4,7 +4,6 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.*
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.isNullOrEmpty
 import org.jetbrains.kotlin.utils.keysToMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element

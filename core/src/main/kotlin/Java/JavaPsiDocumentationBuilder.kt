@@ -29,7 +29,7 @@ fun getSignature(element: PsiElement?) = when(element) {
 }
 
 private fun methodSignature(method: PsiMethod): String {
-    return method.containingClass!!.qualifiedName + "$" + method.name + "(" +
+    return method.containingClass?.qualifiedName + "$" + method.name + "(" +
             method.parameterList.parameters.map { it.type.typeSignature() }.joinToString(",") + ")"
 }
 
@@ -167,7 +167,7 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
                         element.isInternal())
 
     private fun skipElementBySuppressedFiles(element: Any): Boolean =
-            element is PsiElement && element.containingFile.virtualFile.path in passConfiguration.suppressedFiles
+        element is PsiElement && element.containingFile.virtualFile?.path in passConfiguration.suppressedFiles
 
     private fun PsiElement.isInternal(): Boolean {
         val ktElement = (this as? KtLightElement<*, *>)?.kotlinOrigin ?: return false
@@ -196,8 +196,16 @@ class JavaPsiDocumentationBuilder : JavaDocumentationBuilder {
                 link(superClass, node, RefKind.Inheritor)
             }
         }
+        
+        var methodsAndConstructors = methods
+        if (constructors.isEmpty()) {
+            // Having no constructor represents a class that only has an implicit/default constructor
+            // so we create one synthetically for documentation
+            val factory = JavaPsiFacade.getElementFactory(this.project)
+            methodsAndConstructors += factory.createMethodFromText("public $name() {}", this)
+        }
         node.appendDetails(typeParameters) { build() }
-        node.appendMembers(methods) { build() }
+        node.appendMembers(methodsAndConstructors) { build() }
         node.appendMembers(fields) { build() }
         node.appendMembers(innerClasses) { build() }
         register(this, node)

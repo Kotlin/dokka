@@ -11,14 +11,6 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="dokka-maven-plugin" />
-      </profile>
-    </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="android-gradle-plugin_main" target="1.8" />
       <module name="android-gradle-plugin_test" target="1.8" />

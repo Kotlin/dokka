@@ -11,6 +11,7 @@ import org.apache.maven.project.MavenProjectHelper
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.Utilities.defaultLinks
 import java.io.File
 import java.net.URL
 
@@ -182,6 +183,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             includeNonPublic = includeNonPublic,
             includeRootPackage = includeRootPackage
         )
+
+        passConfiguration.externalDocumentationLinks += passConfiguration.defaultLinks()
 
         val configuration = DokkaConfigurationImpl(
             outputDir = getOutDir(),

@@ -16,9 +16,8 @@ class KotlinAsJavaTest {
             val facadeClass = pkg.members.single { it.name == "FunctionKt" }
             assertEquals(NodeKind.Class, facadeClass.kind)
 
-            val fn = facadeClass.members.single()
+            val fn = facadeClass.members.single { it.kind == NodeKind.Function}
             assertEquals("fn", fn.name)
-            assertEquals(NodeKind.Function, fn.kind)
         }
     }
 

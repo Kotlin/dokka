@@ -423,7 +423,7 @@ class DocumentationBuilder
     fun DocumentationModule.appendFragments(fragments: Collection<PackageFragmentDescriptor>,
                                             packageContent: Map<String, Content>,
                                             packageDocumentationBuilder: PackageDocumentationBuilder) {
-        val allFqNames = fragments.filter{ it.isDocumented(passConfiguration) }.map { it.fqName }.distinct()
+        val allFqNames = fragments.filter { it.isDocumented(passConfiguration) }.map { it.fqName }.distinct()
 
         for (packageName in allFqNames) {
             if (packageName.isRoot && !passConfiguration.includeRootPackage) continue
@@ -713,7 +713,7 @@ class DocumentationBuilder
     }
 
     fun FunctionDescriptor.build(external: Boolean = false): DocumentationNode {
-        if (ErrorUtils.containsErrorType(this)) {
+        if (ErrorUtils.containsErrorTypeInParameters(this) || ErrorUtils.containsErrorType(this.returnType)) {
             logger.warn("Found an unresolved type in ${signatureWithSourceLocation()}")
         }
 
@@ -1157,7 +1157,9 @@ fun ClassDescriptor.supertypesWithAnyPrecise(): Collection<KotlinType> {
 
 fun PassConfiguration.effectivePackageOptions(pack: String): DokkaConfiguration.PackageOptions {
     val rootPackageOptions = PackageOptionsImpl("", includeNonPublic, reportUndocumented, skipDeprecated, false)
-    return perPackageOptions.firstOrNull { pack == it.prefix || pack.startsWith(it.prefix + ".") } ?: rootPackageOptions
+    return perPackageOptions.firstOrNull { pack == it.prefix }
+            ?: perPackageOptions.firstOrNull { pack.startsWith(it.prefix + ".") }
+            ?: rootPackageOptions
 }
 
 fun PassConfiguration.effectivePackageOptions(pack: FqName): DokkaConfiguration.PackageOptions = effectivePackageOptions(pack.asString())
