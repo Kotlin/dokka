@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocImpl
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
+import java.net.MalformedURLException
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
 class MarkdownParser (
@@ -85,18 +86,20 @@ class MarkdownParser (
             )
         }
 
-        private fun resolveDRI(link: String): DRI? = if (link.startsWith("http") || link.startsWith("www")) {
-            null
-        } else {
-            resolveKDocLink(
-                resolutionFacade.resolveSession.bindingContext,
-                resolutionFacade,
-                declarationDescriptor,
-                null,
-                link.split('.')
-            ).also { if (it.size > 1) throw Error("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
-                ?.let { DRI.from(it) }
-        }
+        private fun resolveDRI(link: String): DRI? =
+            try {
+                java.net.URL(link)
+                null
+            } catch(e: MalformedURLException) {
+                resolveKDocLink(
+                    resolutionFacade.resolveSession.bindingContext,
+                    resolutionFacade,
+                    declarationDescriptor,
+                    null,
+                    link.split('.')
+                ).also { if (it.size > 1) throw Error("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
+                    ?.let { DRI.from(it) }
+            }
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
             val linkLabel = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }  ?:
@@ -266,8 +269,8 @@ class MarkdownParser (
         }
 
         private fun String.transform() = this
-            .replace(Regex("\n\n+"), "")
-            .replace(Regex("\n>+ "), "\n")
+            .replace(Regex("\n\n+"), "")        // Squashing new lines between paragraphs
+            .replace(Regex("\n>+ "), "\n")      // Replacement used in blockquotes, get rid of garbage
     }
 
 

@@ -200,48 +200,6 @@ abstract class AbstractCoreTest {
     }
 }
 
-abstract class AbstractKDocTest : AbstractCoreTest() {
-
-    private val configuration = dokkaConfiguration {
-        passes {
-            pass {
-                sourceRoots = listOf("src/main/kotlin/example/Test.kt")
-            }
-        }
-    }
-
-    private fun interpolateKdoc(kdoc: String) = """
-            |/src/main/kotlin/example/Test.kt
-            |package example
-            | /**
-            ${kdoc.split("\n").joinToString("") { "| * $it\n" } }
-            | */
-            |class Test
-        """.trimMargin()
-
-    private fun actualDocumentationNode(modulePageNode: ModulePageNode) =
-        (modulePageNode.documentable?.children?.first() as Package)
-            .classlikes.first()
-            .platformInfo.first()
-            .documentationNode
-
-
-    protected fun executeTest(kdoc: String, expectedDocumentationNode: DocumentationNode) {
-        testInline(
-            interpolateKdoc(kdoc),
-            configuration
-        ) {
-            pagesGenerationStage = {
-                Assert.assertEquals(
-                    expectedDocumentationNode,
-                    actualDocumentationNode(it)
-                )
-            }
-        }
-    }
-}
-
-
 data class TestMethods(
     val analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit,
     val pluginsSetupStage: (DokkaContext) -> Unit,
