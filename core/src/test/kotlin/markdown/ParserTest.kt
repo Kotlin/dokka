@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.tests
 
+import markdown.KDocTest
 import org.jetbrains.dokka.model.doc.*
 import org.junit.Ignore
 import org.junit.Test
-import testApi.testRunner.AbstractKDocTest
 
 
-class ParserTest : AbstractKDocTest() {
+class ParserTest : KDocTest() {
 
     @Test fun `Simple text`() {
         val kdoc = """
@@ -891,6 +891,20 @@ class ParserTest : AbstractKDocTest() {
                             Text(body = " and sometimes\nexample.com (but not on Github, for example).")
                         )),
                         P(listOf(Text(body = "Some text to show that the reference links can follow later.")))
+                    ))
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test fun `Windows Carriage Return Line Feed`() {
+        val kdoc = "text\r\ntext"
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    P(listOf(
+                        Text(body = "text\ntext")
                     ))
                 )
             )
