@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.Utilities.defaultLinks
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
@@ -261,10 +262,11 @@ object MainKt {
         return configuration
     }
 
+    fun GlobalArguments.addDefaultLinks() = passesConfigurations.forEach { it.externalDocumentationLinks += it.defaultLinks() }
+
     @JvmStatic
     fun main(args: Array<String>) {
-        val configuration = createConfiguration(args)
-
+        val configuration = createConfiguration(args).apply { addDefaultLinks() }
         if (configuration.format.toLowerCase() == "javadoc")
             startWithToolsJar(configuration)
         else

@@ -27,7 +27,7 @@ open class DokkaPlugin : Plugin<Project> {
             defaultDependencies{ dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-fatjar:${DokkaVersion.version}")) }
         }
 
-    private fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
+    protected open fun addTasks(project: Project, runtimeConfiguration: Configuration, taskClass: Class<out DokkaTask>) {
         if(GradleVersion.current() >= GradleVersion.version("4.10")) {
             project.tasks.register(taskName, taskClass)
         } else {

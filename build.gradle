@@ -1,5 +1,3 @@
-import org.jetbrains.DependenciesVersionGetter
-
 allprojects {
     ext {
         if (!project.findProperty("dokka_version")) {
@@ -41,6 +39,8 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
+        maven { url 'https://kotlin.bintray.com/kotlin-plugin' }
+        maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
         maven { url "https://dl.bintray.com/jetbrains/markdown" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
@@ -78,10 +78,6 @@ def bintrayPublication(project, List<String> _publications) {
     })
 }
 
-def versions = DependenciesVersionGetter.getVersions(project, bundled_kotlin_compiler_version)
-
-ext.ideaVersion = versions["idea.build.id"]
-ext.markdownVersion = versions["markdown.build.id"].replace("%20", " ")
 
 configurations {
     ideaIC
@@ -89,13 +85,14 @@ configurations {
 }
 
 repositories {
+    maven { url 'https://kotlin.bintray.com/kotlin-plugin' }
     maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
     maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
 }
 
 dependencies {
-    intellijCore "com.jetbrains.intellij.idea:intellij-core:$ideaVersion"
-    ideaIC "com.jetbrains.intellij.idea:ideaIC:$ideaVersion"
+    intellijCore "com.jetbrains.intellij.idea:intellij-core:$idea_version"
+    ideaIC "com.jetbrains.intellij.idea:ideaIC:$idea_version"
 }
 
 def intellijCoreAnalysis() {
@@ -114,17 +111,6 @@ def repoLocation = uri(file("$buildDir/dist-maven"))
 
 configurations {
     kotlin_plugin_full
-}
-
-dependencies {
-    final String ijVersion = "20" + ideaVersion.take(2) + "." + ideaVersion[2]
-    kotlin_plugin_full "teamcity:kotlin-plugin-$bundled_kotlin_compiler_version-IJ$ijVersion-1:$bundled_kotlin_compiler_version@zip"
-}
-
-def kotlinPluginDependency() {
-    return zipTree(configurations.kotlin_plugin_full.singleFile).matching({
-        include("Kotlin/lib/kotlin-plugin.jar")
-    })
 }
 
 

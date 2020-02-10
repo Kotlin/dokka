@@ -29,7 +29,7 @@ or using the plugins block:
 
 ```groovy
 plugins {
-    id 'org.jetbrains.dokka' version '0.10.0'
+    id 'org.jetbrains.dokka' version '0.10.1'
 }
 repositories {
     jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
@@ -106,9 +106,6 @@ dokka {
         // Property used for manual addition of files to the classpath
         // This property does not override the classpath collected automatically but appends to it
         classpath = [new File("$buildDir/other.jar")]
-    
-        // By default, sourceRoots are taken from Kotlin Plugin, subProjects and kotlinTasks, following roots will be appended to them
-        sourceRoots = [files('src/main/kotlin')]
         
         // List of files with module and package documentation
         // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
@@ -316,7 +313,7 @@ repositories {
 }
 
 dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.0"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.1"
 }
 
 dokka {
@@ -339,7 +336,7 @@ To use your Fat Jar, just set the path to it:
  }
  
  dependencies {
-     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.0.jar")
+     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.1.jar")
  }
  
  dokka {
@@ -376,8 +373,15 @@ apply plugin: 'org.jetbrains.dokka'
 ```
 
 There is also a `noAndroidSdkLink` configuration parameter that works similar to `noJdkLink` and `noStdlibLink`
-By default the variant documented by dokka is the first release variant encountered. If you want to change that,
-you can disable the autoconfiguration and configure dokka manually.   
+By default the variant documented by dokka is the first release variant encountered. 
+You can override that by setting the `androidVariants` property inside the `configuration` (or specific platform) block:
+```groovy
+dokka {
+    configuration {
+        androidVariants = ["debug", "release"]
+    }
+}
+```
 
 ### Using the Maven plugin
 
@@ -579,7 +583,7 @@ Inside the `dokka` tag you can create another tags named `<passconfig/>` that su
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar-0.10.0.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.1/dokka-fatjar-0.10.1.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <arguments>
@@ -634,29 +638,3 @@ doesn't affect analysis of source code, it just changes the result. You can thin
   * `native`
   * `common` 
 
-## Building dokka
-
-Dokka is built with Gradle. To build it, use `./gradlew build`.
-Alternatively, open the project directory in IntelliJ IDEA and use the IDE to build and run dokka.
-
-Here's how to import and configure Dokka in IntelliJ IDEA:
- * Select "Open" from the IDEA welcome screen, or File > Open if a project is
-  already open
-* Select the directory with your clone of Dokka
-  * Note: IDEA may have an error after the project is initally opened; it is OK
-    to ignore this as the next step will address this error
-* After IDEA opens the project, select File > New > Module from existing sources
-  and select the `build.gradle` file from the root directory of your Dokka clone
-* Use the default options and select "OK"
-* After Dokka is loaded into IDEA, open the Gradle tool window (View > Tool
-  Windows > Gradle) and click on the top left "Refresh all Gradle projects"
-  button
-* Verify the following project settings.  In File > Settings > Build, Execution,
-  Deployment > Build Tools > Gradle > Runner:
-  * Ensure "Delegate IDE build/run actions to gradle" is checked
-  * "Gradle Test Runner" should be selected in the "Run tests using" drop-down
-    menu
-* Note: After closing and re-opening the project, IDEA may give an error
-  message: "Error Loading Project: Cannot load 3 modules".  Open up the details
-  of the error, and click "Remove Selected", as these module `.iml` files are
-  safe to remove.

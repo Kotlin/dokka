@@ -26,12 +26,19 @@ import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
-    fun extractFromSinglePlatform(variantName: String? = null): PlatformData? {
+    fun extractConfiguration(targetName: String, variantNames: List<String>) =
+        if (project.isMultiplatformProject()) {
+            extractFromMultiPlatform(targetName, variantNames)
+        } else {
+            extractFromSinglePlatform(variantNames)
+        }
+
+    private fun extractFromSinglePlatform(variantNames: List<String>): PlatformData? {
         val target: KotlinTarget
         try {
             target = project.extensions.getByType(KotlinSingleTargetExtension::class.java).target
         } catch (e: Throwable) {
-            when (e){
+            when (e) {
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
                     return null
                 else -> throw e
@@ -39,33 +46,37 @@ class ConfigurationExtractor(private val project: Project) {
         }
 
         return try {
-            PlatformData(null, getClasspath(target, variantName), getSourceSet(target, variantName), getPlatformName(target.platformType))
-        } catch(e: NoSuchMethodError){
+            PlatformData(
+                null,
+                accumulateClassPaths(variantNames, target),
+                accumulateSourceSets(variantNames, target),
+                getPlatformName(target.platformType)
+            )
+        } catch (e: NoSuchMethodError) {
             null
         }
     }
 
-    fun extractFromMultiPlatform(): List<PlatformData>? {
-        val targets: NamedDomainObjectCollection<KotlinTarget>
+    private fun extractFromMultiPlatform(targetName: String, variantNames: List<String>): PlatformData? =
         try {
-            targets = project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
+            project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
         } catch (e: Throwable) {
-            when (e){
+            when (e) {
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
-                    return null
+                    null
                 else -> throw e
             }
+        }?.let {
+            val fixedName = if (targetName.toLowerCase() == "common") "metadata" else targetName.toLowerCase()
+            it.find { target -> target.name.toLowerCase() == fixedName }?.let { target ->
+                PlatformData(
+                    fixedName,
+                    accumulateClassPaths(variantNames, target),
+                    accumulateSourceSets(variantNames, target),
+                    target.platformType.toString()
+                )
+            }
         }
-
-        val commonTargetPlatformData = targets.find { it.platformType == KotlinPlatformType.common }?.let {
-            PlatformData("common", getClasspath(it), getSourceSet(it), "common")
-        }
-        val config = targets.filter { it.platformType != KotlinPlatformType.common }.map {
-            PlatformData(it.name, getClasspath(it), getSourceSet(it), it.platformType.toString())
-        }
-
-        return (config + commonTargetPlatformData).filterNotNull()
-    }
 
     fun extractFromJavaPlugin(): PlatformData? =
         project.convention.findPlugin(JavaPluginConvention::class.java)
@@ -75,10 +86,15 @@ class ConfigurationExtractor(private val project: Project) {
     fun extractFromKotlinTasks(kotlinTasks: List<Task>): PlatformData? =
         try {
             kotlinTasks.map { extractFromKotlinTask(it) }.let { platformDataList ->
-                PlatformData(null, platformDataList.flatMap { it.classpath }, platformDataList.flatMap { it.sourceRoots }, "")
+                PlatformData(
+                    null,
+                    platformDataList.flatMap { it.classpath },
+                    platformDataList.flatMap { it.sourceRoots },
+                    ""
+                )
             }
         } catch (e: Throwable) {
-            when (e){
+            when (e) {
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
                     extractFromKotlinTasksTheHardWay(kotlinTasks)
                 else -> throw e
@@ -91,7 +107,7 @@ class ConfigurationExtractor(private val project: Project) {
                 .compilations
                 .find { it.compileKotlinTask == task }
         } catch (e: Throwable) {
-            when (e){
+            when (e) {
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
                     project.extensions.getByType(KotlinMultiplatformExtension::class.java).targets
                         .firstNotNullResult { target -> target.compilations.find { it.compileKotlinTask == task } }
@@ -134,25 +150,22 @@ class ConfigurationExtractor(private val project: Project) {
         } catch (e: ResolveException) {
             mutableListOf()
         }
-        classpath.addAll (project.files(allClasspath).toList())
+        classpath.addAll(project.files(allClasspath).toList())
 
         return PlatformData(null, classpath, allSourceRoots.toList(), "")
     }
 
-    private fun getSourceSet(target: KotlinTarget, variantName: String? = null): List<File> =
-        if(variantName != null)
+    private fun getSourceSet(target: KotlinTarget, variantName: String): List<File> =
+        if (target.isAndroidTarget())
             getSourceSet(getCompilation(target, variantName))
         else
             getSourceSet(getMainCompilation(target))
 
-    private fun getClasspath(target: KotlinTarget, variantName: String? = null): List<File> = if (target.isAndroidTarget()) {
-        if(variantName != null)
+    private fun getClasspath(target: KotlinTarget, variantName: String): List<File> =
+        if (target.isAndroidTarget())
             getClasspathFromAndroidTask(getCompilation(target, variantName))
         else
-            getClasspathFromAndroidTask(getMainCompilation(target))
-    } else {
-        getClasspath(getMainCompilation(target))
-    }
+            getClasspath(getMainCompilation(target))
 
     private fun getSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
         ?.allKotlinSourceSets
@@ -185,7 +198,7 @@ class ConfigurationExtractor(private val project: Project) {
 
     private fun getVariants(project: Project): Set<BaseVariant> {
         val androidExtension = project.extensions.getByName("android")
-        val baseVariants =  when (androidExtension) {
+        val baseVariants = when (androidExtension) {
             is AppExtension -> androidExtension.applicationVariants.toSet()
             is LibraryExtension -> {
                 androidExtension.libraryVariants.toSet() +
@@ -210,8 +223,26 @@ class ConfigurationExtractor(private val project: Project) {
     private fun getPlatformName(platform: KotlinPlatformType): String =
         if (platform == KotlinPlatformType.androidJvm) KotlinPlatformType.jvm.toString() else platform.toString()
 
-    data class PlatformData(val name: String?,
-                            val classpath: List<File>,
-                            val sourceRoots: List<File>,
-                            val platform: String) : Serializable
+    private fun accumulateClassPaths(variantNames: List<String>, target: KotlinTarget) =
+        if (variantNames.isNotEmpty()) {
+            variantNames.flatMap { getClasspath(target, it) }.distinct()
+        } else {
+            if (target.isAndroidTarget())
+                getClasspathFromAndroidTask(getMainCompilation(target))
+            else
+                getClasspath(getMainCompilation(target))
+        }
+
+    private fun accumulateSourceSets(variantNames: List<String>, target: KotlinTarget) =
+        if (variantNames.isNotEmpty())
+            variantNames.flatMap { getSourceSet(target, it) }.distinct()
+        else
+            getSourceSet(getMainCompilation(target))
+
+    data class PlatformData(
+        val name: String?,
+        val classpath: List<File>,
+        val sourceRoots: List<File>,
+        val platform: String
+    ) : Serializable
 }
