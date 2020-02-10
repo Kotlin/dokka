@@ -37,5 +37,6 @@ internal class DokkaTestGenerator(
         pagesTransformationStage(transformedPages)
 
         dokkaGenerator.render(transformedPages, context)
+        renderingStage(transformedPages, context)
     }
 }

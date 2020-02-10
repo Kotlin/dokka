@@ -95,6 +95,7 @@ abstract class AbstractCoreTest {
         var documentablesTransformationStage: (Module) -> Unit = {}
         var pagesGenerationStage: (ModulePageNode) -> Unit = {}
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
+        var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
 
         fun build() = TestMethods(
             analysisSetupStage,
@@ -103,7 +104,8 @@ abstract class AbstractCoreTest {
             documentablesMergingStage,
             documentablesTransformationStage,
             pagesGenerationStage,
-            pagesTransformationStage
+            pagesTransformationStage,
+            renderingStage
         )
     }
 
@@ -204,5 +206,6 @@ data class TestMethods(
     val documentablesMergingStage: (Module) -> Unit,
     val documentablesTransformationStage: (Module) -> Unit,
     val pagesGenerationStage: (ModulePageNode) -> Unit,
-    val pagesTransformationStage: (RootPageNode) -> Unit
+    val pagesTransformationStage: (RootPageNode) -> Unit,
+    val renderingStage: (RootPageNode, DokkaContext) -> Unit
 )
