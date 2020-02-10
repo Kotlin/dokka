@@ -29,7 +29,7 @@ or using the plugins block:
 
 ```groovy
 plugins {
-    id 'org.jetbrains.dokka' version '0.10.0'
+    id 'org.jetbrains.dokka' version '0.10.1'
 }
 repositories {
     jcenter() // or maven { url 'https://dl.bintray.com/kotlin/dokka' }
@@ -106,9 +106,6 @@ dokka {
         // Property used for manual addition of files to the classpath
         // This property does not override the classpath collected automatically but appends to it
         classpath = [new File("$buildDir/other.jar")]
-    
-        // By default, sourceRoots are taken from Kotlin Plugin, subProjects and kotlinTasks, following roots will be appended to them
-        sourceRoots = [files('src/main/kotlin')]
         
         // List of files with module and package documentation
         // https://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
@@ -316,7 +313,7 @@ repositories {
 }
 
 dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.0"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.10.1"
 }
 
 dokka {
@@ -339,7 +336,7 @@ To use your Fat Jar, just set the path to it:
  }
  
  dependencies {
-     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.0.jar")
+     dokkaRuntime files("/path/to/fatjar/dokka-fatjar-0.10.1.jar")
  }
  
  dokka {
@@ -586,7 +583,7 @@ Inside the `dokka` tag you can create another tags named `<passconfig/>` that su
 
 ### Using the Command Line
 
-To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.0/dokka-fatjar-0.10.0.jar).
+To run Dokka from the command line, download the [Dokka jar](https://github.com/Kotlin/dokka/releases/download/0.10.1/dokka-fatjar-0.10.1.jar).
 To generate documentation, run the following command:
 
     java -jar dokka-fatjar.jar <arguments>
