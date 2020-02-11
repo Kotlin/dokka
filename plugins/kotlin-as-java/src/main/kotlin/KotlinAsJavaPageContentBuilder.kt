@@ -1,10 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.TypeWrapper
-import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.psi.JavaTypeWrapper
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -18,10 +15,10 @@ class KotlinAsJavaPageContentBuilder(
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
 ) : DefaultPageContentBuilder(dri, platformData, kind, commentsConverter, logger, styles, extras) {
-    private val contents = mutableListOf<ContentNode>()
 
     override fun signature(f: Function) = signature(f) {
 
+        //        DokkaConsoleLogger.info("KotlinAsJavaSignature")
         val returnType = f.returnType
         if (!f.isConstructor) {
             if (returnType != null &&
@@ -50,6 +47,13 @@ class KotlinAsJavaPageContentBuilder(
         }
         text(")")
     }
+
+    override fun group(
+        dri: Set<DRI>,
+        platformData: Set<PlatformData>,
+        kind: Kind,
+        block: PageContentBuilderFunction
+    ): ContentGroup = group(dri, platformData, kind, commentsConverter, logger, block)
 
     companion object {
         fun group(

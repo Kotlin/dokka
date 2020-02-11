@@ -13,6 +13,8 @@ import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.idea.caches.project.getPlatformModuleInfo
+import org.jetbrains.kotlin.platform.TargetPlatform
 
 object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
 
@@ -71,18 +73,20 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
                 link(superClass, node, RefKind.Inheritor)
             }
         }*/
+            val inherited = emptyList<DRI>() //listOf(psi.superClass) + psi.interfaces // TODO DRIs of inherited
+            val actual = getComment(psi).map { ClassPlatformInfo(it, inherited) }
 
             return Class(
-                dri,
-                name.orEmpty(),
-                kind,
-                constructors.map { parseFunction(it, dri, true) },
-                methods.mapNotNull { if (!it.isConstructor) parseFunction(it, dri) else null },
-                fields.mapNotNull { parseField(it, dri) },
-                innerClasses.map { parseClass(it, dri) },
-                null,
-                emptyList(),
-                mutableSetOf(),
+                dri = dri,
+                name = name.orEmpty(),
+                kind = kind,
+                constructors = constructors.map { parseFunction(it, dri, true) },
+                functions = methods.mapNotNull { if (!it.isConstructor) parseFunction(it, dri) else null },
+                properties = fields.mapNotNull { parseField(it, dri) },
+                classlikes = innerClasses.map { parseClass(it, dri) },
+                expected = null,
+                actual = actual,
+                extra = mutableSetOf(),
                 visibility = mapOf(platformData to psi.getVisibility())
             )
         }

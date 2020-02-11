@@ -3,11 +3,11 @@ package org.jetbrains.dokka.kotlinAsJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asStatic
 import org.jetbrains.dokka.kotlinAsJava.conversions.withClass
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.doc.TagWrapper
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -21,7 +21,13 @@ fun <T : Documentable> List<T>.groupedByLocation(): Map<String, List<T>> =
             location!!.let { it.split("/").last().split(".").first() + "Kt" }
         }) { it.second }
 
+fun PlatformInfo.toClassPlatformInfo(inherited: List<DRI> = emptyList()) =
+    ClassPlatformInfo(this, emptyList())
+
 class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPageBuilder(rootContentGroup) {
+
+    override fun pageForModule(m: Module): ModulePageNode =
+        ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
     data class FunsAndProps(val key: String, val funs: List<Function>, val props: List<Property>)
 
@@ -36,6 +42,8 @@ class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPag
 
         val classes = (p.classlikes + zipped.map { (key, funs, props) ->
             val dri = p.dri.withClass(key)
+            val actual =
+                (funs.flatMap { it.actual } + props.flatMap { it.actual }).distinct().map { it.toClassPlatformInfo() }
             Class(
                 dri = dri,
                 name = key,
@@ -44,7 +52,7 @@ class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPag
                 functions = funs.map { it.withClass(key, dri).asStatic() },
                 properties = props.map { it.withClass(key, dri) },
                 classlikes = emptyList(),
-                actual = emptyList(),
+                actual = actual,
                 expected = null,
                 visibility = p.platformData.map { it to Visibilities.PUBLIC }.toMap()
             )
@@ -64,5 +72,9 @@ class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPag
         }
     }
 
-    private fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
+    override fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
+        is Class -> contentForClass(c)
+        is Enum -> contentForEnum(c)
+        else -> throw IllegalStateException("$c should not be present here")
+    }
 }
