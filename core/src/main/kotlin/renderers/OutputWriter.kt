@@ -6,10 +6,6 @@ import org.jetbrains.dokka.plugability.single
 
 interface OutputWriter {
 
-    val context: DokkaContext
-    val extension: String
-        get() = context.single(CoreExtensions.fileExtension)
-    
-    fun write(path: String, text: String, ext: String = extension)
+    fun write(path: String, text: String, ext: String)
     fun writeResources(pathFrom: String, pathTo: String)
 }
