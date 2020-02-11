@@ -138,7 +138,7 @@ class MemberPageNode(
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
-        modified(name = name, content = this.content, children = children) as MemberPageNode
+        modified(name = name, content = this.content, children = children)
 
     override fun modified(
         name: String,
