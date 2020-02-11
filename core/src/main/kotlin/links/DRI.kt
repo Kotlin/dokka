@@ -69,8 +69,6 @@ data class Callable(
 }
 
 sealed class TypeReference {
-    abstract val isNullable: Boolean
-
     companion object {
         fun from(d: ReceiverParameterDescriptor): TypeReference? =
             when (d.value) {
@@ -84,57 +82,52 @@ sealed class TypeReference {
         fun from(d: ValueParameterDescriptor): TypeReference? =
             from(d.type)
 
+        private fun fromPossiblyNullable(t: KotlinType, self: KotlinType? = null): TypeReference =
+            from(t, self).let { if (t.isMarkedNullable) Nullable(it) else it }
 
         private fun from(t: KotlinType, self: KotlinType? = null): TypeReference =
-            if (t == self)
-                if (t.isMarkedNullable) NullableSelfType else SelfType
+            if (self is KotlinType && self.constructor == t.constructor && self.arguments == t.arguments)
+                SelfType
             else when (val d = t.constructor.declarationDescriptor) {
                 is TypeParameterDescriptor -> TypeParam(
-                    d.upperBounds.map { from(it, self ?: t) },
-                    t.isMarkedNullable
+                    d.upperBounds.map { fromPossiblyNullable(it, self ?: t) }
                 )
                 else -> TypeConstructor(
                     t.constructorName.orEmpty(),
-                    t.arguments.map { from(it, self) },
-                    t.isMarkedNullable
+                    t.arguments.map { fromProjection(it, self) }
                 )
             }
 
 
-        private fun from(t: TypeProjection, r: KotlinType? = null): TypeReference =
+        private fun fromProjection(t: TypeProjection, r: KotlinType? = null): TypeReference =
             if (t.isStarProjection) {
-                TypeConstructor("kotlin.Any", emptyList(), isNullable = true)
+                Nullable(TypeConstructor("kotlin.Any", emptyList()))
             } else {
-                from(t.type, r)
+                fromPossiblyNullable(t.type, r)
             }
     }
 }
 
 data class JavaClassReference(val name: String): TypeReference() {
-    override val isNullable = true
     override fun toString(): String = name
 }
 
-data class TypeParam(val bounds: List<TypeReference>, override val isNullable: Boolean) : TypeReference()
+data class TypeParam(val bounds: List<TypeReference>) : TypeReference()
 
 data class TypeConstructor(
     val fullyQualifiedName: String,
-    val params: List<TypeReference>,
-    override val isNullable: Boolean
+    val params: List<TypeReference>
 ) : TypeReference() {
     override fun toString() = fullyQualifiedName +
-            (if (params.isNotEmpty()) "[${params.joinToString(",")}]" else "") +
-            if (isNullable) "?" else ""
+            (if (params.isNotEmpty()) "[${params.joinToString(",")}]" else "")
 }
 
 object SelfType : TypeReference() {
-    override val isNullable = false
     override fun toString() = "^"
 }
 
-object NullableSelfType : TypeReference() {
-    override val isNullable = true
-    override fun toString() = "^?"
+data class Nullable(val wrapped: TypeReference) : TypeReference() {
+    override fun toString() = "$wrapped?"
 }
 
 private operator fun <T> List<T>.component6(): T = get(5)
