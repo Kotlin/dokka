@@ -20,7 +20,7 @@ open class KDocTest : AbstractCoreTest() {
             |/src/main/kotlin/example/Test.kt
             |package example
             | /**
-            ${kdoc.split("\n").joinToString("") { "| * $it\n" } }
+            ${kdoc.split("\n").joinToString("") { "| *$it\n" } }
             | */
             |class Test
         """.trimMargin()
