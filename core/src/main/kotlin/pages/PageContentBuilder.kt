@@ -17,7 +17,7 @@ open class DefaultPageContentBuilder(
     private val styles: Set<Style> = emptySet(),
     private val extras: Set<Extra> = emptySet()
 ) : PageContentBuilder {
-    private val contents = mutableListOf<ContentNode>()
+    protected val contents = mutableListOf<ContentNode>()
 
     protected fun createText(text: String, kind: Kind = ContentKind.Symbol) =
         ContentText(text, DCI(dri, kind), platformData, styles, extras)

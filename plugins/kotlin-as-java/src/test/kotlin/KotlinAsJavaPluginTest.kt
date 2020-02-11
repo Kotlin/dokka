@@ -1,6 +1,5 @@
 package kotlinAsJavaPlugin
 
-import junit.framework.Assert.fail
 import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentTable
@@ -9,6 +8,8 @@ import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
+
+    fun fail(msg: String) = assert(false) { msg }
 
     @Test
     fun topLevelTest() {
@@ -37,7 +38,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content = (root.children.firstOrNull()?.children?.firstOrNull() as? ContentPage )?.content ?: run {
+                val content = (root.children.firstOrNull()?.children?.firstOrNull() as? ContentPage)?.content ?: run {
                     fail("Either children or content is null")
                 }
 
@@ -92,7 +93,51 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
         }
     }
 
-    private fun <T> Collection<T>.assertCount(n: Int) =
-        assert(count() == n) { "Expected $n, got ${count()}" }
+    @Test
+    fun kotlinAndJavaTest() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |fun testF(i: Int) = i
+            |/src/main/kotlin/kotlinAsJavaPlugin/TestJ.java
+            |package kotlinAsJavaPlugin
+            |
+            |class TestJ {
+            |   int testF(int i) { return i; }
+            |}
+        """,
+            configuration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val classes = root.children.first().children.associateBy { it.name }
+                classes.values.assertCount(2, "Class count: ")
+
+                classes["TestKt"].let {
+                    it?.children.orEmpty().assertCount(1, "(Kotlin) TestKt members: ")
+                    it!!.children.first()
+                        .let { assert(it.name == "testF") { "(Kotlin) Expected method name: testF, got: ${it.name}" } }
+                }
+
+                classes["TestJ"].let {
+                    it?.children.orEmpty().assertCount(1, "(Java) TestJ members: ")
+                    it!!.children.first()
+                        .let { assert(it.name == "testF") { "(Java) Expected method name: testF, got: ${it.name}" } }
+                }
+            }
+        }
+    }
+
+    private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
+        assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
 
 }

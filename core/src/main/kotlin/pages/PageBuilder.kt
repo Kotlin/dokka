@@ -62,7 +62,7 @@ open class DefaultPageBuilder(
         }
     }
 
-    fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
+    open fun contentForClasslike(c: Classlike): ContentGroup = when (c) {
         is Class -> contentForClass(c)
         is Enum -> contentForEnum(c)
         else -> throw IllegalStateException("$c should not be present here")
@@ -91,7 +91,7 @@ open class DefaultPageBuilder(
                 text(it.briefDocTagString)
             }
 
-            block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
+            this.block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
                 link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocTagString)
