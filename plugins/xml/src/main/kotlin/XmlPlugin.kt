@@ -16,7 +16,7 @@ class XmlPlugin : DokkaPlugin() {
     }
 }
 
-class XmlTransformer(private val dokkaContext: DokkaContext) : PageNodeTransformer(dokkaContext) {
+class XmlTransformer(private val dokkaContext: DokkaContext) : PageNodeTransformer {
     private val commentsToContentConverter by lazy { dokkaContext.single(CoreExtensions.commentsToContentConverter) }
 
     enum class XMLKind : Kind {

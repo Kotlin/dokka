@@ -5,7 +5,7 @@ import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class DefaultPageNodeMerger(val context: DokkaContext) : PageNodeTransformer(context) {
+class DefaultPageNodeMerger(val context: DokkaContext) : PageNodeTransformer {
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(children = input.children.map { it.mergeChildren() })
 

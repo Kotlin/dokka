@@ -18,7 +18,7 @@ class MathjaxPlugin : DokkaPlugin() {
 private const val ANNOTATION = "usesMathJax"
 private const val LIB_PATH = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
 
-object MathjaxTransformer : PageNodeTransformer() {
+object MathjaxTransformer : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
         it.modified(
             embeddedResources = it.embeddedResources + if (it.isNeedingMathjax) listOf(LIB_PATH) else emptyList()

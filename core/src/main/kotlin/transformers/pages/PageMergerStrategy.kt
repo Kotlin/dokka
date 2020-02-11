@@ -2,8 +2,8 @@ package org.jetbrains.dokka.transformers.pages
 
 import org.jetbrains.dokka.pages.PageNode
 
-abstract class PageMergerStrategy {
+interface PageMergerStrategy {
 
-    abstract fun tryMerge(pages: List<PageNode>): List<PageNode>
+    fun tryMerge(pages: List<PageNode>): List<PageNode>
 
 }
