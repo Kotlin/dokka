@@ -75,11 +75,11 @@ abstract class DefaultRenderer<T>(
     open fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) })
+            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page))
+                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(

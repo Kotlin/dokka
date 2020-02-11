@@ -14,7 +14,7 @@ open class DefaultLocationProvider(
     protected val pageGraphRoot: RootPageNode,
     protected val dokkaContext: DokkaContext
 ) : LocationProvider {
-    protected val extension = dokkaContext.single(CoreExtensions.fileExtension)
+    protected val extension = ".html"
 
     protected val pagesIndex: Map<DRI, ContentPage> = pageGraphRoot.asSequence().filterIsInstance<ContentPage>()
         .map { it.dri.map { dri -> dri to it } }.flatten()

@@ -6,7 +6,7 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.*
 
-class FileWriter(override val context: DokkaContext): OutputWriter {
+class FileWriter(val context: DokkaContext): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val jarUriPrefix = "jar:file:"
     private val root = context.configuration.outputDir

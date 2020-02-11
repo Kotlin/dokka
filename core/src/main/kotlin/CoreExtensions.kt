@@ -29,7 +29,6 @@ object CoreExtensions {
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()
     val renderer by coreExtension<Renderer>()
-    val fileExtension by coreExtension<String>()
 
     private fun <T: Any> coreExtension() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
