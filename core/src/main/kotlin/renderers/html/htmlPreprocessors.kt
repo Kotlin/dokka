@@ -8,12 +8,12 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.renderers.platforms
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
-object RootCreator : PageNodeTransformer() {
+object RootCreator : PageNodeTransformer {
     override fun invoke(input: RootPageNode) =
         RendererSpecificRootPage("", listOf(input), RenderingStrategy.DoNothing)
 }
 
-object SearchPageInstaller : PageNodeTransformer() {
+object SearchPageInstaller : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.modified(children = input.children + searchPage)
 
     private val searchPage = RendererSpecificResourcePage(
@@ -34,7 +34,7 @@ object SearchPageInstaller : PageNodeTransformer() {
         })
 }
 
-object NavigationPageInstaller : PageNodeTransformer() {
+object NavigationPageInstaller : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.modified(
         children = input.children + NavigationPage(
             input.children.filterIsInstance<ContentPage>().single().let(::visit)
@@ -48,7 +48,7 @@ object NavigationPageInstaller : PageNodeTransformer() {
         page.children.filterIsInstance<ContentPage>().map { visit(it) })
 }
 
-object ResourceInstaller : PageNodeTransformer() {
+object ResourceInstaller : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.modified(children = input.children + resourcePages)
 
     private val resourcePages = listOf("styles", "scripts", "images").map {
@@ -56,7 +56,7 @@ object ResourceInstaller : PageNodeTransformer() {
     }
 }
 
-object StyleAndScriptsAppender : PageNodeTransformer() {
+object StyleAndScriptsAppender : PageNodeTransformer {
     override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
         it.modified(
             embeddedResources = it.embeddedResources + listOf(
