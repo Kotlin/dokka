@@ -6,6 +6,7 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.rules.TemporaryFolder
 import java.io.File
@@ -26,6 +27,7 @@ abstract class AbstractCoreTest {
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
+        pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: TestBuilder.() -> Unit
     ) {
         val testMethods = TestBuilder().apply(block).build()
@@ -36,13 +38,14 @@ abstract class AbstractCoreTest {
             configuration.copy(
                 outputDir = tempDir.root.toPath().toAbsolutePath().toString()
             )
-        DokkaTestGenerator(newConfiguration, logger, testMethods).generate()
+        DokkaTestGenerator(newConfiguration, logger, testMethods, pluginOverrides).generate()
     }
 
     protected fun testInline(
         query: String,
         configuration: DokkaConfigurationImpl,
         cleanupOutput: Boolean = true,
+        pluginOverrides: List<DokkaPlugin> = emptyList(),
         block: TestBuilder.() -> Unit
     ) {
         val testMethods = TestBuilder().apply(block).build()
@@ -57,7 +60,7 @@ abstract class AbstractCoreTest {
                 passesConfigurations = configuration.passesConfigurations
                     .map { it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") }) }
             )
-        DokkaTestGenerator(newConfiguration, logger, testMethods).generate()
+        DokkaTestGenerator(newConfiguration, logger, testMethods, pluginOverrides).generate()
     }
 
     private fun String.toFileMap(): Map<String, String> = this.trimMargin().removePrefix("|")

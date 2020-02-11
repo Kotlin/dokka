@@ -6,10 +6,10 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.Module
-import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
@@ -66,8 +66,9 @@ class DokkaGenerator(
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        platforms: Map<PlatformData, EnvironmentAndFacade>
-    ) = DokkaContext.create(configuration, logger, platforms)
+        platforms: Map<PlatformData, EnvironmentAndFacade>,
+        pluginOverrides: List<DokkaPlugin> = emptyList()
+    ) = DokkaContext.create(configuration, logger, platforms, pluginOverrides)
 
     fun createDocumentationModels(
         platforms: Map<PlatformData, EnvironmentAndFacade>,

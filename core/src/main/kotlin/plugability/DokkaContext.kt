@@ -25,7 +25,8 @@ interface DokkaContext {
         fun create(
             configuration: DokkaConfiguration,
             logger: DokkaLogger,
-            platforms: Map<PlatformData, EnvironmentAndFacade>
+            platforms: Map<PlatformData, EnvironmentAndFacade>,
+            pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
             DokkaContextConfigurationImpl(logger, configuration, platforms).apply {
                 configuration.pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
@@ -33,6 +34,7 @@ interface DokkaContext {
                     .let { URLClassLoader(it, this.javaClass.classLoader) }
                     .also { checkClasspath(it) }
                     .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
+                    .let { it + pluginOverrides }
                     .forEach { install(it) }
                 applyExtensions()
             }.also { it.logInitialisationInfo() }
