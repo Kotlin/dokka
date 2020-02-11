@@ -101,7 +101,7 @@ class ParserTest : KDocTest() {
     }
 
     @Test fun `Emphasis with star`() {
-        val kdoc = "*text*"
+        val kdoc = " *text*"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
