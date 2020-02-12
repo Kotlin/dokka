@@ -30,7 +30,6 @@ object CoreExtensions {
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()
     val renderer by coreExtension<Renderer>()
-    val fileExtension by coreExtension<String>()
     val pageMergerStrategy by coreExtension<PageMergerStrategy>()
 
     private fun <T: Any> coreExtension() = object {

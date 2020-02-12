@@ -3,9 +3,6 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
-import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.Visibility
 
 class Module(override val name: String, val packages: List<Package>) : Documentable() {
@@ -238,15 +235,6 @@ abstract class CallableNode : Documentable() {
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
     if (it.length != length || it.length > maxLength) it.take(maxLength - 3) + "..." else it
 }
-
-interface TypeWrapper {
-    val constructorFqName: String?
-    val constructorNamePathSegments: List<String>
-    val arguments: List<TypeWrapper>
-    val dri: DRI?
-}
-
-interface ClassKind
 
 fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     if (predicate(this)) {

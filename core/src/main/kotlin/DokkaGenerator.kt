@@ -130,7 +130,7 @@ class DokkaGenerator(
             .toList()
 
         return context.single(CoreExtensions.descriptorToDocumentationTranslator)
-            .invoke(platformData.name, packageFragments, platformData, context)
+            .invoke(platformData.name, packageFragments, platformData)
     }
 
     private fun translatePsi(platformData: PlatformData, context: DokkaContext): Module {

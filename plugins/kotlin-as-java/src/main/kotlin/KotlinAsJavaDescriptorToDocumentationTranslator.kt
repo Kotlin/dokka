@@ -1,6 +1,9 @@
 package  org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.base.transformers.descriptors.DRIWithPlatformInfo
+import org.jetbrains.dokka.base.transformers.descriptors.DokkaDescriptorVisitor
+import org.jetbrains.dokka.base.transformers.descriptors.withEmptyInfo
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
@@ -8,18 +11,16 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.descriptors.DRIWithPlatformInfo
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
-import org.jetbrains.dokka.transformers.descriptors.DokkaDescriptorVisitor
-import org.jetbrains.dokka.transformers.descriptors.withEmptyInfo
 import org.jetbrains.kotlin.descriptors.*
 
-object KotlinAsJavaDescriptorToDocumentationTranslator : DescriptorToDocumentationTranslator {
+class KotlinAsJavaDescriptorToDocumentationTranslator(
+    private val context: DokkaContext
+) : DescriptorToDocumentationTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
-        platformData: PlatformData,
-        context: DokkaContext
+        platformData: PlatformData
     ): Module =
         KotlinAsJavaDokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
             packageFragments.map { visitPackageFragmentDescriptor(it, DRI.topLevel.withEmptyInfo()) }

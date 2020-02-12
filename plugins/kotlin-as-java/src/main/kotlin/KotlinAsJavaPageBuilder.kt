@@ -9,7 +9,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi

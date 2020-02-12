@@ -6,3 +6,7 @@ publishing {
         }
     }
 }
+
+dependencies {
+    implementation(project(":plugins:base"))
+}
