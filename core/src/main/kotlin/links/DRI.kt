@@ -72,7 +72,7 @@ sealed class TypeReference {
     companion object {
         fun from(d: ReceiverParameterDescriptor): TypeReference? =
             when (d.value) {
-                is ExtensionReceiver -> from(d.type)
+                is ExtensionReceiver -> fromPossiblyNullable(d.type)
                 else -> run {
                     println("Unknown value type for $d")
                     null
@@ -80,7 +80,7 @@ sealed class TypeReference {
             }
 
         fun from(d: ValueParameterDescriptor): TypeReference? =
-            from(d.type)
+            fromPossiblyNullable(d.type)
 
         private fun fromPossiblyNullable(t: KotlinType, self: KotlinType? = null): TypeReference =
             from(t, self).let { if (t.isMarkedNullable) Nullable(it) else it }
