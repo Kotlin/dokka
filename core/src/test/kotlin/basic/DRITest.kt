@@ -40,4 +40,63 @@ class DRITest: AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `#634 with immediate nullable self`() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Test.kt
+            |package toplevel
+            |
+            |fun <T : Comparable<T>> Array<T>.doSomething(t: T?): Array<T> = TODO()
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val expected = Nullable(TypeParam(listOf(TypeConstructor("kotlin.Comparable", listOf(SelfType)))))
+                val actual = module.packages.single()
+                    .functions.single()
+                    .dri.callable?.params?.single()
+                assertEquals(expected, actual)
+            }
+        }
+    }
+
+    @Test
+    fun `#634 with generic nullable receiver`() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Test.kt
+            |package toplevel
+            |
+            |fun <T : Comparable<T>> T?.doSomethingWithNullable() = TODO()
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val expected = Nullable(TypeParam(listOf(TypeConstructor("kotlin.Comparable", listOf(SelfType)))))
+                val actual = module.packages.single()
+                    .functions.single()
+                    .dri.callable?.receiver
+                assertEquals(expected, actual)
+            }
+        }
+    }
 }
