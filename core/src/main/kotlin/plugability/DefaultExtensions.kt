@@ -10,7 +10,6 @@ import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumenta
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMerger
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
-import org.jetbrains.dokka.transformers.pages.SameNamePageMergerStrategy
 import org.jetbrains.dokka.transformers.psi.DefaultPsiToDocumentationTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageNodeMerger
 

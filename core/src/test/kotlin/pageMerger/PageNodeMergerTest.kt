@@ -5,8 +5,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
-import org.jetbrains.dokka.transformers.pages.PageMergerStrategy
-import org.jetbrains.dokka.transformers.pages.SameNamePageMergerStrategy
+import org.jetbrains.dokka.transformers.pages.SameMethodNamePageMergerStrategy
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
@@ -14,7 +13,7 @@ import testApi.testRunner.AbstractCoreTest
 class PageNodeMergerTest : AbstractCoreTest() {
 
     object SameNameStrategy : DokkaPlugin() {
-        val strategy by extending { CoreExtensions.pageMergerStrategy with SameNamePageMergerStrategy }
+        val strategy by extending { CoreExtensions.pageMergerStrategy with SameMethodNamePageMergerStrategy }
     }
 
     class DefaultStrategy(val strList: MutableList<String> = mutableListOf()) : DokkaPlugin(), DokkaLogger {

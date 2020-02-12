@@ -2,7 +2,7 @@ package org.jetbrains.dokka.transformers.pages
 
 import org.jetbrains.dokka.pages.*
 
-object SameNamePageMergerStrategy : PageMergerStrategy {
+object SameMethodNamePageMergerStrategy : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>): List<PageNode> {
         val name = pages.first().name
         val members = pages.filterIsInstance<MemberPageNode>()
