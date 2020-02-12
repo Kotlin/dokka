@@ -1,5 +1,5 @@
 onload = () => {
-    fetch(pathToRoot + "navigation")
+    fetch(pathToRoot + "navigation.html")
     .then(response => response.text())
     .then(data => {
         document.getElementById("sideMenu").innerHTML = data;
