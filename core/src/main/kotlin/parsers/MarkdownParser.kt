@@ -35,7 +35,7 @@ class MarkdownParser (
             DocNodesFromIElementFactory.getInstance(
                 node.type,
                 visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT } ?:
-                throw Error("Wrong AST Tree. ATX Header does not contain expected content")).children
+                throw IllegalStateException("Wrong AST Tree. ATX Header does not contain expected content")).children
             )
 
         private fun horizontalRulesHandler(node: ASTNode): DocTag =
@@ -100,13 +100,13 @@ class MarkdownParser (
                     declarationDescriptor,
                     null,
                     link.split('.')
-                ).also { if (it.size > 1) throw Error("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
+                ).also { if (it.size > 1) throw IllegalStateException("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
                     ?.let { DRI.from(it) }
             }
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
             val linkLabel = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }  ?:
-                throw Error("Wrong AST Tree. Reference link does not contain expected content")
+                throw IllegalStateException("Wrong AST Tree. Reference link does not contain expected content")
             val linkText = node.children.findLast { it.type == MarkdownElementTypes.LINK_TEXT } ?: linkLabel
 
             val linkKey = text.substring(linkLabel.startOffset, linkLabel.endOffset)
@@ -118,9 +118,9 @@ class MarkdownParser (
 
         private fun inlineLinksHandler(node: ASTNode): DocTag {
             val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }  ?:
-                throw Error("Wrong AST Tree. Inline link does not contain expected content")
+                throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
             val linkDestination = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }  ?:
-                throw Error("Wrong AST Tree. Inline link does not contain expected content")
+                throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
             val linkTitle = node.children.find { it.type == MarkdownElementTypes.LINK_TITLE }
 
             val link = text.substring(linkDestination.startOffset, linkDestination.endOffset)
