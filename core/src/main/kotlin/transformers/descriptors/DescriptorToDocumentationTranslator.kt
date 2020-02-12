@@ -9,7 +9,6 @@ interface DescriptorToDocumentationTranslator {
     fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
-        platformData: PlatformData,
-        context: DokkaContext
+        platformData: PlatformData
     ): Module
 }

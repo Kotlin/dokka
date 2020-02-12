@@ -5,7 +5,6 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.transformers.psi.JavaTypeWrapper
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor

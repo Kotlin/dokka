@@ -2,8 +2,8 @@ package org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.JavaTypeWrapper
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.transformers.psi.JavaTypeWrapper
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 class KotlinAsJavaPageContentBuilder(

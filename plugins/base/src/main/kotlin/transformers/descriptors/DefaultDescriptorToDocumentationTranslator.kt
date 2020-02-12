@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.transformers.descriptors
+package org.jetbrains.dokka.base.transformers.descriptors
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.Callable
@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -24,12 +25,13 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
 import kotlin.reflect.KClass
 
-object DefaultDescriptorToDocumentationTranslator : DescriptorToDocumentationTranslator {
+class DefaultDescriptorToDocumentationTranslator(
+    private val context: DokkaContext
+) : DescriptorToDocumentationTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
-        platformData: PlatformData,
-        context: DokkaContext
+        platformData: PlatformData
     ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
         packageFragments.map {
             visitPackageFragmentDescriptor(
@@ -50,7 +52,7 @@ data class DRIWithPlatformInfo(
 
 fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, null, emptyList())
 
-open class DokkaDescriptorVisitor(
+open class DokkaDescriptorVisitor( // TODO: close this class and make it private together with DRIWithPlatformInfo
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
@@ -302,7 +304,7 @@ open class DokkaDescriptorVisitor(
 
     private fun DeclarationDescriptor.resolveDescriptorData(): PlatformInfo {
         val doc = findKDoc()
-        val parser: MarkdownParser = MarkdownParser(resolutionFacade, this)
+        val parser = MarkdownParser(resolutionFacade, this)
         val docHeader = parser.parseFromKDocTag(doc)
 
         return BasePlatformInfo(docHeader, listOf(platformData))
@@ -334,29 +336,3 @@ open class DokkaDescriptorVisitor(
         this.map { it.filterTagWrappers(types, name)!! }
 }
 
-data class XMLMega(val key: String, val dri: DRI) : Extra
-
-enum class KotlinClassKindTypes : ClassKind {
-    CLASS,
-    INTERFACE,
-    ENUM_CLASS,
-    ENUM_ENTRY,
-    ANNOTATION_CLASS,
-    OBJECT;
-}
-
-class KotlinTypeWrapper(private val kotlinType: KotlinType) : TypeWrapper {
-    private val declarationDescriptor = kotlinType.constructor.declarationDescriptor
-    private val fqNameSafe = declarationDescriptor?.fqNameSafe
-    override val constructorFqName = fqNameSafe?.asString()
-    override val constructorNamePathSegments: List<String> =
-        fqNameSafe?.pathSegments()?.map { it.asString() } ?: emptyList()
-    override val arguments: List<KotlinTypeWrapper> by lazy {
-        kotlinType.arguments.map {
-            KotlinTypeWrapper(
-                it.type
-            )
-        }
-    }
-    override val dri: DRI? by lazy { declarationDescriptor?.let { DRI.from(it) } }
-}

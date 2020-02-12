@@ -6,7 +6,6 @@ import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.OutputWriter
 import org.jetbrains.dokka.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
-import org.jetbrains.dokka.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationNodeMerger
 import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
@@ -28,7 +27,6 @@ internal object DefaultExtensions {
     @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
     internal fun <T : Any, E : ExtensionPoint<T>> get(point: E, fullContext: DokkaContext): List<T> =
         when (point) {
-            CoreExtensions.descriptorToDocumentationTranslator ->  DefaultDescriptorToDocumentationTranslator
             CoreExtensions.psiToDocumentationTranslator -> DefaultPsiToDocumentationTranslator
             CoreExtensions.documentationMerger -> DefaultDocumentationNodeMerger
             CoreExtensions.commentsToContentConverter -> converter.get(fullContext)

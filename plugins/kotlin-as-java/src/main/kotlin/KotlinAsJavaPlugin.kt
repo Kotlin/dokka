@@ -12,8 +12,12 @@ import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTransla
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
 class KotlinAsJavaPlugin : DokkaPlugin() {
-    val kotlinAsJavaDescriptorToDocumentableTranslator by extending { CoreExtensions.descriptorToDocumentationTranslator with KotlinAsJavaDescriptorToDocumentationTranslator }
-    val kotlinAsJavaDocumentableToPageTranslator by extending { CoreExtensions.documentationToPageTranslator with KotlinAsJavaDocumentationToPageTranslator }
+    val kotlinAsJavaDescriptorToDocumentableTranslator by extending {
+        CoreExtensions.descriptorToDocumentationTranslator providing ::KotlinAsJavaDescriptorToDocumentationTranslator
+    }
+    val kotlinAsJavaDocumentableToPageTranslator by extending {
+        CoreExtensions.documentationToPageTranslator with KotlinAsJavaDocumentationToPageTranslator
+    }
 }
 
 object DescriptorCache {
