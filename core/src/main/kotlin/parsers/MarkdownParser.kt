@@ -1,6 +1,8 @@
 package org.jetbrains.dokka.parsers
 
 import com.intellij.psi.PsiElement
+import org.intellij.markdown.IElementType
+import org.intellij.markdown.MarkdownElementType
 import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -47,7 +49,8 @@ class MarkdownParser (
 
         private fun blockquotesHandler(node: ASTNode): DocTag =
             DocNodesFromIElementFactory.getInstance(node.type, children = node.children
-                .filterIsInstance<CompositeASTNode>().evaluateChildren())
+                .filterIsInstance<CompositeASTNode>()
+                .evaluateChildren())
 
         private fun listsHandler(node: ASTNode): DocTag {
 
@@ -166,11 +169,14 @@ class MarkdownParser (
                 node.type,
                 children = node
                     .children
-                    .let { listOf(Text( body = text.substring(
-                            it.find { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }?.startOffset ?: 0,
-                            it.findLast { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }?.endOffset ?: 0 //TODO: Problem with empty code fence
-                        ))
-                    ) },
+                    .dropWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
+                    .dropLastWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
+                    .map {
+                        if(it.type == MarkdownTokenTypes.EOL)
+                            LeafASTNode(MarkdownTokenTypes.HARD_LINE_BREAK, 0, 0)
+                        else
+                            it
+                    }.evaluateChildren(),
                 params = node
                     .children
                     .find { it.type == MarkdownTokenTypes.FENCE_LANG }
@@ -208,6 +214,7 @@ class MarkdownParser (
                 MarkdownElementTypes.CODE_FENCE             -> codeFencesHandler(node)
                 MarkdownElementTypes.CODE_SPAN              -> codeSpansHandler(node)
                 MarkdownElementTypes.IMAGE                  -> imagesHandler(node)
+                MarkdownTokenTypes.HARD_LINE_BREAK          -> DocNodesFromIElementFactory.getInstance(node.type)
                 MarkdownTokenTypes.CODE_FENCE_CONTENT,
                 MarkdownTokenTypes.CODE_LINE,
                 MarkdownTokenTypes.TEXT                     -> DocNodesFromIElementFactory.getInstance(
@@ -223,19 +230,16 @@ class MarkdownParser (
             this.removeUselessTokens().mergeLeafASTNodes().map { visitNode(it) }
 
         private fun List<ASTNode>.removeUselessTokens(): List<ASTNode> =
-            this.filterIndexed { index, _ ->
-                !(this[index].type == MarkdownTokenTypes.EOL &&
-                this.isLeaf(index - 1) && this.getOrNull(index - 1)?.type !in leafNodes &&
-                this.isLeaf(index + 1) && this.getOrNull(index + 1)?.type !in leafNodes) &&
-                this[index].type != MarkdownElementTypes.LINK_DEFINITION
-            }
+            this.filterIndexed { index, node -> !(node.type == MarkdownElementTypes.LINK_DEFINITION || (
+                    node.type == MarkdownTokenTypes.EOL &&
+                    this.getOrNull(index - 1)?.type == MarkdownTokenTypes.HARD_LINE_BREAK
+                    )) }
 
-        private val notLeafNodes = listOf(MarkdownTokenTypes.HORIZONTAL_RULE)
-        private val leafNodes = listOf(MarkdownElementTypes.STRONG, MarkdownElementTypes.EMPH)
+        private val notLeafNodes = listOf(MarkdownTokenTypes.HORIZONTAL_RULE, MarkdownTokenTypes.HARD_LINE_BREAK)
 
-        private fun List<ASTNode>.isLeaf(index: Int): Boolean =
+        private fun List<ASTNode>.isNotLeaf(index: Int): Boolean =
             if(index in 0..this.lastIndex)
-                (this[index] is CompositeASTNode)|| this[index].type in notLeafNodes
+                (this[index] is CompositeASTNode) || this[index].type in notLeafNodes
             else
                 false
 
@@ -243,15 +247,15 @@ class MarkdownParser (
             val children: MutableList<ASTNode> = mutableListOf()
             var index = 0
             while(index <= this.lastIndex) {
-                if(this.isLeaf(index)) {
+                if(this.isNotLeaf(index)) {
                     children += this[index]
                 }
                 else {
                     val startOffset = this[index].startOffset
-                    while(index < this.lastIndex) {
-                        if(this.isLeaf(index + 1)) {
+                    while(index < this.lastIndex ) {
+                        if(this.isNotLeaf(index + 1) || this[index+1].startOffset != this[index].endOffset) {
                             val endOffset = this[index].endOffset
-                            if(text.substring(startOffset, endOffset).transform().isNotEmpty())
+                            if(text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
                                 children += LeafASTNode(MarkdownTokenTypes.TEXT, startOffset, endOffset)
                             break
                         }
@@ -259,7 +263,7 @@ class MarkdownParser (
                     }
                     if(index == this.lastIndex) {
                         val endOffset = this[index].endOffset
-                        if(text.substring(startOffset, endOffset).transform().isNotEmpty())
+                        if(text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
                             children += LeafASTNode(MarkdownTokenTypes.TEXT, startOffset, endOffset)
                     }
                 }
@@ -270,7 +274,8 @@ class MarkdownParser (
 
         private fun String.transform() = this
             .replace(Regex("\n\n+"), "")        // Squashing new lines between paragraphs
-            .replace(Regex("\n>+ "), "\n")      // Replacement used in blockquotes, get rid of garbage
+            .replace(Regex("\n"), " ")
+            .replace(Regex(" >+ +"), " ")      // Replacement used in blockquotes, get rid of garbage
     }
 
 

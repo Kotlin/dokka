@@ -12,7 +12,7 @@ object DocNodesFromIElementFactory {
         when(type) {
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
             MarkdownElementTypes.FULL_REFERENCE_LINK,
-            MarkdownElementTypes.INLINE_LINK            -> if(dri == null) A(children, params) else DocumentationLink(children, params, dri)
+            MarkdownElementTypes.INLINE_LINK            -> if(dri == null) A(children, params) else DocumentationLink(dri, children, params)
             MarkdownElementTypes.STRONG                 -> B(children, params)
             MarkdownElementTypes.BLOCK_QUOTE            -> BlockQuote(children, params)
             MarkdownElementTypes.CODE_SPAN,
@@ -30,8 +30,9 @@ object DocNodesFromIElementFactory {
             MarkdownElementTypes.ORDERED_LIST           -> Ol(children, params)
             MarkdownElementTypes.UNORDERED_LIST         -> Ul(children, params)
             MarkdownElementTypes.PARAGRAPH              -> P(children, params)
-            MarkdownTokenTypes.TEXT                     -> Text(children, params, body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"))
+            MarkdownTokenTypes.TEXT                     -> Text(body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"), children, params )
             MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule
+            MarkdownTokenTypes.HARD_LINE_BREAK          -> Br
             else                                        -> CustomDocTag(children, params)
         }
 }

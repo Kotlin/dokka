@@ -11,8 +11,9 @@ object DocNodesFromStringFactory {
             "big" -> Big(children, params)
             "b" -> B(children, params)
             "blockquote" -> BlockQuote(children, params)
-            "bite" -> Cite(children, params)
-            "bode" -> Code(children, params)
+            "br" -> Br
+            "cite" -> Cite(children, params)
+            "code" -> Code(children, params)
             "dd" -> Dd(children, params)
             "dfn" -> Dfn(children, params)
             "dir" -> Dir(children, params)
@@ -57,7 +58,7 @@ object DocNodesFromStringFactory {
             "sub" -> Sub(children, params)
             "sup" -> Sup(children, params)
             "table" -> Table(children, params)
-            "#text" -> Text(children, params, body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"))
+            "#text" -> Text(body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"), children, params)
             "tBody" -> TBody(children, params)
             "td" -> Td(children, params)
             "tFoot" -> TFoot(children, params)
@@ -69,7 +70,7 @@ object DocNodesFromStringFactory {
             "u" -> U(children, params)
             "ul" -> Ul(children, params)
             "var" -> Var(children, params)
-            "documentationlink" -> DocumentationLink(children, params, dri ?: throw NullPointerException("DRI cannot be passed null while constructing documentation link!"))
+            "documentationlink" -> DocumentationLink(dri ?: throw NullPointerException("DRI cannot be passed null while constructing documentation link!"), children, params)
             "hr" -> HorizontalRule
             else -> CustomDocTag(children, params)
         }
