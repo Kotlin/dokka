@@ -1,11 +1,13 @@
 package basic
 
 import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.asSequence
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
 
-class DRITest: AbstractCoreTest() {
+class DRITest : AbstractCoreTest() {
     @Test
     fun `#634`() {
         val configuration = dokkaConfiguration {
@@ -28,10 +30,12 @@ class DRITest: AbstractCoreTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val expected = TypeConstructor("kotlin.Function1", listOf(
-                    TypeParam(listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))),
-                    Nullable(TypeParam(listOf(TypeConstructor("kotlin.Comparable", listOf(SelfType)))))
-                ))
+                val expected = TypeConstructor(
+                    "kotlin.Function1", listOf(
+                        TypeParam(listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))),
+                        Nullable(TypeParam(listOf(TypeConstructor("kotlin.Comparable", listOf(SelfType)))))
+                    )
+                )
                 val actual = module.packages.single()
                     .functions.single()
                     .dri.callable?.params?.single()
@@ -96,6 +100,68 @@ class DRITest: AbstractCoreTest() {
                     .functions.single()
                     .dri.callable?.receiver
                 assertEquals(expected, actual)
+            }
+        }
+    }
+
+    @Test
+    fun `#642 with * and Any?`() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    analysisPlatform = "js"
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |
+            |open class Bar<Z>
+            |class ReBarBar : Bar<StringBuilder>()
+            |class Foo<out T : Comparable<*>, R : List<Bar<*>>>
+            |
+            |fun <T : Comparable<Any?>> Foo<T, *>.qux(): String = TODO()
+            |fun <T : Comparable<*>> Foo<T, *>.qux(): String = TODO()
+            |
+        """.trimMargin(),
+            configuration
+        ) {
+            pagesGenerationStage = { module ->
+                // DRI(//qux/Foo[TypeParam(bounds=[kotlin.Comparable[kotlin.Any?]]),kotlin.Any?]#//)
+                val expectedDRI = DRI(
+                    "",
+                    null,
+                    Callable(
+                        "qux",
+                        TypeConstructor(
+                            "Foo",
+                            listOf(
+                                TypeParam(
+                                    listOf(
+                                        TypeConstructor(
+                                            "kotlin.Comparable",
+                                            listOf(
+                                                Nullable(TypeConstructor("kotlin.Any", emptyList()))
+                                            )
+                                        )
+                                    )
+                                ),
+                                Nullable(TypeConstructor("kotlin.Any", emptyList()))
+                            )
+                        ),
+                        emptyList()
+                    )
+                )
+
+                val driCount = module
+                    .asSequence()
+                    .filterIsInstance<ContentPage>()
+                    .sumBy { it.dri.count { dri -> dri == expectedDRI } }
+
+                assertEquals(1, driCount)
             }
         }
     }
