@@ -6,12 +6,3 @@ publishing {
         }
     }
 }
-
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    compileOnly(project(":coreDependencies", configuration = "shadow"))
-    testImplementation(project(":core"))
-    testImplementation(project(":coreDependencies", configuration = "shadow"))
-    testImplementation(project(":testApi"))
-    testImplementation("junit:junit:4.13")
-}

@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
+    api(project(":core"))
     implementation("junit:junit:4.13") // TODO: remove dependency to junit
     implementation(kotlin("stdlib"))
 }
@@ -20,7 +20,7 @@ publishing {
     publications {
         register<MavenPublication>("dokkaTestAPI") {
             artifactId = "dokka-test-api"
-            components["java"]
+            from(components["java"])
             artifact(sourceJar.get())
         }
     }
