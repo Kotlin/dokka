@@ -1,29 +1,26 @@
-package org.jetbrains.dokka.commonmarkrenderer
+package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.single
+import org.jetbrains.dokka.renderers.DefaultRenderer
+import org.jetbrains.dokka.renderers.OutputWriter
+import org.jetbrains.dokka.resolvers.DefaultLocationProvider
+import org.jetbrains.dokka.resolvers.LocationProvider
+import org.jetbrains.dokka.resolvers.LocationProviderFactory
 import java.lang.StringBuilder
 
 
-class CommonmarkRendererPlugin : DokkaPlugin() {
-
-    val locationProviderFactory by extensionPoint<LocationProviderFactory>()
-    val outputWriter by extensionPoint<OutputWriter>()
+class JekyllPlugin : DokkaPlugin() {
 
     val renderer by extending {
-        CoreExtensions.renderer providing { CommonmarkRenderer(it.single(outputWriter), it) }
-    }
-
-    val locationProvider by extending {
-        locationProviderFactory providing { MarkdownLocationProviderFactory(it) } order {
-            before(renderer)
-        }
+        CoreExtensions.renderer providing { JekyllRenderer(it.single(CoreExtensions.outputWriter), it) }
     }
 }
 
-class CommonmarkRenderer(
+class JekyllRenderer(
     outputWriter: OutputWriter,
     context: DokkaContext
 ) : DefaultRenderer<StringBuilder>(outputWriter, context) {
@@ -130,6 +127,9 @@ class CommonmarkRenderer(
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
         val builder = StringBuilder()
+        builder.append("---\n")
+        builder.append("title: ${page.name} -\n")
+        builder.append("---\n")
         content(builder, page)
         return builder.toString()
     }
@@ -175,20 +175,4 @@ class CommonmarkRenderer(
             )
         }
     }
-}
-
-class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {
-
-    override fun getLocationProvider(pageNode: RootPageNode) = MarkdownLocationProvider(pageNode, context)
-}
-
-
-class MarkdownLocationProvider(
-    pageGraphRoot: RootPageNode,
-    dokkaContext: DokkaContext
-) : DefaultLocationProvider(
-    pageGraphRoot,
-    dokkaContext
-) {
-    override val extension = ".md"
 }
