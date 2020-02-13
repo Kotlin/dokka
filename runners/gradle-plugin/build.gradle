@@ -72,6 +72,27 @@ publishing {
             }
 
             project.shadow.component(publication)
+            publication.pom { pom ->
+                // Add dokka-fatjar as a runtime dependency.
+                // This is a workaround until the Shadow jar can put project dependencies into the .pom: https://github.com/johnrengelman/shadow/commit/da82b37522b349aff414f571d2037682acd84f27
+                pom.withXml { xml ->
+                    def node = xml.asNode()
+                    def deps = null
+                    node.children().each { child ->
+                        if (child.name().toString() == "dependencies") {
+                            deps = child
+                        }
+                    }
+                    if (deps == null) {
+                        deps = node.appendNode("dependencies")
+                    }
+                    def dep = deps.appendNode("dependency")
+                    dep.appendNode("groupId", "org.jetbrains.dokka")
+                    dep.appendNode("artifactId", "dokka-fatjar")
+                    dep.appendNode("version", dokka_version)
+                    dep.appendNode("scope", "runtime")
+                }
+            }
         }
     }
 }
