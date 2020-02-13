@@ -5,7 +5,7 @@ import org.jetbrains.dokka.base.transformers.descriptors.DefaultDescriptorToDocu
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
 class DokkaBase: DokkaPlugin() {
-    val defaultDescriptorToDocumentationTranslator by extending {
+    val defaultDescriptorToDocumentationTranslator by extending(isFallback = true) {
         CoreExtensions.descriptorToDocumentationTranslator providing ::DefaultDescriptorToDocumentationTranslator
     }
 }

@@ -17,6 +17,8 @@ interface DokkaContext {
     operator fun <T, E> get(point: E, askDefault: AskDefault = AskDefault.WhenEmpty): List<T>
             where T : Any, E : ExtensionPoint<T>
 
+    fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T>
+
     val logger: DokkaLogger
     val configuration: DokkaConfiguration
     val platforms: Map<PlatformData, EnvironmentAndFacade>
@@ -38,19 +40,6 @@ interface DokkaContext {
                     .forEach { install(it) }
                 applyExtensions()
             }.also { it.logInitialisationInfo() }
-    }
-}
-
-fun <T, E> DokkaContext.single(point: E): T where T : Any, E : ExtensionPoint<T> {
-    fun throwBadArity(substitution: String): Nothing = throw IllegalStateException(
-        "$point was expected to have exactly one extension registered, but $substitution found."
-    )
-
-    val extensions = get(point, AskDefault.WhenEmpty)
-    return when (extensions.size) {
-        0 -> throwBadArity("none was")
-        1 -> extensions.first()
-        else -> throwBadArity("multiple were")
     }
 }
 
@@ -109,6 +98,23 @@ private class DokkaContextConfigurationImpl(
             AskDefault.WhenEmpty ->
                 actions(point)?.takeIf { it.isNotEmpty() } ?: DefaultExtensions.get(point, this)
         } as List<T>
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T> {
+        fun throwBadArity(substitution: String): Nothing = throw IllegalStateException(
+            "$point was expected to have exactly one extension registered, but $substitution found."
+        )
+
+        val extensions = extensions[point].orEmpty() as List<Extension<T>>
+        return when (extensions.size) {
+            0 -> DefaultExtensions.get(point, this).single() ?: throwBadArity("none was")
+            1 -> extensions.single().action.get(this)
+            else -> {
+                val notFallbacks = extensions.filterNot { it.isFallback }
+                if (notFallbacks.size == 1)  notFallbacks.single().action.get(this) else throwBadArity("many were")
+            }
+        }
+    }
 
     private fun <E : ExtensionPoint<*>> actions(point: E) = extensions[point]?.map { it.action.get(this) }
 

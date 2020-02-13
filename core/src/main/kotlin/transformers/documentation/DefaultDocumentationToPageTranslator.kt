@@ -6,7 +6,6 @@ import org.jetbrains.dokka.pages.DefaultPageBuilder
 import org.jetbrains.dokka.pages.DefaultPageContentBuilder
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.single
 
 
 object DefaultDocumentationToPageTranslator : DocumentationToPageTranslator {

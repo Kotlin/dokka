@@ -3,7 +3,6 @@ package org.jetbrains.dokka.renderers
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.resolvers.LocationProvider
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 

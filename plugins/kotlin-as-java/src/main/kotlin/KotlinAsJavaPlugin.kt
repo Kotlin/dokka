@@ -7,7 +7,6 @@ import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.single
 import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
