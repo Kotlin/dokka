@@ -81,7 +81,7 @@ open class DokkaDescriptorVisitor(
 
     fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
-        val scope = descriptor.getMemberScope(emptyList())
+        val scope = descriptor.unsubstitutedMemberScope
         val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
 
         return Enum(
@@ -105,7 +105,7 @@ open class DokkaDescriptorVisitor(
 
     fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
-        val scope = descriptor.getMemberScope(emptyList())
+        val scope = descriptor.unsubstitutedMemberScope
         val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
         val expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData()
         val actual = listOfNotNull(descriptorData)
