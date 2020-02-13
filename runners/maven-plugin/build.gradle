@@ -59,6 +59,9 @@ sourceSets.main.resources {
 
 task generatePom() {
     inputs.file(new File(projectDir, "pom.tpl.xml"))
+    inputs.property("dokka_version", dokka_version)
+    inputs.property("maven_version", maven_version)
+    inputs.property("maven_plugin_tools_version", maven_plugin_tools_version)
     outputs.file(new File(mavenBuildDir, "pom.xml"))
     doLast {
         final pomTemplate = new File(projectDir, "pom.tpl.xml")

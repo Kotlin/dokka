@@ -45,6 +45,7 @@ task sourceJar(type: Jar) {
 }
 
 processResources {
+    inputs.property("dokka_version", dokka_version)
     eachFile {
         if (it.name == "org.jetbrains.dokka.properties") {
             it.filter { line ->
