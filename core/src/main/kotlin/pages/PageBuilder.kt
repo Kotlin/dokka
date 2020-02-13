@@ -3,19 +3,40 @@ package org.jetbrains.dokka.pages
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.doc.Code
 import org.jetbrains.dokka.model.doc.TagWrapper
+import org.jetbrains.dokka.model.doc.Text
 
 open class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder
 ) : PageBuilder {
 
+    private fun Documentable.generateSnippets(): List<RendererSpecificResourcePage> =
+        commentsData.flatMap { it.children }.mapNotNull { it.root as? Code }.mapIndexed { i, code ->
+            val nameL = name?.let { it[0].toLowerCase() + it.substring(1) }
+            RendererSpecificResourcePage(
+                name = "$nameL-$i",
+                fileExtension = ".kt",
+                children = emptyList(),
+                strategy = RenderingStrategy.Write(
+                    "package $nameL$i\n\n" + code.children.mapNotNull { it as? Text }.joinToString(
+                        separator = "\n"
+                    ) { it.body })
+            )
+        }
+
     override fun pageForModule(m: Module): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
+        ModulePageNode(
+            m.name.ifEmpty { "root" },
+            contentForModule(m),
+            m,
+            m.packages.map { pageForPackage(it) } + m.generateSnippets())
 
     override fun pageForPackage(p: Package) =
         PackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
             p.classlikes.map { pageForClasslike(it) } +
-                    p.functions.map { pageForMember(it) })
+                    p.functions.map { pageForMember(it) } +
+                    p.generateSnippets())
 
     override fun pageForClasslike(c: Classlike): ClasslikePageNode {
         val constructors = when (c) {
@@ -27,13 +48,14 @@ open class DefaultPageBuilder(
         return ClasslikePageNode(c.name, contentForClasslike(c), setOf(c.dri), c,
             constructors.map { pageForMember(it) } +
                     c.classlikes.map { pageForClasslike(it) } +
-                    c.functions.map { pageForMember(it) })
+                    c.functions.map { pageForMember(it) } +
+                    c.generateSnippets())
     }
 
     override fun pageForMember(m: CallableNode): MemberPageNode =
         when (m) {
             is Function ->
-                MemberPageNode(m.name, contentForFunction(m), setOf(m.dri), m)
+                MemberPageNode(m.name, contentForFunction(m), setOf(m.dri), m, m.generateSnippets())
             else -> throw IllegalStateException("$m should not be present here")
         }
 

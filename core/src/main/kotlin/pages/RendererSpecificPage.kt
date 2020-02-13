@@ -5,24 +5,27 @@ import kotlin.reflect.KClass
 
 interface RendererSpecificPage : PageNode {
     val strategy: RenderingStrategy
+    val fileExtension: String?
 }
 
 class RendererSpecificRootPage(
     override val name: String,
     override val children: List<PageNode>,
-    override val strategy: RenderingStrategy
+    override val strategy: RenderingStrategy,
+    override val fileExtension: String? = null
 ) : RootPageNode(), RendererSpecificPage {
     override fun modified(name: String, children: List<PageNode>): RendererSpecificRootPage =
-        RendererSpecificRootPage(name, children, strategy)
+        RendererSpecificRootPage(name, children, strategy, fileExtension)
 }
 
 class RendererSpecificResourcePage(
     override val name: String,
     override val children: List<PageNode>,
-    override val strategy: RenderingStrategy
+    override val strategy: RenderingStrategy,
+    override val fileExtension: String? = null
 ): RendererSpecificPage {
     override fun modified(name: String, children: List<PageNode>): RendererSpecificResourcePage =
-        RendererSpecificResourcePage(name, children, strategy)
+        RendererSpecificResourcePage(name, children, strategy, fileExtension)
 }
 
 sealed class RenderingStrategy {

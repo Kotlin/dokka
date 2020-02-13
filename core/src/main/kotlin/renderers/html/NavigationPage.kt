@@ -18,6 +18,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
     override val strategy = RenderingStrategy<HtmlRenderer> {
         createHTML().visit(root, "nav-submenu", this)
     }
+    override val fileExtension: String? = null
 
     private fun <R> TagConsumer<R>.visit(node: NavigationNode, navId: String, renderer: HtmlRenderer): R =
         with(renderer) {
