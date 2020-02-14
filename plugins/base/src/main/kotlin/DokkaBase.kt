@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.renderers.FileWriter
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.base.renderers.html.*
 import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
@@ -20,6 +20,7 @@ import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocum
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
@@ -27,6 +28,7 @@ class DokkaBase : DokkaPlugin() {
     val signatureProvider by extensionPoint<SignatureProvider>()
     val locationProviderFactory by extensionPoint<LocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
+    val htmlPreprocessors by extensionPoint<PageTransformer>()
 
     val descriptorToDocumentableTranslator by extending(isFallback = true) {
         CoreExtensions.descriptorToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
@@ -88,5 +90,25 @@ class DokkaBase : DokkaPlugin() {
 
     val fileWriter by extending(isFallback = true) {
         outputWriter providing ::FileWriter
+    }
+
+    val rootCreator by extending {
+        htmlPreprocessors with RootCreator
+    }
+
+    val navigationPageInstaller by extending {
+        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) }
+    }
+
+    val searchPageInstaller by extending {
+        htmlPreprocessors with SearchPageInstaller order { after(rootCreator) }
+    }
+
+    val resourceInstaller by extending {
+        htmlPreprocessors with ResourceInstaller order { after(rootCreator) }
+    }
+
+    val styleAndScriptsAppender by extending {
+        htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) }
     }
 }
