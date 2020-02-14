@@ -81,6 +81,8 @@ class JekyllRenderer(
 
     override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage) {
 
+        buildParagraph()
+
         val size = node.children.firstOrNull()?.children?.size ?: 0
 
         if(node.header.size > 0) {
@@ -107,12 +109,14 @@ class JekyllRenderer(
             }
             append("|\n")
         }
+
+        buildParagraph()
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
         val decorators = decorators(textNode.style)
         this.append(decorators)
-        this.append(textNode.text)
+        this.append(textNode.text.replace(Regex("[<>]"), ""))
         this.append(decorators.reversed())
     }
 
