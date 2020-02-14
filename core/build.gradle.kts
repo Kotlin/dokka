@@ -1,7 +1,6 @@
 import org.jetbrains.configureBintrayPublication
 
 plugins {
-    id("com.github.johnrengelman.shadow")
     `maven-publish`
     id("com.jfrog.bintray")
 }
