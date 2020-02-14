@@ -2,11 +2,14 @@ package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import java.io.File
 
 open class HtmlRenderer(
@@ -15,13 +18,7 @@ open class HtmlRenderer(
 
     private val pageList = mutableListOf<String>()
 
-    override val preprocessors = listOf(
-        RootCreator,
-        SearchPageInstaller,
-        ResourceInstaller,
-        NavigationPageInstaller,
-        StyleAndScriptsAppender
-    )
+    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
