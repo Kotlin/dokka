@@ -190,20 +190,16 @@ abstract class Documentable {
 
     override fun hashCode() = dri.hashCode()
 
-
-    val commentsData: List<DocumentationNode>
-        get() = platformInfo.map { it.documentationNode }
-
-    val briefDocTagString: String
-        get() =
-            platformInfo
-                .firstOrNull()
-                ?.documentationNode
-                ?.children
-                ?.firstOrNull()
-                ?.root
-                ?.docTagSummary()
-                ?.shorten(40) ?: ""
+    val briefDocTagString: String by lazy {
+        platformInfo
+            .firstOrNull()
+            ?.documentationNode
+            ?.children
+            ?.firstOrNull()
+            ?.root
+            ?.docTagSummary()
+            ?.shorten(40) ?: ""
+    }
 
     open val extra: MutableSet<Extra> = mutableSetOf()
 }
