@@ -75,31 +75,21 @@ open class DefaultPageBuilder(
             header(2) { text("SuperInterfaces") }
             linkTable(it)
         }
-        c.platformInfo.forEach { platformInfo ->
-            platformInfo.documentationNode.children.forEach {
-                header(3) {
-                    text(it.toHeaderString())
-                    text("[${platformInfo.platformData.joinToString(", ") { it.platformType.name }}]")
-                }
-                comment(it.root)
-                text("\n")
-            }
-            contentForComments(c)
-            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
-                link(it.name, it.dri)
-                signature(it)
-                text(it.briefDocTagString)
-            }
+        contentForComments(c)
+        block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData) {
+            link(it.name, it.dri)
+            signature(it)
+            text(it.briefDocTagString)
+        }
+        block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
+            link(it.name, it.dri)
+            signature(it)
+            text(it.briefDocTagString)
+        }
+        block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
+            link(it.name, it.dri)
+            text(it.briefDocTagString)
 
-            this.block("Functions", 2, ContentKind.Functions, c.functions, c.platformData) {
-                link(it.name, it.dri)
-                signature(it)
-                text(it.briefDocTagString)
-            }
-            block("Properties", 2, ContentKind.Properties, c.properties, c.platformData) {
-                link(it.name, it.dri)
-                text(it.briefDocTagString)
-            }
         }
     }
 
@@ -133,9 +123,12 @@ open class DefaultPageBuilder(
     }
 
     private fun PageContentBuilder.contentForComments(d: Documentable) =
-        d.commentsData.forEach {
-            it.children.forEach {
-                header(3) { text(it.toHeaderString()) }
+        d.platformInfo.forEach { platformInfo ->
+            platformInfo.documentationNode.children.forEach {
+                header(3) {
+                    text(it.toHeaderString())
+                    text(" [${platformInfo.platformData.joinToString(", ") { it.platformType.name }}]")
+                }
                 comment(it.root)
                 text("\n")
             }
@@ -144,16 +137,7 @@ open class DefaultPageBuilder(
     private fun contentForFunction(f: Function) = group(f) {
         header(1) { text(f.name) }
         signature(f)
-        f.platformInfo.forEach { platformInfo ->
-            platformInfo.documentationNode.children.forEach {
-                header(3) {
-                    text(it.toHeaderString())
-                    text("[${platformInfo.platformData.joinToString(", ") { it.platformType.name }}]")
-                }
-                comment(it.root)
-                text("\n")
-            }
-        }
+        contentForComments(f)
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData) {
             text(it.name ?: "<receiver>")
             it.platformInfo.forEach { it.documentationNode.children.forEach { comment(it.root) } }
