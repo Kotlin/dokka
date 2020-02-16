@@ -1,11 +1,13 @@
-package org.jetbrains.dokka.transformers.documentation
+package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
+import org.jetbrains.dokka.utilities.pullOutNull
 
-internal object DefaultDocumentationNodeMerger : DocumentationNodeMerger {
+internal object DefaultDocumentableMerger : DocumentableMerger {
     override fun invoke(modules: Collection<Module>, context: DokkaContext): Module {
         if (!modules.all { it.name == modules.first().name })
             context.logger.error("All module names need to be the same")
@@ -49,7 +51,7 @@ fun Function.mergeWith(other: Function): Function = Function(
     name,
     returnType,
     isConstructor,
-    if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
+    (receiver to other.receiver).pullOutNull()?.let { (f, s) -> f.mergeWith(s) },
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
@@ -59,7 +61,7 @@ fun Function.mergeWith(other: Function): Function = Function(
 fun Property.mergeWith(other: Property) = Property(
     dri,
     name,
-    if (receiver != null && other.receiver != null) receiver.mergeWith(other.receiver) else null,
+    (receiver to other.receiver).pullOutNull()?.let { (f, s) -> f.mergeWith(s) },
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
     accessors = (this.accessors + other.accessors).distinct(),
