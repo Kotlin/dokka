@@ -6,7 +6,7 @@ import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.renderers.OutputWriter
 import org.jetbrains.dokka.resolvers.LocationProviderFactory
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
-import org.jetbrains.dokka.transformers.documentation.DocumentationNodeMerger
+import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeTransformer
 import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
 import org.jetbrains.dokka.transformers.pages.PageMergerStrategy
@@ -22,7 +22,7 @@ import kotlin.reflect.KProperty
 object CoreExtensions {
     val descriptorToDocumentationTranslator by coreExtension<DescriptorToDocumentationTranslator>()
     val psiToDocumentationTranslator by coreExtension<PsiToDocumentationTranslator>()
-    val documentationMerger by coreExtension<DocumentationNodeMerger>()
+    val documentableMerger by coreExtension<DocumentableMerger>()
     val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
     val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
     val documentationToPageTranslator by coreExtension<DocumentationToPageTranslator>()
