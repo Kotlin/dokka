@@ -1,9 +1,10 @@
-package org.jetbrains.dokka.pages
+package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.TagWrapper
+import org.jetbrains.dokka.pages.*
 
 open class DefaultPageBuilder(
     override val rootContentGroup: RootContentBuilder

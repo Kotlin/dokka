@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.kotlinAsJava
 
+import org.jetbrains.dokka.base.transformers.documentables.DefaultPageBuilder
+import org.jetbrains.dokka.base.transformers.documentables.RootContentBuilder
 import org.jetbrains.dokka.kotlinAsJava.conversions.asJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asStatic
 import org.jetbrains.dokka.kotlinAsJava.conversions.withClass

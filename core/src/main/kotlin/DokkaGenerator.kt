@@ -88,7 +88,7 @@ class DokkaGenerator(
     fun createPages(
         transformedDocumentation: Module,
         context: DokkaContext
-    ) = context.single(CoreExtensions.documentationToPageTranslator).invoke(transformedDocumentation, context)
+    ) = context.single(CoreExtensions.documentablesToPageTranslator).invoke(transformedDocumentation, context)
 
     fun transformPages(
         pages: RootPageNode,

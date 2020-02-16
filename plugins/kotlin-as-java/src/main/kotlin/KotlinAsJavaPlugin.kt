@@ -7,7 +7,7 @@ import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentablesToPageTranslator
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
 class KotlinAsJavaPlugin : DokkaPlugin() {
@@ -15,7 +15,7 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
         CoreExtensions.descriptorToDocumentationTranslator providing ::KotlinAsJavaDescriptorToDocumentationTranslator
     }
     val kotlinAsJavaDocumentableToPageTranslator by extending {
-        CoreExtensions.documentationToPageTranslator with KotlinAsJavaDocumentationToPageTranslator
+        CoreExtensions.documentablesToPageTranslator with KotlinAsJavaDocumentationToPageTranslator
     }
 }
 
@@ -26,7 +26,7 @@ object DescriptorCache {
     operator fun get(dri: DRI): DeclarationDescriptor? = cache[dri]
 }
 
-object KotlinAsJavaDocumentationToPageTranslator : DocumentationToPageTranslator {
+object KotlinAsJavaDocumentationToPageTranslator : DocumentablesToPageTranslator {
     override fun invoke(module: Module, context: DokkaContext): ModulePageNode =
         KotlinAsJavaPageBuilder { node, kind, operation ->
             KotlinAsJavaPageContentBuilder.group(
