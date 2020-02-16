@@ -8,7 +8,7 @@ import org.jetbrains.dokka.resolvers.LocationProviderFactory
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.dokka.transformers.documentation.DocumentationNodeTransformer
-import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentablesToPageTranslator
 import org.jetbrains.dokka.transformers.pages.PageMergerStrategy
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
@@ -25,7 +25,7 @@ object CoreExtensions {
     val documentableMerger by coreExtension<DocumentableMerger>()
     val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
     val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
-    val documentationToPageTranslator by coreExtension<DocumentationToPageTranslator>()
+    val documentablesToPageTranslator by coreExtension<DocumentablesToPageTranslator>()
     val pageTransformer by coreExtension<PageNodeTransformer>()
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()

@@ -6,7 +6,6 @@ import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.OutputWriter
 import org.jetbrains.dokka.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
-import org.jetbrains.dokka.transformers.documentation.DefaultDocumentationToPageTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
 import org.jetbrains.dokka.transformers.psi.DefaultPsiToDocumentationTranslator
 import org.jetbrains.dokka.transformers.pages.DefaultPageNodeMerger
@@ -28,7 +27,6 @@ internal object DefaultExtensions {
         when (point) {
             CoreExtensions.psiToDocumentationTranslator -> DefaultPsiToDocumentationTranslator
             CoreExtensions.commentsToContentConverter -> converter.get(fullContext)
-            CoreExtensions.documentationToPageTranslator -> DefaultDocumentationToPageTranslator
             CoreExtensions.pageTransformer -> DefaultPageNodeMerger(fullContext)
             CoreExtensions.renderer -> renderer.get(fullContext)
             CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)

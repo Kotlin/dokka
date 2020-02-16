@@ -1,21 +1,21 @@
-package org.jetbrains.dokka.pages
+package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Parameter
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 open class DefaultPageContentBuilder(
-    private val dri: Set<DRI>,
-    private val platformData: Set<PlatformData>,
-    private val kind: Kind,
-    private val commentsConverter: CommentsToContentConverter,
-    open val logger: DokkaLogger,
-    private val styles: Set<Style> = emptySet(),
-    private val extras: Set<Extra> = emptySet()
+    protected val dri: Set<DRI>,
+    protected val platformData: Set<PlatformData>,
+    protected val kind: Kind,
+    protected val commentsConverter: CommentsToContentConverter,
+    val logger: DokkaLogger,
+    protected val styles: Set<Style> = emptySet(),
+    protected val extras: Set<Extra> = emptySet()
 ) : PageContentBuilder {
     protected val contents = mutableListOf<ContentNode>()
 
@@ -44,8 +44,8 @@ open class DefaultPageContentBuilder(
 
     override fun signature(f: Function) = signature(f) {
         text("fun ")
-        if (f.receiver is Parameter) {
-            type(f.receiver.type)
+        f.receiver?.also {
+            type(it.type)
             text(".")
         }
         link(f.name, f.dri)
@@ -58,7 +58,8 @@ open class DefaultPageContentBuilder(
         text(")")
         val returnType = f.returnType
         if (!f.isConstructor && returnType != null &&
-            returnType.constructorFqName != Unit::class.qualifiedName) {
+            returnType.constructorFqName != Unit::class.qualifiedName
+        ) {
             text(": ")
             type(returnType)
         }
@@ -189,6 +190,7 @@ interface PageContentBuilder {
         platformData: Set<PlatformData>,
         kind: Kind, block: PageContentBuilderFunction
     ): ContentGroup
+
     fun text(text: String, kind: Kind = ContentKind.Symbol)
     fun signature(f: Function)
     fun link(text: String, address: DRI, kind: Kind = ContentKind.Symbol)
