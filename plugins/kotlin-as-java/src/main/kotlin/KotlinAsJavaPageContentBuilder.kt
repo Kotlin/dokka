@@ -3,6 +3,7 @@ package org.jetbrains.dokka.kotlinAsJava
 import org.jetbrains.dokka.base.transformers.documentables.DefaultPageContentBuilder
 import org.jetbrains.dokka.base.transformers.documentables.PageContentBuilderFunction
 import org.jetbrains.dokka.base.transformers.documentables.type
+import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.JavaTypeWrapper

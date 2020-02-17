@@ -4,6 +4,8 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.transformers.descriptors.DefaultDescriptorToDocumentationTranslator
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentablesToPageTranslator
+import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.PageNodeMerger
@@ -12,8 +14,9 @@ import org.jetbrains.dokka.base.transformers.psi.DefaultPsiToDocumentationTransl
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.renderers.html.HtmlRenderer
 
-class DokkaBase: DokkaPlugin() {
+class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
+    val commentsToContentConverter by extensionPoint<CommentsToContentConverter>()
 
     val descriptorToDocumentationTranslator by extending(isFallback = true) {
         CoreExtensions.descriptorToDocumentationTranslator providing ::DefaultDescriptorToDocumentationTranslator
@@ -28,7 +31,13 @@ class DokkaBase: DokkaPlugin() {
     }
 
     val documentablesToPageTranslator by extending(isFallback = true) {
-        CoreExtensions.documentablesToPageTranslator with DefaultDocumentablesToPageTranslator
+        CoreExtensions.documentablesToPageTranslator providing { ctx ->
+            DefaultDocumentablesToPageTranslator(ctx.single(commentsToContentConverter), ctx.logger)
+        }
+    }
+
+    val docTagToContentConverter by extending(isFallback = true) {
+        commentsToContentConverter with DocTagToContentConverter
     }
 
     val pageMerger by extending {

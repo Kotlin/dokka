@@ -1,11 +1,10 @@
-package org.jetbrains.dokka.pages
+package org.jetbrains.dokka.base.transformers.pages.comments
 
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class DocTagToContentConverter(
-    private val context: DokkaContext
-) : CommentsToContentConverter {
+object DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
@@ -21,10 +20,28 @@ class DocTagToContentConverter(
             }
 
         fun buildHeader(level: Int) =
-            listOf(ContentHeader(buildChildren(docTag), level, dci, platforms, styles, extras))
+            listOf(
+                ContentHeader(
+                    buildChildren(docTag),
+                    level,
+                    dci,
+                    platforms,
+                    styles,
+                    extras
+                )
+            )
 
         fun buildList(ordered: Boolean) =
-            listOf(ContentList(buildChildren(docTag), ordered, dci, platforms, styles, extras))
+            listOf(
+                ContentList(
+                    buildChildren(docTag),
+                    ordered,
+                    dci,
+                    platforms,
+                    styles,
+                    extras
+                )
+            )
 
         return when (docTag) {
             is H1 -> buildHeader(1)
@@ -53,7 +70,10 @@ class DocTagToContentConverter(
                 ContentDRILink(
                     buildChildren(docTag),
                     docTag.dri,
-                    DCI(setOf(docTag.dri), ContentKind.Symbol),
+                    DCI(
+                        setOf(docTag.dri),
+                        ContentKind.Symbol
+                    ),
                     platforms,
                     styles,
                     extras
@@ -81,16 +101,31 @@ class DocTagToContentConverter(
             )
             is Img -> listOf(
                 ContentEmbeddedResource(
-                    address = docTag.params.get("href")!!,
-                    altText = docTag.params.get("alt"),
+                    address = docTag.params["href"]!!,
+                    altText = docTag.params["alt"],
                     dci = dci,
                     platforms = platforms,
                     style = styles,
                     extras = extras
                 )
             )
-            is HorizontalRule -> listOf(ContentText("", dci, platforms, setOf()))
-            is Text -> listOf(ContentText(docTag.body, dci, platforms, styles, extras))
+            is HorizontalRule -> listOf(
+                ContentText(
+                    "",
+                    dci,
+                    platforms,
+                    setOf()
+                )
+            )
+            is Text -> listOf(
+                ContentText(
+                    docTag.body,
+                    dci,
+                    platforms,
+                    styles,
+                    extras
+                )
+            )
             else -> buildChildren(docTag)
         }
     }

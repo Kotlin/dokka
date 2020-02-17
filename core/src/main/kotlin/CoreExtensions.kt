@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.pages.CommentsToContentConverter
 import org.jetbrains.dokka.plugability.ExtensionPoint
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.renderers.OutputWriter
@@ -27,7 +26,6 @@ object CoreExtensions {
     val pageTransformer by coreExtension<PageNodeTransformer>()
     val renderer by coreExtension<Renderer>()
 
-    val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()
 
