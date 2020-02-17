@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.resolvers
+package org.jetbrains.dokka.base.resolvers
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.links.DRI

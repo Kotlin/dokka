@@ -1,9 +1,10 @@
-package org.jetbrains.dokka.resolvers
+package org.jetbrains.dokka.base.resolvers
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.pages.RootPageNode
 
 interface LocationProvider {
     fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode? = null): String
@@ -11,3 +12,8 @@ interface LocationProvider {
     fun resolveRoot(node: PageNode): String
     fun ancestors(node: PageNode): List<PageNode>
 }
+
+interface LocationProviderFactory {
+    fun getLocationProvider(pageNode: RootPageNode): LocationProvider
+}
+

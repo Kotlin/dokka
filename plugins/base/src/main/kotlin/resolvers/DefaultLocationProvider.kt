@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.resolvers
+package org.jetbrains.dokka.base.resolvers
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
@@ -78,34 +78,29 @@ fun DRI.toJavadocLocation(jdkVersion: Int): String { // TODO: classes without pa
         return "$packageLink/package-summary.html".htmlEscape()
     }
     val classLink = if (packageLink == null) "$classNames.html" else "$packageLink/$classNames.html"
-    if (callable == null) {
-        return classLink.htmlEscape()
-    }
+    val callableChecked = callable ?: return classLink.htmlEscape()
 
-    val callableLink = "$classLink#${callable.name}" + when {
-        jdkVersion < 8 -> "(${callable.params.joinToString(", ")})"
-        jdkVersion < 10 -> "-${callable.params.joinToString("-")}-"
-        else -> "(${callable.params.joinToString(",")})"
+    val callableLink = "$classLink#${callableChecked.name}" + when {
+        jdkVersion < 8 -> "(${callableChecked.params.joinToString(", ")})"
+        jdkVersion < 10 -> "-${callableChecked.params.joinToString("-")}-"
+        else -> "(${callableChecked.params.joinToString(",")})"
     }
 
     return callableLink.htmlEscape()
 }
 
 fun DRI.toDokkaLocation(extension: String): String { // TODO: classes without packages?
-    if (classNames == null) {
-        return "$packageName/index$extension"
-    }
+    val classNamesChecked = classNames ?: return "$packageName/index$extension"
+
     val classLink = if (packageName == null) {
         ""
     } else {
         "$packageName/"
-    } + classNames.split('.').joinToString("/", transform = ::identifierToFilename)
+    } + classNamesChecked.split('.').joinToString("/", transform = ::identifierToFilename)
 
-    if (callable == null) {
-        return "$classLink/index$extension"
-    }
+    val callableChecked = callable ?: return "$classLink/index$extension"
 
-    return "$classLink/${identifierToFilename(callable.name)}$extension"
+    return "$classLink/${identifierToFilename(callableChecked.name)}$extension"
 }
 
 private val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")

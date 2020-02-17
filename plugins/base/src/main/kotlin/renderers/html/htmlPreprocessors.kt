@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.renderers.html
+package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.h1
 import kotlinx.html.id
