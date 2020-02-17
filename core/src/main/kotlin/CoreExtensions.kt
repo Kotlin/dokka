@@ -24,12 +24,13 @@ object CoreExtensions {
     val psiToDocumentationTranslator by coreExtension<PsiToDocumentationTranslator>()
     val documentableMerger by coreExtension<DocumentableMerger>()
     val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
-    val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
     val documentablesToPageTranslator by coreExtension<DocumentablesToPageTranslator>()
     val pageTransformer by coreExtension<PageNodeTransformer>()
+    val renderer by coreExtension<Renderer>()
+
+    val commentsToContentConverter by coreExtension<CommentsToContentConverter>()
     val locationProviderFactory by coreExtension<LocationProviderFactory>()
     val outputWriter by coreExtension<OutputWriter>()
-    val renderer by coreExtension<Renderer>()
     val pageMergerStrategy by coreExtension<PageMergerStrategy>()
 
     private fun <T: Any> coreExtension() = object {

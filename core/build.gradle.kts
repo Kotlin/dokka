@@ -10,7 +10,6 @@ dependencies {
 
     val kotlin_version: String by project
     api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     implementation("org.jsoup:jsoup:1.12.1")
