@@ -10,11 +10,6 @@ import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
 import kotlin.reflect.KProperty
 
-
-/**
- * Extension points declared by dokka core.
- * Default values are stored in [org.jetbrains.dokka.plugability.DefaultExtensions]
- */
 object CoreExtensions {
     val descriptorToDocumentationTranslator by coreExtension<DescriptorToDocumentationTranslator>()
     val psiToDocumentationTranslator by coreExtension<PsiToDocumentationTranslator>()
