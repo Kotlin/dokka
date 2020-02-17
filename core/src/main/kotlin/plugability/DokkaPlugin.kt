@@ -49,3 +49,7 @@ abstract class DokkaPlugin {
             .forEach { if (it.condition.invoke(configuration)) ctx.addExtensionDependencies(it) }
     }
 }
+
+inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =
+    context?.let { it[extension()] }
+        ?: throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")

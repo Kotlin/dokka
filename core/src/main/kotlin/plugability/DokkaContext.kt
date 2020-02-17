@@ -43,6 +43,9 @@ interface DokkaContext {
     }
 }
 
+inline fun <reified T: DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
+    ?: throw java.lang.IllegalStateException("Plugin ${T::class.qualifiedName} is not present in context.")
+
 interface DokkaContextConfiguration {
     fun addExtensionDependencies(extension: Extension<*>)
 }
