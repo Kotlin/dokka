@@ -1,15 +1,18 @@
-package org.jetbrains.dokka.renderers
+package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.renderers.OutputWriter
+import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.resolvers.LocationProvider
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 abstract class DefaultRenderer<T>(
-    protected val outputWriter: OutputWriter,
     protected val context: DokkaContext
 ) : Renderer {
+
+    protected val outputWriter = context.single(CoreExtensions.outputWriter)
 
     protected lateinit var locationProvider: LocationProvider
         private set

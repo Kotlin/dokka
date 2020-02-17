@@ -4,8 +4,8 @@ import kotlinx.html.h1
 import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
+import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.renderers.platforms
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 object RootCreator : PageNodeTransformer {

@@ -1,7 +1,6 @@
-package org.jetbrains.dokka.transformers.psi
+package org.jetbrains.dokka.base.transformers.psi
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.JavadocParser
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
@@ -11,10 +10,9 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.Visibilities
-import org.jetbrains.kotlin.idea.caches.project.getPlatformModuleInfo
-import org.jetbrains.kotlin.platform.TargetPlatform
 
 object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
 
@@ -24,7 +22,11 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
         platformData: PlatformData,
         context: DokkaContext
     ): Module {
-        val docParser = DokkaPsiParser(platformData, context.logger)
+        val docParser =
+            DokkaPsiParser(
+                platformData,
+                context.logger
+            )
         return Module(moduleName,
             psiFiles.map { psiFile ->
                 val dri = DRI(packageName = psiFile.packageName)
@@ -124,14 +126,14 @@ object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
         private fun parseField(psi: PsiField, parent: DRI): Property {
             val dri = parent.copy(
                 callable = Callable(
-                    psi.name,
+                    psi.name!!, // TODO: Investigate if this is indeed nullable
                     JavaClassReference(psi.containingClass?.name.orEmpty()),
                     emptyList()
                 )
             )
             return Property(
                 dri,
-                psi.name,
+                psi.name!!, // TODO: Investigate if this is indeed nullable
                 null,
                 null,
                 getComment(psi),
