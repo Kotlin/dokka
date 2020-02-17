@@ -1,10 +1,8 @@
-package org.jetbrains.dokka.base.transformers.documentables
+package org.jetbrains.dokka.base.translators.documentables
 
-import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentablesToPageTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 
