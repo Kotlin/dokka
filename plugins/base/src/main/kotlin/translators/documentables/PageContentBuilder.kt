@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.transformers.documentables
+package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI

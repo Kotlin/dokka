@@ -117,7 +117,7 @@ abstract class DefaultRenderer<T>(
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationproviderFactory }.getLocationProvider(newRoot)
+            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
 
         root.children<ModulePageNode>().forEach { renderPackageList(it) }
 

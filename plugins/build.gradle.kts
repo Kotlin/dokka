@@ -8,8 +8,6 @@ subprojects {
 //        compileOnly(project(":coreDependencies", configuration = "shadow")) // uncomment if IntelliJ does not recognize pacakges from IntelliJ
         implementation(kotlin("stdlib-jdk8"))
 
-        testImplementation(project(":core"))
-        testImplementation(project(":coreDependencies", configuration = "shadow"))
         testImplementation(project(":testApi"))
         testImplementation("junit:junit:4.13")
     }

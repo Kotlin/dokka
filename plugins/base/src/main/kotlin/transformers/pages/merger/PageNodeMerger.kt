@@ -25,5 +25,5 @@ private fun <T> Iterable<T>.assertSingle(path: List<String>): T = try {
         single()
     } catch (e: Exception) {
         val renderedPath = path.joinToString(separator = "/")
-        throw IllegalStateException("Page merger is missconfigured. Error for $renderedPath: ${e.message}")
+        throw IllegalStateException("Page merger is misconfigured. Error for $renderedPath: ${e.message}")
     }

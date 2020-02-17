@@ -1,9 +1,9 @@
 package  org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.base.transformers.descriptors.DRIWithPlatformInfo
-import org.jetbrains.dokka.base.transformers.descriptors.DokkaDescriptorVisitor
-import org.jetbrains.dokka.base.transformers.descriptors.withEmptyInfo
+import org.jetbrains.dokka.base.translators.descriptors.DRIWithPlatformInfo
+import org.jetbrains.dokka.base.translators.descriptors.DokkaDescriptorVisitor
+import org.jetbrains.dokka.base.translators.descriptors.withEmptyInfo
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
