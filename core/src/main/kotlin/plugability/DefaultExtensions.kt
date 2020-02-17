@@ -5,8 +5,6 @@ import org.jetbrains.dokka.pages.DocTagToContentConverter
 import org.jetbrains.dokka.renderers.FileWriter
 import org.jetbrains.dokka.renderers.OutputWriter
 import org.jetbrains.dokka.resolvers.DefaultLocationProviderFactory
-import org.jetbrains.dokka.transformers.pages.DefaultPageMergerStrategy
-import org.jetbrains.dokka.transformers.pages.DefaultPageNodeMerger
 
 internal object DefaultExtensions {
 
@@ -18,10 +16,8 @@ internal object DefaultExtensions {
     internal fun <T : Any, E : ExtensionPoint<T>> get(point: E, fullContext: DokkaContext): List<T> =
         when (point) {
             CoreExtensions.commentsToContentConverter -> converter.get(fullContext)
-            CoreExtensions.pageTransformer -> DefaultPageNodeMerger(fullContext)
             CoreExtensions.locationProviderFactory -> providerFactory.get(fullContext)
             CoreExtensions.outputWriter ->  outputWriter.get(fullContext)
-            CoreExtensions.pageMergerStrategy -> DefaultPageMergerStrategy(fullContext.logger)
             else -> null
         }.let { listOfNotNull( it ) as List<T> }
 }
