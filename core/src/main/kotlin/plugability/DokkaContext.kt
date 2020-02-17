@@ -14,7 +14,7 @@ import kotlin.reflect.full.createInstance
 interface DokkaContext {
     fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
-    operator fun <T, E> get(point: E, askDefault: AskDefault = AskDefault.WhenEmpty): List<T>
+    operator fun <T, E> get(point: E): List<T>
             where T : Any, E : ExtensionPoint<T>
 
     fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T>
@@ -94,13 +94,8 @@ private class DokkaContextConfigurationImpl(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override operator fun <T, E> get(point: E, askDefault: AskDefault) where T : Any, E : ExtensionPoint<T> =
-        when (askDefault) {
-            AskDefault.Never -> actions(point).orEmpty()
-            AskDefault.Always -> actions(point).orEmpty() + DefaultExtensions.get(point, this)
-            AskDefault.WhenEmpty ->
-                actions(point)?.takeIf { it.isNotEmpty() } ?: DefaultExtensions.get(point, this)
-        } as List<T>
+    override operator fun <T, E> get(point: E) where T : Any, E : ExtensionPoint<T> =
+        actions(point).orEmpty() as List<T>
 
     @Suppress("UNCHECKED_CAST")
     override fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T> {
@@ -110,7 +105,7 @@ private class DokkaContextConfigurationImpl(
 
         val extensions = extensions[point].orEmpty() as List<Extension<T>>
         return when (extensions.size) {
-            0 -> DefaultExtensions.get(point, this).single() ?: throwBadArity("none was")
+            0 -> throwBadArity("none was")
             1 -> extensions.single().action.get(this)
             else -> {
                 val notFallbacks = extensions.filterNot { it.isFallback }
@@ -165,8 +160,4 @@ private fun checkClasspath(classLoader: URLClassLoader) {
                     "Please fix your plugins dependencies or exclude dokka api artifact from plugin classpath"
         )
     }
-}
-
-enum class AskDefault {
-    Always, Never, WhenEmpty
 }

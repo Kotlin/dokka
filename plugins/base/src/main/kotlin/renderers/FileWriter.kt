@@ -1,7 +1,6 @@
 package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.renderers.OutputWriter
 import java.io.File
 import java.io.IOException
 import java.net.URI
