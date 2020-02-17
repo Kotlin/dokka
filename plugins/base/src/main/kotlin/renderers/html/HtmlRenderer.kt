@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.renderers.html
+package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -7,7 +7,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.renderers.OutputWriter
 import java.io.File
 
 open class HtmlRenderer(

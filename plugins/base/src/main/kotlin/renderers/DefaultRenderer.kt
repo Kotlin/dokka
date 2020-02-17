@@ -1,18 +1,19 @@
 package org.jetbrains.dokka.base.renderers
 
-import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.LocationProvider
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.renderers.OutputWriter
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.resolvers.LocationProvider
 import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
 
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
 ) : Renderer {
 
-    protected val outputWriter = context.single(CoreExtensions.outputWriter)
+    protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
 
     protected lateinit var locationProvider: LocationProvider
         private set
@@ -116,7 +117,7 @@ abstract class DefaultRenderer<T>(
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
-            context.single(CoreExtensions.locationProviderFactory).getLocationProvider(newRoot)
+            context.plugin<DokkaBase>().querySingle { locationproviderFactory }.getLocationProvider(newRoot)
 
         root.children<ModulePageNode>().forEach { renderPackageList(it) }
 
