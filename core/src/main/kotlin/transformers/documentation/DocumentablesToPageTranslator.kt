@@ -5,5 +5,5 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 
 interface DocumentablesToPageTranslator {
-    operator fun invoke(module: Module, context: DokkaContext): ModulePageNode
+    operator fun invoke(module: Module): ModulePageNode
 }

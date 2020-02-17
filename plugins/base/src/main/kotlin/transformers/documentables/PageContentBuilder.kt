@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function

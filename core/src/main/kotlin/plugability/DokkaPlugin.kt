@@ -13,8 +13,7 @@ abstract class DokkaPlugin {
     @PublishedApi
     internal var context: DokkaContext? = null
 
-    protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class)
-        ?: throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
+    protected inline fun <reified T : DokkaPlugin> plugin(): T = context?.plugin(T::class) ?: throwIllegalQuery()
 
     protected fun <T : Any> extensionPoint() =
         object : ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> {
@@ -51,5 +50,10 @@ abstract class DokkaPlugin {
 }
 
 inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =
-    context?.let { it[extension()] }
-        ?: throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
+    context?.let { it[extension()] } ?: throwIllegalQuery()
+
+inline fun <reified P : DokkaPlugin, reified E : Any> P.querySingle(extension: P.() -> ExtensionPoint<E>): E =
+    context?.single(extension()) ?: throwIllegalQuery()
+
+fun throwIllegalQuery(): Nothing =
+    throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
