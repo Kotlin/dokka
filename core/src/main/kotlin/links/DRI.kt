@@ -101,7 +101,7 @@ sealed class TypeReference {
 
         private fun fromProjection(t: TypeProjection, r: KotlinType? = null): TypeReference =
             if (t.isStarProjection) {
-                Nullable(TypeConstructor("kotlin.Any", emptyList()))
+                StarProjection
             } else {
                 fromPossiblyNullable(t.type, r)
             }
@@ -128,6 +128,10 @@ object SelfType : TypeReference() {
 
 data class Nullable(val wrapped: TypeReference) : TypeReference() {
     override fun toString() = "$wrapped?"
+}
+
+object StarProjection: TypeReference() {
+    override fun toString() = "*"
 }
 
 private operator fun <T> List<T>.component6(): T = get(5)
