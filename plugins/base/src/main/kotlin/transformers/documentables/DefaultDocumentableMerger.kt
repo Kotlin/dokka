@@ -5,7 +5,6 @@ import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
-import org.jetbrains.dokka.utilities.pullOutNull
 
 internal object DefaultDocumentableMerger : DocumentableMerger {
     override fun invoke(modules: Collection<Module>, context: DokkaContext): Module {
@@ -51,7 +50,7 @@ fun Function.mergeWith(other: Function): Function = Function(
     name,
     returnType,
     isConstructor,
-    (receiver to other.receiver).pullOutNull()?.let { (f, s) -> f.mergeWith(s) },
+    other.receiver?.let { receiver?.mergeWith(it) },
     merge(parameters + other.parameters, Parameter::mergeWith),
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
@@ -61,7 +60,7 @@ fun Function.mergeWith(other: Function): Function = Function(
 fun Property.mergeWith(other: Property) = Property(
     dri,
     name,
-    (receiver to other.receiver).pullOutNull()?.let { (f, s) -> f.mergeWith(s) },
+    other.receiver?.let { receiver?.mergeWith(it) },
     expected?.mergeWith(other.expected),
     (actual + other.actual).merge(),
     accessors = (this.accessors + other.accessors).distinct(),
