@@ -2,21 +2,21 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.plugability.ExtensionPoint
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
+import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
-import org.jetbrains.dokka.transformers.documentation.DocumentationNodeTransformer
-import org.jetbrains.dokka.transformers.documentation.DocumentablesToPageTranslator
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
-import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
+import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.transformers.psi.PsiToDocumentableTranslator
 import kotlin.reflect.KProperty
 
 object CoreExtensions {
-    val descriptorToDocumentationTranslator by coreExtension<DescriptorToDocumentationTranslator>()
-    val psiToDocumentationTranslator by coreExtension<PsiToDocumentationTranslator>()
+    val descriptorToDocumentableTranslator by coreExtension<DescriptorToDocumentableTranslator>()
+    val psiToDocumentableTranslator by coreExtension<PsiToDocumentableTranslator>()
     val documentableMerger by coreExtension<DocumentableMerger>()
-    val documentationTransformer by coreExtension<DocumentationNodeTransformer>()
-    val documentablesToPageTranslator by coreExtension<DocumentablesToPageTranslator>()
-    val pageTransformer by coreExtension<PageNodeTransformer>()
+    val documentableTransformer by coreExtension<DocumentableTransformer>()
+    val documentableToPageTranslator by coreExtension<DocumentableToPageTranslator>()
+    val pageTransformer by coreExtension<PageTransformer>()
     val renderer by coreExtension<Renderer>()
 
     private fun <T: Any> coreExtension() = object {

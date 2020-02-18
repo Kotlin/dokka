@@ -7,15 +7,15 @@ import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
-import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentablesToPageTranslator
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
+import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
-import org.jetbrains.dokka.base.transformers.pages.merger.PageNodeMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
-import org.jetbrains.dokka.base.transformers.psi.DefaultPsiToDocumentationTranslator
-import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentationTranslator
+import org.jetbrains.dokka.base.transformers.psi.DefaultPsiToDocumentableTranslator
+import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
+import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
 class DokkaBase : DokkaPlugin() {
@@ -24,21 +24,21 @@ class DokkaBase : DokkaPlugin() {
     val locationProviderFactory by extensionPoint<LocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
 
-    val descriptorToDocumentationTranslator by extending(isFallback = true) {
-        CoreExtensions.descriptorToDocumentationTranslator providing ::DefaultDescriptorToDocumentationTranslator
+    val descriptorToDocumentableTranslator by extending(isFallback = true) {
+        CoreExtensions.descriptorToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
     }
 
-    val psiToDocumentationTranslator by extending(isFallback = true) {
-        CoreExtensions.psiToDocumentationTranslator with DefaultPsiToDocumentationTranslator
+    val psiToDocumentableTranslator by extending(isFallback = true) {
+        CoreExtensions.psiToDocumentableTranslator with DefaultPsiToDocumentableTranslator
     }
 
     val documentableMerger by extending(isFallback = true) {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
     }
 
-    val documentablesToPageTranslator by extending(isFallback = true) {
-        CoreExtensions.documentablesToPageTranslator providing { ctx ->
-            DefaultDocumentablesToPageTranslator(ctx.single(commentsToContentConverter), ctx.logger)
+    val documentableToPageTranslator by extending(isFallback = true) {
+        CoreExtensions.documentableToPageTranslator providing { ctx ->
+            DefaultDocumentableToPageTranslator(ctx.single(commentsToContentConverter), ctx.logger)
         }
     }
 
@@ -47,7 +47,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val pageMerger by extending {
-        CoreExtensions.pageTransformer providing { ctx -> PageNodeMerger(ctx[pageMergerStrategy]) }
+        CoreExtensions.pageTransformer providing { ctx -> PageMerger(ctx[pageMergerStrategy]) }
     }
 
     val fallbackMerger by extending {

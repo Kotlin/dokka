@@ -7,7 +7,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
@@ -18,7 +18,7 @@ abstract class DefaultRenderer<T>(
     protected lateinit var locationProvider: LocationProvider
         private set
 
-    protected open val preprocessors: Iterable<PageNodeTransformer> = emptyList()
+    protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
     abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)

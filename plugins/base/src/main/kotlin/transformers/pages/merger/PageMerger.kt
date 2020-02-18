@@ -2,9 +2,9 @@ package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class PageNodeMerger(private val strategies: Iterable<PageMergerStrategy>) : PageNodeTransformer {
+class PageMerger(private val strategies: Iterable<PageMergerStrategy>) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(children = input.children.map { it.mergeChildren(emptyList()) })
 

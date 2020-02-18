@@ -83,12 +83,12 @@ class DokkaGenerator(
     fun transformDocumentationModel(
         documentationModel: Module,
         context: DokkaContext
-    ) = context[CoreExtensions.documentationTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
+    ) = context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
     fun createPages(
         transformedDocumentation: Module,
         context: DokkaContext
-    ) = context.single(CoreExtensions.documentablesToPageTranslator).invoke(transformedDocumentation)
+    ) = context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
 
     fun transformPages(
         pages: RootPageNode,
@@ -128,7 +128,7 @@ class DokkaGenerator(
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
 
-        return context.single(CoreExtensions.descriptorToDocumentationTranslator)
+        return context.single(CoreExtensions.descriptorToDocumentableTranslator)
             .invoke(platformData.name, packageFragments, platformData)
     }
 
@@ -149,7 +149,7 @@ class DokkaGenerator(
             }.toList()
         }.flatten()
 
-        return context.single(CoreExtensions.psiToDocumentationTranslator)
+        return context.single(CoreExtensions.psiToDocumentableTranslator)
             .invoke(platformData.name, psiFiles, platformData, context)
 
     }

@@ -11,12 +11,12 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
+import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
 import org.jetbrains.kotlin.descriptors.*
 
-class KotlinAsJavaDescriptorToDocumentationTranslator(
+class KotlinAsJavaDescriptorToDocumentableTranslator(
     private val context: DokkaContext
-) : DescriptorToDocumentationTranslator {
+) : DescriptorToDocumentableTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,

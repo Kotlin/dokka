@@ -3,21 +3,22 @@ package  org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.plugability.*
-import org.jetbrains.dokka.transformers.documentation.DocumentablesToPageTranslator
-import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 
 class KotlinAsJavaPlugin : DokkaPlugin() {
     val kotlinAsJavaDescriptorToDocumentableTranslator by extending {
-        CoreExtensions.descriptorToDocumentationTranslator providing ::KotlinAsJavaDescriptorToDocumentationTranslator
+        CoreExtensions.descriptorToDocumentableTranslator providing ::KotlinAsJavaDescriptorToDocumentableTranslator
     }
     val kotlinAsJavaDocumentableToPageTranslator by extending {
-        CoreExtensions.documentablesToPageTranslator providing ::KotlinAsJavaDocumentationToPageTranslator
+        CoreExtensions.documentableToPageTranslator providing ::KotlinAsJavaDocumentationToPageTranslator
     }
 }
 
@@ -30,7 +31,7 @@ object DescriptorCache {
 
 class KotlinAsJavaDocumentationToPageTranslator(
     private val context: DokkaContext
-) : DocumentablesToPageTranslator {
+) : DocumentableToPageTranslator {
     override fun invoke(module: Module): ModulePageNode =
         KotlinAsJavaPageBuilder { node, kind, operation ->
             KotlinAsJavaPageContentBuilder.group(
