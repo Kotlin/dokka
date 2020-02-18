@@ -130,26 +130,23 @@ class DRITest : AbstractCoreTest() {
             configuration
         ) {
             pagesGenerationStage = { module ->
-                // DRI(//qux/Foo[TypeParam(bounds=[kotlin.Comparable[kotlin.Any?]]),kotlin.Any?]#//)
+                // DRI(//qux/Foo[TypeParam(bounds=[kotlin.Comparable[kotlin.Any?]]),*]#//)
                 val expectedDRI = DRI(
                     "",
                     null,
                     Callable(
-                        "qux",
-                        TypeConstructor(
-                            "Foo",
-                            listOf(
+                        "qux", TypeConstructor(
+                            "Foo", listOf(
                                 TypeParam(
                                     listOf(
                                         TypeConstructor(
-                                            "kotlin.Comparable",
-                                            listOf(
+                                            "kotlin.Comparable", listOf(
                                                 Nullable(TypeConstructor("kotlin.Any", emptyList()))
                                             )
                                         )
                                     )
                                 ),
-                                Nullable(TypeConstructor("kotlin.Any", emptyList()))
+                                StarProjection
                             )
                         ),
                         emptyList()
