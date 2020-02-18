@@ -12,7 +12,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentationTranslator
+import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -22,9 +22,9 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import kotlin.reflect.KClass
 
-class DefaultDescriptorToDocumentationTranslator(
+class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
-) : DescriptorToDocumentationTranslator {
+) : DescriptorToDocumentableTranslator {
     override fun invoke(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,

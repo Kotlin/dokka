@@ -10,11 +10,11 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.psi.PsiToDocumentationTranslator
+import org.jetbrains.dokka.transformers.psi.PsiToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.Visibilities
 
-object DefaultPsiToDocumentationTranslator : PsiToDocumentationTranslator {
+object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
     override fun invoke(
         moduleName: String,

@@ -5,7 +5,7 @@ import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 
-interface PsiToDocumentationTranslator {
+interface PsiToDocumentableTranslator {
     fun invoke(
         moduleName: String,
         psiFiles: List<PsiJavaFile>,
