@@ -45,6 +45,7 @@ tasks {
         exclude("tips/**")
         exclude("messages/**")
         exclude("src/**")
+        exclude("org/jetbrains/kotlin/codegen/when/**")
     }
 }
 
