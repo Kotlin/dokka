@@ -97,7 +97,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
     }
 
     fun createCoreEnvironment(): KotlinCoreEnvironment {
-        System.setProperty("idea.io.use.fallback", "true")
+        System.setProperty("idea.io.use.nio2", "true")
 
         val configFiles = when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
