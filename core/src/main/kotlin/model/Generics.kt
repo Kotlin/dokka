@@ -10,18 +10,22 @@ abstract class Type(open val name: String, open val bounds: List<Type>) {
 
     open fun asImmutable(
         cache: MutableMap<String, GenericType>,
-        origName: String?
+        first: Boolean
     ): Type = this
 
     open fun genericCount(root: String): Int = 0
-    protected open fun setSelfOf(self: GenericType) {
-        bounds.filter { !(it is GenericType) || it is GenericType.Self }.forEach { it.setSelfOf(self) }
+    protected open fun setRef(cache: Map<String, GenericType>) {
+        bounds.filter { !(it is GenericType) || it is GenericType.GenericReference }.forEach { it.setRef(cache) }
     }
+
+    abstract fun print(t: Type? = null): String
 }
 
 open class TypeConstructor(override val name: String, override val bounds: List<Type>) : Type(name, bounds) {
     override fun genericCount(root: String): Int = 0
     override fun toString(): String = "$name<${bounds.joinToString(separator = "") { "$it" }}>"
+    override fun print(t: Type?): String =
+        if (this == t) "" else "$name<${bounds.joinToString(separator = "") { it.print(t ?: this) }}>"
 }
 
 data class TypeConstructorMutable(override val name: String, override var bounds: List<Type>) :
@@ -34,23 +38,24 @@ data class TypeConstructorMutable(override val name: String, override var bounds
 
     override fun asImmutable(
         cache: MutableMap<String, GenericType>,
-        origName: String?
+        first: Boolean
     ): Type =
-        TypeConstructor(name, bounds.map { it.asImmutable(cache, origName) })
+        TypeConstructor(name, bounds.map { it.asImmutable(cache, first) })
 }
 
 open class GenericType(override val name: String, override val bounds: List<Type>) : Type(name, bounds) {
-    class Self(override val name: String) : GenericType(name, emptyList()) {
+    class GenericReference(override val name: String) : GenericType(name, emptyList()) {
         override fun toString(): String = "($name)"
+        override fun print(t: Type?): String = if (t == ref) this.toString() else ref.print(t)
 
-        private var _selfOf: GenericType? = null
+        private var _ref: GenericType? = null
 
-        val selfOf: GenericType
-            get() = _selfOf ?: run { throw IllegalStateException("Reference before initialization") }
+        val ref: GenericType
+            get() = _ref ?: run { throw IllegalStateException("Reference before initialization") }
 
-        override fun setSelfOf(self: GenericType) {
-            if (_selfOf == null) {
-                _selfOf = self
+        override fun setRef(cache: Map<String, GenericType>) {
+            if (_ref == null) {
+                _ref = cache.getValue(name)
             } else {
                 throw IllegalStateException("_selfOf may be initialized only once")
             }
@@ -74,17 +79,17 @@ open class GenericType(override val name: String, override val bounds: List<Type
 
         override fun asImmutable(
             cache: MutableMap<String, GenericType>,
-            origName: String?
-        ): GenericType = when {
-            origName == name -> Self(name)
-            cache.containsKey(name) -> cache.getValue(name)
-            else -> GenericType(
-                name,
-                bounds.map { it.asImmutable(cache, origName ?: name) }).also { cache += it.name to it }
-        }
+            first: Boolean
+        ): GenericType = if (!first)
+            GenericReference(name)
+        else GenericType(
+            name,
+            bounds.map { it.asImmutable(cache, false) }).also { cache += it.name to it }
     }
 
     override fun toString(): String = "$name: ${bounds.joinToString(separator = "") { "$it" }}"
+    override fun print(t: Type?): String =
+        if (t == this) "" else "$name: ${bounds.joinToString(separator = "") { it.print(t ?: this) }}"
 
     companion object {
         private fun fromTypeParameter(t: TypeParameterDescriptor): GenericTypeMutable = GenericTypeMutable(
@@ -124,7 +129,7 @@ open class GenericType(override val name: String, override val bounds: List<Type
             get() = constructor.declarationDescriptor?.fqNameSafe?.asString()
 
         private fun List<GenericTypeMutable>.asImmutable(): List<GenericType> =
-            HashMap<String, GenericType>().let { cache -> this.map { it.asImmutable(cache, null) } }
-                .also { it.forEach { g -> g.setSelfOf(g) } }
+            HashMap<String, GenericType>().also { cache -> this.map { it.asImmutable(cache, true) } }
+                .also { it.values.forEach { g -> g.setRef(it) } }.values.toList()
     }
 }

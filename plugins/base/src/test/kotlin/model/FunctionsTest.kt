@@ -136,28 +136,24 @@ class FunctionsTest : AbstractModelTest() {
 
                 with(A) {
                     name.assertEqual("A", "First type parameter name: ")
-                    bounds.assertCount(1, "First type parameter bounds: ")
+                    print().assertEqual("A: kotlin.Any<>")
                 }
                 with(T) {
                     name.assertEqual("T", "Second type parameter name: ")
-                    bounds.assertCount(1, "Second type parameter bounds: ")
-                    bounds.single().name.assertEqual("R")
-                    bounds.single().bounds.single().name.assertEqual("Z")
-                    bounds.single().bounds.single().bounds.single().name.assertEqual("kotlin.collections.Iterable")
-                    bounds.single().bounds.single().bounds.single().bounds.single().name.assertEqual("A")
+                    print().assertEqual("T: R: Z: kotlin.collections.Iterable<A: kotlin.Any<>>")
                 }
                 with(R) {
                     name.assertEqual("R", "First type parameter name: ")
-                    bounds.assertCount(1, "First type parameter bounds: ")
+                    R.print().assertEqual("R: Z: kotlin.collections.Iterable<A: kotlin.Any<>>")
                 }
                 with(Z) {
                     name.assertEqual("Z", "Second type parameter name: ")
-                    bounds.assertCount(1, "Second type parameter bounds: ")
+                    print().assertEqual("Z: kotlin.collections.Iterable<A: kotlin.Any<>>")
                 }
 
-                assert(T.bounds.single() === R)
-                assert(R.bounds.single() === Z)
-                assert(Z.bounds.single().bounds.single() === A)
+                assert(T.bounds.single().assertIsInstance<GenericType.GenericReference>("GenericReference").ref === R)
+                assert(R.bounds.single().assertIsInstance<GenericType.GenericReference>("GenericReference").ref === Z)
+                assert(Z.bounds.single().bounds.single().assertIsInstance<GenericType.GenericReference>("GenericReference").ref === A)
             }
 
         }
@@ -176,7 +172,7 @@ class FunctionsTest : AbstractModelTest() {
         ) {
             with((this / "function" / "test").assertIsInstance<Function>("test")) {
                 val params = this.typeParameters
-                params.single().toString().assertEqual("T: kotlin.Comparable<(T)>", "Parameter: ")
+                params.single().print().assertEqual("T: kotlin.Comparable<(T)>", "Parameter: ")
             }
         }
 
