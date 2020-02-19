@@ -6,6 +6,7 @@ import org.jetbrains.dokka.kotlinAsJava.conversions.asJava
 import org.jetbrains.dokka.kotlinAsJava.conversions.asStatic
 import org.jetbrains.dokka.kotlinAsJava.conversions.withClass
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.GenericType.Companion.toGenericTypes
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
@@ -55,7 +56,8 @@ class KotlinAsJavaPageBuilder(rootContentGroup: RootContentBuilder) : DefaultPag
                 classlikes = emptyList(),
                 actual = actual,
                 expected = null,
-                visibility = p.platformData.map { it to Visibilities.PUBLIC }.toMap()
+                visibility = p.platformData.map { it to Visibilities.PUBLIC }.toMap(),
+                typeParameters = emptyList()
             )
         }).map { it.asJava() }
 

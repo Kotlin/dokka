@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.translators.descriptors
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.GenericType.Companion.toGenericTypes
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
@@ -131,7 +132,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             expected = expected,
             actual = actual,
             extra = mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
-            visibility = mapOf(platformData to descriptor.visibility)
+            visibility = mapOf(platformData to descriptor.visibility),
+            typeParameters = descriptor.typeConstructor.parameters.toGenericTypes()
         )
     }
 
@@ -192,7 +194,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             },
             expected = expected,
             actual = actual,
-            visibility = mapOf(platformData to descriptor.visibility)
+            visibility = mapOf(platformData to descriptor.visibility),
+            typeParameters = descriptor.typeParameters.toGenericTypes()
         )
     }
 

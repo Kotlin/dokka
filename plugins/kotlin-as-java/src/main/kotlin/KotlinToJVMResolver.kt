@@ -2,9 +2,10 @@ package org.jetbrains.dokka.kotlinAsJava.conversions
 
 import org.jetbrains.dokka.kotlinAsJava.DescriptorCache
 import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Enum
+import org.jetbrains.dokka.model.Function
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -45,7 +46,7 @@ fun Class.asJava(): Class = Class(
     dri, name, kind,
     constructors.map { it.asJava() },
     (functions + properties.flatMap { it.accessors }).map { it.asJava() },
-    properties, classlikes.mapNotNull { (it as? Class)?.asJava() }, expected, actual, extra, visibility
+    properties, classlikes.mapNotNull { (it as? Class)?.asJava() }, expected, actual, extra, visibility, typeParameters
 )
 
 fun Enum.asJava(): Enum = Enum(

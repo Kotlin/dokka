@@ -89,7 +89,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 expected = null,
                 actual = actual,
                 extra = mutableSetOf(),
-                visibility = mapOf(platformData to psi.getVisibility())
+                visibility = mapOf(platformData to psi.getVisibility()),
+                typeParameters = emptyList()
             )
         }
 

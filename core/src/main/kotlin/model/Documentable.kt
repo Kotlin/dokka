@@ -3,6 +3,7 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.transformers.descriptors.KotlinClassKindTypes
 import org.jetbrains.kotlin.descriptors.Visibility
 
 abstract class Documentable {
@@ -15,11 +16,13 @@ abstract class Documentable {
     override fun toString(): String =
         "${javaClass.simpleName}($dri)" //+ briefDocTagString.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
 
-    override fun equals(other: Any?) = other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
+    override fun equals(other: Any?) =
+        other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
 
     override fun hashCode() = dri.hashCode()
 
-    val briefDocTagString: String by lazy { // TODO > utils
+    val briefDocTagString: String by lazy {
+        // TODO > utils
         documentation.values
             .firstOrNull()
             ?.children
@@ -60,6 +63,7 @@ interface WithType {
 
 interface WithAbstraction {
     val modifier: PlatformDependent<Modifier>
+
     enum class Modifier {
         Abstract, Open, Final
     }
@@ -74,7 +78,7 @@ interface WithConstructors {
 }
 
 interface WithGenerics {
-    val generics: PlatformDependent<TypeWrapper> // TODO: fix the generics
+    val typeParameters: List<GenericType>
 }
 
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
@@ -127,7 +131,8 @@ class Class(
     override val supertypes: PlatformDependent<Classlike>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Class>,
-    override val modifier: PlatformDependent<WithAbstraction.Modifier>
+    override val modifier: PlatformDependent<WithAbstraction.Modifier>,
+    override val typeParameters: List<GenericType>
 ) : Documentable(), Classlike, WithAbstraction, WithCompanion, WithConstructors, WithGenerics {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + companion + constructors) as List<Documentable>
@@ -177,11 +182,11 @@ class Function(
     override val actual: PlatformDependent<Function>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: PlatformDependent<TypeWrapper>,
-    override val generics: PlatformDependent<TypeWrapper>,
     override val receiver: PlatformDependent<Parameter>,
     override val original: PlatformDependent<Function>,
-    override val modifier: PlatformDependent<WithAbstraction.Modifier>
-    ) : Documentable(), Callable, WithGenerics {
+    override val modifier: PlatformDependent<WithAbstraction.Modifier>,
+    override val typeParameters: List<GenericType>
+) : Documentable(), Callable, WithGenerics {
     override val children: List<Documentable>
         get() = parameters
 }
@@ -198,8 +203,8 @@ class Interface(
     override val classlikes: List<Classlike>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object,
-    override val generics: PlatformDependent<TypeWrapper>,
-    override val supertypes: PlatformDependent<Classlike>
+    override val supertypes: PlatformDependent<Classlike>,
+    override val typeParameters: List<GenericType>
 ) : Documentable(), Classlike, WithCompanion, WithGenerics {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + companion) as List<Documentable>

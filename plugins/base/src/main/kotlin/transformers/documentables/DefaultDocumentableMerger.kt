@@ -83,7 +83,8 @@ fun Class.mergeWith(other: Class) = Class(
     classlikes = merge(classlikes + other.classlikes, Classlike::mergeWith),
     expected = expected?.mergeWith(other.expected),
     actual = (actual + other.actual).mergeClassPlatformInfo(),
-    visibility = (visibility + other.visibility)
+    visibility = (visibility + other.visibility),
+    typeParameters = typeParameters + other.typeParameters
 )
 
 fun Enum.mergeWith(other: Enum) = Enum(
