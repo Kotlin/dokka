@@ -162,4 +162,23 @@ class FunctionsTest : AbstractModelTest() {
 
         }
     }
+
+    @Test
+    fun test1() {
+        inlineModelTest(
+            """
+            |/src/main/kotlin/function/Test.kt
+            |package function
+            |
+            |fun <T : Comparable<T>> Array<T>.test(t: T?): Array<T> = TODO()
+            |}
+        """
+        ) {
+            with((this / "function" / "test").assertIsInstance<Function>("test")) {
+                val params = this.typeParameters
+                params.single().toString().assertEqual("T: kotlin.Comparable<(T)>", "Parameter: ")
+            }
+        }
+
+    }
 }
