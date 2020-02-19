@@ -309,7 +309,7 @@ class MarkdownParser (
             DocumentationNode(emptyList())
         else
             DocumentationNode(
-                (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag) as KDocImpl)).map {
+                (listOf(kDocTag) + getAllKDocTags(findParent(kDocTag))).map {
                     when (it.knownTag) {
                         null -> if (it.name == null) Description(parseStringToDocNode(it.getContent())) else CustomWrapperTag(
                             parseStringToDocNode(it.getContent()),
