@@ -7,20 +7,23 @@ import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Property
-import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import kotlin.reflect.KClass
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.TypeProjection
 
 class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
@@ -33,21 +36,19 @@ class DefaultDescriptorToDocumentableTranslator(
         packageFragments.map {
             visitPackageFragmentDescriptor(
                 it,
-                DRIWithPlatformInfo(DRI.topLevel, null, emptyList())
+                DRIWithPlatformInfo(DRI.topLevel, PlatformDependent.empty())
             )
         }
-    }.let { Module(moduleName, it) }
+    }.let { Module(moduleName, it, PlatformDependent.empty(), listOf(platformData)) }
 
 }
 
-
 data class DRIWithPlatformInfo(
     val dri: DRI,
-    val expected: PlatformInfo?,
-    val actual: List<PlatformInfo>
+    val actual: PlatformDependent<DocumentableSource>
 )
 
-fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, null, emptyList())
+fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, PlatformDependent.empty())
 
 open class DokkaDescriptorVisitor( // TODO: close this class and make it private together with DRIWithPlatformInfo
     private val platformData: PlatformData,
@@ -68,155 +69,198 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             dri = driWithPlatform.dri,
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            classlikes = scope.classlikes(driWithPlatform)
+            classlikes = scope.classlikes(driWithPlatform),
+            packages = scope.packages(driWithPlatform),
+            documentation = descriptor.resolveDescriptorData(platformData),
+            platformData = listOf(platformData)
         )
     }
 
     override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Classlike =
         when (descriptor.kind) {
-            org.jetbrains.kotlin.descriptors.ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
+            ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
+            ClassKind.ENUM_ENTRY -> enumDescriptor(descriptor, parent)
+            ClassKind.OBJECT -> objectDescriptor(descriptor, parent)
+            ClassKind.INTERFACE -> interfaceDescriptor(descriptor, parent)
             else -> classDescriptor(descriptor, parent)
         }
+
+    private fun interfaceDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Interface {
+        val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
+        val scope = descriptor.unsubstitutedMemberScope
+        val info = descriptor.resolveClassDescriptionData(platformData)
+
+        return Interface(
+            dri = driWithPlatform.dri,
+            name = descriptor.name.asString(),
+            functions = scope.functions(driWithPlatform),
+            properties = scope.properties(driWithPlatform),
+            classlikes = scope.classlikes(driWithPlatform),
+            actual = descriptor.actual(platformData, descriptor),
+            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            documentation = info.docs,
+            generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
+            companion = descriptor.companion(driWithPlatform),
+            platformData = listOf(platformData)
+        )
+    }
+
+    private fun objectDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Object {
+        val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
+        val scope = descriptor.unsubstitutedMemberScope
+        val info = descriptor.resolveClassDescriptionData(platformData)
+
+        return Object(
+            dri = driWithPlatform.dri,
+            name = descriptor.name.asString(),
+            functions = scope.functions(driWithPlatform),
+            properties = scope.properties(driWithPlatform),
+            classlikes = scope.classlikes(driWithPlatform),
+            actual = descriptor.actual(platformData, descriptor),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            documentation = info.docs,
+            platformData = listOf(platformData)
+        )
+    }
 
     fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
+        val info = descriptor.resolveClassDescriptionData(platformData)
 
         return Enum(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
-            entries = scope.classlikes(driWithPlatform).filter { it.kind == KotlinClassKindTypes.ENUM_ENTRY }.map {
-                EnumEntry(
-                    it
-                )
-            },
+            entries = scope.enumEntries(driWithPlatform),
             constructors = descriptor.constructors.map { visitConstructorDescriptor(it, driWithPlatform) },
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData(),
-            actual = listOfNotNull(descriptorData),
-            extra = mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
-            visibility = mapOf(platformData to descriptor.visibility)
+            actual = descriptor.actual(platformData, descriptor),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            documentation = info.docs,
+            companion = descriptor.companion(driWithPlatform),
+            platformData = listOf(platformData)
+        )
+    }
+
+    fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): EnumEntry {
+        val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
+        val scope = descriptor.unsubstitutedMemberScope
+
+        return EnumEntry(
+            dri = driWithPlatform.dri,
+            name = descriptor.name.asString(),
+            documentation = descriptor.resolveDescriptorData(platformData),
+            classlikes = scope.classlikes(driWithPlatform),
+            functions = scope.functions(driWithPlatform),
+            properties = scope.properties(driWithPlatform),
+            platformData = listOf(platformData)
         )
     }
 
     fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val descriptorData = descriptor.takeUnless { it.isExpect }?.resolveClassDescriptionData()
-        val expected = descriptor.takeIf { it.isExpect }?.resolveClassDescriptionData()
-        val actual = listOfNotNull(descriptorData)
+        val info = descriptor.resolveClassDescriptionData(platformData)
+        val actual = descriptor.actual(platformData, descriptor)
+
         return Class(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
-            kind = KotlinClassKindTypes.valueOf(descriptor.kind.toString()),
             constructors = descriptor.constructors.map {
                 visitConstructorDescriptor(
                     it,
-                    if (it.isPrimary)
-                        DRIWithPlatformInfo(
-                            driWithPlatform.dri,
-                            expected?.info.filterTagWrappers(listOf(Constructor::class)),
-                            actual.filterTagWrappers(listOf(Constructor::class))
-                        )
-                    else
-                        DRIWithPlatformInfo(driWithPlatform.dri, null, emptyList())
+                    if (it.isPrimary) DRIWithPlatformInfo(driWithPlatform.dri, actual)
+                    else DRIWithPlatformInfo(driWithPlatform.dri, PlatformDependent.empty())
                 )
             },
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            expected = expected,
             actual = actual,
-            extra = mutableSetOf(), // TODO Implement following method to return proper results getXMLDRIs(descriptor, descriptorData).toMutableSet()
-            visibility = mapOf(platformData to descriptor.visibility)
+            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
+            documentation = info.docs,
+            modifier = descriptor.modifier(),
+            companion = descriptor.companion(driWithPlatform),
+            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            platformData = listOf(platformData)
         )
     }
 
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): Property {
-        val expected = descriptor.takeIf { it.isExpect }?.resolveDescriptorData()
-        val actual = listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
+        val actual = descriptor.actual(platformData, descriptor)
         return Property(
             dri = dri,
             name = descriptor.name.asString(),
             receiver = descriptor.extensionReceiverParameter?.let {
-                visitReceiverParameterDescriptor(
-                    it,
-                    DRIWithPlatformInfo(
-                        dri,
-                        expected?.filterTagWrappers(listOf(Receiver::class)),
-                        actual.filterTagWrappers(listOf(Receiver::class))
-                    )
-                )
+                visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
             },
-            expected = expected,
             actual = actual,
-            accessors = descriptor.accessors.map { visitPropertyAccessorDescriptor(it, descriptor, dri) },
-            visibility = mapOf(platformData to descriptor.visibility)
+            getter = descriptor.accessors.filterIsInstance<PropertyGetterDescriptor>().singleOrNull()?.let {
+               visitPropertyAccessorDescriptor(it, descriptor, dri)
+            }!!,
+            setter = descriptor.accessors.filterIsInstance<PropertySetterDescriptor>().singleOrNull()?.let {
+               visitPropertyAccessorDescriptor(it, descriptor, dri)
+            },
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            documentation = descriptor.resolveDescriptorData(platformData),
+            modifier = descriptor.modifier(),
+            type = KotlinTypeWrapper(descriptor.returnType!!),
+            platformData = listOf(platformData)
         )
     }
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): Function {
-        val expected = descriptor.takeIf { it.isExpect }?.resolveDescriptorData()
-        val actual = listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
+        val actual = descriptor.actual(platformData, descriptor)
         return Function(
             dri = dri,
             name = descriptor.name.asString(),
-            returnType = descriptor.returnType?.let { KotlinTypeWrapper(it) },
             isConstructor = false,
             receiver = descriptor.extensionReceiverParameter?.let {
-                visitReceiverParameterDescriptor(
-                    it,
-                    DRIWithPlatformInfo(
-                        dri,
-                        expected?.filterTagWrappers(listOf(Receiver::class)),
-                        actual.filterTagWrappers(listOf(Receiver::class))
-                    )
-                )
+                visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
             },
             parameters = descriptor.valueParameters.mapIndexed { index, desc ->
-                parameter(
-                    index, desc,
-                    DRIWithPlatformInfo(
-                        dri,
-                        expected.filterTagWrappers(listOf(Param::class), desc.name.asString()),
-                        actual.filterTagWrappers(listOf(Param::class), desc.name.asString())
-                    )
-                )
+                parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
-            expected = expected,
             actual = actual,
-            visibility = mapOf(platformData to descriptor.visibility)
+            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            documentation = descriptor.resolveDescriptorData(platformData),
+            modifier = descriptor.modifier(),
+            type = KotlinTypeWrapper(descriptor.returnType!!),
+            platformData = listOf(platformData)
         )
     }
 
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): Function {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
+        val actual = descriptor.actual(platformData, descriptor)
         return Function(
             dri = dri,
             name = "<init>",
-            returnType = KotlinTypeWrapper(descriptor.returnType),
             isConstructor = true,
-            receiver = null,
-            parameters = descriptor.valueParameters.mapIndexed { index, desc ->
-                parameter(
-                    index, desc,
-                    DRIWithPlatformInfo(
-                        dri,
-                        parent.expected.filterTagWrappers(listOf(Param::class)),
-                        parent.actual.filterTagWrappers(listOf(Param::class))
-                    )
-                )
+            receiver = descriptor.extensionReceiverParameter?.let {
+                visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
             },
-            expected = parent.expected ?: descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-            actual = parent.actual,
-            visibility = mapOf(platformData to descriptor.visibility)
+            parameters = descriptor.valueParameters.mapIndexed { index, desc ->
+                parameter(index, desc, DRIWithPlatformInfo(dri, actual))
+            },
+            actual = actual,
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            documentation = descriptor.resolveDescriptorData(platformData),
+            type = KotlinTypeWrapper(descriptor.returnType),
+            modifier = descriptor.modifier(),
+            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            platformData = listOf(platformData)
         )
     }
 
@@ -227,8 +271,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         dri = parent.dri.copy(target = 0),
         name = null,
         type = KotlinTypeWrapper(descriptor.type),
-        expected = parent.expected,
-        actual = parent.actual
+        documentation = descriptor.resolveDescriptorData(platformData),
+        platformData = listOf(platformData)
     )
 
     open fun visitPropertyAccessorDescriptor(
@@ -243,9 +287,9 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             Parameter(
                 parent.copy(target = 1),
                 this.name.asString(),
-                KotlinTypeWrapper(this.type),
-                descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-                listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData())
+                type = KotlinTypeWrapper(this.type),
+                documentation = descriptor.resolveDescriptorData(platformData),
+                platformData = listOf(platformData)
             )
 
         val name = run {
@@ -254,7 +298,6 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             "$modifier${rawName[0].toUpperCase()}${rawName.drop(1)}"
         }
 
-        descriptor.visibility
         val parameters =
             if (isGetter) {
                 emptyList()
@@ -265,13 +308,21 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         return Function(
             dri,
             name,
-            descriptor.returnType?.let { KotlinTypeWrapper(it) },
-            false,
-            null,
-            parameters,
-            descriptor.takeIf { it.isExpect }?.resolveDescriptorData(),
-            listOfNotNull(descriptor.takeUnless { it.isExpect }?.resolveDescriptorData()),
-            visibility = mapOf(platformData to descriptor.visibility)
+            isConstructor = false,
+            parameters = parameters,
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            documentation = descriptor.resolveDescriptorData(platformData),
+            type = KotlinTypeWrapper(descriptor.returnType!!),
+            generics = descriptor.typeParameters.map { it.toTypeParameter() },
+            modifier = descriptor.modifier(),
+            receiver = descriptor.extensionReceiverParameter?.let {
+                visitReceiverParameterDescriptor(
+                    it,
+                    DRIWithPlatformInfo(dri, descriptor.actual(platformData, descriptor))
+                )
+            },
+            actual = descriptor.actual(platformData, descriptor),
+            platformData = listOf(platformData)
         )
     }
 
@@ -280,8 +331,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             dri = parent.dri.copy(target = index + 1),
             name = descriptor.name.asString(),
             type = KotlinTypeWrapper(descriptor.type),
-            expected = parent.expected,
-            actual = parent.actual
+            documentation = descriptor.resolveDescriptorData(platformData),
+            platformData = listOf(platformData)
         )
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<Function> =
@@ -298,38 +349,74 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .map { visitClassDescriptor(it, parent) }
+            .mapNotNull { it as? Classlike }
 
-    private fun DeclarationDescriptor.resolveDescriptorData(): PlatformInfo {
-        val doc = findKDoc()
-        val parser = MarkdownParser(resolutionFacade, this)
-        val docHeader = parser.parseFromKDocTag(doc)
+    private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<Package> =
+        getContributedDescriptors(DescriptorKindFilter.PACKAGES) { true }
+            .filterIsInstance<PackageFragmentDescriptor>()
+            .map { visitPackageFragmentDescriptor(it, parent) }
 
-        return BasePlatformInfo(docHeader, listOf(platformData))
-    }
+    private fun MemberScope.enumEntries(parent: DRIWithPlatformInfo): List<EnumEntry> =
+        this.getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
+            .filterIsInstance<ClassDescriptor>()
+            .map { enumEntryDescriptor(it, parent) }
 
-    private fun ClassDescriptor.resolveClassDescriptionData(): ClassPlatformInfo {
-        return ClassPlatformInfo(resolveDescriptorData(),
-            (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) })
-    }
 
-    private fun PlatformInfo?.filterTagWrappers(
-        types: List<KClass<out TagWrapper>>,
-        name: String? = null
-    ): PlatformInfo? {
-        if (this == null)
-            return null
-        return BasePlatformInfo(
-            DocumentationNode(
-                this.documentationNode.children.filter { it::class in types && (it as? NamedTagWrapper)?.name == name }
-            ),
-            this.platformData
+    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData): PlatformDependent<DocumentationNode> =
+        PlatformDependent.from(platformData, getDocumentation())
+
+    private fun ClassDescriptor.resolveClassDescriptionData(platformData: PlatformData): ClassInfo {
+        return ClassInfo(
+            (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) },
+            resolveDescriptorData(platformData)
         )
     }
 
-    private fun List<PlatformInfo>.filterTagWrappers(
-        types: List<KClass<out TagWrapper>>,
-        name: String? = null
-    ): List<PlatformInfo> =
-        this.map { it.filterTagWrappers(types, name)!! }
-}
+    private fun TypeParameterDescriptor.toTypeParameter() =
+        TypeParameter(
+            DRI.from(this),
+            fqNameSafe.asString(),
+            PlatformDependent.from(platformData, getDocumentation()),
+            upperBounds.map { it.toProjection() },
+            listOf(platformData)
+        )
 
+    private fun KotlinType.toProjection(): Projection = when (constructor.declarationDescriptor) {
+        is TypeParameterDescriptor -> Projection.OtherParameter(fqName.toString()).let {
+            if (isMarkedNullable) Projection.Nullable(it) else it
+        }
+        else -> Projection.TypeConstructor(
+            DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
+            arguments.map { it.toProjection() }
+        )
+    }
+
+    private fun TypeProjection.toProjection(): Projection =
+        if (isStarProjection) Projection.Star else fromPossiblyNullable(type)
+
+    private fun fromPossiblyNullable(t: KotlinType): Projection =
+        t.toProjection().let { if (t.isMarkedNullable) Projection.Nullable(it) else it }
+
+    private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
+        MarkdownParser(resolutionFacade, this).parseFromKDocTag(it)
+    }
+
+    fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): Object? = companionObjectDescriptor?.let {
+        objectDescriptor(it, dri)
+    }
+
+    fun MemberDescriptor.modifier() = when (modality) {
+        Modality.FINAL -> WithAbstraction.Modifier.Final
+        Modality.SEALED -> WithAbstraction.Modifier.Sealed
+        Modality.OPEN -> WithAbstraction.Modifier.Open
+        Modality.ABSTRACT -> WithAbstraction.Modifier.Abstract
+        else -> WithAbstraction.Modifier.Empty
+    }
+
+    fun MemberDescriptor.actual(platformData: PlatformData, expected: DeclarationDescriptor? = null) =
+        this.takeIf { it.isActual }?.let { DescriptorDocumentableSource(it) }?.let {
+            PlatformDependent(mapOf(platformData to it), expected?.let { DescriptorDocumentableSource(it) })
+        }.orEmpty()
+
+    data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
+}
