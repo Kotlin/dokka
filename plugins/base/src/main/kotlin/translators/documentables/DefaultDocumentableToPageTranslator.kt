@@ -6,20 +6,10 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-
 class DefaultDocumentableToPageTranslator(
     private val commentsToContentConverter: CommentsToContentConverter,
     private val logger: DokkaLogger
 ) : DocumentableToPageTranslator {
     override fun invoke(module: Module): ModulePageNode =
-        DefaultPageBuilder { node, kind, operation ->
-            DefaultPageContentBuilder.group(
-                setOf(node.dri),
-                node.platformData,
-                kind,
-                commentsToContentConverter,
-                logger,
-                operation
-            )
-        }.pageForModule(module)
+        DefaultPageCreator(commentsToContentConverter, logger).pageForModule(module)
 }
