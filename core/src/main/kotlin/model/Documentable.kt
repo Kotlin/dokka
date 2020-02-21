@@ -282,3 +282,6 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
 
 interface Extra
 object STATIC : Extra
+
+val Documentable.platformData: Set<PlatformData>
+    get() = original.keys.toSet()
