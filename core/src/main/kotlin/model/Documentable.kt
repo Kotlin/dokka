@@ -126,7 +126,6 @@ class Class(
     override val actual: PlatformDependent<Class>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object,
-    override val generics: PlatformDependent<TypeWrapper>,
     override val supertypes: PlatformDependent<Classlike>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Class>,
