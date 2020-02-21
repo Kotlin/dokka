@@ -47,7 +47,8 @@ data class PlatformDependent<out T>(
         get() = map.values.distinct().singleOrNull()
 
     companion object {
-        fun <T> empty() = PlatformDependent(mapOf<PlatformData, T>())
+        fun <T> empty(): PlatformDependent<T> = PlatformDependent(emptyMap())
+        fun <T> from(platformData: PlatformData, element: T) = PlatformDependent(mapOf(platformData to element))
     }
 }
 
@@ -77,7 +78,7 @@ interface WithAbstraction {
     val modifier: Modifier?
 
     enum class Modifier {
-        Abstract, Open, Final, Static
+        Abstract, Open, Final, Sealed, Empty
     }
 }
 
@@ -345,6 +346,7 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
 
+fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()
 sealed class DocumentableSource(val path: String)
 
 class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) :

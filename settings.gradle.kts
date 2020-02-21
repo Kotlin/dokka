@@ -8,7 +8,7 @@ include("runners:cli")
 include("runners:maven-plugin")
 include("plugins:base")
 include("plugins:mathjax")
-include("plugins:kotlin-as-java")
+//include("plugins:kotlin-as-java")
 include("integration-tests:gradle-integration-tests")
 
 pluginManagement {
