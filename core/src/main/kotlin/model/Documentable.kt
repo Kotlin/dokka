@@ -79,7 +79,7 @@ interface WithConstructors {
 }
 
 interface WithGenerics {
-    val generics: PlatformDependent<TypeWrapper> // TODO: fix the generics
+    val generics: List<TypeParameter>
 }
 
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
@@ -125,7 +125,7 @@ class Class(
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
-    override val generics: PlatformDependent<TypeWrapper>,
+    override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Class> = PlatformDependent.empty(),
@@ -177,7 +177,7 @@ class Function(
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: TypeWrapper,
-    override val generics: PlatformDependent<TypeWrapper>,
+    override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
     override val original: PlatformDependent<Function> = PlatformDependent.empty(),
     override val modifier: WithAbstraction.Modifier
@@ -197,7 +197,7 @@ class Interface(
     override val classlikes: List<Classlike>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
-    override val generics: PlatformDependent<TypeWrapper>,
+    override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>
 ) : Classlike(), WithCompanion, WithGenerics {
     override val children: List<Documentable>
@@ -249,7 +249,7 @@ class Property(
     override val original: PlatformDependent<Property> = PlatformDependent.empty(),
     override val modifier: WithAbstraction.Modifier
 ) : Documentable(), Callable {
-    override val children: List<Documentable>
+    override val children: List<Nothing>
         get() = emptyList()
 }
 
@@ -261,8 +261,26 @@ class Parameter(
     val type: TypeWrapper,
     override val original: PlatformDependent<Parameter>
 ) : Documentable() {
-    override val children: List<Documentable>
+    override val children: List<Nothing>
         get() = emptyList()
+}
+
+class TypeParameter(
+    override val dri: DRI,
+    override val name: String,
+    override val documentation: PlatformDependent<DocumentationNode>,
+    override val original: PlatformDependent<TypeParameter> = PlatformDependent.empty(),
+    val bounds: List<Projection>
+): Documentable() {
+    override val children: List<Nothing>
+        get() = emptyList()
+}
+
+sealed class Projection {
+    data class OtherParameter(val name: String): Projection()
+    object Star: Projection()
+    data class TypeConstructor(val dri: DRI, val projections: List<Projection>): Projection()
+    data class Nullable(val inner: Projection): Projection()
 }
 
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
