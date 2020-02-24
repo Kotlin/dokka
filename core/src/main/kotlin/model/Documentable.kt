@@ -60,11 +60,11 @@ interface WithVisibility {
 }
 
 interface WithType {
-    val type: PlatformDependent<TypeWrapper>
+    val type: TypeWrapper
 }
 
 interface WithAbstraction {
-    val modifier: PlatformDependent<Modifier>
+    val modifier: Modifier
     enum class Modifier {
         Abstract, Open, Final
     }
@@ -83,7 +83,7 @@ interface WithGenerics {
 }
 
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
-    val receiver: PlatformDependent<Parameter>
+    val receiver: Parameter?
 }
 
 abstract class Classlike : Documentable(), WithScope, WithVisibility, WithExpectActual {
@@ -129,7 +129,7 @@ class Class(
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Class> = PlatformDependent.empty(),
-    override val modifier: PlatformDependent<WithAbstraction.Modifier>
+    override val modifier: WithAbstraction.Modifier
 ) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
@@ -176,11 +176,11 @@ class Function(
     override val documentation: PlatformDependent<DocumentationNode>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
-    override val type: PlatformDependent<TypeWrapper>,
+    override val type: TypeWrapper,
     override val generics: PlatformDependent<TypeWrapper>,
-    override val receiver: PlatformDependent<Parameter>,
+    override val receiver: Parameter?,
     override val original: PlatformDependent<Function> = PlatformDependent.empty(),
-    override val modifier: PlatformDependent<WithAbstraction.Modifier>
+    override val modifier: WithAbstraction.Modifier
     ) : Documentable(), Callable, WithGenerics {
     override val children: List<Documentable>
         get() = parameters
@@ -243,11 +243,11 @@ class Property(
     override val documentation: PlatformDependent<DocumentationNode>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
-    override val type: PlatformDependent<TypeWrapper>,
-    override val receiver: PlatformDependent<Parameter>,
+    override val type: TypeWrapper,
+    override val receiver: Parameter?,
     val accessors: PlatformDependent<Function>, // TODO > extra
     override val original: PlatformDependent<Property> = PlatformDependent.empty(),
-    override val modifier: PlatformDependent<WithAbstraction.Modifier>
+    override val modifier: WithAbstraction.Modifier
 ) : Documentable(), Callable {
     override val children: List<Documentable>
         get() = emptyList()
