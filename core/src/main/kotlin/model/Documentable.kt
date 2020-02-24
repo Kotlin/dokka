@@ -32,7 +32,7 @@ abstract class Documentable {
     }
 }
 
-data class PlatformDependent<out T>(val map: Map<PlatformData, T>) : Map<PlatformData, T> by map {
+data class PlatformDependent<out T>(val map: Map<PlatformData, T>, val expect: T? = null) : Map<PlatformData, T> by map {
     val prevalentValue: T?
         get() = if (map.all { values.first() == it.value }) values.first() else null
 
@@ -42,7 +42,6 @@ data class PlatformDependent<out T>(val map: Map<PlatformData, T>) : Map<Platfor
 }
 
 interface WithExpectActual {
-    val expect: DocumentableSource?
     val actual: PlatformDependent<DocumentableSource>
 }
 
@@ -123,7 +122,6 @@ class Class(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
@@ -142,7 +140,6 @@ class Enum(
     override val name: String,
     val entries: List<EnumEntry>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -177,7 +174,6 @@ class Function(
     val returnType: TypeWrapper?,
     val parameters: List<Parameter>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: PlatformDependent<TypeWrapper>,
@@ -195,7 +191,6 @@ class Interface(
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Interface>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -214,7 +209,6 @@ class Object(
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Object>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -231,7 +225,6 @@ class Annotation(
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Annotation>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -248,7 +241,6 @@ class Property(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val expect: DocumentableSource?,
     override val actual: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: PlatformDependent<TypeWrapper>,
