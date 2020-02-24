@@ -16,6 +16,7 @@ data class DRI(
     val classNames: String? = null,
     val callable: Callable? = null,
     val target: Int? = null,
+    val genericTarget: Int? = null,
     val extra: String? = null
 ) {
     override fun toString(): String =
@@ -44,6 +45,7 @@ fun DRI.withClass(name: String) = copy(classNames = if (classNames.isNullOrBlank
 val DRI.parent: DRI
     get() = when {
         extra != null -> copy(extra = null)
+        genericTarget != null -> copy(genericTarget = null)
         target != null -> copy(target = null)
         callable != null -> copy(callable = null)
         classNames != null -> copy(classNames = classNames.substringBeforeLast('.').takeIf { it.isNotBlank() })
