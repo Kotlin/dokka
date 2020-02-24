@@ -3,6 +3,8 @@ package org.jetbrains.dokka.model
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Visibility
@@ -15,13 +17,15 @@ abstract class Documentable {
     abstract val original: PlatformDependent<Documentable>
 
     override fun toString(): String =
-        "${javaClass.simpleName}($dri)" //+ briefDocTagString.takeIf { it.isNotBlank() }?.let { " [$it]" }.orEmpty()
+        "${javaClass.simpleName}($dri)"
 
-    override fun equals(other: Any?) = other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
+    override fun equals(other: Any?) =
+        other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
 
     override fun hashCode() = dri.hashCode()
 
-    val briefDocTagString: String by lazy { // TODO > utils
+    val briefDocTagString: String by lazy {
+        // TODO > utils
         documentation.values
             .firstOrNull()
             ?.children
@@ -32,9 +36,11 @@ abstract class Documentable {
     }
 }
 
-data class PlatformDependent<out T>(val map: Map<PlatformData, T>, val expect: T? = null) : Map<PlatformData, T> by map {
+data class PlatformDependent<out T>(
+    val map: Map<PlatformData, T>, val expect: T? = null
+) : Map<PlatformData, T> by map {
     val prevalentValue: T?
-        get() = if (map.all { values.first() == it.value }) values.first() else null
+        get() = map.values.distinct().singleOrNull()
 
     companion object {
         fun <T> empty() = PlatformDependent(mapOf<PlatformData, T>())
@@ -65,6 +71,7 @@ interface WithType {
 
 interface WithAbstraction {
     val modifier: Modifier
+
     enum class Modifier {
         Abstract, Open, Final
     }
@@ -90,32 +97,38 @@ abstract class Classlike : Documentable(), WithScope, WithVisibility, WithExpect
     abstract val supertypes: PlatformDependent<List<DRI>>
 }
 
-class Module(
+data class Module(
     override val name: String,
     override val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Module> = PlatformDependent.empty()
-) : Documentable(), WithPackages {
+    override val original: PlatformDependent<Module> = PlatformDependent.empty(),
+    override val extra: PropertyContainer<Module> = PropertyContainer.empty()
+) : Documentable(), WithPackages, WithExtraProperties<Module> {
     override val dri: DRI = DRI.topLevel
     override val children: List<Documentable>
         get() = packages
+
+    override fun withNewExtras(newExtras: PropertyContainer<Module>) = copy(extra = newExtras)
 }
 
-class Package(
+data class Package(
     override val dri: DRI,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
     override val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Package> = PlatformDependent.empty()
-) : Documentable(), WithScope, WithPackages {
+    override val original: PlatformDependent<Package> = PlatformDependent.empty(),
+    override val extra: PropertyContainer<Package> = PropertyContainer.empty()
+) : Documentable(), WithScope, WithPackages, WithExtraProperties<Package> {
     override val name = dri.packageName.orEmpty()
     override val children: List<Documentable>
         get() = (properties + functions + classlikes + packages) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Package>) = copy(extra = newExtras)
 }
 
-class Class(
+data class Class(
     override val dri: DRI,
     override val name: String,
     override val constructors: List<Function>,
@@ -129,13 +142,16 @@ class Class(
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Class> = PlatformDependent.empty(),
-    override val modifier: WithAbstraction.Modifier
-) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics {
+    override val modifier: WithAbstraction.Modifier,
+    override val extra: PropertyContainer<Class>
+) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithExtraProperties<Class> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Class>) = copy(extra = newExtras)
 }
 
-class Enum(
+data class Enum(
     override val dri: DRI,
     override val name: String,
     val entries: List<EnumEntry>,
@@ -148,26 +164,32 @@ class Enum(
     override val companion: Object?,
     override val constructors: List<Function>,
     override val supertypes: PlatformDependent<List<DRI>>,
-    override val original: PlatformDependent<Enum> = PlatformDependent.empty()
-) : Classlike(), WithCompanion, WithConstructors {
+    override val original: PlatformDependent<Enum> = PlatformDependent.empty(),
+    override val extra: PropertyContainer<Enum> = PropertyContainer.empty()
+) : Classlike(), WithCompanion, WithConstructors, WithExtraProperties<Enum> {
     override val children: List<Documentable>
         get() = (entries + functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Enum>) = copy(extra = newExtras)
 }
 
-class EnumEntry(
-    override val name: String?,
+data class EnumEntry(
     override val dri: DRI,
+    override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
-    override val original: PlatformDependent<EnumEntry> = PlatformDependent.empty()
-) : Documentable(), WithScope {
+    override val original: PlatformDependent<EnumEntry> = PlatformDependent.empty(),
+    override val extra: PropertyContainer<EnumEntry> = PropertyContainer.empty()
+) : Documentable(), WithScope, WithExtraProperties<EnumEntry> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<EnumEntry>) = copy(extra = newExtras)
 }
 
-class Function(
+data class Function(
     override val dri: DRI,
     override val name: String,
     val isConstructor: Boolean,
@@ -180,15 +202,18 @@ class Function(
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
     override val original: PlatformDependent<Function> = PlatformDependent.empty(),
-    override val modifier: WithAbstraction.Modifier
-    ) : Documentable(), Callable, WithGenerics {
+    override val modifier: WithAbstraction.Modifier,
+    override val extra: PropertyContainer<Function> = PropertyContainer.empty()
+    ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
     override val children: List<Documentable>
         get() = parameters
+
+    override fun withNewExtras(newExtras: PropertyContainer<Function>) = copy(extra = newExtras)
 }
 
-class Interface(
-    override val name: String?,
+data class Interface(
     override val dri: DRI,
+    override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<Interface>,
     override val actual: PlatformDependent<DocumentableSource>,
@@ -198,13 +223,16 @@ class Interface(
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
     override val generics: List<TypeParameter>,
-    override val supertypes: PlatformDependent<List<DRI>>
-) : Classlike(), WithCompanion, WithGenerics {
+    override val supertypes: PlatformDependent<List<DRI>>,
+    override val extra: PropertyContainer<Interface> = PropertyContainer.empty()
+) : Classlike(), WithCompanion, WithGenerics, WithExtraProperties<Interface> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion)) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Interface>) = copy(extra = newExtras)
 }
 
-class Object(
+data class Object(
     override val name: String?,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
@@ -214,13 +242,16 @@ class Object(
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
     override val visibility: PlatformDependent<Visibility>,
-    override val supertypes: PlatformDependent<List<DRI>>
-) : Classlike() {
+    override val supertypes: PlatformDependent<List<DRI>>,
+    override val extra: PropertyContainer<Object> = PropertyContainer.empty()
+) : Classlike(), WithExtraProperties<Object> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Object>) = copy(extra = newExtras)
 }
 
-class Annotation(
+data class Annotation(
     override val name: String?,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
@@ -231,13 +262,18 @@ class Annotation(
     override val classlikes: List<Classlike>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
-    override val constructors: List<Function>
-) : Documentable(), WithScope, WithVisibility, WithCompanion, WithConstructors, WithExpectActual {
+    override val constructors: List<Function>,
+    override val extra: PropertyContainer<Annotation> = PropertyContainer.empty()
+) : Documentable(), WithScope, WithVisibility, WithCompanion, WithConstructors, WithExpectActual,
+    WithExtraProperties<Annotation> {
+
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + constructors + listOfNotNull(companion)) as List<Documentable>
+
+    override fun withNewExtras(newExtras: PropertyContainer<Annotation>) = copy(extra = newExtras)
 }
 
-class Property(
+data class Property(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
@@ -247,33 +283,42 @@ class Property(
     override val receiver: Parameter?,
     val accessors: PlatformDependent<Function>, // TODO > extra
     override val original: PlatformDependent<Property> = PlatformDependent.empty(),
-    override val modifier: WithAbstraction.Modifier
-) : Documentable(), Callable {
+    override val modifier: WithAbstraction.Modifier,
+    override val extra: PropertyContainer<Property> = PropertyContainer.empty()
+) : Documentable(), Callable, WithExtraProperties<Property> {
     override val children: List<Nothing>
         get() = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<Property>) = copy(extra = newExtras)
 }
 
 // TODO: treat named Parameters and receivers differently
-class Parameter(
+data class Parameter(
     override val dri: DRI,
     override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
     val type: TypeWrapper,
-    override val original: PlatformDependent<Parameter>
-) : Documentable() {
+    override val original: PlatformDependent<Parameter>,
+    override val extra: PropertyContainer<Parameter> = PropertyContainer.empty()
+) : Documentable(), WithExtraProperties<Parameter> {
     override val children: List<Nothing>
         get() = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<Parameter>) = copy(extra = newExtras)
 }
 
-class TypeParameter(
+data class TypeParameter(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val original: PlatformDependent<TypeParameter> = PlatformDependent.empty(),
-    val bounds: List<Projection>
-): Documentable() {
+    val bounds: List<Projection>,
+    override val extra: PropertyContainer<TypeParameter>
+): Documentable(), WithExtraProperties<TypeParameter> {
     override val children: List<Nothing>
         get() = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<TypeParameter>) = copy(extra = newExtras)
 }
 
 sealed class Projection {
@@ -294,10 +339,6 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
 
-interface Extra
-object STATIC : Extra
-object INHERITED: Extra
-
 sealed class DocumentableSource
-class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor): DocumentableSource()
-class PsiDocumentableSource(val psi: PsiNamedElement): DocumentableSource()
+class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : DocumentableSource()
+class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource()
