@@ -16,7 +16,7 @@ class PropertyContainer<C : Any> internal constructor(
     }
 
     companion object {
-        val empty: PropertyContainer<Any> = PropertyContainer(emptyMap())
+        fun <T: Any> empty(): PropertyContainer<T> = PropertyContainer(emptyMap())
     }
 }
 
