@@ -8,6 +8,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Visibility
+import org.jetbrains.kotlin.load.kotlin.toSourceElement
 
 abstract class Documentable {
     abstract val name: String?
@@ -37,7 +38,8 @@ abstract class Documentable {
 }
 
 data class PlatformDependent<out T>(
-    val map: Map<PlatformData, T>, val expect: T? = null
+    val map: Map<PlatformData, T>,
+    val expect: T? = null
 ) : Map<PlatformData, T> by map {
     val prevalentValue: T?
         get() = map.values.distinct().singleOrNull()
@@ -89,13 +91,15 @@ interface WithGenerics {
     val generics: List<TypeParameter>
 }
 
+interface WithSupertypes {
+    val supertypes: PlatformDependent<List<DRI>>
+}
+
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
     val receiver: Parameter?
 }
 
-abstract class Classlike : Documentable(), WithScope, WithVisibility, WithExpectActual {
-    abstract val supertypes: PlatformDependent<List<DRI>>
-}
+abstract class Classlike : Documentable(), WithScope, WithVisibility, WithExpectActual
 
 data class Module(
     override val name: String,
@@ -144,7 +148,9 @@ data class Class(
     override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Class> = PropertyContainer.empty()
-) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithExtraProperties<Class> {
+) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
+    WithExtraProperties<Class> {
+
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
 
@@ -166,7 +172,7 @@ data class Enum(
     override val supertypes: PlatformDependent<List<DRI>>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Enum> = PropertyContainer.empty()
-) : Classlike(), WithCompanion, WithConstructors, WithExtraProperties<Enum> {
+) : Classlike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<Enum> {
     override val children: List<Documentable>
         get() = (entries + functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
 
@@ -203,7 +209,7 @@ data class Function(
     override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Function> = PropertyContainer.empty()
-    ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
+) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
     override val children: List<Documentable>
         get() = parameters
 
@@ -224,7 +230,7 @@ data class Interface(
     override val supertypes: PlatformDependent<List<DRI>>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Interface> = PropertyContainer.empty()
-) : Classlike(), WithCompanion, WithGenerics, WithExtraProperties<Interface> {
+) : Classlike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<Interface> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion)) as List<Documentable>
 
@@ -243,7 +249,7 @@ data class Object(
     override val supertypes: PlatformDependent<List<DRI>>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Object> = PropertyContainer.empty()
-) : Classlike(), WithExtraProperties<Object> {
+) : Classlike(), WithSupertypes, WithExtraProperties<Object> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes) as List<Documentable>
 
@@ -263,9 +269,7 @@ data class Annotation(
     override val constructors: List<Function>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Annotation> = PropertyContainer.empty()
-) : Documentable(), WithScope, WithVisibility, WithCompanion, WithConstructors, WithExpectActual,
-    WithExtraProperties<Annotation> {
-
+) : Classlike(), WithCompanion, WithConstructors, WithExtraProperties<Annotation> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + constructors + listOfNotNull(companion)) as List<Documentable>
 
@@ -280,7 +284,8 @@ data class Property(
     override val visibility: PlatformDependent<Visibility>,
     override val type: TypeWrapper,
     override val receiver: Parameter?,
-    val accessors: PlatformDependent<Function>, // TODO > extra
+    val setter: Function?,
+    val getter: Function,
     override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Property> = PropertyContainer.empty()
@@ -313,7 +318,7 @@ data class TypeParameter(
     val bounds: List<Projection>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<TypeParameter> = PropertyContainer.empty()
-): Documentable(), WithExtraProperties<TypeParameter> {
+) : Documentable(), WithExtraProperties<TypeParameter> {
     override val children: List<Nothing>
         get() = emptyList()
 
@@ -321,10 +326,10 @@ data class TypeParameter(
 }
 
 sealed class Projection {
-    data class OtherParameter(val name: String): Projection()
-    object Star: Projection()
-    data class TypeConstructor(val dri: DRI, val projections: List<Projection>): Projection()
-    data class Nullable(val inner: Projection): Projection()
+    data class OtherParameter(val name: String) : Projection()
+    object Star : Projection()
+    data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Projection()
+    data class Nullable(val inner: Projection) : Projection()
 }
 
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
@@ -338,6 +343,9 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
 
-sealed class DocumentableSource
-class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : DocumentableSource()
-class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource()
+sealed class DocumentableSource(val path: String)
+
+class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) :
+    DocumentableSource(descriptor.toSourceElement.containingFile.toString())
+
+class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource(psi.containingFile.virtualFile.path)
