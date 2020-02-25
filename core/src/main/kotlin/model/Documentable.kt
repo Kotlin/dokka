@@ -14,7 +14,7 @@ abstract class Documentable {
     abstract val dri: DRI
     abstract val children: List<Documentable>
     abstract val documentation: PlatformDependent<DocumentationNode>
-    abstract val original: PlatformDependent<Documentable>
+    abstract val platformData: List<PlatformData>
 
     override fun toString(): String =
         "${javaClass.simpleName}($dri)"
@@ -101,7 +101,7 @@ data class Module(
     override val name: String,
     override val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Module> = PlatformDependent.empty(),
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Module> = PropertyContainer.empty()
 ) : Documentable(), WithPackages, WithExtraProperties<Module> {
     override val dri: DRI = DRI.topLevel
@@ -118,7 +118,7 @@ data class Package(
     override val classlikes: List<Classlike>,
     override val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Package> = PlatformDependent.empty(),
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Package> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithPackages, WithExtraProperties<Package> {
     override val name = dri.packageName.orEmpty()
@@ -141,9 +141,9 @@ data class Class(
     override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Class> = PlatformDependent.empty(),
     override val modifier: WithAbstraction.Modifier,
-    override val extra: PropertyContainer<Class>
+    override val platformData: List<PlatformData>,
+    override val extra: PropertyContainer<Class> = PropertyContainer.empty()
 ) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithExtraProperties<Class> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
@@ -164,7 +164,7 @@ data class Enum(
     override val companion: Object?,
     override val constructors: List<Function>,
     override val supertypes: PlatformDependent<List<DRI>>,
-    override val original: PlatformDependent<Enum> = PlatformDependent.empty(),
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Enum> = PropertyContainer.empty()
 ) : Classlike(), WithCompanion, WithConstructors, WithExtraProperties<Enum> {
     override val children: List<Documentable>
@@ -180,7 +180,7 @@ data class EnumEntry(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
-    override val original: PlatformDependent<EnumEntry> = PlatformDependent.empty(),
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<EnumEntry> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<EnumEntry> {
     override val children: List<Documentable>
@@ -193,7 +193,6 @@ data class Function(
     override val dri: DRI,
     override val name: String,
     val isConstructor: Boolean,
-    val returnType: TypeWrapper?,
     val parameters: List<Parameter>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val actual: PlatformDependent<DocumentableSource>,
@@ -201,8 +200,8 @@ data class Function(
     override val type: TypeWrapper,
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
-    override val original: PlatformDependent<Function> = PlatformDependent.empty(),
     override val modifier: WithAbstraction.Modifier,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Function> = PropertyContainer.empty()
     ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
     override val children: List<Documentable>
@@ -215,7 +214,6 @@ data class Interface(
     override val dri: DRI,
     override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Interface>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -224,6 +222,7 @@ data class Interface(
     override val companion: Object?,
     override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Interface> = PropertyContainer.empty()
 ) : Classlike(), WithCompanion, WithGenerics, WithExtraProperties<Interface> {
     override val children: List<Documentable>
@@ -236,13 +235,13 @@ data class Object(
     override val name: String?,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Object>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
     override val visibility: PlatformDependent<Visibility>,
     override val supertypes: PlatformDependent<List<DRI>>,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Object> = PropertyContainer.empty()
 ) : Classlike(), WithExtraProperties<Object> {
     override val children: List<Documentable>
@@ -255,7 +254,6 @@ data class Annotation(
     override val name: String?,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<Annotation>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -263,6 +261,7 @@ data class Annotation(
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
     override val constructors: List<Function>,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Annotation> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithVisibility, WithCompanion, WithConstructors, WithExpectActual,
     WithExtraProperties<Annotation> {
@@ -282,8 +281,8 @@ data class Property(
     override val type: TypeWrapper,
     override val receiver: Parameter?,
     val accessors: PlatformDependent<Function>, // TODO > extra
-    override val original: PlatformDependent<Property> = PlatformDependent.empty(),
     override val modifier: WithAbstraction.Modifier,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Property> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<Property> {
     override val children: List<Nothing>
@@ -298,7 +297,7 @@ data class Parameter(
     override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
     val type: TypeWrapper,
-    override val original: PlatformDependent<Parameter>,
+    override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Parameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<Parameter> {
     override val children: List<Nothing>
@@ -311,9 +310,9 @@ data class TypeParameter(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val original: PlatformDependent<TypeParameter> = PlatformDependent.empty(),
     val bounds: List<Projection>,
-    override val extra: PropertyContainer<TypeParameter>
+    override val platformData: List<PlatformData>,
+    override val extra: PropertyContainer<TypeParameter> = PropertyContainer.empty()
 ): Documentable(), WithExtraProperties<TypeParameter> {
     override val children: List<Nothing>
         get() = emptyList()
