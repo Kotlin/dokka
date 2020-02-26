@@ -2,15 +2,12 @@ package testApi.testRunner
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.Module
-import org.jetbrains.dokka.model.Package
-import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.junit.Assert
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.charset.Charset
@@ -25,7 +22,7 @@ abstract class AbstractCoreTest {
 
     protected fun getTestDataDir(name: String) =
         File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
-                ?: throw InvalidPathException(name, "Cannot be found")
+            ?: throw InvalidPathException(name, "Cannot be found")
 
     protected fun testFromData(
         configuration: DokkaConfigurationImpl,
@@ -53,7 +50,8 @@ abstract class AbstractCoreTest {
     ) {
         val testMethods = TestBuilder().apply(block).build()
         val testDirPath = getTempDir(cleanupOutput).root.toPath()
-        val fileMap = query.toFileMap()
+        val fileMap = query//.replace("""\n\s*\n?""".toRegex(), "\n")
+            .replace("""\|/[^\w]""".toRegex()) { it.value.replace("|/", "| /") }.toFileMap()
         fileMap.materializeFiles(testDirPath.toAbsolutePath())
         if (!cleanupOutput)
             logger.info("Output generated under: ${testDirPath.toAbsolutePath()}")
