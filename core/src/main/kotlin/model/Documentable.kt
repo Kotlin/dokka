@@ -3,6 +3,8 @@ package org.jetbrains.dokka.model
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.properties.ExtraProperty
+import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
@@ -72,10 +74,10 @@ interface WithType {
 }
 
 interface WithAbstraction {
-    val modifier: Modifier
+    val modifier: Modifier?
 
     enum class Modifier {
-        Abstract, Open, Final
+        Abstract, Open, Final, Static
     }
 }
 
@@ -145,7 +147,7 @@ data class Class(
     override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val modifier: WithAbstraction.Modifier,
+    override val modifier: WithAbstraction.Modifier?,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Class> = PropertyContainer.empty()
 ) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
@@ -206,7 +208,7 @@ data class Function(
     override val type: TypeWrapper,
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
-    override val modifier: WithAbstraction.Modifier,
+    override val modifier: WithAbstraction.Modifier?,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Function> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
@@ -285,8 +287,8 @@ data class Property(
     override val type: TypeWrapper,
     override val receiver: Parameter?,
     val setter: Function?,
-    val getter: Function,
-    override val modifier: WithAbstraction.Modifier,
+    val getter: Function?,
+    override val modifier: WithAbstraction.Modifier?,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Property> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<Property> {

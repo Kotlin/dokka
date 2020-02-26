@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.model.properties
 
-interface Property<in C : Any> {
+interface ExtraProperty<in C : Any> {
     interface Key<in C: Any, T: Any> {
         fun mergeStrategyFor(left: T, right: T): MergeStrategy<C> = MergeStrategy.Fail {
             throw NotImplementedError("Property merging for $this is not implemented")
@@ -9,12 +9,12 @@ interface Property<in C : Any> {
     val key: Key<C, *>
 }
 
-interface CalculatedProperty<in C: Any, T: Any>: Property.Key<C, T> {
+interface CalculatedProperty<in C: Any, T: Any>: ExtraProperty.Key<C, T> {
     fun calculate(subject: C): T
 }
 
 sealed class MergeStrategy<in C> {
-    class Replace<in C : Any>(val newProperty: Property<C>): MergeStrategy<C>()
+    class Replace<in C : Any>(val newProperty: ExtraProperty<C>): MergeStrategy<C>()
     object Remove: MergeStrategy<Any>()
     class Full<C: Any>(val merger: (preMerged: C, left: C, right: C) -> C): MergeStrategy<C>()
     class Fail(val error: () -> Nothing): MergeStrategy<Any>()
