@@ -1,6 +1,5 @@
 package expect
 
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.Test
 import testApi.testRunner.AbstractCoreTest
 import java.nio.file.Files
@@ -34,19 +33,18 @@ class ExpectTest : AbstractCoreTest() {
                 "diff",
                 expected.asString(),
                 path.asString()
-            ).also { DokkaConsoleLogger.info("git diff command: ${it.command().joinToString(" ")}") }
+            ).also { logger.info("git diff command: ${it.command().joinToString(" ")}") }
                 .start()
 
             assert(gitCompare.waitFor(gitTimeout, TimeUnit.MILLISECONDS)) { "Git timed out after $gitTimeout" }
-            gitCompare.inputStream.bufferedReader().lines().forEach { DokkaConsoleLogger.info(it) }
-            gitCompare.errorStream.bufferedReader().lines().forEach { DokkaConsoleLogger.info(it) }
+            gitCompare.inputStream.bufferedReader().lines().forEach { logger.info(it) }
+            gitCompare.errorStream.bufferedReader().lines().forEach { logger.info(it) }
             assert(gitCompare.exitValue() == 0) { "${path.fileName}: outputs don't match" }
         } ?: throw AssertionError("obtained path is null")
     }
 
     @Test
     fun expectTest() {
-        val logger = DokkaConsoleLogger
         val sources = Paths.get("src/test", "resources", "expect")
 
         Files.list(sources).forEach { p ->
@@ -55,6 +53,7 @@ class ExpectTest : AbstractCoreTest() {
                 .also { logger.info("Test out: ${it?.asString()}") }
 
             compareOutput(expectOut, testOut)
+            testOut?.toFile()?.deleteRecursively()
         }
     }
 
