@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
@@ -14,35 +15,31 @@ open class DefaultPageCreator(
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, logger)
 
-    open fun pageForModule(m: Module): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
+    open fun pageForModule(m: Module) =
+        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
 
-    open fun pageForPackage(p: Package): PackagePageNode =
-        PackagePageNode(p.name, contentForPackage(p), setOf(p.dri), p,
-            p.classlikes.map { pageForClasslike(it) } +
-                    p.functions.map { pageForMember(it) } +
-                    p.packages.map { pageForPackage(it) })
+    open fun pageForPackage(p: Package): PackagePageNode = PackagePageNode(
+        p.name, contentForPackage(p), setOf(p.dri), p,
+        p.classlikes.map(::pageForClasslike) +
+                p.functions.map(::pageForFunction) +
+                p.packages.map(::pageForPackage)
+    )
 
     open fun pageForClasslike(c: Classlike): ClasslikePageNode {
-        val constructors = when (c) {
-            is Class -> c.constructors
-            is Enum -> c.constructors
-            else -> emptyList()
-        }
+        val constructors = if (c is WithConstructors) c.constructors else emptyList()
 
-        return ClasslikePageNode(c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
-            constructors.map { pageForMember(it) } +
-                    c.classlikes.map { pageForClasslike(it) } +
-                    c.functions.map { pageForMember(it) })
+        return ClasslikePageNode(
+            c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
+            constructors.map(::pageForFunction) +
+                    c.classlikes.map(::pageForClasslike) +
+                    c.functions.map(::pageForFunction)
+        )
     }
 
-    open fun pageForMember(c: Callable): MemberPageNode = when (c) {
-        is Function -> MemberPageNode(c.name, contentForFunction(c), setOf(c.dri), c)
-        else -> throw IllegalStateException("$c should not be present here")
-    }
+    open fun pageForFunction(f: Function) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
 
     protected open fun contentForModule(m: Module) = contentBuilder.contentFor(m) {
-        header(1) { text("root") }
+        header(1) { text(m.name) }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
             link(it.name, it.dri)
         }
@@ -52,13 +49,25 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: Package) = contentBuilder.contentFor(p) {
         header(1) { text("Package ${p.name}") }
-        block("Types", 2, ContentKind.Properties, p.classlikes, p.platformData.toSet()) {
+        contentForScope(p, p.dri, p.platformData)
+    }
+
+    protected open fun PageContentBuilder.DocumentableContentBuilder.contentForScope(
+        s: WithScope,
+        dri: DRI,
+        platformData: List<PlatformData>
+    ) {
+        block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name.orEmpty(), it.dri)
             text(it.briefDocTagString)
         }
-        block("Functions", 2, ContentKind.Functions, p.functions, p.platformData.toSet()) {
+        block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri)
             signature(it)
+            text(it.briefDocTagString)
+        }
+        block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
+            link(it.name, it.dri)
             text(it.briefDocTagString)
         }
     }
@@ -79,26 +88,17 @@ open class DefaultPageCreator(
         contentForComments(c)
 
         if (c is WithConstructors) {
-            block("Constructors", 2, ContentKind.Functions, c.constructors, c.platformData.toSet()) {
+            block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
                 link(it.name, it.dri)
                 signature(it)
                 text(it.briefDocTagString)
             }
         }
 
-        block("Functions", 2, ContentKind.Functions, c.functions, c.platformData.toSet()) {
-            link(it.name, it.dri)
-            signature(it)
-            text(it.briefDocTagString)
-        }
-
-        block("Properties", 2, ContentKind.Properties, c.properties, c.platformData.toSet()) {
-            link(it.name, it.dri)
-            text(it.briefDocTagString)
-        }
+        contentForScope(c, c.dri, c.platformData)
     }
 
-    protected open fun contentForComments(d: Documentable) = contentBuilder.contentFor(d) {
+    protected open fun PageContentBuilder.DocumentableContentBuilder.contentForComments(d: Documentable) =
         // TODO: this probably needs fixing
         d.documentation.forEach { _, documentationNode ->
             documentationNode.children.forEach {
@@ -110,7 +110,7 @@ open class DefaultPageCreator(
                 text("\n")
             }
         }
-    }
+
 
     protected open fun contentForFunction(f: Function) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
