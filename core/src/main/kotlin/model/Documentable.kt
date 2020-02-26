@@ -7,7 +7,6 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 
 abstract class Documentable {
@@ -65,7 +64,7 @@ interface WithPackages {
 }
 
 interface WithVisibility {
-    val visibility: PlatformDependent<Visibility> // TODO custom visibility
+    val visibility: PlatformDependent<Visibility>
 }
 
 interface WithType {
@@ -348,6 +347,21 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     } else {
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
+
+sealed class Visibility
+sealed class KotlinVisibility : Visibility() {
+    object Public : KotlinVisibility()
+    object Private : KotlinVisibility()
+    object Protected : KotlinVisibility()
+    object Internal : KotlinVisibility()
+}
+
+sealed class JavaVisibility : Visibility() {
+    object Public : JavaVisibility()
+    object Private : JavaVisibility()
+    object Protected : JavaVisibility()
+    object Default : JavaVisibility()
+}
 
 fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()
 sealed class DocumentableSource(val path: String)

@@ -2,9 +2,7 @@ package model
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Object
 import org.jetbrains.dokka.model.WithAbstraction.Modifier
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -52,7 +50,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 children counts 4
 
                 with(constructors.firstOrNull().assertNotNull("Constructor")) {
-                    visibility.values allEquals Visibilities.PUBLIC
+                    visibility.values allEquals KotlinVisibility.Public
                     parameters counts 1
                     with(parameters.firstOrNull().assertNotNull("Constructor parameter")) {
                         name equals "name"
@@ -80,7 +78,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 with((this / "fn").cast<Function>()) {
                     type.constructorFqName equals "kotlin.Unit"
                     parameters counts 0
-                    visibility.values allEquals Visibilities.PUBLIC
+                    visibility.values allEquals KotlinVisibility.Public
                 }
             }
         }
@@ -150,7 +148,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                visibility.values allEquals Visibilities.PUBLIC
+                visibility.values allEquals KotlinVisibility.Public
                 with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("Extras")) {
                     content.find{it == ExtraModifiers.DATA}.assertNotNull("data modifier")
                 }
@@ -174,7 +172,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                modifier equals WithAbstraction.Modifier.Sealed
+                modifier equals Modifier.Sealed
             }
         }
     }
@@ -391,7 +389,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
 
                 with((this / "Companion").cast<Object>()) {
                     name equals "Companion"
-                    visibility.values allEquals Visibilities.PRIVATE
+                    visibility.values allEquals KotlinVisibility.Private
 
                     with((this / "fn").cast<Function>()) {
                         name equals "fn"

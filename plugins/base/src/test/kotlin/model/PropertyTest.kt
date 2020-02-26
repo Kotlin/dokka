@@ -1,8 +1,8 @@
 package model
 
+import org.jetbrains.dokka.model.KotlinVisibility
 import org.jetbrains.dokka.model.Package
 import org.jetbrains.dokka.model.Property
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -80,7 +80,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(getter.assertNotNull("Getter")) {
                     type.constructorFqName equals "kotlin.String"
                 }
-                visibility.values allEquals Visibilities.PUBLIC
+                visibility.values allEquals KotlinVisibility.Public
             }
         }
     }
@@ -103,7 +103,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(getter.assertNotNull("Getter")) {
                     type.constructorFqName equals "kotlin.Int"
                 }
-                visibility.values allEquals Visibilities.PUBLIC
+                visibility.values allEquals KotlinVisibility.Public
             }
         }
     }
