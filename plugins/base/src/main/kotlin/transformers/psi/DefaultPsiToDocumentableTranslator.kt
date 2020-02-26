@@ -61,11 +61,12 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
             when {
-                ml.any { it.text == PsiKeyword.PUBLIC } -> Visibilities.PUBLIC
-                ml.any { it.text == PsiKeyword.PROTECTED } -> Visibilities.PROTECTED
-                else -> Visibilities.PRIVATE
+                ml.any { it.text == PsiKeyword.PUBLIC } -> JavaVisibility.Public
+                ml.any { it.text == PsiKeyword.PROTECTED } -> JavaVisibility.Protected
+                ml.any { it.text == PsiKeyword.PRIVATE } -> JavaVisibility.Private
+                else -> JavaVisibility.Default
             }
-        } ?: Visibilities.PRIVATE
+        } ?: JavaVisibility.Default
 
         private val PsiMethod.hash: Int
             get() = "$returnType $name$parameterList".hashCode()

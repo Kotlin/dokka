@@ -16,6 +16,7 @@ import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTran
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
+import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
@@ -103,7 +104,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
@@ -125,7 +126,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
             platformData = listOf(platformData),
@@ -147,7 +148,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
@@ -192,7 +193,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = actual,
-            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             documentation = info.docs,
             modifier = descriptor.modifier(),
@@ -215,12 +216,12 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             },
             sources = actual,
             getter = descriptor.accessors.filterIsInstance<PropertyGetterDescriptor>().singleOrNull()?.let {
-               visitPropertyAccessorDescriptor(it, descriptor, dri)
+                visitPropertyAccessorDescriptor(it, descriptor, dri)
             }!!,
             setter = descriptor.accessors.filterIsInstance<PropertySetterDescriptor>().singleOrNull()?.let {
-               visitPropertyAccessorDescriptor(it, descriptor, dri)
+                visitPropertyAccessorDescriptor(it, descriptor, dri)
             },
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
             type = KotlinTypeWrapper(descriptor.returnType!!),
@@ -244,7 +245,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = PlatformDependent.from(platformData, descriptor.visibility),
+            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
@@ -268,7 +269,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
             type = KotlinTypeWrapper(descriptor.returnType),
             modifier = descriptor.modifier(),
@@ -325,7 +326,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             name,
             isConstructor = false,
             parameters = parameters,
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
+            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
             type = KotlinTypeWrapper(descriptor.returnType!!),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
@@ -431,7 +432,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         else -> WithAbstraction.Modifier.Empty
     }
 
-    private fun MemberDescriptor.createSources(): PlatformDependent<DocumentableSource> = if(isExpect()) {
+    private fun MemberDescriptor.createSources(): PlatformDependent<DocumentableSource> = if (isExpect()) {
         PlatformDependent(emptyMap(), DescriptorDocumentableSource(this))
     } else {
         PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
@@ -489,4 +490,12 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         container + AdditionalModifiers(this)
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
+
+    private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
+        Visibilities.PUBLIC -> KotlinVisibility.Public
+        Visibilities.PROTECTED -> KotlinVisibility.Protected
+        Visibilities.INTERNAL -> KotlinVisibility.Internal
+        Visibilities.PRIVATE -> KotlinVisibility.Private
+        else -> KotlinVisibility.Public
+    }
 }
