@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.model.properties
 
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 class PropertyContainer<C : Any> internal constructor(
-    @PublishedApi internal val map: Map<Property.Key<C, *>, Property<C>>
+    @PublishedApi internal val map: Map<ExtraProperty.Key<C, *>, ExtraProperty<C>>
 ) {
-    operator fun <D : C> plus(prop: Property<D>): PropertyContainer<D> =
+    operator fun <D : C> plus(prop: ExtraProperty<D>): PropertyContainer<D> =
         PropertyContainer(map + (prop.key to prop))
 
     // TODO: Add logic for caching calculated properties
-    inline operator fun <reified T : Any> get(key: Property.Key<C, T>): T? = when (val prop = map[key]) {
+    inline operator fun <reified T : Any> get(key: ExtraProperty.Key<C, T>): T? = when (val prop = map[key]) {
         is T? -> prop
         else -> throw ClassCastException("Property for $key stored under not matching key type.")
     }
@@ -27,7 +26,7 @@ interface WithExtraProperties<C : Any> {
 }
 
 fun <C> C.mergeExtras(left: C, right: C): C where C : Any, C : WithExtraProperties<C> {
-    val aggregatedExtras: List<List<Property<C>>> =
+    val aggregatedExtras: List<List<ExtraProperty<C>>> =
         (left.extra.map.values + right.extra.map.values)
             .groupBy { it.key }
             .values
@@ -37,12 +36,12 @@ fun <C> C.mergeExtras(left: C, right: C): C where C : Any, C : WithExtraProperti
 
     @Suppress("UNCHECKED_CAST")
     val strategies: List<MergeStrategy<C>> = toMerge.map { (l, r) ->
-        (l.key as Property.Key<C, Property<C>>).mergeStrategyFor(l, r)
+        (l.key as ExtraProperty.Key<C, ExtraProperty<C>>).mergeStrategyFor(l, r)
     }
 
     strategies.firstIsInstanceOrNull<MergeStrategy.Fail>()?.error?.invoke()
 
-    val replaces: List<Property<C>> = strategies.filterIsInstance<MergeStrategy.Replace<C>>().map { it.newProperty }
+    val replaces: List<ExtraProperty<C>> = strategies.filterIsInstance<MergeStrategy.Replace<C>>().map { it.newProperty }
 
     val needingFullMerge: List<(preMerged: C, left: C, right: C) -> C> =
         strategies.filterIsInstance<MergeStrategy.Full<C>>().map { it.merger }

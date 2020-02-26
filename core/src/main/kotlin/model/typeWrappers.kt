@@ -94,4 +94,8 @@ class JavaTypeWrapper : TypeWrapper {
     override fun toString(): String {
         return constructorFqName.orEmpty()
     }
+
+    companion object {
+        val VOID = JavaTypeWrapper(listOf("void"), listOf(), null, true)
+    }
 }
