@@ -315,7 +315,7 @@ data class TypeParameter(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
-    val bounds: List<Projection>,
+    val bounds: List<Bound>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<TypeParameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<TypeParameter> {
@@ -325,11 +325,14 @@ data class TypeParameter(
     override fun withNewExtras(newExtras: PropertyContainer<TypeParameter>) = copy(extra = newExtras)
 }
 
-sealed class Projection {
-    data class OtherParameter(val name: String) : Projection()
-    object Star : Projection()
-    data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Projection()
-    data class Nullable(val inner: Projection) : Projection()
+sealed class Projection
+sealed class Bound : Projection()
+data class OtherParameter(val name: String) : Bound()
+object Star : Projection()
+data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Bound()
+data class Nullable(val inner: Bound) : Bound()
+data class Variance(val kind: Kind, val inner: Bound): Projection() {
+    enum class Kind { In, Out }
 }
 
 enum class ExtraModifiers {

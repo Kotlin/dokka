@@ -249,10 +249,10 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         }
 
         private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<TypeParameter> {
-            fun mapProjections(bounds: Array<JvmReferenceType>) =
-                if (bounds.isEmpty()) listOf(Projection.Star) else bounds.mapNotNull {
-                    (it as PsiClassType).let { classType ->
-                        Projection.Nullable(Projection.TypeConstructor(classType.resolve()!!.toDRI(), emptyList()))
+            fun mapBounds(bounds: Array<JvmReferenceType>): List<Bound> =
+                if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
+                    (it as? PsiClassType)?.let { classType ->
+                        Nullable(TypeConstructor(classType.resolve()!!.toDRI(), emptyList()))
                     }
                 }
             return typeParameters.mapIndexed { index, type ->
@@ -260,7 +260,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     dri.copy(genericTarget = index),
                     type.name.orEmpty(),
                     javadocParser.parseDocumentation(type).toPlatformDependant(),
-                    mapProjections(type.bounds),
+                    mapBounds(type.bounds),
                     listOf(platformData)
                 )
             }

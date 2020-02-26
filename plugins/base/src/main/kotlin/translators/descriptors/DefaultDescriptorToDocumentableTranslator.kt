@@ -18,8 +18,6 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
-import org.jetbrains.kotlin.idea.kdoc.findKDoc
-import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
@@ -31,6 +29,9 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.dokka.model.Variance
+import org.jetbrains.kotlin.library.metadata.KlibMetadataProtoBuf.fqName
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
 
 class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
@@ -134,7 +135,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         )
     }
 
-    fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
+    private fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
@@ -157,7 +158,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         )
     }
 
-    fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): EnumEntry {
+    private fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): EnumEntry {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
 
@@ -173,7 +174,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         )
     }
 
-    fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
+    private fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
@@ -395,26 +396,34 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             DRI.from(this),
             fqNameSafe.asString(),
             PlatformDependent.from(platformData, getDocumentation()),
-            upperBounds.map { it.toProjection() },
+            upperBounds.map { it.toBound() },
             listOf(platformData),
             extra = additionalExtras()
         )
 
-    private fun KotlinType.toProjection(): Projection = when (constructor.declarationDescriptor) {
-        is TypeParameterDescriptor -> Projection.OtherParameter(fqName.toString()).let {
-            if (isMarkedNullable) Projection.Nullable(it) else it
+    private fun KotlinType.toBound(): Bound = when (constructor.declarationDescriptor) {
+        is TypeParameterDescriptor -> OtherParameter(fqName.toString()).let {
+            if (isMarkedNullable) Nullable(it) else it
         }
-        else -> Projection.TypeConstructor(
+        else -> TypeConstructor(
             DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
             arguments.map { it.toProjection() }
         )
     }
 
     private fun TypeProjection.toProjection(): Projection =
-        if (isStarProjection) Projection.Star else fromPossiblyNullable(type)
+        if (isStarProjection) Star else formPossiblyVariant()
 
-    private fun fromPossiblyNullable(t: KotlinType): Projection =
-        t.toProjection().let { if (t.isMarkedNullable) Projection.Nullable(it) else it }
+    private fun TypeProjection.formPossiblyVariant(): Projection = type.fromPossiblyNullable().let {
+        when (projectionKind) {
+            org.jetbrains.kotlin.types.Variance.INVARIANT -> it
+            org.jetbrains.kotlin.types.Variance.IN_VARIANCE -> Variance(Variance.Kind.In, it)
+            org.jetbrains.kotlin.types.Variance.OUT_VARIANCE -> Variance(Variance.Kind.Out, it)
+        }
+    }
+
+    private fun KotlinType.fromPossiblyNullable(): Bound =
+        toBound().let { if (isMarkedNullable) Nullable(it) else it }
 
     private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
         MarkdownParser(resolutionFacade, this).parseFromKDocTag(it)

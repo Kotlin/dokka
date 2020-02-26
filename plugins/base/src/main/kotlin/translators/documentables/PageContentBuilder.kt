@@ -160,7 +160,7 @@ open class PageContentBuilder(
             elements: List<T>,
             prefix: String = "",
             suffix: String = "",
-            separator: String = ",",
+            separator: String = ", ",
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
