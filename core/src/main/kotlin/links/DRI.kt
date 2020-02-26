@@ -68,6 +68,9 @@ val DRI.parent: DRI
         else -> DRI.topLevel
     }
 
+val DRI.sureClassNames
+    get() = classNames ?: throw IllegalStateException("Malformed DRI. It requires classNames in this context.")
+
 data class Callable(
     val name: String,
     val receiver: TypeReference? = null,
