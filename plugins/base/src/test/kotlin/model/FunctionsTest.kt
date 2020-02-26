@@ -1,11 +1,9 @@
 package model
 
-import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.Package
 import org.junit.Test
-import utils.AbstractModelTest
-import utils.assertNotNull
-import utils.comments
+import utils.*
 
 class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "function") {
 
