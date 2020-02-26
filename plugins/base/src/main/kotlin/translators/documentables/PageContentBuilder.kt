@@ -12,7 +12,6 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 @DslMarker
 annotation class ContentBuilderMarker
 
-@ContentBuilderMarker
 open class PageContentBuilder(
     val commentsConverter: CommentsToContentConverter,
     val logger: DokkaLogger
@@ -71,7 +70,7 @@ open class PageContentBuilder(
         ) {
             contents += ContentHeader(
                 level,
-                this@PageContentBuilder.contentFor(mainDRI, mainPlatformData, kind, styles, extras, block)
+                contentFor(mainDRI, mainPlatformData, kind, styles, extras, block)
             )
         }
 
@@ -121,7 +120,7 @@ open class PageContentBuilder(
             contents += ContentTable(
                 emptyList(),
                 elements.map {
-                    this@PageContentBuilder.contentFor(it, platformData, kind, styles, extras) {
+                    contentFor(it, platformData, kind, styles, extras) {
                         link(it.classNames ?: "", it)
                     }
                 },
@@ -197,7 +196,7 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contents += ContentDRILink(
-                this@PageContentBuilder.contentFor(mainDRI, platformData, kind, styles, extras, block).children,
+                contentFor(mainDRI, platformData, kind, styles, extras, block).children,
                 address,
                 DCI(setOf(mainDRI), kind),
                 platformData
@@ -211,7 +210,7 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extras: Set<Extra> = mainExtras
         ) {
-            val content = this@PageContentBuilder.commentsConverter.buildContent(
+            val content = commentsConverter.buildContent(
                 docTag,
                 DCI(setOf(mainDRI), kind),
                 platformData
@@ -226,7 +225,7 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extras: Set<Extra> = mainExtras,
             block: DocumentableContentBuilder.() -> Unit
-        ): ContentGroup = this@PageContentBuilder.contentFor(dri, platformData, kind, styles, extras, block)
+        ): ContentGroup = contentFor(dri, platformData, kind, styles, extras, block)
 
         protected fun createText(
             text: String,
@@ -243,7 +242,7 @@ open class PageContentBuilder(
             else if (t.constructorNamePathSegments.isNotEmpty() && t.dri == null)
                 text(t.toString())
             else {
-                this@PageContentBuilder.logger.error("type $t cannot be resolved")
+                logger.error("type $t cannot be resolved")
                 text("???")
             }
             list(t.arguments, prefix = "<", suffix = ">") {
