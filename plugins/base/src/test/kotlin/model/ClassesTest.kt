@@ -156,13 +156,6 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-//    @Test fun dataClass() {
-//        verifyPackageMember("testdata/classes/dataClass.kt", defaultModelConfig) { cls ->
-//            val modifiers = cls.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("data" in modifiers)
-//        }
-//    }
-
     @Test
     fun sealedClass() {
         inlineModelTest(
@@ -283,20 +276,13 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "C").cast<Class>()) {
 
                 with((this / "D").cast<Class>()) {
+                    with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("AdditionalModifiers")) {
+                        content.find { it == ExtraModifiers.INNER }.assertNotNull("inner modifier")
+                    }
                 }
             }
         }
     }
-
-//                // TODO modifiers
-//    @Test fun innerClass() {
-//        verifyPackageMember("testdata/classes/innerClass.kt", defaultModelConfig) { cls ->
-//            val innerClass = cls.members.single { it.name == "D" }
-//            val modifiers = innerClass.details(NodeKind.Modifier)
-//            assertEquals(3, modifiers.size)
-//            assertEquals("inner", modifiers[2].name)
-//        }
-//    }
 
     @Test
     fun companionObjectExtension() {

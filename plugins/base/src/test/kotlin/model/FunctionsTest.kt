@@ -1,9 +1,11 @@
 package model
 
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Package
 import org.junit.Test
-import utils.*
+import utils.AbstractModelTest
+import utils.assertNotNull
+import utils.comments
 
 class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "function") {
 
@@ -163,17 +165,12 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             // TODO add data about inline
 
             with((this / "function" / "f").cast<Function>()) {
-                assert(false) { "No inline data" }
+                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("AdditionalModifiers")) {
+                    content.find { it == ExtraModifiers.INLINE }.assertNotNull("inline modifier")
+                }
             }
         }
     }
-
-//    @Test fun inlineFunction() {
-//        verifyPackageMember("testdata/functions/inlineFunction.kt", defaultModelConfig) { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("inline" in modifiers)
-//        }
-//    }
 
     @Test
     fun suspendFunction() {
@@ -182,40 +179,29 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |suspend fun f() {}
         """
         ) {
-            // TODO add data about suspend
-
             with((this / "function" / "f").cast<Function>()) {
-                assert(false) { "No suspend data" }
+                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("AdditionalModifiers")) {
+                    content.find { it == ExtraModifiers.SUSPEND }.assertNotNull("suspend modifier")
+                }
             }
         }
     }
 
-//    @Test fun suspendFunction() {
-//        verifyPackageMember("testdata/functions/suspendFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("suspend" in modifiers)
-//        }
-//    }
-
-//    @Test fun suspendInlineFunctionOrder() {
-//        verifyPackageMember("testdata/functions/suspendInlineFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
-//                it == "suspend" || it == "inline"
-//            }
-//
-//            assertEquals(listOf("suspend", "inline"), modifiers)
-//        }
-//    }
-//
-//    @Test fun inlineSuspendFunctionOrderChanged() {
-//        verifyPackageMember("testdata/functions/inlineSuspendFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
-//                it == "suspend" || it == "inline"
-//            }
-//
-//            assertEquals(listOf("suspend", "inline"), modifiers)
-//        }
-//    }
+    @Test
+    fun suspendInlineFunctionOrder() {
+        inlineModelTest(
+            """
+                |suspend inline fun f(a: () -> String) {}
+        """
+        ) {
+            with((this / "function" / "f").cast<Function>()) {
+                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("AdditionalModifiers")) {
+                    content.find { it == ExtraModifiers.SUSPEND }.assertNotNull("suspend modifier")
+                    content.find { it == ExtraModifiers.INLINE }.assertNotNull("inline modifier")
+                }
+            }
+        }
+    }
 //
 //    @Test fun functionWithAnnotatedParam() {
 //        checkSourceExistsAndVerifyModel("testdata/functions/functionWithAnnotatedParam.kt", defaultModelConfig) { model ->
@@ -231,15 +217,21 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
 //            }
 //        }
 //    }
-//
-//    @Test fun functionWithNoinlineParam() {
-//        verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt", defaultModelConfig) { func ->
-//            with(func.details(NodeKind.Parameter).first()) {
-//                val modifiers = details(NodeKind.Modifier).map { it.name }
-//                assertTrue("noinline" in modifiers)
-//            }
-//        }
-//    }
+
+    @Test
+    fun functionWithNoinlineParam() {
+        inlineModelTest(
+            """
+                |fun f(noinline notInlined: () -> Unit) {}
+        """
+        ) {
+            with((this / "function" / "f" / "notInlined").cast<Parameter>()) {
+                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("AdditionalModifiers")) {
+                    content.find { it == ExtraModifiers.NOINLINE }.assertNotNull("noinline modifier")
+                }
+            }
+        }
+    }
 //
 //    @Test fun annotatedFunctionWithAnnotationParameters() {
 //        checkSourceExistsAndVerifyModel(
@@ -268,26 +260,26 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
 
 // TODO add modifiers - end
 
-//    @Test
-//    fun functionWithDefaultParameter() {
-//        inlineModelTest(
-//            """
-//                |/src/main/kotlin/function/Test.kt
-//                |package function
-//                |fun f(x: String = "") {}
-//        """
-//        ) {
-//            // TODO add default value data
-//
-//            with(this / "function" / "f" cast Function::class) {
-//                parameters.forEach { p ->
-//                    p.name equals "x"
-//                    p.type.constructorFqName.assertNotNull("Parameter type: ") equals "kotlin.String"
-//                    assert(false) { "Add default value data" }
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun functionWithDefaultParameter() {
+        inlineModelTest(
+            """
+                |/src/main/kotlin/function/Test.kt
+                |package function
+                |fun f(x: String = "") {}
+        """
+        ) {
+            // TODO add default value data
+
+            with((this / "function" / "f").cast<Function>()) {
+                parameters.forEach { p ->
+                    p.name equals "x"
+                    p.type.constructorFqName.assertNotNull("Parameter type: ") equals "kotlin.String"
+                    assert(false) { "Add default value data" }
+                }
+            }
+        }
+    }
 
 //    @Test fun functionWithDefaultParameter() {
 //        checkSourceExistsAndVerifyModel("testdata/functions/functionWithDefaultParameter.kt", defaultModelConfig) { model ->
