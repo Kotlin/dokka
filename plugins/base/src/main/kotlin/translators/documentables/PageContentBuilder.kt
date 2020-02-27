@@ -137,20 +137,23 @@ open class PageContentBuilder(
             platformData: Set<PlatformData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extras: Set<Extra> = mainExtras,
+            renderWhenEmpty: Boolean = false,
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
-            header(level) { text(name) }
-            contents += ContentTable(
-                emptyList(),
-                elements.map {
-                    group(it.dri, it.platformData.toSet(), kind, styles, extras) {
-                        // TODO this will fail
-                        operation(it)
-                    }
-                },
-                DCI(setOf(mainDRI), kind),
-                platformData, styles, extras
-            )
+            if (renderWhenEmpty || elements.any()) {
+                header(level) { text(name) }
+                contents += ContentTable(
+                    emptyList(),
+                    elements.map {
+                        group(it.dri, it.platformData.toSet(), kind, styles, extras) {
+                            // TODO this will fail
+                            operation(it)
+                        }
+                    },
+                    DCI(setOf(mainDRI), kind),
+                    platformData, styles, extras
+                )
+            }
         }
 
         fun <T> list(
