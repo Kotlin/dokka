@@ -32,7 +32,7 @@ class DefaultDescriptorToDocumentableTranslator(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
         platformData: PlatformData
-    ) = DokkaDescriptorVisitor(platformData, context.platforms[platformData]?.facade!!).run {
+    ) = DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade).run {
         packageFragments.map {
             visitPackageFragmentDescriptor(
                 it,

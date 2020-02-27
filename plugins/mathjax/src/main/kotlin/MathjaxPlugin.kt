@@ -25,8 +25,8 @@ object MathjaxTransformer : PageTransformer {
     }
 
     private val ContentPage.isNeedingMathjax
-        get() = documentable?.platformInfo
-            ?.flatMap { it.documentationNode.children }
+        get() = documentable?.documentation?.values
+            ?.flatMap { it.children }
             .orEmpty()
             .any { (it as? CustomWrapperTag)?.name == ANNOTATION }
 }
