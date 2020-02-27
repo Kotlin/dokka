@@ -1,7 +1,6 @@
-package org.jetbrains.dokka.base.resolvers
+package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode

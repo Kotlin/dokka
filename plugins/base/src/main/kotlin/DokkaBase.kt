@@ -4,10 +4,12 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.renderers.FileWriter
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.base.renderers.html.*
-import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
+import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.base.resolvers.external.*
+import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
@@ -29,6 +31,7 @@ class DokkaBase : DokkaPlugin() {
     val commentsToContentConverter by extensionPoint<CommentsToContentConverter>()
     val signatureProvider by extensionPoint<SignatureProvider>()
     val locationProviderFactory by extensionPoint<LocationProviderFactory>()
+    val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
 
@@ -96,6 +99,14 @@ class DokkaBase : DokkaPlugin() {
 
     val locationProvider by extending(isFallback = true) {
         locationProviderFactory providing ::DefaultLocationProviderFactory
+    }
+
+    val javadocLocationProvider by extending(isFallback = true) {
+        externalLocationProviderFactory with JavadocExternalLocationProviderFactory()
+    }
+
+    val dokkaLocationProvider by extending(isFallback = true) {
+        externalLocationProviderFactory with DokkaExternalLocationProviderFactory()
     }
 
     val fileWriter by extending(isFallback = true) {
