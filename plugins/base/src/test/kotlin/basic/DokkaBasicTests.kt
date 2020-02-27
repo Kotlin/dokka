@@ -2,7 +2,8 @@ package basic
 
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 class DokkaBasicTests : AbstractCoreTest() {
@@ -31,11 +32,11 @@ class DokkaBasicTests : AbstractCoreTest() {
         ) {
             pagesGenerationStage = {
                 println(it.dri)
-                assert(it.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 5)
+                assertTrue(it.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 5)
             }
         }
     }
 
-    fun ModulePageNode.getClasslikeToMemberMap() =
-        this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy ({it.value}){it.key}
+    private fun ModulePageNode.getClasslikeToMemberMap() =
+        this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy({ it.value }) { it.key }
 }

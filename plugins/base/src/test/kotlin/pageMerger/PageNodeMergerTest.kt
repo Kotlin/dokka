@@ -1,13 +1,10 @@
 package pageMerger
 
-import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
-import org.jetbrains.dokka.utilities.DokkaLogger
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 class PageNodeMergerTest : AbstractCoreTest() {
@@ -70,16 +67,16 @@ class PageNodeMergerTest : AbstractCoreTest() {
                 val testT = allChildren.filter { it.name == "testT" }
                 val test = allChildren.filter { it.name == "test" }
 
-                assert(testT.size == 1) { "There can be only one testT page" }
-                assert(testT.first().dri.size == 2) { "testT page should have 2 DRI, but has ${testT.first().dri.size}" }
+                assertTrue(testT.size == 1) { "There can be only one testT page" }
+                assertTrue(testT.first().dri.size == 2) { "testT page should have 2 DRI, but has ${testT.first().dri.size}" }
 
-                assert(test.size == 1) { "There can be only one test page" }
-                assert(test.first().dri.size == 2) { "test page should have 2 DRI, but has ${test.first().dri.size}" }
+                assertTrue(test.size == 1) { "There can be only one test page" }
+                assertTrue(test.first().dri.size == 2) { "test page should have 2 DRI, but has ${test.first().dri.size}" }
             }
         }
     }
 
-    @Ignore("TODO: reenable when we have infrastructure for turning off extensions")
+    @Disabled("TODO: reenable when we have infrastructure for turning off extensions")
     @Test
     fun defaultStrategyTest() {
         val strList: MutableList<String> = mutableListOf()

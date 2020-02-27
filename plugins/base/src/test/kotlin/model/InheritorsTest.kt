@@ -7,7 +7,7 @@ import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 

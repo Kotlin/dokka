@@ -3,9 +3,10 @@ package basic
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.asSequence
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+
+import org.junit.jupiter.api.Test
 
 class DRITest : AbstractCoreTest() {
     @Test

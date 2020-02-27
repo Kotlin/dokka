@@ -3,13 +3,12 @@ package renderers.html
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.PlatformData
-import org.jetbrains.dokka.pages.Style
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import renderers.RenderingOnlyTestBase
 import renderers.TestPage
 
-class PlatformDependentHintTest: RenderingOnlyTestBase() {
+class PlatformDependentHintTest : RenderingOnlyTestBase() {
     private val pl1 = PlatformData("pl1", Platform.js, listOf("pl1"))
     private val pl2 = PlatformData("pl2", Platform.jvm, listOf("pl2"))
     private val pl3 = PlatformData("pl3", Platform.native, listOf("pl3"))

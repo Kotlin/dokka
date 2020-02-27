@@ -3,7 +3,7 @@ package model
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.doc.CustomWrapperTag
 import org.jetbrains.dokka.model.doc.Text
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import utils.*
 
 class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comment") {

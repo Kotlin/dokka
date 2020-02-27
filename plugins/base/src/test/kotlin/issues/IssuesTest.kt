@@ -2,7 +2,7 @@ package issues
 
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.name
 

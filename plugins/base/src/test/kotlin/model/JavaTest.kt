@@ -3,8 +3,8 @@ package model
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
@@ -112,8 +112,8 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             with((this / "java" / "Foo").cast<DClass>()) {
                 val sups = listOf("Exception", "Cloneable")
                 assertTrue(
-                    "Foo must extend ${sups.joinToString(", ")}",
                     sups.all { s -> supertypes.map.values.flatten().any { it.classNames == s } })
+                    "Foo must extend ${sups.joinToString(", ")}"
             }
         }
     }

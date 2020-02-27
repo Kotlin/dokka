@@ -3,9 +3,9 @@ package enums
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.junit.jupiter.api.Assertions.*
 
 class EnumsTest : AbstractCoreTest() {
 
@@ -65,11 +65,11 @@ class EnumsTest : AbstractCoreTest() {
             configuration
         ) {
             documentablesCreationStage = {m ->
-                assertTrue("Module list cannot be empty", m.isNotEmpty())
+                assertTrue(m.isNotEmpty(), "Module list cannot be empty")
                 m.first().packages.let { p ->
-                    assertTrue("Package list cannot be empty", p.isNotEmpty())
+                    assertTrue(p.isNotEmpty(), "Package list cannot be empty")
                     p.first().classlikes.let { c ->
-                        assertTrue("Classlikes list cannot be empty", c.isNotEmpty())
+                        assertTrue(c.isNotEmpty(), "Classlikes list cannot be empty")
 
                         val enum = c.first() as DEnum
                         assertEquals(enum.name, "Test")
@@ -78,12 +78,12 @@ class EnumsTest : AbstractCoreTest() {
                     }
                 }
             }
-            pagesGenerationStage = {
-                val map = it.getClasslikeToMemberMap()
+            pagesGenerationStage = { module ->
+                val map = module.getClasslikeToMemberMap()
                 val test = map.filterKeys { it.name == "Test" }.values.firstOrNull()
-                assert(test != null) { "Test not found" }
-                assert(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
-                assert(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
+                assertNotNull(test, "Test not found")
+                assertTrue(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
+                assertTrue(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
             }
         }
     }
