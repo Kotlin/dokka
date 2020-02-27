@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.base.providers
+package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder

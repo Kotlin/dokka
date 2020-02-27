@@ -6,6 +6,7 @@ import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
+import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
@@ -21,6 +22,7 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
     val commentsToContentConverter by extensionPoint<CommentsToContentConverter>()
+    val signatureProvider by extensionPoint<SignatureProvider>()
     val locationProviderFactory by extensionPoint<LocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
 
