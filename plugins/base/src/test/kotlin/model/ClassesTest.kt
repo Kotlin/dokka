@@ -2,6 +2,7 @@ package model
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.Object
 import org.jetbrains.dokka.model.WithAbstraction.Modifier
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.junit.Test
@@ -20,7 +21,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                children counts 3
+                children counts 4
             }
         }
     }
@@ -48,7 +49,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                children counts 3
+                children counts 4
 
                 with(constructors.firstOrNull().assertNotNull("Constructor")) {
                     visibility.values allEquals Visibilities.PUBLIC
@@ -74,7 +75,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                children counts 4
+                children counts 5
 
                 with((this / "fn").cast<Function>()) {
                     type.constructorFqName equals "kotlin.Unit"
@@ -96,7 +97,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                children counts 4
+                children counts 5
 
                 with((this / "name").cast<Property>()) {
                     name equals "name"
@@ -120,7 +121,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                children counts 4
+                children counts 5
 
                 with((this / "Companion").cast<Object>()) {
                     name equals "Companion"

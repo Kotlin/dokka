@@ -30,7 +30,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         ) {
             with((this / "comment" / "prop1").cast<Property>()) {
                 name equals "prop1"
-                with(this.platformInfo.flatMap { it.documentationNode.children }.firstOrNull()?.root.assertNotNull("Code")) {
+                with(this.docs().firstOrNull()?.root.assertNotNull("Code")) {
                     (children.firstOrNull() as? Text)
                         ?.body equals "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."
 

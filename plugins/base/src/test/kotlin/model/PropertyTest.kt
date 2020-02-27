@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.descriptors.Visibilities
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
-import utils.getter
 
 class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "property") {
 
@@ -19,11 +18,10 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             with((this / "property" / "property").cast<Property>()) {
                 name equals "property"
                 children counts 0
-                accessors counts 1
-                with(getter().assertNotNull("Getter")) {
-                    returnType?.constructorFqName equals "kotlin.String"
+                with(getter.assertNotNull("Getter")) {
+                    type.constructorFqName equals "kotlin.String"
                 }
-                // type.constructorFqName equals "kotlin.String" todo
+                 type.constructorFqName equals "kotlin.String"
             }
         }
     }
@@ -38,11 +36,11 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             with((this / "property" / "property").cast<Property>()) {
                 name equals "property"
                 children counts 0
-                accessors counts 2
-                with(getter().assertNotNull("Getter")) {
-                    returnType?.constructorFqName equals "kotlin.String"
+                setter.assertNotNull("Setter")
+                with(getter.assertNotNull("Getter")) {
+                    type.constructorFqName equals "kotlin.String"
                 }
-                // type.constructorFqName equals "kotlin.String" todo
+                 type.constructorFqName equals "kotlin.String"
             }
         }
     }
@@ -58,11 +56,10 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             with((this / "property" / "property").cast<Property>()) {
                 name equals "property"
                 children counts 0
-                accessors counts 1
-                with(getter().assertNotNull("Getter")) {
-                    returnType?.constructorFqName equals "kotlin.String"
+                with(getter.assertNotNull("Getter")) {
+                    type.constructorFqName equals "kotlin.String"
                 }
-                // type.constructorFqName equals "kotlin.String" todo
+                 type.constructorFqName equals "kotlin.String"
             }
         }
     }
@@ -79,9 +76,9 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             with((this / "property" / "property").cast<Property>()) {
                 name equals "property"
                 children counts 0
-                accessors counts 2
-                with(getter().assertNotNull("Getter")) {
-                    returnType?.constructorFqName equals "kotlin.String"
+                setter.assertNotNull("Setter")
+                with(getter.assertNotNull("Getter")) {
+                    type.constructorFqName equals "kotlin.String"
                 }
                 visibility.values allEquals Visibilities.PUBLIC
             }
@@ -98,14 +95,13 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         ) {
             with((this / "property" / "property").cast<Property>()) {
                 name equals "property"
-                children counts 1
-                accessors counts 1
+                children counts 0
                 with(receiver.assertNotNull("property receiver")) {
                     name equals null
                     type.constructorFqName equals "kotlin.String"
                 }
-                with(getter().assertNotNull("Getter")) {
-                    returnType?.constructorFqName equals "kotlin.Int"
+                with(getter.assertNotNull("Getter")) {
+                    type.constructorFqName equals "kotlin.Int"
                 }
                 visibility.values allEquals Visibilities.PUBLIC
             }
@@ -128,17 +124,15 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with((this / "Foo" / "property").cast<Property>()) {
                     name equals "property"
                     children counts 0
-                    accessors counts 1
-                    with(getter().assertNotNull("Getter")) {
-                        returnType?.constructorFqName equals "kotlin.Int"
+                    with(getter.assertNotNull("Getter")) {
+                        type.constructorFqName equals "kotlin.Int"
                     }
                 }
                 with((this / "Bar" / "property").cast<Property>()) {
                     name equals "property"
                     children counts 0
-                    accessors counts 1
-                    with(getter().assertNotNull("Getter")) {
-                        returnType?.constructorFqName equals "kotlin.Int"
+                    with(getter.assertNotNull("Getter")) {
+                        type.constructorFqName equals "kotlin.Int"
                     }
                 }
             }

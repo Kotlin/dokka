@@ -134,7 +134,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
                 with((this / "arrayToString").cast<Function>()) {
                     name equals "arrayToString"
-                    returnType?.constructorFqName equals "java.lang.String[]"
+                    type.constructorFqName equals "java.lang.String[]"
                     with(parameters.firstOrNull().assertNotNull("parameters")) {
                         name equals "data"
                         type.constructorFqName equals "int[]"

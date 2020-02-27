@@ -19,7 +19,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "fn").cast<Function>()) {
                 name equals "fn"
-                returnType?.constructorFqName equals "kotlin.Unit"
+                type.constructorFqName equals "kotlin.Unit"
                 this.children.assertCount(0, "Function children: ")
             }
         }
@@ -125,7 +125,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     it.comments() equals "parameter"
                 }
 
-                returnType.assertNotNull("Return type: ").constructorFqName equals "kotlin.Unit"
+                type.assertNotNull("Return type: ").constructorFqName equals "kotlin.Unit"
             }
         }
     }
