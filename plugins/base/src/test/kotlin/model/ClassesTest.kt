@@ -3,6 +3,7 @@ package model
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.Object
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -165,7 +166,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                modifier equals KotlinModifier.Sealed
+                modifier equals Sealed
             }
         }
     }

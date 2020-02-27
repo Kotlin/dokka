@@ -1,7 +1,7 @@
 package model
 
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Package
 import org.junit.Test
 import utils.*
 
