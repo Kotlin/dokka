@@ -155,7 +155,7 @@ data class Class(
     WithExtraProperties<Class> {
 
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
+        get() = (functions + properties + classlikes + constructors) as List<Documentable>
 
     override fun withNewExtras(newExtras: PropertyContainer<Class>) = copy(extra = newExtras)
 }
@@ -235,7 +235,7 @@ data class Interface(
     override val extra: PropertyContainer<Interface> = PropertyContainer.empty()
 ) : Classlike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<Interface> {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + listOfNotNull(companion)) as List<Documentable>
+        get() = (functions + properties + classlikes) as List<Documentable>
 
     override fun withNewExtras(newExtras: PropertyContainer<Interface>) = copy(extra = newExtras)
 }
