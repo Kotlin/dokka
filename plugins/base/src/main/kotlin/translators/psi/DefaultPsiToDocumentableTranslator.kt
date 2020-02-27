@@ -245,7 +245,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         private fun PsiModifierListOwner.getModifier() = when {
             hasModifier(JvmModifier.ABSTRACT) -> WithAbstraction.Modifier.Abstract
             hasModifier(JvmModifier.FINAL) -> WithAbstraction.Modifier.Final
-            else -> null
+            else -> WithAbstraction.Modifier.Empty
         }
 
         private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<TypeParameter> {

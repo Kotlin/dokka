@@ -72,7 +72,7 @@ interface WithType {
 }
 
 interface WithAbstraction {
-    val modifier: Modifier?
+    val modifier: Modifier
 
     enum class Modifier {
         Abstract, Open, Final, Sealed, Empty
@@ -145,7 +145,7 @@ data class Class(
     override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val modifier: WithAbstraction.Modifier?,
+    override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Class> = PropertyContainer.empty()
 ) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
@@ -174,7 +174,7 @@ data class Enum(
     override val extra: PropertyContainer<Enum> = PropertyContainer.empty()
 ) : Classlike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<Enum> {
     override val children: List<Documentable>
-        get() = (entries + functions + properties + classlikes + listOfNotNull(companion) + constructors) as List<Documentable>
+        get() = (entries + functions + properties + classlikes + constructors) as List<Documentable>
 
     override fun withNewExtras(newExtras: PropertyContainer<Enum>) = copy(extra = newExtras)
 }
@@ -206,7 +206,7 @@ data class Function(
     override val type: TypeWrapper,
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
-    override val modifier: WithAbstraction.Modifier?,
+    override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Function> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
@@ -271,7 +271,7 @@ data class Annotation(
     override val extra: PropertyContainer<Annotation> = PropertyContainer.empty()
 ) : Classlike(), WithCompanion, WithConstructors, WithExtraProperties<Annotation> {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + constructors + listOfNotNull(companion)) as List<Documentable>
+        get() = (functions + properties + classlikes + constructors) as List<Documentable>
 
     override fun withNewExtras(newExtras: PropertyContainer<Annotation>) = copy(extra = newExtras)
 }
@@ -286,7 +286,7 @@ data class Property(
     override val receiver: Parameter?,
     val setter: Function?,
     val getter: Function?,
-    override val modifier: WithAbstraction.Modifier?,
+    override val modifier: WithAbstraction.Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Property> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<Property> {
