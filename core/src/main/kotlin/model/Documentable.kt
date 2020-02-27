@@ -53,7 +53,7 @@ data class PlatformDependent<out T>(
 }
 
 interface WithExpectActual {
-    val actual: PlatformDependent<DocumentableSource>
+    val sources: PlatformDependent<DocumentableSource>
 }
 
 interface WithScope {
@@ -142,7 +142,7 @@ data class Class(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val companion: Object?,
     override val generics: List<TypeParameter>,
@@ -165,7 +165,7 @@ data class Enum(
     override val name: String,
     val entries: List<EnumEntry>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
@@ -204,7 +204,7 @@ data class Function(
     val isConstructor: Boolean,
     val parameters: List<Parameter>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: TypeWrapper,
     override val generics: List<TypeParameter>,
@@ -223,7 +223,7 @@ data class Interface(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
@@ -244,7 +244,7 @@ data class Object(
     override val name: String?,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
@@ -263,7 +263,7 @@ data class Annotation(
     override val name: String,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
@@ -283,7 +283,7 @@ data class Property(
     override val dri: DRI,
     override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val actual: PlatformDependent<DocumentableSource>,
+    override val sources: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
     override val type: TypeWrapper,
     override val receiver: Parameter?,

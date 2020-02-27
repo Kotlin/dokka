@@ -96,7 +96,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            actual = descriptor.actual(platformData, descriptor),
+            sources = descriptor.createSources(),
             visibility = PlatformDependent.from(platformData, descriptor.visibility),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
@@ -117,7 +117,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            actual = descriptor.actual(platformData, descriptor),
+            sources = descriptor.createSources(),
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
@@ -138,7 +138,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            actual = descriptor.actual(platformData, descriptor),
+            sources = descriptor.createSources(),
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
@@ -166,7 +166,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
-        val actual = descriptor.actual(platformData, descriptor)
+        val actual = descriptor.createSources()
 
         return Class(
             dri = driWithPlatform.dri,
@@ -181,7 +181,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            actual = actual,
+            sources = actual,
             visibility = PlatformDependent.from(platformData, descriptor.visibility),
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             documentation = info.docs,
@@ -195,14 +195,14 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): Property {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
-        val actual = descriptor.actual(platformData, descriptor)
+        val actual = descriptor.createSources()
         return Property(
             dri = dri,
             name = descriptor.name.asString(),
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(it, DRIWithPlatformInfo(dri, actual))
             },
-            actual = actual,
+            sources = actual,
             getter = descriptor.accessors.filterIsInstance<PropertyGetterDescriptor>().singleOrNull()?.let {
                visitPropertyAccessorDescriptor(it, descriptor, dri)
             }!!,
@@ -220,7 +220,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): Function {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
-        val actual = descriptor.actual(platformData, descriptor)
+        val actual = descriptor.createSources()
         return Function(
             dri = dri,
             name = descriptor.name.asString(),
@@ -231,7 +231,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             parameters = descriptor.valueParameters.mapIndexed { index, desc ->
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
-            actual = actual,
+            sources = actual,
             visibility = PlatformDependent.from(platformData, descriptor.visibility),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             documentation = descriptor.resolveDescriptorData(platformData),
@@ -243,7 +243,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
 
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): Function {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
-        val actual = descriptor.actual(platformData, descriptor)
+        val actual = descriptor.createSources()
         return Function(
             dri = dri,
             name = "<init>",
@@ -254,7 +254,7 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             parameters = descriptor.valueParameters.mapIndexed { index, desc ->
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
-            actual = actual,
+            sources = actual,
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
             documentation = descriptor.resolveDescriptorData(platformData),
             type = KotlinTypeWrapper(descriptor.returnType),
@@ -318,10 +318,10 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(
                     it,
-                    DRIWithPlatformInfo(dri, descriptor.actual(platformData, descriptor))
+                    DRIWithPlatformInfo(dri, descriptor.createSources())
                 )
             },
-            actual = descriptor.actual(platformData, descriptor),
+            sources = descriptor.createSources(),
             platformData = listOf(platformData)
         )
     }
@@ -413,10 +413,11 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
         else -> WithAbstraction.Modifier.Empty
     }
 
-    fun MemberDescriptor.actual(platformData: PlatformData, expected: DeclarationDescriptor? = null) =
-        this.takeIf { it.isActual }?.let { DescriptorDocumentableSource(it) }?.let {
-            PlatformDependent(mapOf(platformData to it), expected?.let { DescriptorDocumentableSource(it) })
-        }.orEmpty()
+    private fun MemberDescriptor.createSources(): PlatformDependent<DocumentableSource> = if(isExpect()) {
+        PlatformDependent(emptyMap(), DescriptorDocumentableSource(this))
+    } else {
+        PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
+    }
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 }

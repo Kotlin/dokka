@@ -71,8 +71,8 @@ private fun <T> mergeExpectActual(
     }
 
     fun analyzeExpectActual(sameDriElements: List<T>): List<T> {
-        val (expect, actual) = sameDriElements.partition { it.actual.expect != null }
-        val mergedExpect = expect.groupBy { it.actual.expect?.path }.values.map { e ->
+        val (expect, actual) = sameDriElements.partition { it.sources.expect != null }
+        val mergedExpect = expect.groupBy { it.sources.expect?.path }.values.map { e ->
             e.first().platformSetter(e.flatMap { it.platformData }.distinct())
         }
         return actual.groupBy { findExpect(it, mergedExpect) }.flatMap { reduceExpectActual(it) }
@@ -103,7 +103,7 @@ fun Function.mergeWith(other: Function) : Function = copy(
     parameters = merge(this.parameters + other.parameters, Parameter::mergeWith),
     receiver = receiver?.let { r -> other.receiver?.let { r.mergeWith(it) } ?: r } ?: other.receiver,
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct(),
     generics = merge(generics + other.generics, TypeParameter::mergeWith)
@@ -112,7 +112,7 @@ fun Function.mergeWith(other: Function) : Function = copy(
 fun Property.mergeWith(other: Property): Property = copy(
     receiver = receiver?.let { r -> other.receiver?.let { r.mergeWith(it) } ?: r } ?: other.receiver,
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct(),
     getter = getter?.let { g -> other.getter?.let { g.mergeWith(it) } ?: g } ?: other.getter,
@@ -145,7 +145,7 @@ fun Class.mergeWith(other: Class): Class = copy(
     generics = merge(generics + other.generics, TypeParameter::mergeWith),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
@@ -159,7 +159,7 @@ fun Enum.mergeWith(other: Enum): Enum = copy(
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
@@ -178,7 +178,7 @@ fun Object.mergeWith(other: Object): Object = copy(
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
@@ -191,7 +191,7 @@ fun Interface.mergeWith(other: Interface): Interface = copy(
     generics = merge(generics + other.generics, TypeParameter::mergeWith),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
@@ -203,7 +203,7 @@ fun Annotation.mergeWith(other: Annotation): Annotation = copy(
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
     documentation = documentation.mergeWith(other.documentation),
-    actual = actual.mergeWith(other.actual),
+    sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
