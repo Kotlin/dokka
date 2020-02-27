@@ -6,6 +6,9 @@ object SameMethodNamePageMergerStrategy : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>, path: List<String>): List<PageNode> {
         val name = pages.first().name
         val members = pages.filterIsInstance<MemberPageNode>()
+
+        if (members.isEmpty()) return pages
+
         val others = pages.filterNot { it is MemberPageNode }
 
         val resChildren = members.flatMap { it.children }.distinct()
