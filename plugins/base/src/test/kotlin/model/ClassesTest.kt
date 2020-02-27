@@ -1,9 +1,9 @@
 package model
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.KotlinModifier.*
 import org.jetbrains.dokka.model.DFunction
-import org.junit.Test
+import org.jetbrains.dokka.model.KotlinModifier.*
+import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
@@ -151,7 +151,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 name equals "Klass"
                 visibility.values allEquals KotlinVisibility.Public
                 with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("Extras")) {
-                    content.find{it == ExtraModifiers.DATA}.assertNotNull("data modifier")
+                    content.find { it == ExtraModifiers.DATA }.assertNotNull("data modifier")
                 }
             }
         }

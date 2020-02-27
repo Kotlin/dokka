@@ -1,0 +1,2 @@
+@Strictfp fun f() {
+}

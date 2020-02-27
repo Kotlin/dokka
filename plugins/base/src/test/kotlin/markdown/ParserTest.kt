@@ -2,13 +2,14 @@ package org.jetbrains.dokka.tests
 
 import markdown.KDocTest
 import org.jetbrains.dokka.model.doc.*
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
 
 class ParserTest : KDocTest() {
 
-    @Test fun `Simple text`() {
+    @Test
+    fun `Simple text`() {
         val kdoc = """
         | This is simple test of string
         | Next line
@@ -23,7 +24,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Simple text with new line`() {
+    @Test
+    fun `Simple text with new line`() {
         val kdoc = """
         | This is simple test of string\
         | Next line
@@ -31,18 +33,21 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Text("This is simple test of string"),
-                        Br,
-                        Text("Next line")
-                    ))
+                    P(
+                        listOf(
+                            Text("This is simple test of string"),
+                            Br,
+                            Text("Next line")
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Text with Bold and Emphasis decorators`() {
+    @Test
+    fun `Text with Bold and Emphasis decorators`() {
         val kdoc = """
         | This is **simple** test of _string_
         | Next **_line_**
@@ -66,7 +71,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Text with Colon`() {
+    @Test
+    fun `Text with Colon`() {
         val kdoc = """
         | This is simple text with: colon!
         """.trimMargin()
@@ -80,7 +86,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Multilined text`() {
+    @Test
+    fun `Multilined text`() {
         val kdoc = """
         | Text
         | and
@@ -96,7 +103,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Paragraphs`() {
+    @Test
+    fun `Paragraphs`() {
         val kdoc = """
         | Paragraph number
         | one
@@ -119,7 +127,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Emphasis with star`() {
+    @Test
+    fun `Emphasis with star`() {
         val kdoc = " *text*"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
@@ -131,7 +140,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Underscores that are not Emphasis`() {
+    @Test
+    fun `Underscores that are not Emphasis`() {
         val kdoc = "text_with_underscores"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
@@ -143,7 +153,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Emphasis with underscores`() {
+    @Test
+    fun `Emphasis with underscores`() {
         val kdoc = "_text_"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
@@ -155,7 +166,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Embedded star`() {
+    @Test
+    fun `Embedded star`() {
         val kdoc = "Embedded*Star"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
@@ -168,7 +180,8 @@ class ParserTest : KDocTest() {
     }
 
 
-    @Test fun `Unordered list`() {
+    @Test
+    fun `Unordered list`() {
         val kdoc = """
         | * list item 1
         | * list item 2
@@ -188,7 +201,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Unordered list with multilines`() {
+    @Test
+    fun `Unordered list with multilines`() {
         val kdoc = """
         | * list item 1
         |  continue 1
@@ -210,7 +224,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Unordered list with Bold`() {
+    @Test
+    fun `Unordered list with Bold`() {
         val kdoc = """
         | * list **item** 1
         |  continue 1
@@ -220,25 +235,40 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    Ul(listOf(
-                        Li(listOf(P(listOf(
-                            Text("list "),
-                            B(listOf(Text("item"))),
-                            Text(" 1 continue 1")
-                        )))),
-                        Li(listOf(P(listOf(
-                            Text("list "),
-                            B(listOf(Text("item"))),
-                            Text(" 2 continue 2")
-                        ))))
-                    ))
+                    Ul(
+                        listOf(
+                            Li(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("list "),
+                                            B(listOf(Text("item"))),
+                                            Text(" 1 continue 1")
+                                        )
+                                    )
+                                )
+                            ),
+                            Li(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("list "),
+                                            B(listOf(Text("item"))),
+                                            Text(" 2 continue 2")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Unordered list with nested bullets`() {
+    @Test
+    fun `Unordered list with nested bullets`() {
         val kdoc = """
         | * Outer first
         | Outer next line
@@ -255,29 +285,38 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Ul(listOf(
-                            Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
-                            Li(listOf(P(listOf(Text("Outer second"))))),
-                            Ul(listOf(
-                                Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
-                                Li(listOf(P(listOf(Text("Middle second"))))),
-                                Ul(listOf(
-                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
-                                )),
-                                Li(listOf(P(listOf(Text("Middle third")))))
-                            )),
-                            Li(listOf(P(listOf(Text("Outer third")))))
-                        )),
-                        P(listOf(Text("New paragraph")))
-                    ))
+                    P(
+                        listOf(
+                            Ul(
+                                listOf(
+                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer second"))))),
+                                    Ul(
+                                        listOf(
+                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle second"))))),
+                                            Ul(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                )
+                                            ),
+                                            Li(listOf(P(listOf(Text("Middle third")))))
+                                        )
+                                    ),
+                                    Li(listOf(P(listOf(Text("Outer third")))))
+                                )
+                            ),
+                            P(listOf(Text("New paragraph")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Ordered list`() {
+    @Test
+    fun `Ordered list`() {
         val kdoc = """
         | 1. list item 1
         | 2. list item 2
@@ -299,7 +338,8 @@ class ParserTest : KDocTest() {
     }
 
 
-    @Test fun `Ordered list beginning from other number`() {
+    @Test
+    fun `Ordered list beginning from other number`() {
         val kdoc = """
         | 9. list item 1
         | 12. list item 2
@@ -320,7 +360,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Ordered list with multilines`() {
+    @Test
+    fun `Ordered list with multilines`() {
         val kdoc = """
         | 2. list item 1
         |  continue 1
@@ -343,7 +384,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Ordered list with Bold`() {
+    @Test
+    fun `Ordered list with Bold`() {
         val kdoc = """
         | 1. list **item** 1
         |  continue 1
@@ -353,17 +395,30 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    Ol(listOf(
-                            Li(listOf(P(listOf(
-                                Text("list "),
-                                B(listOf(Text("item"))),
-                                Text(" 1 continue 1")
-                            )))),
-                            Li(listOf(P(listOf(
-                                Text("list "),
-                                B(listOf(Text("item"))),
-                                Text(" 2 continue 2")
-                            ))))
+                    Ol(
+                        listOf(
+                            Li(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("list "),
+                                            B(listOf(Text("item"))),
+                                            Text(" 1 continue 1")
+                                        )
+                                    )
+                                )
+                            ),
+                            Li(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("list "),
+                                            B(listOf(Text("item"))),
+                                            Text(" 2 continue 2")
+                                        )
+                                    )
+                                )
+                            )
                         ),
                         mapOf("start" to "1")
                     )
@@ -373,7 +428,8 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Ordered list with nested bullets`() {
+    @Test
+    fun `Ordered list with nested bullets`() {
         val kdoc = """
         | 1. Outer first
         | Outer next line
@@ -390,35 +446,41 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Ol(listOf(
-                            Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
-                            Li(listOf(P(listOf(Text("Outer second"))))),
-                            Ol(listOf(
-                                Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
-                                Li(listOf(P(listOf(Text("Middle second"))))),
-                                Ol(listOf(
-                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                    P(
+                        listOf(
+                            Ol(
+                                listOf(
+                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer second"))))),
+                                    Ol(
+                                        listOf(
+                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle second"))))),
+                                            Ol(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                ),
+                                                mapOf("start" to "1")
+                                            ),
+                                            Li(listOf(P(listOf(Text("Middle third")))))
+                                        ),
+                                        mapOf("start" to "1")
                                     ),
-                                    mapOf("start" to "1")
-                                ),
-                                Li(listOf(P(listOf(Text("Middle third")))))
+                                    Li(listOf(P(listOf(Text("Outer third")))))
                                 ),
                                 mapOf("start" to "1")
                             ),
-                            Li(listOf(P(listOf(Text("Outer third")))))
-                            ),
-                            mapOf("start" to "1")
-                        ),
-                        P(listOf(Text("New paragraph")))
-                    ))
+                            P(listOf(Text("New paragraph")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Ordered nested in Unordered nested in Ordered list`() {
+    @Test
+    fun `Ordered nested in Unordered nested in Ordered list`() {
         val kdoc = """
         | 1. Outer first
         | Outer next line
@@ -435,33 +497,40 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Ol(listOf(
-                            Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
-                            Li(listOf(P(listOf(Text("Outer second"))))),
-                            Ul(listOf(
-                                Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
-                                Li(listOf(P(listOf(Text("Middle second"))))),
-                                Ol(listOf(
-                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                    P(
+                        listOf(
+                            Ol(
+                                listOf(
+                                    Li(listOf(P(listOf(Text("Outer first Outer next line"))))),
+                                    Li(listOf(P(listOf(Text("Outer second"))))),
+                                    Ul(
+                                        listOf(
+                                            Li(listOf(P(listOf(Text("Middle first Middle next line"))))),
+                                            Li(listOf(P(listOf(Text("Middle second"))))),
+                                            Ol(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("Inner first Inner next line")))))
+                                                ),
+                                                mapOf("start" to "1")
+                                            ),
+                                            Li(listOf(P(listOf(Text("Middle third")))))
+                                        )
+                                    ),
+                                    Li(listOf(P(listOf(Text("Outer third")))))
                                 ),
-                                    mapOf("start" to "1")
-                                ),
-                                Li(listOf(P(listOf(Text("Middle third")))))
-                            )),
-                            Li(listOf(P(listOf(Text("Outer third")))))
-                        ),
-                            mapOf("start" to "1")
-                        ),
-                        P(listOf(Text("New paragraph")))
-                    ))
+                                mapOf("start" to "1")
+                            ),
+                            P(listOf(Text("New paragraph")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Header and two paragraphs`() {
+    @Test
+    fun `Header and two paragraphs`() {
         val kdoc = """
         | # Header 1
         | Following text
@@ -471,19 +540,22 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        H1(listOf(Text("Header 1"))),
-                        P(listOf(Text("Following text"))),
-                        P(listOf(Text("New paragraph")))
-                    ))
+                    P(
+                        listOf(
+                            H1(listOf(Text("Header 1"))),
+                            P(listOf(Text("Following text"))),
+                            P(listOf(Text("New paragraph")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Ignore //TODO: ATX_2 to ATX_6 and sometimes ATX_1 from jetbrains parser consumes white space. Need to handle it in their library
-    @Test fun `All headers`() {
+    @Disabled //TODO: ATX_2 to ATX_6 and sometimes ATX_1 from jetbrains parser consumes white space. Need to handle it in their library
+    @Test
+    fun `All headers`() {
         val kdoc = """
         | # Header 1
         | Text 1
@@ -501,27 +573,30 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        H1(listOf(Text("Header 1"))),
-                        P(listOf(Text("Text 1"))),
-                        H2(listOf(Text("Header 2"))),
-                        P(listOf(Text("Text 2"))),
-                        H3(listOf(Text("Header 3"))),
-                        P(listOf(Text("Text 3"))),
-                        H4(listOf(Text("Header 4"))),
-                        P(listOf(Text("Text 4"))),
-                        H5(listOf(Text("Header 5"))),
-                        P(listOf(Text("Text 5"))),
-                        H6(listOf(Text("Header 6"))),
-                        P(listOf(Text("Text 6")))
-                    ))
+                    P(
+                        listOf(
+                            H1(listOf(Text("Header 1"))),
+                            P(listOf(Text("Text 1"))),
+                            H2(listOf(Text("Header 2"))),
+                            P(listOf(Text("Text 2"))),
+                            H3(listOf(Text("Header 3"))),
+                            P(listOf(Text("Text 3"))),
+                            H4(listOf(Text("Header 4"))),
+                            P(listOf(Text("Text 4"))),
+                            H5(listOf(Text("Header 5"))),
+                            P(listOf(Text("Text 5"))),
+                            H6(listOf(Text("Header 6"))),
+                            P(listOf(Text("Text 6")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Bold New Line Bold`() {
+    @Test
+    fun `Bold New Line Bold`() {
         val kdoc = """
         | **line 1**\
         | **line 2**
@@ -529,18 +604,21 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        B(listOf(Text("line 1"))),
-                        Br,
-                        B(listOf(Text("line 2")))
-                    ))
+                    P(
+                        listOf(
+                            B(listOf(Text("line 1"))),
+                            Br,
+                            B(listOf(Text("line 2")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Horizontal rule`() {
+    @Test
+    fun `Horizontal rule`() {
         val kdoc = """
         | ***
         | text 1
@@ -555,24 +633,27 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        HorizontalRule,
-                        P(listOf(Text("text 1"))),
-                        HorizontalRule,
-                        P(listOf(Text("text 2"))),
-                        HorizontalRule,
-                        P(listOf(Text("text 3"))),
-                        HorizontalRule,
-                        P(listOf(Text("text 4"))),
-                        HorizontalRule
-                    ))
+                    P(
+                        listOf(
+                            HorizontalRule,
+                            P(listOf(Text("text 1"))),
+                            HorizontalRule,
+                            P(listOf(Text("text 2"))),
+                            HorizontalRule,
+                            P(listOf(Text("text 3"))),
+                            HorizontalRule,
+                            P(listOf(Text("text 4"))),
+                            HorizontalRule
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Blockquote`() {
+    @Test
+    fun `Blockquote`() {
         val kdoc = """
         | > Blockquotes are very handy in email to emulate reply text.
         | > This line is part of the same quote.
@@ -584,17 +665,25 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        BlockQuote(listOf(
-                            P(listOf(
-                                Text("Blockquotes are very handy in email to emulate reply text. This line is part of the same quote.")
-                            ))
-                        )),
-                        P(listOf(Text("Quote break."))),
-                        BlockQuote(listOf(
-                            P(listOf(Text("Quote")))
-                        ))
-                    ))
+                    P(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("Blockquotes are very handy in email to emulate reply text. This line is part of the same quote.")
+                                        )
+                                    )
+                                )
+                            ),
+                            P(listOf(Text("Quote break."))),
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Quote")))
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
@@ -602,7 +691,8 @@ class ParserTest : KDocTest() {
     }
 
 
-    @Test fun `Blockquote nested`() {
+    @Test
+    fun `Blockquote nested`() {
         val kdoc = """
         | > text 1
         | > text 2
@@ -618,27 +708,36 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        BlockQuote(listOf(
-                            P(listOf(Text("text 1 text 2"))),
-                            BlockQuote(listOf(
-                                P(listOf(Text("text 3 text 4")))
-                            )),
-                            P(listOf(Text("text 5")))
-                            )),
-                        P(listOf(Text("Quote break."))),
-                        BlockQuote(listOf(
-                            P(listOf(Text("Quote")))
-                        ))
-                    ))
+                    P(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("text 1 text 2"))),
+                                    BlockQuote(
+                                        listOf(
+                                            P(listOf(Text("text 3 text 4")))
+                                        )
+                                    ),
+                                    P(listOf(Text("text 5")))
+                                )
+                            ),
+                            P(listOf(Text("Quote break."))),
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Quote")))
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Ignore //TODO: Again ATX_1 consumes white space
-    @Test fun `Blockquote nested with fancy text enhancement`() {
+    @Disabled //TODO: Again ATX_1 consumes white space
+    @Test
+    fun `Blockquote nested with fancy text enhancement`() {
         val kdoc = """
         | > text **1**
         | > text 2
@@ -655,36 +754,51 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        BlockQuote(listOf(
-                            P(listOf(
-                                Text("text "),
-                                B(listOf(Text("1"))),
-                                Text("\ntext 2")
-                            )),
-                            BlockQuote(listOf(
-                                H1(listOf(Text("text 3"))),
-                                Ul(listOf(
-                                    Li(listOf(P(listOf(Text("text 4"))))),
-                                    Ul(listOf(
-                                        Li(listOf(P(listOf(Text("text 5")))))
-                                    )
-                                )))
-                            )),
-                            P(listOf(Text("text 6")))
-                        )),
-                        P(listOf(Text("Quote break."))),
-                        BlockQuote(listOf(
-                            P(listOf(Text("Quote")))
-                        ))
-                    ))
+                    P(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("text "),
+                                            B(listOf(Text("1"))),
+                                            Text("\ntext 2")
+                                        )
+                                    ),
+                                    BlockQuote(
+                                        listOf(
+                                            H1(listOf(Text("text 3"))),
+                                            Ul(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("text 4"))))),
+                                                    Ul(
+                                                        listOf(
+                                                            Li(listOf(P(listOf(Text("text 5")))))
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    P(listOf(Text("text 6")))
+                                )
+                            ),
+                            P(listOf(Text("Quote break."))),
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Quote")))
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Simple Code Block`() {
+    @Test
+    fun `Simple Code Block`() {
         val kdoc = """
         | `Some code`
         | Sample text
@@ -692,17 +806,20 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Code(listOf(Text("Some code"))),
-                        Text(" Sample text")
-                    ))
+                    P(
+                        listOf(
+                            Code(listOf(Text("Some code"))),
+                            Text(" Sample text")
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Multilined Code Block`() {
+    @Test
+    fun `Multilined Code Block`() {
         val kdoc = """
         | ```kotlin
         | val x: Int = 0
@@ -718,20 +835,22 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Code(
-                            listOf(
-                                Text("val x: Int = 0"), Br,
-                                Text("val y: String = \"Text\""), Br, Br,
-                                Text("    val z: Boolean = true"), Br,
-                                Text("for(i in 0..10) {"), Br,
-                                Text("    println(i)"), Br,
-                                Text("}")
+                    P(
+                        listOf(
+                            Code(
+                                listOf(
+                                    Text("val x: Int = 0"), Br,
+                                    Text("val y: String = \"Text\""), Br, Br,
+                                    Text("    val z: Boolean = true"), Br,
+                                    Text("for(i in 0..10) {"), Br,
+                                    Text("    println(i)"), Br,
+                                    Text("}")
+                                ),
+                                mapOf("lang" to "kotlin")
                             ),
-                            mapOf("lang" to "kotlin")
-                        ),
-                        P(listOf(Text("Sample text")))
-                    ))
+                            P(listOf(Text("Sample text")))
+                        )
+                    )
                 )
             )
         )
@@ -739,41 +858,52 @@ class ParserTest : KDocTest() {
     }
 
 
-    @Test fun `Inline link`() {
+    @Test
+    fun `Inline link`() {
         val kdoc = """
         | [I'm an inline-style link](https://www.google.com)
          """.trimMargin()
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(A(
-                        listOf(Text("I'm an inline-style link")),
-                        mapOf("href" to "https://www.google.com")
-                    )))
+                    P(
+                        listOf(
+                            A(
+                                listOf(Text("I'm an inline-style link")),
+                                mapOf("href" to "https://www.google.com")
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Inline link with title`() {
+    @Test
+    fun `Inline link with title`() {
         val kdoc = """
         | [I'm an inline-style link with title](https://www.google.com "Google's Homepage")
          """.trimMargin()
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(A(
-                        listOf(Text("I'm an inline-style link with title")),
-                        mapOf("href" to "https://www.google.com", "title" to "Google's Homepage")
-                    )))
+                    P(
+                        listOf(
+                            A(
+                                listOf(Text("I'm an inline-style link with title")),
+                                mapOf("href" to "https://www.google.com", "title" to "Google's Homepage")
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Full reference link`() {
+    @Test
+    fun `Full reference link`() {
         val kdoc = """
         | [I'm a reference-style link][Arbitrary case-insensitive reference text]
         |
@@ -782,17 +912,26 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(P(listOf(A(
-                        listOf(Text("I'm a reference-style link")),
-                        mapOf("href" to "https://www.mozilla.org")
-                    )))))
+                    P(
+                        listOf(
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("I'm a reference-style link")),
+                                        mapOf("href" to "https://www.mozilla.org")
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Full reference link with number`() {
+    @Test
+    fun `Full reference link with number`() {
         val kdoc = """
         | [You can use numbers for reference-style link definitions][1]
         |
@@ -801,17 +940,26 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(P(listOf(A(
-                        listOf(Text("You can use numbers for reference-style link definitions")),
-                        mapOf("href" to "http://slashdot.org")
-                    )))))
+                    P(
+                        listOf(
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("You can use numbers for reference-style link definitions")),
+                                        mapOf("href" to "http://slashdot.org")
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Short reference link`() {
+    @Test
+    fun `Short reference link`() {
         val kdoc = """
         | Or leave it empty and use the [link text itself].
         |
@@ -820,21 +968,28 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(P(listOf(
-                        Text("Or leave it empty and use the "),
-                        A(
-                            listOf(Text("link text itself")),
-                            mapOf("href" to "http://www.reddit.com")
-                        ),
-                        Text(".")
-                    ))))
+                    P(
+                        listOf(
+                            P(
+                                listOf(
+                                    Text("Or leave it empty and use the "),
+                                    A(
+                                        listOf(Text("link text itself")),
+                                        mapOf("href" to "http://www.reddit.com")
+                                    ),
+                                    Text(".")
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Autolink`() {
+    @Test
+    fun `Autolink`() {
         val kdoc = """
         | URLs and URLs in angle brackets will automatically get turned into links.
         | http://www.example.com or <http://www.example.com> and sometimes
@@ -843,21 +998,24 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
-                        A(
-                            listOf(Text("http://www.example.com")),
-                            mapOf("href" to "http://www.example.com")
-                        ),
-                        Text(" and sometimes example.com (but not on Github, for example).")
-                    ))
+                    P(
+                        listOf(
+                            Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
+                            A(
+                                listOf(Text("http://www.example.com")),
+                                mapOf("href" to "http://www.example.com")
+                            ),
+                            Text(" and sometimes example.com (but not on Github, for example).")
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Various links`() {
+    @Test
+    fun `Various links`() {
         val kdoc = """
         | [I'm an inline-style link](https://www.google.com)
         |
@@ -882,55 +1040,80 @@ class ParserTest : KDocTest() {
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        P(listOf(A(
-                            listOf(Text("I'm an inline-style link")),
-                            mapOf("href" to "https://www.google.com")
-                        ))),
-                        P(listOf(A(
-                            listOf(Text("I'm an inline-style link with title")),
-                            mapOf("href" to "https://www.google.com", "title" to "Google's Homepage")
-                        ))),
-                        P(listOf(A(
-                            listOf(Text("I'm a reference-style link")),
-                            mapOf("href" to "https://www.mozilla.org")
-                        ))),
-                        P(listOf(A(
-                            listOf(Text("You can use numbers for reference-style link definitions")),
-                            mapOf("href" to "http://slashdot.org")
-                        ))),
-                        P(listOf(
-                            Text("Or leave it empty and use the "),
-                            A(
-                                listOf(Text("link text itself")),
-                                mapOf("href" to "http://www.reddit.com")
+                    P(
+                        listOf(
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("I'm an inline-style link")),
+                                        mapOf("href" to "https://www.google.com")
+                                    )
+                                )
                             ),
-                            Text(".")
-                        )),
-                        P(listOf(
-                            Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
-                            A(
-                                listOf(Text("http://www.example.com")),
-                                mapOf("href" to "http://www.example.com")
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("I'm an inline-style link with title")),
+                                        mapOf("href" to "https://www.google.com", "title" to "Google's Homepage")
+                                    )
+                                )
                             ),
-                            Text(" and sometimes example.com (but not on Github, for example).")
-                        )),
-                        P(listOf(Text("Some text to show that the reference links can follow later.")))
-                    ))
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("I'm a reference-style link")),
+                                        mapOf("href" to "https://www.mozilla.org")
+                                    )
+                                )
+                            ),
+                            P(
+                                listOf(
+                                    A(
+                                        listOf(Text("You can use numbers for reference-style link definitions")),
+                                        mapOf("href" to "http://slashdot.org")
+                                    )
+                                )
+                            ),
+                            P(
+                                listOf(
+                                    Text("Or leave it empty and use the "),
+                                    A(
+                                        listOf(Text("link text itself")),
+                                        mapOf("href" to "http://www.reddit.com")
+                                    ),
+                                    Text(".")
+                                )
+                            ),
+                            P(
+                                listOf(
+                                    Text("URLs and URLs in angle brackets will automatically get turned into links. http://www.example.com or "),
+                                    A(
+                                        listOf(Text("http://www.example.com")),
+                                        mapOf("href" to "http://www.example.com")
+                                    ),
+                                    Text(" and sometimes example.com (but not on Github, for example).")
+                                )
+                            ),
+                            P(listOf(Text("Some text to show that the reference links can follow later.")))
+                        )
+                    )
                 )
             )
         )
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Test fun `Windows Carriage Return Line Feed`() {
+    @Test
+    fun `Windows Carriage Return Line Feed`() {
         val kdoc = "text\r\ntext"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
                 Description(
-                    P(listOf(
-                        Text("text text")
-                    ))
+                    P(
+                        listOf(
+                            Text("text text")
+                        )
+                    )
                 )
             )
         )

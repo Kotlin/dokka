@@ -9,6 +9,14 @@ subprojects {
         implementation(kotlin("stdlib-jdk8"))
 
         testImplementation(project(":testApi"))
-        testImplementation("junit:junit:4.13")
+        testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    }
+
+    tasks.test {
+        useJUnitPlatform()
+        ignoreFailures = true
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
     }
 }
