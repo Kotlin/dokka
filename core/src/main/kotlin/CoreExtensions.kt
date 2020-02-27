@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.model.SignatureProvider
 import org.jetbrains.dokka.plugability.ExtensionPoint
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
@@ -19,7 +18,6 @@ object CoreExtensions {
     val documentableToPageTranslator by coreExtension<DocumentableToPageTranslator>()
     val pageTransformer by coreExtension<PageTransformer>()
     val renderer by coreExtension<Renderer>()
-    val signatureProvider by coreExtension<SignatureProvider>()
 
     private fun <T : Any> coreExtension() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
