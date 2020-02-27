@@ -115,7 +115,7 @@ fun Property.mergeWith(other: Property): Property = copy(
     actual = actual.mergeWith(other.actual),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct(),
-    getter = getter.mergeWith(other.getter),
+    getter = getter?.let { g -> other.getter?.let { g.mergeWith(it) } ?: g } ?: other.getter,
     setter = setter?.let { s -> other.setter?.let { s.mergeWith(it) } ?: s } ?: other.setter
 ).mergeExtras(this, other)
 
