@@ -184,7 +184,7 @@ data class Enum(
 
 data class EnumEntry(
     override val dri: DRI,
-    override val name: String?,
+    override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val functions: List<Function>,
     override val properties: List<Property>,
@@ -221,7 +221,7 @@ data class Function(
 
 data class Interface(
     override val dri: DRI,
-    override val name: String?,
+    override val name: String,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val actual: PlatformDependent<DocumentableSource>,
     override val functions: List<Function>,
@@ -260,7 +260,7 @@ data class Object(
 }
 
 data class Annotation(
-    override val name: String?,
+    override val name: String,
     override val dri: DRI,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val actual: PlatformDependent<DocumentableSource>,

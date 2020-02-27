@@ -74,7 +74,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
         when (c) { // TODO this when will be removed when signature generation is moved to utils
-            is Class -> header(1) { text(c.name) }
+            is Class, is Object, is Annotation, is Interface -> header(1) { text(c.name ?: "<>") }
             is Enum -> {
                 header(1) { text("enum ${c.name}") }
                 block("Entries", 2, ContentKind.Properties, c.entries, c.platformData.toSet()) { entry ->
@@ -123,4 +123,8 @@ open class DefaultPageCreator(
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
+}
+
+class A {
+    companion object F {}
 }

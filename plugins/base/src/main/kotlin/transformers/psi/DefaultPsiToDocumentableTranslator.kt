@@ -238,7 +238,6 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
         private fun PsiModifierListOwner.getModifier() = when {
             hasModifier(JvmModifier.ABSTRACT) -> WithAbstraction.Modifier.Abstract
-            hasModifier(JvmModifier.STATIC) -> WithAbstraction.Modifier.Static
             hasModifier(JvmModifier.FINAL) -> WithAbstraction.Modifier.Final
             else -> null
         }

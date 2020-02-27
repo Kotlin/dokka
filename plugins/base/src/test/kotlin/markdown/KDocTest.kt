@@ -27,9 +27,8 @@ open class KDocTest : AbstractCoreTest() {
 
     private fun actualDocumentationNode(modulePageNode: ModulePageNode) =
         (modulePageNode.documentable?.children?.first() as Package)
-            .classlikes.first()
-            .platformInfo.first()
-            .documentationNode
+            .classlikes.single()
+            .documentation.values.single()
 
 
     protected fun executeTest(kdoc: String, expectedDocumentationNode: DocumentationNode) {
