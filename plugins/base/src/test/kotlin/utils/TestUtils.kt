@@ -5,7 +5,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.Property
 import org.jetbrains.dokka.model.doc.*
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import kotlin.reflect.KClass
 import kotlin.reflect.full.safeCast
 

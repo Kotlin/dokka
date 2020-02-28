@@ -5,7 +5,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.asSequence
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 class DRITest : AbstractCoreTest() {
     @Test

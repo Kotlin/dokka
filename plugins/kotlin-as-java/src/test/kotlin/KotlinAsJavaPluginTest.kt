@@ -5,7 +5,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentTable
 import org.jetbrains.dokka.pages.children
 import org.junit.Test
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
 

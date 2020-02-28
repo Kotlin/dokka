@@ -1,7 +1,7 @@
 package expect
 
 import org.junit.Test
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths

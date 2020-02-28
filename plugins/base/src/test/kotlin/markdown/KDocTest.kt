@@ -4,7 +4,7 @@ import org.jetbrains.dokka.model.Package
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.junit.Assert
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 open class KDocTest : AbstractCoreTest() {
 

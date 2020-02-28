@@ -2,7 +2,7 @@ package utils
 
 import org.jetbrains.dokka.model.Module
 import org.jetbrains.dokka.model.doc.DocumentationNode
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 abstract class AbstractModelTest(val path: String? = null, val pkg: String) : ModelDSL(), AssertDSL {
 

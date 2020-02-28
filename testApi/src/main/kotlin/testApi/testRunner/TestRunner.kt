@@ -1,4 +1,4 @@
-package testApi.testRunner
+package org.jetbrains.dokka.testApi.testRunner
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.Module
@@ -38,7 +38,12 @@ abstract class AbstractCoreTest {
             configuration.copy(
                 outputDir = tempDir.root.toPath().toAbsolutePath().toString()
             )
-        DokkaTestGenerator(newConfiguration, logger, testMethods, pluginOverrides).generate()
+        DokkaTestGenerator(
+            newConfiguration,
+            logger,
+            testMethods,
+            pluginOverrides
+        ).generate()
     }
 
     protected fun testInline(
@@ -61,7 +66,12 @@ abstract class AbstractCoreTest {
                 passesConfigurations = configuration.passesConfigurations
                     .map { it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") }) }
             )
-        DokkaTestGenerator(newConfiguration, logger, testMethods, pluginOverrides).generate()
+        DokkaTestGenerator(
+            newConfiguration,
+            logger,
+            testMethods,
+            pluginOverrides
+        ).generate()
     }
 
     private fun String.toFileMap(): Map<String, String> = this.trimMargin().removePrefix("|")

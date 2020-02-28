@@ -8,7 +8,7 @@ import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMerg
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.Ignore
 import org.junit.Test
-import testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
 class PageNodeMergerTest : AbstractCoreTest() {
 
