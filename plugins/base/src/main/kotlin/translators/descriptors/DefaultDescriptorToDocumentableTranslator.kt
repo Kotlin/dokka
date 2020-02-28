@@ -87,7 +87,6 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Classlike =
         when (descriptor.kind) {
             ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
-            ClassKind.ENUM_ENTRY -> enumDescriptor(descriptor, parent)
             ClassKind.OBJECT -> objectDescriptor(descriptor, parent)
             ClassKind.INTERFACE -> interfaceDescriptor(descriptor, parent)
             else -> classDescriptor(descriptor, parent)
@@ -378,6 +377,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun MemberScope.enumEntries(parent: DRIWithPlatformInfo): List<EnumEntry> =
         this.getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
+            .filter { it.kind == ClassKind.ENUM_ENTRY }
             .map { enumEntryDescriptor(it, parent) }
 
 
