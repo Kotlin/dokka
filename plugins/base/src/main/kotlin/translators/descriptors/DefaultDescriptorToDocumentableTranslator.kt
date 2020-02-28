@@ -217,8 +217,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             },
             sources = actual,
             getter = descriptor.accessors.filterIsInstance<PropertyGetterDescriptor>().singleOrNull()?.let {
-                visitPropertyAccessorDescriptor(it, descriptor, dri)
-            }!!,
+               visitPropertyAccessorDescriptor(it, descriptor, dri)
+            },
             setter = descriptor.accessors.filterIsInstance<PropertySetterDescriptor>().singleOrNull()?.let {
                 visitPropertyAccessorDescriptor(it, descriptor, dri)
             },
