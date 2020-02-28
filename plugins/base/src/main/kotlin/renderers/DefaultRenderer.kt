@@ -32,9 +32,12 @@ abstract class DefaultRenderer<T>(
     abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
     abstract fun buildError(node: ContentNode)
 
-    open fun T.buildGroup(node: ContentGroup, pageContext: ContentPage) {
+    open fun T.buildGroup(node: ContentGroup, pageContext: ContentPage) = wrapGroup(node, pageContext) {
         node.children.forEach { it.build(this, pageContext) }
     }
+
+    open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
+        childrenCallback()
 
     open fun T.buildLinkText(nodes: List<ContentNode>, pageContext: ContentPage) {
         nodes.forEach { it.build(this, pageContext) }

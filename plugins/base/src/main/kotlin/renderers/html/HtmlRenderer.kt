@@ -23,6 +23,16 @@ open class HtmlRenderer(
         StyleAndScriptsAppender
     )
 
+    override fun FlowContent.wrapGroup(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        childrenCallback: FlowContent.() -> Unit
+    ) = when {
+        node.style.contains(TextStyle.Paragraph) -> p { childrenCallback() }
+        node.style.contains(TextStyle.Block) -> div { childrenCallback() }
+        else -> childrenCallback()
+    }
+
     override fun FlowContent.buildList(node: ContentList, pageContext: ContentPage) =
         if (node.ordered) ol {
             buildListItems(node.children, pageContext)

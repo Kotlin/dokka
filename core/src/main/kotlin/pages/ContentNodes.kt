@@ -123,7 +123,7 @@ enum class ContentKind : Kind {
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph
+    Bold, Italic, Strong, Strikethrough, Paragraph, Block
 }
 
 interface HTMLMetadata: Extra {
