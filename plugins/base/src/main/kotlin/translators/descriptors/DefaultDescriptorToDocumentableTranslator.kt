@@ -58,7 +58,7 @@ data class DRIWithPlatformInfo(
 
 fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, PlatformDependent.empty())
 
-open class DokkaDescriptorVisitor( // TODO: close this class and make it private together with DRIWithPlatformInfo
+private class DokkaDescriptorVisitor( // TODO: close this class and make it private together with DRIWithPlatformInfo
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
