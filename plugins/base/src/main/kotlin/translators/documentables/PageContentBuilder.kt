@@ -85,7 +85,7 @@ open class PageContentBuilder(
         }
 
         fun signature(f: Function, block: DocumentableContentBuilder.() -> Unit) {
-            contents += group(f.dri, f.platformData.toSet(), ContentKind.Symbol, mainStyles, mainExtras, block)
+            contents += buildGroup(f.dri, f.platformData.toSet(), ContentKind.Symbol, mainStyles, mainExtras, block)
         }
 
         fun signature(f: Function) = signature(f) {
@@ -145,7 +145,7 @@ open class PageContentBuilder(
                 contents += ContentTable(
                     emptyList(),
                     elements.map {
-                        group(it.dri, it.platformData.toSet(), kind, styles, extras) {
+                        buildGroup(it.dri, it.platformData.toSet(), kind, styles, extras) {
                             // TODO this will fail
                             operation(it)
                         }
@@ -222,6 +222,17 @@ open class PageContentBuilder(
         }
 
         fun group(
+            dri: DRI = mainDRI,
+            platformData: Set<PlatformData> = mainPlatformData,
+            kind: Kind = ContentKind.Main,
+            styles: Set<Style> = mainStyles,
+            extras: Set<Extra> = mainExtras,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += buildGroup(dri, platformData, kind, styles, extras, block)
+        }
+
+        fun buildGroup(
             dri: DRI = mainDRI,
             platformData: Set<PlatformData> = mainPlatformData,
             kind: Kind = ContentKind.Main,
