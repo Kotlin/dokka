@@ -8,17 +8,23 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Enum
 import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
+import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.refactoring.fqName.fqName
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.calls.components.isVararg
+import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
+import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -102,7 +108,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             documentation = info.docs,
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -121,7 +128,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility)),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -143,7 +151,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             supertypes = PlatformDependent.from(platformData, info.supertypes),
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -158,7 +167,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             classlikes = scope.classlikes(driWithPlatform),
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -188,7 +198,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             modifier = descriptor.modifier(),
             companion = descriptor.companion(driWithPlatform),
             supertypes = PlatformDependent.from(platformData, info.supertypes),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -213,7 +224,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
             type = KotlinTypeWrapper(descriptor.returnType!!),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -237,7 +249,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
             type = KotlinTypeWrapper(descriptor.returnType!!),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -260,7 +273,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             type = KotlinTypeWrapper(descriptor.returnType),
             modifier = descriptor.modifier(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -289,7 +303,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
                 this.name.asString(),
                 type = KotlinTypeWrapper(this.type),
                 documentation = descriptor.resolveDescriptorData(platformData),
-                platformData = listOf(platformData)
+                platformData = listOf(platformData),
+                extra = descriptor.additionalExtras()
             )
 
         val name = run {
@@ -322,7 +337,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
                 )
             },
             sources = descriptor.createSources(),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
     }
 
@@ -332,7 +348,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             name = descriptor.name.asString(),
             type = KotlinTypeWrapper(descriptor.type),
             documentation = descriptor.resolveDescriptorData(platformData),
-            platformData = listOf(platformData)
+            platformData = listOf(platformData),
+            extra = descriptor.additionalExtras()
         )
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<Function> =
@@ -378,7 +395,8 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
             fqNameSafe.asString(),
             PlatformDependent.from(platformData, getDocumentation()),
             upperBounds.map { it.toProjection() },
-            listOf(platformData)
+            listOf(platformData),
+            extra = additionalExtras()
         )
 
     private fun KotlinType.toProjection(): Projection = when (constructor.declarationDescriptor) {
@@ -418,6 +436,57 @@ open class DokkaDescriptorVisitor( // TODO: close this class and make it private
     } else {
         PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
     }
+
+    inline fun <reified D : Documentable> FunctionDescriptor.additionalExtras(): PropertyContainer<D> = listOfNotNull(
+        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+        ExtraModifiers.INFIX.takeIf { isInfix },
+        ExtraModifiers.INLINE.takeIf { isInline },
+        ExtraModifiers.SUSPEND.takeIf { isSuspend },
+        ExtraModifiers.OPERATOR.takeIf { isOperator },
+        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+        ExtraModifiers.TAILREC.takeIf { isTailrec },
+        ExtraModifiers.EXTERNAL.takeIf { isExternal },
+        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+    ).toContainer()
+
+    inline fun <reified D : Documentable> ClassDescriptor.additionalExtras(): PropertyContainer<D> = listOfNotNull(
+        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+        ExtraModifiers.INLINE.takeIf { isInline },
+        ExtraModifiers.EXTERNAL.takeIf { isExternal },
+        ExtraModifiers.INNER.takeIf { isInner },
+        ExtraModifiers.DATA.takeIf { isData },
+        ExtraModifiers.OVERRIDE.takeIf { getSuperInterfaces().isNotEmpty() || getSuperClassNotAny() != null }
+    ).toContainer()
+
+    fun ValueParameterDescriptor.additionalExtras(): PropertyContainer<Parameter> =
+        listOfNotNull(
+            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+            ExtraModifiers.NOINLINE.takeIf { isNoinline },
+            ExtraModifiers.CROSSINLINE.takeIf { isCrossinline },
+            ExtraModifiers.CONST.takeIf { isConst },
+            ExtraModifiers.LATEINIT.takeIf { isLateInit },
+            ExtraModifiers.VARARG.takeIf { isVararg }
+        ).toContainer()
+
+    fun TypeParameterDescriptor.additionalExtras(): PropertyContainer<TypeParameter> =
+        listOfNotNull(
+            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+            ExtraModifiers.REIFIED.takeIf { isReified }
+        ).toContainer()
+
+    fun PropertyDescriptor.additionalExtras(): PropertyContainer<Property> = listOfNotNull(
+        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+        ExtraModifiers.CONST.takeIf { isConst },
+        ExtraModifiers.LATEINIT.takeIf { isLateInit },
+        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+        ExtraModifiers.EXTERNAL.takeIf { isExternal },
+        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+    ).toContainer()
+
+    inline fun <reified D : Documentable> List<ExtraModifiers>.toContainer(
+        container: PropertyContainer<D> = PropertyContainer.empty()
+    ): PropertyContainer<D> =
+        container + AdditionalModifiers(this)
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 }
