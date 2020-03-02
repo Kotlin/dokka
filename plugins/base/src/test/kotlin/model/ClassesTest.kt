@@ -151,7 +151,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
                 visibility.values allEquals Visibilities.PUBLIC
-                // TODO data modifier
+                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("Extras")) {
+                    content.find{it == ExtraModifiers.DATA}.assertNotNull("data modifier")
+                }
             }
         }
     }

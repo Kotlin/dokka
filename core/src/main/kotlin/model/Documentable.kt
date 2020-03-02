@@ -3,8 +3,6 @@ package org.jetbrains.dokka.model
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
-import org.jetbrains.dokka.model.properties.ExtraProperty
-import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
@@ -333,6 +331,11 @@ sealed class Projection {
     object Star : Projection()
     data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Projection()
     data class Nullable(val inner: Projection) : Projection()
+}
+
+enum class ExtraModifiers {
+    STATIC, INLINE, INFIX, SUSPEND, REIFIED, CROSSINLINE, NOINLINE,
+    OVERRIDE, DATA, CONST, DYNAMIC, EXTERNAL, INNER, LATEINIT, OPERATOR, TAILREC, VARARG
 }
 
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
