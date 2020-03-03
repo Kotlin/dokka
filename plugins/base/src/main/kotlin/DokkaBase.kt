@@ -6,6 +6,7 @@ import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
+import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
@@ -38,9 +39,19 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
     }
 
+    val kotlinSignatureProvider by extending(isFallback = true) {
+        signatureProvider providing { ctx ->
+            KotlinSignatureProvider(ctx.single(commentsToContentConverter), ctx.logger)
+        }
+    }
+
     val documentableToPageTranslator by extending(isFallback = true) {
         CoreExtensions.documentableToPageTranslator providing { ctx ->
-            DefaultDocumentableToPageTranslator(ctx.single(commentsToContentConverter), ctx.logger)
+            DefaultDocumentableToPageTranslator(
+                ctx.single(commentsToContentConverter),
+                ctx.single(signatureProvider),
+                ctx.logger
+            )
         }
     }
 

@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.base.translators.documentables
 
+import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.pages.*
@@ -14,6 +14,7 @@ annotation class ContentBuilderMarker
 
 open class PageContentBuilder(
     val commentsConverter: CommentsToContentConverter,
+    val signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
     fun contentFor(
@@ -61,6 +62,14 @@ open class PageContentBuilder(
             extras
         )
 
+        operator fun ContentNode.unaryPlus() {
+            contents += this
+        }
+
+        operator fun Collection<ContentNode>.unaryPlus() {
+            contents += this
+        }
+
         fun header(
             level: Int,
             kind: Kind = ContentKind.Main,
@@ -84,31 +93,13 @@ open class PageContentBuilder(
             contents += createText(text, kind, platformData, styles, extras)
         }
 
-        fun signature(f: Function, block: DocumentableContentBuilder.() -> Unit) {
-            contents += buildGroup(f.dri, f.platformData.toSet(), ContentKind.Symbol, mainStyles, mainExtras, block)
-        }
-
-        fun signature(f: Function) = signature(f) {
-            text("fun ")
-            f.receiver?.also {
-                // TODO signature should be rewritten
-                type(it.type)
-                text(".")
-            }
-            link(f.name, f.dri)
-            text("(")
-            list(f.parameters) {
-                link(it.name!!, it.dri)
-                text(": ")
-                type(it.type)
-            }
-            text(")")
-            val returnType = f.type
-            if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
-                text(": ")
-                type(returnType)
-            }
-        }
+        fun signature(d: Documentable) = ContentGroup(
+            signatureProvider.signature(d),
+            DCI(setOf(d.dri), ContentKind.Symbol),
+            d.platformData.toSet(),
+            mainStyles,
+            mainExtras
+        )
 
         fun linkTable(
             elements: List<DRI>,
