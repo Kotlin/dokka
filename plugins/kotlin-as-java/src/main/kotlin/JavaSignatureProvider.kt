@@ -59,7 +59,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     }
 
     private fun signature(f: Function, platform: PlatformData) = contentBuilder.contentFor(f, ContentKind.Symbol) {
-        text(f.modifier.takeIf { it != WithAbstraction.Modifier.Empty }?.toString()?.toLowerCase().orEmpty())
+        text(f.modifier.takeIf { it != WithAbstraction.Modifier.Empty }?.toString()?.toLowerCase().orEmpty() + " ")
         val returnType = f.type
         if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
             type(returnType)
