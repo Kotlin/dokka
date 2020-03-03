@@ -232,6 +232,20 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ): ContentGroup = contentFor(dri, platformData, kind, styles, extras, block)
 
+        fun platformDependentHint(
+            dri: DRI = mainDRI,
+            platformData: Set<PlatformData> = mainPlatformData,
+            kind: Kind = ContentKind.Main,
+            styles: Set<Style> = mainStyles,
+            extras: Set<Extra> = mainExtras,
+            block: DocumentableContentBuilder.() -> Unit
+        ) {
+            contents += PlatformHintedContent(
+                buildGroup(dri, platformData, kind, styles, extras, block),
+                platformData
+            )
+        }
+
         protected fun createText(
             text: String,
             kind: Kind,

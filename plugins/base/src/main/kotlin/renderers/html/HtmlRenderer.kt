@@ -33,24 +33,46 @@ open class HtmlRenderer(
         else -> childrenCallback()
     }
 
-    override fun FlowContent.buildList(node: ContentList, pageContext: ContentPage) =
-        if (node.ordered) ol {
-            buildListItems(node.children, pageContext)
-        }
-        else ul {
-            buildListItems(node.children, pageContext)
-        }
+    override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
+        val distinct = content.platforms.map {
+            it to createHTML(prettyPrint = false).div {
+                buildContentNode(content.inner, pageContext, it)
+            }.drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
+        }.groupBy(Pair<PlatformData, String>::second, Pair<PlatformData, String>::first)
 
-    open fun OL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
+        if (distinct.size == 1)
+            consumer.onTagContentUnsafe { +distinct.keys.single() }
+        else
+            distinct.forEach { text, platforms ->
+                consumer.onTagContentUnsafe { +platforms.joinToString(prefix = "$text [", postfix = "]") { it.name } }
+            }
+    }
+
+    override fun FlowContent.buildList(
+        node: ContentList,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData?
+    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, platformRestriction) }
+    else ul { buildListItems(node.children, pageContext, platformRestriction) }
+
+    open fun OL.buildListItems(
+        items: List<ContentNode>,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    ) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
             else
-                li { it.build(this, pageContext) }
+                li { it.build(this, pageContext, platformRestriction) }
         }
     }
 
-    open fun UL.buildListItems(items: List<ContentNode>, pageContext: ContentPage) {
+    open fun UL.buildListItems(
+        items: List<ContentNode>,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    ) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
@@ -73,14 +95,18 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildTable(node: ContentTable, pageContext: ContentPage) {
+    override fun FlowContent.buildTable(
+        node: ContentTable,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData?
+    ) {
         table {
             thead {
                 node.header.forEach {
                     tr {
                         it.children.forEach {
                             th {
-                                it.build(this@table, pageContext)
+                                it.build(this@table, pageContext, platformRestriction)
                             }
                         }
                     }
@@ -91,7 +117,7 @@ open class HtmlRenderer(
                     tr {
                         it.children.forEach {
                             td {
-                                it.build(this, pageContext)
+                                it.build(this, pageContext, platformRestriction)
                             }
                         }
                     }
@@ -141,7 +167,11 @@ open class HtmlRenderer(
     override fun FlowContent.buildLink(address: String, content: FlowContent.() -> Unit) =
         a(href = address, block = content)
 
-    override fun FlowContent.buildCode(code: List<ContentNode>, language: String, pageContext: ContentPage) {
+    override fun FlowContent.buildCode(
+        code: List<ContentNode>,
+        language: String,
+        pageContext: ContentPage
+    ) {
         buildNewLine()
         code.forEach {
             +((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); "" })
