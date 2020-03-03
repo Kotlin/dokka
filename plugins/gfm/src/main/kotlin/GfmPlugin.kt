@@ -29,7 +29,7 @@ class CommonmarkRenderer(
 ) : DefaultRenderer<StringBuilder>(outputWriter, context) {
     override fun StringBuilder.buildHeader(level: Int, content: StringBuilder.() -> Unit) {
         buildParagraph()
-        append("${"#".repeat(level)} ")
+        append("#".repeat(level) + " ")
         content()
         buildNewLine()
     }
@@ -49,7 +49,7 @@ class CommonmarkRenderer(
 
     private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage, bullet: String = "*") {
         items.forEach {
-            if(it is ContentList) {
+            if (it is ContentList) {
                 val builder = StringBuilder()
                 builder.append(indent)
                 builder.buildListLevel(it, pageContext)
@@ -63,30 +63,36 @@ class CommonmarkRenderer(
     }
 
     private fun StringBuilder.buildListLevel(node: ContentList, pageContext: ContentPage) {
-        if(node.ordered) {
-            buildListItem(node.children, pageContext, "${node.start}.")
+        if (node.ordered) {
+            buildListItem(
+                node.children,
+                pageContext,
+                "${node.extras.filterIsInstance<OrderedListStart>().firstOrNull()?.start
+                    ?: context.logger.error("No starting number specified for ordered list!")}."
+            )
         } else {
             buildListItem(node.children, pageContext, "*")
         }
     }
 
     override fun StringBuilder.buildNewLine() {
-        this.append("  \n")
+        append("  \n")
     }
 
-    fun StringBuilder.buildParagraph() {
-        this.append("\n\n")
+    private fun StringBuilder.buildParagraph() {
+        append("\n\n")
     }
 
     override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
-        this.append("Resource")
+        append("Resource")
     }
 
     override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage) {
 
         val size = node.children.firstOrNull()?.children?.size ?: 0
+        buildParagraph()
 
-        if(node.header.size > 0) {
+        if (node.header.size > 0) {
             node.header.forEach {
                 it.children.forEach {
                     append("| ")
@@ -96,17 +102,16 @@ class CommonmarkRenderer(
             }
         } else {
             append("| ".repeat(size))
-            if(size > 0) append("|\n")
+            if (size > 0) append("|\n")
         }
 
         append("|---".repeat(size))
-        if(size > 0) append("|\n")
-
+        if (size > 0) append("|\n")
 
         node.children.forEach {
             it.children.forEach {
                 append("| ")
-                it.build(this,  pageContext)
+                it.build(this, pageContext)
             }
             append("|\n")
         }
@@ -114,9 +119,9 @@ class CommonmarkRenderer(
 
     override fun StringBuilder.buildText(textNode: ContentText) {
         val decorators = decorators(textNode.style)
-        this.append(decorators)
-        this.append(textNode.text)
-        this.append(decorators.reversed())
+        append(decorators)
+        append(textNode.text.escapeIllegalCharacters())
+        append(decorators.reversed())
     }
 
     override fun StringBuilder.buildNavigation(page: PageNode) {
@@ -128,29 +133,26 @@ class CommonmarkRenderer(
         buildParagraph()
     }
 
-    override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
-        val builder = StringBuilder()
-        content(builder, page)
-        return builder.toString()
-    }
+    override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
+        StringBuilder().apply {
+            content(this, page)
+        }.toString()
 
     override fun buildError(node: ContentNode) {
-        println("Error")
+        context.logger.warn("Markdown renderer has encountered problem. The unmatched node is $node")
     }
 
-    private fun decorators(styles: Set<Style>): String {
-        val decorators = StringBuilder()
+    private fun decorators(styles: Set<Style>) = StringBuilder().apply {
         styles.forEach {
-            when(it) {
-                TextStyle.Bold          -> decorators.append("**")
-                TextStyle.Italic        -> decorators.append("*")
-                TextStyle.Strong        -> decorators.append("**")
-                TextStyle.Strikethrough -> decorators.append("~~")
-                else                    -> Unit
+            when (it) {
+                TextStyle.Bold -> append("**")
+                TextStyle.Italic -> append("*")
+                TextStyle.Strong -> append("**")
+                TextStyle.Strikethrough -> append("~~")
+                else -> Unit
             }
         }
-        return decorators.toString()
-    }
+    }.toString()
 
     private val PageNode.isNavigable: Boolean
         get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
@@ -181,7 +183,6 @@ class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProvi
 
     override fun getLocationProvider(pageNode: RootPageNode) = MarkdownLocationProvider(pageNode, context)
 }
-
 
 class MarkdownLocationProvider(
     pageGraphRoot: RootPageNode,
