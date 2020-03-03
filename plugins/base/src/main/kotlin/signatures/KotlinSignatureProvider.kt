@@ -13,7 +13,7 @@ import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider {
-    private val contentBuilder = PageContentBuilder(ctcc, logger)
+    private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     override fun signature(documentable: Documentable): List<ContentNode> = when (documentable) {
         is Function -> signature(documentable)
@@ -59,7 +59,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         if (generics.isNotEmpty()) {
             text("<")
             generics.forEach {
-                signature(it)
+                this@KotlinSignatureProvider.signature(it)
             }
             text(">")
         }

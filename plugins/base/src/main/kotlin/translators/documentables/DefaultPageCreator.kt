@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.documentables
 
+import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -12,9 +13,10 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 
 open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
+    signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
-    protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, logger)
+    protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
     open fun pageForModule(m: Module) =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
@@ -50,21 +52,22 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: Package) = contentBuilder.contentFor(p) {
         header(1) { text("Package ${p.name}") }
-        contentForScope(p, p.dri, p.platformData)
+        +contentForScope(p, p.dri, p.platformData)
     }
 
-    protected open fun PageContentBuilder.DocumentableContentBuilder.contentForScope(
+    protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
         platformData: List<PlatformData>
-    ) {
+    ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name.orEmpty(), it.dri)
+            +signature(it)
             text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri)
-            signature(it)
+            +signature(it)
             text(it.briefDocTagString)
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
@@ -74,19 +77,8 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
-        when (c) { // TODO this when will be removed when signature generation is moved to utils
-            is Class, is Object, is Annotation, is Interface -> header(1) { text(c.name ?: "<>") }
-            is Enum -> {
-                header(1) { text("enum ${c.name}") }
-                block("Entries", 2, ContentKind.Properties, c.entries, c.platformData.toSet()) { entry ->
-                    link(entry.name.orEmpty(), entry.dri)
-                    contentForComments(entry)
-                }
-            }
-            else -> throw IllegalStateException("$c should not be present here")
-        }
-
-        contentForComments(c)
+        +signature(c)
+        +contentForComments(c)
 
         if (c is WithConstructors) {
             block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
@@ -96,10 +88,10 @@ open class DefaultPageCreator(
             }
         }
 
-        contentForScope(c, c.dri, c.platformData)
+        +contentForScope(c, c.dri, c.platformData)
     }
 
-    protected open fun PageContentBuilder.DocumentableContentBuilder.contentForComments(d: Documentable) =
+    protected open fun contentForComments(d: Documentable) = contentBuilder.contentFor(d) {
         // TODO: this probably needs fixing
         d.documentation.forEach { _, documentationNode ->
             documentationNode.children.forEach {
@@ -111,12 +103,12 @@ open class DefaultPageCreator(
                 text("\n")
             }
         }
-
+    }.children
 
     protected open fun contentForFunction(f: Function) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
-        signature(f)
-        contentForComments(f)
+        +signature(f)
+        +contentForComments(f)
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData.toSet()) {
             text(it.name ?: "<receiver>")
             it.documentation.forEach { it.value.children.forEach { comment(it.root) } }
@@ -124,8 +116,4 @@ open class DefaultPageCreator(
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
-}
-
-class A {
-    companion object F {}
 }
