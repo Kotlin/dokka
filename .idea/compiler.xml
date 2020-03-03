@@ -92,6 +92,22 @@
       <module name="org.jetbrains.dokka.core.test" target="1.8" />
       <module name="org.jetbrains.dokka.coreDependencies.main" target="1.8" />
       <module name="org.jetbrains.dokka.coreDependencies.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.coreDependencies.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.coreDependencies.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.integration-tests.gradle-integration-tests.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.integration-tests.gradle-integration-tests.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.integration-tests.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.integration-tests.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.plugins.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.plugins.mathjax.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.plugins.mathjax.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.plugins.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.runners.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.runners.maven-plugin.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.runners.maven-plugin.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.runners.test" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.testApi.main" target="1.8" />
+      <module name="org.jetbrains.dokka.dokka.testApi.test" target="1.8" />
       <module name="org.jetbrains.dokka.fatjar.main" target="1.8" />
       <module name="org.jetbrains.dokka.fatjar.test" target="1.8" />
       <module name="org.jetbrains.dokka.gradle-integration-tests.main" target="1.8" />

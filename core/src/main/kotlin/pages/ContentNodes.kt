@@ -1,16 +1,17 @@
 package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 data class DCI(val dri: Set<DRI>, val kind: Kind) {
     override fun toString() = "$dri[$kind]"
 }
 
-interface ContentNode {
+interface ContentNode : WithExtraProperties<ContentNode> {
     val dci: DCI
     val platforms: Set<PlatformData>
     val style: Set<Style>
-    val extras: Set<Extra>
 }
 
 /** Simple text */
@@ -19,8 +20,10 @@ data class ContentText(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style> = emptySet(),
-    override val extras: Set<Extra> = emptySet()
-) : ContentNode
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentNode {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
+}
 
 /** Headers */
 data class ContentHeader(
@@ -29,9 +32,11 @@ data class ContentHeader(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra> = emptySet()
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
-    constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.platforms, c.style, c.extras)
+    constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.platforms, c.style, c.extra)
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 }
 
 /** Code blocks */
@@ -41,8 +46,10 @@ data class ContentCode(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra>
-) : ContentComposite
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentComposite {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentCode = copy(extra = newExtras)
+}
 
 /** Union type replacement */
 interface ContentLink : ContentComposite
@@ -54,8 +61,10 @@ data class ContentDRILink(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style> = emptySet(),
-    override val extras: Set<Extra> = emptySet()
-) : ContentLink
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentLink {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentDRILink = copy(extra = newExtras)
+}
 
 /** All links that do not need to be resolved */
 data class ContentResolvedLink(
@@ -64,8 +73,11 @@ data class ContentResolvedLink(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style> = emptySet(),
-    override val extras: Set<Extra> = emptySet()
-) : ContentLink
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentLink {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentResolvedLink =
+        copy(extra = newExtras)
+}
 
 /** All links that do not need to be resolved */
 data class ContentEmbeddedResource(
@@ -74,9 +86,11 @@ data class ContentEmbeddedResource(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style> = emptySet(),
-    override val extras: Set<Extra> = emptySet()
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
     override val children = emptyList<ContentNode>()
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentEmbeddedResource =
+        copy(extra = newExtras)
 }
 
 /** Logical grouping of [ContentNode]s  */
@@ -91,8 +105,10 @@ data class ContentTable(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra>
-) : ContentComposite
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentComposite {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentTable = copy(extra = newExtras)
+}
 
 /** Lists */
 data class ContentList(
@@ -101,8 +117,10 @@ data class ContentList(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra>
-) : ContentComposite
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentComposite {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentList = copy(extra = newExtras)
+}
 
 /** Default group, eg. for blocks of Functions, Properties, etc. **/
 data class ContentGroup(
@@ -110,23 +128,28 @@ data class ContentGroup(
     override val dci: DCI,
     override val platforms: Set<PlatformData>,
     override val style: Set<Style>,
-    override val extras: Set<Extra>
-) : ContentComposite
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+) : ContentComposite {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentGroup = copy(extra = newExtras)
+}
 
 data class PlatformHintedContent(
     val inner: ContentNode,
     override val platforms: Set<PlatformData>
-): ContentComposite {
+) : ContentComposite {
     override val children = listOf(inner)
 
     override val dci: DCI
         get() = inner.dci
 
-    override val extras: Set<Extra>
-        get() = inner.extras
+    override val extra: PropertyContainer<ContentNode>
+        get() = inner.extra
 
     override val style: Set<Style>
         get() = inner.style
+
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>) =
+        throw UnsupportedOperationException("This method should not be called on this PlatformHintedContent")
 }
 
 /** All extras */
@@ -141,14 +164,6 @@ enum class ContentKind : Kind {
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph, Block
 }
-
-interface HTMLMetadata: Extra {
-    val key: String
-    val value: String
-}
-
-data class HTMLSimpleAttr(override val key: String, override val value: String): HTMLMetadata
-data class HTMLTableMetadata(val item: String, override val key: String, override val value: String): HTMLMetadata
 
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
     this

@@ -88,7 +88,7 @@ open class HtmlRenderer(
         val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "bmp", "tif", "webp", "svg")
         return if (File(node.address).extension.toLowerCase() in imageExtensions) {
             //TODO: add imgAttrs parsing
-            val imgAttrs = node.extras.filterIsInstance<HTMLSimpleAttr>().joinAttr()
+            val imgAttrs = node.extra.allOfType<SimpleAttr>().joinAttr()
             img(src = node.address, alt = node.altText)
         } else {
             println("Unrecognized resource type: $node")
@@ -239,7 +239,7 @@ open class HtmlRenderer(
         }
 }
 
-fun List<HTMLMetadata>.joinAttr() = joinToString(" ") { it.key + "=" + it.value }
+fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
 
 private fun PageNode.pageKind() = when (this) {
     is PackagePageNode -> "package"
