@@ -61,6 +61,7 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
         } else {
             dri.withClass(relocateToClass)
         },
+//        name = name.o,
         modifier = if (setter == null) {
             WithAbstraction.Modifier.Final
         } else {
@@ -113,7 +114,8 @@ internal fun Function.asJava(containingClassName: String): Function {
 //        dri = dri.copy(callable = dri.callable?.asJava()),
         name = newName,
         type = type.asJava(),
-        parameters = parameters.map { it.asJava() }
+        parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
+        receiver = null
     ) // TODO: should receiver be the first param?
 }
 
@@ -129,9 +131,7 @@ internal fun Classlike.asJava(): Classlike = when (this) {
 internal fun Class.asJava(): Class = copy(
     constructors = constructors.map { it.asJava(name) },
     functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
-        it.asJava(
-            name
-        )
+        it.asJava(name)
     },
     properties = properties.map { it.asJava() },
     classlikes = classlikes.map { it.asJava() }
@@ -191,7 +191,8 @@ internal fun Annotation.asJava(): Annotation = copy(
 ) // TODO investigate if annotation class can have methods and properties not from constructor
 
 internal fun Parameter.asJava(): Parameter = copy(
-    type = type.asJava()
+    type = type.asJava(),
+    name = if (name.isNullOrBlank()) "\$self" else name
 )
 
 internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.builtins.PrimitiveType.values()
