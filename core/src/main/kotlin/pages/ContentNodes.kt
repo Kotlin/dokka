@@ -113,6 +113,22 @@ data class ContentGroup(
     override val extras: Set<Extra>
 ) : ContentComposite
 
+data class PlatformHintedContent(
+    val inner: ContentNode,
+    override val platforms: Set<PlatformData>
+): ContentComposite {
+    override val children = listOf(inner)
+
+    override val dci: DCI
+        get() = inner.dci
+
+    override val extras: Set<Extra>
+        get() = inner.extras
+
+    override val style: Set<Style>
+        get() = inner.style
+}
+
 /** All extras */
 interface Extra
 interface Style
