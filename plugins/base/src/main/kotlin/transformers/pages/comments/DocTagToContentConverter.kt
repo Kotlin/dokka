@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.transformers.pages.comments
 
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
@@ -10,13 +11,12 @@ object DocTagToContentConverter : CommentsToContentConverter {
         dci: DCI,
         platforms: Set<PlatformData>,
         styles: Set<Style>,
-        extras: Set<Extra>
-
+        extra: PropertyContainer<ContentNode>
     ): List<ContentNode> {
 
-        fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: Set<Extra> = emptySet()) =
+        fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: SimpleAttr? = null) =
             docTag.children.flatMap {
-                buildContent(it, dci, platforms, styles + newStyles, extras + newExtras)
+                buildContent(it, dci, platforms, styles + newStyles, newExtras?.let { extra + it } ?: extra)
             }
 
         fun buildHeader(level: Int) =
@@ -26,8 +26,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     level,
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
 
@@ -38,8 +37,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     ordered,
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
 
@@ -62,8 +60,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     docTag.params.get("href")!!,
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
             is DocumentationLink -> listOf(
@@ -75,8 +72,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                         ContentKind.Symbol
                     ),
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
             is BlockQuote -> listOf(
@@ -85,8 +81,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     "",
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
             is Code -> listOf(
@@ -95,8 +90,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     "",
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
             is Img -> listOf(
@@ -106,7 +100,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     dci = dci,
                     platforms = platforms,
                     style = styles,
-                    extras = extras
+                    extra = extra
                 )
             )
             is HorizontalRule -> listOf(
@@ -122,8 +116,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     docTag.body,
                     dci,
                     platforms,
-                    styles,
-                    extras
+                    styles
                 )
             )
             else -> buildChildren(docTag)

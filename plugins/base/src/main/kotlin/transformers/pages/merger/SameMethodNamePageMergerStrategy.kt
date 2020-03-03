@@ -31,8 +31,7 @@ object SameMethodNamePageMergerStrategy : PageMergerStrategy {
         return others + listOf(merged)
     }
 
-    fun asGroup(dci: DCI, nodes: List<ContentNode>): ContentGroup {
-        val n = nodes.first()
-        return ContentGroup(nodes, dci, n.platforms, n.style, n.extras)
-    }
+    fun asGroup(dci: DCI, nodes: List<ContentNode>): ContentGroup =
+        nodes.first().let { ContentGroup(nodes, dci, it.platforms, it.style, it.extra) }
+
 }

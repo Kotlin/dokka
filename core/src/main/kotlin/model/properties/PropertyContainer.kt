@@ -14,8 +14,10 @@ class PropertyContainer<C : Any> internal constructor(
         else -> throw ClassCastException("Property for $key stored under not matching key type.")
     }
 
+    inline fun <reified T : Any> allOfType(): List<T> = map.values.filterIsInstance<T>()
+
     companion object {
-        fun <T: Any> empty(): PropertyContainer<T> = PropertyContainer(emptyMap())
+        fun <T : Any> empty(): PropertyContainer<T> = PropertyContainer(emptyMap())
     }
 }
 
@@ -41,7 +43,8 @@ fun <C> C.mergeExtras(left: C, right: C): C where C : Any, C : WithExtraProperti
 
     strategies.firstIsInstanceOrNull<MergeStrategy.Fail>()?.error?.invoke()
 
-    val replaces: List<ExtraProperty<C>> = strategies.filterIsInstance<MergeStrategy.Replace<C>>().map { it.newProperty }
+    val replaces: List<ExtraProperty<C>> =
+        strategies.filterIsInstance<MergeStrategy.Replace<C>>().map { it.newProperty }
 
     val needingFullMerge: List<(preMerged: C, left: C, right: C) -> C> =
         strategies.filterIsInstance<MergeStrategy.Full<C>>().map { it.merger }
