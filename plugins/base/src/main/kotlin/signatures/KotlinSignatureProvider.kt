@@ -48,7 +48,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
         platformText(f.visibility) { it.externalDisplayName + " " }
-        text(f.modifier.toString() + " ")
+        text(f.modifier.toString().toLowerCase() + " ")
         text("fun ")
         f.receiver?.also {
             type(it.type)
