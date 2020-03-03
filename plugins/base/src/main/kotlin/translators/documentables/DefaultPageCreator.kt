@@ -62,12 +62,12 @@ open class DefaultPageCreator(
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name.orEmpty(), it.dri)
-            +signature(it)
+            +buildSignature(it)
             text(it.briefDocTagString)
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri)
-            +signature(it)
+            +buildSignature(it)
             text(it.briefDocTagString)
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
@@ -77,13 +77,13 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
-        +signature(c)
+        +buildSignature(c)
         +contentForComments(c)
 
         if (c is WithConstructors) {
             block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
                 link(it.name, it.dri)
-                signature(it)
+                +buildSignature(it)
                 text(it.briefDocTagString)
             }
         }
@@ -107,7 +107,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForFunction(f: Function) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
-        +signature(f)
+        +buildSignature(f)
         +contentForComments(f)
         block("Parameters", 2, ContentKind.Parameters, f.children, f.platformData.toSet()) {
             text(it.name ?: "<receiver>")

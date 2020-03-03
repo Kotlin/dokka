@@ -93,13 +93,7 @@ open class PageContentBuilder(
             contents += createText(text, kind, platformData, styles, extras)
         }
 
-        fun signature(d: Documentable) = ContentGroup(
-            signatureProvider.signature(d),
-            DCI(setOf(d.dri), ContentKind.Symbol),
-            d.platformData.toSet(),
-            mainStyles,
-            mainExtras
-        )
+        fun buildSignature(d: Documentable) = signatureProvider.signature(d)
 
         fun linkTable(
             elements: List<DRI>,
@@ -152,16 +146,17 @@ open class PageContentBuilder(
             prefix: String = "",
             suffix: String = "",
             separator: String = ", ",
+            platformData: Set<PlatformData> = mainPlatformData, // TODO: children should be aware of this platform data
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
-                if (prefix.isNotEmpty()) text(prefix)
+                if (prefix.isNotEmpty()) text(prefix, platformData = platformData)
                 elements.dropLast(1).forEach {
                     operation(it)
-                    text(separator)
+                    text(separator, platformData = platformData)
                 }
                 operation(elements.last())
-                if (suffix.isNotEmpty()) text(suffix)
+                if (suffix.isNotEmpty()) text(suffix, platformData = platformData)
             }
         }
 
