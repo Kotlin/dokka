@@ -90,7 +90,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         listOf("-jdkVersion"),
         "Version of JDK to use for linking to JDK JavaDoc",
         { it.toInt() },
-        { 6 }
+        { 8 }
     )
 
     override val languageVersion: String? by parser.stringOption(

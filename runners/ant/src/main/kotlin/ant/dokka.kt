@@ -59,7 +59,7 @@ class AntPassConfig(task: Task) : DokkaConfiguration.PassConfiguration {
     override var reportUndocumented: Boolean = false
     override var skipEmptyPackages: Boolean = true
     override var skipDeprecated: Boolean = false
-    override var jdkVersion: Int = 6
+    override var jdkVersion: Int = 8
     override val sourceLinks: List<DokkaConfiguration.SourceLinkDefinition>
         get() = antSourceLinkDefinition.map {
             val path = it.path!!

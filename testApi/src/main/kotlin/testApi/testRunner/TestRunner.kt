@@ -171,7 +171,7 @@ abstract class AbstractCoreTest {
         var reportUndocumented: Boolean = false,
         var skipEmptyPackages: Boolean = false,
         var skipDeprecated: Boolean = false,
-        var jdkVersion: Int = 6,
+        var jdkVersion: Int = 8,
         var languageVersion: String? = null,
         var apiVersion: String? = null,
         var noStdlibLink: Boolean = false,

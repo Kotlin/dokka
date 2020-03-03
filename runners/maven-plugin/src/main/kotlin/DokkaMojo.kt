@@ -77,7 +77,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var skip: Boolean = false
 
     @Parameter(required = false, defaultValue = "6")
-    var jdkVersion: Int = 6
+    var jdkVersion: Int = 8
 
     @Parameter
     var skipDeprecated: Boolean = false
