@@ -147,7 +147,7 @@ class DocumentationBuilder
     }
 
     fun DocumentationNode.appendVisibility(descriptor: DeclarationDescriptorWithVisibility) {
-        val modifier = descriptor.visibility.normalize().displayName
+        val modifier = descriptor.visibility.normalize().externalDisplayName
         appendTextNode(modifier, NodeKind.Modifier)
     }
 
