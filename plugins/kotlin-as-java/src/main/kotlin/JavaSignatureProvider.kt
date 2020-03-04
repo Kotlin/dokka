@@ -18,7 +18,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     private val ignoredVisibilities = setOf(JavaVisibility.Default, KotlinVisibility.Public)
     private val ignoredModifiers =
-        setOf(WithAbstraction.Modifier.Open, WithAbstraction.Modifier.Empty, WithAbstraction.Modifier.Sealed)
+        setOf(KotlinModifier.Open, JavaModifier.Empty, KotlinModifier.Empty, KotlinModifier.Sealed)
 
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
@@ -34,7 +34,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
         if (c is Class) {
-            text(c.modifier.takeIf { it !in ignoredModifiers }?.toString()?.toLowerCase().orEmpty() + " ")
+            text(c.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
         }
 
         when (c) {
@@ -60,7 +60,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     }
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
-        text(f.modifier.takeIf { it != WithAbstraction.Modifier.Empty }?.toString()?.toLowerCase().orEmpty() + " ")
+        text(f.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
         val returnType = f.type
         if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
             type(returnType)

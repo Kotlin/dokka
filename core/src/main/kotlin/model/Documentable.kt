@@ -73,10 +73,21 @@ interface WithType {
 
 interface WithAbstraction {
     val modifier: Modifier
+}
 
-    enum class Modifier {
-        Abstract, Open, Final, Sealed, Empty
-    }
+sealed class Modifier(val name: String)
+sealed class KotlinModifier(name: String) : Modifier(name) {
+    object Abstract : KotlinModifier("abstract")
+    object Open : KotlinModifier("open")
+    object Final : KotlinModifier("final")
+    object Sealed : KotlinModifier("sealed")
+    object Empty : KotlinModifier("")
+}
+
+sealed class JavaModifier(name: String) : Modifier(name) {
+    object Abstract : JavaModifier("abstract")
+    object Final : JavaModifier("final")
+    object Empty : JavaModifier("")
 }
 
 interface WithCompanion {
@@ -145,7 +156,7 @@ data class Class(
     override val generics: List<TypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val modifier: WithAbstraction.Modifier,
+    override val modifier: Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Class> = PropertyContainer.empty()
 ) : Classlike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
@@ -206,7 +217,7 @@ data class Function(
     override val type: TypeWrapper,
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
-    override val modifier: WithAbstraction.Modifier,
+    override val modifier: Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Function> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<Function> {
@@ -286,7 +297,7 @@ data class Property(
     override val receiver: Parameter?,
     val setter: Function?,
     val getter: Function?,
-    override val modifier: WithAbstraction.Modifier,
+    override val modifier: Modifier,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Property> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<Property> {
@@ -331,7 +342,7 @@ data class OtherParameter(val name: String) : Bound()
 object Star : Projection()
 data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Bound()
 data class Nullable(val inner: Bound) : Bound()
-data class Variance(val kind: Kind, val inner: Bound): Projection() {
+data class Variance(val kind: Kind, val inner: Bound) : Projection() {
     enum class Kind { In, Out }
 }
 
