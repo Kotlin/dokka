@@ -32,12 +32,17 @@ internal fun Package.asJava(): Package {
                 properties = nodes.filterIsInstance<Property>().map { it.asJava() },
                 constructors = emptyList(),
                 functions = (
-                        nodes.filterIsInstance<Property>().map { it.javaAccessors() } +
-                                nodes.filterIsInstance<Function>().map { it.asJava(syntheticClassName) }
-                        ) as List<Function>, // TODO: methods are static and receiver is a param
+                        nodes.filterIsInstance<Property>()
+                            .map { it.javaAccessors() } +
+                                nodes.filterIsInstance<Function>()
+                                    .map { it.asJava(syntheticClassName) }) as List<Function>, // TODO: methods are static and receiver is a param
                 classlikes = emptyList(),
                 sources = PlatformDependent.empty(),
-                visibility = PlatformDependent.empty(), // TODO: fix this with the new visibility model -> public
+                visibility = PlatformDependent(
+                    platformData.map {
+                        it to JavaVisibility.Public
+                    }.toMap()
+                ),
                 companion = null,
                 generics = emptyList(),
                 supertypes = PlatformDependent.empty(),
@@ -127,9 +132,10 @@ internal fun Function.asJava(containingClassName: String): Function {
 //        dri = dri.copy(callable = dri.callable?.asJava()),
         name = newName,
         type = type.asJava(),
+        modifier = if(modifier is KotlinModifier.Final && isConstructor) JavaModifier.Empty else modifier,
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         receiver = null
-    ) // TODO: should receiver be the first param?
+    ) // TODO static if toplevel
 }
 
 internal fun Classlike.asJava(): Classlike = when (this) {
@@ -151,8 +157,9 @@ internal fun Class.asJava(): Class = copy(
     generics = generics.map { it.asJava() },
     supertypes = supertypes.copy(
         map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
-    )
-) // TODO: if modifier is from Kotlin, then Empty -> Final I think, Java ones stay the same
+    ),
+    modifier = if (modifier is KotlinModifier.Empty) JavaModifier.Final else modifier
+)
 
 private fun TypeParameter.asJava(): TypeParameter = copy(
     dri = dri.possiblyAsJava(),
@@ -180,7 +187,7 @@ internal fun Enum.asJava(): Enum = copy(
         map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
     )
 //    , entries = entries.map { it.asJava() }
-) // TODO: if modifier is from Kotlin, then Empty -> Final I think, Java ones stay the same
+)
 
 internal fun Object.asJava(): Object = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
@@ -193,7 +200,11 @@ internal fun Object.asJava(): Object = copy(
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
                 documentation = PlatformDependent.empty(),
                 sources = PlatformDependent.empty(),
-                visibility = PlatformDependent.empty(), // TODO: public and static
+                visibility = PlatformDependent(
+                    platformData.map {
+                        it to JavaVisibility.Public
+                    }.toMap()
+                ),
                 type = JavaTypeWrapper(
                     dri.packageName?.split(".").orEmpty() +
                             dri.classNames?.split(".").orEmpty(),
@@ -204,7 +215,8 @@ internal fun Object.asJava(): Object = copy(
                 setter = null,
                 getter = null,
                 platformData = platformData,
-                receiver = null
+                receiver = null,
+                extra = PropertyContainer.empty<Property>() + AdditionalModifiers(listOf(ExtraModifiers.STATIC))
             ),
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.copy(
@@ -259,9 +271,15 @@ private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
 
 internal fun TypeWrapper.asJava(top: Boolean = true): TypeWrapper = constructorFqName
-//    ?.takeUnless { it.endsWith(".Unit") } // TODO: ???
+    ?.let { if (it.endsWith(".Unit")) return VoidTypeWrapper() else it }
     ?.let { fqName -> fqName.mapToJava()?.let { getAsType(it, fqName, top) } } ?: this
 
+private data class VoidTypeWrapper(
+    override val constructorFqName: String = "void",
+    override val constructorNamePathSegments: List<String> = listOf("void"),
+    override val arguments: List<TypeWrapper> = emptyList(),
+    override val dri: DRI = DRI("java.lang", "Void")
+) : TypeWrapper
 
 private fun String.mapToJava(): ClassId? =
     JavaToKotlinClassMap.mapKotlinToJava(FqName(this).toUnsafe())
@@ -269,7 +287,7 @@ private fun String.mapToJava(): ClassId? =
 internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     packageName = packageFqName.asString(),
     classNames = classNames(),
-    callable = dri?.callable,//?.asJava(), TODO: ????
+    callable = dri?.callable,//?.asJava(), TODO: check this
     extra = null,
     target = null
 )

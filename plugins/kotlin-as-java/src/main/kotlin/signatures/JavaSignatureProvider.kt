@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.kotlinAsJava
+package org.jetbrains.dokka.kotlinAsJava.signatures
 
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
@@ -106,7 +106,4 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
         is Nullable -> signatureForProjection(p.inner)
     }
-
-    private fun <T : Documentable> Collection<T>.filterOnPlatform(platformData: PlatformData) =
-        this.filter { it.platformData.contains(platformData) }
 }
