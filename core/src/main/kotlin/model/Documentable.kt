@@ -343,11 +343,6 @@ enum class ExtraModifiers {
     OVERRIDE, DATA, CONST, DYNAMIC, EXTERNAL, INNER, LATEINIT, OPERATOR, TAILREC, VARARG
 }
 
-enum class ExtraModifiers {
-    STATIC, INLINE, INFIX, SUSPEND, REIFIED, CROSSINLINE, NOINLINE,
-    OVERRIDE, DATA, CONST, DYNAMIC, EXTERNAL, INNER, LATEINIT, OPERATOR, TAILREC, VARARG
-}
-
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
     if (it.length != length || it.length > maxLength) it.take(maxLength - 3) + "..." else it
 }
