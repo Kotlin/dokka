@@ -42,7 +42,7 @@ internal fun Package.asJava(): Package {
                 generics = emptyList(),
                 supertypes = PlatformDependent.empty(),
                 documentation = PlatformDependent.empty(),
-                modifier = WithAbstraction.Modifier.Final,
+                modifier = JavaModifier.Final,
                 platformData = platformData,
                 extra = PropertyContainer.empty()
             )
@@ -64,9 +64,9 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
             dri.withClass(relocateToClass)
         },
         modifier = if (setter == null) {
-            WithAbstraction.Modifier.Final
+            JavaModifier.Final
         } else {
-            WithAbstraction.Modifier.Empty
+            JavaModifier.Empty
         },
         visibility = visibility.copy(
             map = visibility.mapValues { JavaVisibility.Private }
@@ -87,9 +87,9 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             },
             name = "get" + name.capitalize(),
             modifier = if (setter == null) {
-                WithAbstraction.Modifier.Final
+                JavaModifier.Final
             } else {
-                WithAbstraction.Modifier.Empty
+                JavaModifier.Empty
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -105,9 +105,9 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             },
             name = "set" + name.capitalize(),
             modifier = if (setter == null) {
-                WithAbstraction.Modifier.Final
+                JavaModifier.Final
             } else {
-                WithAbstraction.Modifier.Empty
+                JavaModifier.Empty
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -189,7 +189,7 @@ internal fun Object.asJava(): Object = copy(
     properties = properties.map { it.asJava() } +
             Property(
                 name = "INSTANCE",
-                modifier = WithAbstraction.Modifier.Final,
+                modifier = JavaModifier.Final,
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
                 documentation = PlatformDependent.empty(),
                 sources = PlatformDependent.empty(),
@@ -282,15 +282,3 @@ private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
 
 internal fun ClassId.classNames(): String =
     shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")
-
-//fun TypeConstructor.asJava(): TypeReference =
-//    fullyQualifiedName.mapToJava()
-//        ?.let { tc.copy(fullyQualifiedName = it.asString(), params = tc.params.map { it.asJava() }) } ?: tc
-
-//fun TypeParam.asJava(): TypeReference = copy(bounds = bounds.map { it.asJava() })
-
-//fun TypeReference.asJava(): TypeReference = when (this) {
-//    is TypeConstructor -> asJava()
-//    is TypeParam -> asJava()
-//    else -> this
-//}

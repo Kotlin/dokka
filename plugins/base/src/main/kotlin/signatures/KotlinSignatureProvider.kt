@@ -29,7 +29,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         if (c is Class) {
-            text(c.modifier.toString() + " ")
+            text(c.modifier.name + " ")
         }
         when (c) {
             is Class -> text("class ")
@@ -50,7 +50,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        text(f.modifier.toString().toLowerCase() + " ")
+        text(f.modifier.name + " ")
         text("fun ")
         f.receiver?.also {
             type(it.type)

@@ -434,11 +434,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     }
 
     fun MemberDescriptor.modifier() = when (modality) {
-        Modality.FINAL -> WithAbstraction.Modifier.Final
-        Modality.SEALED -> WithAbstraction.Modifier.Sealed
-        Modality.OPEN -> WithAbstraction.Modifier.Open
-        Modality.ABSTRACT -> WithAbstraction.Modifier.Abstract
-        else -> WithAbstraction.Modifier.Empty
+        Modality.FINAL -> KotlinModifier.Final
+        Modality.SEALED -> KotlinModifier.Sealed
+        Modality.OPEN -> KotlinModifier.Open
+        Modality.ABSTRACT -> KotlinModifier.Abstract
+        else -> KotlinModifier.Empty
     }
 
     private fun MemberDescriptor.createSources(): PlatformDependent<DocumentableSource> = if (isExpect()) {
