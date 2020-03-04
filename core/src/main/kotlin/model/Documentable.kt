@@ -351,19 +351,19 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
 
-sealed class Visibility
-sealed class KotlinVisibility : Visibility() {
-    object Public : KotlinVisibility()
-    object Private : KotlinVisibility()
-    object Protected : KotlinVisibility()
-    object Internal : KotlinVisibility()
+sealed class Visibility(val name: String)
+sealed class KotlinVisibility(name: String) : Visibility(name) {
+    object Public : KotlinVisibility("public")
+    object Private : KotlinVisibility("private")
+    object Protected : KotlinVisibility("protected")
+    object Internal : KotlinVisibility("internal")
 }
 
-sealed class JavaVisibility : Visibility() {
-    object Public : JavaVisibility()
-    object Private : JavaVisibility()
-    object Protected : JavaVisibility()
-    object Default : JavaVisibility()
+sealed class JavaVisibility(name: String) : Visibility(name) {
+    object Public : JavaVisibility("public")
+    object Private : JavaVisibility("private")
+    object Protected : JavaVisibility("protected")
+    object Default : JavaVisibility("")
 }
 
 fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()

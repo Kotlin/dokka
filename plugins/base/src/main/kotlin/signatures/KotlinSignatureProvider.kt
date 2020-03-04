@@ -15,6 +15,8 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider {
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
+    private val ignoredVisibilities = setOf(JavaVisibility.Default, KotlinVisibility.Public)
+
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is Function -> signature(documentable)
         is Classlike -> signature(documentable)
@@ -25,7 +27,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol) {
-        platformText(c.visibility) { it.externalDisplayName + " " }
+        platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         if (c is Class) {
             text(c.modifier.toString() + " ")
         }
@@ -47,7 +49,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
-        platformText(f.visibility) { it.externalDisplayName + " " }
+        platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         text(f.modifier.toString().toLowerCase() + " ")
         text("fun ")
         f.receiver?.also {
@@ -101,12 +103,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             text("?")
         }
     }
-
-    private fun <T : Documentable> Collection<T>.filterOnPlatform(platformData: PlatformData) =
-        this.filter { it.platformData.contains(platformData) }
 }
 
 private fun <T> PageContentBuilder.DocumentableContentBuilder.platformText(
     value: PlatformDependent<T>,
     transform: (T) -> String
-) = value.entries.forEach { (p, v) -> text(transform(v), platformData = setOf(p)) }
+) = value.entries.forEach { (p, v) ->
+    transform(v).takeIf { it.isNotBlank() }?.also { text(it, platformData = setOf(p)) }
+}
