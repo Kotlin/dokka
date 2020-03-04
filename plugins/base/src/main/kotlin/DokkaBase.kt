@@ -13,7 +13,7 @@ import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStra
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
-import org.jetbrains.dokka.base.transformers.psi.DefaultPsiToDocumentableTranslator
+import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
