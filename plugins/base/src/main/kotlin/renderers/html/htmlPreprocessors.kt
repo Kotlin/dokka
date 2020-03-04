@@ -45,7 +45,11 @@ object NavigationPageInstaller : PageTransformer {
         page.name,
         page.dri.first(),
         page.platforms(),
-        page.children.filterIsInstance<ContentPage>().map { visit(it) })
+        if (page !is ClasslikePageNode)
+            page.children.filterIsInstance<ContentPage>().map { visit(it) }
+        else
+            emptyList()
+    )
 }
 
 object ResourceInstaller : PageTransformer {
