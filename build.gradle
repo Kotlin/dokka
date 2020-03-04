@@ -49,6 +49,7 @@ allprojects {
         maven { url "https://kotlin.bintray.com/kotlinx" }
         maven { url "https://dl.bintray.com/kotlin/kotlinx" }
         maven { url "https://dl.bintray.com/orangy/maven" } // TODO: remove this repository when kotlinx.cli is available in maven
+        maven { url 'https://dl.bintray.com/jetbrains/intellij-third-party-dependencies' }
     }
 }
 

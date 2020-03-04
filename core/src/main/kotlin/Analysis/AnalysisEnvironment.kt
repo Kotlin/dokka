@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.js.resolve.JsResolverForModuleFactory
 import org.jetbrains.kotlin.library.impl.createKotlinLibrary
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.CommonPlatforms
 import org.jetbrains.kotlin.platform.TargetPlatform
@@ -150,6 +151,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             )
         }
 
+    private fun File.isNativeLibrary(): Boolean =
+        (extension == KLIB_EXTENSION || (isDirectory && listFiles()?.map { it.name }
+            ?.any { it == "manifest" } ?: false))
+
     fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
@@ -162,7 +167,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
-        val nativeLibraries = classpath.filter { it.extension == KLIB_EXTENSION }
+        val nativeLibraries = classpath.filter { it.isNativeLibrary() }
             .map { createNativeLibraryModuleInfo(it) }
 
         val library = object : LibraryModuleInfo {
@@ -172,7 +177,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> = listOf(this)
             override fun getLibraryRoots(): Collection<String> =
-                classpath.filterNot { it.extension == KLIB_EXTENSION }.map { it.absolutePath }
+                classpath.filterNot { it.isNativeLibrary() }.map { it.absolutePath }
         }
 
         val module = object : ModuleInfo {
@@ -412,7 +417,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
                             addRoots(javaRoots, messageCollector)
                         }
                 }, {
-                    val file = (it as JavaClassImpl).psi.containingFile.virtualFile
+                    val file = (it as? BinaryJavaClass)?.virtualFile ?: (it as JavaClassImpl).psi.containingFile.virtualFile
                     if (file in sourcesScope)
                         module
                     else

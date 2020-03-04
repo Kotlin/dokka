@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parents
+import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 import java.net.HttpURLConnection
@@ -26,6 +27,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import javax.inject.Named
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.jvm.internal.impl.load.java.sources.JavaSourceElement
 
 fun ByteArray.toHexString() = this.joinToString(separator = "") { "%02x".format(it) }
 
