@@ -3,7 +3,6 @@ package org.jetbrains.dokka.kotlinAsJava
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Annotation
@@ -17,48 +16,50 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider {
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
-    override fun signature(documentable: Documentable): List<ContentNode> = when (documentable) {
+    private val ignoredVisibilities = setOf(JavaVisibility.Default, KotlinVisibility.Public)
+    private val ignoredModifiers =
+        setOf(WithAbstraction.Modifier.Open, WithAbstraction.Modifier.Empty, WithAbstraction.Modifier.Sealed)
+
+
+    override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is Function -> signature(documentable)
         is Classlike -> signature(documentable)
+        is TypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
     }
 
-    private fun signature(f: Function) = f.platformData.map { signature(f, it) }.distinct()
+    private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol) {
+        platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
-    private fun signature(c: Classlike) = c.platformData.map { signature(c, it) }.distinct()
-
-    private fun signature(c: Classlike, platform: PlatformData) = contentBuilder.contentFor(c, ContentKind.Symbol) {
         if (c is Class) {
-            text(c.modifier.takeIf { it != WithAbstraction.Modifier.Empty }?.toString()?.toLowerCase().orEmpty())
+            text(c.modifier.takeIf { it !in ignoredModifiers }?.toString()?.toLowerCase().orEmpty() + " ")
         }
+
         when (c) {
-            is Class -> text(" class ")
-            is Interface -> text(" interface ")
-            is Enum -> text(" enum ")
-            is Object -> text(" class ")
-            is Annotation -> text(" @interface ")
+            is Class -> text("class ")
+            is Interface -> text("interface ")
+            is Enum -> text("enum ")
+            is Object -> text("class ")
+            is Annotation -> text("@interface ")
         }
         text(c.name!!)
         if (c is WithGenerics) {
-            val generics = c.generics.filterOnPlatform(platform)
-            if (generics.isNotEmpty()) {
-                text("<")
-                list(generics) {
-                    +this@JavaSignatureProvider.signature(it)
-                }
-                text(">")
+            list(c.generics, prefix = "<", suffix = ">") {
+                +buildSignature(it)
             }
         }
-        if (c is WithSupertypes && c.supertypes.containsKey(platform)) {
-            list(c.supertypes.getValue(platform), prefix = " extends ") {
-                link(it.sureClassNames, it)
+        if (c is WithSupertypes) {
+            c.supertypes.map { (p, dris) ->
+                list(dris, prefix = " extends ", platformData = setOf(p)) {
+                    link(it.sureClassNames, it, platformData = setOf(p))
+                }
             }
         }
     }
 
-    private fun signature(f: Function, platform: PlatformData) = contentBuilder.contentFor(f, ContentKind.Symbol) {
+    private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
         text(f.modifier.takeIf { it != WithAbstraction.Modifier.Empty }?.toString()?.toLowerCase().orEmpty() + " ")
         val returnType = f.type
         if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
@@ -66,16 +67,11 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
         text("  ")
         link(f.name, f.dri)
-        val generics = f.generics.filterOnPlatform(platform)
-        if (generics.isNotEmpty()) {
-            text("<")
-            generics.forEach {
-                this@JavaSignatureProvider.signature(it)
-            }
-            text(">")
+        list(f.generics, prefix = "<", suffix = ">") {
+            +buildSignature(it)
         }
         text("(")
-        list(f.parameters.filterOnPlatform(platform)) {
+        list(f.parameters) {
             type(it.type)
             text(" ")
             link(it.name!!, it.dri)
@@ -85,34 +81,30 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Symbol) {
         text(t.name.substringAfterLast("."))
-        if (t.bounds.isNotEmpty()) {
-            text(" extends ")
-            t.bounds.forEach {
-                +signature(it, t.dri, t.platformData)
-            }
+        list(t.bounds, prefix = " extends ") {
+            signatureForProjection(it)
         }
     }
 
-    private fun signature(p: Projection, dri: DRI, platforms: List<PlatformData>): List<ContentNode> = when (p) {
-        is OtherParameter -> contentBuilder.contentFor(dri, platforms.toSet()) { text(p.name) }.children
 
-        is TypeConstructor -> contentBuilder.contentFor(dri, platforms.toSet()) {
+    private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
+        is OtherParameter -> text(p.name)
+
+        is TypeConstructor -> group {
             link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">") {
-                +signature(it, dri, platforms)
+                signatureForProjection(it)
             }
-        }.children
+        }
 
-        is Variance -> contentBuilder.contentFor(dri, platforms.toSet()) {
+        is Variance -> group {
             text(p.kind.toString() + " ")
-        }.children + signature(p.inner, dri, platforms)
+            signatureForProjection(p.inner)
+        }
 
-        is Star -> contentBuilder.contentFor(dri, platforms.toSet()) { text("?") }.children
+        is Star -> text("?")
 
-        is Nullable -> signature(p.inner, dri, platforms) + contentBuilder.contentFor(
-            dri,
-            platforms.toSet()
-        ) { text("?") }.children
+        is Nullable -> signatureForProjection(p.inner)
     }
 
     private fun <T : Documentable> Collection<T>.filterOnPlatform(platformData: PlatformData) =

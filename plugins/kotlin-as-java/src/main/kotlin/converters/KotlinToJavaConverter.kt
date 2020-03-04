@@ -16,7 +16,9 @@ import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType
 private fun <T : WithExpectActual> List<T>.groupedByLocation() =
     map { it.sources to it }
         .groupBy({ (location, _) ->
-            location.let { it.map.entries.first().value.path.split("/").last().split(".").first() + "Kt" } // TODO: first() does not look reasonable
+            location.let {
+                it.map.entries.first().value.path.split("/").last().split(".").first() + "Kt"
+            } // TODO: first() does not look reasonable
         }) { it.second }
 
 internal fun Package.asJava(): Package {
@@ -61,16 +63,19 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
         } else {
             dri.withClass(relocateToClass)
         },
-//        name = name.o,
         modifier = if (setter == null) {
             WithAbstraction.Modifier.Final
         } else {
             WithAbstraction.Modifier.Empty
         },
-        type = type.asJava(isTopLevel), // TODO: check,
+        visibility = visibility.copy(
+            map = visibility.mapValues { JavaVisibility.Private }
+        ),
+        type = type.asJava(isTopLevel), // TODO: check
         setter = null,
-        getter = null // Removing getters and setters as they will be available as functions
-    ) // TODO: visibility -> always private; if (isTopLevel) -> static
+        getter = null, // Removing getters and setters as they will be available as functions
+        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else extra
+    )
 
 internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<Function> =
     listOfNotNull(
@@ -86,7 +91,11 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             } else {
                 WithAbstraction.Modifier.Empty
             },
-            type = type.asJava(isTopLevel) // TODO: check,
+            visibility = visibility.copy(
+                map = visibility.mapValues { JavaVisibility.Public }
+            ),
+            type = type.asJava(isTopLevel), // TODO: check
+            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else getter!!.extra
         ),
         setter?.copy(
             dri = if (relocateToClass.isNullOrBlank()) {
@@ -100,9 +109,13 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             } else {
                 WithAbstraction.Modifier.Empty
             },
-            type = type.asJava(isTopLevel) // TODO: check,
+            visibility = visibility.copy(
+                map = visibility.mapValues { JavaVisibility.Public }
+            ),
+            type = type.asJava(isTopLevel), // TODO: check
+            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else setter!!.extra
         )
-    ) // TODO: if (isTopLevel) -> static; visibility -> always? public
+    )
 
 
 internal fun Function.asJava(containingClassName: String): Function {
@@ -134,18 +147,38 @@ internal fun Class.asJava(): Class = copy(
         it.asJava(name)
     },
     properties = properties.map { it.asJava() },
-    classlikes = classlikes.map { it.asJava() }
+    classlikes = classlikes.map { it.asJava() },
+    generics = generics.map { it.asJava() },
+    supertypes = supertypes.copy(
+        map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
+    )
 ) // TODO: if modifier is from Kotlin, then Empty -> Final I think, Java ones stay the same
+
+private fun TypeParameter.asJava(): TypeParameter = copy(
+    dri = dri.possiblyAsJava(),
+    bounds = bounds.map { it.asJava() }
+)
+
+private fun Bound.asJava(): Bound = when (this) {
+    is TypeConstructor -> copy(
+        dri = dri.possiblyAsJava()
+    )
+    is Nullable -> copy(
+        inner = inner.asJava()
+    )
+    else -> this
+}
 
 internal fun Enum.asJava(): Enum = copy(
     constructors = constructors.map { it.asJava(name) },
     functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
-        it.asJava(
-            name
-        )
+        it.asJava(name)
     },
     properties = properties.map { it.asJava() },
-    classlikes = classlikes.map { it.asJava() }
+    classlikes = classlikes.map { it.asJava() },
+    supertypes = supertypes.copy(
+        map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
+    )
 //    , entries = entries.map { it.asJava() }
 ) // TODO: if modifier is from Kotlin, then Empty -> Final I think, Java ones stay the same
 
@@ -173,7 +206,10 @@ internal fun Object.asJava(): Object = copy(
                 platformData = platformData,
                 receiver = null
             ),
-    classlikes = classlikes.map { it.asJava() }
+    classlikes = classlikes.map { it.asJava() },
+    supertypes = supertypes.copy(
+        map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
+    )
 )
 
 internal fun Interface.asJava(): Interface = copy(
@@ -181,7 +217,11 @@ internal fun Interface.asJava(): Interface = copy(
         .filterNotNull()
         .map { it.asJava(name) },
     properties = emptyList(),
-    classlikes = classlikes.map { it.asJava() } // TODO: public static final class DefaultImpls with impls for methods (killme please)
+    classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
+    generics = generics.map { it.asJava() },
+    supertypes = supertypes.copy(
+        map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
+    )
 )
 
 internal fun Annotation.asJava(): Annotation = copy(
@@ -215,8 +255,11 @@ internal fun TypeWrapper.getAsType(classId: ClassId, fqName: String, top: Boolea
     )
 }
 
+private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
+private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
+
 internal fun TypeWrapper.asJava(top: Boolean = true): TypeWrapper = constructorFqName
-    ?.takeUnless { it.endsWith(".Unit") } // TODO: ???
+//    ?.takeUnless { it.endsWith(".Unit") } // TODO: ???
     ?.let { fqName -> fqName.mapToJava()?.let { getAsType(it, fqName, top) } } ?: this
 
 
@@ -230,6 +273,12 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     extra = null,
     target = null
 )
+
+private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: List<ExtraModifiers>) =
+    this[AdditionalModifiers.AdditionalKey]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
+
+private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
+    AdditionalModifiers((content + second.content).distinct())
 
 internal fun ClassId.classNames(): String =
     shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")

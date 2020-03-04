@@ -104,10 +104,3 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 }
-
-private fun <T> PageContentBuilder.DocumentableContentBuilder.platformText(
-    value: PlatformDependent<T>,
-    transform: (T) -> String
-) = value.entries.forEach { (p, v) ->
-    transform(v).takeIf { it.isNotBlank() }?.also { text(it, platformData = setOf(p)) }
-}

@@ -4,6 +4,7 @@ import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.PlatformDependent
 import org.jetbrains.dokka.model.TypeWrapper
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -263,6 +264,14 @@ open class PageContentBuilder(
             list(t.arguments, prefix = "<", suffix = ">") {
                 type(it)
             }
+        }
+
+
+        fun <T> platformText(
+            value: PlatformDependent<T>,
+            transform: (T) -> String
+        ) = value.entries.forEach { (p, v) ->
+            transform(v).takeIf { it.isNotBlank() }?.also { text(it, platformData = setOf(p)) }
         }
     }
 }
