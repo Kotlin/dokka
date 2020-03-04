@@ -96,7 +96,8 @@ class ExtendingDSL(private val pluginClass: String, private val extensionName: S
         ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, block)
 
     infix fun <T : Any> Extension<T>.applyIf(condition: DokkaConfiguration.() -> Boolean): Extension<T> =
-        this.setCondition(condition)
+        this.setCondition { this@applyIf.condition(this) && condition(this) }
+
 }
 
 @ExtensionsDsl
