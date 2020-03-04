@@ -150,6 +150,10 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             )
         }
 
+    private fun File.isNativeLibrary(): Boolean =
+        (extension == KLIB_EXTENSION || (isDirectory && listFiles()?.map { it.name }
+            ?.any { it == "manifest" } ?: false))
+
     fun createResolutionFacade(environment: KotlinCoreEnvironment): Pair<DokkaResolutionFacade, DokkaResolutionFacade> {
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
@@ -162,7 +166,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
         }
 
-        val nativeLibraries = classpath.filter { it.extension == KLIB_EXTENSION }
+        val nativeLibraries = classpath.filter { it.isNativeLibrary() }
             .map { createNativeLibraryModuleInfo(it) }
 
         val library = object : LibraryModuleInfo {
@@ -172,7 +176,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             override val platform: TargetPlatform = targetPlatform
             override fun dependencies(): List<ModuleInfo> = listOf(this)
             override fun getLibraryRoots(): Collection<String> =
-                classpath.filterNot { it.extension == KLIB_EXTENSION }.map { it.absolutePath }
+                classpath.filterNot { it.isNativeLibrary() }.map { it.absolutePath }
         }
 
         val module = object : ModuleInfo {
