@@ -4,6 +4,10 @@ plugins {
     id("com.jfrog.bintray")
 }
 
+dependencies {
+    implementation("org.jsoup:jsoup:1.12.1")
+}
+
 publishing {
     publications {
         register<MavenPublication>("basePlugin") {

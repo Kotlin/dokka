@@ -1,6 +1,11 @@
 package org.jetbrains.dokka.links
 
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiParameter
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
@@ -36,6 +41,17 @@ data class DRI(
             )
         }
 
+        fun from(psi: PsiElement) = psi.parentsWithSelf.run {
+            val callable = firstIsInstanceOrNull<PsiMethod>()
+            val params = (callable?.parameterList?.parameters).orEmpty()
+            val classes = filterIsInstance<PsiClass>().toList()
+            DRI(
+                classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', ""),
+                classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
+                callable?.let { Callable.from(it) },
+                firstIsInstanceOrNull<PsiParameter>()?.let { params.indexOf(it) }
+            )
+        }
         val topLevel = DRI()
     }
 }
@@ -66,6 +82,12 @@ data class Callable(
                 extensionReceiverParameter?.let { TypeReference.from(it) },
                 valueParameters.mapNotNull { TypeReference.from(it) }
             )
+        }
+        fun from(psi: PsiMethod) = with(psi) {
+            Callable(
+                name,
+                null,
+                parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) })
         }
     }
 }
@@ -110,7 +132,7 @@ sealed class TypeReference {
     }
 }
 
-data class JavaClassReference(val name: String): TypeReference() {
+data class JavaClassReference(val name: String) : TypeReference() {
     override fun toString(): String = name
 }
 
@@ -132,7 +154,7 @@ data class Nullable(val wrapped: TypeReference) : TypeReference() {
     override fun toString() = "$wrapped?"
 }
 
-object StarProjection: TypeReference() {
+object StarProjection : TypeReference() {
     override fun toString() = "*"
 }
 

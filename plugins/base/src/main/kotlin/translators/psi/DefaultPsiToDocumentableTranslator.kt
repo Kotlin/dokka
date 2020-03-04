@@ -1,9 +1,8 @@
-package org.jetbrains.dokka.base.transformers.psi
+package org.jetbrains.dokka.base.translators.psi
 
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.psi.*
-import org.jetbrains.dokka.JavadocParser
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
@@ -61,7 +60,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         logger: DokkaLogger
     ) {
 
-        private val javadocParser: JavadocParser = JavadocParser(logger)
+        private val javadocParser: JavaDocumentationParser = JavadocParser(logger)
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
             when {
