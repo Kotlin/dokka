@@ -51,7 +51,7 @@ private fun <T : Any, D : Documentable> Iterable<D>.platformDependentFor(
     return PlatformDependent(actuals, expected)
 }
 
-private fun <T: Any> PlatformDependent<T>.mergeWith(other: PlatformDependent<T>) = PlatformDependent(
+private fun <T : Any> PlatformDependent<T>.mergeWith(other: PlatformDependent<T>) = PlatformDependent(
     map = this + other,
     expect = expect ?: other.expect
 )
@@ -62,7 +62,7 @@ private fun <T> mergeExpectActual(
     platformSetter: T.(List<PlatformData>) -> T
 ): List<T> where T : Documentable, T : WithExpectActual {
 
-    fun findExpect(actual: T, expects: List<T>): Expect<T>  =
+    fun findExpect(actual: T, expects: List<T>): Expect<T> =
         expects.find { it.platformData.containsAll(actual.platformData) }.let { Expect.from(it) }
 
     fun reduceExpectActual(entry: Map.Entry<Expect<T>, List<T>>): List<T> = when (val expect = entry.key) {
@@ -75,7 +75,10 @@ private fun <T> mergeExpectActual(
         val mergedExpect = expect.groupBy { it.sources.expect?.path }.values.map { e ->
             e.first().platformSetter(e.flatMap { it.platformData }.distinct())
         }
-        return actual.groupBy { findExpect(it, mergedExpect) }.flatMap { reduceExpectActual(it) }
+        val groupExpectActual = actual.groupBy { findExpect(it, mergedExpect) }
+        val pathsToExpects: Set<String> = groupExpectActual.keys.filterIsInstance<Expect.Found<T>>().mapNotNull { it.expect.sources.expect?.path }.toSet()
+
+        return groupExpectActual.flatMap { reduceExpectActual(it) } + expect.filterNot { it.sources.expect?.path in pathsToExpects }
     }
 
     return elements.groupBy { it.dri }.values.flatMap(::analyzeExpectActual)
@@ -90,7 +93,7 @@ private sealed class Expect<out T : Any> {
     }
 }
 
-fun Package.mergeWith(other: Package) : Package = copy(
+fun Package.mergeWith(other: Package): Package = copy(
     functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
     properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
@@ -99,7 +102,7 @@ fun Package.mergeWith(other: Package) : Package = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Function.mergeWith(other: Function) : Function = copy(
+fun Function.mergeWith(other: Function): Function = copy(
     parameters = merge(this.parameters + other.parameters, Parameter::mergeWith),
     receiver = receiver?.let { r -> other.receiver?.let { r.mergeWith(it) } ?: r } ?: other.receiver,
     documentation = documentation.mergeWith(other.documentation),
@@ -119,7 +122,7 @@ fun Property.mergeWith(other: Property): Property = copy(
     setter = setter?.let { s -> other.setter?.let { s.mergeWith(it) } ?: s } ?: other.setter
 ).mergeExtras(this, other)
 
-fun Classlike.setPlatformData(platformData: List<PlatformData>): Classlike = when(this) {
+fun Classlike.setPlatformData(platformData: List<PlatformData>): Classlike = when (this) {
     is Class -> copy(platformData = platformData)
     is Enum -> copy(platformData = platformData)
     is Interface -> copy(platformData = platformData)
@@ -137,7 +140,10 @@ fun Classlike.mergeWith(other: Classlike): Classlike = when {
 }
 
 fun Class.mergeWith(other: Class): Class = copy(
-    constructors = mergeExpectActual(constructors + other.constructors, Function::mergeWith) { copy(platformData = it) },
+    constructors = mergeExpectActual(
+        constructors + other.constructors,
+        Function::mergeWith
+    ) { copy(platformData = it) },
     functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
     properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
@@ -152,7 +158,10 @@ fun Class.mergeWith(other: Class): Class = copy(
 
 fun Enum.mergeWith(other: Enum): Enum = copy(
     entries = merge(entries + other.entries, EnumEntry::mergeWith),
-    constructors = mergeExpectActual(constructors + other.constructors, Function::mergeWith) { copy(platformData = it) },
+    constructors = mergeExpectActual(
+        constructors + other.constructors,
+        Function::mergeWith
+    ) { copy(platformData = it) },
     functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
     properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
@@ -197,7 +206,10 @@ fun Interface.mergeWith(other: Interface): Interface = copy(
 ).mergeExtras(this, other)
 
 fun Annotation.mergeWith(other: Annotation): Annotation = copy(
-    constructors = mergeExpectActual(constructors + other.constructors, Function::mergeWith) { copy(platformData = it) },
+    constructors = mergeExpectActual(
+        constructors + other.constructors,
+        Function::mergeWith
+    ) { copy(platformData = it) },
     functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
     properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
