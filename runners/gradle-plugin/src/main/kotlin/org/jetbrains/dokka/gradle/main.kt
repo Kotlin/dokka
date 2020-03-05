@@ -17,7 +17,9 @@ open class DokkaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         loadDokkaVersion()
         val dokkaRuntimeConfiguration = addConfiguration(project)
-        val pluginsConfiguration = project.configurations.create("dokkaPlugins")
+        val pluginsConfiguration = project.configurations.create("dokkaPlugins").apply {
+            defaultDependencies { it.add(project.dependencies.create("org.jetbrains.dokka:dokka-base:${DokkaVersion.version}")) }
+        }
         addTasks(project, dokkaRuntimeConfiguration, pluginsConfiguration, DokkaTask::class.java)
     }
 
