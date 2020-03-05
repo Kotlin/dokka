@@ -31,7 +31,7 @@ interface DokkaConfiguration {
     val cacheRoot: String?
     val passesConfigurations: List<PassConfiguration>
     val impliedPlatforms: List<String>
-    var pluginsClasspath: List<File>
+    val pluginsClasspath: List<File>
 
     interface PassConfiguration {
         val moduleName: String

@@ -15,8 +15,15 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 
     override val format: String by parser.stringOption(
         listOf("-format"),
-        "Output format (text, html, markdown, jekyll, kotlin-website)",
+        "Output format (text, html, gfm, jekyll, kotlin-website)",
         "")
+
+    override val pluginsClasspath: List<File> by parser.repeatableOption(
+        listOf("-dokkaPlugins"),
+        "List of jars with dokka plugins"
+    ) {
+        File(it)
+    }
 
     override val generateIndexPages: Boolean by parser.singleFlag(
         listOf("-generateIndexPages"),
@@ -36,8 +43,6 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     ) {
         Arguments(parser)
     }
-
-    override var pluginsClasspath: List<File> = emptyList()
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
