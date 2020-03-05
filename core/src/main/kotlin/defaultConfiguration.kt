@@ -10,7 +10,7 @@ data class DokkaConfigurationImpl(
     override val cacheRoot: String?,
     override val impliedPlatforms: List<String>,
     override val passesConfigurations: List<PassConfigurationImpl>,
-    override var pluginsClasspath: List<File>
+    override val pluginsClasspath: List<File>
 ) : DokkaConfiguration
 
 data class PassConfigurationImpl (
