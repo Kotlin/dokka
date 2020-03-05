@@ -1,9 +1,9 @@
 package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.EnvironmentAndFacade
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 import java.net.URLClassLoader
 import java.util.*
@@ -22,6 +22,8 @@ interface DokkaContext {
     val logger: DokkaLogger
     val configuration: DokkaConfiguration
     val platforms: Map<PlatformData, EnvironmentAndFacade>
+    val unusedPoints: Collection<ExtensionPoint<*>>
+
 
     companion object {
         fun create(
@@ -43,7 +45,7 @@ interface DokkaContext {
     }
 }
 
-inline fun <reified T: DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
+inline fun <reified T : DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
     ?: throw java.lang.IllegalStateException("Plugin ${T::class.qualifiedName} is not present in context.")
 
 interface DokkaContextConfiguration {
@@ -58,6 +60,10 @@ private class DokkaContextConfigurationImpl(
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
+    val pointsUsed: MutableSet<ExtensionPoint<*>> = mutableSetOf()
+    val pointsPopulated: MutableSet<ExtensionPoint<*>> = mutableSetOf()
+    override val unusedPoints: Set<ExtensionPoint<*>>
+        get() = pointsPopulated - pointsUsed
 
     private enum class State {
         UNVISITED,
@@ -74,9 +80,9 @@ private class DokkaContextConfigurationImpl(
 
         fun visit(n: Extension<*>) {
             val state = verticesWithState[n]
-            if(state == State.VISITED)
+            if (state == State.VISITED)
                 return
-            if(state == State.VISITING)
+            if (state == State.VISITING)
                 throw Error("Detected cycle in plugins graph")
             verticesWithState[n] = State.VISITING
             adjacencyList[n]?.forEach { visit(it) }
@@ -84,24 +90,26 @@ private class DokkaContextConfigurationImpl(
             result += n
         }
 
-        for((vertex, state) in verticesWithState) {
-            if(state == State.UNVISITED)
+        for ((vertex, state) in verticesWithState) {
+            if (state == State.UNVISITED)
                 visit(vertex)
         }
         result.asReversed().forEach {
+            pointsPopulated += it.extensionPoint
             extensions.getOrPut(it.extensionPoint, ::mutableListOf) += it
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     override operator fun <T, E> get(point: E) where T : Any, E : ExtensionPoint<T> =
-        actions(point).orEmpty() as List<T>
+        actions(point).also { pointsUsed += point }.orEmpty() as List<T>
 
     @Suppress("UNCHECKED_CAST")
     override fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T> {
         fun throwBadArity(substitution: String): Nothing = throw IllegalStateException(
             "$point was expected to have exactly one extension registered, but $substitution found."
         )
+        pointsUsed += point
 
         val extensions = extensions[point].orEmpty() as List<Extension<T>>
         return when (extensions.size) {
@@ -109,7 +117,7 @@ private class DokkaContextConfigurationImpl(
             1 -> extensions.single().action.get(this)
             else -> {
                 val notFallbacks = extensions.filterNot { it.isFallback }
-                if (notFallbacks.size == 1)  notFallbacks.single().action.get(this) else throwBadArity("many were")
+                if (notFallbacks.size == 1) notFallbacks.single().action.get(this) else throwBadArity("many were")
             }
         }
     }
