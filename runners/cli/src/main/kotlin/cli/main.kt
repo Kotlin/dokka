@@ -3,26 +3,36 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
+import java.io.FileNotFoundException
 import java.net.MalformedURLException
 import java.net.URL
 import java.net.URLClassLoader
+import java.nio.file.Files
+import java.nio.file.Paths
 
 open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     override val outputDir: String by parser.stringOption(
         listOf("-output"),
         "Output directory path",
-        "")
+        ""
+    )
 
     override val format: String by parser.stringOption(
         listOf("-format"),
         "Output format (text, html, gfm, jekyll, kotlin-website)",
-        "")
+        ""
+    )
 
     override val pluginsClasspath: List<File> by parser.repeatableOption(
         listOf("-dokkaPlugins"),
         "List of jars with dokka plugins"
     ) {
         File(it)
+    }.also {
+        Paths.get("./dokka-base.jar").toAbsolutePath().normalize().run {
+            if (Files.exists(this)) it.value.add(this.toFile())
+            else throw FileNotFoundException("Dokka base plugin is not found! Make sure you placed 'dokka-base.jar' containing base plugin along the cli jar file")
+        }
     }
 
     override val generateIndexPages: Boolean by parser.singleFlag(
@@ -33,7 +43,8 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     override val cacheRoot: String? by parser.stringOption(
         listOf("-cacheRoot"),
         "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled",
-        null)
+        null
+    )
 
     override val impliedPlatforms: List<String> = emptyList()
 
@@ -49,7 +60,8 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val moduleName: String by parser.stringOption(
         listOf("-module"),
         "Name of the documentation module",
-        "")
+        ""
+    )
 
     override val classpath: List<String> by parser.repeatableOption(
         listOf("-classpath"),
@@ -73,23 +85,28 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val includeNonPublic: Boolean by parser.singleFlag(
         listOf("-includeNonPublic"),
-        "Include non public")
+        "Include non public"
+    )
 
     override val includeRootPackage: Boolean by parser.singleFlag(
         listOf("-includeRootPackage"),
-        "Include root package")
+        "Include root package"
+    )
 
     override val reportUndocumented: Boolean by parser.singleFlag(
         listOf("-reportUndocumented"),
-        "Report undocumented members")
+        "Report undocumented members"
+    )
 
     override val skipEmptyPackages: Boolean by parser.singleFlag(
         listOf("-skipEmptyPackages"),
-        "Do not create index pages for empty packages")
+        "Do not create index pages for empty packages"
+    )
 
     override val skipDeprecated: Boolean by parser.singleFlag(
         listOf("-skipDeprecated"),
-        "Do not output deprecated members")
+        "Do not output deprecated members"
+    )
 
     override val jdkVersion: Int by parser.singleOption(
         listOf("-jdkVersion"),
@@ -101,7 +118,8 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val languageVersion: String? by parser.stringOption(
         listOf("-languageVersion"),
         "Language Version to pass to Kotlin analysis",
-        null)
+        null
+    )
 
     override val apiVersion: String? by parser.stringOption(
         listOf("-apiVersion"),
@@ -111,11 +129,13 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val noStdlibLink: Boolean by parser.singleFlag(
         listOf("-noStdlibLink"),
-        "Disable documentation link to stdlib")
+        "Disable documentation link to stdlib"
+    )
 
     override val noJdkLink: Boolean by parser.singleFlag(
         listOf("-noJdkLink"),
-        "Disable documentation link to JDK")
+        "Disable documentation link to JDK"
+    )
 
     override val suppressedFiles: List<String> by parser.repeatableOption(
         listOf("-suppressedFile"),
@@ -130,7 +150,8 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleFlag(
         listOf("-collectInheritedExtensionsFromLibraries"),
-        "Search for applicable extensions in libraries")
+        "Search for applicable extensions in libraries"
+    )
 
     override val analysisPlatform: Platform by parser.singleOption(
         listOf("-analysisPlatform"),
