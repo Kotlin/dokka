@@ -54,6 +54,8 @@ class DokkaGenerator(
         report("Rendering")
         render(transformedPages, context)
 
+        context.unusedPoints.takeIf { it.isNotEmpty() }
+            ?.also { logger.warn("Unused extension points found: ${it.joinToString(", ")}") }
         logger.report()
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 

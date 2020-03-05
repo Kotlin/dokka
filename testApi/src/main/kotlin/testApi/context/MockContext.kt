@@ -15,7 +15,8 @@ import kotlin.reflect.full.memberProperties
 class MockContext(
     vararg extensions: Pair<ExtensionPoint<*>, (DokkaContext) -> Any>,
     private val testConfiguration: DokkaConfiguration? = null,
-    private val testPlatforms: Map<PlatformData, EnvironmentAndFacade>? = null
+    private val testPlatforms: Map<PlatformData, EnvironmentAndFacade>? = null,
+    private val unusedExtensionPoints: List<ExtensionPoint<*>>? = null
 ) : DokkaContext {
     private val extensionMap by lazy {
         extensions.groupBy(Pair<ExtensionPoint<*>, (DokkaContext) -> Any>::first) {
@@ -40,6 +41,9 @@ class MockContext(
 
     override val platforms: Map<PlatformData, EnvironmentAndFacade>
         get() = testPlatforms ?: throw IllegalStateException("This mock context doesn't provide platforms data")
+    override val unusedPoints: Collection<ExtensionPoint<*>>
+        get() = unusedExtensionPoints
+            ?: throw IllegalStateException("This mock context doesn't provide unused extension points")
 }
 
 private fun DokkaPlugin.injectContext(context: DokkaContext) {
