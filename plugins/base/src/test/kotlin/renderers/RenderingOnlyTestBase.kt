@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.doc.DocTag
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
@@ -66,7 +67,7 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
         dci: DCI,
         platforms: Set<PlatformData>,
         styles: Set<Style>,
-        extras: Set<Extra>
+        extras: PropertyContainer<ContentNode>
     ): List<ContentNode> = emptyList()
 }
 
