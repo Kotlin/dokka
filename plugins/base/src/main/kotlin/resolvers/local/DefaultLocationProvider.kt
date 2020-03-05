@@ -26,7 +26,6 @@ open class DefaultLocationProvider(
     protected val externalLocationProviderFactories =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }
 
-
     protected val pagesIndex: Map<DRI, ContentPage> = pageGraphRoot.asSequence().filterIsInstance<ContentPage>()
         .map { it.dri.map { dri -> dri to it } }.flatten()
         .groupingBy { it.first }
@@ -56,7 +55,7 @@ open class DefaultLocationProvider(
                     platforms.toSet()
                         .contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?
-                .groupBy ({ it.jdkVersion }, { it.externalDocumentationLinks } )
+                .groupBy({ it.jdkVersion }, { it.externalDocumentationLinks })
                 .map { it.key to it.value.flatten().distinct() }.toMap()
         )
 
@@ -85,19 +84,19 @@ open class DefaultLocationProvider(
 
     private fun PageNode.parent() = pageGraphRoot.parentMap[this]
 
-
-
-
     private val cache: MutableMap<URL, LocationInfo> = mutableMapOf()
 
-    private fun getLocation(dri: DRI, jdkToExternalDocumentationLinks: Map<Int, List<DokkaConfiguration.ExternalDocumentationLink>>): String {
+    private fun getLocation(
+        dri: DRI,
+        jdkToExternalDocumentationLinks: Map<Int, List<DokkaConfiguration.ExternalDocumentationLink>>
+    ): String {
         val toResolve: MutableMap<Int, MutableList<DokkaConfiguration.ExternalDocumentationLink>> = mutableMapOf()
-        for((jdk, links) in jdkToExternalDocumentationLinks) {
-            for(link in links) {
+        for ((jdk, links) in jdkToExternalDocumentationLinks) {
+            for (link in links) {
                 val info = cache[link.packageListUrl]
-                if(info == null) {
-                    toResolve.getOrPut(jdk) { mutableListOf(link) }.add(link)
-                } else if(info.packages.contains(dri.packageName)) {
+                if (info == null) {
+                    toResolve.getOrPut(jdk) { mutableListOf() }.add(link)
+                } else if (info.packages.contains(dri.packageName)) {
                     return link.url.toExternalForm() + getLink(
                         dri,
                         info
@@ -107,13 +106,13 @@ open class DefaultLocationProvider(
         }
         // Not in cache, resolve packageLists
         for ((jdk, links) in toResolve) {
-            for(link in links) {
+            for (link in links) {
                 val locationInfo =
                     loadPackageList(
                         jdk,
                         link.packageListUrl
                     )
-                if(locationInfo.packages.contains(dri.packageName)) {
+                if (locationInfo.packages.contains(dri.packageName)) {
                     return link.url.toExternalForm() + getLink(
                         dri,
                         locationInfo
@@ -125,14 +124,15 @@ open class DefaultLocationProvider(
         return ""
     }
 
-    private fun getLink(dri: DRI, locationInfo: LocationInfo): String  =
-        locationInfo.locations[dri.packageName + "." + dri.classNames] ?: // Not sure if it can be here, previously it shadowed only kotlin/dokka related sources, here it shadows both dokka/javadoc, cause I cannot distinguish what LocationProvider has been hypothetically chosen
-        if(locationInfo.externalLocationProvider != null)
-            with(locationInfo.externalLocationProvider) {
-                dri.toLocation()
-            }
-        else
-            throw IllegalStateException("Have not found any convenient ExternalLocationProvider for $dri DRI!")
+    private fun getLink(dri: DRI, locationInfo: LocationInfo): String =
+        locationInfo.locations[dri.packageName + "." + dri.classNames]
+            ?: // Not sure if it can be here, previously it shadowed only kotlin/dokka related sources, here it shadows both dokka/javadoc, cause I cannot distinguish what LocationProvider has been hypothetically chosen
+            if (locationInfo.externalLocationProvider != null)
+                with(locationInfo.externalLocationProvider) {
+                    dri.toLocation()
+                }
+            else
+                throw IllegalStateException("Have not found any convenient ExternalLocationProvider for $dri DRI!")
 
     private fun loadPackageList(jdk: Int, url: URL): LocationInfo {
         val packageListStream = url.doOpenConnectionToReadContent().getInputStream()
@@ -145,12 +145,11 @@ open class DefaultLocationProvider(
             .map { it.removePrefix(DOKKA_PARAM_PREFIX).split(":", limit = 2) }
             .groupBy({ (key, _) -> key }, { (_, value) -> value })
 
-        val format = paramsMap["format"]?.singleOrNull() ?:
-            when {
-                jdk < 8 -> "javadoc1" // Covers JDK 1 - 7
-                jdk < 10 -> "javadoc8" // Covers JDK 8 - 9
-                else -> "javadoc10" // Covers JDK 10+
-            }
+        val format = paramsMap["format"]?.singleOrNull() ?: when {
+            jdk < 8 -> "javadoc1" // Covers JDK 1 - 7
+            jdk < 10 -> "javadoc8" // Covers JDK 8 - 9
+            else -> "javadoc10" // Covers JDK 10+
+        }
 
         val locations = paramsMap["location"].orEmpty()
             .map { it.split("\u001f", limit = 2) }
@@ -201,14 +200,18 @@ open class DefaultLocationProvider(
         }
     }
 
-    data class LocationInfo(val externalLocationProvider: ExternalLocationProvider?, val packages: Set<String>, val locations: Map<String, String>)
+    data class LocationInfo(
+        val externalLocationProvider: ExternalLocationProvider?,
+        val packages: Set<String>,
+        val locations: Map<String, String>
+    )
 }
 
 private val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
 
 internal fun identifierToFilename(name: String): String {
     if (name.isEmpty()) return "--root--"
-    val escaped = name.replace('<', '-').replace('>', '-')
+    val escaped = name.replace("<|>".toRegex(), "-")
     val lowercase = escaped.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
     return if (lowercase in reservedFilenames) "--$lowercase--" else lowercase
 }

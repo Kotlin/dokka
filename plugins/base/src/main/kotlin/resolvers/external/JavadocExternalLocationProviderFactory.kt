@@ -3,16 +3,17 @@ package org.jetbrains.dokka.base.resolvers.external
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.htmlEscape
 
-class JavadocExternalLocationProviderFactory : ExternalLocationProviderFactoryWithCache() {
-
-    override fun createExternalLocationProvider(param: String): ExternalLocationProvider? =
-        when(param) {
-            "javadoc1"  -> JavadocExternalLocationProvider(param, "()", ", ") // Covers JDK 1 - 7
-            "javadoc8"  -> JavadocExternalLocationProvider(param, "--", "-") // Covers JDK 8 - 9
-            "javadoc10" -> JavadocExternalLocationProvider(param, "()", ",") // Covers JDK 10
-            else -> null
-        }
-}
+class JavadocExternalLocationProviderFactory : ExternalLocationProviderFactory by ExternalLocationProviderFactoryWithCache(
+    object : ExternalLocationProviderFactory {
+        override fun getExternalLocationProvider(param: String): ExternalLocationProvider? =
+            when(param) {
+                "javadoc1"  -> JavadocExternalLocationProvider(param, "()", ", ") // Covers JDK 1 - 7
+                "javadoc8"  -> JavadocExternalLocationProvider(param, "--", "-") // Covers JDK 8 - 9
+                "javadoc10" -> JavadocExternalLocationProvider(param, "()", ",") // Covers JDK 10
+                else -> null
+            }
+    }
+)
 
 class JavadocExternalLocationProvider(override val param: String, val brackets: String, val separator: String) : ExternalLocationProvider {
 

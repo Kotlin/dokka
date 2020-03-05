@@ -10,15 +10,14 @@ interface ExternalLocationProvider {
 }
 
 interface ExternalLocationProviderFactory {
+
     fun getExternalLocationProvider(param: String): ExternalLocationProvider?
 }
 
-abstract class ExternalLocationProviderFactoryWithCache : ExternalLocationProviderFactory {
+class ExternalLocationProviderFactoryWithCache(val ext: ExternalLocationProviderFactory) : ExternalLocationProviderFactory {
 
     private val locationProviders: MutableList<ExternalLocationProvider> = mutableListOf()
 
     override fun getExternalLocationProvider(param: String): ExternalLocationProvider? =
-        locationProviders.find { it.param == param } ?: createExternalLocationProvider(param)?.also { locationProviders.add(it) }
-
-    protected abstract fun createExternalLocationProvider(param: String): ExternalLocationProvider?
+        locationProviders.find { it.param == param } ?: ext.getExternalLocationProvider(param)?.also { locationProviders.add(it) }
 }
