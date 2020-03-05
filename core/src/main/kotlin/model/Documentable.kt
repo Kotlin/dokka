@@ -20,9 +20,14 @@ abstract class Documentable {
         "${javaClass.simpleName}($dri)"
 
     override fun equals(other: Any?) =
-        other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
+        other is Documentable && hashCode() == other.hashCode()
 
-    override fun hashCode() = dri.hashCode()
+    private val hash: Int by lazy {
+        children.takeIf { it.isNotEmpty() }?.let { ch -> (arrayOf(this.dri.hashCode()) + ch.map { it.hashCode() }).contentHashCode() }
+            ?: dri.hashCode()
+    }
+
+    override fun hashCode() = hash
 
     val briefDocTagString: String by lazy {
         // TODO > utils
