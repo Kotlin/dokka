@@ -1,8 +1,8 @@
 package model
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.KotlinModifier.*
 import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.WithAbstraction.Modifier
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -172,7 +172,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<Class>()) {
                 name equals "Klass"
-                modifier equals Modifier.Sealed
+                modifier equals KotlinModifier.Sealed
             }
         }
     }
@@ -219,15 +219,15 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             val D = (this / "classes" / "D").cast<Class>()
 
             with(C) {
-                modifier equals Modifier.Open
+                modifier equals Open
                 with((this / "f").cast<Function>()) {
-                    modifier equals Modifier.Open
+                    modifier equals Open
                 }
             }
             with(D) {
-                modifier equals Modifier.Final
+                modifier equals Final
                 with((this / "f").cast<Function>()) {
-                    modifier equals Modifier.Open
+                    modifier equals Open
                 }
                 D.supertypes.flatMap { it.component2() }.firstOrNull() equals C.dri
             }
@@ -254,16 +254,16 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             val E = (this / "classes" / "E").cast<Class>()
 
             with(C) {
-                modifier equals Modifier.Abstract
-                ((this / "foo").cast<Function>()).modifier equals Modifier.Abstract
+                modifier equals Abstract
+                ((this / "foo").cast<Function>()).modifier equals Abstract
             }
 
             with(D) {
-                modifier equals Modifier.Abstract
+                modifier equals Abstract
             }
 
             with(E) {
-                modifier equals Modifier.Final
+                modifier equals Final
 
             }
             D.supers.firstOrNull() equals C.dri
