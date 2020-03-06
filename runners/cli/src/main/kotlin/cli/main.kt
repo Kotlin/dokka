@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.io.FileNotFoundException
@@ -54,6 +55,17 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     ) {
         Arguments(parser).also { if(it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
     }
+
+    val _unresolvedTypePolicy by parser.stringOption(
+        listOf("--unresolvedTypePolicy"),
+        "Policy for handling unresolved types",
+        "exception"
+    )
+
+    override val unresolvedTypePolicy: UnresolvedTypePolicy
+        get() = UnresolvedTypePolicy.getIgnoreCase(_unresolvedTypePolicy)!!
+
+    override var pluginsClasspath: List<File> = emptyList()
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {

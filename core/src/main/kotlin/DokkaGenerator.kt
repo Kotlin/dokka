@@ -34,7 +34,11 @@ class DokkaGenerator(
         val platforms: Map<PlatformData, EnvironmentAndFacade> = setUpAnalysis(configuration)
 
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, platforms)
+        val context = initializePlugins(
+            configuration,
+            logger,
+            platforms
+        )
 
         report("Creating documentation models")
         val modulesFromPlatforms = createDocumentationModels(platforms, context)

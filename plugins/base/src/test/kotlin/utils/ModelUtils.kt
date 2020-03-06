@@ -1,5 +1,6 @@
 package utils
 
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -13,10 +14,12 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
         prependPackage: Boolean = true,
         cleanupOutput: Boolean = true,
         pluginsOverrides: List<DokkaPlugin> = emptyList(),
+        typePolicy: UnresolvedTypePolicy = UnresolvedTypePolicy.Exception,
         configuration: DokkaConfigurationImpl? = null,
         block: DModule.() -> Unit
     ) {
         val testConfiguration = configuration ?: dokkaConfiguration {
+            unresolvedTypePolicy = typePolicy
             passes {
                 pass {
                     sourceRoots = listOf("src/")

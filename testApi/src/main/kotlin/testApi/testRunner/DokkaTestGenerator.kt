@@ -20,7 +20,12 @@ internal class DokkaTestGenerator(
         val platforms: Map<PlatformData, EnvironmentAndFacade> = dokkaGenerator.setUpAnalysis(configuration)
         analysisSetupStage(platforms)
 
-        val context = dokkaGenerator.initializePlugins(configuration, logger, platforms, pluginOverrides)
+        val context = dokkaGenerator.initializePlugins(
+            configuration,
+            logger,
+            platforms,
+            pluginOverrides
+        )
         pluginsSetupStage(context)
 
         val modulesFromPlatforms = dokkaGenerator.createDocumentationModels(platforms, context)

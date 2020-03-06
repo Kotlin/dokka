@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import java.io.File
 import java.net.URL
 
@@ -10,7 +11,8 @@ data class DokkaConfigurationImpl(
     override val cacheRoot: String?,
     override val impliedPlatforms: List<String>,
     override val passesConfigurations: List<PassConfigurationImpl>,
-    override var pluginsClasspath: List<File>
+    override var pluginsClasspath: List<File>,
+    override val unresolvedTypePolicy: UnresolvedTypePolicy
 ) : DokkaConfiguration
 
 data class PassConfigurationImpl (

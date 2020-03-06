@@ -181,7 +181,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(extra[Annotations].assertNotNull("Annotations")) {
                     this.content counts 1
                     with(content.first()) {
-                        dri.classNames equals "Strictfp"
+                        dri.classNames equals "Strictfp" // todo fix
                         params.entries counts 0
                     }
                 }

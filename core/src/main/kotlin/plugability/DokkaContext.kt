@@ -22,8 +22,8 @@ interface DokkaContext {
     val logger: DokkaLogger
     val configuration: DokkaConfiguration
     val platforms: Map<PlatformData, EnvironmentAndFacade>
+    val unresolvedTypePolicy: UnresolvedTypePolicy
     val unusedPoints: Collection<ExtensionPoint<*>>
-
 
     companion object {
         fun create(
@@ -32,7 +32,7 @@ interface DokkaContext {
             platforms: Map<PlatformData, EnvironmentAndFacade>,
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
-            DokkaContextConfigurationImpl(logger, configuration, platforms).apply {
+            DokkaContextConfigurationImpl(logger, configuration, platforms, configuration.unresolvedTypePolicy).apply {
                 configuration.pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
                     .toTypedArray()
                     .let { URLClassLoader(it, this.javaClass.classLoader) }
@@ -42,6 +42,15 @@ interface DokkaContext {
                     .forEach { install(it) }
                 applyExtensions()
             }.also { it.logInitialisationInfo() }
+    }
+}
+
+enum class UnresolvedTypePolicy {
+    Exception, Skip, Approximate;
+
+    companion object {
+        fun getIgnoreCase(name: String): UnresolvedTypePolicy? =
+            values().find { it.name.toLowerCase() == name.toLowerCase() }
     }
 }
 
@@ -55,7 +64,8 @@ interface DokkaContextConfiguration {
 private class DokkaContextConfigurationImpl(
     override val logger: DokkaLogger,
     override val configuration: DokkaConfiguration,
-    override val platforms: Map<PlatformData, EnvironmentAndFacade>
+    override val platforms: Map<PlatformData, EnvironmentAndFacade>,
+    override val unresolvedTypePolicy: UnresolvedTypePolicy = UnresolvedTypePolicy.Exception
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()

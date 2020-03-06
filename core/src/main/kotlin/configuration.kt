@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import java.io.File
 import java.net.URL
 
@@ -33,6 +34,7 @@ interface DokkaConfiguration {
     val passesConfigurations: List<PassConfiguration>
     val impliedPlatforms: List<String>
     val pluginsClasspath: List<File>
+    val unresolvedTypePolicy: UnresolvedTypePolicy
 
     interface PassConfiguration {
         val moduleName: String

@@ -1,7 +1,9 @@
 package model
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.comments
@@ -23,6 +25,68 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 name equals "fn"
                 type.name equals "Unit"
                 this.children.assertCount(0, "Function children: ")
+            }
+        }
+    }
+
+    @Test
+    fun approximateUnresolvedTypeHandler() {
+        inlineModelTest(
+            """
+            |/**
+            | * Function fn
+            | */
+            |fun fn1(): NoType
+            |fun fn2() = emptyList()
+        """,
+            typePolicy = UnresolvedTypePolicy.Approximate
+        ) {
+            with((this / "function").cast<DPackage>()) {
+                with((this / "fn1").cast<DFunction>()) {
+                    type.name equals "NoType"
+                }
+                with((this / "fn2").cast<DFunction>()) {
+                    type.name equals "Error type"
+                }
+            }
+        }
+    }
+
+    @Test
+    fun exceptionUnresolvedTypeHandler() {
+        assertThrows<java.lang.IllegalStateException> {
+            inlineModelTest(
+                """
+            |/**
+            | * Function fn
+            | */
+            |fun fn1(): NoType
+            |fun fn2() = emptyList()
+        """,
+                typePolicy = UnresolvedTypePolicy.Exception
+            ) {
+            }
+        }
+    }
+
+    @Test
+    fun skipUnresolvedTypeHandler() {
+        inlineModelTest(
+            """
+            |/**
+            | * Function fn
+            | */
+            |fun fn1(): NoType
+            |fun fn2() = emptyList()
+            |fun fn3() = 1
+        """,
+            typePolicy = UnresolvedTypePolicy.Skip
+        ) {
+            with((this / "function").cast<DPackage>()) {
+                children counts 1
+                with((this / "fn3").cast<DFunction>()) {
+                    type.name equals "Int"
+                }
             }
         }
     }

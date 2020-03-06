@@ -29,6 +29,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.net.URL
@@ -168,6 +169,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var generateIndexPages: Boolean = false
 
     @Parameter
+    var unresolvedTypePolicy: String = "exception"
+
+    @Parameter
     var dokkaPlugins: List<Dependency> = emptyList()
 
     protected abstract fun getOutDir(): String
@@ -251,7 +255,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             },
             generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()
+                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),
+            unresolvedTypePolicy = UnresolvedTypePolicy.getIgnoreCase(unresolvedTypePolicy)!!
         )
 
         val gen = DokkaGenerator(configuration, logger)

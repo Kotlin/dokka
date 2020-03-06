@@ -2,6 +2,7 @@ package issues
 
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.plugability.UnresolvedTypePolicy
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.name
@@ -33,6 +34,7 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             |    fun doSomething(): String = "Hello"
             |}
         """,
+            typePolicy = UnresolvedTypePolicy.Approximate,
             configuration = dokkaConfiguration {
                 passes {
                     pass {
@@ -43,8 +45,8 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             }
         ) {
             with((this / "issues" / "Test").cast<DClass>()) {
-                (this / "working").cast<DFunction>().type.name equals "String"
-                (this / "doSomething").cast<DFunction>().type.name equals "String"
+                (this / "working").cast<DFunction>().type.name equals "kotlin.String"
+                (this / "doSomething").cast<DFunction>().type.name equals "kotlin.String"
                 (this / "brokenGenerics").cast<DFunction>().type.name equals "List"
                 (this / "brokenApply").cast<DFunction>().type.name equals "Test"
                 (this / "brokenRun").cast<DFunction>().type.name equals "Test"
