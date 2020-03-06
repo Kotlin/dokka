@@ -3,16 +3,35 @@ package org.jetbrains.dokka.maven
 import org.apache.maven.archiver.MavenArchiveConfiguration
 import org.apache.maven.archiver.MavenArchiver
 import org.apache.maven.execution.MavenSession
+import org.apache.maven.model.Dependency
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugins.annotations.*
 import org.apache.maven.project.MavenProject
 import org.apache.maven.project.MavenProjectHelper
+import org.apache.maven.repository.internal.MavenRepositorySystemUtils
 import org.codehaus.plexus.archiver.Archiver
 import org.codehaus.plexus.archiver.jar.JarArchiver
+import org.eclipse.aether.DefaultRepositorySystemSession
+import org.eclipse.aether.RepositorySystem
+import org.eclipse.aether.RepositorySystemSession
+import org.eclipse.aether.artifact.DefaultArtifact
+import org.eclipse.aether.collection.CollectRequest
+import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
+import org.eclipse.aether.graph.DependencyNode
+import org.eclipse.aether.impl.DefaultServiceLocator
+import org.eclipse.aether.repository.LocalRepository
+import org.eclipse.aether.repository.RemoteRepository
+import org.eclipse.aether.resolution.DependencyRequest
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory
+import org.eclipse.aether.spi.connector.transport.TransporterFactory
+import org.eclipse.aether.transport.file.FileTransporterFactory
+import org.eclipse.aether.transport.http.HttpTransporterFactory
+import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
 import java.io.File
 import java.net.URL
+
 
 class SourceLinkMapItem {
     @Parameter(name = "path", required = true)
@@ -29,6 +48,7 @@ class ExternalDocumentationLinkBuilder : DokkaConfiguration.ExternalDocumentatio
 
     @Parameter(name = "url", required = true)
     override var url: URL? = null
+
     @Parameter(name = "packageListUrl", required = true)
     override var packageListUrl: URL? = null
 }
@@ -39,15 +59,25 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var path: String = ""
     }
 
+    @Parameter(defaultValue = "\${project}", readonly = true)
+    private var mavenProject: MavenProject? = null
+
+    @Parameter()
+    private var session: RepositorySystemSession? = null
+
     class PackageOptions : DokkaConfiguration.PackageOptions {
         @Parameter
         override var prefix: String = ""
+
         @Parameter
         override var includeNonPublic: Boolean = false
+
         @Parameter
         override var reportUndocumented: Boolean = true
+
         @Parameter
         override var skipDeprecated: Boolean = false
+
         @Parameter
         override var suppress: Boolean = false
     }
@@ -81,8 +111,10 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
     @Parameter
     var skipDeprecated: Boolean = false
+
     @Parameter
     var skipEmptyPackages: Boolean = true
+
     @Parameter
     var reportUndocumented: Boolean = true
 
@@ -114,10 +146,10 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var includeRootPackage: Boolean = false
 
     @Parameter
-    var suppressedFiles: List<String>  = emptyList()
+    var suppressedFiles: List<String> = emptyList()
 
     @Parameter
-    var collectInheritedExtensionsFromLibraries: Boolean  = false
+    var collectInheritedExtensionsFromLibraries: Boolean = false
 
     @Parameter
     var platform: String = ""
@@ -133,6 +165,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
     @Parameter
     var generateIndexPages: Boolean = false
+
+    @Parameter
+    var dokkaPlugins: List<Dependency> = emptyList()
 
     protected abstract fun getOutDir(): String
 
@@ -168,7 +203,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                     reportUndocumented = it.reportUndocumented,
                     skipDeprecated = it.skipDeprecated,
                     suppress = it.suppress
-                )},
+                )
+            },
             externalDocumentationLinks = externalDocumentationLinks.map { it.build() as ExternalDocumentationLinkImpl },
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
@@ -190,16 +226,76 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             cacheRoot = cacheRoot,
             passesConfigurations = listOf(passConfiguration),
             generateIndexPages = generateIndexPages,
-            pluginsClasspath = emptyList() //TODO fix this
+            pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
+                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()
         )
 
         val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
 
         gen.generate()
     }
+
+    private fun newRepositorySystem(): RepositorySystem {
+        val locator: DefaultServiceLocator = MavenRepositorySystemUtils.newServiceLocator()
+        locator.addService(RepositoryConnectorFactory::class.java, BasicRepositoryConnectorFactory::class.java)
+        locator.addService(TransporterFactory::class.java, FileTransporterFactory::class.java)
+        locator.addService(TransporterFactory::class.java, HttpTransporterFactory::class.java)
+        return locator.getService(RepositorySystem::class.java)
+    }
+
+    private fun newSession(system: RepositorySystem): RepositorySystemSession {
+        val session: DefaultRepositorySystemSession =
+            MavenRepositorySystemUtils.newSession()
+        val localRepo = LocalRepository(System.getProperty("user.home") + "/.m2/repository")
+        session.localRepositoryManager = system.newLocalRepositoryManager(session, localRepo)
+        return session
+    }
+
+    private fun getArtifactByAether(
+        groupId: String,
+        artifactId: String,
+        version: String
+    ): List<File> {
+        val repoSystem: RepositorySystem = newRepositorySystem()
+        val session: RepositorySystemSession = newSession(repoSystem)
+        val dependency =
+            org.eclipse.aether.graph.Dependency(DefaultArtifact("$groupId:$artifactId:$version"), "compile")
+        val collectRequest = CollectRequest()
+        collectRequest.root = dependency
+        val repositories: List<RemoteRepository> =
+            (mavenProject?.remoteProjectRepositories?.plus(mavenProject?.remotePluginRepositories ?: emptyList())
+                ?: mavenProject?.remotePluginRepositories ?: emptyList())
+        repositories.forEach {
+            collectRequest.addRepository(
+                RemoteRepository.Builder(
+                    "repo",
+                    "default",
+                    it.url
+                ).build()
+            )
+        }
+        val node: DependencyNode = repoSystem.collectDependencies(session, collectRequest).root
+        val dependencyRequest = DependencyRequest()
+        dependencyRequest.root = node
+        repoSystem.resolveDependencies(session, dependencyRequest)
+        val nlg = PreorderNodeListGenerator()
+        node.accept(nlg)
+        return nlg.files
+    }
+
+    private val dokkaVersion: String by lazy {
+        mavenProject?.pluginArtifacts?.filter { it.groupId == "org.jetbrains.dokka" && it.artifactId == "dokka-maven-plugin" }
+            ?.firstOrNull()?.version ?: throw IllegalStateException("Not found dokka plugin")
+    }
 }
 
-@Mojo(name = "dokka", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+@Mojo(
+    name = "dokka",
+    defaultPhase = LifecyclePhase.PRE_SITE,
+    threadSafe = true,
+    requiresDependencyResolution = ResolutionScope.COMPILE,
+    requiresProject = true
+)
 class DokkaMojo : AbstractDokkaMojo() {
     @Parameter(required = true, defaultValue = "html")
     var outputFormat: String = "html"
@@ -211,7 +307,13 @@ class DokkaMojo : AbstractDokkaMojo() {
     override fun getOutDir() = outputDir
 }
 
-@Mojo(name = "javadoc", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+@Mojo(
+    name = "javadoc",
+    defaultPhase = LifecyclePhase.PRE_SITE,
+    threadSafe = true,
+    requiresDependencyResolution = ResolutionScope.COMPILE,
+    requiresProject = true
+)
 class DokkaJavadocMojo : AbstractDokkaMojo() {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadoc")
     var outputDir: String = ""
@@ -220,7 +322,13 @@ class DokkaJavadocMojo : AbstractDokkaMojo() {
     override fun getOutDir() = outputDir
 }
 
-@Mojo(name = "javadocJar", defaultPhase = LifecyclePhase.PRE_SITE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
+@Mojo(
+    name = "javadocJar",
+    defaultPhase = LifecyclePhase.PRE_SITE,
+    threadSafe = true,
+    requiresDependencyResolution = ResolutionScope.COMPILE,
+    requiresProject = true
+)
 class DokkaJavadocJarMojo : AbstractDokkaMojo() {
     @Parameter(required = true, defaultValue = "\${project.basedir}/target/dokkaJavadocJar")
     var outputDir: String = ""
@@ -271,7 +379,7 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
 
     override fun execute() {
         super.execute()
-        if(!File(outputDir).exists()) {
+        if (!File(outputDir).exists()) {
             log.warn("No javadoc generated so no javadoc jar will be generated")
             return
         }
@@ -295,4 +403,3 @@ class DokkaJavadocJarMojo : AbstractDokkaMojo() {
         return javadocJar
     }
 }
-
