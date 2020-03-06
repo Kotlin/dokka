@@ -8,6 +8,7 @@ val mavenBin: Configuration by configurations.creating
 
 val mavenVersion = "3.5.0"
 val mavenPluginToolsVersion = "3.5.2"
+val aetherVersion = "1.1.0"
 
 dependencies {
     implementation(project(":core"))
@@ -15,8 +16,14 @@ dependencies {
     implementation("org.apache.maven:maven-plugin-api:$mavenVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginToolsVersion")
     implementation("org.apache.maven:maven-archiver:2.5")
-    compileOnly(kotlin("stdlib-jdk8"))
-
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("org.eclipse.aether:aether-api:${aetherVersion}")
+    implementation("org.eclipse.aether:aether-spi:${aetherVersion}")
+    implementation("org.eclipse.aether:aether-impl:${aetherVersion}")
+    implementation("org.eclipse.aether:aether-connector-basic:${aetherVersion}")
+    implementation("org.eclipse.aether:aether-transport-file:${aetherVersion}")
+    implementation("org.eclipse.aether:aether-transport-http:${aetherVersion}")
+    implementation("org.apache.maven:maven-aether-provider:3.3.3")
     mavenBin(group = "org.apache.maven", name = "apache-maven", version = mavenVersion, classifier = "bin", ext = "zip")
 }
 
