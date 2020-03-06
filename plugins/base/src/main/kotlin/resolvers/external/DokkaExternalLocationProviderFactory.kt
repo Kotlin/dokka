@@ -19,7 +19,7 @@ class DokkaExternalLocationProvider(override val param: String, val extension: S
 
     override fun DRI.toLocation(): String { // TODO: classes without packages?
 
-        val classNamesChecked = classNames ?: return "$packageName/index$extension"
+        val classNamesChecked = classNames ?: return "${packageName ?: ""}/index$extension"
 
         val classLink = (listOfNotNull(packageName) + classNamesChecked.split('.')).joinToString(
             "/",

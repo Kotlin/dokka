@@ -101,11 +101,11 @@ class DokkaBase : DokkaPlugin() {
         locationProviderFactory providing ::DefaultLocationProviderFactory
     }
 
-    val javadocLocationProvider by extending(isFallback = true) {
+    val javadocLocationProvider by extending {
         externalLocationProviderFactory with JavadocExternalLocationProviderFactory()
     }
 
-    val dokkaLocationProvider by extending(isFallback = true) {
+    val dokkaLocationProvider by extending {
         externalLocationProviderFactory with DokkaExternalLocationProviderFactory()
     }
 
