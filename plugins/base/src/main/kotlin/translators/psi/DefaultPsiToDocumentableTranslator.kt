@@ -38,13 +38,15 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             )
         return Module(
             moduleName,
-            psiFiles.map { psiFile ->
-                val dri = DRI(packageName = psiFile.packageName)
+            psiFiles.groupBy { it.packageName }.map { (packageName, psiFiles) ->
+                val dri = DRI(packageName = packageName)
                 Package(
                     dri,
                     emptyList(),
                     emptyList(),
-                    psiFile.classes.map { docParser.parseClasslike(it, dri) },
+                    psiFiles.flatMap { psFile ->
+                        psFile.classes.map { docParser.parseClasslike(it, dri) }
+                    },
                     emptyList(),
                     PlatformDependent.empty(),
                     listOf(platformData)
@@ -61,6 +63,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
     ) {
 
         private val javadocParser: JavaDocumentationParser = JavadocParser(logger)
+
+        private val typeWrappers = hashMapOf<String, TypeWrapper>()
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
             when {
@@ -223,14 +227,14 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         dri.copy(target = index + 1),
                         psiParameter.name,
                         javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
-                        JavaTypeWrapper(psiParameter.type),
+                        getTypeWrapper(psiParameter.type),
                         listOf(platformData)
                     )
                 },
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
-                psi.returnType?.let { JavaTypeWrapper(type = it) } ?: JavaTypeWrapper.VOID,
+                psi.returnType?.let { getTypeWrapper(type = it) } ?: JavaTypeWrapper.VOID,
                 psi.mapTypeParameters(dri),
                 null,
                 psi.getModifier(),
@@ -238,9 +242,11 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 PropertyContainer.empty<Function>() + InheritedFunction(
                     isInherited
                 )
-
             )
         }
+
+        private fun getTypeWrapper(type: PsiType) : TypeWrapper =
+            typeWrappers.getOrPut(type.canonicalText, { JavaTypeWrapper(type) })
 
         private fun PsiModifierListOwner.getModifier() = when {
             hasModifier(JvmModifier.ABSTRACT) -> JavaModifier.Abstract
@@ -306,7 +312,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
-                JavaTypeWrapper(psi.type),
+                getTypeWrapper(psi.type),
                 null,
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it, parent) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },
