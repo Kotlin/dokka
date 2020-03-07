@@ -58,7 +58,7 @@ data class DRIWithPlatformInfo(
 
 fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, PlatformDependent.empty())
 
-private class DokkaDescriptorVisitor( // TODO: close this class and make it private together with DRIWithPlatformInfo
+private class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
     private val resolutionFacade: DokkaResolutionFacade
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
@@ -347,7 +347,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         platformData = listOf(platformData)
     )
 
-    open fun visitPropertyAccessorDescriptor(
+    private fun visitPropertyAccessorDescriptor(
         descriptor: PropertyAccessorDescriptor,
         propertyDescriptor: PropertyDescriptor,
         parent: DRI
@@ -497,11 +497,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         MarkdownParser(resolutionFacade, this).parseFromKDocTag(it)
     }
 
-    fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
+    private fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
         objectDescriptor(it, dri)
     }
 
-    fun MemberDescriptor.modifier() = when (modality) {
+    private fun MemberDescriptor.modifier() = when (modality) {
         Modality.FINAL -> KotlinModifier.Final
         Modality.SEALED -> KotlinModifier.Sealed
         Modality.OPEN -> KotlinModifier.Open
@@ -514,20 +514,20 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     } else {
         PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
     }
-    
-    fun FunctionDescriptor.additionalExtras() = listOfNotNull(
-            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
-            ExtraModifiers.INFIX.takeIf { isInfix },
-            ExtraModifiers.INLINE.takeIf { isInline },
-            ExtraModifiers.SUSPEND.takeIf { isSuspend },
-            ExtraModifiers.OPERATOR.takeIf { isOperator },
-            ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-            ExtraModifiers.TAILREC.takeIf { isTailrec },
-            ExtraModifiers.EXTERNAL.takeIf { isExternal },
-            ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
-        ).toProperty()
 
-    fun ClassDescriptor.additionalExtras() = listOfNotNull(
+    private fun FunctionDescriptor.additionalExtras() = listOfNotNull(
+        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+        ExtraModifiers.INFIX.takeIf { isInfix },
+        ExtraModifiers.INLINE.takeIf { isInline },
+        ExtraModifiers.SUSPEND.takeIf { isSuspend },
+        ExtraModifiers.OPERATOR.takeIf { isOperator },
+        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+        ExtraModifiers.TAILREC.takeIf { isTailrec },
+        ExtraModifiers.EXTERNAL.takeIf { isExternal },
+        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+    ).toProperty()
+
+    private fun ClassDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.INLINE.takeIf { isInline },
         ExtraModifiers.EXTERNAL.takeIf { isExternal },
@@ -536,7 +536,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         ExtraModifiers.OVERRIDE.takeIf { getSuperInterfaces().isNotEmpty() || getSuperClassNotAny() != null }
     ).toProperty()
 
-    fun ValueParameterDescriptor.additionalExtras() =
+    private fun ValueParameterDescriptor.additionalExtras() =
         listOfNotNull(
             ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.NOINLINE.takeIf { isNoinline },
@@ -546,13 +546,13 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             ExtraModifiers.VARARG.takeIf { isVararg }
         ).toProperty()
 
-    fun TypeParameterDescriptor.additionalExtras() =
+    private fun TypeParameterDescriptor.additionalExtras() =
         listOfNotNull(
             ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.REIFIED.takeIf { isReified }
         ).toProperty()
 
-    fun PropertyDescriptor.additionalExtras() = listOfNotNull(
+    private fun PropertyDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.CONST.takeIf { isConst },
         ExtraModifiers.LATEINIT.takeIf { isLateInit },
@@ -564,17 +564,17 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun List<ExtraModifiers>.toProperty() =
         AdditionalModifiers(this.toSet())
 
-    fun DeclarationDescriptor.getAnnotations() = annotations.map { annotation ->
+    private fun DeclarationDescriptor.getAnnotations() = annotations.map { annotation ->
         Annotations.Annotation(
             annotation.let { it.annotationClass as DeclarationDescriptor }.let { DRI.from(it) },
             annotation.allValueArguments.map { (k, v) -> k.asString() to v.value.toString() }.toMap()
         )
     }.let(::Annotations)
 
-    fun ValueParameterDescriptor.getDefaultValue(): String? =
+    private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
 
-    data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
+    private data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
         Visibilities.PUBLIC -> KotlinVisibility.Public
