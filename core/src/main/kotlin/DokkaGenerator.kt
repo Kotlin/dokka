@@ -29,33 +29,33 @@ class DokkaGenerator(
     private val configuration: DokkaConfiguration,
     private val logger: DokkaLogger
 ) {
-    fun generate() {
-        logger.progress("Setting up analysis environments")
+    fun generate() = timed {
+        report("Setting up analysis environments")
         val platforms: Map<PlatformData, EnvironmentAndFacade> = setUpAnalysis(configuration)
 
-        logger.progress("Initializing plugins")
+        report("Initializing plugins")
         val context = initializePlugins(configuration, logger, platforms)
 
-        logger.progress("Creating documentation models")
+        report("Creating documentation models")
         val modulesFromPlatforms = createDocumentationModels(platforms, context)
 
-        logger.progress("Merging documentation models")
+        report("Merging documentation models")
         val documentationModel = mergeDocumentationModels(modulesFromPlatforms, context)
 
-        logger.progress("Transforming documentation model")
+        report("Transforming documentation model")
         val transformedDocumentation = transformDocumentationModel(documentationModel, context)
 
-        logger.progress("Creating pages")
+        report("Creating pages")
         val pages = createPages(transformedDocumentation, context)
 
-        logger.progress("Transforming pages")
+        report("Transforming pages")
         val transformedPages = transformPages(pages, context)
 
-        logger.progress("Rendering")
+        report("Rendering")
         render(transformedPages, context)
 
         logger.report()
-    }
+    }.dump("\n\n === TIME MEASUREMENT ===\n")
 
     fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
         configuration.passesConfigurations.map {
@@ -73,7 +73,7 @@ class DokkaGenerator(
         platforms: Map<PlatformData, EnvironmentAndFacade>,
         context: DokkaContext
     ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) } +
-            platforms.map { (pdata, _)  -> translatePsi(pdata, context) }
+            platforms.map { (pdata, _) -> translatePsi(pdata, context) }
 
     fun mergeDocumentationModels(
         modulesFromPlatforms: List<Module>,
@@ -138,7 +138,7 @@ class DokkaGenerator(
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
             ?.map { it.file }
-                ?: listOf()
+            ?: listOf()
         val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 
         val psiFiles = sourceRoots.map { sourceRoot ->
@@ -177,3 +177,24 @@ class EnvironmentAndFacade(val environment: KotlinCoreEnvironment, val facade: D
     operator fun component1() = environment
     operator fun component2() = facade
 }
+
+private class Timer(startTime: Long, private val logger: DokkaLogger?) {
+    private val steps = mutableListOf("" to startTime)
+
+    fun report(name: String) {
+        logger?.progress(name)
+        steps += (name to System.currentTimeMillis())
+    }
+
+    fun dump(prefix: String = "") {
+        println(prefix)
+        val namePad = steps.map { it.first.length }.max() ?: 0
+        val timePad = steps.windowed(2).map { (p1, p2) -> p2.second - p1.second }.max()?.toString()?.length ?: 0
+        steps.windowed(2).forEach { (p1, p2) ->
+            println("${p2.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
+        }
+    }
+}
+
+private fun timed(logger: DokkaLogger? = null, block: Timer.() -> Unit): Timer =
+    Timer(System.currentTimeMillis(), logger).apply(block)
