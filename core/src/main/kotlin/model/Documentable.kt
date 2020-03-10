@@ -43,6 +43,11 @@ data class PlatformDependent<out T>(
     val prevalentValue: T?
         get() = map.values.distinct().singleOrNull()
 
+    val allValues: Sequence<T> = sequence {
+        expect?.also { yield(it) }
+        yieldAll(map.values)
+    }
+
     companion object {
         fun <T> empty(): PlatformDependent<T> = PlatformDependent(emptyMap())
         fun <T> from(platformData: PlatformData, element: T) = PlatformDependent(mapOf(platformData to element))

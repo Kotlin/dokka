@@ -71,12 +71,25 @@ private fun <T> mergeExpectActual(
     }
 
     fun analyzeExpectActual(sameDriElements: List<T>): List<T> {
-        val (expect, actual) = sameDriElements.partition { it.sources.expect != null }
+        val pathGrouped: Collection<T> = mutableMapOf<Set<String>, T>().apply {
+            sameDriElements.forEach { documentable ->
+                val paths = documentable.sources.allValues.map { it.path }.toSet()
+                val key = keys.find { it.containsAll(paths) }
+                if (key == null) {
+                    put(paths, documentable)
+                } else {
+                    computeIfPresent(key) { _, old -> reducer(old, documentable) }
+                }
+            }
+        }.values
+        val (expect, actual) = pathGrouped.partition { it.sources.expect != null }
         val mergedExpect = expect.groupBy { it.sources.expect?.path }.values.map { e ->
             e.first().platformSetter(e.flatMap { it.platformData }.distinct())
         }
         val groupExpectActual = actual.groupBy { findExpect(it, mergedExpect) }
-        val pathsToExpects: Set<String> = groupExpectActual.keys.filterIsInstance<Expect.Found<T>>().mapNotNull { it.expect.sources.expect?.path }.toSet()
+        val pathsToExpects: Set<String> =
+            groupExpectActual.keys.filterIsInstance<Expect.Found<T>>()
+                .mapNotNull { it.expect.sources.expect?.path }.toSet()
 
         return groupExpectActual.flatMap { reduceExpectActual(it) } + expect.filterNot { it.sources.expect?.path in pathsToExpects }
     }
