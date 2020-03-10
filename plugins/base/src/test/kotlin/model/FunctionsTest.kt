@@ -19,7 +19,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "fn").cast<DFunction>()) {
                 name equals "fn"
-                type.constructorFqName equals "kotlin.Unit"
+                type.name equals "Unit"
                 this.children.assertCount(0, "Function children: ")
             }
         }
@@ -55,7 +55,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 with(fn2) {
                     name equals "fn"
                     parameters.assertCount(1)
-                    parameters.first().type.constructorFqName equals "kotlin.Int"
+                    parameters.first().type.name equals "Int"
                 }
             }
         }
@@ -94,7 +94,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     name equals "fn"
                     parameters counts 1
                     receiver.assertNotNull("fn(Int) receiver")
-                    parameters.first().type.constructorFqName equals "kotlin.Int"
+                    parameters.first().type.name equals "Int"
                 }
             }
         }
@@ -121,11 +121,11 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 parameters counts 1
                 parameters.firstOrNull().assertNotNull("Parameter: ").also {
                     it.name equals "x"
-                    it.type.constructorFqName equals "kotlin.Int"
+                    it.type.name equals "Int"
                     it.comments() equals "parameter"
                 }
 
-                type.assertNotNull("Return type: ").constructorFqName equals "kotlin.Unit"
+                type.assertNotNull("Return type: ").name equals "Unit"
             }
         }
     }

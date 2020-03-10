@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.DFunction
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
+import utils.name
 import utils.supers
 
 
@@ -54,7 +55,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                     parameters counts 1
                     with(parameters.firstOrNull().assertNotNull("Constructor parameter")) {
                         name equals "name"
-                        type.constructorFqName equals "kotlin.String"
+                        type.name equals "String"
                     }
                 }
 
@@ -76,7 +77,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 children counts 5
 
                 with((this / "fn").cast<DFunction>()) {
-                    type.constructorFqName equals "kotlin.Unit"
+                    type.name equals "Unit"
                     parameters counts 0
                     visibility.values allEquals KotlinVisibility.Public
                 }
@@ -132,7 +133,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                     with((this / "foo").cast<DFunction>()) {
                         name equals "foo"
                         parameters counts 0
-                        type.constructorFqName equals "kotlin.Unit"
+                        type.name equals "Unit"
                     }
                 }
             }
@@ -172,7 +173,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
-                modifier equals KotlinModifier.Sealed
+                modifier equals Sealed
             }
         }
     }
@@ -356,7 +357,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                     parameters counts 1
                     with(parameters.firstOrNull() notNull "Constructor parameter") {
                         name equals "s"
-                        type.constructorFqName equals "kotlin.String"
+                        type.name equals "String"
                     }
                 }
             }
