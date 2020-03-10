@@ -78,7 +78,6 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
-            packages = scope.packages(driWithPlatform),
             documentation = descriptor.resolveDescriptorData(platformData),
             platformData = listOf(platformData)
         )

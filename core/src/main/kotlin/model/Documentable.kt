@@ -59,10 +59,6 @@ interface WithScope {
     val classlikes: List<Classlike>
 }
 
-interface WithPackages {
-    val packages: List<Package>
-}
-
 interface WithVisibility {
     val visibility: PlatformDependent<Visibility>
 }
@@ -114,11 +110,11 @@ abstract class Classlike : Documentable(), WithScope, WithVisibility, WithExpect
 
 data class Module(
     override val name: String,
-    override val packages: List<Package>,
+    val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Module> = PropertyContainer.empty()
-) : Documentable(), WithPackages, WithExtraProperties<Module> {
+) : Documentable(), WithExtraProperties<Module> {
     override val dri: DRI = DRI.topLevel
     override val children: List<Documentable>
         get() = packages
@@ -131,14 +127,13 @@ data class Package(
     override val functions: List<Function>,
     override val properties: List<Property>,
     override val classlikes: List<Classlike>,
-    override val packages: List<Package>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Package> = PropertyContainer.empty()
-) : Documentable(), WithScope, WithPackages, WithExtraProperties<Package> {
+) : Documentable(), WithScope, WithExtraProperties<Package> {
     override val name = dri.packageName.orEmpty()
     override val children: List<Documentable>
-        get() = (properties + functions + classlikes + packages) as List<Documentable>
+        get() = (properties + functions + classlikes) as List<Documentable>
 
     override fun withNewExtras(newExtras: PropertyContainer<Package>) = copy(extra = newExtras)
 }

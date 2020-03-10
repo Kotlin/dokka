@@ -97,7 +97,6 @@ fun Package.mergeWith(other: Package): Package = copy(
     functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
     properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
-    packages = merge(packages + other.packages, Package::mergeWith),
     documentation = documentation.mergeWith(other.documentation),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
