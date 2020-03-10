@@ -56,8 +56,7 @@ internal fun Package.asJava(): Package {
     return copy(
         functions = emptyList(),
         properties = emptyList(),
-        classlikes = classlikes.map { it.asJava() } + syntheticClasses,
-        packages = packages.map { it.asJava() }
+        classlikes = classlikes.map { it.asJava() } + syntheticClasses
     )
 }
 

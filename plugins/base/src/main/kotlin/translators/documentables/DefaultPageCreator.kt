@@ -24,8 +24,7 @@ open class DefaultPageCreator(
     open fun pageForPackage(p: Package): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
         p.classlikes.map(::pageForClasslike) +
-                p.functions.map(::pageForFunction) +
-                p.packages.map(::pageForPackage)
+                p.functions.map(::pageForFunction)
     )
 
     open fun pageForClasslike(c: Classlike): ClasslikePageNode {
