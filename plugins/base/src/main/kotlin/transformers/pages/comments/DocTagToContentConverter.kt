@@ -30,14 +30,15 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
 
-        fun buildList(ordered: Boolean) =
+        fun buildList(ordered: Boolean, start: Int = 1) =
             listOf(
                 ContentList(
                     buildChildren(docTag),
                     ordered,
                     dci,
                     platforms,
-                    styles
+                    styles,
+                    ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
             )
 
@@ -53,7 +54,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is H5 -> buildHeader(5)
             is H6 -> buildHeader(6)
             is Ul -> buildList(false)
-            is Ol -> buildList(true)
+            is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
             is Li -> buildChildren(docTag)
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
