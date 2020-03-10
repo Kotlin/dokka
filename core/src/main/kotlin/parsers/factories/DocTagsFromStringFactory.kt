@@ -4,7 +4,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.links.DRI
 import java.lang.NullPointerException
 
-object DocNodesFromStringFactory {
+object DocTagsFromStringFactory {
     fun getInstance(name: String, children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
         when(name) {
             "a" -> A(children, params)

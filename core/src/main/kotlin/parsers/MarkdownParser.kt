@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.parsers
 
 import com.intellij.psi.PsiElement
-import org.intellij.markdown.IElementType
-import org.intellij.markdown.MarkdownElementType
 import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -13,12 +11,10 @@ import org.intellij.markdown.ast.impl.ListItemCompositeNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.parsers.factories.DocNodesFromIElementFactory
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
+import org.jetbrains.dokka.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocImpl
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import java.net.MalformedURLException
@@ -32,23 +28,23 @@ class MarkdownParser (
     inner class MarkdownVisitor(val text: String, val destinationLinksMap: Map<String, String>) {
 
         private fun headersHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(
+            DocTagsFromIElementFactory.getInstance(
                 node.type,
                 visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT } ?:
                 throw IllegalStateException("Wrong AST Tree. ATX Header does not contain expected content")).children
             )
 
         private fun horizontalRulesHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(MarkdownTokenTypes.HORIZONTAL_RULE)
+            DocTagsFromIElementFactory.getInstance(MarkdownTokenTypes.HORIZONTAL_RULE)
 
         private fun emphasisHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(
+            DocTagsFromIElementFactory.getInstance(
                 node.type,
                 children = listOf(visitNode(node.children[node.children.size / 2]))
             )
 
         private fun blockquotesHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(node.type, children = node.children
+            DocTagsFromIElementFactory.getInstance(node.type, children = node.children
                 .filterIsInstance<CompositeASTNode>()
                 .evaluateChildren())
 
@@ -64,13 +60,13 @@ class MarkdownParser (
                     listOf(it)
             }
 
-            return DocNodesFromIElementFactory.getInstance(
+            return DocTagsFromIElementFactory.getInstance(
                 node.type,
                 children =
                 children
                     .map {
                         if(it.type == MarkdownElementTypes.LIST_ITEM)
-                            DocNodesFromIElementFactory.getInstance(
+                            DocTagsFromIElementFactory.getInstance(
                                 it.type,
                                 children = it
                                     .children
@@ -141,7 +137,7 @@ class MarkdownParser (
             else
                 mapOf("href" to link, "title" to text.substring(linkTitle.startOffset + 1, linkTitle.endOffset - 1))
 
-            return DocNodesFromIElementFactory.getInstance(MarkdownElementTypes.INLINE_LINK, params = params, children = linkText.children.drop(1).dropLast(1).evaluateChildren(), dri = dri)
+            return DocTagsFromIElementFactory.getInstance(MarkdownElementTypes.INLINE_LINK, params = params, children = linkText.children.drop(1).dropLast(1).evaluateChildren(), dri = dri)
         }
 
         private fun imagesHandler(node: ASTNode): DocTag {
@@ -149,14 +145,14 @@ class MarkdownParser (
                 node.children.last().children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
             val link = text.substring(linkNode.startOffset, linkNode.endOffset)
             val src = mapOf("src" to link)
-            return DocNodesFromIElementFactory.getInstance(node.type, params = src, children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!)))
+            return DocTagsFromIElementFactory.getInstance(node.type, params = src, children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!)))
         }
 
         private fun codeSpansHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(
+            DocTagsFromIElementFactory.getInstance(
                 node.type,
                 children = listOf(
-                    DocNodesFromIElementFactory.getInstance(
+                    DocTagsFromIElementFactory.getInstance(
                         MarkdownTokenTypes.TEXT,
                         body = text.substring(node.startOffset+1, node.endOffset-1).replace('\n', ' ').trimIndent()
                     )
@@ -165,7 +161,7 @@ class MarkdownParser (
             )
 
         private fun codeFencesHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(
+            DocTagsFromIElementFactory.getInstance(
                 node.type,
                 children = node
                     .children
@@ -185,10 +181,10 @@ class MarkdownParser (
             )
 
         private fun codeBlocksHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(node.type, children = node.children.evaluateChildren())
+            DocTagsFromIElementFactory.getInstance(node.type, children = node.children.evaluateChildren())
 
         private fun defaultHandler(node: ASTNode): DocTag =
-            DocNodesFromIElementFactory.getInstance(
+            DocTagsFromIElementFactory.getInstance(
                 MarkdownElementTypes.PARAGRAPH,
                 children = node.children.evaluateChildren())
 
@@ -214,10 +210,10 @@ class MarkdownParser (
                 MarkdownElementTypes.CODE_FENCE             -> codeFencesHandler(node)
                 MarkdownElementTypes.CODE_SPAN              -> codeSpansHandler(node)
                 MarkdownElementTypes.IMAGE                  -> imagesHandler(node)
-                MarkdownTokenTypes.HARD_LINE_BREAK          -> DocNodesFromIElementFactory.getInstance(node.type)
+                MarkdownTokenTypes.HARD_LINE_BREAK          -> DocTagsFromIElementFactory.getInstance(node.type)
                 MarkdownTokenTypes.CODE_FENCE_CONTENT,
                 MarkdownTokenTypes.CODE_LINE,
-                MarkdownTokenTypes.TEXT                     -> DocNodesFromIElementFactory.getInstance(
+                MarkdownTokenTypes.TEXT                     -> DocTagsFromIElementFactory.getInstance(
                     MarkdownTokenTypes.TEXT,
                     body = text
                         .substring(node.startOffset, node.endOffset).transform()

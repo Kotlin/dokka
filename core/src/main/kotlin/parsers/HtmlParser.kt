@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.parsers
 
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.parsers.factories.DocNodesFromStringFactory
+import org.jetbrains.dokka.parsers.factories.DocTagsFromStringFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Node
 import org.jsoup.select.NodeFilter
@@ -36,12 +36,12 @@ class HtmlParser : Parser() {
             }
 
             val docNode = if(depth < currentDepth) {
-                DocNodesFromStringFactory.getInstance(nodeName, nodesCache.getOrDefault(currentDepth, mutableListOf()).toList(), params, body).also {
+                DocTagsFromStringFactory.getInstance(nodeName, nodesCache.getOrDefault(currentDepth, mutableListOf()).toList(), params, body).also {
                     nodesCache[currentDepth] = mutableListOf()
                     currentDepth = depth
                 }
             } else {
-                DocNodesFromStringFactory.getInstance(nodeName, emptyList(), params, body)
+                DocTagsFromStringFactory.getInstance(nodeName, emptyList(), params, body)
             }
 
             nodesCache.getOrDefault(depth, mutableListOf()) += docNode
