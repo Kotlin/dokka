@@ -40,7 +40,8 @@ class CommonmarkRenderer(
         append("]($address)")
     }
 
-    override fun StringBuilder.buildList(node: ContentList, pageContext: ContentPage) {
+    override fun StringBuilder.buildList(node: ContentList, pageContext: ContentPage, platformRestriction: PlatformData?) {
+        buildParagraph()
         buildListLevel(node, pageContext)
         buildParagraph()
     }
@@ -67,8 +68,8 @@ class CommonmarkRenderer(
             buildListItem(
                 node.children,
                 pageContext,
-                "${node.extras.filterIsInstance<OrderedListStart>().firstOrNull()?.start
-                    ?: context.logger.error("No starting number specified for ordered list!")}."
+                "${node.extra.allOfType<SimpleAttr>().find { it.extraKey == "start" }?.extraValue
+                    ?: 1.also { context.logger.error("No starting number specified for ordered list in node ${pageContext.dri.first()}!")}}."
             )
         } else {
             buildListItem(node.children, pageContext, "*")
@@ -87,7 +88,7 @@ class CommonmarkRenderer(
         append("Resource")
     }
 
-    override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage) {
+    override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage, platformRestriction: PlatformData?) {
 
         val size = node.children.firstOrNull()?.children?.size ?: 0
         buildParagraph()
