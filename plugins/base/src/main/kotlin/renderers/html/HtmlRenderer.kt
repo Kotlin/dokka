@@ -202,7 +202,10 @@ open class HtmlRenderer(
     private fun PageNode.root(path: String) = locationProvider.resolveRoot(this) + path
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
-        buildHtml(page, page.embeddedResources) { content(this, page) }
+        buildHtml(page, page.embeddedResources) {
+            attributes["pageIds"] = page.dri.toList()[0].toString()
+            content(this, page)
+        }
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {

@@ -23,6 +23,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
         with(renderer) {
             div("sideMenuPart") {
                 id = navId
+                attributes["pageId"] = node.dri.toString()
                 div("overview") {
                     buildLink(node.dri, node.platforms) { +node.name }
                     if (node.children.isNotEmpty()) {
