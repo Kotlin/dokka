@@ -1,9 +1,9 @@
 package utils
 
-import org.jetbrains.dokka.model.DClass
-import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import kotlin.collections.orEmpty
 
 @DslMarker
 annotation class TestDSL
@@ -61,4 +61,12 @@ fun <T> T?.assertNotNull(name: String = ""): T = this ?: throw AssertionError("$
 fun <T : Documentable> T?.docs() = this?.documentation.orEmpty().values.flatMap { it.children }
 
 val DClass.supers
-    get() = supertypes.flatMap{it.component2()}
+    get() = supertypes.flatMap { it.component2() }
+
+val Bound.name: String?
+    get() = when (this) {
+        is Nullable -> inner.name
+        is OtherParameter -> name
+        is PrimitiveJavaType -> name
+        is TypeConstructor -> dri.classNames
+    }

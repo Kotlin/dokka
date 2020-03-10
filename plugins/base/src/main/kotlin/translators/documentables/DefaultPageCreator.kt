@@ -1,12 +1,14 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.doc.Property
 import org.jetbrains.dokka.model.doc.TagWrapper
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -83,6 +85,15 @@ open class DefaultPageCreator(
             breakLine()
             group(kind = ContentKind.BriefComment) {
                 text(it.briefDocumentation())
+            }
+        }
+        (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
+            val map = inheritors.value.map
+            text("Subclasses:")
+            platformDependentHint(dri = s.dri, platformData = map.keys) {
+                map.keys.forEach { pd ->
+                    linkTable(map[pd].orEmpty(), ContentKind.Classlikes, setOf(pd))
+                }
             }
         }
     }

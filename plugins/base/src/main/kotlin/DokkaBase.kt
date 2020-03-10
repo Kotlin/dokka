@@ -9,15 +9,16 @@ import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
+import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
-import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
+import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
 class DokkaBase : DokkaPlugin() {
@@ -43,6 +44,10 @@ class DokkaBase : DokkaPlugin() {
         signatureProvider providing { ctx ->
             KotlinSignatureProvider(ctx.single(commentsToContentConverter), ctx.logger)
         }
+    }
+
+    val inheritorsExtractor by extending {
+        CoreExtensions.documentableTransformer with InheritorsExtractorTransformer()
     }
 
     val documentableToPageTranslator by extending(isFallback = true) {

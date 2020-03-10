@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.DProperty
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
+import utils.name
 
 class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "property") {
 
@@ -19,9 +20,9 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 name equals "property"
                 children counts 0
                 with(getter.assertNotNull("Getter")) {
-                    type.constructorFqName equals "kotlin.String"
+                    type.name equals "String"
                 }
-                 type.constructorFqName equals "kotlin.String"
+                 type.name equals "String"
             }
         }
     }
@@ -38,9 +39,9 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 children counts 0
                 setter.assertNotNull("Setter")
                 with(getter.assertNotNull("Getter")) {
-                    type.constructorFqName equals "kotlin.String"
+                    type.name equals "String"
                 }
-                 type.constructorFqName equals "kotlin.String"
+                 type.name equals "String"
             }
         }
     }
@@ -57,9 +58,9 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 name equals "property"
                 children counts 0
                 with(getter.assertNotNull("Getter")) {
-                    type.constructorFqName equals "kotlin.String"
+                    type.name equals "String"
                 }
-                 type.constructorFqName equals "kotlin.String"
+                 type.name equals "String"
             }
         }
     }
@@ -78,7 +79,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 children counts 0
                 setter.assertNotNull("Setter")
                 with(getter.assertNotNull("Getter")) {
-                    type.constructorFqName equals "kotlin.String"
+                    type.name equals "String"
                 }
                 visibility.values allEquals KotlinVisibility.Public
             }
@@ -98,10 +99,10 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 children counts 0
                 with(receiver.assertNotNull("property receiver")) {
                     name equals null
-                    type.constructorFqName equals "kotlin.String"
+                    type.name equals "String"
                 }
                 with(getter.assertNotNull("Getter")) {
-                    type.constructorFqName equals "kotlin.Int"
+                    type.name equals "Int"
                 }
                 visibility.values allEquals KotlinVisibility.Public
             }
@@ -125,14 +126,14 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
-                        type.constructorFqName equals "kotlin.Int"
+                        type.name equals "Int"
                     }
                 }
                 with((this / "Bar" / "property").cast<DProperty>()) {
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
-                        type.constructorFqName equals "kotlin.Int"
+                        type.name equals "Int"
                     }
                 }
             }

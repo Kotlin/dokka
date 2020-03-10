@@ -7,6 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
+import utils.name
 
 class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
@@ -134,10 +135,10 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
                 with((this / "arrayToString").cast<DFunction>()) {
                     name equals "arrayToString"
-                    type.constructorFqName equals "java.lang.String[]"
+                    type.name equals "Array"
                     with(parameters.firstOrNull().assertNotNull("parameters")) {
                         name equals "data"
-                        type.constructorFqName equals "int[]"
+                        type.name equals "Array"
                     }
                 }
             }
@@ -196,7 +197,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 constructors.find { it.parameters.isNullOrEmpty() }.assertNotNull("Test()")
 
                 with(constructors.find { it.parameters.isNotEmpty() }.assertNotNull("Test(String)")) {
-                    parameters.firstOrNull()?.type?.constructorFqName equals "java.lang.String"
+                    parameters.firstOrNull()?.type?.name equals "String"
                 }
             }
         }
@@ -238,7 +239,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                     name equals "bar"
                     with(parameters.firstOrNull().assertNotNull("parameter")) {
                         name equals "x"
-                        type.constructorFqName equals "java.lang.String..."
+                        type.name equals "Array"
                     }
                 }
             }
