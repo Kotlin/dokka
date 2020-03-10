@@ -7,7 +7,7 @@ import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.dokka.links.DRI
 import java.lang.NullPointerException
 
-object DocNodesFromIElementFactory {
+object DocTagsFromIElementFactory {
     fun getInstance(type: IElementType, children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap(), body: String? = null, dri: DRI? = null) =
         when(type) {
             MarkdownElementTypes.SHORT_REFERENCE_LINK,
