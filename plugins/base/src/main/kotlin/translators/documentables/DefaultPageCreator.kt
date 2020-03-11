@@ -79,10 +79,11 @@ open class DefaultPageCreator(
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
             link(it.name, it.dri)
+            +buildSignature(it)
+            breakLine()
             group(kind = ContentKind.BriefComment) {
                 text(it.briefDocumentation())
             }
-
         }
     }
 

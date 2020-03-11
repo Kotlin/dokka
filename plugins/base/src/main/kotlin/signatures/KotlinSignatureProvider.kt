@@ -22,6 +22,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is Function -> signature(documentable)
+        is Property -> signature(documentable)
         is Classlike -> signature(documentable)
         is TypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
@@ -49,6 +50,10 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
         }
+    }
+
+    private fun signature(p: Property) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+        signatureForProjection(p.type)
     }
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
