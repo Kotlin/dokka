@@ -239,7 +239,13 @@ open class HtmlRenderer(
                 div {
                     id = "container"
                     div {
-                        id = "sideMenu"
+                        id = "leftColumn"
+                        div {
+                            id = "logo"
+                        }
+                        div {
+                            id = "sideMenu"
+                        }
                     }
                     div {
                         id = "main"
