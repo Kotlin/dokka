@@ -15,9 +15,12 @@ class PropertyContainer<C : Any> internal constructor(
     }
 
     inline fun <reified T : Any> allOfType(): List<T> = map.values.filterIsInstance<T>()
+    fun <D : C> addAll(vararg extras: ExtraProperty<D>): PropertyContainer<D> =
+        PropertyContainer(map + extras.map { p -> p.key to p })
 
     companion object {
         fun <T : Any> empty(): PropertyContainer<T> = PropertyContainer(emptyMap())
+        fun <T : Any> withAll(vararg extras: ExtraProperty<T>) = empty<T>().addAll(*extras)
     }
 }
 

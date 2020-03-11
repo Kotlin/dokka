@@ -401,9 +401,23 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
+    @Test fun annotatedClass() {
+        inlineModelTest(
+            """@Suppress("abc") class Foo() {}"""
+        ) {
+            with((this / "classes" / "Foo").cast<Class>()) {
+                with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
+                    dri.toString() equals "kotlin/Suppress////"
+                    with(params["names"].assertNotNull("param")) {
+                        this equals "[\"abc\"]"
+                    }
+                }
+            }
+        }
+    }
+
     // TODO annotations
-//    @Test
-//    fun annotatedClass() {
+//    @Test fun annotatedClass() {
 //        verifyPackageMember("testdata/classes/annotatedClass.kt", ModelConfig(
 //            analysisPlatform = analysisPlatform,
 //            withKotlinRuntime = true
