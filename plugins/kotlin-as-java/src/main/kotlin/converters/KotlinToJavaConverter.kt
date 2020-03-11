@@ -78,7 +78,7 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
         type = type.asJava(isTopLevel), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
-        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else extra
+        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else extra
     )
 
 internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<Function> =
@@ -99,7 +99,7 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
                 map = visibility.mapValues { JavaVisibility.Public }
             ),
             type = type.asJava(isTopLevel), // TODO: check
-            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else getter!!.extra
+            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else getter!!.extra
         ),
         setter?.copy(
             dri = if (relocateToClass.isNullOrBlank()) {
@@ -117,7 +117,7 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
                 map = visibility.mapValues { JavaVisibility.Public }
             ),
             type = type.asJava(isTopLevel), // TODO: check
-            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(listOf(ExtraModifiers.STATIC))) else setter!!.extra
+            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else setter!!.extra
         )
     )
 
@@ -215,7 +215,7 @@ internal fun Object.asJava(): Object = copy(
                 getter = null,
                 platformData = platformData,
                 receiver = null,
-                extra = PropertyContainer.empty<Property>() + AdditionalModifiers(listOf(ExtraModifiers.STATIC))
+                extra = PropertyContainer.empty<Property>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))
             ),
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.copy(
@@ -291,11 +291,11 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     target = null
 )
 
-private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: List<ExtraModifiers>) =
+private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: Set<ExtraModifiers>) =
     this[AdditionalModifiers.AdditionalKey]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
 
 private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
-    AdditionalModifiers((content + second.content).distinct())
+    AdditionalModifiers(content + second.content)
 
 internal fun ClassId.classNames(): String =
     shortClassName.identifier + (outerClassId?.classNames()?.let { ".$it" } ?: "")

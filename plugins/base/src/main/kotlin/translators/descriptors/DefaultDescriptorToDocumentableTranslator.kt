@@ -495,7 +495,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     inline fun <reified D : Documentable> List<ExtraModifiers>.toContainer(
         container: PropertyContainer<D> = PropertyContainer.empty()
     ): PropertyContainer<D> =
-        container + AdditionalModifiers(this)
+        container + AdditionalModifiers(this.toSet())
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 
