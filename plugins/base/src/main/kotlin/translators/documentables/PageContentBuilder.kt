@@ -229,6 +229,10 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ): ContentGroup = contentFor(dri, platformData, kind, styles, extra, block)
 
+        fun breakLine(platformData: Set<PlatformData> = mainPlatformData) {
+            contents += ContentBreakLine(platformData)
+        }
+
         fun platformDependentHint(
             dri: DRI = mainDRI,
             platformData: Set<PlatformData> = mainPlatformData,

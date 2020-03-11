@@ -42,7 +42,6 @@ object DocTagToContentConverter : CommentsToContentConverter {
             )
 
         fun buildNewLine() = listOf(ContentBreakLine(
-            dci,
             platforms
         ))
 
