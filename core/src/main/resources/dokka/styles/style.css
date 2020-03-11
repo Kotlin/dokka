@@ -12,6 +12,10 @@
     }
 }
 
+#main {
+    width: 100%;
+}
+
 #sideMenu {
     padding-right: 12px;
 }
