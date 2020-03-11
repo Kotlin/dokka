@@ -89,9 +89,18 @@
     background-color: rgba(91, 93, 239, 0.15);
 }
 
+.sideMenuPart .hidden > .overview .navButtonContent::before {
+    transform: rotate(0deg);
+}
+
 .sideMenuPart > .overview .navButtonContent::before {
-    padding-left: 2px;
     content: url("../images/arrow_down.svg");
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(180deg);
 }
 
 .sideMenuPart.hidden > .navButton .navButtonContent::after {
