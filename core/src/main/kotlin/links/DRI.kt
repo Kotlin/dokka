@@ -56,6 +56,8 @@ data class DRI(
     }
 }
 
+val DriOfUnit = DRI("kotlin", "Unit")
+
 fun DRI.withClass(name: String) = copy(classNames = if (classNames.isNullOrBlank()) name else "$classNames.$name")
 
 val DRI.parent: DRI

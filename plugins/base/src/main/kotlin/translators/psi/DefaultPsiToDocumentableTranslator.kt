@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.translators.psi
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
@@ -63,7 +64,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
         private val javadocParser: JavaDocumentationParser = JavadocParser(logger)
 
-        private val typeWrappers = hashMapOf<String, TypeWrapper>()
+        private val cachedBounds = hashMapOf<String, Bound>()
 
         private fun PsiModifierListOwner.getVisibility() = modifierList?.children?.toList()?.let { ml ->
             when {
@@ -226,14 +227,14 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         dri.copy(target = index + 1),
                         psiParameter.name,
                         javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
-                        getTypeWrapper(psiParameter.type),
+                        getBound(psiParameter.type),
                         listOf(platformData)
                     )
                 },
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
-                psi.returnType?.let { getTypeWrapper(type = it) } ?: JavaTypeWrapper.VOID,
+                psi.returnType?.let { getBound(type = it) } ?: VoidBound,
                 psi.mapTypeParameters(dri),
                 null,
                 psi.getModifier(),
@@ -244,8 +245,22 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             )
         }
 
-        private fun getTypeWrapper(type: PsiType) : TypeWrapper =
-            typeWrappers.getOrPut(type.canonicalText, { JavaTypeWrapper(type) })
+        private fun getBound(type: PsiType): Bound =
+            cachedBounds.getOrPut(type.canonicalText) {
+                when (type) {
+                    is PsiClassReferenceType -> {
+                        val resolved: PsiClass = type.resolve()
+                            ?: throw IllegalStateException("${type.presentableText} cannot be resolved")
+                        val arguments = type.parameters.map { getProjection(it) }
+                        TypeConstructor(DRI.from(resolved), arguments)
+                    }
+                    is PsiArrayType -> TypeConstructor(DRI("kotlin", "Array"), listOf(getProjection(type.componentType)))
+                    is PsiPrimitiveType -> PrimitiveJavaType(type.name)
+                    else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
+                }
+            }
+
+        private fun getProjection(type: PsiType): Projection = if (type is PsiEllipsisType) Star else getBound(type)
 
         private fun PsiModifierListOwner.getModifier() = when {
             hasModifier(JvmModifier.ABSTRACT) -> JavaModifier.Abstract
@@ -278,7 +293,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             getAnnotation(DescriptorUtils.JVM_NAME.asString())?.findAttributeValue("name")?.text
                 ?: when {
                     JvmAbi.isGetterName(name) -> propertyNameByGetMethodName(Name.identifier(name))?.asString()
-                    JvmAbi.isSetterName(name) -> propertyNamesBySetMethodName(Name.identifier(name)).firstOrNull()?.asString()
+                    JvmAbi.isSetterName(name) -> propertyNamesBySetMethodName(Name.identifier(name)).firstOrNull()
+                        ?.asString()
                     else -> null
                 }
 
@@ -311,7 +327,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
-                getTypeWrapper(psi.type),
+                getBound(psi.type),
                 null,
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it, parent) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },

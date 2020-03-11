@@ -62,9 +62,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
         text(f.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
         val returnType = f.type
-        if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
-            type(returnType)
-        }
+        signatureForProjection(returnType)
         text("  ")
         link(f.name, f.dri)
         list(f.generics, prefix = "<", suffix = ">") {
@@ -72,7 +70,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
         text("(")
         list(f.parameters) {
-            type(it.type)
+            signatureForProjection(it.type)
             text(" ")
             link(it.name!!, it.dri)
         }
@@ -98,12 +96,14 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
 
         is Variance -> group {
-            text(p.kind.toString() + " ")
+            text(p.kind.toString() + " ") // TODO: "super" && "extends"
             signatureForProjection(p.inner)
         }
 
         is Star -> text("?")
 
         is Nullable -> signatureForProjection(p.inner)
+
+        is PrimitiveJavaType -> text(p.name)
     }
 }

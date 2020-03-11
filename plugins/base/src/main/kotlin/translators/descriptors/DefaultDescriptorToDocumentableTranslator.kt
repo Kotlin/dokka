@@ -223,7 +223,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
-            type = KotlinTypeWrapper(descriptor.returnType!!),
+            type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
             extra = descriptor.additionalExtras()
         )
@@ -248,7 +248,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             documentation = descriptor.resolveDescriptorData(platformData),
             modifier = descriptor.modifier(),
-            type = KotlinTypeWrapper(descriptor.returnType!!),
+            type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
             extra = descriptor.additionalExtras()
         )
@@ -270,7 +270,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             sources = actual,
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
-            type = KotlinTypeWrapper(descriptor.returnType),
+            type = descriptor.returnType.toBound(),
             modifier = descriptor.modifier(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             platformData = listOf(platformData),
@@ -284,7 +284,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     ) = Parameter(
         dri = parent.dri.copy(target = 0),
         name = null,
-        type = KotlinTypeWrapper(descriptor.type),
+        type = descriptor.type.toBound(),
         documentation = descriptor.resolveDescriptorData(platformData),
         platformData = listOf(platformData)
     )
@@ -301,7 +301,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             Parameter(
                 parent.copy(target = 1),
                 this.name.asString(),
-                type = KotlinTypeWrapper(this.type),
+                type = this.type.toBound(),
                 documentation = descriptor.resolveDescriptorData(platformData),
                 platformData = listOf(platformData),
                 extra = descriptor.additionalExtras()
@@ -327,7 +327,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             parameters = parameters,
             visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
             documentation = descriptor.resolveDescriptorData(platformData),
-            type = KotlinTypeWrapper(descriptor.returnType!!),
+            type = descriptor.returnType!!.toBound(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             modifier = descriptor.modifier(),
             receiver = descriptor.extensionReceiverParameter?.let {
@@ -346,7 +346,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         Parameter(
             dri = parent.dri.copy(target = index + 1),
             name = descriptor.name.asString(),
-            type = KotlinTypeWrapper(descriptor.type),
+            type = descriptor.type.toBound(),
             documentation = descriptor.resolveDescriptorData(platformData),
             platformData = listOf(platformData),
             extra = descriptor.additionalExtras()
@@ -393,15 +393,15 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun TypeParameterDescriptor.toTypeParameter() =
         TypeParameter(
             DRI.from(this),
-            fqNameSafe.asString(),
+            name.identifier,
             PlatformDependent.from(platformData, getDocumentation()),
             upperBounds.map { it.toBound() },
             listOf(platformData),
             extra = additionalExtras()
         )
 
-    private fun KotlinType.toBound(): Bound = when (constructor.declarationDescriptor) {
-        is TypeParameterDescriptor -> OtherParameter(fqName.toString()).let {
+    private fun KotlinType.toBound(): Bound = when (val ctor = constructor.declarationDescriptor) {
+        is TypeParameterDescriptor -> OtherParameter(ctor.name.asString()).let {
             if (isMarkedNullable) Nullable(it) else it
         }
         else -> TypeConstructor(

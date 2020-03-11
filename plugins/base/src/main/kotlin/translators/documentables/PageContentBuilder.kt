@@ -3,9 +3,7 @@ package org.jetbrains.dokka.base.translators.documentables
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.PlatformDependent
-import org.jetbrains.dokka.model.TypeWrapper
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -255,21 +253,6 @@ open class PageContentBuilder(
             extra: PropertyContainer<ContentNode>
         ) =
             ContentText(text, DCI(setOf(mainDRI), kind), platformData, styles, extra)
-
-        fun type(t: TypeWrapper) {
-            if (t.constructorNamePathSegments.isNotEmpty() && t.dri != null)
-                link(t.constructorNamePathSegments.last(), t.dri!!)
-            else if (t.constructorNamePathSegments.isNotEmpty() && t.dri == null)
-                text(t.toString())
-            else {
-                logger.error("type $t cannot be resolved")
-                text("???")
-            }
-            list(t.arguments, prefix = "<", suffix = ">") {
-                type(it)
-            }
-        }
-
 
         fun <T> platformText(
             value: PlatformDependent<T>,
