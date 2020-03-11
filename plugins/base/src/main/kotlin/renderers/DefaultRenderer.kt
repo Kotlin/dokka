@@ -81,6 +81,7 @@ abstract class DefaultRenderer<T>(
                 is ContentList -> buildList(node, pageContext, platformRestriction)
                 is ContentTable -> buildTable(node, pageContext, platformRestriction)
                 is ContentGroup -> buildGroup(node, pageContext, platformRestriction)
+                is ContentBreakLine -> buildNewLine()
                 is PlatformHintedContent -> buildPlatformDependent(node, pageContext)
                 else -> buildError(node)
             }

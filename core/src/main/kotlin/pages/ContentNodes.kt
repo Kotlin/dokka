@@ -25,6 +25,15 @@ data class ContentText(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
 }
 
+data class ContentBreakLine(
+    override val dci: DCI,
+    override val platforms: Set<PlatformData>,
+    override val style: Set<Style> = emptySet(),
+    override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+): ContentNode {
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
+}
+
 /** Headers */
 data class ContentHeader(
     override val children: List<ContentNode>,
