@@ -77,7 +77,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Main) {
         link(t.name, t.dri)
         list(t.bounds, prefix = " : ") {
             signatureForProjection(it)

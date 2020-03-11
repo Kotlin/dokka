@@ -30,6 +30,7 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString { it.toString().toLowerCase() }
         return when {
+            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
@@ -214,13 +215,17 @@ open class HtmlRenderer(
 
     override fun buildPage(page: ContentPage, content: (FlowContent, ContentPage) -> Unit): String =
         buildHtml(page, page.embeddedResources) {
-            attributes["pageIds"] = page.dri.toList()[0].toString()
-            content(this, page)
+            div {
+                id = "content"
+                attributes["pageIds"] = page.dri.first().toString()
+                content(this, page)
+            }
         }
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
             head {
+                meta(name = "viewport", content = "width=device-width, initial-scale=1")
                 title(page.name)
                 with(resources) {
                     filter { it.substringBefore('?').substringAfterLast('.') == "css" }
@@ -232,22 +237,22 @@ open class HtmlRenderer(
             }
             body {
                 div {
-                    id = "navigation"
-                    div {
-                        id = "searchBar"
-                        form(action = page.root("-search.html"), method = FormMethod.get) {
-                            id = "searchForm"
-                            input(type = InputType.search, name = "query")
-                            input(type = InputType.submit) { value = "Search" }
-                        }
-                    }
+                    id = "container"
                     div {
                         id = "sideMenu"
                     }
-                }
-                div {
-                    id = "content"
-                    content()
+                    div {
+                        id = "main"
+                        div {
+                            id = "searchBar"
+                            form(action = page.root("-search.html"), method = FormMethod.get) {
+                                id = "searchForm"
+                                input(type = InputType.search, name = "query")
+                                input(type = InputType.submit) { value = "Search" }
+                            }
+                        }
+                        content()
+                    }
                 }
             }
         }
