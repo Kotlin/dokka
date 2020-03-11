@@ -41,6 +41,10 @@
     pointer-events: all;
 }
 
+.code {
+    font-family: sans-serif;
+}
+
 .sideMenuPart > .navButton {
     margin-left:0.25em
 }
@@ -99,7 +103,6 @@ td:first-child {
 
 h1, h2, h3, h4, h5, h6 {
     color:#222;
-    margin:0 0 20px;
 }
 
 p, ul, ol, table, pre, dl {

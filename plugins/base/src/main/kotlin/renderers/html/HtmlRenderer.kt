@@ -172,10 +172,16 @@ open class HtmlRenderer(
         language: String,
         pageContext: ContentPage
     ) {
-        buildNewLine()
-        code.forEach {
-            +((it as? ContentText)?.text ?: run { context.logger.error("Cannot cast $it as ContentText!"); "" })
-            buildNewLine()
+        span(classes = "code") {
+            val iterator = code.iterator()
+            while (iterator.hasNext()) {
+                val element = iterator.next()
+                +((element as? ContentText)?.text
+                    ?: run { context.logger.error("Cannot cast $element as ContentText!"); "" })
+                if (iterator.hasNext()) {
+                    buildNewLine()
+                }
+            }
         }
     }
 

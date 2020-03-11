@@ -59,7 +59,6 @@ class JavadocParser(
                 is PsiInlineDocTag -> listOfNotNull(convertInlineDocTag(it))
                 is PsiDocParamRef -> listOfNotNull(it.toDocumentationLink())
                 is PsiDocTagValue,
-                is PsiWhiteSpace -> listOfNotNull(Text(it.text))
                 is LeafPsiElement -> Jsoup.parse(it.text).body().childNodes().mapNotNull { convertHtmlNode(it) }
                 else -> null
             }
@@ -74,7 +73,7 @@ class JavadocParser(
     private fun createBlock(element: Element): DocTag {
         val children = element.childNodes().mapNotNull { convertHtmlNode(it) }
         return when (element.tagName()) {
-            "p" -> P(children)
+            "p" -> P(listOf(Br, Br) + children)
             "b" -> B(children)
             "strong" -> Strong(children)
             "i" -> I(children)
@@ -85,7 +84,6 @@ class JavadocParser(
             "ol" -> Ol(children)
             "li" -> Li(children)
             //"a" -> createLink(element, children) // TODO: add proper inline link handling
-            "br" -> Br
             else -> Text(body = element.ownText())
         }
     }

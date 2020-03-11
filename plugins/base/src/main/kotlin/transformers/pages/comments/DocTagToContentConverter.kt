@@ -41,6 +41,11 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
 
+        fun buildNewLine() = listOf(ContentBreakLine(
+            dci,
+            platforms
+        ))
+
         return when (docTag) {
             is H1 -> buildHeader(1)
             is H2 -> buildHeader(2)
@@ -51,6 +56,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Ul -> buildList(false)
             is Ol -> buildList(true)
             is Li -> buildChildren(docTag)
+            is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
             is I -> buildChildren(docTag, setOf(TextStyle.Italic))
             is P -> buildChildren(docTag, newStyles = setOf(TextStyle.Paragraph))

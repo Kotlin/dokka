@@ -76,6 +76,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
+        header(1) { text(c.name.orEmpty()) }
         +buildSignature(c)
         +contentForComments(c)
 
