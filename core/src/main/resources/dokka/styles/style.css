@@ -74,16 +74,23 @@
     background-color: #F4F4F4;
 }
 
-.sideMenuPart > .navButton {
-    margin-left: 0.25em
+.sideMenuPart > .overview {
+    width: 100%;
+    display: inline-flex;
+}
+
+.overview > .navButton {
+    width: 100%;
+    display: inline-flex;
+    justify-content: flex-end;
 }
 
 .sideMenuPart > .overview:hover {
     background-color: rgba(91, 93, 239, 0.15);
 }
 
-.sideMenuPart > .overview .navButtonContent::after {
-    float: right;
+.sideMenuPart > .overview .navButtonContent::before {
+    padding-left: 2px;
     content: url("../images/arrow_down.svg");
 }
 
