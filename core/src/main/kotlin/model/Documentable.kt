@@ -58,7 +58,7 @@ interface WithVisibility {
 }
 
 interface WithType {
-    val type: TypeWrapper
+    val type: Bound
 }
 
 interface WithAbstraction {
@@ -203,7 +203,7 @@ data class Function(
     override val documentation: PlatformDependent<DocumentationNode>,
     override val sources: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
-    override val type: TypeWrapper,
+    override val type: Bound,
     override val generics: List<TypeParameter>,
     override val receiver: Parameter?,
     override val modifier: Modifier,
@@ -282,7 +282,7 @@ data class Property(
     override val documentation: PlatformDependent<DocumentationNode>,
     override val sources: PlatformDependent<DocumentableSource>,
     override val visibility: PlatformDependent<Visibility>,
-    override val type: TypeWrapper,
+    override val type: Bound,
     override val receiver: Parameter?,
     val setter: Function?,
     val getter: Function?,
@@ -301,7 +301,7 @@ data class Parameter(
     override val dri: DRI,
     override val name: String?,
     override val documentation: PlatformDependent<DocumentationNode>,
-    val type: TypeWrapper,
+    val type: Bound,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<Parameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<Parameter> {
@@ -334,6 +334,9 @@ data class Nullable(val inner: Bound) : Bound()
 data class Variance(val kind: Kind, val inner: Bound) : Projection() {
     enum class Kind { In, Out }
 }
+data class PrimitiveJavaType(val name: String): Bound()
+
+val VoidBound = PrimitiveJavaType("void")
 
 enum class ExtraModifiers {
     STATIC, INLINE, INFIX, SUSPEND, REIFIED, CROSSINLINE, NOINLINE,

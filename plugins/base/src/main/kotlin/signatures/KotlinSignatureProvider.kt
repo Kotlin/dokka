@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Annotation
@@ -53,25 +55,25 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         text(f.modifier.name + " ")
         text("fun ")
+        list(f.generics, prefix = "<", suffix = "> ") {
+            +buildSignature(it)
+        }
         f.receiver?.also {
-            type(it.type)
+            signatureForProjection(it.type)
             text(".")
         }
         link(f.name, f.dri)
-        list(f.generics, prefix = "<", suffix = ">") {
-            +buildSignature(it)
-        }
         text("(")
         list(f.parameters) {
             text(it.name!!)
             text(": ")
-            type(it.type)
+            signatureForProjection(it.type)
         }
         text(")")
         val returnType = f.type
-        if (!f.isConstructor && returnType.constructorFqName != Unit::class.qualifiedName) {
+        if (!f.isConstructor && returnType is TypeConstructor && returnType.dri != DriOfUnit) {
             text(": ")
-            type(returnType)
+            signatureForProjection(returnType)
         }
     }
 
@@ -103,5 +105,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             signatureForProjection(p.inner)
             text("?")
         }
+
+        is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
     }
 }
+
+private fun PrimitiveJavaType.translateToKotlin() = TypeConstructor(
+    dri = DRI("kotlin", name.capitalize()),
+    projections = emptyList()
+)

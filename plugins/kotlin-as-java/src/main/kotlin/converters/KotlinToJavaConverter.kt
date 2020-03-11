@@ -75,7 +75,7 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
         visibility = visibility.copy(
             map = visibility.mapValues { JavaVisibility.Private }
         ),
-        type = type.asJava(isTopLevel), // TODO: check
+        type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
         extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else extra
@@ -98,7 +98,7 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
             ),
-            type = type.asJava(isTopLevel), // TODO: check
+            type = type.asJava(), // TODO: check
             extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else getter!!.extra
         ),
         setter?.copy(
@@ -116,7 +116,7 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
             ),
-            type = type.asJava(isTopLevel), // TODO: check
+            type = type.asJava(), // TODO: check
             extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else setter!!.extra
         )
     )
@@ -204,13 +204,7 @@ internal fun Object.asJava(): Object = copy(
                         it to JavaVisibility.Public
                     }.toMap()
                 ),
-                type = JavaTypeWrapper(
-                    dri.packageName?.split(".").orEmpty() +
-                            dri.classNames?.split(".").orEmpty(),
-                    emptyList(),
-                    dri,
-                    false
-                ),
+                type = TypeConstructor(dri, emptyList()),
                 setter = null,
                 getter = null,
                 platformData = platformData,
@@ -250,35 +244,8 @@ internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.b
     .find { it.typeFqName.asString() == this }
     ?.let { JvmPrimitiveType.get(it) }
 
-internal fun TypeWrapper.getAsType(classId: ClassId, fqName: String, top: Boolean): TypeWrapper {
-    val fqNameSplit = fqName
-        .takeIf { top }
-        ?.getAsPrimitive()
-        ?.name?.toLowerCase()
-        ?.let(::listOf)
-        ?: classId.asString().split("/")
-
-    return JavaTypeWrapper(
-        fqNameSplit,
-        arguments.map { it.asJava(false) },
-        classId.toDRI(dri),
-        fqNameSplit.last()[0].isLowerCase()
-    )
-}
-
 private fun DRI.partialFqName() = packageName?.let { "$it." } + classNames
 private fun DRI.possiblyAsJava() = this.partialFqName().mapToJava()?.toDRI(this) ?: this
-
-internal fun TypeWrapper.asJava(top: Boolean = true): TypeWrapper = constructorFqName
-    ?.let { if (it.endsWith(".Unit")) return VoidTypeWrapper() else it }
-    ?.let { fqName -> fqName.mapToJava()?.let { getAsType(it, fqName, top) } } ?: this
-
-private data class VoidTypeWrapper(
-    override val constructorFqName: String = "void",
-    override val constructorNamePathSegments: List<String> = listOf("void"),
-    override val arguments: List<TypeWrapper> = emptyList(),
-    override val dri: DRI = DRI("java.lang", "Void")
-) : TypeWrapper
 
 private fun String.mapToJava(): ClassId? =
     JavaToKotlinClassMap.mapKotlinToJava(FqName(this).toUnsafe())
