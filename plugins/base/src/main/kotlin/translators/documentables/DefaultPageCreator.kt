@@ -5,6 +5,7 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.doc.Property
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -89,7 +90,7 @@ open class DefaultPageCreator(
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
         +buildSignature(c)
-        +contentForComments(c)
+        +contentForComments(c) { it !is Property }
 
         if (c is WithConstructors) {
             block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
@@ -106,10 +107,13 @@ open class DefaultPageCreator(
         +contentForScope(c, c.dri, c.platformData)
     }
 
-    protected open fun contentForComments(d: Documentable) = contentBuilder.contentFor(d) {
+    protected open fun contentForComments(
+        d: Documentable,
+        filtering: (TagWrapper) -> Boolean = { true }
+    ) = contentBuilder.contentFor(d) {
         // TODO: this probably needs fixing
         d.documentation.forEach { _, documentationNode ->
-            documentationNode.children.forEach {
+            documentationNode.children.filter(filtering).forEach {
                 header(3) {
                     text(it.toHeaderString())
                     d.documentation.keys.joinToString(prefix = "[", postfix = "]", separator = ", ")
