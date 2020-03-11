@@ -34,7 +34,6 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
-            additionalClasses.isNotBlank() -> span(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
         }
     }

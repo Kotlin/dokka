@@ -77,7 +77,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Main) {
+    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t) {
         link(t.name, t.dri)
         list(t.bounds, prefix = " : ") {
             signatureForProjection(it)

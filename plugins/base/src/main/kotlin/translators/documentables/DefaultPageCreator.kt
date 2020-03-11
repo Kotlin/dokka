@@ -61,9 +61,7 @@ open class DefaultPageCreator(
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name.orEmpty(), it.dri)
             group {
-                group(kind = ContentKind.Symbol) {
-                    +buildSignature(it)
-                }
+                +buildSignature(it)
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
@@ -72,9 +70,8 @@ open class DefaultPageCreator(
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri)
             group {
-                group(kind = ContentKind.Symbol) {
-                    +buildSignature(it)
-                }
+                +buildSignature(it)
+
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
@@ -91,18 +88,16 @@ open class DefaultPageCreator(
 
     protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
-        group(kind = ContentKind.Symbol) {
-            +buildSignature(c)
-        }
+        +buildSignature(c)
+
         +contentForComments(c) { it !is Property }
 
         if (c is WithConstructors) {
             block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
                 link(it.name, it.dri)
                 group {
-                    group(kind = ContentKind.Symbol) {
-                        +buildSignature(it)
-                    }
+                    +buildSignature(it)
+
                     group(kind = ContentKind.BriefComment) {
                         text(it.briefDocumentation())
                     }
