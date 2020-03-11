@@ -20,7 +20,7 @@ object SearchPageInstaller : PageTransformer {
         name = "Search",
         children = emptyList(),
         strategy = RenderingStrategy<HtmlRenderer> {
-            buildHtml(it, listOf("styles/style.css", "scripts/pages.js")) {
+            buildHtml(it, listOf("styles/style.css", "scripts/pages.js", "scripts/search.js")) {
                 h1 {
                     id = "searchTitle"
                     text("Search results for ")
