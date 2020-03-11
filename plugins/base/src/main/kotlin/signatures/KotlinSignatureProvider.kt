@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.Function
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider {
@@ -26,7 +27,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         )
     }
 
-    private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol) {
+    private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         if (c is Class) {
             text(c.modifier.name + " ")
@@ -38,7 +39,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is Object -> text("object ")
             is Annotation -> text("annotation class ")
         }
-        text(c.name!!)
+        link(c.name!!, c.dri)
         if (c is WithSupertypes) {
             c.supertypes.map { (p, dris) ->
                 list(dris, prefix = " : ", platformData = setOf(p)) {
@@ -48,7 +49,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol) {
+    private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         text(f.modifier.name + " ")
         text("fun ")
@@ -62,7 +63,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
         text("(")
         list(f.parameters) {
-            link(it.name!!, it.dri)
+            text(it.name!!)
             text(": ")
             type(it.type)
         }
@@ -74,7 +75,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Symbol) {
+    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         link(t.name, t.dri)
         list(t.bounds, prefix = " : ") {
             signatureForProjection(it)

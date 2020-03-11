@@ -40,9 +40,9 @@
     float: right;
     pointer-events: all;
 }
-
+.monospace,
 .code {
-    font-family: sans-serif;
+    font-family: monospace;
 }
 
 .sideMenuPart > .navButton {

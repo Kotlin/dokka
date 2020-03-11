@@ -27,11 +27,15 @@ open class HtmlRenderer(
         node: ContentGroup,
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
-    ) = when {
-        node.dci.kind == ContentKind.BriefComment -> div("brief") { childrenCallback() }
-        node.style.contains(TextStyle.Paragraph) -> p { childrenCallback() }
-        node.style.contains(TextStyle.Block) -> div { childrenCallback() }
-        else -> childrenCallback()
+    ) {
+        val additionalClasses = node.style.joinToString { it.toString().toLowerCase() }
+        return when {
+            node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
+            node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
+            node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            additionalClasses.isNotBlank() -> span(additionalClasses) { childrenCallback() }
+            else -> childrenCallback()
+        }
     }
 
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {

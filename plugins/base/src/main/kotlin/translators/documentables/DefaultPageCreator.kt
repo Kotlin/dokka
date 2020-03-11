@@ -61,6 +61,7 @@ open class DefaultPageCreator(
             link(it.name.orEmpty(), it.dri)
             group {
                 +buildSignature(it)
+                breakLine()
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
@@ -70,6 +71,7 @@ open class DefaultPageCreator(
             link(it.name, it.dri)
             group {
                 +buildSignature(it)
+                breakLine()
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }

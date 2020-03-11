@@ -26,8 +26,8 @@ data class ContentText(
 }
 
 data class ContentBreakLine(
-    override val dci: DCI,
     override val platforms: Set<PlatformData>,
+    override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ): ContentNode {
@@ -167,11 +167,11 @@ interface Style
 interface Kind
 
 enum class ContentKind : Kind {
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment, Empty
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block
+    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace
 }
 
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
