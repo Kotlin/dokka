@@ -4,19 +4,32 @@
 #container {
     display: flex;
     flex-direction: row;
+    min-height: 100%;
+}
+
+#main {
+    width: 100%;
+    padding-left: 12px;
+}
+
+#leftColumn {
+    padding-left: 12px;
+    min-height: 100%;
+    border-right: 2px solid #DADFE6;
 }
 
 @media screen and (max-width: 600px) {
     #container {
         flex-direction: column;
     }
-}
 
-#main {
-    width: 100%;
+    #leftColumn {
+        border-right: none;
+    }
 }
 
 #sideMenu {
+    padding-top: 12px;
     padding-right: 12px;
 }
 
@@ -40,6 +53,15 @@
 #searchForm {
     float: right;
     pointer-events: all;
+}
+
+#logo {
+    padding: 5px;
+    background-size: 55% 90%;
+    border-bottom: 2px solid #DADFE6;
+    background-repeat: no-repeat;
+    background-image: url(../images/docs_logo.svg);
+    height: 6vh;
 }
 
 .monospace,
@@ -78,7 +100,6 @@ body, table {
     font: 14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: #F4F4F4;
     font-weight: 300;
-    margin-left: auto;
     margin-right: auto;
     max-width: 1440px;
 }
