@@ -101,6 +101,13 @@ td:first-child {
     font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
 }
 
+.brief {
+    width: 40vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 h1, h2, h3, h4, h5, h6 {
     color:#222;
 }

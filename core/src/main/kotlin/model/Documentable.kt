@@ -23,17 +23,6 @@ abstract class Documentable {
         other is Documentable && this.dri == other.dri // TODO: https://github.com/Kotlin/dokka/pull/667#discussion_r382555806
 
     override fun hashCode() = dri.hashCode()
-
-    val briefDocTagString: String by lazy {
-        // TODO > utils
-        documentation.values
-            .firstOrNull()
-            ?.children
-            ?.firstOrNull()
-            ?.root
-            ?.docTagSummary()
-            ?.shorten(40) ?: ""
-    }
 }
 
 data class PlatformDependent<out T>(

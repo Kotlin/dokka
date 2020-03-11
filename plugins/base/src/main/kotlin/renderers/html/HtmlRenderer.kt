@@ -28,6 +28,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) = when {
+        node.dci.kind == ContentKind.BriefComment -> div("brief") { childrenCallback() }
         node.style.contains(TextStyle.Paragraph) -> p { childrenCallback() }
         node.style.contains(TextStyle.Block) -> div { childrenCallback() }
         else -> childrenCallback()
