@@ -1,8 +1,5 @@
 package org.jetbrains.dokka.model.properties
 
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.ExtraModifiers
-
 interface ExtraProperty<in C : Any> {
     interface Key<in C : Any, T : Any> {
         fun mergeStrategyFor(left: T, right: T): MergeStrategy<C> = MergeStrategy.Fail {
