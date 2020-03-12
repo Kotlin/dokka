@@ -39,11 +39,14 @@ class DokkaGenerator(
         report("Creating documentation models")
         val modulesFromPlatforms = createDocumentationModels(platforms, context)
 
-        report("Merging documentation models")
-        val documentationModel = mergeDocumentationModels(modulesFromPlatforms, context)
+        report("Transforming documentation model before merging")
+        val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms, context)
 
-        report("Transforming documentation model")
-        val transformedDocumentation = transformDocumentationModel(documentationModel, context)
+        report("Merging documentation models")
+        val documentationModel = mergeDocumentationModels(transformedDocumentationBeforeMerge, context)
+
+        report("Transforming documentation model after merging")
+        val transformedDocumentation = transformDocumentationModelAfterMerge(documentationModel, context)
 
         report("Creating pages")
         val pages = createPages(transformedDocumentation, context)
@@ -61,7 +64,7 @@ class DokkaGenerator(
 
     fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
         configuration.passesConfigurations.map {
-            PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
+            it.platformData to createEnvironmentAndFacade(it)
         }.toMap()
 
     fun initializePlugins(
@@ -77,12 +80,17 @@ class DokkaGenerator(
     ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) } +
             platforms.map { (pdata, _) -> translatePsi(pdata, context) }
 
+    fun transformDocumentationModelBeforeMerge(
+        modulesFromPlatforms: List<DModule>,
+        context: DokkaContext
+    ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc, context) }
+
     fun mergeDocumentationModels(
         modulesFromPlatforms: List<DModule>,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentableMerger).invoke(modulesFromPlatforms, context)
 
-    fun transformDocumentationModel(
+    fun transformDocumentationModelAfterMerge(
         documentationModel: DModule,
         context: DokkaContext
     ) = context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }

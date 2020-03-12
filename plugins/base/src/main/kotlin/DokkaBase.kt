@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
+import org.jetbrains.dokka.base.transformers.documentables.DocumentableVisibilityFilter
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -41,6 +42,10 @@ class DokkaBase : DokkaPlugin() {
 
     val documentableMerger by extending(isFallback = true) {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
+    }
+
+    val preMergeDocumentableTransformer by extending(isFallback = true) {
+        CoreExtensions.preMergeDocumentableTransformer with DocumentableVisibilityFilter
     }
 
     val kotlinSignatureProvider by extending(isFallback = true) {
