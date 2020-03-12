@@ -260,7 +260,17 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 }
             }
 
-        private fun getProjection(type: PsiType): Projection = if (type is PsiEllipsisType) Star else getBound(type)
+        private fun getVariance(type: PsiWildcardType): Projection = when {
+            type.extendsBound != PsiType.NULL -> Variance(Variance.Kind.Out, getBound(type.extendsBound))
+            type.superBound != PsiType.NULL -> Variance(Variance.Kind.In, getBound(type.superBound))
+            else -> throw IllegalStateException("${type.presentableText} has incorrect bounds")
+        }
+
+        private fun getProjection(type: PsiType): Projection = when (type) {
+            is PsiEllipsisType -> Star
+            is PsiWildcardType -> getVariance(type)
+            else -> getBound(type)
+        }
 
         private fun PsiModifierListOwner.getModifier() = when {
             hasModifier(JvmModifier.ABSTRACT) -> JavaModifier.Abstract
