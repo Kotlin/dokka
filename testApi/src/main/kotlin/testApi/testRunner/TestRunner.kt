@@ -105,6 +105,7 @@ abstract class AbstractCoreTest {
         var analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit = {}
         var pluginsSetupStage: (DokkaContext) -> Unit = {}
         var documentablesCreationStage: (List<DModule>) -> Unit = {}
+        var documentablesFirstTransformationStep: (List<DModule>) -> Unit = {}
         var documentablesMergingStage: (DModule) -> Unit = {}
         var documentablesTransformationStage: (DModule) -> Unit = {}
         var pagesGenerationStage: (ModulePageNode) -> Unit = {}
@@ -115,6 +116,7 @@ abstract class AbstractCoreTest {
             analysisSetupStage,
             pluginsSetupStage,
             documentablesCreationStage,
+            documentablesFirstTransformationStep,
             documentablesMergingStage,
             documentablesTransformationStage,
             pagesGenerationStage,
@@ -217,6 +219,7 @@ data class TestMethods(
     val analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit,
     val pluginsSetupStage: (DokkaContext) -> Unit,
     val documentablesCreationStage: (List<DModule>) -> Unit,
+    val documentablesFirstTransformationStep: (List<DModule>) -> Unit,
     val documentablesMergingStage: (DModule) -> Unit,
     val documentablesTransformationStage: (DModule) -> Unit,
     val pagesGenerationStage: (ModulePageNode) -> Unit,
