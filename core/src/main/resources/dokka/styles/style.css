@@ -69,6 +69,10 @@
     font-family: monospace;
 }
 
+.strikethrough {
+    text-decoration: line-through;
+}
+
 .symbol {
     padding: 5px;
     background-color: #F4F4F4;
