@@ -30,12 +30,14 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 
     override val impliedPlatforms: List<String> = emptyList()
 
-    override val passesConfigurations: List<Arguments> by parser.repeatableFlag(
+    val passesConfigurations: List<Arguments> by parser.repeatableFlag(
         listOf("-pass"),
         "Single dokka pass"
     ) {
         Arguments(parser)
     }
+
+    override val modulesConfiguration: Map<String, List<DokkaConfiguration.PassConfiguration>> = mapOf("project" to passesConfigurations)
 
     override var pluginsClasspath: List<File> = emptyList()
 }
@@ -234,14 +236,14 @@ object MainKt {
             listOf("-globalPackageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) { link ->
-            configuration.passesConfigurations.all { it.perPackageOptions.addAll(parsePerPackageOptions(link)) }
+            configuration.modulesConfiguration.all { it.value.all { it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link)) } }
         }
 
         parseContext.cli.singleAction(
             listOf("-globalLinks"),
             "External documentation links in format url^packageListUrl^^url2..."
         ) { link ->
-            configuration.passesConfigurations.all { it.externalDocumentationLinks.addAll(parseLinks(link)) }
+            configuration.modulesConfiguration.all { it.value.all { it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link)) } }
         }
 
         parseContext.cli.repeatingAction(
@@ -257,7 +259,7 @@ object MainKt {
                 listOf()
             }
 
-            configuration.passesConfigurations.all { it.sourceLinks.addAll(newSourceLinks) }
+            configuration.modulesConfiguration.all { it.value.all { it.sourceLinks.toMutableList().addAll(newSourceLinks) } }
         }
 
         parser.parseInto(configuration)

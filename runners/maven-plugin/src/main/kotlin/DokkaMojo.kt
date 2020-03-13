@@ -188,7 +188,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             format = getOutFormat(),
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
-            passesConfigurations = listOf(passConfiguration),
+            modulesConfiguration = mapOf("project" to listOf(passConfiguration)),
             generateIndexPages = generateIndexPages,
             pluginsClasspath = emptyList() //TODO fix this
         )
