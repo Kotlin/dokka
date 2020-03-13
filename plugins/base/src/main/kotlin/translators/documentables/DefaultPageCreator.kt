@@ -42,7 +42,7 @@ open class DefaultPageCreator(
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        platformDependentHint(m.dri,m.platformData.toSet()){
+        platformDependentHint(m.dri, m.platformData.toSet()){
             header(1) { text(m.name) }
             block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
                 link(it.name, it.dri)
@@ -53,7 +53,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        platformDependentHint(p.dri,p.platformData.toSet()){
+        platformDependentHint(p.dri, p.platformData.toSet()){
             header(1) { text("Package ${p.name}") }
             +contentForScope(p, p.dri, p.platformData)
         }
@@ -65,7 +65,7 @@ open class DefaultPageCreator(
         platformData: List<PlatformData>
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
-            platformDependentHint(it.dri,it.platformData.toSet()){
+            platformDependentHint(it.dri, it.platformData.toSet()){
                 link(it.name.orEmpty(), it.dri)
                 group {
                     +buildSignature(it)
@@ -76,7 +76,7 @@ open class DefaultPageCreator(
             }
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
-            platformDependentHint(it.dri,it.platformData.toSet()){
+            platformDependentHint(it.dri, it.platformData.toSet()){
                 link(it.name, it.dri)
                 group {
                     +buildSignature(it)
@@ -87,7 +87,7 @@ open class DefaultPageCreator(
             }
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
-            platformDependentHint(it.dri,it.platformData.toSet()){
+            platformDependentHint(it.dri, it.platformData.toSet()){
                 link(it.name, it.dri)
                 +buildSignature(it)
                 breakLine()
@@ -142,7 +142,7 @@ open class DefaultPageCreator(
         // TODO: this probably needs fixing
         d.documentation.forEach { _, documentationNode ->
             documentationNode.children.filter(filtering).forEach {
-                platformDependentHint(d.dri,d.platformData.toSet()){
+                platformDependentHint(d.dri, d.platformData.toSet()){
                     header(3) {
                         text(it.toHeaderString())
                         d.documentation.keys.joinToString(prefix = "[", postfix = "]", separator = ", ")
@@ -154,19 +154,12 @@ open class DefaultPageCreator(
         }
     }.children
 
-<<<<<<< HEAD
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
-        header(1) { text(f.name) }
-        +buildSignature(f)
-        +contentForComments(f)
-=======
-    protected open fun contentForFunction(f: Function) = contentBuilder.contentFor(f) {
-        platformDependentHint(f.dri,f.platformData.toSet()){
+        platformDependentHint(f.dri, f.platformData.toSet()){
             header(1) { text(f.name) }
             +buildSignature(f)
             +contentForComments(f)
         }
->>>>>>> Added platformDepndentHints for platform-dependent contents
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
