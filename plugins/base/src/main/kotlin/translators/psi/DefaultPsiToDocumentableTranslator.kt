@@ -59,7 +59,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
     class DokkaPsiParser(
         private val platformData: PlatformData,
-        logger: DokkaLogger
+        private val logger: DokkaLogger
     ) {
 
         private val javadocParser: JavaDocumentationParser = JavadocParser(logger)
@@ -144,7 +144,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         visibility,
                         null,
                         constructors.map { parseFunction(it, dri, true) },
-                        listOf(platformData)
+                        listOf(platformData),
+                        PropertyContainer.empty<Annotation>() + annotations.toList().toExtra()
                     )
                 isEnum -> Enum(
                     dri,
@@ -157,7 +158,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             emptyList(),
-                            listOf(platformData)
+                            listOf(platformData),
+                            PropertyContainer.empty<EnumEntry>() + entry.annotations.toList().toExtra()
                         )
                     },
                     documentation,
@@ -169,7 +171,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     null,
                     constructors.map { parseFunction(it, dri, true) },
                     ancestors,
-                    listOf(platformData)
+                    listOf(platformData),
+                    PropertyContainer.empty<Enum>() + annotations.toList().toExtra()
                 )
                 isInterface -> Interface(
                     dri,
@@ -183,7 +186,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     null,
                     mapTypeParameters(dri),
                     ancestors,
-                    listOf(platformData)
+                    listOf(platformData),
+                    PropertyContainer.empty<Interface>() + annotations.toList().toExtra()
                 )
                 else -> Class(
                     dri,
@@ -199,7 +203,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     ancestors,
                     documentation,
                     getModifier(),
-                    listOf(platformData)
+                    listOf(platformData),
+                    PropertyContainer.empty<Class>() + annotations.toList().toExtra()
                 )
             }
         }
@@ -239,9 +244,9 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 null,
                 psi.getModifier(),
                 listOf(platformData),
-                PropertyContainer.empty<Function>() + InheritedFunction(
-                    isInherited
-                )
+                PropertyContainer.empty<Function>()
+                        + InheritedFunction(isInherited)
+                        + psi.annotations.toList().toExtra()
             )
         }
 
@@ -254,7 +259,10 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         val arguments = type.parameters.map { getProjection(it) }
                         TypeConstructor(DRI.from(resolved), arguments)
                     }
-                    is PsiArrayType -> TypeConstructor(DRI("kotlin", "Array"), listOf(getProjection(type.componentType)))
+                    is PsiArrayType -> TypeConstructor(
+                        DRI("kotlin", "Array"),
+                        listOf(getProjection(type.componentType))
+                    )
                     is PsiPrimitiveType -> PrimitiveJavaType(type.name)
                     else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
                 }
@@ -342,8 +350,27 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it, parent) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },
                 psi.getModifier(),
-                listOf(platformData)
+                listOf(platformData),
+                PropertyContainer.empty<Property>() + psi.annotations.toList().toExtra()
             )
         }
+
+        private fun Collection<PsiAnnotation>.toExtra() = mapNotNull { annotation ->
+            val fqname = annotation.qualifiedName ?: run {
+                logger.error("No fqName for $annotation!")
+                return@mapNotNull null
+            }
+
+            Annotations.Annotation(
+                DRI(fqname.substringBeforeLast("."), fqname.substringAfterLast(".")), // TODO: create a proper DRI
+                annotation.attributes.mapNotNull {
+                    if (it is PsiNameValuePair) {
+                        it.attributeName to it.value.toString()
+                    } else {
+                        it.attributeName to ""
+                    }
+                }.toMap()
+            )
+        }.let(::Annotations)
     }
 }
