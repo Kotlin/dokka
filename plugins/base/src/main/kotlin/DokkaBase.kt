@@ -130,7 +130,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val rootCreator by extending {
-        htmlPreprocessors with RootCreator
+        htmlPreprocessors with RootCreator applyIf { format == "html" }
     }
 
     val defaultSamplesTransformer by extending {
@@ -153,19 +153,19 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val navigationPageInstaller by extending {
-        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) }
+        htmlPreprocessors with NavigationPageInstaller order { after(rootCreator) } applyIf { format == "html" }
     }
 
     val searchPageInstaller by extending {
-        htmlPreprocessors with SearchPageInstaller order { after(rootCreator) }
+        htmlPreprocessors with SearchPageInstaller order { after(rootCreator) } applyIf { format == "html" }
     }
 
     val resourceInstaller by extending {
-        htmlPreprocessors with ResourceInstaller order { after(rootCreator) }
+        htmlPreprocessors with ResourceInstaller order { after(rootCreator) } applyIf { format == "html" }
     }
 
     val styleAndScriptsAppender by extending {
-        htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) }
+        htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) } applyIf { format == "html" }
     }
 
     val packageListCreator by extending {
@@ -175,7 +175,7 @@ class DokkaBase : DokkaPlugin() {
                 "html",
                 "html"
             )
-        } order { after(rootCreator) }
+        } order { after(rootCreator) } applyIf { format == "html" }
     }
 
     val sourcesetDependencyAppender by extending {

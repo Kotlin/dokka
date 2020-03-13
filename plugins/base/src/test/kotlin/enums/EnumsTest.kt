@@ -231,7 +231,7 @@ class EnumsTest : AbstractCoreTest() {
     }
 
 
-    fun ModulePageNode.getClasslikeToMemberMap() =
+    fun RootPageNode.getClasslikeToMemberMap() =
         this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy({ it.value }) { it.key }
 
     private fun ContentGroup.constructorSignature(): String =

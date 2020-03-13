@@ -7,6 +7,7 @@ tasks {
         inputs.dir("$projectDir/src/main/")
         inputs.files("$projectDir/package.json", "$projectDir/webpack.config.js")
         outputs.dir("$projectDir/dist/")
+        outputs.cacheIf { true }
     }
 
     register("generateFrontendFiles") {

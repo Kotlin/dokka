@@ -1,0 +1,10 @@
+<main role="main">
+    <div class="header">
+        <h1 {{ h1Title(kind)|raw }}class="title">{{ title }} {{ version }} API</h1>
+    </div>
+    <div class="contentContainer">
+        <div class="overviewSummary">
+            {% include "components/indexTable.korte" %}
+        </div>
+    </div>
+</main>
