@@ -38,12 +38,13 @@ open class DefaultLocationProvider(
         pagesIndex[dri]?.let { resolve(it, context) } ?:
         // Not found in PageGraph, that means it's an external link
         ExternalLocationProvider.getLocation(dri,
-            this.dokkaContext.configuration.passesConfigurations
-                .filter { passConfig ->
+            this.dokkaContext.configuration.modulesConfiguration.map {
+                it.value.filter { passConfig ->
                     platforms.toSet()
                         .contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
                 } // TODO: change targets to something better?
-                .flatMap { it.externalDocumentationLinks }.distinct()
+                 .flatMap { it.externalDocumentationLinks }
+            }.flatten().distinct()
         )
 
     override fun resolveRoot(node: PageNode): String =
