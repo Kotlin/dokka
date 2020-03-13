@@ -105,7 +105,13 @@ open class DefaultPageCreator(
         +contentForComments(c) { it !is Property }
 
         if (c is WithConstructors) {
-            block("Constructors", 2, ContentKind.Constructors, c.constructors, c.platformData.toSet()) {
+            block(
+                "Constructors",
+                2,
+                ContentKind.Constructors,
+                c.constructors.filter { it.extra[PrimaryConstructorExtra.PrimaryConstructorExtraKey] == null },
+                c.platformData.toSet()
+            ) {
                 link(it.name, it.dri)
                 group {
                     +buildSignature(it)
