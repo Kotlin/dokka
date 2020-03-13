@@ -52,7 +52,7 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
         listOf("-pass"),
         "Single dokka pass"
     ) {
-        Arguments(parser)
+        Arguments(parser).also { if(it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
     }
 }
 
@@ -260,14 +260,18 @@ object MainKt {
             listOf("-globalPackageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) { link ->
-            configuration.passesConfigurations.all { it.perPackageOptions.addAll(parsePerPackageOptions(link)) }
+            configuration.passesConfigurations.all {
+                it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link))
+            }
         }
 
         parseContext.cli.singleAction(
             listOf("-globalLinks"),
             "External documentation links in format url^packageListUrl^^url2..."
         ) { link ->
-            configuration.passesConfigurations.all { it.externalDocumentationLinks.addAll(parseLinks(link)) }
+            configuration.passesConfigurations.all {
+                it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link))
+            }
         }
 
         parseContext.cli.repeatingAction(
@@ -278,12 +282,14 @@ object MainKt {
                 listOf(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
             else {
                 if (it.isNotEmpty()) {
-                    println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+                    DokkaConsoleLogger.warn("Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
                 }
                 listOf()
             }
 
-            configuration.passesConfigurations.all { it.sourceLinks.addAll(newSourceLinks) }
+            configuration.passesConfigurations.all {
+                it.sourceLinks.toMutableList().addAll(newSourceLinks)
+            }
         }
 
         parser.parseInto(configuration)

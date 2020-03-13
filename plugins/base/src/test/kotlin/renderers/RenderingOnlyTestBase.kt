@@ -2,9 +2,11 @@ package renderers
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.html.RootCreator
-import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.LocationProvider
-import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
@@ -26,7 +28,9 @@ abstract class RenderingOnlyTestBase {
     val context = MockContext(
         DokkaBase().outputWriter to { _ -> files },
         DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory,
-        DokkaBase().htmlPreprocessors to { _ -> RootCreator }
+        DokkaBase().htmlPreprocessors to { _ -> RootCreator },
+        DokkaBase().externalLocationProviderFactory to { _ -> ::JavadocExternalLocationProviderFactory },
+        DokkaBase().externalLocationProviderFactory to { _ -> ::DokkaExternalLocationProviderFactory }
     )
 
     protected val renderedContent: Element by lazy {

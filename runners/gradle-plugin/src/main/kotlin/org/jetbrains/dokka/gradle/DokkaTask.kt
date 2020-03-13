@@ -8,7 +8,6 @@ import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.Platform
@@ -76,9 +75,10 @@ open class DokkaTask : DefaultTask() {
         @Nested get() = DslObject(this).extensions.getByType(GradlePassConfigurationImpl::class.java)
         internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
 
+    var config: GradleDokkaConfigurationImpl? = null
+
     // Configure Dokka with closure in Gradle Kotlin DSL
     fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
-
 
     private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks(configuration.collectKotlinTasks ?: { defaultKotlinTasks() }) }
 
@@ -133,6 +133,10 @@ open class DokkaTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
+        generateForConfig(config ?: getConfiguration())
+    }
+
+    internal fun generateForConfig(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
@@ -145,20 +149,6 @@ open class DokkaTask : DefaultTask() {
                 automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
 
             val gson = GsonBuilder().setPrettyPrinting().create()
-
-            val globalConfig = multiplatform.toList().find { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }
-            val passConfigurationList = collectConfigurations()
-                .map { defaultPassConfiguration(it, globalConfig) }
-
-            val configuration = GradleDokkaConfigurationImpl().apply {
-                outputDir = outputDirectory
-                format = outputFormat
-                generateIndexPages = true
-                cacheRoot = cacheRoot
-                impliedPlatforms = impliedPlatforms
-                passesConfigurations = passConfigurationList
-                pluginsClasspath = pluginsConfiguration.resolve().toList()
-            }
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->
@@ -177,6 +167,21 @@ open class DokkaTask : DefaultTask() {
 
         } finally {
             System.setProperty(COLORS_ENABLED_PROPERTY, kotlinColorsEnabledBefore)
+        }
+    }
+
+    internal fun getConfiguration(): GradleDokkaConfigurationImpl {
+        val globalConfig = multiplatform.toList().find { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }
+        val defaultModulesConfiguration = collectConfigurations()
+            .map { defaultPassConfiguration(it, globalConfig) }
+        return GradleDokkaConfigurationImpl().apply {
+            outputDir = outputDirectory
+            format = outputFormat
+            generateIndexPages = true
+            cacheRoot = cacheRoot
+            impliedPlatforms = impliedPlatforms
+            passesConfigurations = defaultModulesConfiguration
+            pluginsClasspath = pluginsConfiguration.resolve().toList()
         }
     }
 

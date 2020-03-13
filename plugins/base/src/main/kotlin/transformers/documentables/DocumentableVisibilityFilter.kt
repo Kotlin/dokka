@@ -15,6 +15,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
         val packageOptions =
             context.configuration.passesConfigurations.first { original.platformData.contains(it.platformData) }
                 .perPackageOptions
+
         DocumentableFilter(packageOptions).processModule(original)
     }
 

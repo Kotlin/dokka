@@ -15,6 +15,7 @@ dependencies {
     compileOnly("com.android.tools.build:gradle-core:3.0.0")
     compileOnly("com.android.tools.build:builder-model:3.0.0")
     compileOnly(gradleApi())
+    compileOnly(gradleKotlinDsl())
     constraints {
         val kotlin_version: String by project
         compileOnly("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}") {

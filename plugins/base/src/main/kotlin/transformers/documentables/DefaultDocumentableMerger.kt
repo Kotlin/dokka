@@ -12,17 +12,17 @@ import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 
 internal object DefaultDocumentableMerger : DocumentableMerger {
+
     override fun invoke(modules: Collection<DModule>, context: DokkaContext): DModule {
-        val name = modules.map { it.name }.distinct().singleOrNull() ?: run {
-            context.logger.error("All module names need to be the same")
-            modules.first().name
-        }
+
+        val projectName =
+            modules.fold(modules.first().name) { acc, module -> acc.commonPrefixWith(module.name) }.takeIf { it.isNotEmpty() }
+                ?: "project"
 
         return modules.reduce { left, right ->
             val list = listOf(left, right)
-
             DModule(
-                name = name,
+                name = projectName,
                 packages = merge(
                     list.flatMap { it.packages },
                     DPackage::mergeWith

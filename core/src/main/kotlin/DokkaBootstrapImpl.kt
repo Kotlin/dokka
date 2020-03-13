@@ -20,7 +20,13 @@ fun parsePerPackageOptions(arg: String): List<PackageOptions> {
         val reportUndocumented = args.find { it.endsWith("warnUndocumented") }?.startsWith("+") ?: true
         val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+") ?: false
         val suppress = args.find { it.endsWith("suppress") }?.startsWith("+") ?: false
-        PackageOptionsImpl(prefix, includeNonPublic = privateApi, reportUndocumented = reportUndocumented, skipDeprecated = !deprecated, suppress = suppress)
+        PackageOptionsImpl(
+            prefix,
+            includeNonPublic = privateApi,
+            reportUndocumented = reportUndocumented,
+            skipDeprecated = !deprecated,
+            suppress = suppress
+        )
     }
 }
 
@@ -52,10 +58,11 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
         override fun report() {
             if (warningsCount > 0 || errorsCount > 0) {
-                println("Generation completed with $warningsCount warning" +
-                        (if(DokkaConsoleLogger.warningsCount == 1) "" else "s") +
-                        " and $errorsCount error" +
-                        if(DokkaConsoleLogger.errorsCount == 1) "" else "s"
+                println(
+                    "Generation completed with $warningsCount warning" +
+                            (if (DokkaConsoleLogger.warningsCount == 1) "" else "s") +
+                            " and $errorsCount error" +
+                            if (DokkaConsoleLogger.errorsCount == 1) "" else "s"
                 )
             } else {
                 println("generation completed successfully")
@@ -83,10 +90,11 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         }
 
         val configurationWithLinks =
-            configuration.copy(passesConfigurations =
-            passesConfigurations
-                .map {
-                    val links: List<ExternalDocumentationLinkImpl> = it.externalDocumentationLinks + defaultLinks(it)
+            configuration.copy(
+                passesConfigurations =
+                passesConfigurations.map {
+                    val links: List<ExternalDocumentationLinkImpl> =
+                        it.externalDocumentationLinks + defaultLinks(it)
                     it.copy(externalDocumentationLinks = links)
                 }
             )
@@ -94,8 +102,10 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         generator = DokkaGenerator(configurationWithLinks, logger)
     }
 
-    override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String)
-            = configure(DokkaProxyLogger(logger), gson.fromJson(serializedConfigurationJSON, DokkaConfigurationImpl::class.java))
+    override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String) = configure(
+        DokkaProxyLogger(logger),
+        gson.fromJson(serializedConfigurationJSON, DokkaConfigurationImpl::class.java)
+    )
 
     override fun generate() = generator.generate()
 }
