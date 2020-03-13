@@ -28,7 +28,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) {
-        val additionalClasses = node.style.joinToString { it.toString().toLowerCase() }
+        val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }

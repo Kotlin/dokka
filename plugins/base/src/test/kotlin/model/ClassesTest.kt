@@ -406,7 +406,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         inlineModelTest(
             """@Suppress("abc") class Foo() {}"""
         ) {
-            with((this / "classes" / "Foo").cast<Class>()) {
+            with((this / "classes" / "Foo").cast<DClass>()) {
                 with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
                     dri.toString() equals "kotlin/Suppress////"
                     with(params["names"].assertNotNull("param")) {

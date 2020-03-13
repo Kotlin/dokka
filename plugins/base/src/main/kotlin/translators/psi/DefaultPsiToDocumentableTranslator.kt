@@ -145,7 +145,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         null,
                         constructors.map { parseFunction(it, dri, true) },
                         listOf(platformData),
-                        PropertyContainer.empty<Annotation>() + annotations.toList().toExtra()
+                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toExtra()
                     )
                 isEnum -> DEnum(
                     dri,
@@ -159,7 +159,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             listOf(platformData),
-                            PropertyContainer.empty<EnumEntry>() + entry.annotations.toList().toExtra()
+                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toExtra()
                         )
                     },
                     documentation,
@@ -172,7 +172,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     constructors.map { parseFunction(it, dri, true) },
                     ancestors,
                     listOf(platformData),
-                    PropertyContainer.empty<Enum>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DEnum>() + annotations.toList().toExtra()
                 )
                 isInterface -> DInterface(
                     dri,
@@ -187,7 +187,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     listOf(platformData),
-                    PropertyContainer.empty<Interface>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DInterface>() + annotations.toList().toExtra()
                 )
                 else -> DClass(
                     dri,
@@ -204,7 +204,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     documentation,
                     getModifier(),
                     listOf(platformData),
-                    PropertyContainer.empty<Class>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DClass>() + annotations.toList().toExtra()
                 )
             }
         }
@@ -351,7 +351,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },
                 psi.getModifier(),
                 listOf(platformData),
-                PropertyContainer.empty<Property>() + psi.annotations.toList().toExtra()
+                PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()
             )
         }
 

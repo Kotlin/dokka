@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
+import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -76,6 +77,10 @@ class DokkaBase : DokkaPlugin() {
         pageMergerStrategy with SameMethodNamePageMergerStrategy order {
             before(fallbackMerger)
         }
+    }
+
+    val deprecatedStrikethroughTransformer by extending {
+        CoreExtensions.pageTransformer providing ::DeprecatedStrikethroughTransformer
     }
 
     val htmlRenderer by extending {
