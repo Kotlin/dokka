@@ -36,3 +36,9 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
         override fun hashCode(): Int = dri.hashCode()
     }
 }
+
+object PrimaryConstructorExtra: ExtraProperty<Documentable> {
+    object PrimaryConstructorExtraKey: ExtraProperty.Key<Documentable, PrimaryConstructorExtra>
+
+    override val key: ExtraProperty.Key<Documentable, *> = PrimaryConstructorExtraKey
+}

@@ -33,7 +33,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         if (c is DClass) {
-            text(c.modifier.name + " ")
+            if (c.extra[AdditionalModifiers.AdditionalKey]?.content?.contains(ExtraModifiers.DATA) == true) {
+                text("data ")
+            } else {
+                text(c.modifier.name + " ")
+            }
         }
         when (c) {
             is DClass -> text("class ")
@@ -43,6 +47,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is DAnnotation -> text("annotation class ")
         }
         link(c.name!!, c.dri)
+        if(c is Class){
+            val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra.PrimaryConstructorExtraKey] != null }
+            if(pConstructor != null) {
+                list(pConstructor.parameters, "(", ")", ",", pConstructor.platformData.toSet()){
+                    breakLine()
+                    text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold))
+                    text(": ")
+                    signatureForProjection(it.type)
+                }
+            }
+        }
         if (c is WithSupertypes) {
             c.supertypes.map { (p, dris) ->
                 list(dris, prefix = " : ", platformData = setOf(p)) {

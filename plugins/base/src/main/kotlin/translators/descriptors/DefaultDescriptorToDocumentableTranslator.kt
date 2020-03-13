@@ -488,6 +488,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
     ).toProperty()
 
+    inline fun <reified D : Documentable> ConstructorDescriptor.additionalExtras(): PropertyContainer<D> =
+        if(this.isPrimary)
+            (this as FunctionDescriptor).additionalExtras<D>() + PrimaryConstructorExtra
+        else (this as FunctionDescriptor).additionalExtras()
+
     fun ClassDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.INLINE.takeIf { isInline },
