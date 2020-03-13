@@ -2,6 +2,9 @@ package org.jetbrains.dokka.base.transformers.pages.annotations
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
