@@ -110,7 +110,7 @@ abstract class AbstractCoreTest {
         var documentablesFirstTransformationStep: (List<DModule>) -> Unit = {}
         var documentablesMergingStage: (DModule) -> Unit = {}
         var documentablesTransformationStage: (DModule) -> Unit = {}
-        var pagesGenerationStage: (ModulePageNode) -> Unit = {}
+        var pagesGenerationStage: (RootPageNode) -> Unit = {}
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
         var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
 
@@ -247,7 +247,7 @@ data class TestMethods(
     val documentablesFirstTransformationStep: (List<DModule>) -> Unit,
     val documentablesMergingStage: (DModule) -> Unit,
     val documentablesTransformationStage: (DModule) -> Unit,
-    val pagesGenerationStage: (ModulePageNode) -> Unit,
+    val pagesGenerationStage: (RootPageNode) -> Unit,
     val pagesTransformationStage: (RootPageNode) -> Unit,
     val renderingStage: (RootPageNode, DokkaContext) -> Unit
 )

@@ -251,6 +251,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
         val logger = MavenDokkaLogger(log)
 
+        val logger = MavenDokkaLogger(log)
+
         val configuration = DokkaConfigurationImpl(
             outputDir = getOutDir(),
             format = getOutFormat(),

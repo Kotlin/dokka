@@ -1,9 +1,5 @@
 import org.jetbrains.configureBintrayPublication
 
-plugins {
-    id("com.jfrog.bintray")
-}
-
 publishing {
     publications {
         register<MavenPublication>("kotlinAsJavaPlugin") {

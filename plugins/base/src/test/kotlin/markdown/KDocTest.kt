@@ -39,7 +39,7 @@ abstract class KDocTest : AbstractCoreTest() {
             pagesGenerationStage = {
                 assertEquals(
                     expectedDocumentationNode,
-                    actualDocumentationNode(it)
+                    actualDocumentationNode(it as ModulePageNode)
                 )
             }
         }

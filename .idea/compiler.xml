@@ -44,7 +44,7 @@
       <module name="dokka.integration-tests.test" target="1.8" />
       <module name="dokka.integration.main" target="1.8" />
       <module name="dokka.integration.test" target="1.8" />
-      <module name="dokka.plugins.base.main" target="1.8" />
+      <module name="dokka.plugins.base.main" target="11" />
       <module name="dokka.plugins.base.test" target="1.8" />
       <module name="dokka.plugins.gfm.main" target="1.8" />
       <module name="dokka.plugins.gfm.test" target="1.8" />

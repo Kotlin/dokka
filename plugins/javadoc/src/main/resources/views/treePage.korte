@@ -1,0 +1,48 @@
+{% extends "components/base.korte" %}
+{% block content %}
+<main role="main">
+    <div class="header">
+        {% if kind == "main" %}
+        <h1 class="title">Hierarchy For All Packages</h1>
+        {% else %}
+        <h1 class="title">Hierarchy For Package {{ title }}</h1>
+        {% end -%}
+        <span class="packageHierarchyLabel">Package Hierarchies:</span>
+        <ul class="horizontal">
+            {% if kind == "main" %}
+            {{ createPackageHierarchy(list)|raw }}
+            {% else %}
+                <li><a href="{{ pathToRoot }}package-tree.html">All Packages</a></li>
+            {% end -%}
+        </ul>
+    </div>
+    <div class="contentContainer">
+        <section role="region">
+            <h2 title="Class Hierarchy">Class Hierarchy</h2>
+            <ul>
+                {{ renderInheritanceGraph(classGraph)|raw }}
+            </ul>
+        </section>
+        <section role="region">
+            <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
+            <ul>
+                {{ renderInheritanceGraph(interfaceGraph)|raw }}
+            </ul>
+        </section>
+        <section role="region">
+            <h2 title="Enum Hierarchy">Enum Hierarchy</h2>
+            <ul>
+                <li class="circle">java.lang.Object
+                    <ul>
+                        <li class="circle">java.lang.Enum&lt;E&gt; (implements java.lang.Comparable&lt;T&gt;, java.io.Serializable)
+                            <ul>
+                                <li class="circle">model.<a href="model/VertexType.html" title="enum in model"><span class="typeNameLink">VertexType</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+{% end %}
