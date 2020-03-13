@@ -224,7 +224,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             format = getOutFormat(),
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
-            passesConfigurations = listOf(passConfiguration),
+            modulesConfiguration = mapOf("project" to listOf(passConfiguration)),
             generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()

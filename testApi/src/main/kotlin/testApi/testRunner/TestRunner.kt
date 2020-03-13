@@ -63,8 +63,15 @@ abstract class AbstractCoreTest {
         val newConfiguration =
             configuration.copy(
                 outputDir = testDirPath.toAbsolutePath().toString(),
-                passesConfigurations = configuration.passesConfigurations
-                    .map { it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") }) }
+                modulesConfiguration = configuration.modulesConfiguration
+                    .map {
+                        Pair(
+                            it.key,
+                            it.value.map {
+                                it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") })
+                            }
+                        )
+                    }.toMap()
             )
         DokkaTestGenerator(
             newConfiguration,
@@ -138,7 +145,7 @@ abstract class AbstractCoreTest {
         var generateIndexPages: Boolean = true
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
-        private val passesConfigurations = mutableListOf<PassConfigurationImpl>()
+        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>()
 
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
@@ -146,12 +153,12 @@ abstract class AbstractCoreTest {
             generateIndexPages = generateIndexPages,
             cacheRoot = cacheRoot,
             impliedPlatforms = emptyList(),
-            passesConfigurations = passesConfigurations,
+            modulesConfiguration = modulesConfiguration,
             pluginsClasspath = pluginsClasspath
         )
 
         fun passes(block: Passes.() -> Unit) {
-            passesConfigurations.addAll(Passes().apply(block))
+            modulesConfiguration.forEach { it.value.addAll(Passes().apply(block)) }
         }
     }
 

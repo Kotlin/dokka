@@ -63,9 +63,11 @@ class DokkaGenerator(
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
     fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
-        configuration.passesConfigurations.map {
-            it.platformData to createEnvironmentAndFacade(it)
-        }.toMap()
+        configuration.modulesConfiguration.map {
+            it.value.map {
+                PlatformData(it.moduleName, it.analysisPlatform, it.targets) to createEnvironmentAndFacade(it)
+            }
+        }.flatten().toMap()
 
     fun initializePlugins(
         configuration: DokkaConfiguration,
