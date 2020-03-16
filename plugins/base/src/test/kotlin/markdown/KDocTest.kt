@@ -1,6 +1,6 @@
 package markdown
 
-import org.jetbrains.dokka.model.Package
+import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.junit.Assert
@@ -26,7 +26,7 @@ open class KDocTest : AbstractCoreTest() {
         """.trimMargin()
 
     private fun actualDocumentationNode(modulePageNode: ModulePageNode) =
-        (modulePageNode.documentable?.children?.first() as Package)
+        (modulePageNode.documentable?.children?.first() as DPackage)
             .classlikes.single()
             .documentation.values.single()
 

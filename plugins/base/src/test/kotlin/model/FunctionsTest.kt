@@ -1,7 +1,7 @@
 package model
 
-import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Package
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.DPackage
 import org.junit.Test
 import utils.*
 
@@ -17,7 +17,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             |fun fn() {}
         """
         ) {
-            with((this / "function" / "fn").cast<Function>()) {
+            with((this / "function" / "fn").cast<DFunction>()) {
                 name equals "fn"
                 type.constructorFqName equals "kotlin.Unit"
                 this.children.assertCount(0, "Function children: ")
@@ -39,7 +39,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             |fun fn(i: Int) {}
         """
         ) {
-            with((this / "function").cast<Package>()) {
+            with((this / "function").cast<DPackage>()) {
                 val fn1 = functions.find {
                     it.name == "fn" && it.parameters.isNullOrEmpty()
                 }.assertNotNull("fn()")
@@ -76,7 +76,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             |fun String.fn(x: Int) {}
         """
         ) {
-            with((this / "function").cast<Package>()) {
+            with((this / "function").cast<DPackage>()) {
                 val fn1 = functions.find {
                     it.name == "fn" && it.parameters.isNullOrEmpty()
                 }.assertNotNull("fn()")
@@ -114,7 +114,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |}
         """
         ) {
-            with((this / "function" / "function").cast<Function>()) {
+            with((this / "function" / "function").cast<DFunction>()) {
                 comments() equals "Multiline\nFunction Documentation"
 
                 name equals "function"
@@ -141,7 +141,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             // TODO add annotations
 
-            with((this / "function" / "f").cast<Function>()) {
+            with((this / "function" / "f").cast<DFunction>()) {
                 assert(false) { "No annotation data" }
             }
         }
@@ -162,7 +162,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             // TODO add data about inline
 
-            with((this / "function" / "f").cast<Function>()) {
+            with((this / "function" / "f").cast<DFunction>()) {
                 assert(false) { "No inline data" }
             }
         }
@@ -184,7 +184,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             // TODO add data about suspend
 
-            with((this / "function" / "f").cast<Function>()) {
+            with((this / "function" / "f").cast<DFunction>()) {
                 assert(false) { "No suspend data" }
             }
         }

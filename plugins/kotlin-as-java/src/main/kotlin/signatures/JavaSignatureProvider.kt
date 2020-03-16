@@ -5,9 +5,9 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Annotation
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
@@ -22,28 +22,28 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
-        is Function -> signature(documentable)
-        is Property -> signature(documentable)
-        is Classlike -> signature(documentable)
-        is TypeParameter -> signature(documentable)
+        is DFunction -> signature(documentable)
+        is DProperty -> signature(documentable)
+        is DClasslike -> signature(documentable)
+        is DTypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
     }
 
-    private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
-        if (c is Class) {
+        if (c is DClass) {
             text(c.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
         }
 
         when (c) {
-            is Class -> text("class ")
-            is Interface -> text("interface ")
-            is Enum -> text("enum ")
-            is Object -> text("class ")
-            is Annotation -> text("@interface ")
+            is DClass -> text("class ")
+            is DInterface -> text("interface ")
+            is DEnum -> text("enum ")
+            is DObject -> text("class ")
+            is DAnnotation -> text("@interface ")
         }
         link(c.name!!, c.dri)
         if (c is WithGenerics) {
@@ -60,11 +60,11 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
     }
 
-    private fun signature(p: Property) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         signatureForProjection(p.type)
     }
 
-    private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         text(f.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
         val returnType = f.type
         signatureForProjection(returnType)
@@ -82,7 +82,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         text(")")
     }
 
-    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t) {
+    private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
         text(t.name.substringAfterLast("."))
         list(t.bounds, prefix = " extends ") {
             signatureForProjection(it)

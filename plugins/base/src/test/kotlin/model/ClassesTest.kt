@@ -2,7 +2,7 @@ package model
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DFunction
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -17,7 +17,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """
             |class Klass {}"""
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 4
             }
@@ -31,7 +31,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             |object Obj {}
             """
         ) {
-            with((this / "classes" / "Obj").cast<Object>()) {
+            with((this / "classes" / "Obj").cast<DObject>()) {
                 name equals "Obj"
                 children counts 3
             }
@@ -45,7 +45,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             |class Klass(name: String)
         """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 4
 
@@ -71,11 +71,11 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             |}
             """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 5
 
-                with((this / "fn").cast<Function>()) {
+                with((this / "fn").cast<DFunction>()) {
                     type.constructorFqName equals "kotlin.Unit"
                     parameters counts 0
                     visibility.values allEquals KotlinVisibility.Public
@@ -93,11 +93,11 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             |}
             """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 5
 
-                with((this / "name").cast<Property>()) {
+                with((this / "name").cast<DProperty>()) {
                     name equals "name"
                     // TODO property name
                 }
@@ -117,19 +117,19 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             |}
             """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 children counts 5
 
-                with((this / "Companion").cast<Object>()) {
+                with((this / "Companion").cast<DObject>()) {
                     name equals "Companion"
                     children counts 5
 
-                    with((this / "x").cast<Property>()) {
+                    with((this / "x").cast<DProperty>()) {
                         name equals "x"
                     }
 
-                    with((this / "foo").cast<Function>()) {
+                    with((this / "foo").cast<DFunction>()) {
                         name equals "foo"
                         parameters counts 0
                         type.constructorFqName equals "kotlin.Unit"
@@ -146,7 +146,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |data class Klass() {}
                 """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 visibility.values allEquals KotlinVisibility.Public
                 with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("Extras")) {
@@ -170,7 +170,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |sealed class Klass() {}
                 """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 modifier equals KotlinModifier.Sealed
             }
@@ -215,18 +215,18 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |}
                 """
         ) {
-            val C = (this / "classes" / "C").cast<Class>()
-            val D = (this / "classes" / "D").cast<Class>()
+            val C = (this / "classes" / "C").cast<DClass>()
+            val D = (this / "classes" / "D").cast<DClass>()
 
             with(C) {
                 modifier equals Open
-                with((this / "f").cast<Function>()) {
+                with((this / "f").cast<DFunction>()) {
                     modifier equals Open
                 }
             }
             with(D) {
                 modifier equals Final
-                with((this / "f").cast<Function>()) {
+                with((this / "f").cast<DFunction>()) {
                     modifier equals Open
                 }
                 D.supertypes.flatMap { it.component2() }.firstOrNull() equals C.dri
@@ -249,13 +249,13 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |}
                 """
         ) {
-            val C = (this / "classes" / "C").cast<Class>()
-            val D = (this / "classes" / "D").cast<Class>()
-            val E = (this / "classes" / "E").cast<Class>()
+            val C = (this / "classes" / "C").cast<DClass>()
+            val D = (this / "classes" / "D").cast<DClass>()
+            val E = (this / "classes" / "E").cast<DClass>()
 
             with(C) {
                 modifier equals Abstract
-                ((this / "foo").cast<Function>()).modifier equals Abstract
+                ((this / "foo").cast<DFunction>()).modifier equals Abstract
             }
 
             with(D) {
@@ -280,9 +280,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |}
                 """
         ) {
-            with((this / "classes" / "C").cast<Class>()) {
+            with((this / "classes" / "C").cast<DClass>()) {
 
-                with((this / "D").cast<Class>()) {
+                with((this / "D").cast<DClass>()) {
                 }
             }
         }
@@ -312,10 +312,10 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |val Klass.Default.x: Int get() = 1
                 """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
 
-                with((this / "Default").cast<Object>()) {
+                with((this / "Default").cast<DObject>()) {
                     name equals "Default"
                     // TODO extensions
                 }
@@ -342,7 +342,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |}
                 """
         ) {
-            with((this / "classes" / "C").cast<Class>()) {
+            with((this / "classes" / "C").cast<DClass>()) {
                 name equals "C"
                 constructors counts 2
 
@@ -384,14 +384,14 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 |}
                 """
         ) {
-            with((this / "classes" / "Klass").cast<Class>()) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
 
-                with((this / "Companion").cast<Object>()) {
+                with((this / "Companion").cast<DObject>()) {
                     name equals "Companion"
                     visibility.values allEquals KotlinVisibility.Private
 
-                    with((this / "fn").cast<Function>()) {
+                    with((this / "fn").cast<DFunction>()) {
                         name equals "fn"
                         parameters counts 0
                         receiver equals null

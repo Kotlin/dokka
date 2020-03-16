@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Package
-import org.jetbrains.dokka.model.Annotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.DPackage
+import org.jetbrains.dokka.model.DAnnotation
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -12,7 +12,7 @@ import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 
 internal object DefaultDocumentableMerger : DocumentableMerger {
-    override fun invoke(modules: Collection<Module>, context: DokkaContext): Module {
+    override fun invoke(modules: Collection<DModule>, context: DokkaContext): DModule {
         val name = modules.map { it.name }.distinct().singleOrNull() ?: run {
             context.logger.error("All module names need to be the same")
             modules.first().name
@@ -21,11 +21,11 @@ internal object DefaultDocumentableMerger : DocumentableMerger {
         return modules.reduce { left, right ->
             val list = listOf(left, right)
 
-            Module(
+            DModule(
                 name = name,
                 packages = merge(
                     list.flatMap { it.packages },
-                    Package::mergeWith
+                    DPackage::mergeWith
                 ),
                 documentation = list.platformDependentFor { documentation },
                 platformData = list.flatMap { it.platformData }.distinct()
@@ -106,25 +106,25 @@ private sealed class Expect<out T : Any> {
     }
 }
 
-fun Package.mergeWith(other: Package): Package = copy(
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+fun DPackage.mergeWith(other: DPackage): DPackage = copy(
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     documentation = documentation.mergeWith(other.documentation),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Function.mergeWith(other: Function): Function = copy(
-    parameters = merge(this.parameters + other.parameters, Parameter::mergeWith),
+fun DFunction.mergeWith(other: DFunction): DFunction = copy(
+    parameters = merge(this.parameters + other.parameters, DParameter::mergeWith),
     receiver = receiver?.let { r -> other.receiver?.let { r.mergeWith(it) } ?: r } ?: other.receiver,
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
     visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct(),
-    generics = merge(generics + other.generics, TypeParameter::mergeWith)
+    generics = merge(generics + other.generics, DTypeParameter::mergeWith)
 ).mergeExtras(this, other)
 
-fun Property.mergeWith(other: Property): Property = copy(
+fun DProperty.mergeWith(other: DProperty): DProperty = copy(
     receiver = receiver?.let { r -> other.receiver?.let { r.mergeWith(it) } ?: r } ?: other.receiver,
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
@@ -134,33 +134,33 @@ fun Property.mergeWith(other: Property): Property = copy(
     setter = setter?.let { s -> other.setter?.let { s.mergeWith(it) } ?: s } ?: other.setter
 ).mergeExtras(this, other)
 
-fun Classlike.setPlatformData(platformData: List<PlatformData>): Classlike = when (this) {
-    is Class -> copy(platformData = platformData)
-    is Enum -> copy(platformData = platformData)
-    is Interface -> copy(platformData = platformData)
-    is Object -> copy(platformData = platformData)
+fun DClasslike.setPlatformData(platformData: List<PlatformData>): DClasslike = when (this) {
+    is DClass -> copy(platformData = platformData)
+    is DEnum -> copy(platformData = platformData)
+    is DInterface -> copy(platformData = platformData)
+    is DObject -> copy(platformData = platformData)
     else -> throw IllegalStateException("${this::class.qualifiedName} ${this.name} cannot have platform set")
 }
 
-fun Classlike.mergeWith(other: Classlike): Classlike = when {
-    this is Class && other is Class -> mergeWith(other)
-    this is Enum && other is Enum -> mergeWith(other)
-    this is Interface && other is Interface -> mergeWith(other)
-    this is Object && other is Object -> mergeWith(other)
-    this is Annotation && other is Annotation -> mergeWith(other)
+fun DClasslike.mergeWith(other: DClasslike): DClasslike = when {
+    this is DClass && other is DClass -> mergeWith(other)
+    this is DEnum && other is DEnum -> mergeWith(other)
+    this is DInterface && other is DInterface -> mergeWith(other)
+    this is DObject && other is DObject -> mergeWith(other)
+    this is DAnnotation && other is DAnnotation -> mergeWith(other)
     else -> throw IllegalStateException("${this::class.qualifiedName} ${this.name} cannot be mergesd with ${other::class.qualifiedName} ${other.name}")
 }
 
-fun Class.mergeWith(other: Class): Class = copy(
+fun DClass.mergeWith(other: DClass): DClass = copy(
     constructors = mergeExpectActual(
         constructors + other.constructors,
-        Function::mergeWith
+        DFunction::mergeWith
     ) { copy(platformData = it) },
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
-    generics = merge(generics + other.generics, TypeParameter::mergeWith),
+    generics = merge(generics + other.generics, DTypeParameter::mergeWith),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
@@ -168,15 +168,15 @@ fun Class.mergeWith(other: Class): Class = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Enum.mergeWith(other: Enum): Enum = copy(
-    entries = merge(entries + other.entries, EnumEntry::mergeWith),
+fun DEnum.mergeWith(other: DEnum): DEnum = copy(
+    entries = merge(entries + other.entries, DEnumEntry::mergeWith),
     constructors = mergeExpectActual(
         constructors + other.constructors,
-        Function::mergeWith
+        DFunction::mergeWith
     ) { copy(platformData = it) },
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
@@ -185,18 +185,18 @@ fun Enum.mergeWith(other: Enum): Enum = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun EnumEntry.mergeWith(other: EnumEntry): EnumEntry = copy(
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+fun DEnumEntry.mergeWith(other: DEnumEntry): DEnumEntry = copy(
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     documentation = documentation.mergeWith(other.documentation),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Object.mergeWith(other: Object): Object = copy(
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+fun DObject.mergeWith(other: DObject): DObject = copy(
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
@@ -204,12 +204,12 @@ fun Object.mergeWith(other: Object): Object = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Interface.mergeWith(other: Interface): Interface = copy(
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+fun DInterface.mergeWith(other: DInterface): DInterface = copy(
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
-    generics = merge(generics + other.generics, TypeParameter::mergeWith),
+    generics = merge(generics + other.generics, DTypeParameter::mergeWith),
     supertypes = supertypes.mergeWith(other.supertypes),
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
@@ -217,14 +217,14 @@ fun Interface.mergeWith(other: Interface): Interface = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Annotation.mergeWith(other: Annotation): Annotation = copy(
+fun DAnnotation.mergeWith(other: DAnnotation): DAnnotation = copy(
     constructors = mergeExpectActual(
         constructors + other.constructors,
-        Function::mergeWith
+        DFunction::mergeWith
     ) { copy(platformData = it) },
-    functions = mergeExpectActual(functions + other.functions, Function::mergeWith) { copy(platformData = it) },
-    properties = mergeExpectActual(properties + other.properties, Property::mergeWith) { copy(platformData = it) },
-    classlikes = mergeExpectActual(classlikes + other.classlikes, Classlike::mergeWith, Classlike::setPlatformData),
+    functions = mergeExpectActual(functions + other.functions, DFunction::mergeWith) { copy(platformData = it) },
+    properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
+    classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
     documentation = documentation.mergeWith(other.documentation),
     sources = sources.mergeWith(other.sources),
@@ -232,12 +232,12 @@ fun Annotation.mergeWith(other: Annotation): Annotation = copy(
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun Parameter.mergeWith(other: Parameter): Parameter = copy(
+fun DParameter.mergeWith(other: DParameter): DParameter = copy(
     documentation = documentation.mergeWith(other.documentation),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
-fun TypeParameter.mergeWith(other: TypeParameter): TypeParameter = copy(
+fun DTypeParameter.mergeWith(other: DTypeParameter): DTypeParameter = copy(
     documentation = documentation.mergeWith(other.documentation),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)

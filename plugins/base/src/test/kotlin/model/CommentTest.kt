@@ -1,6 +1,6 @@
 package model
 
-import org.jetbrains.dokka.model.Property
+import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.doc.CustomWrapperTag
 import org.jetbrains.dokka.model.doc.Text
 import org.junit.Test
@@ -28,7 +28,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
                 |val prop2 = ""
             """
         ) {
-            with((this / "comment" / "prop1").cast<Property>()) {
+            with((this / "comment" / "prop1").cast<DProperty>()) {
                 name equals "prop1"
                 with(this.docs().firstOrNull()?.root.assertNotNull("Code")) {
                     (children.firstOrNull() as? Text)
@@ -37,7 +37,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
                     params["lang"] equals "brainfuck"
                 }
             }
-            with((this / "comment" / "prop2").cast<Property>()) {
+            with((this / "comment" / "prop2").cast<DProperty>()) {
                 name equals "prop2"
                 comments() equals "a + b - c"
             }
@@ -51,7 +51,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 name equals "property"
                 comments() equals ""
             }
@@ -68,7 +68,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
         """
         ) {
             val p = this
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals ""
             }
         }
@@ -87,7 +87,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "doc1\ndoc2 doc3"
             }
         }
@@ -107,7 +107,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "doc1\ndoc2 doc3"
             }
         }
@@ -121,7 +121,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "doc"
             }
         }
@@ -136,7 +136,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "doc"
             }
         }
@@ -151,7 +151,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "doc"
             }
         }
@@ -168,7 +168,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "Summary\none: []"
                 docs().find { it is CustomWrapperTag && it.name == "one" }.let {
                     with(it.assertNotNull("'one' entry")) {
@@ -188,7 +188,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals """it's "useful""""
             }
         }
@@ -205,7 +205,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "Summary\none: [section one]"
             }
         }
@@ -224,7 +224,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "Summary\none: [section one]\ntwo: [section two]"
             }
         }
@@ -243,7 +243,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |val property = "test"
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 comments() equals "Summary\none: [line one line two]"
             }
         }
@@ -290,7 +290,7 @@ class CommentTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comme
             |}
         """
         ) {
-            with((this / "comment" / "property").cast<Property>()) {
+            with((this / "comment" / "property").cast<DProperty>()) {
                 this
             }
         }

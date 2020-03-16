@@ -1,8 +1,8 @@
 package model
 
 import org.jetbrains.dokka.model.KotlinVisibility
-import org.jetbrains.dokka.model.Package
-import org.jetbrains.dokka.model.Property
+import org.jetbrains.dokka.model.DPackage
+import org.jetbrains.dokka.model.DProperty
 import org.junit.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -15,7 +15,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             """
             |val property = "test""""
         ) {
-            with((this / "property" / "property").cast<Property>()) {
+            with((this / "property" / "property").cast<DProperty>()) {
                 name equals "property"
                 children counts 0
                 with(getter.assertNotNull("Getter")) {
@@ -33,7 +33,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             |var property = "test"
             """
         ) {
-            with((this / "property" / "property").cast<Property>()) {
+            with((this / "property" / "property").cast<DProperty>()) {
                 name equals "property"
                 children counts 0
                 setter.assertNotNull("Setter")
@@ -53,7 +53,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             |    get() = "test"
             """
         ) {
-            with((this / "property" / "property").cast<Property>()) {
+            with((this / "property" / "property").cast<DProperty>()) {
                 name equals "property"
                 children counts 0
                 with(getter.assertNotNull("Getter")) {
@@ -73,7 +73,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             |    set(value) {}
             """
         ) {
-            with((this / "property" / "property").cast<Property>()) {
+            with((this / "property" / "property").cast<DProperty>()) {
                 name equals "property"
                 children counts 0
                 setter.assertNotNull("Setter")
@@ -93,7 +93,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             |    get() = size() * 2
             """
         ) {
-            with((this / "property" / "property").cast<Property>()) {
+            with((this / "property" / "property").cast<DProperty>()) {
                 name equals "property"
                 children counts 0
                 with(receiver.assertNotNull("property receiver")) {
@@ -120,15 +120,15 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             |}
             """
         ) {
-            with((this / "property").cast<Package>()) {
-                with((this / "Foo" / "property").cast<Property>()) {
+            with((this / "property").cast<DPackage>()) {
+                with((this / "Foo" / "property").cast<DProperty>()) {
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
                         type.constructorFqName equals "kotlin.Int"
                     }
                 }
-                with((this / "Bar" / "property").cast<Property>()) {
+                with((this / "Bar" / "property").cast<DProperty>()) {
                     name equals "property"
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
