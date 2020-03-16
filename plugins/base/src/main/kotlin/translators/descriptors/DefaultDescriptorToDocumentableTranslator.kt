@@ -19,16 +19,19 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
-import org.jetbrains.kotlin.resolve.descriptorUtil.*
+import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
+import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
+import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
+import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.dokka.model.Variance
-import org.jetbrains.kotlin.idea.kdoc.findKDoc
 
 class DefaultDescriptorToDocumentableTranslator(
     private val context: DokkaContext
@@ -367,7 +370,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             type = descriptor.type.toBound(),
             documentation = descriptor.resolveDescriptorData(platformData),
             platformData = listOf(platformData),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                listOfNotNull(
+                    descriptor.additionalExtras(),
+                    descriptor.getAnnotations(),
+                    descriptor.getDefaultValue()?.let { DefaultValue(it) })
+            )
         )
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<DFunction> =
@@ -522,6 +530,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             annotation.allValueArguments.map { (k, v) -> k.asString() to v.value.toString() }.toMap()
         )
     }.let(::Annotations)
+
+    fun ValueParameterDescriptor.getDefaultValue(): String? = (source as? KotlinSourceElement)?.let {
+        it.psi.children.find { it is KtConstantExpression }?.text
+    }
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 

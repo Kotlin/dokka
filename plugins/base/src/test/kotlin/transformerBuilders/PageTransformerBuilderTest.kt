@@ -1,19 +1,20 @@
 package transformerBuilders;
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RenderingStrategy
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
+import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.junit.Test
-import testApi.testRunner.AbstractCoreTest
+import org.junit.jupiter.api.Test
 
 class PageTransformerBuilderTest : AbstractCoreTest() {
 
-    class ProxyPlugin(transformer: PageNodeTransformer) : DokkaPlugin() {
+    class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
         val pageTransformer by extending { CoreExtensions.pageTransformer with transformer }
     }
 
@@ -48,7 +49,7 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
                 orig = it
             }
             pagesTransformationStage = { root ->
-                list.assertCount(8, "Page list: ")
+                list.assertCount(7, "Page list: ")
                 orig?.let { root.assertTransform(it) }
             }
         }
