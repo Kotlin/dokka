@@ -6,12 +6,11 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Annotation
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -21,26 +20,26 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private val ignoredVisibilities = setOf(JavaVisibility.Default, KotlinVisibility.Public)
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
-        is Function -> signature(documentable)
-        is Property -> signature(documentable)
-        is Classlike -> signature(documentable)
-        is TypeParameter -> signature(documentable)
+        is DFunction -> signature(documentable)
+        is DProperty -> signature(documentable)
+        is DClasslike -> signature(documentable)
+        is DTypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
     }
 
-    private fun signature(c: Classlike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        if (c is Class) {
+        if (c is DClass) {
             text(c.modifier.name + " ")
         }
         when (c) {
-            is Class -> text("class ")
-            is Interface -> text("interface ")
-            is Enum -> text("enum ")
-            is Object -> text("object ")
-            is Annotation -> text("annotation class ")
+            is DClass -> text("class ")
+            is DInterface -> text("interface ")
+            is DEnum -> text("enum ")
+            is DObject -> text("object ")
+            is DAnnotation -> text("annotation class ")
         }
         link(c.name!!, c.dri)
         if (c is WithSupertypes) {
@@ -52,11 +51,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(p: Property) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         signatureForProjection(p.type)
     }
 
-    private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         text(f.modifier.name + " ")
         text("fun ")
@@ -82,7 +81,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun signature(t: TypeParameter) = contentBuilder.contentFor(t) {
+    private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
         link(t.name, t.dri)
         list(t.bounds, prefix = " : ") {
             signatureForProjection(it)

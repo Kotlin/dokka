@@ -1,8 +1,6 @@
 package utils
 
-import org.jetbrains.dokka.model.Module
-import org.jetbrains.dokka.model.doc.DocumentationNode
-import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.dokka.model.DModule
 
 abstract class AbstractModelTest(val path: String? = null, val pkg: String) : ModelDSL(), AssertDSL {
 
@@ -11,7 +9,7 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
         platform: String = "jvm",
         targetList: List<String> = listOf("jvm"),
         prependPackage: Boolean = true,
-        block: Module.() -> Unit
+        block: DModule.() -> Unit
     ) {
         val configuration = dokkaConfiguration {
             passes {

@@ -9,9 +9,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Annotation
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -31,17 +31,17 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         psiFiles: List<PsiJavaFile>,
         platformData: PlatformData,
         context: DokkaContext
-    ): Module {
+    ): DModule {
         val docParser =
             DokkaPsiParser(
                 platformData,
                 context.logger
             )
-        return Module(
+        return DModule(
             moduleName,
             psiFiles.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
-                Package(
+                DPackage(
                     dri,
                     emptyList(),
                     emptyList(),
@@ -93,7 +93,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         private fun <T> T.toPlatformDependant() =
             PlatformDependent(mapOf(platformData to this))
 
-        fun parseClasslike(psi: PsiClass, parent: DRI): Classlike = with(psi) {
+        fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
             val ancestorsSet = hashSetOf<DRI>()
             val superMethodsKeys = hashSetOf<Int>()
@@ -133,7 +133,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             val ancestors = ancestorsSet.toList().toPlatformDependant()
             return when {
                 isAnnotationType ->
-                    Annotation(
+                    DAnnotation(
                         name.orEmpty(),
                         dri,
                         documentation,
@@ -146,11 +146,11 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         constructors.map { parseFunction(it, dri, true) },
                         listOf(platformData)
                     )
-                isEnum -> Enum(
+                isEnum -> DEnum(
                     dri,
                     name.orEmpty(),
                     fields.filterIsInstance<PsiEnumConstant>().map { entry ->
-                        EnumEntry(
+                        DEnumEntry(
                             dri.withClass("$name.${entry.name}"),
                             entry.name.orEmpty(),
                             javadocParser.parseDocumentation(entry).toPlatformDependant(),
@@ -171,7 +171,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     ancestors,
                     listOf(platformData)
                 )
-                isInterface -> Interface(
+                isInterface -> DInterface(
                     dri,
                     name.orEmpty(),
                     documentation,
@@ -185,7 +185,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     ancestors,
                     listOf(platformData)
                 )
-                else -> Class(
+                else -> DClass(
                     dri,
                     name.orEmpty(),
                     constructors.map { parseFunction(it, dri, true) },
@@ -209,7 +209,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             parent: DRI,
             isConstructor: Boolean = false,
             isInherited: Boolean = false
-        ): Function {
+        ): DFunction {
             val dri = parent.copy(
                 callable = Callable(
                     psi.name,
@@ -218,12 +218,12 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         JavaClassReference(parameter.type.canonicalText)
                     })
             )
-            return Function(
+            return DFunction(
                 dri,
                 if (isConstructor) "<init>" else psi.name,
                 isConstructor,
                 psi.parameterList.parameters.mapIndexed { index, psiParameter ->
-                    Parameter(
+                    DParameter(
                         dri.copy(target = index + 1),
                         psiParameter.name,
                         javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
@@ -239,7 +239,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 null,
                 psi.getModifier(),
                 listOf(platformData),
-                PropertyContainer.empty<Function>() + InheritedFunction(
+                PropertyContainer.empty<DFunction>() + InheritedFunction(
                     isInherited
                 )
             )
@@ -278,7 +278,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             else -> JavaModifier.Empty
         }
 
-        private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<TypeParameter> {
+        private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<DTypeParameter> {
             fun mapBounds(bounds: Array<JvmReferenceType>): List<Bound> =
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
                     (it as? PsiClassType)?.let { classType ->
@@ -286,7 +286,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     }
                 }
             return typeParameters.mapIndexed { index, type ->
-                TypeParameter(
+                DTypeParameter(
                     dri.copy(genericTarget = index),
                     type.name.orEmpty(),
                     javadocParser.parseDocumentation(type).toPlatformDependant(),
@@ -323,7 +323,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             return regularMethods to accessors
         }
 
-        private fun parseField(psi: PsiField, parent: DRI, accessors: List<PsiMethod>): Property {
+        private fun parseField(psi: PsiField, parent: DRI, accessors: List<PsiMethod>): DProperty {
             val dri = parent.copy(
                 callable = Callable(
                     psi.name!!, // TODO: Investigate if this is indeed nullable
@@ -331,7 +331,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     emptyList()
                 )
             )
-            return Property(
+            return DProperty(
                 dri,
                 psi.name!!, // TODO: Investigate if this is indeed nullable
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),

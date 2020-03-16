@@ -4,9 +4,9 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Annotation
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
@@ -21,21 +21,21 @@ private fun <T : WithExpectActual> List<T>.groupedByLocation() =
             } // TODO: first() does not look reasonable
         }) { it.second }
 
-internal fun Package.asJava(): Package {
+internal fun DPackage.asJava(): DPackage {
     @Suppress("UNCHECKED_CAST")
     val syntheticClasses = ((properties + functions) as List<WithExpectActual>)
         .groupedByLocation()
         .map { (syntheticClassName, nodes) ->
-            Class(
+            DClass(
                 dri = dri.withClass(syntheticClassName),
                 name = syntheticClassName,
-                properties = nodes.filterIsInstance<Property>().map { it.asJava() },
+                properties = nodes.filterIsInstance<DProperty>().map { it.asJava() },
                 constructors = emptyList(),
                 functions = (
-                        nodes.filterIsInstance<Property>()
+                        nodes.filterIsInstance<DProperty>()
                             .map { it.javaAccessors() } +
-                                nodes.filterIsInstance<Function>()
-                                    .map { it.asJava(syntheticClassName) }) as List<Function>, // TODO: methods are static and receiver is a param
+                                nodes.filterIsInstance<DFunction>()
+                                    .map { it.asJava(syntheticClassName) }) as List<DFunction>, // TODO: methods are static and receiver is a param
                 classlikes = emptyList(),
                 sources = PlatformDependent.empty(),
                 visibility = PlatformDependent(
@@ -60,7 +60,7 @@ internal fun Package.asJava(): Package {
     )
 }
 
-internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: String? = null) =
+internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: String? = null) =
     copy(
         dri = if (relocateToClass.isNullOrBlank()) {
             dri
@@ -81,7 +81,7 @@ internal fun Property.asJava(isTopLevel: Boolean = false, relocateToClass: Strin
         extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else extra
     )
 
-internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<Function> =
+internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
     listOfNotNull(
         getter?.copy(
             dri = if (relocateToClass.isNullOrBlank()) {
@@ -122,7 +122,7 @@ internal fun Property.javaAccessors(isTopLevel: Boolean = false, relocateToClass
     )
 
 
-internal fun Function.asJava(containingClassName: String): Function {
+internal fun DFunction.asJava(containingClassName: String): DFunction {
     val newName = when {
         isConstructor -> containingClassName
         else -> name
@@ -137,16 +137,16 @@ internal fun Function.asJava(containingClassName: String): Function {
     ) // TODO static if toplevel
 }
 
-internal fun Classlike.asJava(): Classlike = when (this) {
-    is Class -> asJava()
-    is Enum -> asJava()
-    is Annotation -> asJava()
-    is Object -> asJava()
-    is Interface -> asJava()
+internal fun DClasslike.asJava(): DClasslike = when (this) {
+    is DClass -> asJava()
+    is DEnum -> asJava()
+    is DAnnotation -> asJava()
+    is DObject -> asJava()
+    is DInterface -> asJava()
     else -> throw IllegalArgumentException("$this shouldn't be here")
 }
 
-internal fun Class.asJava(): Class = copy(
+internal fun DClass.asJava(): DClass = copy(
     constructors = constructors.map { it.asJava(name) },
     functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
         it.asJava(name)
@@ -160,7 +160,7 @@ internal fun Class.asJava(): Class = copy(
     modifier = if (modifier is KotlinModifier.Empty) JavaModifier.Final else modifier
 )
 
-private fun TypeParameter.asJava(): TypeParameter = copy(
+private fun DTypeParameter.asJava(): DTypeParameter = copy(
     dri = dri.possiblyAsJava(),
     bounds = bounds.map { it.asJava() }
 )
@@ -175,7 +175,7 @@ private fun Bound.asJava(): Bound = when (this) {
     else -> this
 }
 
-internal fun Enum.asJava(): Enum = copy(
+internal fun DEnum.asJava(): DEnum = copy(
     constructors = constructors.map { it.asJava(name) },
     functions = (functions + properties.map { it.getter } + properties.map { it.setter }).filterNotNull().map {
         it.asJava(name)
@@ -188,12 +188,12 @@ internal fun Enum.asJava(): Enum = copy(
 //    , entries = entries.map { it.asJava() }
 )
 
-internal fun Object.asJava(): Object = copy(
+internal fun DObject.asJava(): DObject = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
         .map { it.asJava(name.orEmpty()) },
     properties = properties.map { it.asJava() } +
-            Property(
+            DProperty(
                 name = "INSTANCE",
                 modifier = JavaModifier.Final,
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
@@ -209,7 +209,7 @@ internal fun Object.asJava(): Object = copy(
                 getter = null,
                 platformData = platformData,
                 receiver = null,
-                extra = PropertyContainer.empty<Property>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))
+                extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))
             ),
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.copy(
@@ -217,7 +217,7 @@ internal fun Object.asJava(): Object = copy(
     )
 )
 
-internal fun Interface.asJava(): Interface = copy(
+internal fun DInterface.asJava(): DInterface = copy(
     functions = (functions + properties.map { it.getter } + properties.map { it.setter })
         .filterNotNull()
         .map { it.asJava(name) },
@@ -229,13 +229,13 @@ internal fun Interface.asJava(): Interface = copy(
     )
 )
 
-internal fun Annotation.asJava(): Annotation = copy(
+internal fun DAnnotation.asJava(): DAnnotation = copy(
     properties = properties.map { it.asJava() },
     constructors = emptyList(),
     classlikes = classlikes.map { it.asJava() }
 ) // TODO investigate if annotation class can have methods and properties not from constructor
 
-internal fun Parameter.asJava(): Parameter = copy(
+internal fun DParameter.asJava(): DParameter = copy(
     type = type.asJava(),
     name = if (name.isNullOrBlank()) "\$self" else name
 )

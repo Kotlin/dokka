@@ -1,8 +1,8 @@
 package model
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import utils.AbstractModelTest
@@ -24,10 +24,10 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Test").cast<Class>()) {
+            with((this / "java" / "Test").cast<DClass>()) {
                 name equals "Test"
                 children counts 1
-                with((this / "fn").cast<Function>()) {
+                with((this / "fn").cast<DFunction>()) {
                     name equals "fn"
                     this
                 }
@@ -82,7 +82,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Test" / "fn").cast<Function>()) {
+            with((this / "java" / "Test" / "fn").cast<DFunction>()) {
                 this
             }
         }
@@ -108,7 +108,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |public class Foo extends Exception implements Cloneable {}
             """
         ) {
-            with((this / "java" / "Foo").cast<Class>()) {
+            with((this / "java" / "Foo").cast<DClass>()) {
                 val sups = listOf("Exception", "Cloneable")
                 assertTrue(
                     "Foo must extend ${sups.joinToString(", ")}",
@@ -128,11 +128,11 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Test").cast<Class>()) {
+            with((this / "java" / "Test").cast<DClass>()) {
                 name equals "Test"
                 children counts 1
 
-                with((this / "arrayToString").cast<Function>()) {
+                with((this / "arrayToString").cast<DFunction>()) {
                     name equals "arrayToString"
                     type.constructorFqName equals "java.lang.String[]"
                     with(parameters.firstOrNull().assertNotNull("parameters")) {
@@ -153,7 +153,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Foo").cast<Class>()) {
+            with((this / "java" / "Foo").cast<DClass>()) {
                 this
             }
         }
@@ -189,7 +189,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Test").cast<Class>()) {
+            with((this / "java" / "Test").cast<DClass>()) {
                 name equals "Test"
 
                 constructors counts 2
@@ -211,9 +211,9 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "InnerClass").cast<Class>()) {
+            with((this / "java" / "InnerClass").cast<DClass>()) {
                 children counts 1
-                with((this / "D").cast<Class>()) {
+                with((this / "D").cast<DClass>()) {
                     name equals "D"
                     children counts 0
                 }
@@ -230,11 +230,11 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Foo").cast<Class>()) {
+            with((this / "java" / "Foo").cast<DClass>()) {
                 name equals "Foo"
                 children counts 1
 
-                with((this / "bar").cast<Function>()) {
+                with((this / "bar").cast<DFunction>()) {
                     name equals "bar"
                     with(parameters.firstOrNull().assertNotNull("parameter")) {
                         name equals "x"
@@ -255,15 +255,15 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "Test").cast<Class>()) {
+            with((this / "java" / "Test").cast<DClass>()) {
                 children counts 2
 
-                with((this / "i").cast<Property>()) {
+                with((this / "i").cast<DProperty>()) {
                     getter.assertNotNull("i.get")
                     setter.assertNotNull("i.set")
                 }
 
-                with((this / "s").cast<Property>()) {
+                with((this / "s").cast<DProperty>()) {
                     getter.assertNotNull("s.get")
                     setter.assertNotNull("s.set")
 
@@ -344,11 +344,11 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |}
             """
         ) {
-            with((this / "java" / "E").cast<Enum>()) {
+            with((this / "java" / "E").cast<DEnum>()) {
                 name equals "E"
                 entries counts 1
 
-                with((this / "Foo").cast<EnumEntry>()) {
+                with((this / "Foo").cast<DEnumEntry>()) {
                     name equals "Foo"
                 }
             }

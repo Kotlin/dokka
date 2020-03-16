@@ -1,6 +1,6 @@
 package model
 
-import org.jetbrains.dokka.model.Package
+import org.jetbrains.dokka.model.DPackage
 import org.junit.Test
 import utils.AbstractModelTest
 
@@ -14,7 +14,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false
         ) {
-            with((this / "").cast<Package>()) {
+            with((this / "").cast<DPackage>()) {
                 name equals ""
                 children counts 0
             }
@@ -29,7 +29,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false
         ) {
-            with((this / "simple").cast<Package>()) {
+            with((this / "simple").cast<DPackage>()) {
                 name equals "simple"
                 children counts 0
             }
@@ -44,7 +44,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false
         ) {
-            with((this / "dot.name").cast<Package>()) {
+            with((this / "dot.name").cast<DPackage>()) {
                 name equals "dot.name"
                 children counts 0
             }
@@ -63,11 +63,11 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             prependPackage = false
         ) {
             children counts 2
-            with((this / "dot.name").cast<Package>()) {
+            with((this / "dot.name").cast<DPackage>()) {
                 name equals "dot.name"
                 children counts 0
             }
-            with((this / "simple").cast<Package>()) {
+            with((this / "simple").cast<DPackage>()) {
                 name equals "simple"
                 children counts 0
             }
@@ -85,7 +85,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             prependPackage = false
         ) {
             children counts 1
-            with((this / "simple").cast<Package>()) {
+            with((this / "simple").cast<DPackage>()) {
                 name equals "simple"
                 children counts 0
             }
@@ -102,7 +102,7 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false
         ) {
-            with((this / "simple.name").cast<Package>()) {
+            with((this / "simple.name").cast<DPackage>()) {
                 name equals "simple.name"
                 children counts 1
             }

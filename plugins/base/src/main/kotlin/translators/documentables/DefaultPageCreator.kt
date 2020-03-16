@@ -4,7 +4,7 @@ import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.doc.Property
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.pages.*
@@ -17,16 +17,16 @@ open class DefaultPageCreator(
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
-    open fun pageForModule(m: Module) =
+    open fun pageForModule(m: DModule) =
         ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
 
-    open fun pageForPackage(p: Package): PackagePageNode = PackagePageNode(
+    open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
         p.classlikes.map(::pageForClasslike) +
                 p.functions.map(::pageForFunction)
     )
 
-    open fun pageForClasslike(c: Classlike): ClasslikePageNode {
+    open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
         val constructors = if (c is WithConstructors) c.constructors else emptyList()
 
         return ClasslikePageNode(
@@ -37,9 +37,9 @@ open class DefaultPageCreator(
         )
     }
 
-    open fun pageForFunction(f: Function) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
+    open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
 
-    protected open fun contentForModule(m: Module) = contentBuilder.contentFor(m) {
+    protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         header(1) { text(m.name) }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
             link(it.name, it.dri)
@@ -48,7 +48,7 @@ open class DefaultPageCreator(
 //        text("Link to allpage here")
     }
 
-    protected open fun contentForPackage(p: Package) = contentBuilder.contentFor(p) {
+    protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         header(1) { text("Package ${p.name}") }
         +contentForScope(p, p.dri, p.platformData)
     }
@@ -87,7 +87,7 @@ open class DefaultPageCreator(
         }
     }
 
-    protected open fun contentForClasslike(c: Classlike) = contentBuilder.contentFor(c) {
+    protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
         +buildSignature(c)
 
@@ -126,7 +126,7 @@ open class DefaultPageCreator(
         }
     }.children
 
-    protected open fun contentForFunction(f: Function) = contentBuilder.contentFor(f) {
+    protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
         +buildSignature(f)
         +contentForComments(f)

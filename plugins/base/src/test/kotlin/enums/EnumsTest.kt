@@ -1,9 +1,8 @@
 package enums
 
-import org.jetbrains.dokka.model.Enum
+import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Test
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
@@ -72,7 +71,7 @@ class EnumsTest : AbstractCoreTest() {
                     p.first().classlikes.let { c ->
                         assertTrue("Classlikes list cannot be empty", c.isNotEmpty())
 
-                        val enum = c.first() as Enum
+                        val enum = c.first() as DEnum
                         assertEquals(enum.name, "Test")
                         assertEquals(enum.entries.count(), 2)
                         assertNotNull(enum.companion)

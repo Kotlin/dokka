@@ -1,13 +1,9 @@
 package utils
 
-import org.jetbrains.dokka.model.Class
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.Function
-import org.jetbrains.dokka.model.Property
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import kotlin.reflect.KClass
-import kotlin.reflect.full.safeCast
 
 @DslMarker
 annotation class TestDSL
@@ -64,5 +60,5 @@ fun <T> T?.assertNotNull(name: String = ""): T = this ?: throw AssertionError("$
 
 fun <T : Documentable> T?.docs() = this?.documentation.orEmpty().values.flatMap { it.children }
 
-val Class.supers
+val DClass.supers
     get() = supertypes.flatMap{it.component2()}

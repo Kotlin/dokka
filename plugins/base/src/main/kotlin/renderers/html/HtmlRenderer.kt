@@ -4,7 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
@@ -269,7 +269,7 @@ private fun PageNode.pageKind() = when (this) {
     is PackagePageNode -> "package"
     is ClasslikePageNode -> "class"
     is MemberPageNode -> when (this.documentable) {
-        is Function -> "function"
+        is DFunction -> "function"
         else -> "other"
     }
     else -> "other"

@@ -5,8 +5,8 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Enum
-import org.jetbrains.dokka.model.Function
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBo
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
@@ -30,7 +29,6 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.dokka.model.Variance
-import org.jetbrains.kotlin.library.metadata.KlibMetadataProtoBuf.fqName
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 
 class DefaultDescriptorToDocumentableTranslator(
@@ -47,7 +45,7 @@ class DefaultDescriptorToDocumentableTranslator(
                 DRIWithPlatformInfo(DRI.topLevel, PlatformDependent.empty())
             )
         }
-    }.let { Module(moduleName, it, PlatformDependent.empty(), listOf(platformData)) }
+    }.let { DModule(moduleName, it, PlatformDependent.empty(), listOf(platformData)) }
 
 }
 
@@ -69,11 +67,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     override fun visitPackageFragmentDescriptor(
         descriptor: PackageFragmentDescriptor,
         parent: DRIWithPlatformInfo
-    ): Package {
+    ): DPackage {
         val driWithPlatform = DRI(packageName = descriptor.fqName.asString()).withEmptyInfo()
         val scope = descriptor.getMemberScope()
 
-        return Package(
+        return DPackage(
             dri = driWithPlatform.dri,
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
@@ -83,7 +81,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Classlike =
+    override fun visitClassDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClasslike =
         when (descriptor.kind) {
             ClassKind.ENUM_CLASS -> enumDescriptor(descriptor, parent)
             ClassKind.OBJECT -> objectDescriptor(descriptor, parent)
@@ -91,12 +89,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             else -> classDescriptor(descriptor, parent)
         }
 
-    private fun interfaceDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Interface {
+    private fun interfaceDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DInterface {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
 
-        return Interface(
+        return DInterface(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
             functions = scope.functions(driWithPlatform),
@@ -113,12 +111,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    private fun objectDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Object {
+    private fun objectDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DObject {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
 
-        return Object(
+        return DObject(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
             functions = scope.functions(driWithPlatform),
@@ -133,12 +131,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    private fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Enum {
+    private fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
 
-        return Enum(
+        return DEnum(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
             entries = scope.enumEntries(driWithPlatform),
@@ -156,11 +154,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    private fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): EnumEntry {
+    private fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnumEntry {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
 
-        return EnumEntry(
+        return DEnumEntry(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
             documentation = descriptor.resolveDescriptorData(platformData),
@@ -172,13 +170,13 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    private fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): Class {
+    private fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClass {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val info = descriptor.resolveClassDescriptionData(platformData)
         val actual = descriptor.createSources()
 
-        return Class(
+        return DClass(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
             constructors = descriptor.constructors.map {
@@ -203,11 +201,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): Property {
+    override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): DProperty {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
         val actual = descriptor.createSources()
-        return Property(
+        return DProperty(
             dri = dri,
             name = descriptor.name.asString(),
             receiver = descriptor.extensionReceiverParameter?.let {
@@ -229,11 +227,11 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): Function {
+    override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
 
         val actual = descriptor.createSources()
-        return Function(
+        return DFunction(
             dri = dri,
             name = descriptor.name.asString(),
             isConstructor = false,
@@ -254,10 +252,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }
 
-    override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): Function {
+    override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
         val actual = descriptor.createSources()
-        return Function(
+        return DFunction(
             dri = dri,
             name = "<init>",
             isConstructor = true,
@@ -281,7 +279,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     override fun visitReceiverParameterDescriptor(
         descriptor: ReceiverParameterDescriptor,
         parent: DRIWithPlatformInfo
-    ) = Parameter(
+    ) = DParameter(
         dri = parent.dri.copy(target = 0),
         name = null,
         type = descriptor.type.toBound(),
@@ -293,12 +291,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         descriptor: PropertyAccessorDescriptor,
         propertyDescriptor: PropertyDescriptor,
         parent: DRI
-    ): Function {
+    ): DFunction {
         val dri = parent.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
 
         fun PropertyDescriptor.asParameter(parent: DRI) =
-            Parameter(
+            DParameter(
                 parent.copy(target = 1),
                 this.name.asString(),
                 type = this.type.toBound(),
@@ -320,7 +318,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 listOf(propertyDescriptor.asParameter(dri))
             }
 
-        return Function(
+        return DFunction(
             dri,
             name,
             isConstructor = false,
@@ -343,7 +341,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     }
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRIWithPlatformInfo) =
-        Parameter(
+        DParameter(
             dri = parent.dri.copy(target = index + 1),
             name = descriptor.name.asString(),
             type = descriptor.type.toBound(),
@@ -352,28 +350,28 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             extra = descriptor.additionalExtras()
         )
 
-    private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<Function> =
+    private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<DFunction> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
             .filterIsInstance<FunctionDescriptor>()
             .map { visitFunctionDescriptor(it, parent) }
 
-    private fun MemberScope.properties(parent: DRIWithPlatformInfo): List<Property> =
+    private fun MemberScope.properties(parent: DRIWithPlatformInfo): List<DProperty> =
         getContributedDescriptors(DescriptorKindFilter.VALUES) { true }
             .filterIsInstance<PropertyDescriptor>()
             .map { visitPropertyDescriptor(it, parent) }
 
-    private fun MemberScope.classlikes(parent: DRIWithPlatformInfo): List<Classlike> =
+    private fun MemberScope.classlikes(parent: DRIWithPlatformInfo): List<DClasslike> =
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .map { visitClassDescriptor(it, parent) }
-            .mapNotNull { it as? Classlike }
+            .mapNotNull { it as? DClasslike }
 
-    private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<Package> =
+    private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<DPackage> =
         getContributedDescriptors(DescriptorKindFilter.PACKAGES) { true }
             .filterIsInstance<PackageFragmentDescriptor>()
             .map { visitPackageFragmentDescriptor(it, parent) }
 
-    private fun MemberScope.enumEntries(parent: DRIWithPlatformInfo): List<EnumEntry> =
+    private fun MemberScope.enumEntries(parent: DRIWithPlatformInfo): List<DEnumEntry> =
         this.getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
             .filterIsInstance<ClassDescriptor>()
             .filter { it.kind == ClassKind.ENUM_ENTRY }
@@ -391,7 +389,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     }
 
     private fun TypeParameterDescriptor.toTypeParameter() =
-        TypeParameter(
+        DTypeParameter(
             DRI.from(this),
             name.identifier,
             PlatformDependent.from(platformData, getDocumentation()),
@@ -428,7 +426,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         MarkdownParser(resolutionFacade, this).parseFromKDocTag(it)
     }
 
-    fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): Object? = companionObjectDescriptor?.let {
+    fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
         objectDescriptor(it, dri)
     }
 
@@ -467,7 +465,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         ExtraModifiers.OVERRIDE.takeIf { getSuperInterfaces().isNotEmpty() || getSuperClassNotAny() != null }
     ).toContainer()
 
-    fun ValueParameterDescriptor.additionalExtras(): PropertyContainer<Parameter> =
+    fun ValueParameterDescriptor.additionalExtras(): PropertyContainer<DParameter> =
         listOfNotNull(
             ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.NOINLINE.takeIf { isNoinline },
@@ -477,13 +475,13 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             ExtraModifiers.VARARG.takeIf { isVararg }
         ).toContainer()
 
-    fun TypeParameterDescriptor.additionalExtras(): PropertyContainer<TypeParameter> =
+    fun TypeParameterDescriptor.additionalExtras(): PropertyContainer<DTypeParameter> =
         listOfNotNull(
             ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.REIFIED.takeIf { isReified }
         ).toContainer()
 
-    fun PropertyDescriptor.additionalExtras(): PropertyContainer<Property> = listOfNotNull(
+    fun PropertyDescriptor.additionalExtras(): PropertyContainer<DProperty> = listOfNotNull(
         ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.CONST.takeIf { isConst },
         ExtraModifiers.LATEINIT.takeIf { isLateInit },

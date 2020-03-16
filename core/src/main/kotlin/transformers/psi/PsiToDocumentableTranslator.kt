@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.transformers.psi
 
 import com.intellij.psi.PsiJavaFile
-import org.jetbrains.dokka.model.Module
+import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 
@@ -11,5 +11,5 @@ interface PsiToDocumentableTranslator {
         psiFiles: List<PsiJavaFile>,
         platformData: PlatformData,
         context: DokkaContext
-    ): Module
+    ): DModule
 }
