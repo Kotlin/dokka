@@ -329,7 +329,7 @@ sealed class Projection
 sealed class Bound : Projection()
 data class OtherParameter(val name: String) : Bound()
 object Star : Projection()
-data class TypeConstructor(val dri: DRI, val projections: List<Projection>) : Bound()
+data class TypeConstructor(val dri: DRI, val projections: List<Projection>, val modifier: FunctionModifiers = FunctionModifiers.NONE) : Bound()
 data class Nullable(val inner: Bound) : Bound()
 data class Variance(val kind: Kind, val inner: Bound) : Projection() {
     enum class Kind { In, Out }
@@ -337,6 +337,10 @@ data class Variance(val kind: Kind, val inner: Bound) : Projection() {
 data class PrimitiveJavaType(val name: String): Bound()
 
 val VoidBound = PrimitiveJavaType("void")
+
+enum class FunctionModifiers {
+    NONE, FUNCTION, EXTENSION
+}
 
 enum class ExtraModifiers {
     STATIC, INLINE, INFIX, SUSPEND, REIFIED, CROSSINLINE, NOINLINE,
