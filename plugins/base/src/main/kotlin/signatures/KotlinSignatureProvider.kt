@@ -71,7 +71,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         list(f.parameters) {
             text(it.name!!)
             text(": ")
+
             signatureForProjection(it.type)
+//            val type = it.type
+//            if (type is KotlinTypeWrapper && type.isFunctionType) funType(type)
+//            else type(type)
         }
         text(")")
         val returnType = f.type
@@ -111,6 +115,26 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 
         is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
+    }
+
+    fun PageContentBuilder.DocumentableContentBuilder.funType(type: KotlinTypeWrapper) {
+        if (type.isExtension) {
+            type(type.arguments.first())
+            text(".")
+        }
+
+        val args = if (type.isExtension) {
+            type.arguments.drop(1)
+        } else
+            type.arguments
+
+        text("(")
+        args.subList(0, args.size - 1).forEachIndexed { i, arg ->
+            type(arg)
+            if (i < args.size - 2) text(", ")
+        }
+        text(") -> ")
+        type(args.last())
     }
 }
 
