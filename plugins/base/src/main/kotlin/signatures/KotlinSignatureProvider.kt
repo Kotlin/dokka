@@ -11,6 +11,7 @@ import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -73,9 +74,6 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             text(": ")
 
             signatureForProjection(it.type)
-//            val type = it.type
-//            if (type is KotlinTypeWrapper && type.isFunctionType) funType(type)
-//            else type(type)
         }
         text(")")
         val returnType = f.type
@@ -95,12 +93,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
         is OtherParameter -> text(p.name)
 
-        is TypeConstructor -> group {
-            link(p.dri.classNames.orEmpty(), p.dri)
-            list(p.projections, prefix = "<", suffix = ">") {
-                signatureForProjection(it)
+        is TypeConstructor -> if (p.function)
+            +funType(this.mainDRI, this.mainPlatformData, p)
+        else
+            group {
+                link(p.dri.classNames.orEmpty(), p.dri)
+                list(p.projections, prefix = "<", suffix = ">") {
+                    signatureForProjection(it)
+                }
             }
-        }
 
         is Variance -> group {
             text(p.kind.toString() + " ")
@@ -117,28 +118,35 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
     }
 
-    fun PageContentBuilder.DocumentableContentBuilder.funType(type: KotlinTypeWrapper) {
-        if (type.isExtension) {
-            type(type.arguments.first())
-            text(".")
-        }
+    fun funType(dri: DRI, platformData: Set<PlatformData>, type: TypeConstructor) =
+        contentBuilder.contentFor(dri, platformData, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+            if (type.extension) {
+                signatureForProjection(type.projections.first())
+                text(".")
+            }
 
-        val args = if (type.isExtension) {
-            type.arguments.drop(1)
-        } else
-            type.arguments
+            val args = if (type.extension)
+                type.projections.drop(1)
+            else
+                type.projections
 
-        text("(")
-        args.subList(0, args.size - 1).forEachIndexed { i, arg ->
-            type(arg)
-            if (i < args.size - 2) text(", ")
+            text("(")
+            args.subList(0, args.size - 1).forEachIndexed { i, arg ->
+                signatureForProjection(arg)
+                if (i < args.size - 2) text(", ")
+            }
+            text(") -> ")
+            signatureForProjection(args.last())
         }
-        text(") -> ")
-        type(args.last())
-    }
 }
 
 private fun PrimitiveJavaType.translateToKotlin() = TypeConstructor(
     dri = DRI("kotlin", name.capitalize()),
     projections = emptyList()
 )
+
+val TypeConstructor.function
+    get() = modifier == FunctionModifiers.FUNCTION || modifier == FunctionModifiers.EXTENSION
+
+val TypeConstructor.extension
+    get() = modifier == FunctionModifiers.EXTENSION

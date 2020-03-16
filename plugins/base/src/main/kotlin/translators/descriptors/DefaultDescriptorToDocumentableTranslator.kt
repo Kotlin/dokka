@@ -13,11 +13,14 @@ import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
+import org.jetbrains.kotlin.builtins.isExtensionFunctionType
+import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
+import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
@@ -404,7 +407,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         }
         else -> TypeConstructor(
             DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
-            arguments.map { it.toProjection() }
+            arguments.map { it.toProjection() },
+            if (isExtensionFunctionType) FunctionModifiers.EXTENSION
+            else if (isFunctionType) FunctionModifiers.FUNCTION
+            else FunctionModifiers.NONE
         )
     }
 
