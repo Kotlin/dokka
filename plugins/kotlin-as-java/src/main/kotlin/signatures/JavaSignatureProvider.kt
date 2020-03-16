@@ -23,6 +23,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is Function -> signature(documentable)
+        is Property -> signature(documentable)
         is Classlike -> signature(documentable)
         is TypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
@@ -44,7 +45,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             is Object -> text("class ")
             is Annotation -> text("@interface ")
         }
-        text(c.name!!)
+        link(c.name!!, c.dri)
         if (c is WithGenerics) {
             list(c.generics, prefix = "<", suffix = ">") {
                 +buildSignature(it)
@@ -57,6 +58,10 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 }
             }
         }
+    }
+
+    private fun signature(p: Property) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+        signatureForProjection(p.type)
     }
 
     private fun signature(f: Function) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
