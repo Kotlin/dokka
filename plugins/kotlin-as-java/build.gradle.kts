@@ -1,6 +1,12 @@
+import org.jetbrains.configureBintrayPublication
+
+plugins {
+    id("com.jfrog.bintray")
+}
+
 publishing {
     publications {
-        register<MavenPublication>("kotlin-as-java-plugin") {
+        register<MavenPublication>("kotlinAsJavaPlugin") {
             artifactId = "kotlin-as-java-plugin"
             from(components["java"])
         }
@@ -10,3 +16,5 @@ publishing {
 dependencies {
     implementation(project(":plugins:base"))
 }
+
+configureBintrayPublication("kotlinAsJavaPlugin")
