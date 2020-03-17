@@ -171,7 +171,7 @@ enum class ContentKind : Kind {
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace
+    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace, Indented
 }
 
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
