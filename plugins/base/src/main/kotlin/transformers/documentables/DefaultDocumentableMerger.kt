@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.DAnnotation
+import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -13,25 +14,37 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 
 internal object DefaultDocumentableMerger : DocumentableMerger {
 
-    override fun invoke(modules: Collection<DModule>, context: DokkaContext): DModule {
+    override fun invoke(modules: Collection<DModule>, context: DokkaContext): DProject {
 
         val projectName =
             modules.fold(modules.first().name) { acc, module -> acc.commonPrefixWith(module.name) }.takeIf { it.isNotEmpty() }
                 ?: "project"
 
-        return modules.reduce { left, right ->
-            val list = listOf(left, right)
-            DModule(
-                name = projectName,
-                packages = merge(
-                    list.flatMap { it.packages },
-                    DPackage::mergeWith
-                ),
-                documentation = list.platformDependentFor { documentation },
-                platformData = list.flatMap { it.platformData }.distinct()
-            ).mergeExtras(left, right)
-        }
+        val modulesGrouped = modules.groupBy { it.name }
+
+        return DProject(
+            name = projectName,
+            modules = modulesGrouped.map {
+                it.value.reduce { left, right ->
+                    val list = listOf(left, right)
+                    DModule(
+                        name = it.key,
+                        packages = merge(
+                            list.flatMap { it.packages },
+                            DPackage::mergeWith
+                        ),
+                        documentation = list.platformDependentFor { documentation },
+                        platformData = list.flatMap { it.platformData }.distinct()
+                    ).mergeExtras(left, right)
+                }.let { it.copy(extra = it.extra + ModuleName(it.name)) }
+            }
+        )
     }
+}
+
+internal class ModuleName(val name: String) : ExtraProperty<DModule> {
+    object ModuleNameKey : ExtraProperty.Key<DModule, ModuleName>
+    override val key: ExtraProperty.Key<DModule, ModuleName> = ModuleNameKey
 }
 
 private fun <T : Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =

@@ -6,6 +6,7 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.model.DProject
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -43,7 +44,7 @@ class DokkaGenerator(
         val documentationModel = mergeDocumentationModels(modulesFromPlatforms, context)
 
         report("Transforming documentation model")
-        val transformedDocumentation = transformDocumentationModel(documentationModel, context)
+        val transformedDocumentation = transformDocumentationModel(documentationModel.modules.first(), context)
 
         report("Creating pages")
         val pages = createPages(transformedDocumentation, context)

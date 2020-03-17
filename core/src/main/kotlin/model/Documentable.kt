@@ -102,6 +102,21 @@ interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual
 
 abstract class DClasslike : Documentable(), WithScope, WithVisibility, WithExpectActual
 
+data class DProject(
+    override val name: String,
+    val modules: List<DModule>,
+    override val extra: PropertyContainer<DProject> = PropertyContainer.empty()
+) : Documentable(), WithExtraProperties<DProject> {
+    override val children: List<Documentable>
+        get() = modules
+
+    override val dri: DRI = DRI.topLevel
+    override val documentation: PlatformDependent<DocumentationNode> = PlatformDependent.empty()
+    override val platformData: List<PlatformData> = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<DProject>) = copy(extra = newExtras)
+}
+
 data class DModule(
     override val name: String,
     val packages: List<DPackage>,
