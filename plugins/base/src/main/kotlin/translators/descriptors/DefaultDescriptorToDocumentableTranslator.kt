@@ -296,7 +296,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             modifier = descriptor.modifier(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             platformData = listOf(platformData),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll<DFunction>(descriptor.additionalExtras(), descriptor.getAnnotations()).let {
+                if(descriptor.isPrimary) { it + PrimaryConstructorExtra } else it
+            }
         )
     }
 
@@ -475,23 +477,18 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     } else {
         PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
     }
-
+    
     fun FunctionDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
-        ExtraModifiers.INFIX.takeIf { isInfix },
-        ExtraModifiers.INLINE.takeIf { isInline },
-        ExtraModifiers.SUSPEND.takeIf { isSuspend },
-        ExtraModifiers.OPERATOR.takeIf { isOperator },
-        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-        ExtraModifiers.TAILREC.takeIf { isTailrec },
-        ExtraModifiers.EXTERNAL.takeIf { isExternal },
-        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
-    ).toProperty()
-
-    inline fun <reified D : Documentable> ConstructorDescriptor.additionalExtras(): PropertyContainer<D> =
-        if(this.isPrimary)
-            (this as FunctionDescriptor).additionalExtras<D>() + PrimaryConstructorExtra
-        else (this as FunctionDescriptor).additionalExtras()
+            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
+            ExtraModifiers.INFIX.takeIf { isInfix },
+            ExtraModifiers.INLINE.takeIf { isInline },
+            ExtraModifiers.SUSPEND.takeIf { isSuspend },
+            ExtraModifiers.OPERATOR.takeIf { isOperator },
+            ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+            ExtraModifiers.TAILREC.takeIf { isTailrec },
+            ExtraModifiers.EXTERNAL.takeIf { isExternal },
+            ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+        ).toProperty()
 
     fun ClassDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
