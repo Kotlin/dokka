@@ -145,7 +145,7 @@ abstract class AbstractCoreTest {
         var generateIndexPages: Boolean = true
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
-        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>()
+        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>("project" to mutableListOf())
 
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
