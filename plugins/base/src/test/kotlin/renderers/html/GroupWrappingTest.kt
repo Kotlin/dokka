@@ -2,9 +2,9 @@ package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
+import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
-import renderers.RenderingOnlyTestBase
-import renderers.TestPage
+import renderers.*
 
 class GroupWrappingTest: RenderingOnlyTestBase() {
 
@@ -20,7 +20,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
 
-        assert(linesAfterContentTag().contains("abc"))
+        renderedContent.match("abc")
     }
 
     @Test
@@ -35,7 +35,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
 
-        assert(linesAfterContentTag().contains("<p>ab</p>c"))
+        renderedContent.match(P("ab"), "c")
     }
 
     @Test
@@ -50,7 +50,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
 
-        assert(linesAfterContentTag().contains("<div>ab</div>c"))
+        renderedContent.match(Div("ab"), "c")
     }
 
     @Test
@@ -70,7 +70,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
 
-        assert(linesAfterContentTag().contains("<div>a<div><div>bc</div></div>d</div>"))
+        renderedContent.match(Div("a", Div(Div("bc")), "d"))
     }
 
 }

@@ -14,6 +14,10 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 import utils.TestOutputWriter
 
 abstract class RenderingOnlyTestBase {
@@ -22,6 +26,10 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().outputWriter to { _ -> files },
         DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory
     )
+
+    protected val renderedContent: Element by lazy {
+        files.contents.getValue("test-page.html").let { Jsoup.parse(it) }.select("#content").single()
+    }
 
     protected fun linesAfterContentTag() =
         files.contents.getValue("test-page.html").lines()
@@ -58,6 +66,28 @@ class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Uni
     ) = this
 
     override fun modified(name: String, children: List<PageNode>) = this
+}
+
+fun Element.match(vararg matchers: Any): Unit =
+    childNodes()
+        .filter { it !is TextNode || it.text().isNotBlank() }
+        .let { it.drop(it.size - matchers.size) }
+        .zip(matchers)
+        .forEach { (n, m) -> m.accepts(n) }
+
+open class Tag(val name: String, vararg val matchers: Any)
+class Div(vararg matchers: Any): Tag("div", *matchers)
+class P(vararg matchers: Any): Tag("p", *matchers)
+
+private fun Any.accepts(n: Node) {
+    when (this) {
+        is String -> assert(n is TextNode && n.text().trim() == this.trim()) { "\"$this\" expected but found: $n" }
+        is Tag ->  {
+            assert(n is Element && n.tagName() == name) { "Tag $name expected but found: $n" }
+            if (n is Element && matchers.isNotEmpty()) n.match(*matchers)
+        }
+        else -> throw IllegalArgumentException("$this is not proper matcher")
+    }
 }
 
 
