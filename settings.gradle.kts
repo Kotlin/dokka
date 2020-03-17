@@ -12,6 +12,7 @@ include("plugins:mathjax")
 include("plugins:gfm")
 include("plugins:jekyll")
 include("plugins:kotlin-as-java")
+//include("plugins:javadoc")
 include("integration-tests:gradle-integration-tests")
 
 pluginManagement {
