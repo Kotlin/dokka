@@ -59,6 +59,7 @@ tasks {
     }
 }
 ```
+You may need to add an `import org.jetbrains.dokka.gradle.DokkaTask` to the top of `build.gradle.kts` in this case.
 
 [Output formats](#output_formats)
 
