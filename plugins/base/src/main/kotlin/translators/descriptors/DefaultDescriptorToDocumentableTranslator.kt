@@ -367,7 +367,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             type = descriptor.type.toBound(),
             documentation = descriptor.resolveDescriptorData(platformData),
             platformData = listOf(platformData),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras())
+            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<DFunction> =

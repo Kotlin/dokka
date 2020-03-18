@@ -5,8 +5,8 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.DInterface
-import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -83,7 +83,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
                         with(find { it.platformType == Platform.js }.assertNotNull("js key").let { map[it]!! }) {
                             this counts 2
                             val classes = listOf("B", "C")
-                            assert(all{ classes.contains(it.classNames) }){"One of subclasses missing in js"}
+                            assertTrue(all { classes.contains(it.classNames) }, "One of subclasses missing in js" )
                         }
                     }
 

@@ -1,9 +1,11 @@
 package model
 
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.DPackage
+import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Test
-import utils.*
+import utils.AbstractModelTest
+import utils.assertNotNull
+import utils.comments
+import utils.name
 
 class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "function") {
 
@@ -130,8 +132,6 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
-// TODO add modifiers - start
-
     @Test
     fun functionWithNotDocumentedAnnotation() {
         inlineModelTest(
@@ -139,19 +139,18 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |@Suppress("FOO") fun f() {}
         """
         ) {
-            // TODO add annotations
-
             with((this / "function" / "f").cast<DFunction>()) {
-                assert(false) { "No annotation data" }
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Suppress"
+                        params.entries counts 1
+                        params["names"].assertNotNull("names") equals "[\"FOO\"]"
+                    }
+                }
             }
         }
     }
-
-//    @Test fun functionWithNotDocumentedAnnotation() {
-//        verifyPackageMember("testdata/functions/functionWithNotDocumentedAnnotation.kt", defaultModelConfig) { func ->
-//            assertEquals(0, func.annotations.count())
-//        }
-//    }
 
     @Test
     fun inlineFunction() {
@@ -160,20 +159,12 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |inline fun f(a: () -> String) {}
         """
         ) {
-            // TODO add data about inline
-
             with((this / "function" / "f").cast<DFunction>()) {
-                assert(false) { "No inline data" }
+                extra[AdditionalModifiers]?.content counts 1
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.INLINE
             }
         }
     }
-
-//    @Test fun inlineFunction() {
-//        verifyPackageMember("testdata/functions/inlineFunction.kt", defaultModelConfig) { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("inline" in modifiers)
-//        }
-//    }
 
     @Test
     fun suspendFunction() {
@@ -182,112 +173,167 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |suspend fun f() {}
         """
         ) {
-            // TODO add data about suspend
-
             with((this / "function" / "f").cast<DFunction>()) {
-                assert(false) { "No suspend data" }
+                extra[AdditionalModifiers]?.content counts 1
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.SUSPEND
             }
         }
     }
 
-//    @Test fun suspendFunction() {
-//        verifyPackageMember("testdata/functions/suspendFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("suspend" in modifiers)
-//        }
-//    }
+    @Test
+    fun suspendInlineFunctionOrder() {
+        inlineModelTest(
+            """
+                |suspend inline fun f(a: () -> String) {}
+        """
+        ) {
+            with((this / "function" / "f").cast<DFunction>()) {
+                extra[AdditionalModifiers]?.content counts 2
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.SUSPEND
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.INLINE
+            }
+        }
+    }
 
-//    @Test fun suspendInlineFunctionOrder() {
-//        verifyPackageMember("testdata/functions/suspendInlineFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
-//                it == "suspend" || it == "inline"
-//            }
-//
-//            assertEquals(listOf("suspend", "inline"), modifiers)
-//        }
-//    }
-//
-//    @Test fun inlineSuspendFunctionOrderChanged() {
-//        verifyPackageMember("testdata/functions/inlineSuspendFunction.kt") { func ->
-//            val modifiers = func.details(NodeKind.Modifier).map { it.name }.filter {
-//                it == "suspend" || it == "inline"
-//            }
-//
-//            assertEquals(listOf("suspend", "inline"), modifiers)
-//        }
-//    }
-//
-//    @Test fun functionWithAnnotatedParam() {
-//        checkSourceExistsAndVerifyModel("testdata/functions/functionWithAnnotatedParam.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.single { it.name == "function" }) {
-//                with(details(NodeKind.Parameter).first()) {
-//                    assertEquals(1, annotations.count())
-//                    with(annotations[0]) {
-//                        assertEquals("Fancy", name)
-//                        assertEquals(Content.Empty, content)
-//                        assertEquals(NodeKind.Annotation, kind)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    @Test fun functionWithNoinlineParam() {
-//        verifyPackageMember("testdata/functions/functionWithNoinlineParam.kt", defaultModelConfig) { func ->
-//            with(func.details(NodeKind.Parameter).first()) {
-//                val modifiers = details(NodeKind.Modifier).map { it.name }
-//                assertTrue("noinline" in modifiers)
-//            }
-//        }
-//    }
-//
-//    @Test fun annotatedFunctionWithAnnotationParameters() {
-//        checkSourceExistsAndVerifyModel(
-//            "testdata/functions/annotatedFunctionWithAnnotationParameters.kt",
-//            defaultModelConfig
-//        ) { model ->
-//            with(model.members.single().members.single { it.name == "f" }) {
-//                assertEquals(1, annotations.count())
-//                with(annotations[0]) {
-//                    assertEquals("Fancy", name)
-//                    assertEquals(Content.Empty, content)
-//                    assertEquals(NodeKind.Annotation, kind)
-//                    assertEquals(1, details.count())
-//                    with(details[0]) {
-//                        assertEquals(NodeKind.Parameter, kind)
-//                        assertEquals(1, details.count())
-//                        with(details[0]) {
-//                            assertEquals(NodeKind.Value, kind)
-//                            assertEquals("1", name)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun inlineSuspendFunctionOrderChanged() {
+        inlineModelTest(
+            """
+                |inline suspend fun f(a: () -> String) {}
+        """
+        ) {
+            with((this / "function" / "f").cast<DFunction>()) {
+                with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
+                    content counts 2
+                    content exists ExtraModifiers.SUSPEND
+                    content exists ExtraModifiers.INLINE
+                }
+            }
+        }
+    }
 
-// TODO add modifiers - end
+    @Test
+    fun functionWithAnnotatedParam() {
+        inlineModelTest(
+            """
+                |@Target(AnnotationTarget.VALUE_PARAMETER)
+                |@Retention(AnnotationRetention.SOURCE)
+                |@MustBeDocumented
+                |public annotation class Fancy
+                |
+                |fun function(@Fancy notInlined: () -> Unit) {}
+        """
+        ) {
+            with((this / "function" / "Fancy").cast<DAnnotation>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 3
+                    with(content.map { it.dri.classNames to it }.toMap()) {
+                        with(this["Target"].assertNotNull("Target")) {
+                            params["allowedTargets"].assertNotNull("allowedTargets") equals "[AnnotationTarget.VALUE_PARAMETER]"
+                        }
+                        with(this["Retention"].assertNotNull("Retention")) {
+                            params["value"].assertNotNull("value") equals "(kotlin/annotation/AnnotationRetention, SOURCE)"
+                        }
+                        this["MustBeDocumented"].assertNotNull("MustBeDocumented").params.entries counts 0
+                    }
+                }
 
-//    @Test
-//    fun functionWithDefaultParameter() {
-//        inlineModelTest(
-//            """
-//                |/src/main/kotlin/function/Test.kt
-//                |package function
-//                |fun f(x: String = "") {}
-//        """
-//        ) {
-//            // TODO add default value data
-//
-//            with(this / "function" / "f" cast Function::class) {
-//                parameters.forEach { p ->
-//                    p.name equals "x"
-//                    p.type.constructorFqName.assertNotNull("Parameter type: ") equals "kotlin.String"
-//                    assert(false) { "Add default value data" }
-//                }
-//            }
-//        }
-//    }
+            }
+            with((this / "function" / "function" / "notInlined").cast<DParameter>()) {
+                with(this.extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Fancy"
+                        params.entries counts 0
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun functionWithNoinlineParam() {
+        inlineModelTest(
+            """
+                |fun f(noinline notInlined: () -> Unit) {}
+        """
+        ) {
+            with((this / "function" / "f" / "notInlined").cast<DParameter>()) {
+                extra[AdditionalModifiers]?.content counts 1
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.NOINLINE
+            }
+        }
+    }
+
+    @Test
+    fun annotatedFunctionWithAnnotationParameters() {
+        inlineModelTest(
+            """
+                |@Target(AnnotationTarget.VALUE_PARAMETER)
+                |@Retention(AnnotationRetention.SOURCE)
+                |@MustBeDocumented
+                |public annotation class Fancy(val size: Int)
+                |
+                |@Fancy(1) fun f() {}
+        """
+        ) {
+            with((this / "function" / "Fancy").cast<DAnnotation>()) {
+                constructors counts 1
+                with(constructors.first()) {
+                    parameters counts 1
+                    with(parameters.first()) {
+                        type.name equals "Int"
+                        name equals "size"
+                    }
+                }
+
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 3
+                    with(content.map { it.dri.classNames to it }.toMap()) {
+                        with(this["Target"].assertNotNull("Target")) {
+                            params["allowedTargets"].assertNotNull("allowedTargets") equals "[AnnotationTarget.VALUE_PARAMETER]"
+                        }
+                        with(this["Retention"].assertNotNull("Retention")) {
+                            params["value"].assertNotNull("value") equals "(kotlin/annotation/AnnotationRetention, SOURCE)"
+                        }
+                        this["MustBeDocumented"].assertNotNull("MustBeDocumented").params.entries counts 0
+                    }
+                }
+
+            }
+            with((this / "function" / "f").cast<DFunction>()) {
+                with(this.extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Fancy"
+                        params.entries counts 1
+                        params["size"] equals "1"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun functionWithDefaultParameter() {
+        inlineModelTest(
+            """
+                |/src/main/kotlin/function/Test.kt
+                |package function
+                |fun f(x: String = "") {}
+        """
+        ) {
+            // TODO add default value data
+
+            with((this / "function" / "f").cast<DFunction>()) {
+                parameters.forEach { p ->
+                    p.name equals "x"
+                    p.type.name.assertNotNull("Parameter type: ") equals "String"
+                    assert(false) { "No default value data" }
+                }
+            }
+        }
+    }
 
 //    @Test fun functionWithDefaultParameter() {
 //        checkSourceExistsAndVerifyModel("testdata/functions/functionWithDefaultParameter.kt", defaultModelConfig) { model ->
@@ -302,14 +348,29 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
 //            }
 //        }
 //    }
-//
-//    @Test fun sinceKotlin() {
-//        checkSourceExistsAndVerifyModel("testdata/functions/sinceKotlin.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.single()) {
-//                assertEquals("1.1", sinceKotlin)
-//            }
-//        }
-//    }
-//}
+
+    @Test
+    fun sinceKotlin() {
+        inlineModelTest(
+            """
+                |/**
+                | * Quite useful [String]
+                | */
+                |@SinceKotlin("1.1")
+                |fun f(): String = "1.1 rulezz"
+                """
+        ) {
+            with((this / "function" / "f").cast<DFunction>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    this.content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "SinceKotlin"
+                        params.entries counts 1
+                        params["version"].assertNotNull("version") equals "1.1"
+                    }
+                }
+            }
+        }
+    }
 
 }

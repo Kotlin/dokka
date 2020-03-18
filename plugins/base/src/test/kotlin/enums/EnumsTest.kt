@@ -34,9 +34,9 @@ class EnumsTest : AbstractCoreTest() {
             pagesGenerationStage = {
                 val map = it.getClasslikeToMemberMap()
                 val test = map.filterKeys { it.name == "Test" }.values.firstOrNull()
-                assert(test != null) { "Test not found" }
-                assert(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
-                assert(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
+                assertTrue(test != null) { "Test not found" }
+                assertTrue(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
+                assertTrue(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
             }
         }
     }

@@ -259,7 +259,7 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
 )
 
 private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: Set<ExtraModifiers>) =
-    this[AdditionalModifiers.AdditionalKey]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
+    this[AdditionalModifiers]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
 
 private fun AdditionalModifiers.squash(second: AdditionalModifiers) =
     AdditionalModifiers(content + second.content)

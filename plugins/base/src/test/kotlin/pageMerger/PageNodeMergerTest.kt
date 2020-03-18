@@ -110,13 +110,13 @@ class PageNodeMergerTest : AbstractCoreTest() {
                 val testT = allChildren.filter { it.name == "testT" }
                 val test = allChildren.filter { it.name == "test" }
 
-                assert(testT.size == 1) { "There can be only one testT page" }
-                assert(testT.first().dri.size == 1) { "testT page should have single DRI, but has ${testT.first().dri.size}" }
+                assertTrue(testT.size == 1) { "There can be only one testT page" }
+                assertTrue(testT.first().dri.size == 1) { "testT page should have single DRI, but has ${testT.first().dri.size}" }
 
-                assert(test.size == 1) { "There can be only one test page" }
-                assert(test.first().dri.size == 1) { "test page should have single DRI, but has ${test.first().dri.size}" }
+                assertTrue(test.size == 1) { "There can be only one test page" }
+                assertTrue(test.first().dri.size == 1) { "test page should have single DRI, but has ${test.first().dri.size}" }
 
-                assert(strList.count() == 2) { "Expected 2 warnings, got ${strList.count()}" }
+                assertTrue(strList.count() == 2) { "Expected 2 warnings, got ${strList.count()}" }
             }
         }
     }
