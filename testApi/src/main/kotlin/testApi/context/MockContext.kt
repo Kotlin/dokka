@@ -30,7 +30,7 @@ class MockContext(
         kclass.constructors.single { it.parameters.isEmpty() }.call().also { it.injectContext(this) }
     } as T
 
-    override fun <T : Any, E : ExtensionPoint<T>> get(point: E): List<T> = extensionMap[point] as List<T>
+    override fun <T : Any, E : ExtensionPoint<T>> get(point: E): List<T> = extensionMap[point].orEmpty() as List<T>
 
     override fun <T : Any, E : ExtensionPoint<T>> single(point: E): T = get(point).single()
 

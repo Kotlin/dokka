@@ -1,6 +1,7 @@
 package renderers
 
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.renderers.html.RootCreator
 import org.jetbrains.dokka.base.resolvers.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.LocationProvider
 import org.jetbrains.dokka.base.resolvers.LocationProviderFactory
@@ -24,7 +25,8 @@ abstract class RenderingOnlyTestBase {
     val files = TestOutputWriter()
     val context = MockContext(
         DokkaBase().outputWriter to { _ -> files },
-        DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory
+        DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory,
+        DokkaBase().htmlPreprocessors to { _ -> RootCreator }
     )
 
     protected val renderedContent: Element by lazy {
