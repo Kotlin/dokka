@@ -19,7 +19,8 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
-import org.jetbrains.kotlin.psi.KtConstantExpression
+import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
@@ -531,9 +532,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         )
     }.let(::Annotations)
 
-    fun ValueParameterDescriptor.getDefaultValue(): String? = (source as? KotlinSourceElement)?.let {
-        it.psi.children.find { it is KtConstantExpression }?.text
-    }
+    fun ValueParameterDescriptor.getDefaultValue(): String? =
+        (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
 
     data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
 

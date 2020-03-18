@@ -315,7 +315,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
     }
 
     @Test
-    fun functionWithDefaultParameter() {
+    fun functionWithDefaultStringParameter() {
         inlineModelTest(
             """
                 |/src/main/kotlin/function/Test.kt
@@ -323,31 +323,34 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 |fun f(x: String = "") {}
         """
         ) {
-            // TODO add default value data
-
             with((this / "function" / "f").cast<DFunction>()) {
                 parameters.forEach { p ->
                     p.name equals "x"
                     p.type.name.assertNotNull("Parameter type: ") equals "String"
-                    assert(false) { "No default value data" }
+                    p.extra[DefaultValue]?.value equals "\"\""
                 }
             }
         }
     }
 
-//    @Test fun functionWithDefaultParameter() {
-//        checkSourceExistsAndVerifyModel("testdata/functions/functionWithDefaultParameter.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.single()) {
-//                with(details.elementAt(3)) {
-//                    val value = details(NodeKind.Value)
-//                    assertEquals(1, value.count())
-//                    with(value[0]) {
-//                        assertEquals("\"\"", name)
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun functionWithDefaultFloatParameter() {
+        inlineModelTest(
+            """
+                |/src/main/kotlin/function/Test.kt
+                |package function
+                |fun f(x: Float = 3.14f) {}
+        """
+        ) {
+            with((this / "function" / "f").cast<DFunction>()) {
+                parameters.forEach { p ->
+                    p.name equals "x"
+                    p.type.name.assertNotNull("Parameter type: ") equals "Float"
+                    p.extra[DefaultValue]?.value equals "3.14f"
+                }
+            }
+        }
+    }
 
     @Test
     fun sinceKotlin() {
