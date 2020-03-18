@@ -1,7 +1,6 @@
 package model
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.KotlinModifier.*
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -150,19 +149,13 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 visibility.values allEquals KotlinVisibility.Public
-                with(extra[AdditionalModifiers.AdditionalKey].assertNotNull("Extras")) {
-                    content.find { it == ExtraModifiers.DATA }.assertNotNull("data modifier")
+                with(extra[AdditionalModifiers].assertNotNull("Extras")) {
+                    content counts 1
+                    content.first() equals ExtraModifiers.DATA
                 }
             }
         }
     }
-
-//    @Test fun dataClass() {
-//        verifyPackageMember("testdata/classes/dataClass.kt", defaultModelConfig) { cls ->
-//            val modifiers = cls.details(NodeKind.Modifier).map { it.name }
-//            assertTrue("data" in modifiers)
-//        }
-//    }
 
     @Test
     fun sealedClass() {
@@ -178,30 +171,25 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-//                // TODO modifiers
-//    @Test fun annotatedClassWithAnnotationParameters() {
-//        checkSourceExistsAndVerifyModel(
-//            "testdata/classes/annotatedClassWithAnnotationParameters.kt",
-//            defaultModelConfig
-//        ) { model ->
-//            with(model.members.single().members.single()) {
-//                with(deprecation!!) {
-//                    assertEquals("Deprecated", name)
-//                    assertEquals(Content.Empty, content)
-//                    assertEquals(NodeKind.Annotation, kind)
-//                    assertEquals(1, details.count())
-//                    with(details[0]) {
-//                        assertEquals(NodeKind.Parameter, kind)
-//                        assertEquals(1, details.count())
-//                        with(details[0]) {
-//                            assertEquals(NodeKind.Value, kind)
-//                            assertEquals("\"should no longer be used\"", name)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun annotatedClassWithAnnotationParameters() {
+        inlineModelTest(
+            """
+                |@Deprecated("should no longer be used") class Foo() {}
+                """
+        ) {
+            with((this / "classes" / "Foo").cast<DClass>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    this.content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Deprecated"
+                        params.entries counts 1
+                        params["message"].assertNotNull("message") equals "should no longer be used"
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     fun notOpenClass() {
@@ -272,7 +260,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-    @Test // todo inner class
+    @Test
     fun innerClass() {
         inlineModelTest(
             """
@@ -284,20 +272,14 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "C").cast<DClass>()) {
 
                 with((this / "D").cast<DClass>()) {
+                    with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
+                        content counts 1
+                        content.first() equals ExtraModifiers.INNER
+                    }
                 }
             }
         }
     }
-
-//                // TODO modifiers
-//    @Test fun innerClass() {
-//        verifyPackageMember("testdata/classes/innerClass.kt", defaultModelConfig) { cls ->
-//            val innerClass = cls.members.single { it.name == "D" }
-//            val modifiers = innerClass.details(NodeKind.Modifier)
-//            assertEquals(3, modifiers.size)
-//            assertEquals("inner", modifiers[2].name)
-//        }
-//    }
 
     @Test
     fun companionObjectExtension() {
@@ -364,14 +346,29 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-    // TODO modifiers
-//    @Test fun sinceKotlin() {
-//        checkSourceExistsAndVerifyModel("testdata/classes/sinceKotlin.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.single()) {
-//                assertEquals("1.1", sinceKotlin)
-//            }
-//        }
-//    }
+    @Test
+    fun sinceKotlin() {
+        inlineModelTest(
+            """
+                |/**
+                | * Useful
+                | */
+                |@SinceKotlin("1.1")
+                |class C
+                """
+        ) {
+            with((this / "classes" / "C").cast<DClass>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    this.content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "SinceKotlin"
+                        params.entries counts 1
+                        params["version"].assertNotNull("version") equals "1.1"
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     fun privateCompanionObject() {
@@ -402,7 +399,8 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-    @Test fun annotatedClass() {
+    @Test
+    fun annotatedClass() {
         inlineModelTest(
             """@Suppress("abc") class Foo() {}"""
         ) {
@@ -417,47 +415,30 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-    // TODO annotations
-//    @Test fun annotatedClass() {
-//        verifyPackageMember("testdata/classes/annotatedClass.kt", ModelConfig(
-//            analysisPlatform = analysisPlatform,
-//            withKotlinRuntime = true
-//        )
-//        ) { cls ->
-//            Assert.assertEquals(1, cls.annotations.count())
-//            with(cls.annotations[0]) {
-//                Assert.assertEquals("Strictfp", name)
-//                Assert.assertEquals(Content.Empty, content)
-//                Assert.assertEquals(NodeKind.Annotation, kind)
-//            }
-//        }
-//    }
-
-
-// TODO annotations
-
-//    @Test fun javaAnnotationClass() {
-//        checkSourceExistsAndVerifyModel(
-//            "testdata/classes/javaAnnotationClass.kt",
-//            modelConfig = ModelConfig(analysisPlatform = analysisPlatform, withJdk = true)
-//        ) { model ->
-//            with(model.members.single().members.single()) {
-//                Assert.assertEquals(1, annotations.count())
-//                with(annotations[0]) {
-//                    Assert.assertEquals("Retention", name)
-//                    Assert.assertEquals(Content.Empty, content)
-//                    Assert.assertEquals(NodeKind.Annotation, kind)
-//                    with(details[0]) {
-//                        Assert.assertEquals(NodeKind.Parameter, kind)
-//                        Assert.assertEquals(1, details.count())
-//                        with(details[0]) {
-//                            Assert.assertEquals(NodeKind.Value, kind)
-//                            Assert.assertEquals("RetentionPolicy.SOURCE", name)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Test fun javaAnnotationClass() {
+        inlineModelTest(
+            """
+                |import java.lang.annotation.Retention
+                |import java.lang.annotation.RetentionPolicy
+                |
+                |@Retention(RetentionPolicy.SOURCE)
+                |public annotation class throws()
+            """
+        ) {
+            with((this / "classes" / "throws").cast<DAnnotation>()) {
+                with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
+                    content counts 1
+                    content.first() equals ExtraModifiers.OVERRIDE // ??
+                }
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Retention"
+                        params["value"].assertNotNull("value") equals "(java/lang/annotation/RetentionPolicy, SOURCE)"
+                    }
+                }
+            }
+        }
+    }
 
 }

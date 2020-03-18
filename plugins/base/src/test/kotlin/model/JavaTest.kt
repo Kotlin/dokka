@@ -1,8 +1,7 @@
 package model
 
+import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -113,7 +112,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 val sups = listOf("Exception", "Cloneable")
                 assertTrue(
                     sups.all { s -> supertypes.map.values.flatten().any { it.classNames == s } })
-                    "Foo must extend ${sups.joinToString(", ")}"
+                "Foo must extend ${sups.joinToString(", ")}"
             }
         }
     }
@@ -155,7 +154,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "Foo").cast<DClass>()) {
-                this
+                throw  AssertionError("No type parameters data for class")
             }
         }
     }
@@ -286,6 +285,24 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
     //        }
     //    }
 
+    @Test
+    fun staticMethod() {
+        inlineModelTest(
+            """
+            |class C {
+            |  public static void foo() {}
+            |}
+            """
+        ) {
+            with((this / "java" / "C" / "foo").cast<DFunction>()) {
+                with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
+                    content counts 1
+                    content.first() equals ExtraModifiers.STATIC
+                }
+            }
+        }
+    }
+
     //    @Test fun staticMethod() { todo
     //        verifyJavaPackageMember("testdata/java/staticMethod.java", defaultModelConfig) { cls ->
     //            val m = cls.members(NodeKind.Function).single { it.name == "foo" }
@@ -304,31 +321,53 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
     //            assertEquals(1, cls.members(NodeKind.Function).size)
     //        }
     //    }
-    //
-    //    @Test fun annotatedAnnotation() {
-    //        verifyJavaPackageMember("testdata/java/annotatedAnnotation.java", defaultModelConfig) { cls ->
-    //            assertEquals(1, cls.annotations.size)
-    //            with(cls.annotations[0]) {
-    //                assertEquals(1, details.count())
-    //                with(details[0]) {
-    //                    assertEquals(NodeKind.Parameter, kind)
-    //                    assertEquals(1, details.count())
-    //                    with(details[0]) {
-    //                        assertEquals(NodeKind.Value, kind)
-    //                        assertEquals("[AnnotationTarget.FIELD, AnnotationTarget.CLASS, AnnotationTarget.FILE, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER]", name)
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
+
+    @Test
+    fun annotatedAnnotation() {
+        inlineModelTest(
+            """
+            |import java.lang.annotation.*;
+            |
+            |@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
+            |public @interface Attribute {
+            |  String value() default "";
+            |}
+            """
+        ) {
+            with((this / "java" / "Attribute").cast<DAnnotation>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Target"
+                        params["value"].assertNotNull("value") equals "PsiArrayInitializerMemberValue:{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
+                    }
+                }
+            }
+        }
+    }
+
     //    @Test fun deprecation() {
     //        verifyJavaPackageMember("testdata/java/deprecation.java", defaultModelConfig) { cls ->
     //            val fn = cls.members(NodeKind.Function).single()
     //            assertEquals("This should no longer be used", fn.deprecation!!.content.toTestString())
     //        }
     //    }
-    //
+
+    @Test
+    fun javaLangObject() {
+        inlineModelTest(
+            """
+            |class Test {
+            |  public Object fn() { return null; }
+            |}
+            """
+        ) {
+            with((this / "java" / "Test" / "fn").cast<DFunction>()) {
+                type.name equals "Any"
+            }
+        }
+    }
+
     //    @Test fun javaLangObject() {
     //        verifyJavaPackageMember("testdata/java/javaLangObject.java", defaultModelConfig) { cls ->
     //            val fn = cls.members(NodeKind.Function).single()
@@ -356,6 +395,30 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
+    @Test
+    fun inheritorLinks() {
+        inlineModelTest(
+            """
+            |public class InheritorLinks {
+            |  public static class Foo {}
+            |
+            |  public static class Bar extends Foo {}
+            |}
+            """
+        ) {
+            with((this / "java" / "InheritorLinks").cast<DClass>()) {
+                val dri = (this / "Foo").assertNotNull("Foo dri").dri
+                with((this / "Bar").cast<DClass>()) {
+                    with(extra[InheritorsInfo].assertNotNull("InheritorsInfo")) {
+                        with(value.map.values.flatten().distinct()) {
+                            this counts 1
+                            first() equals dri
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     //    todo
     //    @Test fun inheritorLinks() {

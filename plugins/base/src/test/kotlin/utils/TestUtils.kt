@@ -3,6 +3,7 @@ package utils
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.collections.orEmpty
 
 @DslMarker
@@ -22,6 +23,10 @@ interface AssertDSL {
     infix fun Any?.equals(other: Any?) = this.assertEqual(other)
     infix fun Collection<Any>?.allEquals(other: Any?) =
         this?.also { c -> c.forEach { it equals other } } ?: run { assert(false) { "Collection is empty" } }
+    infix fun <T> Collection<T>?.exists(e: T) {
+        assertTrue(this.orEmpty().isNotEmpty(), "Collection cannot be null or empty")
+        assertTrue(this!!.any{it == e}, "Collection doesn't contain $e")
+    }
 
     infix fun <T> Collection<T>?.counts(n: Int) = this.orEmpty().assertCount(n)
 

@@ -1,8 +1,6 @@
 package model
 
-import org.jetbrains.dokka.model.KotlinVisibility
-import org.jetbrains.dokka.model.DPackage
-import org.jetbrains.dokka.model.DProperty
+import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -140,19 +138,48 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         }
     }
 
-    // todo
-//    @Test fun sinceKotlin() {
-//        checkSourceExistsAndVerifyModel("testdata/properties/sinceKotlin.kt", defaultModelConfig) { model ->
-//            with(model.members.single().members.single()) {
-//                assertEquals("1.1", sinceKotlin)
-//            }
-//        }
-//    }
-//}
-//
-//class JSPropertyTest: BasePropertyTest(Platform.js) {}
-//
-//class JVMPropertyTest : BasePropertyTest(Platform.jvm) {
+    @Test
+    fun sinceKotlin() {
+        inlineModelTest(
+            """
+                |/**
+                | * Quite useful [String]
+                | */
+                |@SinceKotlin("1.1")
+                |val prop: String = "1.1 rulezz"
+                """
+        ) {
+            with((this / "property" / "prop").cast<DProperty>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    this.content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "SinceKotlin"
+                        params.entries counts 1
+                        params["version"].assertNotNull("version") equals "1.1"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun annotatedProperty() {
+        inlineModelTest(
+            """
+                |@Strictfp var property = "test"
+                """
+        ) {
+            with((this / "property" / "property").cast<DProperty>()) {
+                with(extra[Annotations].assertNotNull("Annotations")) {
+                    this.content counts 1
+                    with(content.first()) {
+                        dri.classNames equals "Strictfp"
+                        params.entries counts 0
+                    }
+                }
+            }
+        }
+    }
 //    @Test
 //    fun annotatedProperty() {
 //        checkSourceExistsAndVerifyModel(
