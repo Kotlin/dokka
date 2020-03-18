@@ -2,6 +2,7 @@ package org.jetbrains.dokka.testApi.testRunner
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.model.DProject
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
@@ -112,8 +113,8 @@ abstract class AbstractCoreTest {
         var analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit = {}
         var pluginsSetupStage: (DokkaContext) -> Unit = {}
         var documentablesCreationStage: (List<DModule>) -> Unit = {}
-        var documentablesMergingStage: (DModule) -> Unit = {}
-        var documentablesTransformationStage: (DModule) -> Unit = {}
+        var documentablesMergingStage: (DProject) -> Unit = {}
+        var documentablesTransformationStage: (DProject) -> Unit = {}
         var pagesGenerationStage: (ModulePageNode) -> Unit = {}
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
         var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
@@ -224,8 +225,8 @@ data class TestMethods(
     val analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit,
     val pluginsSetupStage: (DokkaContext) -> Unit,
     val documentablesCreationStage: (List<DModule>) -> Unit,
-    val documentablesMergingStage: (DModule) -> Unit,
-    val documentablesTransformationStage: (DModule) -> Unit,
+    val documentablesMergingStage: (DProject) -> Unit,
+    val documentablesTransformationStage: (DProject) -> Unit,
     val pagesGenerationStage: (ModulePageNode) -> Unit,
     val pagesTransformationStage: (RootPageNode) -> Unit,
     val renderingStage: (RootPageNode, DokkaContext) -> Unit

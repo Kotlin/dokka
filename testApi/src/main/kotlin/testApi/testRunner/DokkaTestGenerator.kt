@@ -27,9 +27,9 @@ internal class DokkaTestGenerator(
         documentablesCreationStage(modulesFromPlatforms)
 
         val documentationModel = dokkaGenerator.mergeDocumentationModels(modulesFromPlatforms, context)
-        documentablesMergingStage(documentationModel.modules.first())
+        documentablesMergingStage(documentationModel)
 
-        val transformedDocumentation = dokkaGenerator.transformDocumentationModel(documentationModel.modules.first(), context)
+        val transformedDocumentation = dokkaGenerator.transformDocumentationModel(documentationModel, context)
         documentablesTransformationStage(transformedDocumentation)
 
         val pages = dokkaGenerator.createPages(transformedDocumentation, context)

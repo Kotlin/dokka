@@ -44,7 +44,7 @@ class DokkaGenerator(
         val documentationModel = mergeDocumentationModels(modulesFromPlatforms, context)
 
         report("Transforming documentation model")
-        val transformedDocumentation = transformDocumentationModel(documentationModel.modules.first(), context)
+        val transformedDocumentation = transformDocumentationModel(documentationModel, context)
 
         report("Creating pages")
         val pages = createPages(transformedDocumentation, context)
@@ -84,12 +84,16 @@ class DokkaGenerator(
     ) = context.single(CoreExtensions.documentableMerger).invoke(modulesFromPlatforms, context)
 
     fun transformDocumentationModel(
-        documentationModel: DModule,
+        documentationModel: DProject,
         context: DokkaContext
-    ) = context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
+    ): DProject = documentationModel.copy(
+        modules = documentationModel.modules.map {
+            context[CoreExtensions.documentableTransformer].fold(it) { acc, t -> t(acc, context) }
+        }
+    )
 
     fun createPages(
-        transformedDocumentation: DModule,
+        transformedDocumentation: DProject,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
 

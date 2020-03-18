@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
@@ -34,17 +35,13 @@ internal object DefaultDocumentableMerger : DocumentableMerger {
                             DPackage::mergeWith
                         ),
                         documentation = list.platformDependentFor { documentation },
-                        platformData = list.flatMap { it.platformData }.distinct()
+                        platformData = list.flatMap { it.platformData }.distinct(),
+                        dri = DRI(extra = "moduleName=${it.key};")
                     ).mergeExtras(left, right)
-                }.let { it.copy(extra = it.extra + ModuleName(it.name)) }
+                }
             }
         )
     }
-}
-
-internal class ModuleName(val name: String) : ExtraProperty<DModule> {
-    object ModuleNameKey : ExtraProperty.Key<DModule, ModuleName>
-    override val key: ExtraProperty.Key<DModule, ModuleName> = ModuleNameKey
 }
 
 private fun <T : Documentable> merge(elements: List<T>, reducer: (T, T) -> T): List<T> =

@@ -122,9 +122,9 @@ data class DModule(
     val packages: List<DPackage>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val platformData: List<PlatformData>,
-    override val extra: PropertyContainer<DModule> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DModule> = PropertyContainer.empty(),
+    override val dri: DRI = DRI(extra = "moduleName=null;")
 ) : Documentable(), WithExtraProperties<DModule> {
-    override val dri: DRI = DRI.topLevel
     override val children: List<Documentable>
         get() = packages
 
