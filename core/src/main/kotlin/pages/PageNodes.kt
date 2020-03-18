@@ -61,7 +61,7 @@ abstract class RootPageNode: PageNode {
     ): RootPageNode
 }
 
-class ModulePageNode(
+class ProjectPageNode(
     override val name: String,
     override val content: ContentNode,
     override val documentable: Documentable?,
@@ -69,6 +69,29 @@ class ModulePageNode(
     override val embeddedResources: List<String> = listOf()
 ) : RootPageNode(), ContentPage {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
+
+    override fun modified(name: String, children: List<PageNode>): ProjectPageNode =
+        modified(name = name, content = this.content, dri = dri, children = children)
+
+    override fun modified(
+        name: String,
+        content: ContentNode,
+        dri: Set<DRI>,
+        embeddedResources: List<String>,
+        children: List<PageNode>
+    ): ProjectPageNode =
+        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
+        else ProjectPageNode(name, content, documentable, children, embeddedResources)
+}
+
+class ModulePageNode(
+    override val name: String,
+    override val content: ContentNode,
+    override val dri: Set<DRI>,
+    override val documentable: Documentable?,
+    override val children: List<PageNode>,
+    override val embeddedResources: List<String> = listOf()
+) : ContentPage {
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
         modified(name = name, content = this.content, dri = dri, children = children)
@@ -81,7 +104,7 @@ class ModulePageNode(
         children: List<PageNode>
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else ModulePageNode(name, content, documentable, children, embeddedResources)
+        else ModulePageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
 class PackagePageNode(

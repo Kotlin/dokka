@@ -5,6 +5,7 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.DProject
 import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.pages.ProjectPageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -115,7 +116,7 @@ abstract class AbstractCoreTest {
         var documentablesCreationStage: (List<DModule>) -> Unit = {}
         var documentablesMergingStage: (DProject) -> Unit = {}
         var documentablesTransformationStage: (DProject) -> Unit = {}
-        var pagesGenerationStage: (ModulePageNode) -> Unit = {}
+        var pagesGenerationStage: (ProjectPageNode) -> Unit = {}
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
         var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
 
@@ -227,7 +228,7 @@ data class TestMethods(
     val documentablesCreationStage: (List<DModule>) -> Unit,
     val documentablesMergingStage: (DProject) -> Unit,
     val documentablesTransformationStage: (DProject) -> Unit,
-    val pagesGenerationStage: (ModulePageNode) -> Unit,
+    val pagesGenerationStage: (ProjectPageNode) -> Unit,
     val pagesTransformationStage: (RootPageNode) -> Unit,
     val renderingStage: (RootPageNode, DokkaContext) -> Unit
 )

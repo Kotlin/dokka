@@ -25,7 +25,11 @@ data class DRI(
     val extra: String? = null
 ) {
     override fun toString(): String =
-        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature().orEmpty()}/${target?.toString().orEmpty()}/${extra.orEmpty()}"
+        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature().orEmpty()}/${target?.toString().orEmpty()}/"
+
+    inline fun <reified T : Any> getExtras(name: String): T? =
+        extra?.split(";")?.find { it.contains(name) }?.substringAfter("=")?.takeIf { it != "null" } as? T
+
 
     companion object {
         fun from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
@@ -52,6 +56,7 @@ data class DRI(
                 firstIsInstanceOrNull<PsiParameter>()?.let { params.indexOf(it) }
             )
         }
+
         val topLevel = DRI()
     }
 }
@@ -88,6 +93,7 @@ data class Callable(
                 valueParameters.mapNotNull { TypeReference.from(it) }
             )
         }
+
         fun from(psi: PsiMethod) = with(psi) {
             Callable(
                 name,
