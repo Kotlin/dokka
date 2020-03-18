@@ -1,25 +1,20 @@
 package javadoc.pages
 
 import kotlinx.html.html
-import org.jetbrains.dokka.javadoc.JavadocRenderer
-import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.renderers.html.HtmlRenderer
-import org.jetbrains.dokka.renderers.html.NavigationNode
-import org.jetbrains.dokka.renderers.html.NavigationPage
-import org.jetbrains.dokka.renderers.platforms
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
-import java.time.LocalDate
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.transformers.pages.PageTransformer
+import java.time.LocalDate
 
 internal const val jQueryVersion = "3.3.1"
 internal const val jQueryMigrateVersion = "3.0.1"
 
-object RootCreator : PageNodeTransformer {
+object RootCreator : PageTransformer {
     override fun invoke(input: RootPageNode) =
         RendererSpecificRootPage("", listOf(input), RenderingStrategy.DoNothing)
 }
 
-object PackageSummaryInstaller : PageNodeTransformer {
+object PackageSummaryInstaller : PageTransformer {
     override fun invoke(input: RootPageNode) = input.modified(
         children = input.children.filterNot { it is ContentPage } +
                 input.children.filterIsInstance<ContentPage>().single().children.map(::visit)
@@ -28,6 +23,7 @@ object PackageSummaryInstaller : PageNodeTransformer {
     private fun visit(page: PageNode): PageNode = if (page is PackagePageNode) {
         page.modified(children = page.children + PackageSummary(page))
     } else {
+        println("[Info] Package summary not appended to $page")
         page
     }
 }
@@ -39,7 +35,7 @@ class PackageSummary(val page: PackagePageNode) : RendererSpecificPage {
 
     override val strategy = RenderingStrategy.Write(content())
 
-    private fun content(): String = pageStart(page.name, "0.0.1", page.name, "???") + // TODO
+    private fun content(): String = pageStart(page.name, "0.0.1", page.name, "../") + // TODO
             topNavbar(page, "???")
 
 }
@@ -220,16 +216,17 @@ internal fun String.wrapInTag(tag: String, options: Map<String, String>) =
 internal enum class NavigableType {
     Overview, Package, Class, Tree, Deprecated, Index, Help
 }
+
 internal interface Navigable {
     val type: NavigableType
-
 }
+
 class NavbarGenerator(val page: PageNode) {
     val activeClass = "navBarCell1Rev"
     fun pathToRoot() = "???" // TODO
     val navItems = listOf("Overview", "Package", "Class", "Tree", "Deprecated", "Index", "Help")
 
-//    private fun items = navItems.map {itemLink}
+    //    private fun items = navItems.map {itemLink}
 //    fun navItemLink()
     val x = createHTML().html {}
 
@@ -238,7 +235,7 @@ class NavbarGenerator(val page: PageNode) {
         </ul>
         """.trimIndent()
 
-//    private fun navLista(): String {
+//    private fun navList(): String {
 //        when (page) {
 //            is PackagePageNode ->
 //        }
@@ -264,7 +261,7 @@ class NavbarGenerator(val page: PageNode) {
 //    }
 
     private fun bottomNavbar(page: PageNode): String {
-        """<nav role="navigation">
+        return """<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
@@ -273,7 +270,7 @@ class NavbarGenerator(val page: PageNode) {
 <a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
-${navList()}
+${navList("????")}
 </div>
 <div class="subNav">
 <div>

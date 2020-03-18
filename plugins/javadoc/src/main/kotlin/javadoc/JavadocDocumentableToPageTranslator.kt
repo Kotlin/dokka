@@ -1,24 +1,17 @@
 package javadoc
 
-import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.model.Module
-import org.jetbrains.dokka.pages.DefaultPageBuilder
-import org.jetbrains.dokka.pages.DefaultPageContentBuilder
+import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.single
-import org.jetbrains.dokka.transformers.documentation.DocumentationToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
+import org.jetbrains.dokka.utilities.DokkaLogger
 
-class JavadocDocumentableToPageTranslator : DocumentationToPageTranslator {
-        override fun invoke(module: Module, context: DokkaContext): ModulePageNode =
-            JavadocPageBuilder { node, kind, operation ->
-                JavadocPageContentBuilder.group(
-                    setOf(node.dri),
-                    node.platformData,
-                    kind,
-                    context.single(CoreExtensions.commentsToContentConverter),
-                    context.logger,
-                    operation
-                )
-            }.pageForModule(module)
-    }
+class JavadocDocumentableToPageTranslator(
+    private val commentsToContentConverter: CommentsToContentConverter,
+    private val signatureProvider: SignatureProvider,
+    private val logger: DokkaLogger
+) : DocumentableToPageTranslator {
+    override fun invoke(module: DModule): ModulePageNode =
+        JavadocPageCreator(commentsToContentConverter, signatureProvider, logger).pageForModule(module)
+}

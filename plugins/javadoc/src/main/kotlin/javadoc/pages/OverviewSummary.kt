@@ -1,7 +1,6 @@
 package javadoc.pages
 
 import java.time.LocalDate
-import java.util.*
 
 internal fun overviewSummary(title: String, version: String) = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -17,7 +16,7 @@ internal fun overviewSummary(title: String, version: String) = """
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="Overview (terrain-generator 0.0.1 API)";
+            parent.document.title="Overview ($title $version API)";
         }
     }
     catch(err) {
