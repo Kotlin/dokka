@@ -40,6 +40,7 @@ data class PlatformDependent<out T>(
     companion object {
         fun <T> empty(): PlatformDependent<T> = PlatformDependent(emptyMap())
         fun <T> from(platformData: PlatformData, element: T) = PlatformDependent(mapOf(platformData to element))
+        fun <T> expectFrom(element: T) = PlatformDependent(map = emptyMap(), expect = element)
     }
 }
 

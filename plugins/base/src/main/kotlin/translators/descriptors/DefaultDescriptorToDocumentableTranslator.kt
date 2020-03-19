@@ -96,7 +96,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun interfaceDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DInterface {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val info = descriptor.resolveClassDescriptionData(platformData)
+        val isExpect = descriptor.isExpect
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+
 
         return DInterface(
             dri = driWithPlatform.dri,
@@ -105,8 +107,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                            else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) PlatformDependent.expectFrom(info.supertypes)
+            else PlatformDependent.from(platformData,info.supertypes),
             documentation = info.docs,
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
@@ -118,7 +122,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun objectDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DObject {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val info = descriptor.resolveClassDescriptionData(platformData)
+        val isExpect = descriptor.isExpect
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+
 
         return DObject(
             dri = driWithPlatform.dri,
@@ -127,8 +133,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
-            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) PlatformDependent.expectFrom(info.supertypes)
+                else PlatformDependent.from(platformData,info.supertypes),
             documentation = info.docs,
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -138,7 +146,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun enumDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnum {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val info = descriptor.resolveClassDescriptionData(platformData)
+        val isExpect = descriptor.isExpect
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
 
         return DEnum(
             dri = driWithPlatform.dri,
@@ -149,8 +158,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
-            supertypes = PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) PlatformDependent.expectFrom(info.supertypes)
+                else PlatformDependent.from(platformData,info.supertypes),
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
             platformData = listOf(platformData),
@@ -161,11 +172,12 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun enumEntryDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DEnumEntry {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
+        val isExpect = descriptor.isExpect
 
         return DEnumEntry(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
-            documentation = descriptor.resolveDescriptorData(platformData),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             classlikes = scope.classlikes(driWithPlatform),
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
@@ -197,7 +209,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     private fun classDescriptor(descriptor: ClassDescriptor, parent: DRIWithPlatformInfo): DClass {
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
-        val info = descriptor.resolveClassDescriptionData(platformData)
+        val isExpect = descriptor.isExpect
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
         val actual = descriptor.createSources()
 
         return DClass(
@@ -214,12 +227,14 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = actual,
-            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) PlatformDependent.expectFrom(info.supertypes)
+                else PlatformDependent.from(platformData,info.supertypes),
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             documentation = info.docs,
             modifier = descriptor.modifier(),
             companion = descriptor.companion(driWithPlatform),
-            supertypes = PlatformDependent.from(platformData, info.supertypes),
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
@@ -227,6 +242,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
 
     override fun visitPropertyDescriptor(descriptor: PropertyDescriptor, parent: DRIWithPlatformInfo): DProperty {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
+        val isExpect = descriptor.isExpect
 
         val actual = descriptor.createSources()
         return DProperty(
@@ -242,8 +258,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             setter = descriptor.accessors.filterIsInstance<PropertySetterDescriptor>().singleOrNull()?.let {
                 visitPropertyAccessorDescriptor(it, descriptor, dri)
             },
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
-            documentation = descriptor.resolveDescriptorData(platformData),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             modifier = descriptor.modifier(),
             type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
@@ -253,6 +270,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
+        val isExpect = descriptor.isExpect
 
         val actual = descriptor.createSources()
         return DFunction(
@@ -266,9 +284,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            documentation = descriptor.resolveDescriptorData(platformData),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             modifier = descriptor.modifier(),
             type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
@@ -279,6 +298,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     override fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {
         val dri = parent.dri.copy(callable = Callable.from(descriptor))
         val actual = descriptor.createSources()
+        val isExpect = descriptor.isExpect
+
         return DFunction(
             dri = dri,
             name = "<init>",
@@ -290,8 +311,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
-            documentation = descriptor.resolveDescriptorData(platformData),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             type = descriptor.returnType.toBound(),
             modifier = descriptor.modifier(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
@@ -320,13 +342,14 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
     ): DFunction {
         val dri = parent.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
+        val isExpect = descriptor.isExpect
 
         fun PropertyDescriptor.asParameter(parent: DRI) =
             DParameter(
                 parent.copy(target = 1),
                 this.name.asString(),
                 type = this.type.toBound(),
-                documentation = descriptor.resolveDescriptorData(platformData),
+                documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
                 platformData = listOf(platformData),
                 extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
             )
@@ -349,8 +372,9 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             name,
             isConstructor = false,
             parameters = parameters,
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
-            documentation = descriptor.resolveDescriptorData(platformData),
+            visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             type = descriptor.returnType!!.toBound(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             modifier = descriptor.modifier(),
@@ -409,10 +433,10 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             .map { enumEntryDescriptor(it, parent) }
 
 
-    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData): PlatformDependent<DocumentationNode> =
-        PlatformDependent.from(platformData, getDocumentation())
+    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData?): PlatformDependent<DocumentationNode> =
+        if(platformData != null) PlatformDependent.from(platformData, getDocumentation()) else PlatformDependent.expectFrom(getDocumentation())
 
-    private fun ClassDescriptor.resolveClassDescriptionData(platformData: PlatformData): ClassInfo {
+    private fun ClassDescriptor.resolveClassDescriptionData(platformData: PlatformData?): ClassInfo {
         return ClassInfo(
             (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) },
             resolveDescriptorData(platformData)

@@ -46,7 +46,7 @@ open class HtmlRenderer(
             consumer.onTagContentUnsafe { +distinct.keys.single() }
         else
             distinct.forEach { text, platforms ->
-                consumer.onTagContentUnsafe { +platforms.joinToString(prefix = "$text [", postfix = "]") { it.name } }
+                consumer.onTagContentUnsafe { +platforms.joinToString(prefix = " [", postfix = "] $text") { it.platformType.key } }
             }
     }
 
