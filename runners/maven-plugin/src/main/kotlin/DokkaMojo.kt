@@ -29,6 +29,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.net.URL
 
@@ -224,7 +225,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             format = getOutFormat(),
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
-            modulesConfiguration = mapOf("project" to listOf(passConfiguration)),
+            modulesConfiguration = mapOf((passConfiguration.moduleName.takeIf { it.isNotEmpty() } ?: "project".also {
+                DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+            }) to listOf(passConfiguration)),
             generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()
