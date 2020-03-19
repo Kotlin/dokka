@@ -71,7 +71,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "main"
     )
 
-    override val classpath: List<String> by parser.repeatableOption(
+    override val classpath: List<String> by parser.repeatableOption<String>(
         listOf("-classpath"),
         "Classpath for symbol resolution"
     )
@@ -86,12 +86,12 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "Source file or directory (allows many paths separated by the system path separator)"
     ) { SourceRootImpl(it) }
 
-    override val samples: List<String> by parser.repeatableOption(
+    override val samples: List<String> by parser.repeatableOption<String>(
         listOf("-sample"),
         "Source root for samples"
     )
 
-    override val includes: List<String> by parser.repeatableOption(
+    override val includes: List<String> by parser.repeatableOption<String>(
         listOf("-include"),
         "Markdown files to load (allows many paths separated by the system path separator)"
     )
@@ -150,7 +150,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         "Disable documentation link to JDK"
     )
 
-    override val suppressedFiles: List<String> by parser.repeatableOption(
+    override val suppressedFiles: List<String> by parser.repeatableOption<String>(
         listOf("-suppressedFile"),
         ""
     )
@@ -173,7 +173,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         { Platform.DEFAULT }
     )
 
-    override val targets: List<String> by parser.repeatableOption(
+    override val targets: List<String> by parser.repeatableOption<String>(
         listOf("-target"),
         "Generation targets"
     )
@@ -192,7 +192,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         { mutableListOf() }
     )
 
-    override val sourceLinks: MutableList<DokkaConfiguration.SourceLinkDefinition> by parser.repeatableOption(
+    override val sourceLinks: MutableList<DokkaConfiguration.SourceLinkDefinition> by parser.repeatableOption<DokkaConfiguration.SourceLinkDefinition>(
         listOf("-srcLink"),
         "Mapping between a source directory and a Web site for browsing the code"
     ) {
