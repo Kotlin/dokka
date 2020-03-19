@@ -64,6 +64,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         header(1) { text(m.name) }
+        +contentForComments(m)
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
             link(it.name, it.dri)
         }
@@ -74,7 +75,9 @@ open class DefaultPageCreator(
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(p.dri, p.platformData.toSet(), ContentKind.Packages) {
             header(1) { text("Package ${p.name}") }
+            +contentForComments(p)
         }
+        header(1) { text("Package ${p.name}") }
         +contentForScope(p, p.dri, p.platformData)
         block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
             link(it.name, it.dri)
