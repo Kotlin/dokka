@@ -2,6 +2,7 @@ package model
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -384,10 +385,28 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
+                assertNull(companion, "Companion should not be visible by default")
+            }
+        }
+    }
 
+    @Test
+    fun companionObject() {
+        inlineModelTest(
+            """
+                |class Klass {
+                |    companion object {
+                |        fun fn() {}
+                |        val a = 0
+                |    }
+                |}
+                """
+        ) {
+            with((this / "classes" / "Klass").cast<DClass>()) {
+                name equals "Klass"
                 with((this / "Companion").cast<DObject>()) {
                     name equals "Companion"
-                    visibility.values allEquals KotlinVisibility.Private
+                    visibility.values allEquals KotlinVisibility.Public
 
                     with((this / "fn").cast<DFunction>()) {
                         name equals "fn"
@@ -440,5 +459,4 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             }
         }
     }
-
 }
