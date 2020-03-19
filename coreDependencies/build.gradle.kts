@@ -30,6 +30,7 @@ dependencies {
     implementation("org.jetbrains:markdown:0.1.41") {
         because("it's published only on bintray")
     }
+    implementation("org.jetbrains.kotlin:ide-common-ij193:$kotlin_plugin_version")
 }
 
 tasks {
