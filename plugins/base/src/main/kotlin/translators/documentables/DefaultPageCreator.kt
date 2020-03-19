@@ -11,6 +11,7 @@ import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.backend.common.phaser.defaultDumper
 
 open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
@@ -53,8 +54,8 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
+        header(1) { text("Package ${p.name}") }
         platformDependentHint(p.dri, p.platformData.toSet()){
-            header(1) { text("Package ${p.name}") }
             +contentForScope(p, p.dri, p.platformData)
         }
     }
@@ -65,8 +66,8 @@ open class DefaultPageCreator(
         platformData: List<PlatformData>
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
+            link(it.name.orEmpty(), it.dri)
             platformDependentHint(it.dri, it.platformData.toSet()){
-                link(it.name.orEmpty(), it.dri)
                 group {
                     +buildSignature(it)
                     group(kind = ContentKind.BriefComment) {
@@ -76,8 +77,8 @@ open class DefaultPageCreator(
             }
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
+            link(it.name, it.dri)
             platformDependentHint(it.dri, it.platformData.toSet()){
-                link(it.name, it.dri)
                 group {
                     +buildSignature(it)
                     group(kind = ContentKind.BriefComment) {
@@ -87,10 +88,9 @@ open class DefaultPageCreator(
             }
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
+            link(it.name, it.dri)
             platformDependentHint(it.dri, it.platformData.toSet()){
-                link(it.name, it.dri)
                 +buildSignature(it)
-                breakLine()
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
@@ -110,7 +110,7 @@ open class DefaultPageCreator(
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
         +buildSignature(c)
-
+        breakLine()
         +contentForComments(c) { it !is Property }
 
         if (c is WithConstructors) {
@@ -139,24 +139,33 @@ open class DefaultPageCreator(
         d: Documentable,
         filtering: (TagWrapper) -> Boolean = { true }
     ) = contentBuilder.contentFor(d) {
-        // TODO: this probably needs fixing
-        d.documentation.forEach { _, documentationNode ->
-            documentationNode.children.filter(filtering).forEach {
-                platformDependentHint(d.dri, d.platformData.toSet()){
-                    header(3) {
-                        text(it.toHeaderString())
-                        d.documentation.keys.joinToString(prefix = "[", postfix = "]", separator = ", ")
+        d.documentation.map{(k,v) -> (k to v.children.filter(filtering).map{p -> (k to p)})}.flatMap { it.second }
+            .groupBy { it.second.toHeaderString() }.mapValues {(k,v) -> v.groupBy { it.first }}
+            .forEach{ groupedByHeader ->
+                header(3) { text(groupedByHeader.key) }
+                d.documentation.expect?.also{
+                    it.children.filter(filtering).filter{it.toHeaderString() == groupedByHeader.key}
+                        .forEach {
+                            comment(it.root)
+                            breakLine()
+                        }
+                }
+                platformDependentHint(d.dri,groupedByHeader.value.keys){
+                    groupedByHeader.value.forEach{
+                        group(d.dri, setOf(it.key)){
+                            it.value.forEach {
+                                comment(it.second.root)
+                            }
+                            breakLine()
+                        }
                     }
-                    comment(it.root)
-                    text("\n")
                 }
             }
-        }
     }.children
 
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
+        header(1) { text(f.name) }
         platformDependentHint(f.dri, f.platformData.toSet()){
-            header(1) { text(f.name) }
             +buildSignature(f)
             +contentForComments(f)
         }
@@ -164,11 +173,12 @@ open class DefaultPageCreator(
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 
-    protected open fun Documentable.briefDocumentation() =
-        documentation.values
-            .firstOrNull()
-            ?.children
-            ?.firstOrNull()
-            ?.root
-            ?.docTagSummary() ?: ""
+    //TODO: It isn't platform-aware and produces wrong docs Probably should use platformDependentHint
+    protected open fun Documentable.briefDocumentation() = " "
+//        documentation.values
+//            .firstOrNull()
+//            ?.children
+//            ?.firstOrNull()
+//            ?.root
+//            ?.docTagSummary() ?: ""
 }
