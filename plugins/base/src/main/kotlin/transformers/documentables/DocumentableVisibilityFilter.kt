@@ -13,8 +13,8 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
 
     override fun invoke(modules: List<DModule>, context: DokkaContext): List<DModule> = modules.map { original ->
         val packageOptions =
-            context.configuration.passesConfigurations.first { original.platformData.contains(it.platformData) }
-                .perPackageOptions
+            context.configuration.modulesConfiguration[original.name]?.first { original.platformData.contains(it.platformData) }?.perPackageOptions
+                ?: throw IllegalStateException("Could not find passes configuration for module name ${original.name}")
         DocumentableFilter(packageOptions).processModule(original)
     }
 

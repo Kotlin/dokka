@@ -145,8 +145,8 @@ abstract class AbstractCoreTest {
         var generateIndexPages: Boolean = true
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
-        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>("project" to mutableListOf())
-
+        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>()
+//        "root" to mutableListOf()
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
             format = format,
@@ -158,7 +158,11 @@ abstract class AbstractCoreTest {
         )
 
         fun passes(block: Passes.() -> Unit) {
-            modulesConfiguration.forEach { it.value.addAll(Passes().apply(block)) }
+            Passes().apply(block).run {
+                for (pass in this) {
+                    this@DokkaConfigurationBuilder.modulesConfiguration.getOrPut(pass.moduleName) { mutableListOf() }.add(pass)
+                }
+            }
         }
     }
 

@@ -55,7 +55,10 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
         Arguments(parser)
     }
 
-    override val modulesConfiguration: Map<String, List<DokkaConfiguration.PassConfiguration>> = mapOf("project" to passesConfigurations)
+    override val modulesConfiguration: Map<String, List<DokkaConfiguration.PassConfiguration>> =
+        mapOf((passesConfigurations[0].moduleName.takeIf { it.isNotEmpty() } ?: "project".also {
+            DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+        }) to passesConfigurations)
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
@@ -262,14 +265,22 @@ object MainKt {
             listOf("-globalPackageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) { link ->
-            configuration.modulesConfiguration.all { it.value.all { it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link)) } }
+            configuration.modulesConfiguration.all {
+                it.value.all {
+                    it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link))
+                }
+            }
         }
 
         parseContext.cli.singleAction(
             listOf("-globalLinks"),
             "External documentation links in format url^packageListUrl^^url2..."
         ) { link ->
-            configuration.modulesConfiguration.all { it.value.all { it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link)) } }
+            configuration.modulesConfiguration.all {
+                it.value.all {
+                    it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link))
+                }
+            }
         }
 
         parseContext.cli.repeatingAction(
@@ -280,12 +291,16 @@ object MainKt {
                 listOf(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
             else {
                 if (it.isNotEmpty()) {
-                    println("Warning: Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
+                    DokkaConsoleLogger.warn("Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
                 }
                 listOf()
             }
 
-            configuration.modulesConfiguration.all { it.value.all { it.sourceLinks.toMutableList().addAll(newSourceLinks) } }
+            configuration.modulesConfiguration.all {
+                it.value.all {
+                    it.sourceLinks.toMutableList().addAll(newSourceLinks)
+                }
+            }
         }
 
         parser.parseInto(configuration)
