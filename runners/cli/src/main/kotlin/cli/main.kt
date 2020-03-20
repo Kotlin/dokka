@@ -48,17 +48,12 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 
     override val impliedPlatforms: List<String> = emptyList()
 
-    val passesConfigurations: List<Arguments> by parser.repeatableFlag(
+    override val passesConfigurations: List<Arguments> by parser.repeatableFlag(
         listOf("-pass"),
         "Single dokka pass"
     ) {
-        Arguments(parser)
+        Arguments(parser).also { if(it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
     }
-
-    override val modulesConfiguration: Map<String, List<DokkaConfiguration.PassConfiguration>> =
-        mapOf((passesConfigurations[0].moduleName.takeIf { it.isNotEmpty() } ?: "project".also {
-            DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
-        }) to passesConfigurations)
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
@@ -265,10 +260,8 @@ object MainKt {
             listOf("-globalPackageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
         ) { link ->
-            configuration.modulesConfiguration.all {
-                it.value.all {
-                    it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link))
-                }
+            configuration.passesConfigurations.all {
+                it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link))
             }
         }
 
@@ -276,10 +269,8 @@ object MainKt {
             listOf("-globalLinks"),
             "External documentation links in format url^packageListUrl^^url2..."
         ) { link ->
-            configuration.modulesConfiguration.all {
-                it.value.all {
-                    it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link))
-                }
+            configuration.passesConfigurations.all {
+                it.externalDocumentationLinks.toMutableList().addAll(parseLinks(link))
             }
         }
 
@@ -296,10 +287,8 @@ object MainKt {
                 listOf()
             }
 
-            configuration.modulesConfiguration.all {
-                it.value.all {
-                    it.sourceLinks.toMutableList().addAll(newSourceLinks)
-                }
+            configuration.passesConfigurations.all {
+                it.sourceLinks.toMutableList().addAll(newSourceLinks)
             }
         }
 
