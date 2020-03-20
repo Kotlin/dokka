@@ -375,7 +375,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 listOfNotNull(
                     descriptor.additionalExtras(),
                     descriptor.getAnnotations(),
-                    descriptor.getDefaultValue()?.let { DefaultValue(it) })
+                    descriptor.getDefaultValue()?.let { DefaultValue(it, platformData) })
             )
         )
 

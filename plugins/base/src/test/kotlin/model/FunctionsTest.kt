@@ -1,5 +1,6 @@
 package model
 
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -327,7 +328,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 parameters.forEach { p ->
                     p.name equals "x"
                     p.type.name.assertNotNull("Parameter type: ") equals "String"
-                    p.extra[DefaultValue]?.value equals "\"\""
+                    p.extra[DefaultValue]?.values?.map?.entries?.find { it.key.platformType == Platform.jvm }?.value equals "\"\""
                 }
             }
         }
@@ -346,7 +347,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                 parameters.forEach { p ->
                     p.name equals "x"
                     p.type.name.assertNotNull("Parameter type: ") equals "Float"
-                    p.extra[DefaultValue]?.value equals "3.14f"
+                    p.extra[DefaultValue]?.values?.map?.entries?.find { it.key.platformType == Platform.jvm }?.value equals "3.14f"
                 }
             }
         }
