@@ -244,11 +244,25 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 null,
                 psi.getModifier(),
                 listOf(platformData),
-                PropertyContainer.empty<DFunction>()
-                        + InheritedFunction(isInherited)
-                        + psi.annotations.toList().toExtra()
+                PropertyContainer.withAll(
+                    InheritedFunction(isInherited),
+                    psi.annotations.toList().toExtra(),
+                    psi.additionalExtras()
+                )
             )
         }
+
+        private fun PsiMethod.additionalExtras() = AdditionalModifiers(
+            listOfNotNull(
+                ExtraModifiers.STATIC.takeIf { hasModifier(JvmModifier.STATIC) },
+                ExtraModifiers.NATIVE.takeIf { hasModifier(JvmModifier.NATIVE) },
+                ExtraModifiers.SYNCHRONIZED.takeIf { hasModifier(JvmModifier.SYNCHRONIZED) },
+                ExtraModifiers.STRICTFP.takeIf { hasModifier(JvmModifier.STRICTFP) },
+                ExtraModifiers.TRANSIENT.takeIf { hasModifier(JvmModifier.TRANSIENT) },
+                ExtraModifiers.VOLATILE.takeIf { hasModifier(JvmModifier.VOLATILE) },
+                ExtraModifiers.TRANSITIVE.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
+            ).toSet()
+        )
 
         private fun getBound(type: PsiType): Bound =
             cachedBounds.getOrPut(type.canonicalText) {
