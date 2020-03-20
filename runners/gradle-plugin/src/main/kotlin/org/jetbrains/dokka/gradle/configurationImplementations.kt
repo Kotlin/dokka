@@ -123,7 +123,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var generateIndexPages: Boolean = false
     override var cacheRoot: String? = null
     override var impliedPlatforms: List<String> = emptyList()
-    override var modulesConfiguration: Map<String, List<GradlePassConfigurationImpl>> = emptyMap()
+    override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
 }
 
