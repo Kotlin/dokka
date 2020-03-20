@@ -1,22 +1,27 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Search</title>
     <link href="styles/style.css" rel="Stylesheet">
     <script type="text/javascript" src="scripts/pages.js" async="async"></script>
+    <script type="text/javascript" src="scripts/search.js" async="async"></script>
     <script>var pathToRoot = "";</script>
   </head>
   <body>
-    <div id="navigation">
-      <div id="searchBar">
-        <form action="-search.html" method="get" id="searchForm"><input type="search" name="query"><input type="submit" value="Search"></form>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="logo"></div>
+        <div id="sideMenu"></div>
       </div>
-      <div id="sideMenu"></div>
-    </div>
-    <div id="content">
-      <h1 id="searchTitle">Search results for </h1>
-      <table>
-        <tbody id="searchTable"></tbody>
-      </table>
+      <div id="main">
+        <div id="searchBar">
+          <form action="-search.html" method="get" id="searchForm"><input type="search" name="query"><input type="submit" value="Search"></form>
+        </div>
+        <h1 id="searchTitle">Search results for </h1>
+        <table>
+          <tbody id="searchTable"></tbody>
+        </table>
+      </div>
     </div>
   </body>
 </html>

@@ -1,41 +1,53 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
     <link href="../../styles/style.css" rel="Stylesheet">
     <script type="text/javascript" src="../../scripts/navigationLoader.js" async="async"></script>
     <script>var pathToRoot = "../../";</script>
   </head>
   <body>
-    <div id="navigation">
-      <div id="searchBar">
-        <form action="../../-search.html" method="get" id="searchForm"><input type="search" name="query"><input type="submit" value="Search"></form>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="logo"></div>
+        <div id="sideMenu"></div>
       </div>
-      <div id="sideMenu"></div>
-    </div>
-    <div id="content">//<a href="../index.html">root</a>/<a href="index.html"></a>
-      <h1>Package </h1>
-      <h2>Types</h2>
-      <table>
-        <thead></thead>
-        <tbody>
-          <tr>
-            <td><a href="-fancy/index.html">Fancy</a></td>
-            <td>Final class Fancy : <a href="">Annotation</a></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-      <h2>Functions</h2>
-      <table>
-        <thead></thead>
-        <tbody>
-          <tr>
-            <td><a href="function.html">function</a></td>
-            <td>final fun <a href="function.html">function</a>(<a href="">notInlined</a>: <a href="">Function0</a>&lt;<a href="">Unit</a>&gt;)</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="main">
+        <div id="searchBar">
+          <form action="../../-search.html" method="get" id="searchForm"><input type="search" name="query"><input type="submit" value="Search"></form>
+        </div>
+        <div id="content" pageIds="/////">//<a href="../index.html">root</a>/<a href="index.html"></a>
+          <h1>Package </h1>
+          <h2>Types</h2>
+          <table>
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td><a href="-fancy/index.html">Fancy</a></td>
+                <td>
+                  <div class="symbol monospace">annotation class <a href="-fancy/index.html">Fancy</a></div>
+                  <div class="brief "></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Functions</h2>
+          <table>
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td><a href="function.html">function</a></td>
+                <td>
+                  <div class="symbol monospace">final fun <a href="function.html">function</a>(notInlined: 
+                    <div class="symbol monospace">() -&gt; <a href="">Unit</a></div>
+)</div>
+                  <div class="brief "></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </body>
 </html>
