@@ -407,8 +407,8 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "InheritorLinks").cast<DClass>()) {
-                val dri = (this / "Foo").assertNotNull("Foo dri").dri
-                with((this / "Bar").cast<DClass>()) {
+                val dri = (this / "Bar").assertNotNull("Foo dri").dri
+                with((this / "Foo").cast<DClass>()) {
                     with(extra[InheritorsInfo].assertNotNull("InheritorsInfo")) {
                         with(value.map.values.flatten().distinct()) {
                             this counts 1
