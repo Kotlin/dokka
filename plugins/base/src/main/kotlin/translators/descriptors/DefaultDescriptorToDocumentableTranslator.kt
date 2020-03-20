@@ -233,7 +233,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 else PlatformDependent.from(platformData,info.supertypes),
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             documentation = info.docs,
-            modifier = descriptor.modifier(),
+            modifier = if(isExpect) PlatformDependent.expectFrom(descriptor.modifier())
+                    else PlatformDependent.from(platformData, descriptor.modifier()),
             companion = descriptor.companion(driWithPlatform),
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -261,7 +262,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             visibility = if(isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
                 else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
             documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
-            modifier = descriptor.modifier(),
+            modifier = if(isExpect) PlatformDependent.expectFrom(descriptor.modifier())
+            else PlatformDependent.from(platformData, descriptor.modifier()),
             type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -288,7 +290,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
-            modifier = descriptor.modifier(),
+            modifier = if(isExpect) PlatformDependent.expectFrom(descriptor.modifier())
+            else PlatformDependent.from(platformData, descriptor.modifier()),
             type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -315,7 +318,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                 else PlatformDependent.from(platformData,descriptor.visibility.toDokkaVisibility()),
             documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             type = descriptor.returnType.toBound(),
-            modifier = descriptor.modifier(),
+            modifier = if(isExpect) PlatformDependent.expectFrom(descriptor.modifier())
+            else PlatformDependent.from(platformData, descriptor.modifier()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll<DFunction>(descriptor.additionalExtras(), descriptor.getAnnotations()).let {
@@ -377,7 +381,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
             documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
             type = descriptor.returnType!!.toBound(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            modifier = descriptor.modifier(),
+            modifier = if(isExpect) PlatformDependent.expectFrom(descriptor.modifier())
+            else PlatformDependent.from(platformData, descriptor.modifier()),
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(
                     it,

@@ -34,10 +34,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
         if (c is DClass) {
-            if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true) {
-                text("data ")
-            } else {
-                text(c.modifier.name + " ")
+            platformText(c.modifier){
+                if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true && it.name == "final") "data "
+                else it.name + " "
             }
         }
         when (c) {
@@ -72,7 +71,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        text(f.modifier.name + " ")
+        platformText(f.modifier) { it.name }
         text("fun ")
         list(f.generics, prefix = "<", suffix = "> ") {
             +buildSignature(it)

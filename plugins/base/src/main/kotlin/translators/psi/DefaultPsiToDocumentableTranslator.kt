@@ -122,6 +122,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             val classlikes = innerClasses.map { parseClasslike(it, dri) }
             val visibility = getVisibility().toPlatformDependant()
             val ancestors = ancestorsSet.toList().toPlatformDependant()
+            val modifiers = getModifier().toPlatformDependant()
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -193,7 +194,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     documentation,
-                    getModifier(),
+                    modifiers,
                     listOf(platformData),
                     PropertyContainer.empty<DClass>() + annotations.toList().toExtra()
                 )
@@ -226,7 +227,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 psi.returnType?.let { getBound(type = it) } ?: Void,
                 psi.mapTypeParameters(dri),
                 null,
-                psi.getModifier(),
+                psi.getModifier().toPlatformDependant(),
                 listOf(platformData),
                 PropertyContainer.withAll(
                     InheritedFunction(isInherited),
@@ -339,7 +340,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 null,
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it, parent) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },
-                psi.getModifier(),
+                psi.getModifier().toPlatformDependant(),
                 listOf(platformData),
                 PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()
             )

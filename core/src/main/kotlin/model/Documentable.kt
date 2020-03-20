@@ -63,7 +63,7 @@ interface WithType {
 }
 
 interface WithAbstraction {
-    val modifier: Modifier
+    val modifier: PlatformDependent<Modifier>
 }
 
 sealed class Modifier(val name: String)
@@ -146,7 +146,7 @@ data class DClass(
     override val generics: List<DTypeParameter>,
     override val supertypes: PlatformDependent<List<DRI>>,
     override val documentation: PlatformDependent<DocumentationNode>,
-    override val modifier: Modifier,
+    override val modifier: PlatformDependent<Modifier>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
 ) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
@@ -207,7 +207,7 @@ data class DFunction(
     override val type: Bound,
     override val generics: List<DTypeParameter>,
     override val receiver: DParameter?,
-    override val modifier: Modifier,
+    override val modifier: PlatformDependent<Modifier>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
@@ -287,7 +287,7 @@ data class DProperty(
     override val receiver: DParameter?,
     val setter: DFunction?,
     val getter: DFunction?,
-    override val modifier: Modifier,
+    override val modifier: PlatformDependent<Modifier>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<DProperty> {

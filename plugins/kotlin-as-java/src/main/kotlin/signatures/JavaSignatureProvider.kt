@@ -33,7 +33,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
         if (c is DClass) {
-            text(c.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
+            platformText(c.modifier){ it.takeIf{it !in ignoredModifiers}?.name.orEmpty() + " "}
         }
 
         when (c) {
@@ -63,7 +63,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     }
 
     private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        text(f.modifier.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " ")
+        platformText(f.modifier){ it.takeIf{it !in ignoredModifiers}?.name.orEmpty() + " "}
         val returnType = f.type
         signatureForProjection(returnType)
         text("  ")

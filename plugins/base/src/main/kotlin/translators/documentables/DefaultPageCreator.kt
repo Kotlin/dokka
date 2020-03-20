@@ -166,6 +166,7 @@ open class DefaultPageCreator(
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
         platformDependentHint(f.dri, f.platformData.toSet()){
+            if(f.sources.expect != null) text("actual")
             +buildSignature(f)
             +contentForComments(f)
         }
