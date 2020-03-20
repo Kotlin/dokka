@@ -172,15 +172,15 @@ open class DokkaTask : DefaultTask() {
 
     internal fun getConfiguration(): GradleDokkaConfigurationImpl {
         val globalConfig = multiplatform.toList().find { it.name.toLowerCase() == GLOBAL_PLATFORM_NAME }
-        val defaultModulesConfiguration = mapOf(project.name to collectConfigurations()
-            .map { defaultPassConfiguration(it, globalConfig) })
+        val defaultModulesConfiguration = collectConfigurations()
+            .map { defaultPassConfiguration(it, globalConfig) }
         return GradleDokkaConfigurationImpl().apply {
             outputDir = outputDirectory
             format = outputFormat
             generateIndexPages = true
             cacheRoot = cacheRoot
             impliedPlatforms = impliedPlatforms
-            modulesConfiguration = defaultModulesConfiguration
+            passesConfigurations = defaultModulesConfiguration
             pluginsClasspath = pluginsConfiguration.resolve().toList()
         }
     }

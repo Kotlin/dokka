@@ -220,20 +220,22 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             includeRootPackage = includeRootPackage
         )
 
+        val logger = MavenDokkaLogger(log)
+
         val configuration = DokkaConfigurationImpl(
             outputDir = getOutDir(),
             format = getOutFormat(),
             impliedPlatforms = impliedPlatforms,
             cacheRoot = cacheRoot,
-            modulesConfiguration = mapOf((passConfiguration.moduleName.takeIf { it.isNotEmpty() } ?: "project".also {
-                DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
-            }) to listOf(passConfiguration)),
+            passesConfigurations = listOf(passConfiguration).also {
+                if(passConfiguration.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+            },
             generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()
         )
 
-        val gen = DokkaGenerator(configuration, MavenDokkaLogger(log))
+        val gen = DokkaGenerator(configuration, logger)
 
         gen.generate()
     }

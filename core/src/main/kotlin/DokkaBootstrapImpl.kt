@@ -91,16 +91,12 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
         val configurationWithLinks =
             configuration.copy(
-                modulesConfiguration =
-                modulesConfiguration
-                    .map {
-                        Pair(it.key,
-                            it.value.map {
-                                val links: List<ExternalDocumentationLinkImpl> =
-                                    it.externalDocumentationLinks + defaultLinks(it)
-                                it.copy(externalDocumentationLinks = links)
-                            })
-                    }.toMap()
+                passesConfigurations =
+                passesConfigurations.map {
+                    val links: List<ExternalDocumentationLinkImpl> =
+                        it.externalDocumentationLinks + defaultLinks(it)
+                    it.copy(externalDocumentationLinks = links)
+                }
             )
 
         generator = DokkaGenerator(configurationWithLinks, logger)

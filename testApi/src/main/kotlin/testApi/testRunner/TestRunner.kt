@@ -63,15 +63,9 @@ abstract class AbstractCoreTest {
         val newConfiguration =
             configuration.copy(
                 outputDir = testDirPath.toAbsolutePath().toString(),
-                modulesConfiguration = configuration.modulesConfiguration
-                    .map {
-                        Pair(
-                            it.key,
-                            it.value.map {
-                                it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") })
-                            }
-                        )
-                    }.toMap()
+                passesConfigurations = configuration.passesConfigurations.map {
+                    it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") })
+                }
             )
         DokkaTestGenerator(
             newConfiguration,
@@ -145,24 +139,19 @@ abstract class AbstractCoreTest {
         var generateIndexPages: Boolean = true
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
-        private val modulesConfiguration = mutableMapOf<String, MutableList<PassConfigurationImpl>>()
-//        "root" to mutableListOf()
+        private val passesConfigurations = mutableListOf<PassConfigurationImpl>()
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
             format = format,
             generateIndexPages = generateIndexPages,
             cacheRoot = cacheRoot,
             impliedPlatforms = emptyList(),
-            modulesConfiguration = modulesConfiguration,
+            passesConfigurations = passesConfigurations,
             pluginsClasspath = pluginsClasspath
         )
 
         fun passes(block: Passes.() -> Unit) {
-            Passes().apply(block).run {
-                for (pass in this) {
-                    this@DokkaConfigurationBuilder.modulesConfiguration.getOrPut(pass.moduleName) { mutableListOf() }.add(pass)
-                }
-            }
+            passesConfigurations.addAll(Passes().apply(block))
         }
     }
 
