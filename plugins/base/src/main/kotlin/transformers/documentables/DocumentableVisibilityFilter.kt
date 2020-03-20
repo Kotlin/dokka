@@ -79,27 +79,27 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
         private fun <T : WithVisibility> alwaysTrue(a: T, p: PlatformData) = true
         private fun <T : WithVisibility> alwaysFalse(a: T, p: PlatformData) = false
 
+        private fun WithVisibility.visibilityForPlatform(data: PlatformData): Visibility? =
+            visibility[data] ?: visibility.expect
+
         private fun <T> T.filterPlatforms(
             additionalCondition: (T, PlatformData) -> Boolean = ::alwaysTrue,
-            optionalCondition: (T, PlatformData) -> Boolean = ::alwaysFalse
+            alternativeCondition: (T, PlatformData) -> Boolean = ::alwaysFalse
         ) where T : Documentable, T : WithVisibility =
-            visibility.mapNotNull { (platformData, visibility) ->
-                platformData.takeIf { d ->
-                    (visibility.isAllowedInPackage(dri.packageName) || optionalCondition(
-                        this,
-                        d
-                    )) && additionalCondition(this, d)
-                }
+            platformData.filter { d ->
+                visibilityForPlatform(d)?.isAllowedInPackage(dri.packageName) == true &&
+                        additionalCondition(this, d) ||
+                        alternativeCondition(this, d)
             }
 
         private fun <T> List<T>.transform(
             additionalCondition: (T, PlatformData) -> Boolean = ::alwaysTrue,
-            optionalCondition: (T, PlatformData) -> Boolean = ::alwaysFalse,
+            alternativeCondition: (T, PlatformData) -> Boolean = ::alwaysFalse,
             recreate: (T, List<PlatformData>) -> T
         ): Pair<Boolean, List<T>> where T : Documentable, T : WithVisibility {
             var changed = false
             val values = mapNotNull { t ->
-                val filteredPlatforms = t.filterPlatforms(additionalCondition, optionalCondition)
+                val filteredPlatforms = t.filterPlatforms(additionalCondition, alternativeCondition)
                 when (filteredPlatforms.size) {
                     t.visibility.size -> t
                     0 -> {
@@ -140,8 +140,8 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
             }
 
         private fun hasVisibleAccessorsForPlatform(property: DProperty, data: PlatformData) =
-            property.getter?.visibility?.get(data)?.isAllowedInPackage(property.dri.packageName) == true ||
-                    property.setter?.visibility?.get(data)?.isAllowedInPackage(property.dri.packageName) == true
+            property.getter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true ||
+                    property.setter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true
 
         private fun filterProperties(
             properties: List<DProperty>,
