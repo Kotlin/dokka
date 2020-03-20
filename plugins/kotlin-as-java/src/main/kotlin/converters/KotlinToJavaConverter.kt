@@ -47,7 +47,7 @@ internal fun DPackage.asJava(): DPackage {
                 generics = emptyList(),
                 supertypes = PlatformDependent.empty(),
                 documentation = PlatformDependent.empty(),
-                modifier = JavaModifier.Final,
+                modifier = PlatformDependent(map = platformData.map{ it to JavaModifier.Final}.toMap()),
                 platformData = platformData,
                 extra = PropertyContainer.empty()
             )
@@ -68,9 +68,9 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
             dri.withClass(relocateToClass)
         },
         modifier = if (setter == null) {
-            JavaModifier.Final
+            PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
         } else {
-            JavaModifier.Empty
+            PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
         },
         visibility = visibility.copy(
             map = visibility.mapValues { JavaVisibility.Private }
@@ -91,9 +91,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "get" + name.capitalize(),
             modifier = if (setter == null) {
-                JavaModifier.Final
+                PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
             } else {
-                JavaModifier.Empty
+                PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -109,9 +109,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "set" + name.capitalize(),
             modifier = if (setter == null) {
-                JavaModifier.Final
+                PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
             } else {
-                JavaModifier.Empty
+                PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -131,7 +131,9 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
 //        dri = dri.copy(callable = dri.callable?.asJava()),
         name = newName,
         type = type.asJava(),
-        modifier = if(modifier is KotlinModifier.Final && isConstructor) JavaModifier.Empty else modifier,
+        modifier = if(modifier.all{(_,v)-> v is KotlinModifier.Final} && isConstructor)
+            PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
+        else PlatformDependent(map = platformData.map{it to modifier.allValues.first()}.toMap()),
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         receiver = null
     ) // TODO static if toplevel
@@ -157,7 +159,8 @@ internal fun DClass.asJava(): DClass = copy(
     supertypes = supertypes.copy(
         map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
     ),
-    modifier = if (modifier is KotlinModifier.Empty) JavaModifier.Final else modifier
+    modifier = if (modifier.all{(_,v) -> v is KotlinModifier.Empty}) PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
+    else PlatformDependent(map = platformData.map{it to modifier.allValues.first()}.toMap())
 )
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
@@ -195,7 +198,7 @@ internal fun DObject.asJava(): DObject = copy(
     properties = properties.map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
-                modifier = JavaModifier.Final,
+                modifier = PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap()),
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
                 documentation = PlatformDependent.empty(),
                 sources = PlatformDependent.empty(),
