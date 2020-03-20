@@ -154,7 +154,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "Foo").cast<DClass>()) {
-                throw  AssertionError("No type parameters data for class")
+                generics counts 1
             }
         }
     }
