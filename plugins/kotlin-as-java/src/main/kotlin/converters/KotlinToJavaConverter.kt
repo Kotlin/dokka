@@ -33,9 +33,9 @@ internal fun DPackage.asJava(): DPackage {
                 constructors = emptyList(),
                 functions = (
                         nodes.filterIsInstance<DProperty>()
-                            .map { it.javaAccessors() } +
+                            .flatMap { it.javaAccessors() } +
                                 nodes.filterIsInstance<DFunction>()
-                                    .map { it.asJava(syntheticClassName) }) as List<DFunction>, // TODO: methods are static and receiver is a param
+                                    .map { it.asJava(syntheticClassName) }), // TODO: methods are static and receiver is a param
                 classlikes = emptyList(),
                 sources = PlatformDependent.empty(),
                 visibility = PlatformDependent(
