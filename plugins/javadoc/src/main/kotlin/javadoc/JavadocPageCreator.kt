@@ -2,15 +2,19 @@ package javadoc
 
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import kotlin.math.sign
 
 open class JavadocPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
+    val pageContentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
+
     fun pageForModule(m: DModule): ModulePageNode =
         ModulePageNode(m.name.ifEmpty { "root" }, contentForModule(m), m, m.packages.map { pageForPackage(it) })
 
@@ -33,13 +37,15 @@ open class JavadocPageCreator(
         throw IllegalStateException("$m should not be present here")
 
 
-    fun contentForModule(m: DModule): ContentNode {}
-
-    fun contentForPackage(p: DPackage): ContentNode {
+    fun contentForModule(m: DModule): ContentNode = pageContentBuilder.contentFor(m) {
 
     }
 
-    fun contentForClasslike(c: DClasslike): ContentNode {
+    fun contentForPackage(p: DPackage): ContentNode = pageContentBuilder.contentFor(p) {
+
+    }
+
+    fun contentForClasslike(c: DClasslike): ContentNode = pageContentBuilder.contentFor(c) {
 
     }
 }

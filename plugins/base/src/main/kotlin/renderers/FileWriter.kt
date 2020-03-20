@@ -29,7 +29,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
     }
 
     override fun writeResources(pathFrom: String, pathTo: String) =
-        if (javaClass.getResource(pathFrom).toURI().toString().startsWith(jarUriPrefix)) {
+        if (ClassLoader.getSystemResource(pathFrom).toURI().toString().startsWith(jarUriPrefix)) {
             copyFromJar(pathFrom, pathTo)
         } else {
             copyFromDirectory(pathFrom, pathTo)
@@ -38,7 +38,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
 
     private fun copyFromDirectory(pathFrom: String, pathTo: String) {
         val dest = Paths.get(root, pathTo).toFile()
-        val uri = javaClass.getResource(pathFrom).toURI()
+        val uri = ClassLoader.getSystemResource(pathFrom).toURI()
         File(uri).copyRecursively(dest, true)
     }
 
@@ -47,7 +47,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
             "$pathTo/${path.removePrefix(pathFrom)}"
         val dest = Paths.get(root, pathTo).toFile()
         dest.mkdirsOrFail()
-        val uri = javaClass.getResource(pathFrom).toURI()
+        val uri = ClassLoader.getSystemResource(pathFrom).toURI()
         val fs = getFileSystemForURI(uri)
         val path = fs.getPath(pathFrom)
         for (file in Files.walk(path).iterator()) {
