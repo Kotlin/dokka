@@ -100,7 +100,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             val superMethods = mutableListOf<PsiMethod>()
             methods.forEach { superMethodsKeys.add(it.hash) }
             fun addAncestors(element: PsiClass) {
-                ancestorsSet.add(element.toDRI())
+                ancestorsSet.add(DRI.from(element))
                 element.interfaces.forEach(::addAncestors)
                 element.superClass?.let(::addAncestors)
             }
@@ -290,7 +290,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             fun mapBounds(bounds: Array<JvmReferenceType>): List<Bound> =
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
                     (it as? PsiClassType)?.let { classType ->
-                        Nullable(TypeConstructor(classType.resolve()!!.toDRI(), emptyList()))
+                        Nullable(TypeConstructor(DRI.from(classType.resolve()!!), emptyList()))
                     }
                 }
             return typeParameters.mapIndexed { index, type ->
@@ -303,9 +303,6 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 )
             }
         }
-
-        private fun PsiQualifiedNamedElement.toDRI() =
-            DRI(qualifiedName.orEmpty().substringBeforeLast('.', ""), name)
 
         private fun PsiMethod.getPropertyNameForFunction() =
             getAnnotation(DescriptorUtils.JVM_NAME.asString())?.findAttributeValue("name")?.text
