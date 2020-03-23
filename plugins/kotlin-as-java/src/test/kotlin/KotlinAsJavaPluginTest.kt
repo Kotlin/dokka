@@ -14,6 +14,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             passes {
                 pass {
                     sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
                 }
             }
         }

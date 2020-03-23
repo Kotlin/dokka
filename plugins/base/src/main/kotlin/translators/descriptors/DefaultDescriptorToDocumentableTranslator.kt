@@ -418,7 +418,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
         return DParameter(
             dri = dri,
             name = descriptor.name.asString(),
-            type = typeHandler.convertKotlinType(descriptor.type){it.toBound()}!!,
+            type = typeHandler.convertKotlinType(descriptor.type) { it.toBound() }!!,
             documentation = descriptor.resolveDescriptorData(platformData),
             platformData = listOf(platformData),
             extra = PropertyContainer.withAll(
@@ -428,6 +428,7 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
                     descriptor.getDefaultValue()?.let { DefaultValue(it) })
             )
         )
+    }
 
     private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<DFunction> =
         getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }

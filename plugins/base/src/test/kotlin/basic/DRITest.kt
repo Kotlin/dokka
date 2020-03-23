@@ -81,6 +81,7 @@ class DRITest : AbstractCoreTest() {
             passes {
                 pass {
                     sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
                 }
             }
         }

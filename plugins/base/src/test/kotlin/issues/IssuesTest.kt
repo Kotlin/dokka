@@ -45,8 +45,8 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             }
         ) {
             with((this / "issues" / "Test").cast<DClass>()) {
-                (this / "working").cast<DFunction>().type.name equals "kotlin.String"
-                (this / "doSomething").cast<DFunction>().type.name equals "kotlin.String"
+                (this / "working").cast<DFunction>().type.name equals "String"
+                (this / "doSomething").cast<DFunction>().type.name equals "String"
                 (this / "brokenGenerics").cast<DFunction>().type.name equals "List"
                 (this / "brokenApply").cast<DFunction>().type.name equals "Test"
                 (this / "brokenRun").cast<DFunction>().type.name equals "Test"

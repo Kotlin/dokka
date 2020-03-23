@@ -64,8 +64,6 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
 
     override val unresolvedTypePolicy: UnresolvedTypePolicy
         get() = UnresolvedTypePolicy.getIgnoreCase(_unresolvedTypePolicy)!!
-
-    override var pluginsClasspath: List<File> = emptyList()
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {
