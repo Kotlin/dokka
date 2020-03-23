@@ -23,6 +23,9 @@ class JavadocTest : AbstractCoreTest() {
             |/jvmSrc/javadoc/Test.kt
             |package javadoc
             |class Test()
+            |/jvmSrc/javadoc/test/Test2.kt
+            |package javadoc.test
+            |class Test2()
         """.trimIndent(),
             config,
             cleanupOutput = false,

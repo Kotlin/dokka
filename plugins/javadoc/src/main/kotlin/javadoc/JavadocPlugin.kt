@@ -1,8 +1,7 @@
 package org.jetbrains.dokka.javadoc
 
-import javadoc.pages.PackageSummaryInstaller
 import javadoc.pages.ResourcesInstaller
-import javadoc.pages.RootCreator
+import javadoc.pages.JavadocTransformer
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -18,10 +17,7 @@ class JavadocPlugin : DokkaPlugin() {
     }
 
     val rootCreator by extending {
-        CoreExtensions.pageTransformer with RootCreator
-    }
-    val packageSummaryInstaller by extending {
-        CoreExtensions.pageTransformer with PackageSummaryInstaller order { after(rootCreator) }
+        CoreExtensions.pageTransformer with JavadocTransformer
     }
     val resourcesInstaller by extending {
         CoreExtensions.pageTransformer with ResourcesInstaller order { after(rootCreator) }
