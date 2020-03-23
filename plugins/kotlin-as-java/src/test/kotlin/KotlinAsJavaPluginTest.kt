@@ -1,9 +1,6 @@
 package kotlinAsJavaPlugin
 
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.ContentTable
-import org.jetbrains.dokka.pages.children
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 
@@ -38,14 +35,11 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content = (root.children.firstOrNull()?.children?.firstOrNull() as? ContentPage)?.content ?: run {
-                    fail("Either children or content is null")
-                }
+                val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
 
-                val children =
-                    if (content is ContentGroup)
-                        content.children.filterIsInstance<ContentTable>().filter { it.children.isNotEmpty() }
-                    else emptyList()
+                val children = content.mainContents
+                    .filterIsInstance<ContentTable>()
+                    .filter { it.children.isNotEmpty() }
 
                 children.assertCount(2)
             }
@@ -83,9 +77,9 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    if (content is ContentGroup)
-                        content.children.filterIsInstance<ContentTable>().filter { it.children.isNotEmpty() }
-                    else emptyList()
+                    content.mainContents
+                        .filterIsInstance<ContentTable>()
+                        .filter { it.children.isNotEmpty() }
                 }.filterNot { it.toString().contains("<init>") }
 
                 children.assertCount(4)
@@ -141,3 +135,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
         assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
 
 }
+
+private val ContentNode.mainContents: List<ContentNode>
+    get() = (this as ContentGroup).children
+    .filterIsInstance<ContentGroup>()
+    .single { it.dci.kind == ContentKind.Main }.children
