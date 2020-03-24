@@ -134,7 +134,7 @@ internal fun topNavbar(page: PageNode, pathToRoot: String): String = """
         |<!--   -->
         |</a>
         |<ul class="navList" title="Navigation">
-        ${if ((page is JavadocPageNode) && page.pageType == PageType.Class)
+        ${/*if ((page is JavadocPageNode) && page.pageType == PageType.Class)
             "<li><a href=\"${pathToRoot}index.html\">Overview</a></li>"
         else if (page is RootIndexPage)
             "<li class=\"navBarCell1Rev\">Overview</li>"
@@ -143,7 +143,7 @@ internal fun topNavbar(page: PageNode, pathToRoot: String): String = """
         ${if ((page is JavadocPageNode) && page.pageType == PageType.Package)
             "<li class=\"navBarCell1Rev\">Package</li>"
         else
-            "<li>Package</li>"}
+            "<li>Package</li>"*/ ""}
         |<li navBarCell1Rev>Class</li>
         |<li><a href="overview-tree.html">Tree</a></li>
         |<li><a href="${pathToRoot}deprecated-list.html">Deprecated</a></li>
@@ -373,7 +373,7 @@ internal fun String.wrapInTag(tag: String, options: Map<String, String>) =
     "<$tag ${options.map { it.key + "=\"" + it.value + '"' }.joinToString(" ")}>$this</$tag>"
 
 fun PageNode.generateLink(i: Int) = "\n<tr class=\"altColor\" id=\"i$i\">\n" + run {
-    val path = if (this is JavadocPageNode && this.pageType != PageType.Package) "$filename.html" else "$name/package-summary.html"
+    val path = /*if (this is JavadocPageNode && this.pageType != PageType.Package) "$filename.html" else*/ "$name/package-summary.html"
 
     name.wrapInTag("a", mapOf("href" to path))
         .wrapInTag(

@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>$documentTitle ({{ title }} {{ version }} API)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="dc.created" content="{{ curDate() }}">
+<link rel="stylesheet" type="text/css" href="{{ pathToRoot }}stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="{{ pathToRoot }}jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="{{ pathToRoot }}script.js"></script>
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-{{ jQueryVersion() }}.js"></script>
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-migrate-{{ jQueryMigrateVersion() }}.js"></script>
+<script type="text/javascript" src="{{ pathToRoot }}jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="{{ documentTitle }} ({{ title }} {{ version }} API)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var pathtoroot = "{{ pathToRoot }}";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">

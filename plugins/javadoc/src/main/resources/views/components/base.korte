@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+{%- include "components/head.korte" -%}
+<body>
+{%- include "components/topNavbar.korte" -%}
+{%- block content %} {% endblock -%}
+{%- include "components/bottomNavbar.korte" -%}
+</body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="{{ documentTitle }} ({{ title }} {{ version }} API)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var pathtoroot = "{{ pathToRoot }}";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+</html>

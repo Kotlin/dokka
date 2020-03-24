@@ -10,6 +10,7 @@ publishing {
 }
 
 dependencies {
+    implementation("com.soywiz.korlibs.korte:korte:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     implementation(project(":plugins:base"))
 

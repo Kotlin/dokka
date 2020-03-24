@@ -19,13 +19,19 @@ class JavadocTest : AbstractCoreTest() {
             }
         }
 
-        testInline("""
-            |/jvmSrc/javadoc/Test.kt
-            |package javadoc
-            |class Test()
+        /*
             |/jvmSrc/javadoc/test/Test2.kt
             |package javadoc.test
             |class Test2()
+         */
+
+        testInline("""
+            |/jvmSrc/javadoc/Test.kt
+            |/**
+            |   test
+            |**/
+            |package javadoc
+            |class Test()
         """.trimIndent(),
             config,
             cleanupOutput = false,

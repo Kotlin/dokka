@@ -1,0 +1,18 @@
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+${'$'}('.navPadding').css('padding-top', ${'$'}('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<main role="main">
+<div class="header">
+<h1 class="title">{{ title }} {{ version }} API</h1>
+</div>
+<div class="contentContainer">
+<div class="overviewSummary">
+    {% include "components/indexTable.korte" %}
+</div>
+</div>
+</main>
