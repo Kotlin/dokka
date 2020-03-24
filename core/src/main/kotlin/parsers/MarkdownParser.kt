@@ -20,18 +20,18 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import java.net.MalformedURLException
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
-class MarkdownParser (
+class MarkdownParser(
     private val resolutionFacade: DokkaResolutionFacade,
     private val declarationDescriptor: DeclarationDescriptor
-    ) : Parser() {
+) : Parser() {
 
     inner class MarkdownVisitor(val text: String, val destinationLinksMap: Map<String, String>) {
 
         private fun headersHandler(node: ASTNode): DocTag =
             DocTagsFromIElementFactory.getInstance(
                 node.type,
-                visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT } ?:
-                throw IllegalStateException("Wrong AST Tree. ATX Header does not contain expected content")).children
+                visitNode(node.children.find { it.type == MarkdownTokenTypes.ATX_CONTENT }
+                    ?: throw IllegalStateException("Wrong AST Tree. ATX Header does not contain expected content")).children
             )
 
         private fun horizontalRulesHandler(node: ASTNode): DocTag =
@@ -44,19 +44,24 @@ class MarkdownParser (
             )
 
         private fun blockquotesHandler(node: ASTNode): DocTag =
-            DocTagsFromIElementFactory.getInstance(node.type, children = node.children
-                .filterIsInstance<CompositeASTNode>()
-                .evaluateChildren())
+            DocTagsFromIElementFactory.getInstance(
+                node.type, children = node.children
+                    .filterIsInstance<CompositeASTNode>()
+                    .evaluateChildren()
+            )
 
         private fun listsHandler(node: ASTNode): DocTag {
 
             val children = node.children.filterIsInstance<ListItemCompositeNode>().flatMap {
-                if( it.children.last().type in listOf(MarkdownElementTypes.ORDERED_LIST, MarkdownElementTypes.UNORDERED_LIST) ) {
+                if (it.children.last().type in listOf(
+                        MarkdownElementTypes.ORDERED_LIST,
+                        MarkdownElementTypes.UNORDERED_LIST
+                    )
+                ) {
                     val nestedList = it.children.last()
                     (it.children as MutableList).removeAt(it.children.lastIndex)
                     listOf(it, nestedList)
-                }
-                else
+                } else
                     listOf(it)
             }
 
@@ -65,7 +70,7 @@ class MarkdownParser (
                 children =
                 children
                     .map {
-                        if(it.type == MarkdownElementTypes.LIST_ITEM)
+                        if (it.type == MarkdownElementTypes.LIST_ITEM)
                             DocTagsFromIElementFactory.getInstance(
                                 it.type,
                                 children = it
@@ -79,30 +84,41 @@ class MarkdownParser (
                 params =
                 if (node.type == MarkdownElementTypes.ORDERED_LIST) {
                     val listNumberNode = node.children.first().children.first()
-                    mapOf("start" to text.substring(listNumberNode.startOffset, listNumberNode.endOffset).trim().dropLast(1))
+                    mapOf(
+                        "start" to text.substring(
+                            listNumberNode.startOffset,
+                            listNumberNode.endOffset
+                        ).trim().dropLast(1)
+                    )
                 } else
                     emptyMap()
             )
         }
 
-        private fun resolveDRI(link: String): DRI? =
-            try {
-                java.net.URL(link)
-                null
-            } catch(e: MalformedURLException) {
-                resolveKDocLink(
-                    resolutionFacade.resolveSession.bindingContext,
-                    resolutionFacade,
-                    declarationDescriptor,
-                    null,
-                    link.split('.')
-                ).also { if (it.size > 1) throw IllegalStateException("Markdown link resolved more than one element: $it") }.firstOrNull()//.single()
-                    ?.let { DRI.from(it) }
-            }
+        private fun resolveDRI(mdLink: String): DRI? =
+            mdLink
+                .removePrefix("[")
+                .removeSuffix("]")
+                .let { link ->
+                    try {
+                        java.net.URL(link)
+                        null
+                    } catch (e: MalformedURLException) {
+                        resolveKDocLink(
+                            resolutionFacade.resolveSession.bindingContext,
+                            resolutionFacade,
+                            declarationDescriptor,
+                            null,
+                            link.split('.')
+                        ).also { if (it.size > 1) throw IllegalStateException("Markdown link resolved more than one element: $it") }
+                            .firstOrNull()//.single()
+                            ?.let { DRI.from(it) }
+                    }
+                }
 
         private fun referenceLinksHandler(node: ASTNode): DocTag {
-            val linkLabel = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }  ?:
-                throw IllegalStateException("Wrong AST Tree. Reference link does not contain expected content")
+            val linkLabel = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }
+                ?: throw IllegalStateException("Wrong AST Tree. Reference link does not contain expected content")
             val linkText = node.children.findLast { it.type == MarkdownElementTypes.LINK_TEXT } ?: linkLabel
 
             val linkKey = text.substring(linkLabel.startOffset, linkLabel.endOffset)
@@ -113,10 +129,10 @@ class MarkdownParser (
         }
 
         private fun inlineLinksHandler(node: ASTNode): DocTag {
-            val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }  ?:
-                throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
-            val linkDestination = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }  ?:
-                throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
+            val linkText = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
+                ?: throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
+            val linkDestination = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
+                ?: throw IllegalStateException("Wrong AST Tree. Inline link does not contain expected content")
             val linkTitle = node.children.find { it.type == MarkdownElementTypes.LINK_TITLE }
 
             val link = text.substring(linkDestination.startOffset, linkDestination.endOffset)
@@ -132,12 +148,17 @@ class MarkdownParser (
 
         private fun linksHandler(linkText: ASTNode, link: String, linkTitle: ASTNode? = null): DocTag {
             val dri: DRI? = resolveDRI(link)
-            val params = if(linkTitle == null)
+            val params = if (linkTitle == null)
                 mapOf("href" to link)
             else
                 mapOf("href" to link, "title" to text.substring(linkTitle.startOffset + 1, linkTitle.endOffset - 1))
 
-            return DocTagsFromIElementFactory.getInstance(MarkdownElementTypes.INLINE_LINK, params = params, children = linkText.children.drop(1).dropLast(1).evaluateChildren(), dri = dri)
+            return DocTagsFromIElementFactory.getInstance(
+                MarkdownElementTypes.INLINE_LINK,
+                params = params,
+                children = linkText.children.drop(1).dropLast(1).evaluateChildren(),
+                dri = dri
+            )
         }
 
         private fun imagesHandler(node: ASTNode): DocTag {
@@ -145,7 +166,11 @@ class MarkdownParser (
                 node.children.last().children.find { it.type == MarkdownElementTypes.LINK_LABEL }!!.children[1]
             val link = text.substring(linkNode.startOffset, linkNode.endOffset)
             val src = mapOf("src" to link)
-            return DocTagsFromIElementFactory.getInstance(node.type, params = src, children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!)))
+            return DocTagsFromIElementFactory.getInstance(
+                node.type,
+                params = src,
+                children = listOf(visitNode(node.children.last().children.find { it.type == MarkdownElementTypes.LINK_TEXT }!!))
+            )
         }
 
         private fun codeSpansHandler(node: ASTNode): DocTag =
@@ -154,7 +179,7 @@ class MarkdownParser (
                 children = listOf(
                     DocTagsFromIElementFactory.getInstance(
                         MarkdownTokenTypes.TEXT,
-                        body = text.substring(node.startOffset+1, node.endOffset-1).replace('\n', ' ').trimIndent()
+                        body = text.substring(node.startOffset + 1, node.endOffset - 1).replace('\n', ' ').trimIndent()
                     )
 
                 )
@@ -168,7 +193,7 @@ class MarkdownParser (
                     .dropWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
                     .dropLastWhile { it.type != MarkdownTokenTypes.CODE_FENCE_CONTENT }
                     .map {
-                        if(it.type == MarkdownTokenTypes.EOL)
+                        if (it.type == MarkdownTokenTypes.EOL)
                             LeafASTNode(MarkdownTokenTypes.HARD_LINE_BREAK, 0, 0)
                         else
                             it
@@ -177,7 +202,7 @@ class MarkdownParser (
                     .children
                     .find { it.type == MarkdownTokenTypes.FENCE_LANG }
                     ?.let { mapOf("lang" to text.substring(it.startOffset, it.endOffset)) }
-                        ?: emptyMap()
+                    ?: emptyMap()
             )
 
         private fun codeBlocksHandler(node: ASTNode): DocTag =
@@ -186,7 +211,8 @@ class MarkdownParser (
         private fun defaultHandler(node: ASTNode): DocTag =
             DocTagsFromIElementFactory.getInstance(
                 MarkdownElementTypes.PARAGRAPH,
-                children = node.children.evaluateChildren())
+                children = node.children.evaluateChildren()
+            )
 
         fun visitNode(node: ASTNode): DocTag =
             when (node.type) {
@@ -195,46 +221,50 @@ class MarkdownParser (
                 MarkdownElementTypes.ATX_3,
                 MarkdownElementTypes.ATX_4,
                 MarkdownElementTypes.ATX_5,
-                MarkdownElementTypes.ATX_6                  -> headersHandler(node)
-                MarkdownTokenTypes.HORIZONTAL_RULE          -> horizontalRulesHandler(node)
+                MarkdownElementTypes.ATX_6 -> headersHandler(node)
+                MarkdownTokenTypes.HORIZONTAL_RULE -> horizontalRulesHandler(node)
                 MarkdownElementTypes.STRONG,
-                MarkdownElementTypes.EMPH                   -> emphasisHandler(node)
+                MarkdownElementTypes.EMPH -> emphasisHandler(node)
                 MarkdownElementTypes.FULL_REFERENCE_LINK,
-                MarkdownElementTypes.SHORT_REFERENCE_LINK   -> referenceLinksHandler(node)
-                MarkdownElementTypes.INLINE_LINK            -> inlineLinksHandler(node)
-                MarkdownElementTypes.AUTOLINK               -> autoLinksHandler(node)
-                MarkdownElementTypes.BLOCK_QUOTE            -> blockquotesHandler(node)
+                MarkdownElementTypes.SHORT_REFERENCE_LINK -> referenceLinksHandler(node)
+                MarkdownElementTypes.INLINE_LINK -> inlineLinksHandler(node)
+                MarkdownElementTypes.AUTOLINK -> autoLinksHandler(node)
+                MarkdownElementTypes.BLOCK_QUOTE -> blockquotesHandler(node)
                 MarkdownElementTypes.UNORDERED_LIST,
-                MarkdownElementTypes.ORDERED_LIST           -> listsHandler(node)
-                MarkdownElementTypes.CODE_BLOCK             -> codeBlocksHandler(node)
-                MarkdownElementTypes.CODE_FENCE             -> codeFencesHandler(node)
-                MarkdownElementTypes.CODE_SPAN              -> codeSpansHandler(node)
-                MarkdownElementTypes.IMAGE                  -> imagesHandler(node)
-                MarkdownTokenTypes.HARD_LINE_BREAK          -> DocTagsFromIElementFactory.getInstance(node.type)
+                MarkdownElementTypes.ORDERED_LIST -> listsHandler(node)
+                MarkdownElementTypes.CODE_BLOCK -> codeBlocksHandler(node)
+                MarkdownElementTypes.CODE_FENCE -> codeFencesHandler(node)
+                MarkdownElementTypes.CODE_SPAN -> codeSpansHandler(node)
+                MarkdownElementTypes.IMAGE -> imagesHandler(node)
+                MarkdownTokenTypes.HARD_LINE_BREAK -> DocTagsFromIElementFactory.getInstance(node.type)
                 MarkdownTokenTypes.CODE_FENCE_CONTENT,
                 MarkdownTokenTypes.CODE_LINE,
-                MarkdownTokenTypes.TEXT                     -> DocTagsFromIElementFactory.getInstance(
+                MarkdownTokenTypes.TEXT -> DocTagsFromIElementFactory.getInstance(
                     MarkdownTokenTypes.TEXT,
                     body = text
                         .substring(node.startOffset, node.endOffset).transform()
                 )
-                MarkdownElementTypes.MARKDOWN_FILE          -> if(node.children.size == 1) visitNode(node.children.first()) else defaultHandler(node)
-                else                                        -> defaultHandler(node)
+                MarkdownElementTypes.MARKDOWN_FILE -> if (node.children.size == 1) visitNode(node.children.first()) else defaultHandler(
+                    node
+                )
+                else -> defaultHandler(node)
             }
 
         private fun List<ASTNode>.evaluateChildren(): List<DocTag> =
             this.removeUselessTokens().mergeLeafASTNodes().map { visitNode(it) }
 
         private fun List<ASTNode>.removeUselessTokens(): List<ASTNode> =
-            this.filterIndexed { index, node -> !(node.type == MarkdownElementTypes.LINK_DEFINITION || (
-                    node.type == MarkdownTokenTypes.EOL &&
-                    this.getOrNull(index - 1)?.type == MarkdownTokenTypes.HARD_LINE_BREAK
-                    )) }
+            this.filterIndexed { index, node ->
+                !(node.type == MarkdownElementTypes.LINK_DEFINITION || (
+                        node.type == MarkdownTokenTypes.EOL &&
+                                this.getOrNull(index - 1)?.type == MarkdownTokenTypes.HARD_LINE_BREAK
+                        ))
+            }
 
         private val notLeafNodes = listOf(MarkdownTokenTypes.HORIZONTAL_RULE, MarkdownTokenTypes.HARD_LINE_BREAK)
 
         private fun List<ASTNode>.isNotLeaf(index: Int): Boolean =
-            if(index in 0..this.lastIndex)
+            if (index in 0..this.lastIndex)
                 (this[index] is CompositeASTNode) || this[index].type in notLeafNodes
             else
                 false
@@ -242,24 +272,23 @@ class MarkdownParser (
         private fun List<ASTNode>.mergeLeafASTNodes(): List<ASTNode> {
             val children: MutableList<ASTNode> = mutableListOf()
             var index = 0
-            while(index <= this.lastIndex) {
-                if(this.isNotLeaf(index)) {
+            while (index <= this.lastIndex) {
+                if (this.isNotLeaf(index)) {
                     children += this[index]
-                }
-                else {
+                } else {
                     val startOffset = this[index].startOffset
-                    while(index < this.lastIndex ) {
-                        if(this.isNotLeaf(index + 1) || this[index+1].startOffset != this[index].endOffset) {
+                    while (index < this.lastIndex) {
+                        if (this.isNotLeaf(index + 1) || this[index + 1].startOffset != this[index].endOffset) {
                             val endOffset = this[index].endOffset
-                            if(text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
+                            if (text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
                                 children += LeafASTNode(MarkdownTokenTypes.TEXT, startOffset, endOffset)
                             break
                         }
                         index++
                     }
-                    if(index == this.lastIndex) {
+                    if (index == this.lastIndex) {
                         val endOffset = this[index].endOffset
-                        if(text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
+                        if (text.substring(startOffset, endOffset).transform().trim().isNotEmpty())
                             children += LeafASTNode(MarkdownTokenTypes.TEXT, startOffset, endOffset)
                     }
                 }
@@ -276,11 +305,13 @@ class MarkdownParser (
 
 
     private fun getAllDestinationLinks(text: String, node: ASTNode): List<Pair<String, String>> =
-    node.children
-        .filter { it.type == MarkdownElementTypes.LINK_DEFINITION }
-        .map { text.substring(it.children[0].startOffset, it.children[0].endOffset).toLowerCase() to
-               text.substring(it.children[2].startOffset, it.children[2].endOffset) } +
-            node.children.filterIsInstance<CompositeASTNode>().flatMap { getAllDestinationLinks(text, it) }
+        node.children
+            .filter { it.type == MarkdownElementTypes.LINK_DEFINITION }
+            .map {
+                text.substring(it.children[0].startOffset, it.children[0].endOffset).toLowerCase() to
+                        text.substring(it.children[2].startOffset, it.children[2].endOffset)
+            } +
+                node.children.filterIsInstance<CompositeASTNode>().flatMap { getAllDestinationLinks(text, it) }
 
 
     private fun markdownToDocNode(text: String): DocTag {
@@ -295,13 +326,17 @@ class MarkdownParser (
     override fun preparse(text: String) = text
 
     private fun findParent(kDoc: PsiElement): PsiElement =
-        if(kDoc is KDocSection) findParent(kDoc.parent) else kDoc
+        if (kDoc is KDocSection) findParent(kDoc.parent) else kDoc
 
     private fun getAllKDocTags(kDocImpl: PsiElement): List<KDocTag> =
-        kDocImpl.children.filterIsInstance<KDocTag>().filterNot { it is KDocSection } + kDocImpl.children.flatMap { getAllKDocTags(it) }
+        kDocImpl.children.filterIsInstance<KDocTag>().filterNot { it is KDocSection } + kDocImpl.children.flatMap {
+            getAllKDocTags(
+                it
+            )
+        }
 
     fun parseFromKDocTag(kDocTag: KDocTag?): DocumentationNode {
-        return if(kDocTag == null)
+        return if (kDocTag == null)
             DocumentationNode(emptyList())
         else
             DocumentationNode(
@@ -312,16 +347,31 @@ class MarkdownParser (
                             it.name!!
                         )
                         KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.THROWS -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
-                        KDocKnownTag.EXCEPTION -> Throws(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
-                        KDocKnownTag.PARAM -> Param(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.THROWS -> Throws(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty()
+                        )
+                        KDocKnownTag.EXCEPTION -> Throws(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty()
+                        )
+                        KDocKnownTag.PARAM -> Param(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty()
+                        )
                         KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.SEE -> See(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
                         KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.PROPERTY -> Property(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
-                        KDocKnownTag.SAMPLE -> Sample(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.PROPERTY -> Property(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty()
+                        )
+                        KDocKnownTag.SAMPLE -> Sample(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty()
+                        )
                         KDocKnownTag.SUPPRESS -> Suppress(parseStringToDocNode(it.getContent()))
                     }
                 }
