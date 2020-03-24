@@ -1,7 +1,8 @@
 package utils
 
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.plugability.DokkaPlugin
 
 abstract class AbstractModelTest(val path: String? = null, val pkg: String) : ModelDSL(), AssertDSL {
 
@@ -12,9 +13,10 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
         prependPackage: Boolean = true,
         cleanupOutput: Boolean = true,
         pluginsOverrides: List<DokkaPlugin> = emptyList(),
+        configuration: DokkaConfigurationImpl? = null,
         block: DModule.() -> Unit
     ) {
-        val configuration = dokkaConfiguration {
+        val testConfiguration = configuration ?: dokkaConfiguration {
             passes {
                 pass {
                     sourceRoots = listOf("src/")
@@ -27,13 +29,11 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
 
         testInline(
             query = ("$prepend\n$query").trim().trimIndent(),
-            configuration = configuration,
+            configuration = testConfiguration,
             cleanupOutput = cleanupOutput,
             pluginOverrides = pluginsOverrides
         ) {
             documentablesTransformationStage = block
         }
     }
-
-
 }
