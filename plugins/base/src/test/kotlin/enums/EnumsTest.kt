@@ -36,7 +36,6 @@ class EnumsTest : AbstractCoreTest() {
                 val test = map.filterKeys { it.name == "Test" }.values.firstOrNull()
                 assertTrue(test != null) { "Test not found" }
                 assertTrue(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
-                assertTrue(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
             }
         }
     }
@@ -83,7 +82,6 @@ class EnumsTest : AbstractCoreTest() {
                 val test = map.filterKeys { it.name == "Test" }.values.firstOrNull()
                 assertNotNull(test, "Test not found")
                 assertTrue(test!!.any { it.name == "E1" } && test.any { it.name == "E2" }) { "Enum entries missing in parent" }
-                assertTrue(map.keys.any { it.name == "E1" } && map.keys.any { it.name == "E2" }) { "Enum entries missing" }
             }
         }
     }

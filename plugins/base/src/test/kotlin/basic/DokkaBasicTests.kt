@@ -32,7 +32,7 @@ class DokkaBasicTests : AbstractCoreTest() {
         ) {
             pagesGenerationStage = {
                 println(it.dri)
-                assertTrue(it.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 5)
+                assertTrue(it.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 2)
             }
         }
     }

@@ -47,7 +47,7 @@ class BasicMultiplatformTest : AbstractCoreTest() {
             configuration
         ) {
             pagesGenerationStage = {
-                assertEquals(6, it.parentMap.size)
+                assertEquals(3, it.parentMap.size)
             }
         }
     }
