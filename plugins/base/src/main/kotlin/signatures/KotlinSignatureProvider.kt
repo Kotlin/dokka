@@ -71,7 +71,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        platformText(f.modifier) { it.name }
+        platformText(f.modifier) { it.name + " " }
         text("fun ")
         list(f.generics, prefix = "<", suffix = "> ") {
             +buildSignature(it)
