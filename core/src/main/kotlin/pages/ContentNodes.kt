@@ -30,7 +30,7 @@ data class ContentBreakLine(
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
-): ContentNode {
+) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
 }
 
@@ -163,17 +163,20 @@ data class PlatformHintedContent(
 
 /** All extras */
 interface Extra
+
 interface Style
 interface Kind
 
 enum class ContentKind : Kind {
+
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, TypeAliases;
+    Empty, Source, TypeAliases;
 
-    companion object{
-        private val platformTagged = setOf(Constructors, Functions, Properties, Classlikes, Packages, TypeAliases)
+    companion object {
+        private val platformTagged =
+            setOf(Constructors, Functions, Properties, Classlikes, Packages, Source, TypeAliases)
 
-        fun shouldBePlatformTagged(kind: Kind) : Boolean = kind in platformTagged
+        fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
 }
 

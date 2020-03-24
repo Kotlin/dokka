@@ -22,6 +22,7 @@ import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStra
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
+import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
@@ -125,6 +126,10 @@ class DokkaBase : DokkaPlugin() {
 
     val rootCreator by extending {
         htmlPreprocessors with RootCreator
+    }
+
+    val sourceLinksTransformer by extending {
+        htmlPreprocessors providing ::SourceLinksTransformer order { after(rootCreator) }
     }
 
     val navigationPageInstaller by extending {
