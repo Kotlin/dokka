@@ -49,7 +49,7 @@ class PageTransformerBuilderTest : AbstractCoreTest() {
                 orig = it
             }
             pagesTransformationStage = { root ->
-                list.assertCount(7, "Page list: ")
+                list.assertCount(4, "Page list: ")
                 orig?.let { root.assertTransform(it) }
             }
         }

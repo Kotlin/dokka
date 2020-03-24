@@ -5,7 +5,6 @@ import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DriOfAny
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -116,8 +115,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             parseSupertypes(superTypes)
             val (regularFunctions, accessors) = splitFunctionsAndAccessors()
             val documentation = javadocParser.parseDocumentation(this).toPlatformDependant()
-            val allFunctions = regularFunctions.mapNotNull { if (!it.isConstructor) parseFunction(it, dri) else null } +
-                    superMethods.map { parseFunction(it, dri, isInherited = true) }
+            val allFunctions = regularFunctions.mapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
+                    superMethods.map { parseFunction(it, isInherited = true) }
             val source = PsiDocumentableSource(this).toPlatformDependant()
             val classlikes = innerClasses.map { parseClasslike(it, dri) }
             val visibility = getVisibility().toPlatformDependant()
@@ -131,11 +130,11 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                         documentation,
                         source,
                         allFunctions,
-                        fields.mapNotNull { parseField(it, dri, accessors[it].orEmpty()) },
+                        fields.mapNotNull { parseField(it, accessors[it].orEmpty()) },
                         classlikes,
                         visibility,
                         null,
-                        constructors.map { parseFunction(it, dri, true) },
+                        constructors.map { parseFunction(it, true) },
                         listOf(platformData),
                         PropertyContainer.empty<DAnnotation>() + annotations.toList().toExtra()
                     )
@@ -157,11 +156,11 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     documentation,
                     source,
                     allFunctions,
-                    fields.filter { it !is PsiEnumConstant }.map { parseField(it, dri, accessors[it].orEmpty()) },
+                    fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
                     classlikes,
                     visibility,
                     null,
-                    constructors.map { parseFunction(it, dri, true) },
+                    constructors.map { parseFunction(it, true) },
                     ancestors,
                     listOf(platformData),
                     PropertyContainer.empty<DEnum>() + annotations.toList().toExtra()
@@ -172,7 +171,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     documentation,
                     source,
                     allFunctions,
-                    fields.mapNotNull { parseField(it, dri, accessors[it].orEmpty()) },
+                    fields.mapNotNull { parseField(it, accessors[it].orEmpty()) },
                     classlikes,
                     visibility,
                     null,
@@ -184,9 +183,9 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 else -> DClass(
                     dri,
                     name.orEmpty(),
-                    constructors.map { parseFunction(it, dri, true) },
+                    constructors.map { parseFunction(it, true) },
                     allFunctions,
-                    fields.mapNotNull { parseField(it, dri, accessors[it].orEmpty()) },
+                    fields.mapNotNull { parseField(it, accessors[it].orEmpty()) },
                     classlikes,
                     source,
                     visibility,
@@ -203,11 +202,10 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
 
         private fun parseFunction(
             psi: PsiMethod,
-            parent: DRI,
             isConstructor: Boolean = false,
             isInherited: Boolean = false
         ): DFunction {
-            val dri = DRI.from(psi).copy(classNames = parent.classNames)
+            val dri = DRI.from(psi)
             return DFunction(
                 dri,
                 if (isConstructor) "<init>" else psi.name,
@@ -328,7 +326,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             return regularMethods to accessors
         }
 
-        private fun parseField(psi: PsiField, parent: DRI, accessors: List<PsiMethod>): DProperty {
+        private fun parseField(psi: PsiField, accessors: List<PsiMethod>): DProperty {
             val dri = DRI.from(psi)
             return DProperty(
                 dri,
@@ -338,8 +336,8 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 psi.getVisibility().toPlatformDependant(),
                 getBound(psi.type),
                 null,
-                accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it, parent) },
-                accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it, parent) },
+                accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it) },
+                accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
                 psi.getModifier().toPlatformDependant(),
                 listOf(platformData),
                 PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()

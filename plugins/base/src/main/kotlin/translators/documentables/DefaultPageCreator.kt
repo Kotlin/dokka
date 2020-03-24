@@ -33,7 +33,7 @@ open class DefaultPageCreator(
         ClasslikePageNode(
             e.name.orEmpty(), contentForEnumEntry(e), setOf(e.dri), e,
             e.classlikes.map(::pageForClasslike) +
-                    e.functions.map(::pageForFunction)
+                    e.filteredFunctions.map(::pageForFunction)
         )
 
     open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
@@ -43,12 +43,15 @@ open class DefaultPageCreator(
             c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
             constructors.map(::pageForFunction) +
                     c.classlikes.map(::pageForClasslike) +
-                    c.functions.map(::pageForFunction) +
+                    c.filteredFunctions.map(::pageForFunction) +
                     if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
         )
     }
 
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
+
+    private val WithScope.filteredFunctions
+    get() = functions.filter { it.extra[InheritedFunction]?.isInherited != true }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         header(1) { text(m.name) }
