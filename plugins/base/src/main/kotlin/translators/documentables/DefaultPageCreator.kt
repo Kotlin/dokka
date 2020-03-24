@@ -43,11 +43,9 @@ open class DefaultPageCreator(
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        platformDependentHint(m.dri, m.platformData.toSet()){
-            header(1) { text(m.name) }
-            block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
+        header(1) { text(m.name) }
+        block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
                 link(it.name, it.dri)
-            }
         }
 //        text("Index\n") TODO
 //        text("Link to allpage here")
@@ -55,9 +53,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         header(1) { text("Package ${p.name}") }
-        platformDependentHint(p.dri, p.platformData.toSet()){
-            +contentForScope(p, p.dri, p.platformData)
-        }
+        +contentForScope(p, p.dri, p.platformData)
     }
 
     protected open fun contentForScope(
@@ -67,33 +63,33 @@ open class DefaultPageCreator(
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name.orEmpty(), it.dri)
-            platformDependentHint(it.dri, it.platformData.toSet()){
-                group {
+            group {
+                platformDependentHint(it.dri, it.platformData.toSet()) {
                     +buildSignature(it)
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                }
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri)
-            platformDependentHint(it.dri, it.platformData.toSet()){
-                group {
+            group {
+                platformDependentHint(it.dri, it.platformData.toSet()) {
                     +buildSignature(it)
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                }
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
             link(it.name, it.dri)
-            platformDependentHint(it.dri, it.platformData.toSet()){
+            platformDependentHint(it.dri, it.platformData.toSet()) {
                 +buildSignature(it)
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
-                }
+            }
+            group(kind = ContentKind.BriefComment) {
+                text(it.briefDocumentation())
             }
         }
         (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
@@ -109,7 +105,9 @@ open class DefaultPageCreator(
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
-        +buildSignature(c)
+        platformDependentHint(c.dri, c.platformData.toSet()) {
+            +buildSignature(c)
+        }
         breakLine()
         +contentForComments(c) { it !is Property }
 
@@ -123,8 +121,9 @@ open class DefaultPageCreator(
             ) {
                 link(it.name, it.dri)
                 group {
-                    +buildSignature(it)
-
+                    platformDependentHint(it.dri, it.platformData.toSet()) {
+                        +buildSignature(it)
+                    }
                     group(kind = ContentKind.BriefComment) {
                         text(it.briefDocumentation())
                     }
@@ -165,11 +164,10 @@ open class DefaultPageCreator(
 
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         header(1) { text(f.name) }
-        platformDependentHint(f.dri, f.platformData.toSet()){
-            if(f.sources.expect != null) text("actual")
+        platformDependentHint(f.dri, f.platformData.toSet()) {
             +buildSignature(f)
-            +contentForComments(f)
         }
+        +contentForComments(f)
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
