@@ -6,7 +6,7 @@ import org.jetbrains.dokka.pages.ModulePageNode
 import org.junit.jupiter.api.Assertions.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
-open class KDocTest : AbstractCoreTest() {
+abstract class KDocTest : AbstractCoreTest() {
 
     private val configuration = dokkaConfiguration {
         passes {
