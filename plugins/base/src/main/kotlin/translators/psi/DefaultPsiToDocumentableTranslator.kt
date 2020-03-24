@@ -4,14 +4,13 @@ import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.JavaClassReference
-import org.jetbrains.dokka.links.withClass
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DAnnotation
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -99,12 +98,6 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             val superMethodsKeys = hashSetOf<Int>()
             val superMethods = mutableListOf<PsiMethod>()
             methods.forEach { superMethodsKeys.add(it.hash) }
-            fun addAncestors(element: PsiClass) {
-                ancestorsSet.add(DRI.from(element))
-                element.interfaces.forEach(::addAncestors)
-                element.superClass?.let(::addAncestors)
-            }
-
             fun parseSupertypes(superTypes: Array<PsiClassType>) {
                 superTypes.forEach { type ->
                     (type as? PsiClassType)?.takeUnless { type.shouldBeIgnored }?.resolve()?.let {
@@ -117,7 +110,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                                 superMethods.add(method)
                             }
                         }
-                        addAncestors(it)
+                        ancestorsSet.add(DRI.from(it))
                         parseSupertypes(it.superTypes)
                     }
                 }
@@ -215,14 +208,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             isConstructor: Boolean = false,
             isInherited: Boolean = false
         ): DFunction {
-            val dri = parent.copy(
-                callable = Callable(
-                    psi.name,
-                    JavaClassReference(psi.containingClass?.name.orEmpty()),
-                    psi.parameterList.parameters.map { parameter ->
-                        JavaClassReference(parameter.type.canonicalText)
-                    })
-            )
+            val dri = DRI.from(psi).copy(classNames = parent.classNames)
             return DFunction(
                 dri,
                 if (isConstructor) "<init>" else psi.name,
@@ -304,7 +290,10 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             fun mapBounds(bounds: Array<JvmReferenceType>): List<Bound> =
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
                     (it as? PsiClassType)?.let { classType ->
-                        Nullable(TypeConstructor(DRI.from(classType.resolve()!!), emptyList()))
+                        val resolved = classType.resolve()!!
+                        val dri = if(resolved.qualifiedName == "java.lang.Object") DriOfAny
+                        else DRI.from(resolved)
+                        Nullable(TypeConstructor(dri, emptyList()))
                     }
                 }
             return typeParameters.mapIndexed { index, type ->
@@ -343,13 +332,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         }
 
         private fun parseField(psi: PsiField, parent: DRI, accessors: List<PsiMethod>): DProperty {
-            val dri = parent.copy(
-                callable = Callable(
-                    psi.name!!, // TODO: Investigate if this is indeed nullable
-                    JavaClassReference(psi.containingClass?.name.orEmpty()),
-                    emptyList()
-                )
-            )
+            val dri = DRI.from(psi)
             return DProperty(
                 dri,
                 psi.name!!, // TODO: Investigate if this is indeed nullable
@@ -373,7 +356,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
             }
 
             Annotations.Annotation(
-                DRI(fqname.substringBeforeLast("."), fqname.substringAfterLast(".")), // TODO: create a proper DRI
+                DRI.from(annotation),
                 annotation.attributes.mapNotNull {
                     if (it is PsiNameValuePair) {
                         it.attributeName to it.value.toString()
