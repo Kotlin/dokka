@@ -32,14 +32,19 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             |
             |    fun doSomething(): String = "Hello"
             |}
-        """
+        """,
+            configuration = dokkaConfiguration {
+                passes {
+                    pass {
+                        sourceRoots = listOf("src/")
+                        classpath = listOfNotNull(jvmStdlibPath)
+                    }
+                }
+            }
         ) {
             with((this / "issues" / "Test").cast<DClass>()) {
-                // passes
                 (this / "working").cast<DFunction>().type.name equals "String"
                 (this / "doSomething").cast<DFunction>().type.name equals "String"
-
-                // fails
                 (this / "brokenGenerics").cast<DFunction>().type.name equals "List"
                 (this / "brokenApply").cast<DFunction>().type.name equals "Test"
                 (this / "brokenRun").cast<DFunction>().type.name equals "Test"

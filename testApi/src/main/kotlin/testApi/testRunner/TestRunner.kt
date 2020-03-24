@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.testApi.testRunner
 
+import com.intellij.openapi.application.PathManager
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.ModulePageNode
@@ -212,6 +213,22 @@ abstract class AbstractCoreTest {
             externalDocumentationLinks = externalDocumentationLinks,
             sourceLinks = sourceLinks
         )
+    }
+
+    protected val jvmStdlibPath: String? by lazy {
+        PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
+    }
+
+    protected val jsStdlibPath: String? by lazy {
+        PathManager.getResourceRoot(Any::class.java, "/kotlin/jquery")
+    }
+
+    protected val commonStdlibPath: String? by lazy {
+        // TODO: feels hacky, find a better way to do it
+        ClassLoader.getSystemResource("kotlin/UInt.kotlin_metadata")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "")
     }
 }
 

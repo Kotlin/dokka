@@ -167,7 +167,15 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         inlineModelTest(
             """
                 |@Strictfp var property = "test"
-                """
+                """,
+            configuration = dokkaConfiguration {
+                passes {
+                    pass {
+                        sourceRoots = listOf("src/")
+                        classpath = listOfNotNull(jvmStdlibPath)
+                    }
+                }
+            }
         ) {
             with((this / "property" / "property").cast<DProperty>()) {
                 with(extra[Annotations].assertNotNull("Annotations")) {
