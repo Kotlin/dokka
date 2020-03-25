@@ -109,7 +109,7 @@ open class DefaultPageCreator(
                 "Constructors",
                 2,
                 ContentKind.Constructors,
-                c.constructors.filter { it.extra[PrimaryConstructorExtra.PrimaryConstructorExtraKey] == null },
+                c.constructors.filter { it.extra[PrimaryConstructorExtra] == null },
                 c.platformData.toSet()
             ) {
                 link(it.name, it.dri)

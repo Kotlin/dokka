@@ -48,7 +48,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
         link(c.name!!, c.dri)
         if(c is DClass){
-            val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra.PrimaryConstructorExtraKey] != null }
+            val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra] != null }
             list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.platformData.orEmpty().toSet()){
                 breakLine()
                 text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold).plus(TextStyle.Indented))
