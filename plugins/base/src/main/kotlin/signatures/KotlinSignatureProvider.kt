@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.signatures
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriOfAny
 import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
@@ -89,11 +90,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             signatureForProjection(it.type)
         }
         text(")")
-        val returnType = f.type
-        if (!f.isConstructor && returnType is TypeConstructor && returnType.dri != DriOfUnit) {
+        if (f.documentReturnType()) {
             text(": ")
-            signatureForProjection(returnType)
+            signatureForProjection(f.type)
         }
+    }
+
+    private fun DFunction.documentReturnType() = when {
+        this.isConstructor -> false
+        this.type is TypeConstructor && (this.type as TypeConstructor).dri == DriOfUnit -> false
+        this.type is Void -> false
+        else -> true
     }
 
     private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
@@ -128,6 +135,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             text("?")
         }
 
+        is JavaObject -> link("Any", DriOfAny)
+        is Void -> link("Unit", DriOfUnit)
         is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
     }
 
