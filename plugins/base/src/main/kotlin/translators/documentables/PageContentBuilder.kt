@@ -34,7 +34,7 @@ open class PageContentBuilder(
         kind: Kind = ContentKind.Main,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
-        block: DocumentableContentBuilder.() -> Unit
+        block: DocumentableContentBuilder.() -> Unit = {}
     ): ContentGroup =
         DocumentableContentBuilder(d.dri, d.platformData.toSet(), styles, extra)
             .apply(block)

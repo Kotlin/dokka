@@ -73,6 +73,9 @@
     text-decoration: line-through;
 }
 
+.symbol:empty {
+    padding: 0px;
+}
 .symbol {
     padding: 5px;
     background-color: #F4F4F4;
