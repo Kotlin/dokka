@@ -192,11 +192,26 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 }
 
 object MainKt {
+    fun defaultLinks(config: DokkaConfiguration.PassConfiguration): List<ExternalDocumentationLink> {
+        val links = mutableListOf<ExternalDocumentationLinkImpl>()
+        if (!config.noJdkLink)
+            links += DokkaConfiguration.ExternalDocumentationLink
+                .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
+                .build() as ExternalDocumentationLinkImpl
+
+        if (!config.noStdlibLink)
+            links += DokkaConfiguration.ExternalDocumentationLink
+                .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                .build() as ExternalDocumentationLinkImpl
+        return links
+    }
+
     fun parseLinks(links: String): List<ExternalDocumentationLink> {
         val (parsedLinks, parsedOfflineLinks) = links.split("^^")
             .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
             .filter { it.isNotEmpty() }
             .partition { it.size == 1 }
+
 
         return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
                 parsedOfflineLinks.map { (root, packageList) ->
@@ -256,6 +271,7 @@ object MainKt {
         val parser = DokkaArgumentsParser(args, parseContext)
         val configuration = GlobalArguments(parser)
 
+
         parseContext.cli.singleAction(
             listOf("-globalPackageOptions"),
             "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
@@ -291,8 +307,10 @@ object MainKt {
                 it.sourceLinks.toMutableList().addAll(newSourceLinks)
             }
         }
-
         parser.parseInto(configuration)
+        configuration.passesConfigurations.forEach {
+            it.externalDocumentationLinks.addAll(defaultLinks(it))
+        }
         return configuration
     }
 
