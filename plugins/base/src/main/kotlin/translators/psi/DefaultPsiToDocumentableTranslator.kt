@@ -4,13 +4,10 @@ import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriOfAny
+import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DAnnotation
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.Nullable
-import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -21,6 +18,7 @@ import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
 import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 
 object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
@@ -291,7 +289,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
                     (it as? PsiClassType)?.let { classType ->
                         val resolved = classType.resolve()!!
-                        val dri = if(resolved.qualifiedName == "java.lang.Object") DriOfAny
+                        val dri = if (resolved.qualifiedName == "java.lang.Object") DriOfAny
                         else DRI.from(resolved)
                         Nullable(TypeConstructor(dri, emptyList()))
                     }
@@ -350,18 +348,18 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         }
 
         private fun Collection<PsiAnnotation>.toExtra() = mapNotNull { annotation ->
-            val fqname = annotation.qualifiedName ?: run {
-                logger.error("No fqName for $annotation!")
+            val resolved = annotation.getChildOfType<PsiJavaCodeReferenceElement>()?.resolve() ?: run {
+                logger.error("$annotation cannot be resolved to symbol!")
                 return@mapNotNull null
             }
 
             Annotations.Annotation(
-                DRI.from(annotation),
-                annotation.attributes.mapNotNull {
-                    if (it is PsiNameValuePair) {
-                        it.attributeName to it.value.toString()
+                DRI.from(resolved),
+                annotation.attributes.mapNotNull { attr ->
+                    if (attr is PsiNameValuePair) {
+                        attr.value?.text?.let { attr.attributeName to it }
                     } else {
-                        it.attributeName to ""
+                        attr.attributeName to ""
                     }
                 }.toMap()
             )
