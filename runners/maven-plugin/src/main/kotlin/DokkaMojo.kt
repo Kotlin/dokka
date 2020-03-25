@@ -185,6 +185,19 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                 throw MojoExecutionException("Incorrect path property, only Unix based path allowed.")
             }
         }
+        fun defaultLinks(config: PassConfigurationImpl): List<ExternalDocumentationLinkImpl> {
+            val links = mutableListOf<ExternalDocumentationLinkImpl>()
+            if (!config.noJdkLink)
+                links += DokkaConfiguration.ExternalDocumentationLink
+                    .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
+                    .build() as ExternalDocumentationLinkImpl
+
+            if (!config.noStdlibLink)
+                links += DokkaConfiguration.ExternalDocumentationLink
+                    .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    .build() as ExternalDocumentationLinkImpl
+            return links
+        }
 
         val passConfiguration = PassConfigurationImpl(
             classpath = classpath,
@@ -218,7 +231,11 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             targets = targets,
             includeNonPublic = includeNonPublic,
             includeRootPackage = includeRootPackage
-        )
+        ).let{
+            it.copy(
+                externalDocumentationLinks = defaultLinks(it) + it.externalDocumentationLinks
+            )
+        }
 
         val logger = MavenDokkaLogger(log)
 
