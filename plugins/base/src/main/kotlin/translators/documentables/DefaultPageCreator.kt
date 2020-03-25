@@ -29,6 +29,13 @@ open class DefaultPageCreator(
                 p.functions.map(::pageForFunction)
     )
 
+    open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
+        ClasslikePageNode(
+            e.name.orEmpty(), contentForEnumEntry(e), setOf(e.dri), e,
+            e.classlikes.map(::pageForClasslike) +
+                    e.functions.map(::pageForFunction)
+        )
+
     open fun pageForClasslike(c: DClasslike): ClasslikePageNode {
         val constructors = if (c is WithConstructors) c.constructors else emptyList()
 
@@ -36,7 +43,8 @@ open class DefaultPageCreator(
             c.name.orEmpty(), contentForClasslike(c), setOf(c.dri), c,
             constructors.map(::pageForFunction) +
                     c.classlikes.map(::pageForClasslike) +
-                    c.functions.map(::pageForFunction)
+                    c.functions.map(::pageForFunction) +
+                    if (c is DEnum) c.entries.map(::pageForEnumEntry) else emptyList()
         )
     }
 
@@ -103,6 +111,15 @@ open class DefaultPageCreator(
         }
     }
 
+    protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
+        header(1) { text(e.name.orEmpty()) }
+        +buildSignature(e)
+
+        +contentForComments(e) { it !is Property }
+
+        +contentForScope(e, e.dri, e.platformData)
+    }
+
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         header(1) { text(c.name.orEmpty()) }
         platformDependentHint(c.dri, c.platformData.toSet()) {
@@ -124,6 +141,19 @@ open class DefaultPageCreator(
                     platformDependentHint(it.dri, it.platformData.toSet()) {
                         +buildSignature(it)
                     }
+                    group(kind = ContentKind.BriefComment) {
+                        text(it.briefDocumentation())
+                    }
+                }
+            }
+        }
+        if (c is DEnum) {
+            block(
+                "Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()
+            ) {
+                link(it.name.orEmpty(), it.dri)
+                group {
+                    +buildSignature(it)
                     group(kind = ContentKind.BriefComment) {
                         text(it.briefDocumentation())
                     }

@@ -23,11 +23,14 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         is DFunction -> signature(documentable)
         is DProperty -> signature(documentable)
         is DClasslike -> signature(documentable)
+        is DEnumEntry -> signature(documentable)
         is DTypeParameter -> signature(documentable)
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
     }
+
+    private fun signature(e: DEnumEntry)= contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
 
     private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }

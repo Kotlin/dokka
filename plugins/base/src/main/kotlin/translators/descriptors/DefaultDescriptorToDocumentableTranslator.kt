@@ -422,8 +422,8 @@ private class DokkaDescriptorVisitor( // TODO: close this class and make it priv
 
     private fun MemberScope.classlikes(parent: DRIWithPlatformInfo): List<DClasslike> =
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
-            .filterIsInstance<ClassDescriptor>()
-            .map { visitClassDescriptor(it, parent) }
+            .filter { it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY }
+            .map { visitClassDescriptor(it as ClassDescriptor, parent) }
             .mapNotNull { it as? DClasslike }
 
     private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<DPackage> =
