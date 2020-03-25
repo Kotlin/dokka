@@ -259,14 +259,13 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 children counts 2
 
                 with((this / "i").cast<DProperty>()) {
-                    getter.assertNotNull("i.get")
-                    setter.assertNotNull("i.set")
+                    getter equals null
+                    setter equals null
                 }
 
                 with((this / "s").cast<DProperty>()) {
-                    getter.assertNotNull("s.get")
-                    setter.assertNotNull("s.set")
-
+                    getter equals null
+                    setter equals null
                 }
             }
         }
