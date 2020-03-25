@@ -336,10 +336,9 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         ) {
             with((this / "java" / "Attribute").cast<DAnnotation>()) {
                 with(extra[Annotations].assertNotNull("Annotations")) {
-                    content counts 1
-                    with(content.first()) {
+                    with(content.single()) {
                         dri.classNames equals "Target"
-                        params["value"].assertNotNull("value") equals "PsiArrayInitializerMemberValue:{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
+                        params["value"].assertNotNull("value") equals "{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
                     }
                 }
             }
