@@ -66,6 +66,8 @@
       <module name="dokka.runners.maven-plugin.main" target="1.8" />
       <module name="dokka.runners.maven-plugin.test" target="1.8" />
       <module name="dokka.runners.test" target="1.8" />
+      <module name="dokka.test-tools.main" target="1.8" />
+      <module name="dokka.test-tools.test" target="1.8" />
       <module name="dokka.testApi.main" target="1.8" />
       <module name="dokka.testApi.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />

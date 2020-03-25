@@ -3,6 +3,7 @@ rootProject.name = "dokka"
 include("core")
 include("coreDependencies")
 include("testApi")
+include("test-tools")
 include("runners:gradle-plugin")
 include("runners:cli")
 include("runners:maven-plugin")
