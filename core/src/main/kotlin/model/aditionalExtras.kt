@@ -37,8 +37,6 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
     }
 }
 
-object PrimaryConstructorExtra: ExtraProperty<DFunction> {
-    object PrimaryConstructorExtraKey: ExtraProperty.Key<DFunction, PrimaryConstructorExtra>
-
-    override val key: ExtraProperty.Key<DFunction, *> = PrimaryConstructorExtraKey
+object PrimaryConstructorExtra: ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
+    override val key: ExtraProperty.Key<DFunction, *> = this
 }
