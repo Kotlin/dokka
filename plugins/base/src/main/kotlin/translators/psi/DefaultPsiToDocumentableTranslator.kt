@@ -223,7 +223,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
-                psi.returnType?.let { getBound(type = it) } ?: VoidBound,
+                psi.returnType?.let { getBound(type = it) } ?: Void,
                 psi.mapTypeParameters(dri),
                 null,
                 psi.getModifier(),
@@ -254,14 +254,17 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     is PsiClassReferenceType -> {
                         val resolved: PsiClass = type.resolve()
                             ?: throw IllegalStateException("${type.presentableText} cannot be resolved")
-                        val arguments = type.parameters.map { getProjection(it) }
-                        TypeConstructor(DRI.from(resolved), arguments)
+                        if (resolved.qualifiedName == "java.lang.Object") {
+                            JavaObject
+                        } else {
+                            TypeConstructor(DRI.from(resolved), type.parameters.map { getProjection(it) })
+                        }
                     }
                     is PsiArrayType -> TypeConstructor(
                         DRI("kotlin", "Array"),
                         listOf(getProjection(type.componentType))
                     )
-                    is PsiPrimitiveType -> PrimitiveJavaType(type.name)
+                    is PsiPrimitiveType -> if(type.name == "void") Void else PrimitiveJavaType(type.name)
                     else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
                 }
             }
@@ -287,12 +290,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         private fun PsiTypeParameterListOwner.mapTypeParameters(dri: DRI): List<DTypeParameter> {
             fun mapBounds(bounds: Array<JvmReferenceType>): List<Bound> =
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
-                    (it as? PsiClassType)?.let { classType ->
-                        val resolved = classType.resolve()!!
-                        val dri = if (resolved.qualifiedName == "java.lang.Object") DriOfAny
-                        else DRI.from(resolved)
-                        Nullable(TypeConstructor(dri, emptyList()))
-                    }
+                    (it as? PsiClassType)?.let { classType -> Nullable(getBound(classType)) }
                 }
             return typeParameters.mapIndexed { index, type ->
                 DTypeParameter(

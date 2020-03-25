@@ -335,8 +335,8 @@ data class Variance(val kind: Kind, val inner: Bound) : Projection() {
     enum class Kind { In, Out }
 }
 data class PrimitiveJavaType(val name: String): Bound()
-
-val VoidBound = PrimitiveJavaType("void")
+object Void : Bound()
+object JavaObject : Bound()
 
 enum class FunctionModifiers {
     NONE, FUNCTION, EXTENSION

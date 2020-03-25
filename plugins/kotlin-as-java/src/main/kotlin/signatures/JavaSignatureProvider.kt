@@ -3,11 +3,9 @@ package org.jetbrains.dokka.kotlinAsJava.signatures
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DAnnotation
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
@@ -109,6 +107,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
         is Nullable -> signatureForProjection(p.inner)
 
+        is JavaObject -> link("Object", DRI("java.lang", "Object"))
+        is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
     }
 }

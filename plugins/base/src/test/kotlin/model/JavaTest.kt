@@ -362,7 +362,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "Test" / "fn").cast<DFunction>()) {
-                type.name equals "Any"
+                assertTrue(type is JavaObject)
             }
         }
     }
