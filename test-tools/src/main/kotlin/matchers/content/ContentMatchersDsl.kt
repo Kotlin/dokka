@@ -1,14 +1,20 @@
 package matchers.content
 
-import org.jetbrains.dokka.pages.ContentComposite
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentNode
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.isEqualTo
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.test.tools.matchers.content.*
 import kotlin.reflect.KClass
 
 // entry point:
 fun ContentNode.assertNode(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) {
-    ContentMatcherBuilder(ContentComposite::class).apply(block).build().tryMatch(this)
+    val matcher = ContentMatcherBuilder(ContentComposite::class).apply(block).build()
+    try {
+        matcher.tryMatch(this)
+    } catch (e: MatcherError) {
+        throw AssertionError(e.message + "\n" + matcher.toDebugString(e.anchor, e.anchorAfter))
+    }
 }
 
 
@@ -40,7 +46,7 @@ inline fun <reified S : ContentComposite> ContentMatcherBuilder<*>.composite(
     children += ContentMatcherBuilder(S::class).apply(block).build()
 }
 
-inline fun <reified S : ContentNode> ContentMatcherBuilder<*>.node(noinline assertions: S.() -> Unit) {
+inline fun <reified S : ContentNode> ContentMatcherBuilder<*>.node(noinline assertions: S.() -> Unit = {}) {
     children += NodeMatcher(S::class, assertions)
 }
 
@@ -50,9 +56,28 @@ fun ContentMatcherBuilder<*>.skipAllNotMatching() {
 
 
 // Convenience functions:
-fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
-    children += ContentMatcherBuilder(ContentGroup::class).apply(block).build()
-}
+fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.header(expectedLevel: Int? = null, block: ContentMatcherBuilder<ContentHeader>.() -> Unit) =
+    composite<ContentHeader> {
+        block()
+        check { if (expectedLevel != null) assertThat(this::level).isEqualTo(expectedLevel) }
+    }
+
+fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+    composite<ContentGroup> {
+        block()
+        check { assertThat(this::style).contains(TextStyle.Paragraph) }
+    }
+
+fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.() -> Unit) = composite(block)
+
+fun ContentMatcherBuilder<*>.platformHinted(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+    composite<PlatformHintedContent> { group(block) }
+
+fun ContentMatcherBuilder<*>.br() = node<ContentBreakLine>()
 
 fun ContentMatcherBuilder<*>.somewhere(block: ContentMatcherBuilder<*>.() -> Unit) {
     skipAllNotMatching()
