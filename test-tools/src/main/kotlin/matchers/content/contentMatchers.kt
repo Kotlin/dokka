@@ -5,17 +5,24 @@ import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
+import kotlin.reflect.full.safeCast
 
 sealed class MatcherElement
 
 class TextMatcher(val text: String) : MatcherElement()
 
-open class NodeMatcher<T: ContentNode>(
+open class NodeMatcher<T : ContentNode>(
     val kclass: KClass<T>,
     val assertions: T.() -> Unit = {}
-): MatcherElement() {
+) : MatcherElement() {
     open fun tryMatch(node: ContentNode) {
-        assertions(kclass.cast(node))
+        kclass.safeCast(node)?.apply {
+            try {
+                assertions()
+            } catch (e: AssertionError) {
+                throw MatcherError(e.message.orEmpty(), this@NodeMatcher, cause = e)
+            }
+        } ?: throw MatcherError("Expected ${kclass.simpleName} but got: $node", this)
     }
 }
 
@@ -24,7 +31,7 @@ class CompositeMatcher<T : ContentComposite>(
     private val children: List<MatcherElement>,
     assertions: T.() -> Unit = {}
 ) : NodeMatcher<T>(kclass, assertions) {
-    private val normalizedChildren: List<MatcherElement> by lazy {
+    internal val normalizedChildren: List<MatcherElement> by lazy {
         children.fold(listOf<MatcherElement>()) { acc, e ->
             when {
                 acc.lastOrNull() is Anything && e is Anything -> acc
@@ -37,7 +44,9 @@ class CompositeMatcher<T : ContentComposite>(
 
     override fun tryMatch(node: ContentNode) {
         super.tryMatch(node)
-        kclass.cast(node).children.fold(normalizedChildren.pop()) { acc, n -> acc.next(n) }.finish()
+        kclass.cast(node).children.asSequence()
+            .filter { it !is ContentText || it.text.isNotBlank() }
+            .fold(FurtherSiblings(normalizedChildren, this).pop()) { acc, n -> acc.next(n) }.finish()
     }
 }
 
@@ -48,22 +57,27 @@ private sealed class MatchWalkerState {
     abstract fun finish()
 }
 
-private class TextMatcherState(val text: String, val rest: List<MatcherElement>) : MatchWalkerState() {
+private class TextMatcherState(
+    val text: String,
+    val rest: FurtherSiblings,
+    val anchor: TextMatcher
+) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
-        node as ContentText
+        node as? ContentText ?: throw MatcherError("Expected text: \"$text\" but got $node", anchor)
+        val trimmed = node.text.trim()
         return when {
-            text == node.text -> rest.pop()
-            text.startsWith(node.text) -> TextMatcherState(text.removePrefix(node.text), rest)
-            else -> throw AssertionError("Expected text: \"$text\", but found: \"${node.text}\"")
+            text == trimmed -> rest.pop()
+            text.startsWith(trimmed) -> TextMatcherState(text.removePrefix(node.text).trim(), rest, anchor)
+            else -> throw MatcherError("Expected text: \"$text\", but got: \"${node.text}\"", anchor)
         }
     }
 
-    override fun finish() = throw AssertionError("\"$text\" was not found" + rest.messageEnd)
+    override fun finish() = throw MatcherError("\"$text\" was not found" + rest.messageEnd, anchor)
 }
 
-private object EmptyMatcherState : MatchWalkerState() {
+private class EmptyMatcherState(val parent: CompositeMatcher<*>) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
-        throw AssertionError("Unexpected $node")
+        throw MatcherError("Unexpected $node", parent, anchorAfter = true)
     }
 
     override fun finish() = Unit
@@ -71,14 +85,15 @@ private object EmptyMatcherState : MatchWalkerState() {
 
 private class NodeMatcherState(
     val matcher: NodeMatcher<*>,
-    val rest: List<MatcherElement>
+    val rest: FurtherSiblings
 ) : MatchWalkerState() {
     override fun next(node: ContentNode): MatchWalkerState {
         matcher.tryMatch(node)
         return rest.pop()
     }
 
-    override fun finish() = throw AssertionError("Composite of type ${matcher.kclass} was not found" + rest.messageEnd)
+    override fun finish() =
+        throw MatcherError("Content of type ${matcher.kclass} was not found" + rest.messageEnd, matcher)
 }
 
 private class SkippingMatcherState(
@@ -89,17 +104,64 @@ private class SkippingMatcherState(
     override fun finish() = innerState.finish()
 }
 
-private fun List<MatcherElement>.pop(): MatchWalkerState = when (val head = firstOrNull()) {
-    is TextMatcher -> TextMatcherState(head.text, drop(1))
-    is NodeMatcher<*> -> NodeMatcherState(head, drop(1))
-    is Anything -> SkippingMatcherState(drop(1).pop())
-    null -> EmptyMatcherState
+private class FurtherSiblings(val list: List<MatcherElement>, val parent: CompositeMatcher<*>) {
+    fun pop(): MatchWalkerState = when (val head = list.firstOrNull()) {
+        is TextMatcher -> TextMatcherState(head.text.trim(), drop(), head)
+        is NodeMatcher<*> -> NodeMatcherState(head, drop())
+        is Anything -> SkippingMatcherState(drop().pop())
+        null -> EmptyMatcherState(parent)
+    }
+
+    fun drop() = FurtherSiblings(list.drop(1), parent)
+
+    val messageEnd: String
+        get() = list.filter { it !is Anything }
+            .count().takeIf { it > 0 }
+            ?.let { " and $it further matchers were not satisfied" } ?: ""
 }
 
-private val List<MatcherElement>.messageEnd: String
-    get() = filter { it !is Anything }
-        .count().takeIf { it > 0 }
-        ?.let { " and $it further matchers were not satisfied" } ?: ""
+
+
+internal fun MatcherElement.toDebugString(anchor: MatcherElement?, anchorAfter: Boolean): String {
+    fun Appendable.append(element: MatcherElement, ownPrefix: String, childPrefix: String) {
+        if (anchor != null) {
+            if (element != anchor || anchorAfter) append(" ".repeat(4))
+            else append("--> ")
+        }
+
+        append(ownPrefix)
+        when (element) {
+            is Anything -> append("skipAllNotMatching\n")
+            is TextMatcher -> append("\"${element.text}\"\n")
+            is CompositeMatcher<*> -> {
+                append("${element.kclass.simpleName.toString()}\n")
+                if (element.normalizedChildren.isNotEmpty()) {
+                    val newOwnPrefix = childPrefix + '\u251c' + '\u2500' + ' '
+                    val lastOwnPrefix = childPrefix + '\u2514' + '\u2500' + ' '
+                    val newChildPrefix = childPrefix + '\u2502' + ' ' + ' '
+                    val lastChildPrefix = childPrefix + ' ' + ' ' + ' '
+                    element.normalizedChildren.forEachIndexed { n, e ->
+                        if (n != element.normalizedChildren.lastIndex) append(e, newOwnPrefix, newChildPrefix)
+                        else append(e, lastOwnPrefix, lastChildPrefix)
+                    }
+                }
+                if (element == anchor && anchorAfter) {
+                    append("--> $childPrefix\n")
+                }
+            }
+            is NodeMatcher<*> -> append("${element.kclass.simpleName}\n")
+        }
+    }
+
+    return buildString { append(this@toDebugString, "", "") }
+}
+
+data class MatcherError(
+    override val message: String,
+    val anchor: MatcherElement,
+    val anchorAfter: Boolean = false,
+    override val cause: Throwable? = null
+) : AssertionError(message, cause)
 
 // Creating this whole mechanism was most scala-like experience I had since I stopped using scala.
 // I don't know how I should feel about it.

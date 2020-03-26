@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation("org.jsoup:jsoup:1.12.1")
+    testImplementation(project(":test-tools"))
 }
 
 publishing {
