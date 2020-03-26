@@ -1,7 +1,9 @@
 package model
 
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
+import org.jetbrains.dokka.pages.PlatformData
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -167,7 +169,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
-                modifier equals Sealed
+                modifier.allValues.forEach { it equals Sealed }
             }
         }
     }
@@ -209,15 +211,15 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             val D = (this / "classes" / "D").cast<DClass>()
 
             with(C) {
-                modifier equals Open
+                modifier.allValues.forEach { it equals Open }
                 with((this / "f").cast<DFunction>()) {
-                    modifier equals Open
+                    modifier.allValues.forEach { it equals Open }
                 }
             }
             with(D) {
-                modifier equals Final
+                modifier.allValues.forEach { it equals Final }
                 with((this / "f").cast<DFunction>()) {
-                    modifier equals Open
+                    modifier.allValues.forEach { it equals Open }
                 }
                 D.supertypes.flatMap { it.component2() }.firstOrNull() equals C.dri
             }
@@ -244,16 +246,16 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             val E = (this / "classes" / "E").cast<DClass>()
 
             with(C) {
-                modifier equals Abstract
-                ((this / "foo").cast<DFunction>()).modifier equals Abstract
+                modifier.allValues.forEach { it equals Abstract }
+                ((this / "foo").cast<DFunction>()).modifier.allValues.forEach { it equals Abstract }
             }
 
             with(D) {
-                modifier equals Abstract
+                modifier.allValues.forEach { it equals Abstract }
             }
 
             with(E) {
-                modifier equals Final
+                modifier.allValues.forEach { it equals Final }
 
             }
             D.supers.firstOrNull() equals C.dri
