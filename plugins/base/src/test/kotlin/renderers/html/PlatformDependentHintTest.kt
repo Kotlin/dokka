@@ -40,7 +40,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div("a"), "[pl1]", Div("b"), "[pl2]", Div("c"), "[pl3]")
+        renderedContent.match("[pl1]", Div("a"), "[pl2]",  Div("b"), "[pl3]", Div("c"))
     }
 
     @Test
@@ -54,7 +54,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div("ab"), "[pl1]", Div("bc"), "[pl2]")
+        renderedContent.match("[pl1]", Div("ab"), "[pl2]", Div("bc"))
     }
 
     @Test
@@ -84,7 +84,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("ab")), "[pl1]", Div(Div("a"), "b"), "[pl2]")
+        renderedContent.match("[pl1]", Div(Div("ab")), "[pl2]", Div(Div("a"), "b"))
     }
 
     @Test
@@ -115,6 +115,6 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div("a"), "[pl1, pl2]", Div("b"), "[pl3]")
+        renderedContent.match("[pl1, pl2]", Div("a"), "[pl3]",  Div("b"))
     }
 }
