@@ -167,7 +167,14 @@ interface Style
 interface Kind
 
 enum class ContentKind : Kind {
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment, Empty
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment, Empty;
+
+    companion object{
+        fun shouldBePlatformTagged(kind: Kind) : Boolean {
+            val platformTagged = listOf(Constructors, Functions, Parameters, Properties, Classlikes, Packages)
+            return platformTagged.contains(kind)
+        }
+    }
 }
 
 enum class TextStyle : Style {

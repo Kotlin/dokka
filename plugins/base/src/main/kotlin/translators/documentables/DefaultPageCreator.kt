@@ -60,7 +60,9 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        header(1) { text("Package ${p.name}") }
+        group(p.dri, p.platformData.toSet(), ContentKind.Packages){
+            header(1) { text("Package ${p.name}") }
+        }
         +contentForScope(p, p.dri, p.platformData)
     }
 
@@ -96,6 +98,7 @@ open class DefaultPageCreator(
             platformDependentHint(it.dri, it.platformData.toSet()) {
                 +buildSignature(it)
             }
+            breakLine()
             group(kind = ContentKind.BriefComment) {
                 text(it.briefDocumentation())
             }
@@ -121,11 +124,12 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
-        header(1) { text(c.name.orEmpty()) }
-        platformDependentHint(c.dri, c.platformData.toSet()) {
-            +buildSignature(c)
+        group(c.dri, c.platformData.toSet(), ContentKind.Classlikes){
+            header(1) { text(c.name.orEmpty()) }
+            platformDependentHint(c.dri, c.platformData.toSet()) {
+                +buildSignature(c)
+            }
         }
-        breakLine()
         +contentForComments(c) { it !is Property }
 
         if (c is WithConstructors) {
@@ -137,26 +141,20 @@ open class DefaultPageCreator(
                 c.platformData.toSet()
             ) {
                 link(it.name, it.dri)
-                group {
-                    platformDependentHint(it.dri, it.platformData.toSet()) {
-                        +buildSignature(it)
-                    }
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                platformDependentHint(it.dri, it.platformData.toSet()) {
+                    +buildSignature(it)
+                }
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
         if (c is DEnum) {
-            block(
-                "Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()
-            ) {
+            block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
                 link(it.name.orEmpty(), it.dri)
-                group {
-                    +buildSignature(it)
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                +buildSignature(it)
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
@@ -193,9 +191,11 @@ open class DefaultPageCreator(
     }.children
 
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
-        header(1) { text(f.name) }
-        platformDependentHint(f.dri, f.platformData.toSet()) {
-            +buildSignature(f)
+        group(f.dri, f.platformData.toSet(), ContentKind.Functions) {
+            header(1) { text(f.name) }
+            platformDependentHint(f.dri, f.platformData.toSet()) {
+                +buildSignature(f)
+            }
         }
         +contentForComments(f)
     }

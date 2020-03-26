@@ -348,6 +348,79 @@ footer {
     bottom: 50px;
 }
 
+.platform-tagged {
+    flex: auto;
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 0px;
+}
+
+.platform-tag {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    padding: 4px 8px;
+
+    width: 67px;
+    height: 24px;
+    right: 0px;
+    top: 0px;
+
+    background: #F4F4F4;
+    border-radius: 100px;
+
+    flex: none;
+    order: 0
+    align--self: end;
+}
+
+.platform-tagged > .platform-tag {
+        align-self: center;
+}
+
+.platform-tag.jvm {
+    border: crimson;
+    border-style: solid;
+    border-width: 1px;
+    border-color: crimson;
+    background-color: crimson;
+    color: white;
+}
+
+.platform-tag.js {
+    border: orange;
+    border-style: solid;
+    border-width: 1px;
+    border-color: orange;
+    background-color: orange;
+    color: white;
+}
+
+.platform-tag.native {
+    border: blue;
+    border-style: solid;
+    border-width: 1px;
+    border-color: blue;
+    background-color: blue;
+    color: white;
+}
+
+.platform-tag.common {
+    border: gray;
+    border-style: solid;
+    border-width: 1px;
+    border-color: gray;
+    color: gray;
+    background-color: gray;
+    color: white;
+}
+
+.platform-tagged > .content {
+    display: block;
+
+    flex: auto;
+}
+
 @media print, screen and (max-width: 960px) {
 
     div.wrapper {
