@@ -27,11 +27,29 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
+            ContentKind.shouldBePlatformTagged(node.dci.kind) -> wrapPlatformTagged(node, pageContext) { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
+        }
+    }
+
+    private fun FlowContent.wrapPlatformTagged(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        childrenCallback: FlowContent.() -> Unit
+    ) {
+        div("platform-tagged"){
+            node.platforms.forEach {
+                div("platform-tag ${it.platformType.name}"){
+                    text(it.platformType.key.toUpperCase())
+                }
+            }
+            div("content"){
+                childrenCallback()
+            }
         }
     }
 
@@ -97,6 +115,22 @@ open class HtmlRenderer(
         }
     }
 
+    private fun TR.buildPlatformTags(
+        node: ContentGroup
+    ) {
+        if(ContentKind.shouldBePlatformTagged(node.dci.kind)) {
+                td {
+                    div("platform-tagged"){
+                    node.platforms.forEach {
+                        div(("platform-tag ${it.platformType.key}")) {
+                            text(it.platformType.key.toUpperCase())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
@@ -122,11 +156,13 @@ open class HtmlRenderer(
                                 it.build(this, pageContext, platformRestriction)
                             }
                         }
+                        buildPlatformTags(it)
                     }
                 }
             }
         }
     }
+
 
     override fun FlowContent.buildHeader(level: Int, content: FlowContent.() -> Unit) {
         when (level) {
