@@ -10,6 +10,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 
 open class HtmlRenderer(
@@ -18,7 +19,8 @@ open class HtmlRenderer(
 
     private val pageList = mutableListOf<String>()
 
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors } +
+                                    context.plugin<DokkaBase>().querySingle { samplesTransformer }
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
