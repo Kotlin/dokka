@@ -164,7 +164,7 @@ class DokkaGenerator(
 
     }
 
-    private class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
+    class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
         override fun clear() {
             seenErrors = false
         }

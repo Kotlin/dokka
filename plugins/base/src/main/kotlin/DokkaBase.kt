@@ -22,6 +22,8 @@ import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStra
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
+import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
+import org.jetbrains.dokka.base.transformers.pages.samples.SamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
@@ -37,6 +39,7 @@ class DokkaBase : DokkaPlugin() {
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
+    val samplesTransformer by extensionPoint<SamplesTransformer>()
 
     val descriptorToDocumentableTranslator by extending(isFallback = true) {
         CoreExtensions.descriptorToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
@@ -126,6 +129,10 @@ class DokkaBase : DokkaPlugin() {
 
     val rootCreator by extending {
         htmlPreprocessors with RootCreator
+    }
+
+    val defaultSamplesTransformer by extending(isFallback = true) {
+        samplesTransformer providing ::DefaultSamplesTransformer
     }
 
     val sourceLinksTransformer by extending {

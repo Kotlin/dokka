@@ -7,6 +7,9 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.Doc
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.doc.Property
+import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
