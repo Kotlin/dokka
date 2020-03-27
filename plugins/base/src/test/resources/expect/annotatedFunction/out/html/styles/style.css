@@ -73,6 +73,9 @@
     text-decoration: line-through;
 }
 
+.symbol:empty {
+    padding: 0px;
+}
 .symbol {
     padding: 5px;
     background-color: #F4F4F4;
@@ -343,6 +346,85 @@ footer {
     float: left;
     position: fixed;
     bottom: 50px;
+}
+
+.platform-tag {
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 10px;
+	height: 10px;
+	max-width: 10px;
+	max-height: 10px;
+	border-radius: 8px;
+	transition: width 1s, height 1s;
+	margin-left: 14px;
+	margin-top: auto;
+	margin-bottom: auto;
+	font-family: Inter, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	text-align: center;
+	color: #fff
+}
+
+.platform-tagged:hover .platform-tag,
+.platform-tagged:hover>.platform-tag {
+	text-indent: 0;
+	white-space: nowrap;
+	padding: 0 7px;
+	border-radius: 9px;
+	margin-left: 8px;
+	width: auto;
+	height: 15px;
+	max-width: 500px;
+	max-height: 500px;
+	transition: max-width 1s, max-height 1s
+}
+
+.platform-tagged {
+    flex: auto;
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 0px;
+    min-width: 230px;
+}
+
+tr.platform-tagged {
+    flex-direction: row;
+}
+
+.platform-tagged > .platform-tag {
+    align-self: center;
+}
+
+.platform-tag.jvm {
+    background-color: crimson;
+    color: white;
+}
+
+.platform-tag.js {
+    background-color: orange;
+    color: white;
+}
+
+.platform-tag.native {
+    background-color: blue;
+    color: white;
+}
+
+.platform-tag.common {
+    background-color: gray;
+    color: white;
+}
+
+.platform-tagged > .content {
+    display: block;
+    flex: auto;
 }
 
 @media print, screen and (max-width: 960px) {

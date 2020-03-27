@@ -115,16 +115,39 @@ open class HtmlRenderer(
         }
     }
 
-    private fun TR.buildPlatformTags(
-        node: ContentGroup
+    private fun TBODY.buildPlatformTaggedRow(
+        node: ContentTable,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData?
     ) {
-        if(ContentKind.shouldBePlatformTagged(node.dci.kind)) {
-                td {
-                    div("platform-tagged"){
-                    node.platforms.forEach {
+        node.children.forEach {
+            tr("platform-tagged") {
+                it.children.forEach {
+                    td("content") {
+                        it.build(this, pageContext, platformRestriction)
+                    }
+                }
+                td("platform-tagged") {
+                    it.platforms.forEach {
                         div(("platform-tag ${it.platformType.key}")) {
                             text(it.platformType.key.toUpperCase())
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun TBODY.buildRow(
+        node: ContentTable,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData?
+    ) {
+        node.children.forEach {
+            tr {
+                it.children.forEach {
+                    td {
+                        it.build(this, pageContext, platformRestriction)
                     }
                 }
             }
@@ -149,15 +172,10 @@ open class HtmlRenderer(
                 }
             }
             tbody {
-                node.children.forEach {
-                    tr {
-                        it.children.forEach {
-                            td {
-                                it.build(this, pageContext, platformRestriction)
-                            }
-                        }
-                        buildPlatformTags(it)
-                    }
+                if(ContentKind.shouldBePlatformTagged(node.dci.kind)) {
+                    buildPlatformTaggedRow(node, pageContext, platformRestriction)
+                } else {
+                    buildRow(node, pageContext, platformRestriction)
                 }
             }
         }
