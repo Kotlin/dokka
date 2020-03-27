@@ -95,12 +95,14 @@ open class DefaultPageCreator(
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
             link(it.name, it.dri)
-            platformDependentHint(it.dri, it.platformData.toSet()) {
-                +buildSignature(it)
-            }
-            breakLine()
-            group(kind = ContentKind.BriefComment) {
-                text(it.briefDocumentation())
+            group {
+                platformDependentHint(it.dri, it.platformData.toSet()) {
+                    +buildSignature(it)
+                }
+                breakLine()
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
+                }
             }
         }
         (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
@@ -141,20 +143,26 @@ open class DefaultPageCreator(
                 c.platformData.toSet()
             ) {
                 link(it.name, it.dri)
-                platformDependentHint(it.dri, it.platformData.toSet()) {
-                    +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
+                group {
+                    platformDependentHint(it.dri, it.platformData.toSet()) {
+                        +buildSignature(it)
+                    }
+                    group(kind = ContentKind.BriefComment) {
+                        text(it.briefDocumentation())
+                    }
                 }
             }
         }
         if (c is DEnum) {
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
                 link(it.name.orEmpty(), it.dri)
-                +buildSignature(it)
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
+                group {
+                    platformDependentHint(it.dri, it.platformData.toSet()){
+                        +buildSignature(it)
+                    }
+                    group(kind = ContentKind.BriefComment) {
+                        text(it.briefDocumentation())
+                    }
                 }
             }
         }

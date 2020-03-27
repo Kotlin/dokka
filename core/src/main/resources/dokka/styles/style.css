@@ -348,76 +348,82 @@ footer {
     bottom: 50px;
 }
 
+.platform-tag {
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 10px;
+	height: 10px;
+	max-width: 10px;
+	max-height: 10px;
+	border-radius: 8px;
+	transition: width 1s, height 1s;
+	margin-left: 14px;
+	margin-top: auto;
+	margin-bottom: auto;
+	font-family: Inter, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	text-align: center;
+	color: #fff
+}
+
+.platform-tagged:hover .platform-tag,
+.platform-tagged:hover>.platform-tag {
+	text-indent: 0;
+	white-space: nowrap;
+	padding: 0 7px;
+	border-radius: 9px;
+	margin-left: 8px;
+	width: auto;
+	height: 15px;
+	max-width: 500px;
+	max-height: 500px;
+	transition: max-width 1s, max-height 1s
+}
+
 .platform-tagged {
     flex: auto;
     display: flex;
     flex-direction: row-reverse;
     padding: 0px;
+    min-width: 230px;
 }
 
-.platform-tag {
-    display: flex;
-    justify-content: center;
+tr.platform-tagged {
     flex-direction: row;
-    padding: 4px 8px;
-
-    width: 67px;
-    height: 24px;
-    right: 0px;
-    top: 0px;
-
-    background: #F4F4F4;
-    border-radius: 100px;
-
-    flex: none;
-    order: 0
-    align--self: end;
 }
 
 .platform-tagged > .platform-tag {
-        align-self: center;
+    align-self: center;
 }
 
 .platform-tag.jvm {
-    border: crimson;
-    border-style: solid;
-    border-width: 1px;
-    border-color: crimson;
     background-color: crimson;
     color: white;
 }
 
 .platform-tag.js {
-    border: orange;
-    border-style: solid;
-    border-width: 1px;
-    border-color: orange;
     background-color: orange;
     color: white;
 }
 
 .platform-tag.native {
-    border: blue;
-    border-style: solid;
-    border-width: 1px;
-    border-color: blue;
     background-color: blue;
     color: white;
 }
 
 .platform-tag.common {
-    border: gray;
-    border-style: solid;
-    border-width: 1px;
-    border-color: gray;
-    color: gray;
     background-color: gray;
     color: white;
 }
 
 .platform-tagged > .content {
     display: block;
-
     flex: auto;
 }
 
