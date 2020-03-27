@@ -1,11 +1,12 @@
 package javadoc.pages
 
+import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 
 interface JavadocPageNode : ContentPage {
-    val contentMap: Map<String, ContentValue>
+    val contentMap: Map<String, Any?>
 }
 
 class JavadocModulePageNode(
@@ -14,7 +15,7 @@ class JavadocModulePageNode(
 ) :
     RootPageNode(),
     JavadocPageNode {
-    override val contentMap: Map<String, ContentValue> by lazy { mapOf("kind" to StringValue("main")) + content.contentMap }
+    override val contentMap: Map<String, Any?> by lazy { mapOf("kind" to "main") + content.contentMap }
 
     val version: String = "0.0.1"
     val pathToRoot: String = ""
@@ -42,11 +43,18 @@ class JavadocPackagePageNode(
     override val children: List<JavadocClasslikePageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : JavadocPageNode {
-    override val contentMap: Map<String, ContentValue> by lazy { mapOf("kind" to StringValue("package")) + content.contentMap }
+    override val contentMap: Map<String, Any?> by lazy { mapOf("kind" to "package") + content.contentMap }
     override fun modified(
         name: String,
         ch: List<PageNode>
-    ): PageNode = JavadocPackagePageNode(name, content, dri, documentable, ch.map{it as JavadocClasslikePageNode}, embeddedResources)
+    ): PageNode = JavadocPackagePageNode(
+        name,
+        content,
+        dri,
+        documentable,
+        ch.map { it as JavadocClasslikePageNode },
+        embeddedResources
+    )
 
     override fun modified(
         name: String,
@@ -55,7 +63,14 @@ class JavadocPackagePageNode(
         embeddedResources: List<String>,
         ch: List<PageNode>
     ): ContentPage =
-        JavadocPackagePageNode(name, content as JavadocContentNode, dri, documentable, ch.map{it as JavadocClasslikePageNode}, embeddedResources)
+        JavadocPackagePageNode(
+            name,
+            content as JavadocContentNode,
+            dri,
+            documentable,
+            ch.map { it as JavadocClasslikePageNode },
+            embeddedResources
+        )
 }
 
 class JavadocClasslikePageNode(
@@ -67,7 +82,7 @@ class JavadocClasslikePageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : JavadocPageNode {
-    override val contentMap: Map<String, ContentValue> by lazy { mapOf("kind" to StringValue("class")) + content.contentMap }
+    override val contentMap: Map<String, Any?> by lazy { mapOf("kind" to "class") + content.contentMap }
     override fun modified(
         name: String,
         children: List<PageNode>
@@ -83,14 +98,14 @@ class JavadocClasslikePageNode(
         JavadocClasslikePageNode(name, content as JavadocContentNode, dri, documentable, children, embeddedResources)
 }
 
-class AllClassesPage(val classes: List<ClasslikePageNode>) :
+class AllClassesPage(val classes: List<JavadocClasslikePageNode>) :
     JavadocPageNode {
-    val classEntries = classes.map {
+    val classEntries = classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.platforms()) }
 
-    }
-
-    override val contentMap: Map<String, ContentValue>
-        get() = TODO("Not yet implemented")
+    override val contentMap: Map<String, Any?> = mapOf(
+        "title" to "All Classes",
+        "list" to classEntries
+    )
 
     override val name: String = "All Classes"
     override val dri: Set<DRI> = setOf(DRI.topLevel)

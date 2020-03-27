@@ -59,11 +59,15 @@ open class JavadocPageCreator(
             val doc = p.documentation.map.entries.find { (k, _) -> k.platformType == Platform.jvm }?.value?.let {
                 it.children.joinToString("\n") { it.root.docTagSummary() }
             }.orEmpty()
-            CompoundJavadocListEntry(
-                "row", listOf(
-                    LinkJavadocListEntry(p.name, setOf(p.dri), ContentKind.Packages, p.platformData),
-                    SimpleJavadocListEntry(doc)
-                )
+//            CompoundJavadocListEntry(
+//                "row", listOf(
+//                    LinkJavadocListEntry(p.name, setOf(p.dri), ContentKind.Packages, p.platformData),
+//                    SimpleJavadocListEntry(doc)
+//                )
+//            )
+            RowJavadocListEntry(
+                LinkJavadocListEntry(p.name, setOf(p.dri), ContentKind.Packages, p.platformData),
+                doc
             )
         })
     }
@@ -85,11 +89,15 @@ open class JavadocPageCreator(
             val doc = c.documentation.map.entries.find { (k, _) -> k.platformType == Platform.jvm }?.value?.let {
                 it.children.joinToString("\n") { it.root.docTagSummary() }
             }.orEmpty()
-            CompoundJavadocListEntry(
-                "row", listOf(
-                    LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), ContentKind.Packages, c.platformData),
-                    SimpleJavadocListEntry(doc)
-                )
+//            CompoundJavadocListEntry(
+//                "row", listOf(
+//                    LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), ContentKind.Packages, c.platformData),
+//                    SimpleJavadocListEntry(doc)
+//                )
+//            )
+            RowJavadocListEntry(
+                LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), ContentKind.Packages, c.platformData),
+                doc
             )
         })
     }

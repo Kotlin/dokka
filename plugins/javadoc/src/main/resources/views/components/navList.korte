@@ -1,21 +1,21 @@
 <ul class="navList" title="Navigation">
-{%- if kind == "main" %}
+    {%- if kind == "main" %}
     <li class="navBarCell1Rev">Overview</li>
-{% else %}
+    {% else %}
     <li><a href="{{ pathToRoot }}index.html">Overview</a></li>
-{% endif -%}
-{%- if kind == "package" %}
+    {% endif -%}
+    {%- if kind == "package" %}
     <li class="navBarCell1Rev">Package</li>
-{% else %}
+    {% else %}
     <li><a href="package-summary.html">Package</a></li>
-{% endif -%}
-{%- if kind == "class" %}
+    {% endif -%}
+    {%- if kind == "class" %}
     <li class="navBarCell1Rev">Class</li>
-{% else %}
+    {% else %}
     <li>Class</li>
-{% endif -%}
-<li><a href="overview-tree.html">Tree</a></li>
-<li><a href="{{ pathToRoot }}deprecated-list.html">Deprecated</a></li>
-<li><a href="{{ pathToRoot }}index-all.html">Index</a></li>
-<li><a href="{{ pathToRoot }}help-doc.html">Help</a></li>
+    {% endif -%}
+    <li><a href="overview-tree.html">Tree</a></li>
+    <li><a href="{{ pathToRoot }}deprecated-list.html">Deprecated</a></li>
+    <li><a href="{{ pathToRoot }}index-all.html">Index</a></li>
+    <li><a href="{{ pathToRoot }}help-doc.html">Help</a></li>
 </ul>

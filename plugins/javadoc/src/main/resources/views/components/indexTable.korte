@@ -6,7 +6,7 @@
 </tr>
 <tbody>
 {% for item in list %}
-    <tr class="{{ rowColor(loop.index0) }}">{{ item|raw }}</tr>
+    <tr class="{{ rowColor(loop.index0) }}">{{ createTabRow(item, dir)|raw }}</tr>
 {% end -%}
 </tbody>
 </table>

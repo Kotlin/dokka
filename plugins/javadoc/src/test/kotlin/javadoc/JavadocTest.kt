@@ -42,4 +42,25 @@ class JavadocTest : AbstractCoreTest() {
             }
         }
     }
+
+//    @Test
+//    fun test() {
+//        val config = dokkaConfiguration {
+//            format = "javadoc"
+//            passes {
+//                pass {
+//                    sourceRoots = listOf("main/")
+//                    analysisPlatform = "jvm"
+//                    targets = listOf("jvm")
+//                }
+//            }
+//        }
+//        testFromData(config,
+//            cleanupOutput = false,
+//            pluginOverrides = listOf(JavadocPlugin())) {
+//            pagesTransformationStage = {
+//                it
+//            }
+//        }
+//    }
 }

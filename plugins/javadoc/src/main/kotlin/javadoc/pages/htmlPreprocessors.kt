@@ -1,21 +1,20 @@
 package javadoc.pages
 
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.RendererSpecificResourcePage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-val preprocessors = listOf(ResourcesInstaller)
+val preprocessors = listOf(ResourcesInstaller, AllClassesPageInstaller)
 
-object LinkCacher : PageTransformer {
-    private val _linkMap: MutableMap<String, DCI> = mutableMapOf()
-    val linkMap: Map<String, DCI>
-        get() = _linkMap.toMap()
+object AllClassesPageInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val classes = (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().flatMap {
+            it.children
+        }
 
-    private fun mapLinks(node: PageNode) {
-        if (node is ContentNode) _linkMap[node.name] = node.dci
-        node.children.forEach(::mapLinks)
+        return input.modified(children = input.children + AllClassesPage(classes))
     }
-
-    override fun invoke(input: RootPageNode): RootPageNode = input.also(::mapLinks)
 }
 
 //object RootInstaller : PageTransformer {

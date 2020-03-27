@@ -1,4 +1,13 @@
-{% extends "components/base.korte" %}
-{% block content %}
-{% include "components/indexPage.korte" %}
-{% end %}
+<html lang="en">
+{% include "components/head.korte" -%}
+<body>
+<h1 class="bar">{{ title }}</h1>
+<main role="main" class="indexContainer">
+    <ul>
+        {% for item in list %}
+            <li>{{ createListRow(item, dir)|raw }}</li>
+        {% end -%}
+    </ul>
+</main>
+</body>
+</html>

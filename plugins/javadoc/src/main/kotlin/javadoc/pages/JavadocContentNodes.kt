@@ -6,7 +6,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
 abstract class JavadocContentNode(dri: Set<DRI>, kind: ContentKind) : ContentNode {
-    abstract val contentMap: Map<String, ContentValue>
+    abstract val contentMap: Map<String, Any?>
     override val dci: DCI = DCI(dri, kind)
     override val platforms: Set<PlatformData> = setOf(PlatformData("jvm", Platform.jvm, listOf("jvm")))
     override val style: Set<Style> = emptySet()
@@ -34,7 +34,7 @@ class EmptyNode(
 
 data class JavadocContentGroup(val dri: Set<DRI>, val kind: ContentKind, val children: List<JavadocContentNode>) :
     JavadocContentNode(dri, kind) {
-    override val contentMap: Map<String, ContentValue> by lazy { children.fold(emptyMap<String, ContentValue>()) { m, cv -> m + cv.contentMap } }
+    override val contentMap: Map<String, Any?> by lazy { children.fold(emptyMap<String, Any?>()) { m, cv -> m + cv.contentMap } }
 
     companion object {
         operator fun invoke(
@@ -53,10 +53,10 @@ data class TitleNode(
     val kind: ContentKind
 ) : JavadocContentNode(dri, kind) {
 
-    override val contentMap: Map<String, ContentValue> by lazy {
+    override val contentMap: Map<String, Any?> by lazy {
         mapOf(
-            "title" to StringValue(title),
-            "version" to StringValue(version)
+            "title" to title,
+            "version" to version
         )
     }
 
@@ -76,11 +76,11 @@ data class ListNode(
     val dri: Set<DRI>,
     val kind: ContentKind
 ) : JavadocContentNode(dri, kind) {
-    override val contentMap: Map<String, ContentValue> by lazy {
+    override val contentMap: Map<String, Any?> by lazy {
         mapOf(
-            "tabTitle" to StringValue(tabTitle),
-            "colTitle" to StringValue(colTitle),
-            "list" to ListValue(children.map { it.stringTag })
+            "tabTitle" to tabTitle,
+            "colTitle" to colTitle,
+            "list" to children
         )
     }
 }
@@ -112,6 +112,10 @@ data class LinkJavadocListEntry(val name: String, val dri: Set<DRI>, val kind: C
     fun build(body: (String, Set<DRI>, ContentKind, List<PlatformData>) -> String) {
         builtString = body(name, dri, kind, platformData)
     }
+}
+
+data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: String): JavadocListEntry {
+    override val stringTag: String = ""
 }
 
 data class CompoundJavadocListEntry(

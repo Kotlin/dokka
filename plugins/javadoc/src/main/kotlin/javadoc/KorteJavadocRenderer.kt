@@ -24,99 +24,58 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private val logger = context.logger
 
     override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { r ->
-        runBlocking(Dispatchers.Default) {
+        runBlocking(Dispatchers.IO) {
             renderModulePageNode(r as JavadocModulePageNode)
-            r.children.forEach { renderNode(it) }
         }
     }
 
-    private fun buildContent(content: JavadocContentNode, parent: String) {
-        if (content is JavadocContentGroup) {
-            content.children.forEach { buildContent(it, parent) }
-        } else if (content is ListNode) {
-            content.children.forEach {
-                buildListNode(it, parent)
-            }
+    private fun templateForNode(node: JavadocPageNode) = when {
+        node is JavadocClasslikePageNode -> "class.korte"
+        node is JavadocPackagePageNode || node is JavadocModulePageNode -> "tabPage.korte"
+        else -> "listPage.korte"
+    }
+
+    private fun CoroutineScope.renderNode(node: PageNode, path: String = "") {
+        if (node is JavadocPageNode) {
+            renderJavadocNode(node)
+        }
+        else if (node is RendererSpecificPage) {
+            renderSpecificPage(node, path)
         }
     }
 
-    private fun buildListNode(node: JavadocListEntry, parent: String) {
-        when (node) {
-            is CompoundJavadocListEntry -> when (node.name) {
-                "row" -> node.build {
-                    val linkEntry = (node.content.first() as LinkJavadocListEntry)
-                    linkEntry.build { name, dris, _, pd ->
-                        createLinkTag(
-                            locationProvider.resolve(dris.first(), pd).relativizePath(parent),
-                            name
-                        )
-                    }
-                    val doc = (node.content.last() as SimpleJavadocListEntry).content
-                    (linkEntry.stringTag to doc).pairToTag()
-                }
-            }
-        }
-    }
-
-    fun CoroutineScope.renderNode(node: PageNode, path: String = "") {
-        when (node) {
-            is JavadocPackagePageNode -> renderPackagePageNode(node)
-            is JavadocClasslikePageNode -> renderClasslikePage(node)
-            is RendererSpecificPage -> renderSpecificPage(node, path)
-        }
-    }
-
-    fun CoroutineScope.renderModulePageNode(node: JavadocModulePageNode) {
+    private fun CoroutineScope.renderModulePageNode(node: JavadocModulePageNode) {
         val link = "."
         val name = "index"
         val pathToRoot = ""
 
-        buildContent(node.content, link)
         val contentMap = mapOf(
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot
-        ) + node.contentMap.unpack()
-        writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "listPage.korte", contentMap.toList())
-        node.children.forEach {
-            logger.info("${node.name} -> ${it.name}")
-            renderNode(it, link)
-        }
+        ) + node.contentMap
+        writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "tabPage.korte", contentMap.toList())
+        node.children.forEach { renderNode(it, link) }
     }
 
-    fun CoroutineScope.renderPackagePageNode(node: JavadocPackagePageNode) {
-        val link = locationProvider.resolve(node.dri.first(), emptyList())
-        val dir = Paths.get(link).parent.toNormalized()
+    private fun CoroutineScope.renderJavadocNode(node: JavadocPageNode) {
+        val link = locationProvider.resolve(node.dri.first(), emptyList(), node)
+        val dir = Paths.get(link).parent?.let{it.toNormalized()}.orEmpty()
         val pathToRoot = dir.split("/").joinToString("/") { ".." }.let {
             if (it.isNotEmpty()) "$it/" else it
         }
 
-        buildContent(node.content, dir)
+//        val fileLink = when(node) {
+//            is JavadocClasslikePageNode -> node.name
+//            else -> link
+//        }
+
         val contentMap = mapOf(
-            "docName" to "docName", // todo docname
-            "pathToRoot" to pathToRoot
-        ) + node.contentMap.unpack()
-        writeFromTemplate(outputWriter, link, "listPage.korte", contentMap.toList())
-        node.children.forEach {
-            logger.info("${node.name} -> ${it.name}")
-            renderNode(it, link.toNormalized())
-        }
-    }
-
-    fun CoroutineScope.renderClasslikePage(node: JavadocClasslikePageNode) {
-        val link = locationProvider.resolve(node.dri.first(), emptyList())
-        val dir = Paths.get(link).parent.toNormalized()
-        val pathToRoot = dir.split("/").joinToString("/") { ".." }.let {
-            if (it.isNotEmpty()) "$it/" else it
-        }
-        buildContent(node.content, dir)
-
-        val contentMap: Map<String, Any?> = mapOf(
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot,
-            "list" to emptyList<String>()
-        ) + node.contentMap.unpack()
-
-        writeFromTemplate(outputWriter, link, "class.korte", contentMap.toList())
+            "dir" to dir
+        ) + node.contentMap
+        writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
+        node.children.forEach { renderNode(it, link.toNormalized()) }
     }
 
     fun CoroutineScope.renderSpecificPage(node: RendererSpecificPage, path: String) = launch {
@@ -132,8 +91,11 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     }
 
     fun Pair<String, String>.pairToTag() = "\n<td>${first}</td>\n<td>${second}</td>"
-    fun ContentDRILink.toLinkTag() =
-        createLinkTag(locationProvider.resolve(address, emptyList()), (children.first() as ContentText).text)
+    fun LinkJavadocListEntry.toLinkTag(parent: String? = null) =
+        createLinkTag(locationProvider.resolve(dri.first(), platformData).let {
+            if (parent != null) it.relativizePath(parent)
+            else it
+        }, name)
 
     fun createLinkTag(address: String, name: String) =
         address.let { if (it.endsWith(".html")) it else "$it.html" }.let {
@@ -162,11 +124,24 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
-    fun getTemplateConfig() = TemplateConfig().also {
-        it.register(TeFunction("curDate") { LocalDate.now() })
-        it.register(TeFunction("jQueryVersion") { "3.1" })
-        it.register(TeFunction("jQueryMigrateVersion") { "1.2.1" })
-        it.register(TeFunction("rowColor") { if ((it.first() as Int) % 2 == 0) "altColor" else "rowColor" })
+    fun getTemplateConfig() = TemplateConfig().also {config ->
+        listOf(
+            TeFunction("curDate") { LocalDate.now() },
+            TeFunction("jQueryVersion") { "3.1" },
+            TeFunction("jQueryMigrateVersion") { "1.2.1" },
+            TeFunction("rowColor") {args -> if ((args.first() as Int) % 2 == 0) "altColor" else "rowColor" },
+            TeFunction("h1Title") { args -> if ((args.first() as? String) == "package") "title=\"Package\" " else "" },
+            TeFunction("createTabRow") { args ->
+                val (link, doc) = args.first() as RowJavadocListEntry
+                val dir = args[1] as String?
+                (link.toLinkTag(dir) to doc).pairToTag().trim()
+            },
+            TeFunction("createListRow") { args ->
+                val link = args.first() as LinkJavadocListEntry
+                val dir = args[1] as String?
+                link.toLinkTag(dir)
+            }
+        ).forEach { config.register(it) }
     }
 
     val config = getTemplateConfig()
