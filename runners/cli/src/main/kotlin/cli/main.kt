@@ -192,18 +192,17 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 }
 
 object MainKt {
-    fun defaultLinks(config: DokkaConfiguration.PassConfiguration): List<ExternalDocumentationLink> {
-        val links = mutableListOf<ExternalDocumentationLinkImpl>()
+    fun defaultLinks(config: DokkaConfiguration.PassConfiguration): MutableList<ExternalDocumentationLink> =
+        mutableListOf<ExternalDocumentationLink>().apply {
         if (!config.noJdkLink)
-            links += DokkaConfiguration.ExternalDocumentationLink
+            this += DokkaConfiguration.ExternalDocumentationLink
                 .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
-                .build() as ExternalDocumentationLinkImpl
+                .build()
 
         if (!config.noStdlibLink)
-            links += DokkaConfiguration.ExternalDocumentationLink
+            this += DokkaConfiguration.ExternalDocumentationLink
                 .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
-                .build() as ExternalDocumentationLinkImpl
-        return links
+                .build()
     }
 
     fun parseLinks(links: String): List<ExternalDocumentationLink> {
@@ -211,7 +210,6 @@ object MainKt {
             .map { it.split("^").map { it.trim() }.filter { it.isNotBlank() } }
             .filter { it.isNotEmpty() }
             .partition { it.size == 1 }
-
 
         return parsedLinks.map { (root) -> ExternalDocumentationLink.Builder(root).build() } +
                 parsedOfflineLinks.map { (root, packageList) ->
@@ -270,7 +268,6 @@ object MainKt {
         val parseContext = ParseContext()
         val parser = DokkaArgumentsParser(args, parseContext)
         val configuration = GlobalArguments(parser)
-
 
         parseContext.cli.singleAction(
             listOf("-globalPackageOptions"),
