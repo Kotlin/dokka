@@ -1,32 +1,31 @@
-package org.jetbrains.dokka.commonmarkrenderer
+package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.renderers.DefaultRenderer
+import org.jetbrains.dokka.base.renderers.OutputWriter
+import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.lang.StringBuilder
 
 
-class CommonmarkRendererPlugin : DokkaPlugin() {
-
-    val locationProviderFactory by extensionPoint<LocationProviderFactory>()
-    val outputWriter by extensionPoint<OutputWriter>()
+class GfmPlugin : DokkaPlugin() {
 
     val renderer by extending {
-        CoreExtensions.renderer providing { CommonmarkRenderer(it.single(outputWriter), it) }
+        CoreExtensions.renderer providing { CommonmarkRenderer(it) } applyIf { format == "gfm" }
     }
 
     val locationProvider by extending {
-        locationProviderFactory providing { MarkdownLocationProviderFactory(it) } order {
-            before(renderer)
-        }
+        plugin<DokkaBase>().locationProviderFactory providing { MarkdownLocationProviderFactory(it) } applyIf { format == "gfm" }
     }
 }
 
-class CommonmarkRenderer(
-    outputWriter: OutputWriter,
+open class CommonmarkRenderer(
     context: DokkaContext
-) : DefaultRenderer<StringBuilder>(outputWriter, context) {
+) : DefaultRenderer<StringBuilder>(context) {
     override fun StringBuilder.buildHeader(level: Int, content: StringBuilder.() -> Unit) {
         buildParagraph()
         append("#".repeat(level) + " ")
@@ -84,14 +83,27 @@ class CommonmarkRenderer(
         append("\n\n")
     }
 
+    override fun StringBuilder.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
+        val distinct = content.platforms.map {
+            it to "${StringBuilder().apply {buildContentNode(content.inner, pageContext, it) }.toString()}"
+        }.groupBy(Pair<PlatformData, String>::second, Pair<PlatformData, String>::first)
+
+        if (distinct.size == 1)
+            append(distinct.keys.single())
+        else
+            distinct.forEach { text, platforms ->
+                append(platforms.joinToString(prefix = " [", postfix = "] $text") { it.name })
+            }
+    }
+
     override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
         append("Resource")
     }
 
     override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage, platformRestriction: PlatformData?) {
 
-        val size = node.children.firstOrNull()?.children?.size ?: 0
         buildParagraph()
+        val size = node.children.firstOrNull()?.children?.size ?: 0
 
         if (node.header.size > 0) {
             node.header.forEach {
@@ -116,12 +128,14 @@ class CommonmarkRenderer(
             }
             append("|\n")
         }
+
+        buildParagraph()
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
         val decorators = decorators(textNode.style)
         append(decorators)
-        append(textNode.text.escapeIllegalCharacters())
+        append(textNode.text.replace(Regex("[<>]"), ""))
         append(decorators.reversed())
     }
 
