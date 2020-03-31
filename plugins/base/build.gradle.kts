@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation("org.jsoup:jsoup:1.12.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     testImplementation(project(":test-tools"))
 }
 
@@ -19,9 +20,3 @@ publishing {
 }
 
 configureBintrayPublication("basePlugin")
-
-
-dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
-}
-
