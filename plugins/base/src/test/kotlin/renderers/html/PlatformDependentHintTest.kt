@@ -40,7 +40,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match("[pl1]", Div("a"), "[pl2]",  Div("b"), "[pl3]", Div("c"))
+        renderedContent.match("[js]", Div("a"), "[jvm]",  Div("b"), "[native]", Div("c"))
     }
 
     @Test
@@ -54,7 +54,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match("[pl1]", Div("ab"), "[pl2]", Div("bc"))
+        renderedContent.match("[js]", Div("ab"), "[jvm]", Div("bc"))
     }
 
     @Test
@@ -84,7 +84,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match("[pl1]", Div(Div("ab")), "[pl2]", Div(Div("a"), "b"))
+        renderedContent.match("[js]", Div(Div("ab")), "[jvm]", Div(Div("a"), "b"))
     }
 
     @Test
@@ -115,6 +115,6 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match("[pl1, pl2]", Div("a"), "[pl3]",  Div("b"))
+        renderedContent.match("[js, jvm]", Div("a"), "[native]",  Div("b"))
     }
 }
