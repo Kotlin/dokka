@@ -7,9 +7,6 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.Doc
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.doc.Property
-import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -78,9 +75,8 @@ open class DefaultPageCreator(
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(p.dri, p.platformData.toSet(), ContentKind.Packages) {
             header(1) { text("Package ${p.name}") }
-            +contentForComments(p)
         }
-        header(1) { text("Package ${p.name}") }
+        +contentForComments(p)
         +contentForScope(p, p.dri, p.platformData)
         block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
             link(it.name, it.dri)
