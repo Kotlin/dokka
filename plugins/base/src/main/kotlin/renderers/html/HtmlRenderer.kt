@@ -120,7 +120,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         platformRestriction: PlatformData?
     ) {
-        node.children.forEach {
+        node.children.filter { platformRestriction == null || platformRestriction in it.platforms }.forEach {
             tr("platform-tagged") {
                 it.children.forEach {
                     td("content") {

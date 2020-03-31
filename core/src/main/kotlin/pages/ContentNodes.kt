@@ -170,10 +170,9 @@ enum class ContentKind : Kind {
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment, Empty;
 
     companion object{
-        fun shouldBePlatformTagged(kind: Kind) : Boolean {
-            val platformTagged = listOf(Constructors, Functions, Parameters, Properties, Classlikes, Packages)
-            return platformTagged.contains(kind)
-        }
+        private val platformTagged = setOf(Constructors, Functions, Properties, Classlikes, Packages)
+
+        fun shouldBePlatformTagged(kind: Kind) : Boolean = kind in platformTagged
     }
 }
 
