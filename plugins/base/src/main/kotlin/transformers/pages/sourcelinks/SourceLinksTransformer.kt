@@ -20,11 +20,9 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
 
-    private lateinit var sourceLinks: List<SourceLink>
-
     override fun invoke(input: RootPageNode): RootPageNode {
 
-        sourceLinks = context.configuration.passesConfigurations
+        val sourceLinks = context.configuration.passesConfigurations
             .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it.platformData) } }
 
         return input.transformContentPagesTree { node ->
