@@ -20,8 +20,7 @@ import java.time.LocalDate
 
 class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaContext, val resourceDir: String) :
     Renderer {
-    private val locationProvider = JavadocLocationProvider()
-    private val logger = context.logger
+    private val locationProvider = JavadocLocationProvider(context)
 
     override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { r ->
         runBlocking(Dispatchers.IO) {
@@ -29,10 +28,13 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         }
     }
 
-    private fun templateForNode(node: JavadocPageNode) = when {
-        node is JavadocClasslikePageNode -> "class.korte"
-        node is JavadocPackagePageNode || node is JavadocModulePageNode -> "tabPage.korte"
-        else -> "listPage.korte"
+    private fun templateForNode(node: JavadocPageNode) = when(node) {
+        is JavadocClasslikePageNode -> "class.korte"
+        is JavadocPackagePageNode -> "tabPage.korte"
+        is JavadocModulePageNode -> "tabPage.korte"
+        is AllClassesPage -> "listPage.korte"
+        is TreeViewPage -> "treePage.korte"
+        else -> ""
     }
 
     private fun CoroutineScope.renderNode(node: PageNode, path: String = "") {
@@ -58,16 +60,11 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     }
 
     private fun CoroutineScope.renderJavadocNode(node: JavadocPageNode) {
-        val link = locationProvider.resolve(node.dri.first(), emptyList(), node)
+        val link = locationProvider.resolve(node, skipExtension = true)
         val dir = Paths.get(link).parent?.let{it.toNormalized()}.orEmpty()
         val pathToRoot = dir.split("/").joinToString("/") { ".." }.let {
             if (it.isNotEmpty()) "$it/" else it
         }
-
-//        val fileLink = when(node) {
-//            is JavadocClasslikePageNode -> node.name
-//            else -> link
-//        }
 
         val contentMap = mapOf(
             "docName" to "docName", // todo docname
@@ -118,9 +115,10 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         args: List<Pair<String, *>>
     ) =
         launch {
+            val tmp = templateRenderer.render(template, *(args.toTypedArray()))
             writer.writeHtml(
                 path,
-                templateRenderer.render(template, *(args.toTypedArray()))
+                tmp
             )
         }
 
@@ -140,6 +138,14 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                 val link = args.first() as LinkJavadocListEntry
                 val dir = args[1] as String?
                 link.toLinkTag(dir)
+            },
+            TeFunction("createPackageHierarchy") { args ->
+                val list = args.first() as List<JavadocPackagePageNode>
+                list.mapIndexed { i, p ->
+                    val content = if (i + 1 == list.size) "" else ", "
+                    val name = p.name
+                    "<li><a href=\"$name/package-tree.html\">$name</a>$content</li>"
+                }.joinToString("\n")
             }
         ).forEach { config.register(it) }
     }

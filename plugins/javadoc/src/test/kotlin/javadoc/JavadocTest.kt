@@ -31,7 +31,8 @@ class JavadocTest : AbstractCoreTest() {
             |   test
             |**/
             |package javadoc
-            |class Test()
+            |class Test() : List<Int>
+            |class Test2() : List<Int>
         """.trimIndent(),
             config,
             cleanupOutput = false,

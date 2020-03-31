@@ -3,6 +3,7 @@ package enums
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ModulePageNode
+import org.jetbrains.dokka.pages.RootPageNode
 import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions.*
@@ -87,6 +88,6 @@ class EnumsTest : AbstractCoreTest() {
     }
 
 
-    fun ModulePageNode.getClasslikeToMemberMap() =
+    fun RootPageNode.getClasslikeToMemberMap() =
         this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy({ it.value }) { it.key }
 }

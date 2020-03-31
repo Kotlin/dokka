@@ -1,26 +1,9 @@
 package javadoc.pages
 
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-val preprocessors = listOf(ResourcesInstaller, AllClassesPageInstaller)
-
-object AllClassesPageInstaller : PageTransformer {
-    override fun invoke(input: RootPageNode): RootPageNode {
-        val classes = (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().flatMap {
-            it.children
-        }
-
-        return input.modified(children = input.children + AllClassesPage(classes))
-    }
-}
-
-//object RootInstaller : PageTransformer {
-//    override fun invoke(input: RootPageNode) =
-//        JavadocModulePageNode("", input.children, input)
-//}
+val preprocessors = listOf(ResourcesInstaller, TreeViewInstaller, AllClassesPageInstaller)
 
 object ResourcesInstaller : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
@@ -31,4 +14,50 @@ object ResourcesInstaller : PageTransformer {
                     RenderingStrategy.Copy("static_res")
                 )
     )
+}
+
+object TreeViewInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode = install(input, input) as RootPageNode
+
+    private fun install(node: PageNode, root: RootPageNode): PageNode = when (node) {
+        is JavadocModulePageNode -> installOverviewTreeNode(node, root)
+        is JavadocPackagePageNode -> installPackageTreeNode(node, root)
+        else -> node
+    }
+
+    private fun installOverviewTreeNode(node: JavadocModulePageNode, root: RootPageNode): JavadocModulePageNode {
+        val overviewTree = TreeViewPage(
+            name = "Class Hierarchy",
+            packages = node.children<JavadocPackagePageNode>().map { installPackageTreeNode(it, root) },
+            classes = null,
+            dri = node.dri,
+            documentable = null,
+            root = root
+        )
+
+        return node.modified(ch = node.children.map { node -> install(node, root) } + overviewTree) as JavadocModulePageNode
+    }
+
+    private fun installPackageTreeNode(node: JavadocPackagePageNode, root: RootPageNode): JavadocPackagePageNode {
+        val packageTree = TreeViewPage(
+            name = "${node.name}",
+            packages = null,
+            classes = node.children.filterIsInstance<JavadocClasslikePageNode>(),
+            dri = node.dri,
+            documentable = node.documentable,
+            root = root
+        )
+
+        return node.modified(ch = node.children + packageTree) as JavadocPackagePageNode
+    }
+}
+
+object AllClassesPageInstaller : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val classes = (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().flatMap {
+            it.children.filterIsInstance<JavadocClasslikePageNode>()
+        }
+
+        return input.modified(children = input.children + AllClassesPage(classes))
+    }
 }

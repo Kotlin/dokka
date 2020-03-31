@@ -49,6 +49,7 @@ data class JavadocContentGroup(val dri: Set<DRI>, val kind: ContentKind, val chi
 data class TitleNode(
     val title: String,
     val version: String,
+    val parent: String?,
     val dri: Set<DRI>,
     val kind: ContentKind
 ) : JavadocContentNode(dri, kind) {
@@ -56,7 +57,8 @@ data class TitleNode(
     override val contentMap: Map<String, Any?> by lazy {
         mapOf(
             "title" to title,
-            "version" to version
+            "version" to version,
+            "packageName" to parent
         )
     }
 
@@ -64,9 +66,9 @@ data class TitleNode(
 }
 
 fun MutableList<JavadocContentNode>.title(
-    title: String, version: String, dri: Set<DRI>, kind: ContentKind
+    title: String, version: String, parent: String? = null, dri: Set<DRI>, kind: ContentKind
 ) {
-    add(TitleNode(title, version, dri, kind))
+    add(TitleNode(title, version, parent, dri, kind))
 }
 
 data class ListNode(

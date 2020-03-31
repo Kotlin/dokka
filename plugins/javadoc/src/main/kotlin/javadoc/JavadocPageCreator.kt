@@ -54,7 +54,7 @@ open class JavadocPageCreator(
 //        }
 //    }
     fun contentForModule(m: DModule): JavadocContentNode = JavadocContentGroup(setOf(m.dri), ContentKind.Main) {
-        title(m.name, "0.0.1", setOf(m.dri), ContentKind.Main)
+        title(m.name, "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
         list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.map { p ->
             val doc = p.documentation.map.entries.find { (k, _) -> k.platformType == Platform.jvm }?.value?.let {
                 it.children.joinToString("\n") { it.root.docTagSummary() }
@@ -84,7 +84,7 @@ open class JavadocPageCreator(
 //    }
 
     fun contentForPackage(p: DPackage): JavadocContentNode = JavadocContentGroup(setOf(p.dri), ContentKind.Packages) {
-        title(p.name, "0.0.1", setOf(p.dri), ContentKind.Packages)
+        title(p.name, "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
         list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.map { c ->
             val doc = c.documentation.map.entries.find { (k, _) -> k.platformType == Platform.jvm }?.value?.let {
                 it.children.joinToString("\n") { it.root.docTagSummary() }
@@ -103,7 +103,7 @@ open class JavadocPageCreator(
     }
 
     fun contentForClasslike(c: DClasslike): JavadocContentNode = JavadocContentGroup(setOf(c.dri), ContentKind.Classlikes) {
-        title(c.name.orEmpty(), "0.0.1", setOf(c.dri), ContentKind.Classlikes)
+        title(c.name.orEmpty(), "0.0.1", parent = c.dri.packageName, dri = setOf(c.dri), kind = ContentKind.Classlikes)
     }
 }
 
