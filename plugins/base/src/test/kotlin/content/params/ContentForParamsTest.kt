@@ -36,8 +36,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "abc" to "String")
+                    }
                 }
             }
         }
@@ -61,8 +63,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "abc" to "String")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -91,8 +95,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "abc" to "String")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         unnamedTag("Author") { +"Kordyjan" }
@@ -123,8 +129,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "abc" to "String")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -155,8 +163,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "abc" to "String")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -194,8 +204,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -240,8 +252,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         header(4) { +"Parameters" }
@@ -285,8 +299,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signatureWithReceiver("String", "function", null, "abc" to "String")
+                    group {
+                        header(1) { +"function" }
+                        signatureWithReceiver("String", "function", null, "abc" to "String")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -327,8 +343,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
@@ -372,8 +390,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
-                    signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    group {
+                        header(1) { +"function" }
+                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                    }
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
