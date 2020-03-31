@@ -143,7 +143,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         platformRestriction: PlatformData?
     ) {
-        node.children.forEach {
+        node.children.filter { platformRestriction == null || platformRestriction in it.platforms }.forEach {
             tr {
                 it.children.forEach {
                     td {
