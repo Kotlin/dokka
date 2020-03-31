@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import utils.pWrapped
 import utils.signature
 import utils.signatureWithReceiver
+import utils.unnamedTag
 
 class ContentForParamsTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -94,10 +95,8 @@ class ContentForParamsTest : AbstractCoreTest() {
                     signature("function", null, "abc" to "String")
                     header(3) { +"Description" }
                     platformHinted {
-                        header(4) { +"Author" }
-                        +"Kordyjan"
-                        header(4) { +"Since" }
-                        +"0.11"
+                        unnamedTag("Author") { +"Kordyjan" }
+                        unnamedTag("Since") { +"0.11" }
                     }
                 }
             }
@@ -129,10 +128,8 @@ class ContentForParamsTest : AbstractCoreTest() {
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
-                        header(4) { +"Author" }
-                        +"Kordyjan"
-                        header(4) { +"Since" }
-                        +"0.11"
+                        unnamedTag("Author") { +"Kordyjan" }
+                        unnamedTag("Since") { +"0.11" }
                     }
                 }
             }
@@ -167,7 +164,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"abc"
-                                +"comment to param"
+                                group { +"comment to param" }
                             }
                         }
                     }
@@ -206,15 +203,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"first"
-                                +"comment to first param"
+                                group { +"comment to first param" }
                             }
                             group {
                                 +"second"
-                                +"comment to second param"
+                                group { +"comment to second param" }
                             }
                             group {
                                 +"third"
-                                +"comment to third param"
+                                group { +"comment to third param" }
                             }
                         }
                     }
@@ -251,15 +248,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"first"
-                                +"comment to first param"
+                                group { +"comment to first param" }
                             }
                             group {
                                 +"second"
-                                +"comment to second param"
+                                group { +"comment to second param" }
                             }
                             group {
                                 +"third"
-                                +"comment to third param"
+                                group { +"comment to third param" }
                             }
                         }
                     }
@@ -297,11 +294,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"<receiver>"
-                                +"comment to receiver"
+                                group { +"comment to receiver" }
                             }
                             group {
                                 +"abc"
-                                +"comment to param"
+                                group { +"comment to param" }
                             }
                         }
                     }
@@ -339,11 +336,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"first"
-                                +"comment to first param"
+                                group { +"comment to first param" }
                             }
                             group {
                                 +"third"
-                                +"comment to third param"
+                                group { +"comment to third param" }
                             }
                         }
                     }
@@ -384,21 +381,19 @@ class ContentForParamsTest : AbstractCoreTest() {
                         table {
                             group {
                                 +"first"
-                                +"comment to first param"
+                                group { +"comment to first param" }
                             }
                             group {
                                 +"second"
-                                +"comment to second param"
+                                group { +"comment to second param" }
                             }
                             group {
                                 +"third"
-                                +"comment to third param"
+                                group { +"comment to third param" }
                             }
                         }
-                        header(4) { +"Author" }
-                        +"Kordyjan"
-                        header(4) { +"Since" }
-                        +"0.11"
+                        unnamedTag("Author") { +"Kordyjan" }
+                        unnamedTag("Since") { +"0.11" }
                     }
                 }
             }

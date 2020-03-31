@@ -114,6 +114,22 @@ open class PageContentBuilder(
             )
         }
 
+        fun table(
+            dri: DRI = mainDRI,
+            kind: Kind = ContentKind.Main,
+            platformData: Set<PlatformData> = mainPlatformData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            operation: DocumentableContentBuilder.() -> List<ContentGroup>
+        ) {
+                contents += ContentTable(
+                    emptyList(),
+                    operation(),
+                    DCI(setOf(mainDRI), kind),
+                    platformData, styles, extra
+                )
+        }
+
         fun <T : Documentable> block(
             name: String,
             level: Int,

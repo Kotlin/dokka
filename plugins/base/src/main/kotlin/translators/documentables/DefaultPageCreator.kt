@@ -3,15 +3,21 @@ package org.jetbrains.dokka.base.translators.documentables
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.doc.Property
-import org.jetbrains.dokka.model.doc.TagWrapper
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.backend.common.phaser.defaultDumper
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
+
+private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<PlatformData?, TagWrapper>>>
+
+private val specialTags: Set<KClass<out TagWrapper>> =
+    setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class)
+
 
 open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
@@ -51,12 +57,12 @@ open class DefaultPageCreator(
     open fun pageForFunction(f: DFunction) = MemberPageNode(f.name, contentForFunction(f), setOf(f.dri), f)
 
     private val WithScope.filteredFunctions
-    get() = functions.filter { it.extra[InheritedFunction]?.isInherited != true }
+        get() = functions.filter { it.extra[InheritedFunction]?.isInherited != true }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         header(1) { text(m.name) }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
-                link(it.name, it.dri)
+            link(it.name, it.dri)
         }
 //        text("Index\n") TODO
 //        text("Link to allpage here")
@@ -123,7 +129,7 @@ open class DefaultPageCreator(
         header(1) { text(e.name.orEmpty()) }
         +buildSignature(e)
 
-        +contentForComments(e) { it !is Property }
+        +contentForComments(e)
 
         +contentForScope(e, e.dri, e.platformData)
     }
@@ -135,7 +141,8 @@ open class DefaultPageCreator(
                 +buildSignature(c)
             }
         }
-        +contentForComments(c) { it !is Property }
+        breakLine()
+        +contentForComments(c)
 
         if (c is WithConstructors) {
             block(
@@ -173,33 +180,98 @@ open class DefaultPageCreator(
         +contentForScope(c, c.dri, c.platformData)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T: TagWrapper> GroupedTags.withTypeUnnamed(): PlatformDependent<T> =
+        (this[T::class] as List<Pair<PlatformData, T>>?)
+            ?.let { PlatformDependent.from(it) }.orEmpty()
+
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T: NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, PlatformDependent<T>> =
+        (this[T::class] as List<Pair<PlatformData, T>>?)
+            ?.groupBy { it.second.name }
+            ?.mapValues { (_, v) -> PlatformDependent.from(v) }
+            .orEmpty()
+
     protected open fun contentForComments(
-        d: Documentable,
-        filtering: (TagWrapper) -> Boolean = { true }
-    ) = contentBuilder.contentFor(d) {
-        d.documentation.map{(k,v) -> (k to v.children.filter(filtering).map{p -> (k to p)})}.flatMap { it.second }
-            .groupBy { it.second.toHeaderString() }.mapValues {(k,v) -> v.groupBy { it.first }}
-            .forEach{ groupedByHeader ->
-                header(3) { text(groupedByHeader.key) }
-                d.documentation.expect?.also{
-                    it.children.filter(filtering).filter{it.toHeaderString() == groupedByHeader.key}
-                        .forEach {
+        d: Documentable
+    ): List<ContentNode> {
+        val tags: GroupedTags = d.documentation.allEntries.flatMap { (pd, doc) ->
+            doc.children.asSequence().map { pd to it }
+        }.groupBy { it.second::class }
+
+        val platforms = d.platformData
+
+        fun DocumentableContentBuilder.contentForDescription() {
+            val description = tags.withTypeUnnamed<Description>()
+            if (description.any { it.value.root.children.isNotEmpty() }) {
+                platforms.forEach { platform ->
+                    description.getOrExpect(platform)?.also {
+                        group(platformData = setOf(platform)) {
                             comment(it.root)
-                            breakLine()
-                        }
-                }
-                platformDependentHint(d.dri,groupedByHeader.value.keys){
-                    groupedByHeader.value.forEach{
-                        group(d.dri, setOf(it.key)){
-                            it.value.forEach {
-                                comment(it.second.root)
-                            }
                             breakLine()
                         }
                     }
                 }
             }
-    }.children
+        }
+
+        fun DocumentableContentBuilder.contentForParams() {
+            val receiver = tags.withTypeUnnamed<Receiver>()
+            val params = tags.withTypeNamed<Param>()
+
+            if (params.isNotEmpty()) {
+                header(4, kind = ContentKind.Parameters) { text("Parameters") }
+                table(kind = ContentKind.Parameters) {
+                    platforms.flatMap { platform ->
+                        val receiverRow = receiver.getOrExpect(platform)?.let {
+                            buildGroup(platformData = setOf(platform)) {
+                                text("<receiver>")
+                                comment(it.root)
+                            }
+                        }
+
+                        val paramRows = params.mapNotNull { (_, param) ->
+                            param.getOrExpect(platform)?.let {
+                                buildGroup(platformData = setOf(platform)) {
+                                    text(it.name)
+                                    comment(it.root)
+                                }
+                            }
+                        }
+
+                        listOfNotNull(receiverRow) + paramRows
+                    }
+                }
+            }
+        }
+
+        fun DocumentableContentBuilder.contentForUnnamedTags() {
+            val unnamedTags: List<PlatformDependent<TagWrapper>> =
+                tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
+                    .map { (_, v) -> PlatformDependent.from(v) }
+            platforms.forEach { platform ->
+                unnamedTags.forEach { pdTag ->
+                    pdTag.getOrExpect(platform)?.also { tag ->
+                        group(platformData = setOf(platform)) {
+                            header(4) { text(tag.toHeaderString()) }
+                            comment(tag.root)
+                        }
+                    }
+                }
+            }
+        }
+
+        return contentBuilder.contentFor(d) {
+            if (tags.isNotEmpty()) {
+                header(3) { text("Description") }
+                platformDependentHint(platformData = platforms.toSet()) {
+                    contentForDescription()
+                    contentForParams()
+                    contentForUnnamedTags()
+                }
+            }
+        }.children
+    }
 
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         group(f.dri, f.platformData.toSet(), ContentKind.Functions) {

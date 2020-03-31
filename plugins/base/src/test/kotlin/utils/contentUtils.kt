@@ -1,6 +1,7 @@
 package utils
 
 import matchers.content.*
+import org.jetbrains.dokka.pages.ContentGroup
 
 //TODO: Try to unify those functions after update to 1.4
 fun ContentMatcherBuilder<*>.signature(
@@ -53,4 +54,10 @@ fun ContentMatcherBuilder<*>.pWrapped(text: String) =
     group {// TODO: remove it when double wrapping for descriptions will be resolved
         group { +text }
         br()
+    }
+
+fun ContentMatcherBuilder<*>.unnamedTag(tag: String, content: ContentMatcherBuilder<ContentGroup>.() -> Unit) =
+    group {
+        header(4) { +tag }
+        group { content() }
     }
