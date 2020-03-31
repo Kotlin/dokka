@@ -37,9 +37,27 @@ data class PlatformDependent<out T>(
         yieldAll(map.values)
     }
 
+    val allEntries: Sequence<Pair<PlatformData?, T>> = sequence {
+        expect?.also { yield(null to it) }
+        map.forEach { (k, v) -> yield(k to v) }
+    }
+
+    fun getOrExpect(platform: PlatformData): T? = map[platform] ?: expect
+
     companion object {
         fun <T> empty(): PlatformDependent<T> = PlatformDependent(emptyMap())
+
         fun <T> from(platformData: PlatformData, element: T) = PlatformDependent(mapOf(platformData to element))
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T> from(pairs: Iterable<Pair<PlatformData?, T>>) =
+            PlatformDependent(
+                pairs.filter { it.first != null }.toMap() as Map<PlatformData, T>,
+                pairs.firstOrNull { it.first == null }?.second
+            )
+
+        fun <T> from(vararg pairs: Pair<PlatformData?, T>) = from(pairs.asIterable())
+
         fun <T> expectFrom(element: T) = PlatformDependent(map = emptyMap(), expect = element)
     }
 }
@@ -330,12 +348,18 @@ sealed class Projection
 sealed class Bound : Projection()
 data class OtherParameter(val name: String) : Bound()
 object Star : Projection()
-data class TypeConstructor(val dri: DRI, val projections: List<Projection>, val modifier: FunctionModifiers = FunctionModifiers.NONE) : Bound()
+data class TypeConstructor(
+    val dri: DRI,
+    val projections: List<Projection>,
+    val modifier: FunctionModifiers = FunctionModifiers.NONE
+) : Bound()
+
 data class Nullable(val inner: Bound) : Bound()
 data class Variance(val kind: Kind, val inner: Bound) : Projection() {
     enum class Kind { In, Out }
 }
-data class PrimitiveJavaType(val name: String): Bound()
+
+data class PrimitiveJavaType(val name: String) : Bound()
 object Void : Bound()
 object JavaObject : Bound()
 
@@ -376,6 +400,7 @@ sealed class JavaVisibility(name: String) : Visibility(name) {
 }
 
 fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()
+
 sealed class DocumentableSource(val path: String)
 
 class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) :
