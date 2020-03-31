@@ -21,7 +21,7 @@ open class DefaultLocationProvider(
     protected val pageGraphRoot: RootPageNode,
     protected val dokkaContext: DokkaContext
 ) : LocationProvider {
-    protected val extension = ".html"
+    protected open val extension = ".html"
 
     protected val externalLocationProviderFactories =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }

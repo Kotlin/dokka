@@ -1,8 +1,12 @@
 publishing {
     publications {
-        register<MavenPublication>("gfm-plugin") {
+        register<MavenPublication>("gfmPlugin") {
             artifactId = "gfm-plugin"
             from(components["java"])
         }
     }
+}
+
+dependencies {
+    implementation(project(":plugins:base"))
 }
