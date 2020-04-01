@@ -1,0 +1,80 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "private": true,
+  "config": {
+    "components": "./src/main/js/search",
+    "dist": "./dist"
+  },
+  "scripts": {
+    "create-component": "yo @jetbrains/ring-ui:react --path $npm_package_config_components",
+    "build": "webpack --mode=production --devtool sourcemap",
+    "test": "karma start",
+    "lint": "eslint . && npm run stylelint",
+    "stylelint": "stylelint --ignore-path .gitignore **/*.css",
+    "ci-test": "npm run lint && xvfb-maybe karma start --teamcity",
+    "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@jetbrains/jetbrains",
+        {
+          "useBuiltIns": "usage"
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "@babel/core": "^7.8.3",
+    "@jetbrains/babel-preset-jetbrains": "^2.1.4",
+    "@jetbrains/icons": "3.6.0",
+    "@jetbrains/logos": "1.1.5",
+    "@jetbrains/ring-ui": "2.1.16",
+    "babel-loader": "^8.0.6",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.4.2",
+    "json-loader": "^0.5.7",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "redbox-react": "^1.6.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
+  },
+  "devDependencies": {
+    "@jetbrains/generator-ring-ui": "2.0.53",
+    "@jetbrains/eslint-config": "^4.0.6",
+    "@jetbrains/stylelint-config": "^2.0.0",
+    "babel-eslint": "^10.0.3",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-dom": "^1.8.1",
+    "chai-enzyme": "1.0.0-beta.1",
+    "electron": "^7.1.9",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^6.8.0",
+    "karma": "^4.4.1",
+    "karma-chai-plugins": "^0.9.0",
+    "karma-electron": "^6.3.0",
+    "karma-mocha": "^1.3.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-teamcity-reporter": "^1.1.0",
+    "karma-webpack": "^4.0.2",
+    "mocha": "^6.2.2",
+    "react-test-renderer": "^16.12.0",
+    "sinon": "^8.0.4",
+    "sinon-chai": "^3.4.0",
+    "stylelint": "^12.0.1",
+    "xvfb-maybe": "^0.2.1",
+    "yo": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

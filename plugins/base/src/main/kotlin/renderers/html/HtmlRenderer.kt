@@ -306,12 +306,9 @@ open class HtmlRenderer(
                         id = "main"
                         div {
                             id = "searchBar"
-                            form(action = page.root("-search.html"), method = FormMethod.get) {
-                                id = "searchForm"
-                                input(type = InputType.search, name = "query")
-                                input(type = InputType.submit) { value = "Search" }
-                            }
                         }
+                        script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
+                        script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
                         content()
                     }
                 }
