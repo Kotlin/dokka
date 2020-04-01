@@ -54,6 +54,8 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
     ) {
         Arguments(parser).also { if(it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
     }
+
+    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 }
 
 class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfiguration {

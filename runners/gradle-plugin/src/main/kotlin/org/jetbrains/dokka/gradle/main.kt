@@ -48,7 +48,7 @@ open class DokkaPlugin : Plugin<Project> {
             task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = runtimeConfiguration
-            task.pluginsConfiguration = pluginsConfiguration
+            task.pluginsConfig = pluginsConfiguration
             task.outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
         }
     }

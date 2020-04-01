@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gradle
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
@@ -14,13 +15,14 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
+import org.jetbrains.dokka.plugability.Configurable
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
 
-open class DokkaTask : DefaultTask() {
+open class DokkaTask : DefaultTask(), Configurable {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val GLOBAL_PLATFORM_NAME = "global" // Used for copying perPackageOptions to other platforms
 
@@ -58,12 +60,14 @@ open class DokkaTask : DefaultTask() {
     @Input
     var impliedPlatforms: MutableList<String> = arrayListOf()
 
+    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
+
     @Optional
     @Input
     var cacheRoot: String? = null
 
     @Classpath
-    lateinit var pluginsConfiguration: Configuration
+    lateinit var pluginsConfig: Configuration
 
     var multiplatform: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
@@ -80,19 +84,26 @@ open class DokkaTask : DefaultTask() {
     // Configure Dokka with closure in Gradle Kotlin DSL
     fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
 
-    private val kotlinTasks: List<Task> by lazy { extractKotlinCompileTasks(configuration.collectKotlinTasks ?: { defaultKotlinTasks() }) }
+    private val kotlinTasks: List<Task> by lazy {
+        extractKotlinCompileTasks(
+            configuration.collectKotlinTasks ?: { defaultKotlinTasks() })
+    }
 
     private val configExtractor = ConfigurationExtractor(project)
 
     @Input
     var disableAutoconfiguration: Boolean = false
 
-    private var outputDiagnosticInfo: Boolean = false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
+    private var outputDiagnosticInfo: Boolean =
+        false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
 
     private fun loadFatJar() {
         if (ClassloaderContainer.fatJarClassLoader == null) {
             val jars = dokkaRuntime!!.resolve()
-            ClassloaderContainer.fatJarClassLoader = URLClassLoader(jars.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getSystemClassLoader().parent)
+            ClassloaderContainer.fatJarClassLoader = URLClassLoader(
+                jars.map { it.toURI().toURL() }.toTypedArray(),
+                ClassLoader.getSystemClassLoader().parent
+            )
         }
     }
 
@@ -102,7 +113,9 @@ open class DokkaTask : DefaultTask() {
 
         val taskContainer = project.tasks
 
-        val tasksByPath = paths.map { taskContainer.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found") }
+        val tasksByPath = paths.map {
+            taskContainer.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found")
+        }
 
         other
             .filter { it !is Task || it isNotInstance getAbstractKotlinCompileFor(it) }
@@ -116,11 +129,14 @@ open class DokkaTask : DefaultTask() {
         return (tasksByPath + other) as List<Task>
     }
 
-    private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> = this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
-    private fun Iterable<String>.toProjects(): List<Project> = project.subprojects.toList().filter { this.contains(it.name) }
+    private fun Iterable<File>.toSourceRoots(): List<GradleSourceRootImpl> =
+        this.filter { it.exists() }.map { GradleSourceRootImpl().apply { path = it.path } }
+
+    private fun Iterable<String>.toProjects(): List<Project> =
+        project.subprojects.toList().filter { this.contains(it.name) }
 
     private fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
-        if(project.isAndroidProject()) {
+        if (project.isAndroidProject()) {
             val generatedRoot = project.buildDir.resolve("generated").absoluteFile
             sourceRoots
                 .map { File(it.path) }
@@ -143,7 +159,8 @@ open class DokkaTask : DefaultTask() {
         try {
             loadFatJar()
 
-            val bootstrapClass = ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
+            val bootstrapClass =
+                ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
             val bootstrapProxy: DokkaBootstrap =
                 automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
@@ -181,7 +198,8 @@ open class DokkaTask : DefaultTask() {
             cacheRoot = cacheRoot
             impliedPlatforms = impliedPlatforms
             passesConfigurations = defaultModulesConfiguration
-            pluginsClasspath = pluginsConfiguration.resolve().toList()
+            pluginsClasspath = pluginsConfig.resolve().toList()
+            pluginsConfiguration = this@DokkaTask.pluginsConfiguration
         }
     }
 
@@ -206,15 +224,17 @@ open class DokkaTask : DefaultTask() {
 
         val baseConfig = configExtractor.extractConfiguration(userConfig.name, userConfig.androidVariant)
             ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
-                ?: if (this.isMultiplatformProject()) {
-                    if (outputDiagnosticInfo)
-                        logger.warn("Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
-                                "using only user provided configuration for this target")
-                    userConfig
-                } else {
-                    logger.warn("Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin")
-                    collectFromSinglePlatformOldPlugin()
-                }
+            ?: if (this.isMultiplatformProject()) {
+                if (outputDiagnosticInfo)
+                    logger.warn(
+                        "Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
+                                "using only user provided configuration for this target"
+                    )
+                userConfig
+            } else {
+                logger.warn("Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin")
+                collectFromSinglePlatformOldPlugin()
+            }
 
         return if (subProjects.isNotEmpty()) {
             try {
@@ -224,9 +244,11 @@ open class DokkaTask : DefaultTask() {
                         ConfigurationExtractor(subProject).extractConfiguration(config.name, config.androidVariant)!!
                     )
                 }
-            } catch(e: NullPointerException) {
-                logger.warn("Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
-                        "and the Kotlin plugin applied in the root project?")
+            } catch (e: NullPointerException) {
+                logger.warn(
+                    "Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
+                            "and the Kotlin plugin applied in the root project?"
+                )
                 baseConfig
             }
         } else {
@@ -237,11 +259,14 @@ open class DokkaTask : DefaultTask() {
     private fun collectFromSinglePlatformOldPlugin() =
         configExtractor.extractFromKotlinTasks(kotlinTasks)
             ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
-                ?: configExtractor.extractFromJavaPlugin()
-                    ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
-                ?: configuration
+            ?: configExtractor.extractFromJavaPlugin()
+                ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
+            ?: configuration
 
-    private fun mergeUserConfigurationAndPlatformData(userConfig: GradlePassConfigurationImpl, autoConfig: PlatformData) =
+    private fun mergeUserConfigurationAndPlatformData(
+        userConfig: GradlePassConfigurationImpl,
+        autoConfig: PlatformData
+    ) =
         userConfig.copy().apply {
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
             classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
@@ -256,10 +281,11 @@ open class DokkaTask : DefaultTask() {
         if (config.moduleName == "") {
             config.moduleName = project.name
         }
-        if (config.targets.isEmpty() && multiplatform.isNotEmpty()){
+        if (config.targets.isEmpty() && multiplatform.isNotEmpty()) {
             config.targets = listOf(config.name)
         }
-        config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
+        config.classpath =
+            (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
@@ -314,3 +340,4 @@ open class DokkaTask : DefaultTask() {
         }
     }
 }
+

@@ -125,6 +125,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var impliedPlatforms: List<String> = emptyList()
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
+    override var pluginsConfiguration: Map<String, String> = mutableMapOf()
 }
 
 class GradlePackageOptionsImpl: PackageOptions, Serializable {

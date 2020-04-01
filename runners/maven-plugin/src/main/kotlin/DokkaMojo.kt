@@ -249,7 +249,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             },
             generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
-                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten()
+                    dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),
+            pluginsConfiguration = mutableMapOf() //TODO implement as it is in Gradle
         )
 
         val gen = DokkaGenerator(configuration, logger)

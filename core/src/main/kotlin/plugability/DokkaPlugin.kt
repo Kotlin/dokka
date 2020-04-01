@@ -1,9 +1,12 @@
 package org.jetbrains.dokka.plugability
 
+import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.kotlin.utils.addToStdlib.cast
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.createInstance
 
 private typealias ExtensionDelegate<T> = ReadOnlyProperty<DokkaPlugin, Extension<T>>
 
@@ -49,6 +52,18 @@ abstract class DokkaPlugin {
     }
 }
 
+interface Configurable {
+    val pluginsConfiguration: Map<String, String>
+}
+
+interface ConfigurableBlock
+
+inline fun <reified P : DokkaPlugin, reified T : ConfigurableBlock> Configurable.pluginConfiguration(block: T.() -> Unit) {
+    val instance = T::class.createInstance().apply(block)
+    pluginsConfiguration.cast<MutableMap<String, String>>()[P::class.qualifiedName!!] =
+        Gson().toJson(instance, T::class.java)
+}
+
 inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =
     context?.let { it[extension()] } ?: throwIllegalQuery()
 
@@ -57,3 +72,14 @@ inline fun <reified P : DokkaPlugin, reified E : Any> P.querySingle(extension: P
 
 fun throwIllegalQuery(): Nothing =
     throw IllegalStateException("Querying about plugins is only possible with dokka context initialised")
+
+inline fun <reified T : DokkaPlugin, reified R : ConfigurableBlock> configuration(context: DokkaContext): ReadOnlyProperty<Any?, R> {
+    return object : ReadOnlyProperty<Any?, R> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): R {
+            return context.configuration.pluginsConfiguration.get(T::class.qualifiedName
+                ?: throw AssertionError("Plugin must be named class")).let {
+                    Gson().fromJson(it, R::class.java)
+            }
+        }
+    }
+}
