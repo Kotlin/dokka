@@ -13,6 +13,7 @@ include("plugins:gfm")
 include("plugins:jekyll")
 include("plugins:kotlin-as-java")
 include("integration-tests:gradle-integration-tests")
+include("search-component")
 
 pluginManagement {
     val kotlin_version: String by settings

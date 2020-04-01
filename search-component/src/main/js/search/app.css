@@ -1,0 +1,21 @@
+@import "@jetbrains/ring-ui/components/global/variables.css";
+
+html,
+.app-root {
+  height: 100%;
+}
+
+.search-root {
+  margin: 0;
+  padding: 0;
+
+  background: var(--ring-content-background-color);
+
+  font-family: var(--ring-font-family);
+  font-size: var(--ring-font-size);
+  line-height: var(--ring-line-height);
+}
+
+.search-content {
+  margin: calc(var(--ring-unit) * 4);
+}
