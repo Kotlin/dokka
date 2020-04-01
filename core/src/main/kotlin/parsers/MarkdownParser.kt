@@ -361,7 +361,15 @@ class MarkdownParser(
                         )
                         KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))
-                        KDocKnownTag.SEE -> See(parseStringToDocNode(it.getContent()), it.getSubjectName().orEmpty())
+                        KDocKnownTag.SEE -> See(
+                            parseStringToDocNode(it.getContent()),
+                            it.getSubjectName().orEmpty(),
+                            parseStringToDocNode("[${it.getSubjectName()}]")
+                                .let {
+                                    if(it is DocumentationLink) it.dri
+                                    else null
+                                }
+                        )
                         KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.CONSTRUCTOR -> Constructor(parseStringToDocNode(it.getContent()))
                         KDocKnownTag.PROPERTY -> Property(

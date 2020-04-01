@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.model.doc
 
+import org.jetbrains.dokka.links.DRI
+
 sealed class TagWrapper(val root: DocTag) {
 
     override fun equals(other: Any?): Boolean =
@@ -20,7 +22,7 @@ class Description(root: DocTag) : TagWrapper(root)
 class Author(root: DocTag) : TagWrapper(root)
 class Version(root: DocTag) : TagWrapper(root)
 class Since(root: DocTag) : TagWrapper(root)
-class See(root: DocTag, name: String) : NamedTagWrapper(root, name)
+class See(root: DocTag, name: String, val address: DRI?) : NamedTagWrapper(root, name)
 class Param(root: DocTag, name: String) : NamedTagWrapper(root, name)
 class Return(root: DocTag) : TagWrapper(root)
 class Receiver(root: DocTag) : TagWrapper(root)
