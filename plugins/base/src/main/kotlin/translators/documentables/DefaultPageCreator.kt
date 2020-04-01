@@ -245,6 +245,26 @@ open class DefaultPageCreator(
             }
         }
 
+        fun DocumentableContentBuilder.contentForSeeAlso() {
+            val seeAlsoTags = tags.withTypeNamed<See>()
+            if(seeAlsoTags.isNotEmpty()) {
+                header(4, kind = ContentKind.Comment) { text("See also") }
+                table(kind = ContentKind.Comment) {
+                    platforms.flatMap { platform ->
+                        seeAlsoTags.mapNotNull { (_, see) ->
+                            see.getOrExpect(platform)?.let {
+                                buildGroup {
+                                    if (it.address != null) link(it.name, it.address!!)
+                                    else text(it.name)
+                                    comment(it.root)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         fun DocumentableContentBuilder.contentForUnnamedTags() {
             val unnamedTags: List<PlatformDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
@@ -268,6 +288,7 @@ open class DefaultPageCreator(
                     contentForDescription()
                     contentForParams()
                     contentForUnnamedTags()
+                    contentForSeeAlso()
                 }
             }
         }.children
