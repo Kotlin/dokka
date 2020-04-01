@@ -33,6 +33,7 @@ interface DokkaConfiguration {
     val passesConfigurations: List<PassConfiguration>
     val impliedPlatforms: List<String>
     val pluginsClasspath: List<File>
+    val pluginsConfiguration: Map<String, String>
 
     interface PassConfiguration {
         val moduleName: String
@@ -100,3 +101,5 @@ interface DokkaConfiguration {
         }
     }
 }
+
+

@@ -140,6 +140,7 @@ abstract class AbstractCoreTest {
         var generateIndexPages: Boolean = true
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
+        var pluginsConfigurations: Map<String, String> = emptyMap()
         private val passesConfigurations = mutableListOf<PassConfigurationImpl>()
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
@@ -148,7 +149,8 @@ abstract class AbstractCoreTest {
             cacheRoot = cacheRoot,
             impliedPlatforms = emptyList(),
             passesConfigurations = passesConfigurations,
-            pluginsClasspath = pluginsClasspath
+            pluginsClasspath = pluginsClasspath,
+            pluginsConfiguration = pluginsConfigurations
         )
 
         fun passes(block: Passes.() -> Unit) {
