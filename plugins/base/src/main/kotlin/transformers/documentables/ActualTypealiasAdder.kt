@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
+
 class ActualTypealiasAdder : PreMergeDocumentableTransformer {
     override fun invoke(modules: List<DModule>, context: DokkaContext) = modules.map { it.mergeTypealiases() }
 
