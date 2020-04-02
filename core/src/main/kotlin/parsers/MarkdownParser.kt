@@ -366,7 +366,8 @@ class MarkdownParser(
                             it.getSubjectName().orEmpty(),
                             parseStringToDocNode("[${it.getSubjectName()}]")
                                 .let {
-                                    if(it is DocumentationLink) it.dri
+                                    val link = it.children[0]
+                                    if(link is DocumentationLink) link.dri
                                     else null
                                 }
                         )

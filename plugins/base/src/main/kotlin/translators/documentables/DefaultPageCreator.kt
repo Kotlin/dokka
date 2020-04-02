@@ -16,7 +16,7 @@ import kotlin.reflect.full.isSubclassOf
 private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<PlatformData?, TagWrapper>>>
 
 private val specialTags: Set<KClass<out TagWrapper>> =
-    setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class)
+    setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
 
 
 open class DefaultPageCreator(
@@ -253,7 +253,7 @@ open class DefaultPageCreator(
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
                             see.getOrExpect(platform)?.let {
-                                buildGroup {
+                                buildGroup(platformData = setOf(platform)) {
                                     if (it.address != null) link(it.name, it.address!!)
                                     else text(it.name)
                                     comment(it.root)

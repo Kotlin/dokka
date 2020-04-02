@@ -35,7 +35,7 @@ class JavadocParser(
                 "throws" -> Throws(P(convertJavadocElements(tag.dataElements.toList())), tag.text)
                 "return" -> Return(P(convertJavadocElements(tag.dataElements.toList())))
                 "author" -> Author(P(convertJavadocElements(tag.dataElements.toList())))
-                "see" -> See(P(getSeeTagElementContent(tag)), tag.referenceElement()?.text.orEmpty())
+                "see" -> See(P(getSeeTagElementContent(tag)), tag.referenceElement()?.text.orEmpty(), null)
                 "deprecated" -> Deprecated(P(convertJavadocElements(tag.dataElements.toList())))
                 else -> null
             }
