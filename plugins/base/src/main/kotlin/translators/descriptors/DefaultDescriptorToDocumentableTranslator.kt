@@ -405,14 +405,18 @@ private class DokkaDescriptorVisitor(
     }
 
     override fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor, parent: DRIWithPlatformInfo?) =
-        DTypeAlias(
-            dri = DRI.from(descriptor),
-            name = descriptor.name.asString(),
-            type = descriptor.defaultType.toBound(),
-            underlyingType = descriptor.underlyingType.toBound(),
-            documentation = descriptor.resolveDescriptorData(platformData),
-            platformData = listOf(platformData)
-        )
+        with(descriptor) {
+            DTypeAlias(
+                dri = DRI.from(this),
+                name = name.asString(),
+                type = defaultType.toBound(),
+                underlyingType = PlatformDependent.from(platformData, underlyingType.toBound()),
+                visibility = if (isExpect) PlatformDependent.expectFrom(visibility.toDokkaVisibility())
+                else PlatformDependent.from(platformData, visibility.toDokkaVisibility()),
+                documentation = resolveDescriptorData(platformData),
+                platformData = listOf(platformData)
+            )
+        }
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRIWithPlatformInfo) =
         DParameter(

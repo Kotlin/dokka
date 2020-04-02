@@ -34,9 +34,10 @@ open class PageContentBuilder(
         kind: Kind = ContentKind.Main,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
+        platformData: Set<PlatformData> = d.platformData.toSet(),
         block: DocumentableContentBuilder.() -> Unit = {}
     ): ContentGroup =
-        DocumentableContentBuilder(d.dri, d.platformData.toSet(), styles, extra)
+        DocumentableContentBuilder(d.dri, platformData, styles, extra)
             .apply(block)
             .build(d.platformData.toSet(), kind, styles, extra)
 

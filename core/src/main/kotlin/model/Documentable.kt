@@ -349,11 +349,12 @@ data class DTypeAlias(
     override val dri: DRI,
     override val name: String,
     override val type: Bound,
-    val underlyingType: Bound,
+    val underlyingType: PlatformDependent<Bound>,
+    override val visibility: PlatformDependent<Visibility>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
-) : Documentable(), WithType, WithExtraProperties<DTypeAlias> {
+) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias> {
     override val children: List<Nothing>
         get() = emptyList()
 

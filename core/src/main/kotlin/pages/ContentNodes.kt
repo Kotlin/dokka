@@ -167,10 +167,11 @@ interface Style
 interface Kind
 
 enum class ContentKind : Kind {
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment, Empty;
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
+    Empty, TypeAliases;
 
     companion object{
-        private val platformTagged = setOf(Constructors, Functions, Properties, Classlikes, Packages)
+        private val platformTagged = setOf(Constructors, Functions, Properties, Classlikes, Packages, TypeAliases)
 
         fun shouldBePlatformTagged(kind: Kind) : Boolean = kind in platformTagged
     }

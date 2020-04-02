@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.resolvers.external.*
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
+import org.jetbrains.dokka.base.transformers.documentables.ActualTypealiasAdder
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
@@ -49,6 +50,10 @@ class DokkaBase : DokkaPlugin() {
 
     val preMergeDocumentableTransformer by extending(isFallback = true) {
         CoreExtensions.preMergeDocumentableTransformer with DocumentableVisibilityFilter
+    }
+
+    val actualTypealiasAdder by extending {
+        CoreExtensions.preMergeDocumentableTransformer with ActualTypealiasAdder()
     }
 
     val kotlinSignatureProvider by extending(isFallback = true) {
