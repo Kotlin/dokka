@@ -1,18 +1,20 @@
 package javadoc
 
-import com.soywiz.korte.TeFunction
-import com.soywiz.korte.TemplateConfig
-import com.soywiz.korte.TemplateProvider
-import com.soywiz.korte.Templates
+import com.soywiz.korte.*
 import javadoc.pages.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.pages.RendererSpecificPage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -20,15 +22,16 @@ import java.time.LocalDate
 
 class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaContext, val resourceDir: String) :
     Renderer {
-    private val locationProvider = JavadocLocationProvider(context)
+    private lateinit var locationProvider: JavadocLocationProvider
 
     override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { r ->
+        locationProvider = JavadocLocationProvider(r, context)
         runBlocking(Dispatchers.IO) {
             renderModulePageNode(r as JavadocModulePageNode)
         }
     }
 
-    private fun templateForNode(node: JavadocPageNode) = when(node) {
+    private fun templateForNode(node: JavadocPageNode) = when (node) {
         is JavadocClasslikePageNode -> "class.korte"
         is JavadocPackagePageNode -> "tabPage.korte"
         is JavadocModulePageNode -> "tabPage.korte"
@@ -40,8 +43,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun CoroutineScope.renderNode(node: PageNode, path: String = "") {
         if (node is JavadocPageNode) {
             renderJavadocNode(node)
-        }
-        else if (node is RendererSpecificPage) {
+        } else if (node is RendererSpecificPage) {
             renderSpecificPage(node, path)
         }
     }
@@ -61,7 +63,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
 
     private fun CoroutineScope.renderJavadocNode(node: JavadocPageNode) {
         val link = locationProvider.resolve(node, skipExtension = true)
-        val dir = Paths.get(link).parent?.let{it.toNormalized()}.orEmpty()
+        val dir = Paths.get(link).parent?.let { it.toNormalized() }.orEmpty()
         val pathToRoot = dir.split("/").joinToString("/") { ".." }.let {
             if (it.isNotEmpty()) "$it/" else it
         }
@@ -71,6 +73,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             "pathToRoot" to pathToRoot,
             "dir" to dir
         ) + node.contentMap
+//        DokkaConsoleLogger.info("${node::class.java.canonicalName}::${node.name} - $link")
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
         node.children.forEach { renderNode(it, link.toNormalized()) }
     }
@@ -94,6 +97,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             else it
         }, name)
 
+    fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptyList(), context)
+
     fun createLinkTag(address: String, name: String) =
         address.let { if (it.endsWith(".html")) it else "$it.html" }.let {
             """<a href="$it">$name</a>"""
@@ -103,9 +108,6 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun Path.toNormalized() = this.normalize().toFile().toString()
     private fun String.toNormalized() = Paths.get(this).toNormalized()
     private fun String.relativizePath(parent: String) = Paths.get(parent).relativize(Paths.get(this)).toNormalized()
-
-    private fun Map<String, ContentValue>.unpack() =
-        entries.map { (k, v) -> k to if (v is StringValue) v.text else (v as ListValue).list }
 
     private fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, ".html")
     private fun CoroutineScope.writeFromTemplate(
@@ -122,22 +124,23 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
-    fun getTemplateConfig() = TemplateConfig().also {config ->
+    fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
             TeFunction("curDate") { LocalDate.now() },
             TeFunction("jQueryVersion") { "3.1" },
             TeFunction("jQueryMigrateVersion") { "1.2.1" },
-            TeFunction("rowColor") {args -> if ((args.first() as Int) % 2 == 0) "altColor" else "rowColor" },
+            TeFunction("rowColor") { args -> if ((args.first() as Int) % 2 == 0) "altColor" else "rowColor" },
             TeFunction("h1Title") { args -> if ((args.first() as? String) == "package") "title=\"Package\" " else "" },
             TeFunction("createTabRow") { args ->
                 val (link, doc) = args.first() as RowJavadocListEntry
                 val dir = args[1] as String?
-                (link.toLinkTag(dir) to doc).pairToTag().trim()
+                (createLinkTag(locationProvider.resolve(link, dir.orEmpty()), link.name) to doc).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry
                 val dir = args[1] as String?
-                link.toLinkTag(dir)
+//                link.toLinkTag(dir)
+                createLinkTag(locationProvider.resolve(link, dir.orEmpty()), link.name)
             },
             TeFunction("createPackageHierarchy") { args ->
                 val list = args.first() as List<JavadocPackagePageNode>
@@ -146,8 +149,38 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                     val name = p.name
                     "<li><a href=\"$name/package-tree.html\">$name</a>$content</li>"
                 }.joinToString("\n")
+            },
+            TeFunction("renderInheritanceGraph") { args ->
+                val node = args.first() as TreeViewPage.InheritanceNode
+
+                fun drawRec(node: TreeViewPage.InheritanceNode): String =
+                    "<li class=\"circle\">" + node.dri.let { dri ->
+                        listOfNotNull(
+                            dri.packageName,
+                            dri.classNames
+                        ).joinToString(".") + node.interfaces.takeUnless { node.isInterface || it.isEmpty() }
+                            ?.let {
+                                " implements " + it.joinToString(", ") { n ->
+                                    listOfNotNull(
+                                        n.packageName,
+                                        createLinkTag(n.toLink(), n.classNames.orEmpty())
+                                    ).joinToString(".")
+                                }
+                            }.orEmpty()
+                    } + node.children.filterNot { it.isInterface }.takeUnless { it.isEmpty() }?.let {
+                        "<ul>" + it.joinToString("\n", transform = ::drawRec) + "</ul>"
+                    }.orEmpty() + "</li>"
+
+                drawRec(node)
+            },
+            Filter("length") { subject.dynamicLength() }
+        ).forEach {
+            when (it) {
+                is TeFunction -> config.register(it)
+                is Filter -> config.register(it)
+                is Tag -> config.register(it)
             }
-        ).forEach { config.register(it) }
+        }
     }
 
     val config = getTemplateConfig()

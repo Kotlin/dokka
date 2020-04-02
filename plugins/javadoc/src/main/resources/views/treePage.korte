@@ -20,79 +20,13 @@
         <section role="region">
             <h2 title="Class Hierarchy">Class Hierarchy</h2>
             <ul>
-                <li class="circle">java.lang.Object
-                    <ul>
-                        <li class="circle">org.graphstream.graph.implementations.AbstractElement (implements org.graphstream.graph.Element)
-                            <ul>
-                                <li class="circle">org.graphstream.graph.implementations.AbstractEdge (implements org.graphstream.graph.Edge)
-                                    <ul>
-                                        <li class="circle">model.<a href="model/GraphEdge.html" title="class in model"><span class="typeNameLink">GraphEdge</span></a></li>
-                                    </ul>
-                                </li>
-                                <li class="circle">org.graphstream.graph.implementations.AbstractGraph (implements org.graphstream.graph.Graph, org.graphstream.stream.Replayable)
-                                    <ul>
-                                        <li class="circle">org.graphstream.graph.implementations.AdjacencyListGraph
-                                            <ul>
-                                                <li class="circle">org.graphstream.graph.implementations.MultiGraph
-                                                    <ul>
-                                                        <li class="circle">model.<a href="model/ModelGraph.html" title="class in model"><span class="typeNameLink">ModelGraph</span></a></li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="circle">org.graphstream.graph.implementations.AbstractNode (implements org.graphstream.graph.Node)
-                                    <ul>
-                                        <li class="circle">org.graphstream.graph.implementations.AdjacencyListNode
-                                            <ul>
-                                                <li class="circle">org.graphstream.graph.implementations.SingleNode
-                                                    <ul>
-                                                        <li class="circle">model.<a href="model/GraphNode.html" title="class in model"><span class="typeNameLink">GraphNode</span></a>
-                                                            <ul>
-                                                                <li class="circle">model.<a href="model/InteriorNode.html" title="class in model"><span class="typeNameLink">InteriorNode</span></a></li>
-                                                                <li class="circle">model.<a href="model/Vertex.html" title="class in model"><span class="typeNameLink">Vertex</span></a></li>
-                                                            </ul>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="circle">adaptation.<a href="adaptation/Adaptation.html" title="class in adaptation"><span class="typeNameLink">Adaptation</span></a></li>
-                        <li class="circle">adaptation.<a href="adaptation/Adaptation.AdaptationInternalClass.html" title="class in adaptation"><span class="typeNameLink">Adaptation.AdaptationInternalClass</span></a></li>
-                        <li class="circle">adaptation.<a href="adaptation/Adaptation.AdaptationInternalClass.AdaptationInternalInternalClass.html" title="class in adaptation"><span class="typeNameLink">Adaptation.AdaptationInternalClass.AdaptationInternalInternalClass</span></a></li>
-                        <li class="circle">adaptation.<a href="adaptation/Adaptation.AdaptationInternalStaticClass.html" title="class in adaptation"><span class="typeNameLink">Adaptation.AdaptationInternalStaticClass</span></a></li>
-                        <li class="circle">common.<a href="common/ElementAttributes.html" title="class in common"><span class="typeNameLink">ElementAttributes</span></a></li>
-                        <li class="circle">model.<a href="model/GraphEdge.GraphEdgeBuilder.html" title="class in model"><span class="typeNameLink">GraphEdge.GraphEdgeBuilder</span></a></li>
-                        <li class="circle">app.<a href="app/MainApp.html" title="class in app"><span class="typeNameLink">MainApp</span></a></li>
-                        <li class="circle">processor.<a href="processor/MapProcessingUtil.html" title="class in processor"><span class="typeNameLink">MapProcessingUtil</span></a></li>
-                        <li class="circle">processor.<a href="processor/MapProcessingUtil.Plane.html" title="class in processor"><span class="typeNameLink">MapProcessingUtil.Plane</span></a></li>
-                        <li class="circle">model.<a href="model/Point3d.html" title="class in model"><span class="typeNameLink">Point3d</span></a></li>
-                        <li class="circle">model.<a href="model/TerrainMap.html" title="class in model"><span class="typeNameLink">TerrainMap</span></a></li>
-                        <li class="circle">model.<a href="model/TerrainMap.TriangleSquareBorder.html" title="class in model"><span class="typeNameLink">TerrainMap.TriangleSquareBorder</span></a></li>
-                        <li class="circle">adaptation.tst.<a href="adaptation/tst/Test.html" title="class in adaptation.tst"><span class="typeNameLink">Test</span></a></li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP1.html" title="class in transformation"><span class="typeNameLink">TransformationP1</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP2.html" title="class in transformation"><span class="typeNameLink">TransformationP2</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP3.html" title="class in transformation"><span class="typeNameLink">TransformationP3</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP4.html" title="class in transformation"><span class="typeNameLink">TransformationP4</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP5.html" title="class in transformation"><span class="typeNameLink">TransformationP5</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP6.html" title="class in transformation"><span class="typeNameLink">TransformationP6</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP7.html" title="class in transformation"><span class="typeNameLink">TransformationP7</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP8.html" title="class in transformation"><span class="typeNameLink">TransformationP8</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">transformation.<a href="transformation/TransformationP9.html" title="class in transformation"><span class="typeNameLink">TransformationP9</span></a> (implements transformation.<a href="transformation/Transformation.html" title="interface in transformation">Transformation</a>)</li>
-                        <li class="circle">model.<a href="model/Vertex.VertexBuilder.html" title="class in model"><span class="typeNameLink">Vertex.VertexBuilder</span></a></li>
-                    </ul>
-                </li>
+                {{ renderInheritanceGraph(classGraph)|raw }}
             </ul>
         </section>
         <section role="region">
             <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
             <ul>
-                <li class="circle">transformation.<a href="transformation/Transformation.html" title="interface in transformation"><span class="typeNameLink">Transformation</span></a></li>
+                {{ renderInheritanceGraph(interfaceGraph)|raw }}
             </ul>
         </section>
         <section role="region">
