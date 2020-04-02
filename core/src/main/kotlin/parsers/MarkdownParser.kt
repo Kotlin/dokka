@@ -348,7 +348,7 @@ class MarkdownParser(
                             parseStringToDocNode(it.getContent()),
                             it.name!!
                         )
-                        KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
+                        KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()), it.getContent())
                         KDocKnownTag.THROWS -> Throws(
                             parseStringToDocNode(it.getContent()),
                             it.getSubjectName().orEmpty()

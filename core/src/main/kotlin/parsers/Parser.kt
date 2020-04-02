@@ -14,7 +14,7 @@ abstract class Parser {
         val mappedList: List<TagWrapper> = list.map {
             when(it.first) {
                 "description"         -> Description(parseStringToDocNode(it.second))
-                "author"              -> Author(parseStringToDocNode(it.second))
+                "author"              -> Author(parseStringToDocNode(it.second.substringAfter(' ')), it.second)
                 "version"             -> Version(parseStringToDocNode(it.second))
                 "since"               -> Since(parseStringToDocNode(it.second))
                 "see"                 -> See(parseStringToDocNode(it.second.substringAfter(' ')), it.second.substringBefore(' '), null)

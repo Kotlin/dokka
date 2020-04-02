@@ -289,6 +289,25 @@ open class DefaultPageCreator(
             }
         }
 
+        fun DocumentableContentBuilder.contentForAuthors() {
+            val authors = tags.withTypeNamed<Author>()
+
+            if (authors.isNotEmpty()) {
+                header(4, kind = ContentKind.Comment) { text("Authors") }
+                table(kind = ContentKind.Comment) {
+                    platforms.flatMap { platform ->
+                        authors.mapNotNull { (_, author) ->
+                            author.getOrExpect(platform)?.let {
+                                buildGroup(platformData = setOf(platform)) {
+                                    comment(it.root)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         fun DocumentableContentBuilder.contentForUnnamedTags() {
             val unnamedTags: List<PlatformDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
@@ -311,6 +330,7 @@ open class DefaultPageCreator(
                 platformDependentHint(platformData = platforms.toSet()) {
                     contentForDescription()
                     contentForParams()
+                    contentForAuthors()
                     contentForUnnamedTags()
                     contentForSeeAlso()
                 }

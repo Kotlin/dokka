@@ -19,7 +19,7 @@ sealed class NamedTagWrapper(root: DocTag, val name: String) : TagWrapper(root) 
 }
 
 class Description(root: DocTag) : TagWrapper(root)
-class Author(root: DocTag) : TagWrapper(root)
+class Author(root: DocTag, name: String) : NamedTagWrapper(root, name)
 class Version(root: DocTag) : TagWrapper(root)
 class Since(root: DocTag) : TagWrapper(root)
 class See(root: DocTag, name: String, val address: DRI?) : NamedTagWrapper(root, name)
