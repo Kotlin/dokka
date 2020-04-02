@@ -72,14 +72,16 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        group(p.dri, p.platformData.toSet(), ContentKind.Packages){
+        group(p.dri, p.platformData.toSet(), ContentKind.Packages) {
             header(1) { text("Package ${p.name}") }
         }
         +contentForScope(p, p.dri, p.platformData)
-        block("Type aliases", 2, ContentKind.Classlikes, p.typealiases, p.platformData.toSet()) {
+        block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
             link(it.name, it.dri)
             group {
-                +buildSignature(it)
+                platformDependentHint(it.dri, it.platformData.toSet()) {
+                    +buildSignature(it)
+                }
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
@@ -147,7 +149,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
-        group(c.dri, c.platformData.toSet(), ContentKind.Classlikes){
+        group(c.dri, c.platformData.toSet(), ContentKind.Classlikes) {
             header(1) { text(c.name.orEmpty()) }
             platformDependentHint(c.dri, c.platformData.toSet()) {
                 +buildSignature(c)
@@ -179,7 +181,7 @@ open class DefaultPageCreator(
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
                 link(it.name.orEmpty(), it.dri)
                 group {
-                    platformDependentHint(it.dri, it.platformData.toSet()){
+                    platformDependentHint(it.dri, it.platformData.toSet()) {
                         +buildSignature(it)
                     }
                     group(kind = ContentKind.BriefComment) {
@@ -193,12 +195,12 @@ open class DefaultPageCreator(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T: TagWrapper> GroupedTags.withTypeUnnamed(): PlatformDependent<T> =
+    private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): PlatformDependent<T> =
         (this[T::class] as List<Pair<PlatformData, T>>?)
             ?.let { PlatformDependent.from(it) }.orEmpty()
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T: NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, PlatformDependent<T>> =
+    private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, PlatformDependent<T>> =
         (this[T::class] as List<Pair<PlatformData, T>>?)
             ?.groupBy { it.second.name }
             ?.mapValues { (_, v) -> PlatformDependent.from(v) }

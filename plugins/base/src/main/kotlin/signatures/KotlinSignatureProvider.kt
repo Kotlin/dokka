@@ -7,9 +7,7 @@ import org.jetbrains.dokka.links.DriOfAny
 import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DAnnotation
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.PlatformData
@@ -22,9 +20,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private val ignoredVisibilities = setOf(JavaVisibility.Default, KotlinVisibility.Public)
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
-        is DFunction -> signature(documentable)
-        is DProperty -> signature(documentable)
-        is DClasslike -> signature(documentable)
+        is DFunction -> functionSignature(documentable)
+        is DProperty -> propertySignature(documentable)
+        is DClasslike -> classlikeSignature(documentable)
         is DTypeParameter -> signature(documentable)
         is DEnumEntry -> signature(documentable)
         is DTypeAlias -> signature(documentable)
@@ -33,71 +31,94 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         )
     }
 
-    private fun signature(e: DEnumEntry)= contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
+    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
 
-    private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        if (c is DClass) {
-            platformText(c.modifier){
-                if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true && it.name == "final") "data "
-                else it.name + " "
+    private fun actualTypealiasedSignature(dri: DRI, name: String, aliasedTypes: PlatformDependent<Bound>) =
+        aliasedTypes.entries.groupBy({ it.value }, { it.key }).map { (bound, platforms) ->
+            contentBuilder.contentFor(dri, platforms.toSet(), ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+                text("actual typealias ")
+                link(name, dri)
+                text(" = ")
+                signatureForProjection(bound)
             }
         }
-        when (c) {
-            is DClass -> text("class ")
-            is DInterface -> text("interface ")
-            is DEnum -> text("enum ")
-            is DObject -> text("object ")
-            is DAnnotation -> text("annotation class ")
-        }
-        link(c.name!!, c.dri)
-        if(c is DClass){
-            val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra] != null }
-            list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.platformData.orEmpty().toSet()){
-                breakLine()
-                text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold).plus(TextStyle.Indented))
-                text(": ")
-                signatureForProjection(it.type)
+
+    private fun <T : DClasslike> classlikeSignature(c: T) =
+        (c as? WithExtraProperties<out DClasslike>)?.let {
+            c.extra[ActualTypealias]?.let {
+                contentBuilder.contentFor(c) {
+                    +regularSignature(c, platformData = c.platformData.toSet() - it.underlyingType.keys)
+                    +actualTypealiasedSignature(c.dri, c.name.orEmpty(), it.underlyingType)
+                }
+            } ?: regularSignature(c)
+        } ?: regularSignature(c)
+
+    private fun regularSignature(c: DClasslike, platformData: Set<PlatformData> = c.platformData.toSet()) =
+        contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+            platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            if (c is DClass) {
+                platformText(c.modifier) {
+                    if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true && it.name == "final") "data "
+                    else it.name + " "
+                }
             }
-        }
-        if (c is WithSupertypes) {
-            c.supertypes.map { (p, dris) ->
-                list(dris, prefix = " : ", platformData = setOf(p)) {
-                    link(it.sureClassNames, it, platformData = setOf(p))
+            when (c) {
+                is DClass -> text("class ")
+                is DInterface -> text("interface ")
+                is DEnum -> text("enum ")
+                is DObject -> text("object ")
+                is DAnnotation -> text("annotation class ")
+            }
+            link(c.name!!, c.dri)
+            if (c is DClass) {
+                val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra] != null }
+                list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.platformData.orEmpty().toSet()) {
+                    breakLine()
+                    text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold).plus(TextStyle.Indented))
+                    text(": ")
+                    signatureForProjection(it.type)
+                }
+            }
+            if (c is WithSupertypes) {
+                c.supertypes.map { (p, dris) ->
+                    list(dris, prefix = " : ", platformData = setOf(p)) {
+                        link(it.sureClassNames, it, platformData = setOf(p))
+                    }
                 }
             }
         }
-    }
 
-    private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        signatureForProjection(p.type)
-    }
+    private fun propertySignature(p: DProperty, platformData: Set<PlatformData> = p.platformData.toSet()) =
+        contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+            signatureForProjection(p.type)
+        }
 
-    private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-        platformText(f.modifier) { it.name + " " }
-        text("fun ")
-        list(f.generics, prefix = "<", suffix = "> ") {
-            +buildSignature(it)
-        }
-        f.receiver?.also {
-            signatureForProjection(it.type)
-            text(".")
-        }
-        link(f.name, f.dri)
-        text("(")
-        list(f.parameters) {
-            text(it.name!!)
-            text(": ")
+    private fun functionSignature(f: DFunction, platformData: Set<PlatformData> = f.platformData.toSet()) =
+        contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+            platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            platformText(f.modifier) { it.name + " " }
+            text("fun ")
+            list(f.generics, prefix = "<", suffix = "> ") {
+                +buildSignature(it)
+            }
+            f.receiver?.also {
+                signatureForProjection(it.type)
+                text(".")
+            }
+            link(f.name, f.dri)
+            text("(")
+            list(f.parameters) {
+                text(it.name!!)
+                text(": ")
 
-            signatureForProjection(it.type)
+                signatureForProjection(it.type)
+            }
+            text(")")
+            if (f.documentReturnType()) {
+                text(": ")
+                signatureForProjection(f.type)
+            }
         }
-        text(")")
-        if (f.documentReturnType()) {
-            text(": ")
-            signatureForProjection(f.type)
-        }
-    }
 
     private fun DFunction.documentReturnType() = when {
         this.isConstructor -> false
@@ -106,12 +127,23 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         else -> true
     }
 
-    private fun signature(t: DTypeAlias) = contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        text("typealias ")
-        signatureForProjection(t.type)
-        text(" = ")
-        signatureForProjection(t.underlyingType)
-    }
+    private fun signature(t: DTypeAlias) =
+        contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+            t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
+                +contentBuilder.contentFor(
+                    t,
+                    ContentKind.Symbol,
+                    setOf(TextStyle.Monospace),
+                    platformData = platforms.toSet()
+                ) {
+                    platformText(t.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+                    text("typealias ")
+                    signatureForProjection(t.type)
+                    text(" = ")
+                    signatureForProjection(type)
+                }
+            }
+        }
 
     private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
         link(t.name, t.dri)
@@ -120,37 +152,38 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
     }
 
-    private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is OtherParameter -> text(p.name)
+    private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit =
+        when (p) {
+            is OtherParameter -> text(p.name)
 
-        is TypeConstructor -> if (p.function)
-            +funType(this.mainDRI, this.mainPlatformData, p)
-        else
-            group {
-                link(p.dri.classNames.orEmpty(), p.dri)
-                list(p.projections, prefix = "<", suffix = ">") {
-                    signatureForProjection(it)
+            is TypeConstructor -> if (p.function)
+                +funType(this.mainDRI, this.mainPlatformData, p)
+            else
+                group {
+                    link(p.dri.classNames.orEmpty(), p.dri)
+                    list(p.projections, prefix = "<", suffix = ">") {
+                        signatureForProjection(it)
+                    }
                 }
+
+            is Variance -> group {
+                text(p.kind.toString() + " ")
+                signatureForProjection(p.inner)
             }
 
-        is Variance -> group {
-            text(p.kind.toString() + " ")
-            signatureForProjection(p.inner)
+            is Star -> text("*")
+
+            is Nullable -> group {
+                signatureForProjection(p.inner)
+                text("?")
+            }
+
+            is JavaObject -> link("Any", DriOfAny)
+            is Void -> link("Unit", DriOfUnit)
+            is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
         }
 
-        is Star -> text("*")
-
-        is Nullable -> group {
-            signatureForProjection(p.inner)
-            text("?")
-        }
-
-        is JavaObject -> link("Any", DriOfAny)
-        is Void -> link("Unit", DriOfUnit)
-        is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
-    }
-
-    fun funType(dri: DRI, platformData: Set<PlatformData>, type: TypeConstructor) =
+    private fun funType(dri: DRI, platformData: Set<PlatformData>, type: TypeConstructor) =
         contentBuilder.contentFor(dri, platformData, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
             if (type.extension) {
                 signatureForProjection(type.projections.first())

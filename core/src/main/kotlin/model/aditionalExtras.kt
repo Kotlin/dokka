@@ -28,8 +28,8 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
     override val key: ExtraProperty.Key<Documentable, *> = Annotations
 
     data class Annotation(val dri: DRI, val params: Map<String, String>) {
-        override fun equals(other: Any?): Boolean = when(other) {
-            is Annotation -> dri.equals(other.dri)
+        override fun equals(other: Any?): Boolean = when (other) {
+            is Annotation -> dri == other.dri
             else -> false
         }
 
@@ -37,6 +37,18 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
     }
 }
 
-object PrimaryConstructorExtra: ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
+object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
     override val key: ExtraProperty.Key<DFunction, *> = this
+}
+
+data class ActualTypealias(val underlyingType: PlatformDependent<Bound>) : ExtraProperty<DClasslike> {
+    companion object : ExtraProperty.Key<DClasslike, ActualTypealias> {
+        override fun mergeStrategyFor(
+            left: ActualTypealias,
+            right: ActualTypealias
+        ) =
+            MergeStrategy.Replace(ActualTypealias(PlatformDependent(left.underlyingType + right.underlyingType)))
+    }
+
+    override val key: ExtraProperty.Key<DClasslike, ActualTypealias> = ActualTypealias
 }

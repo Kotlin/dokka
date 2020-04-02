@@ -1,10 +1,6 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.DPackage
-import org.jetbrains.dokka.model.DAnnotation
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -16,7 +12,8 @@ internal object DefaultDocumentableMerger : DocumentableMerger {
     override fun invoke(modules: Collection<DModule>, context: DokkaContext): DModule {
 
         val projectName =
-            modules.fold(modules.first().name) { acc, module -> acc.commonPrefixWith(module.name) }.takeIf { it.isNotEmpty() }
+            modules.fold(modules.first().name) { acc, module -> acc.commonPrefixWith(module.name) }
+                .takeIf { it.isNotEmpty() }
                 ?: "project"
 
         return modules.reduce { left, right ->
@@ -111,6 +108,7 @@ fun DPackage.mergeWith(other: DPackage): DPackage = copy(
     properties = mergeExpectActual(properties + other.properties, DProperty::mergeWith) { copy(platformData = it) },
     classlikes = mergeExpectActual(classlikes + other.classlikes, DClasslike::mergeWith, DClasslike::setPlatformData),
     documentation = documentation.mergeWith(other.documentation),
+    typealiases = merge(typealiases + other.typealiases, DTypeAlias::mergeWith),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
 
@@ -242,5 +240,12 @@ fun DParameter.mergeWith(other: DParameter): DParameter = copy(
 
 fun DTypeParameter.mergeWith(other: DTypeParameter): DTypeParameter = copy(
     documentation = documentation.mergeWith(other.documentation),
+    platformData = (platformData + other.platformData).distinct()
+).mergeExtras(this, other)
+
+fun DTypeAlias.mergeWith(other: DTypeAlias): DTypeAlias = copy(
+    documentation = documentation.mergeWith(other.documentation),
+    underlyingType = underlyingType.mergeWith(other.underlyingType),
+    visibility = visibility.mergeWith(other.visibility),
     platformData = (platformData + other.platformData).distinct()
 ).mergeExtras(this, other)
