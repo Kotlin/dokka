@@ -8,10 +8,6 @@ import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object RootCreator : PageTransformer {
-    override fun invoke(input: RootPageNode) =
-        RendererSpecificRootPage("", listOf(input), RenderingStrategy.DoNothing)
-}
 
 object SearchPageInstaller : PageTransformer {
     override fun invoke(input: RootPageNode) = input.modified(children = input.children + searchPage)
@@ -37,19 +33,22 @@ object SearchPageInstaller : PageTransformer {
 object NavigationPageInstaller : PageTransformer {
     override fun invoke(input: RootPageNode) = input.modified(
         children = input.children + NavigationPage(
-            input.children.filterIsInstance<ContentPage>().single().let(::visit)
+            input.children.filterIsInstance<ContentPage>().single()
+                .let(NavigationPageInstaller::visit)
         )
     )
 
-    private fun visit(page: ContentPage): NavigationNode = NavigationNode(
-        page.name,
-        page.dri.first(),
-        page.platforms(),
-        if (page !is ClasslikePageNode)
-            page.children.filterIsInstance<ContentPage>().map { visit(it) }
-        else
-            emptyList()
-    )
+    private fun visit(page: ContentPage): NavigationNode =
+        NavigationNode(
+            page.name,
+            page.dri.first(),
+            page.platforms(),
+            if (page !is ClasslikePageNode)
+                page.children.filterIsInstance<ContentPage>()
+                    .map { visit(it) }
+            else
+                emptyList()
+        )
 }
 
 object ResourceInstaller : PageTransformer {

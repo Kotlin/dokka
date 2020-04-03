@@ -114,30 +114,11 @@ abstract class DefaultRenderer<T>(
         root.children.forEach { renderPages(it) }
     }
 
-    // reimplement this as preprocessor
-    open fun renderPackageList(root: ContentPage) =
-        getPackageNamesAndPlatforms(root)
-            .keys
-            .joinToString("\n")
-            .also { outputWriter.write("${root.name}/package-list", it, "") }
-
-    open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
-        root.children
-            .map(::getPackageNamesAndPlatforms)
-            .fold(emptyMap<String, List<PlatformData>>()) { e, acc -> acc + e } +
-                if (root is PackagePageNode) {
-                    mapOf(root.name to root.platforms())
-                } else {
-                    emptyMap()
-                }
-
     override fun render(root: RootPageNode) {
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
             context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
-
-        root.children<ModulePageNode>().forEach { renderPackageList(it) }
 
         renderPages(newRoot)
     }

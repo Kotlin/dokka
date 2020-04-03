@@ -69,7 +69,7 @@ val DRI.parent: DRI
         genericTarget != null -> copy(genericTarget = null)
         target != null -> copy(target = null)
         callable != null -> copy(callable = null)
-        classNames != null -> copy(classNames = classNames.substringBeforeLast('.').takeIf { it.isNotBlank() })
+        classNames != null -> copy(classNames = classNames.substringBeforeLast(".", "").takeIf { it.isNotBlank() })
         else -> DRI.topLevel
     }
 

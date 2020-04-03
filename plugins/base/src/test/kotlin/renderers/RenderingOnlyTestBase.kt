@@ -2,7 +2,7 @@ package renderers
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.renderers.html.RootCreator
+import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory

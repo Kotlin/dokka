@@ -1,0 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location://availableSince1.1/#//root/<jvm root>/available-since1.1.html
+<jvm root>
+
