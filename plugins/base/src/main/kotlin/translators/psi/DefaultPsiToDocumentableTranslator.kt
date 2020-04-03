@@ -44,6 +44,7 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
                     psiFiles.flatMap { psFile ->
                         psFile.classes.map { docParser.parseClasslike(it, dri) }
                     },
+                    emptyList(),
                     PlatformDependent.empty(),
                     listOf(platformData)
                 )

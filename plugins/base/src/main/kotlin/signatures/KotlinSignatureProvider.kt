@@ -27,6 +27,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         is DClasslike -> signature(documentable)
         is DTypeParameter -> signature(documentable)
         is DEnumEntry -> signature(documentable)
+        is DTypeAlias -> signature(documentable)
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
@@ -103,6 +104,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         this.type is TypeConstructor && (this.type as TypeConstructor).dri == DriOfUnit -> false
         this.type is Void -> false
         else -> true
+    }
+
+    private fun signature(t: DTypeAlias) = contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+        text("typealias ")
+        signatureForProjection(t.type)
+        text(" = ")
+        signatureForProjection(t.underlyingType)
     }
 
     private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {

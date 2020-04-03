@@ -140,6 +140,7 @@ data class DPackage(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    val typealiases: List<DTypeAlias>,
     override val documentation: PlatformDependent<DocumentationNode>,
     override val platformData: List<PlatformData>,
     override val extra: PropertyContainer<DPackage> = PropertyContainer.empty()
@@ -342,6 +343,21 @@ data class DTypeParameter(
         get() = emptyList()
 
     override fun withNewExtras(newExtras: PropertyContainer<DTypeParameter>) = copy(extra = newExtras)
+}
+
+data class DTypeAlias(
+    override val dri: DRI,
+    override val name: String,
+    override val type: Bound,
+    val underlyingType: Bound,
+    override val documentation: PlatformDependent<DocumentationNode>,
+    override val platformData: List<PlatformData>,
+    override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
+) : Documentable(), WithType, WithExtraProperties<DTypeAlias> {
+    override val children: List<Nothing>
+        get() = emptyList()
+
+    override fun withNewExtras(newExtras: PropertyContainer<DTypeAlias>) = copy(extra = newExtras)
 }
 
 sealed class Projection
