@@ -1,10 +1,8 @@
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.base.renderers.FileWriter
-import org.jetbrains.dokka.base.renderers.OutputWriter
+import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.resolvers.external.*
@@ -153,5 +151,15 @@ class DokkaBase : DokkaPlugin() {
 
     val styleAndScriptsAppender by extending {
         htmlPreprocessors with StyleAndScriptsAppender order { after(rootCreator) }
+    }
+
+    val packageListCreator by extending {
+        htmlPreprocessors providing {
+            PackageListCreator(
+                it,
+                "html",
+                "html"
+            )
+        } order { after(rootCreator) }
     }
 }

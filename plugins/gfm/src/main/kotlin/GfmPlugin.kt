@@ -3,16 +3,22 @@ package org.jetbrains.dokka.gfm
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.OutputWriter
+import org.jetbrains.dokka.base.renderers.PackageListCreator
+import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 import java.lang.StringBuilder
 
 
 class GfmPlugin : DokkaPlugin() {
+
+    val gfmPreprocessors by extensionPoint<PageTransformer>()
 
     val renderer by extending {
         CoreExtensions.renderer providing { CommonmarkRenderer(it) } applyIf { format == "gfm" }
@@ -21,11 +27,28 @@ class GfmPlugin : DokkaPlugin() {
     val locationProvider by extending {
         plugin<DokkaBase>().locationProviderFactory providing { MarkdownLocationProviderFactory(it) } applyIf { format == "gfm" }
     }
+
+    val rootCreator by extending {
+        gfmPreprocessors with RootCreator
+    }
+
+    val packageListCreator by extending {
+        gfmPreprocessors providing {
+            PackageListCreator(
+                it,
+                "gfm",
+                "md"
+            )
+        } order { after(rootCreator) }
+    }
 }
 
 open class CommonmarkRenderer(
     context: DokkaContext
 ) : DefaultRenderer<StringBuilder>(context) {
+
+    override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
+
     override fun StringBuilder.buildHeader(level: Int, content: StringBuilder.() -> Unit) {
         buildParagraph()
         append("#".repeat(level) + " ")
