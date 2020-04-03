@@ -67,6 +67,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                             functions,
                             properties,
                             classlikes,
+                            it.typealiases,
                             it.documentation,
                             it.platformData,
                             it.extra

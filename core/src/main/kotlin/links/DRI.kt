@@ -33,7 +33,9 @@ data class DRI(
             val params = callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
             DRI(
                 firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString(),
-                filterIsInstance<ClassDescriptor>().toList().takeIf { it.isNotEmpty() }?.asReversed()
+                (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
+                    .takeIf { it.isNotEmpty() }
+                    ?.asReversed()
                     ?.joinToString(separator = ".") { it.name.asString() },
                 callable?.let { Callable.from(it) },
                 firstIsInstanceOrNull<ParameterDescriptor>()?.let { params.indexOf(it) },
