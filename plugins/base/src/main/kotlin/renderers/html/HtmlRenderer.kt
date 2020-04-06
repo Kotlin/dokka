@@ -60,20 +60,33 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
-        val distinct = content.platforms.map {
-            it to createHTML(prettyPrint = false).div {
-                buildContentNode(content.inner, pageContext, it)
-            }.drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
-        }.groupBy(Pair<PlatformData, String>::second, Pair<PlatformData, String>::first)
-
-        if (distinct.size == 1)
-            consumer.onTagContentUnsafe { +distinct.keys.single() }
-        else
-            distinct.forEach { text, platforms ->
-                consumer.onTagContentUnsafe {
-                    +platforms.joinToString(prefix = " [", postfix = "] $text") { it.platformType.key }
+        div("platform-hinted") {
+            attributes["data-platform-hinted"] = "data-platform-hinted"
+            val contents = content.platforms.mapIndexed { index,platform ->
+                platform to createHTML(prettyPrint = false).div(classes = "content") {
+                    if (index == 0) attributes["data-active"] = ""
+                    attributes["data-togglable"] = platform.targets.joinToString("-")
+                    buildContentNode(content.inner, pageContext, platform)
                 }
             }
+
+            if(contents.size != 1) {
+                div("platform-bookmarks-row") {
+                    attributes["data-toggle-list"] = "data-toggle-list"
+                    contents.forEachIndexed { index,pair ->
+                        button(classes = "platform-bookmark") {
+                            if (index == 0) attributes["data-active"] = ""
+                            attributes["data-toggle"] = pair.first.targets.joinToString("-")
+                            text(pair.first.targets.joinToString(", "));
+                        }
+                    }
+                }
+            }
+
+            contents.forEach {
+                consumer.onTagContentUnsafe { +it.second }
+            }
+        }
     }
 
     override fun FlowContent.buildList(

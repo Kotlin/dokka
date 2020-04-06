@@ -1,4 +1,4 @@
-onload = () => {
+window.addEventListener('load', () => {
     fetch(pathToRoot + "navigation.html")
         .then(response => response.text())
         .then(data => {
@@ -15,7 +15,7 @@ onload = () => {
     }).then(() => {
         revealNavigationForCurrentPage()
     })
-};
+})
 
 revealNavigationForCurrentPage = () => {
     let pageId = document.getElementById("content").attributes["pageIds"].value.toString();
