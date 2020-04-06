@@ -487,6 +487,56 @@ td.content {
     color: #5B5DEF;
 }
 
+.platform-hinted {
+    display: block;
+}
+
+.platform-hinted > .platform-bookmarks-row {
+    display: flex;
+    flex-direction: row;
+    padding: 0px;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark {
+    min-width: 64px;
+    height: 36px;
+    border: 2px solid white;
+    background: white;
+    outline: none;
+    flex: none;
+    order: 5;
+    align-self: flex-start;
+    margin: 0;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(1):hover {
+    border-top: 2px solid gray;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(2):hover {
+    border-top: 2px solid orange;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(3):hover {
+    border-top: 2px solid crimson;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(4):hover {
+    border-top: 2px solid blue;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
+    border: 2px solid #F4F4F4;
+    border-top: 2px solid #4DBB5F;
+
+    background: #F4F4F4;
+}
+
+.platform-hinted > .content:not([data-active]) {
+    display: none
+}
+
+
 @media print, screen and (max-width: 960px) {
 
     div.wrapper {
