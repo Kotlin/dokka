@@ -42,7 +42,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
             .map { (k, v) ->
                 k to v.flatMap { p -> p.groupBy({ it.first }) { it.second }.toList() }
                     .groupBy({ it.first }) { it.second }.map { (k2, v2) -> k2 to v2.flatten() }.toMap()
-            }.toMap()
+            }.filter{ it.second.values.isEmpty() }.toMap()
 
     private fun <T : Documentable> T.getInheritanceEntriesRec(): List<Pair<PlatformData, List<Pair<DRI, DRI>>>> =
         this.toInheritanceEntries() + children.flatMap { it.getInheritanceEntriesRec() }

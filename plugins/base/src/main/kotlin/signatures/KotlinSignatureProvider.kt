@@ -55,9 +55,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun regularSignature(c: DClasslike, platformData: Set<PlatformData> = c.platformData.toSet()) =
         contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
-            platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            platformText(c.visibility, platformData) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             if (c is DClass) {
-                platformText(c.modifier) {
+                platformText(c.modifier, platformData) {
                     if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true && it.name == "final") "data "
                     else it.name + " "
                 }
@@ -71,16 +71,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
             link(c.name!!, c.dri)
             if (c is DClass) {
-                val pConstructor = c.constructors.singleOrNull() { it.extra[PrimaryConstructorExtra] != null }
+                val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
                 list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.platformData.orEmpty().toSet()) {
-                    breakLine()
                     text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold).plus(TextStyle.Indented))
                     text(": ")
                     signatureForProjection(it.type)
                 }
             }
             if (c is WithSupertypes) {
-                c.supertypes.map { (p, dris) ->
+                c.supertypes.filter { it.key in platformData }.map { (p, dris) ->
                     list(dris, prefix = " : ", platformData = setOf(p)) {
                         link(it.sureClassNames, it, platformData = setOf(p))
                     }
@@ -128,7 +127,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun signature(t: DTypeAlias) =
-        contentBuilder.contentFor(t, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+        contentBuilder.contentFor(t) {
             t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
                 +contentBuilder.contentFor(
                     t,

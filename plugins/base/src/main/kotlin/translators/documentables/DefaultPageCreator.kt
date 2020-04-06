@@ -1,13 +1,11 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.base.signatures.SignatureProvider
-import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.reflect.KClass
@@ -38,7 +36,7 @@ open class DefaultPageCreator(
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
         ClasslikePageNode(
-            e.name.orEmpty(), contentForEnumEntry(e), setOf(e.dri), e,
+            e.name, contentForEnumEntry(e), setOf(e.dri), e,
             e.classlikes.map(::pageForClasslike) +
                     e.filteredFunctions.map(::pageForFunction)
         )
@@ -63,7 +61,9 @@ open class DefaultPageCreator(
         get() = functions.filter { it.extra[InheritedFunction]?.isInherited != true }
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        header(1) { text(m.name) }
+        group(kind = ContentKind.Cover) {
+            header(1) { text(m.name) }
+        }
         +contentForComments(m)
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
             link(it.name, it.dri)
@@ -73,7 +73,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
-        group(p.dri, p.platformData.toSet(), ContentKind.Packages) {
+        group(kind = ContentKind.Cover) {
             header(1) { text("Package ${p.name}") }
         }
         +contentForComments(p)
@@ -124,40 +124,49 @@ open class DefaultPageCreator(
                 platformDependentHint(it.dri, it.platformData.toSet()) {
                     +buildSignature(it)
                 }
-                breakLine()
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
             }
         }
-        (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-            val map = inheritors.value.map
-            text("Subclasses:")
-            platformDependentHint(dri = s.dri, platformData = map.keys) {
-                map.keys.forEach { pd ->
-                    linkTable(map[pd].orEmpty(), ContentKind.Classlikes, setOf(pd))
-                }
-            }
-        }
+        // TODO: Fix this after fixing InheritorsExtractorTransformer
+//        (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
+//            val map = inheritors.value.map
+//            if (map.values.any()) {
+//                header(2) { text("Subtypes") }
+//                +ContentTable(
+//                    emptyList(),
+//                        map.entries.groupBy({ it.value }, { it.key }).map { (types, platforms) ->
+//                            buildGroup(dri, platforms.toSet(), ContentKind.Subtypes) {
+//                            types.map {
+//                                link(it.toString(), it)
+//                                }
+//                            }
+//                        },
+//                    DCI(setOf(dri), ContentKind.Subtypes),
+//                    platformData.toSet(),
+//                    style = emptySet()
+//                )
+//            }
+//        }
     }
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
-        header(1) { text(e.name.orEmpty()) }
-        +buildSignature(e)
-
+        group(kind = ContentKind.Cover) {
+            header(1) { text(e.name) }
+            +buildSignature(e)
+        }
         +contentForComments(e)
-
         +contentForScope(e, e.dri, e.platformData)
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
-        group(c.dri, c.platformData.toSet(), ContentKind.Classlikes) {
+        group(kind = ContentKind.Cover) {
             header(1) { text(c.name.orEmpty()) }
             platformDependentHint(c.dri, c.platformData.toSet()) {
                 +buildSignature(c)
             }
         }
-        breakLine()
         +contentForComments(c)
 
         if (c is WithConstructors) {
@@ -224,7 +233,6 @@ open class DefaultPageCreator(
                     description.getOrExpect(platform)?.also {
                         group(platformData = setOf(platform)) {
                             comment(it.root)
-                            breakLine()
                         }
                     }
                 }
@@ -263,7 +271,7 @@ open class DefaultPageCreator(
 
         fun DocumentableContentBuilder.contentForSeeAlso() {
             val seeAlsoTags = tags.withTypeNamed<See>()
-            if(seeAlsoTags.isNotEmpty()) {
+            if (seeAlsoTags.isNotEmpty()) {
                 header(4, kind = ContentKind.Comment) { text("See also") }
                 table(kind = ContentKind.Comment) {
                     platforms.flatMap { platform ->
@@ -311,7 +319,7 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
-        group(f.dri, f.platformData.toSet(), ContentKind.Functions) {
+        group(kind = ContentKind.Cover) {
             header(1) { text(f.name) }
             platformDependentHint(f.dri, f.platformData.toSet()) {
                 +buildSignature(f)
@@ -321,8 +329,10 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForTypeAlias(t: DTypeAlias) = contentBuilder.contentFor(t) {
-        header(1) { text(t.name) }
-        +buildSignature(t)
+        group(kind = ContentKind.Cover) {
+            header(1) { text(t.name) }
+            +buildSignature(t)
+        }
         +contentForComments(t)
     }
 
