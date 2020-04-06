@@ -39,7 +39,7 @@ open class PageContentBuilder(
     ): ContentGroup =
         DocumentableContentBuilder(d.dri, platformData, styles, extra)
             .apply(block)
-            .build(d.platformData.toSet(), kind, styles, extra)
+            .build(platformData, kind, styles, extra)
 
     @ContentBuilderMarker
     open inner class DocumentableContentBuilder(
@@ -123,12 +123,12 @@ open class PageContentBuilder(
             extra: PropertyContainer<ContentNode> = mainExtra,
             operation: DocumentableContentBuilder.() -> List<ContentGroup>
         ) {
-                contents += ContentTable(
-                    emptyList(),
-                    operation(),
-                    DCI(setOf(mainDRI), kind),
-                    platformData, styles, extra
-                )
+            contents += ContentTable(
+                emptyList(),
+                operation(),
+                DCI(setOf(mainDRI), kind),
+                platformData, styles, extra
+            )
         }
 
         fun <T : Documentable> block(
@@ -148,7 +148,6 @@ open class PageContentBuilder(
                     emptyList(),
                     elements.map {
                         buildGroup(it.dri, it.platformData.toSet(), kind, styles, extra) {
-                            // TODO this will fail
                             operation(it)
                         }
                     },
@@ -244,10 +243,6 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ): ContentGroup = contentFor(dri, platformData, kind, styles, extra, block)
 
-        fun breakLine(platformData: Set<PlatformData> = mainPlatformData) {
-            contents += ContentBreakLine(platformData)
-        }
-
         fun platformDependentHint(
             dri: DRI = mainDRI,
             platformData: Set<PlatformData> = mainPlatformData,
@@ -273,8 +268,9 @@ open class PageContentBuilder(
 
         fun <T> platformText(
             value: PlatformDependent<T>,
+            platforms: Set<PlatformData> = value.keys,
             transform: (T) -> String
-        ) = value.entries.forEach { (p, v) ->
+        ) = value.entries.filter { it.key in platforms }.forEach { (p, v) ->
             transform(v).takeIf { it.isNotBlank() }?.also { text(it, platformData = setOf(p)) }
         }
     }

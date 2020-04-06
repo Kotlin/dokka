@@ -25,6 +25,7 @@ data class ContentText(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
 }
 
+// TODO: Remove
 data class ContentBreakLine(
     override val platforms: Set<PlatformData>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
@@ -170,7 +171,7 @@ interface Kind
 enum class ContentKind : Kind {
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases;
+    Empty, Source, TypeAliases, Cover, Subtypes;
 
     companion object {
         private val platformTagged =

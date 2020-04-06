@@ -29,9 +29,13 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
-            ContentKind.shouldBePlatformTagged(node.dci.kind) -> wrapPlatformTagged(node, pageContext) { childrenCallback() }
+            ContentKind.shouldBePlatformTagged(node.dci.kind) -> wrapPlatformTagged(
+                node,
+                pageContext
+            ) { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
+            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { childrenCallback() }
             node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
@@ -43,13 +47,13 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) {
-        div("platform-tagged"){
+        div("platform-tagged") {
             node.platforms.forEach {
-                div("platform-tag ${it.platformType.name}"){
+                div("platform-tag ${it.platformType.name}") {
                     text(it.platformType.key.toUpperCase())
                 }
             }
-            div("content"){
+            div("content") {
                 childrenCallback()
             }
         }
@@ -176,7 +180,7 @@ open class HtmlRenderer(
                 }
             }
             tbody {
-                if(ContentKind.shouldBePlatformTagged(node.dci.kind)) {
+                if (ContentKind.shouldBePlatformTagged(node.dci.kind)) {
                     buildPlatformTaggedRow(node, pageContext, platformRestriction)
                 } else {
                     buildRow(node, pageContext, platformRestriction)
@@ -198,10 +202,12 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildNavigation(page: PageNode) =
-        locationProvider.ancestors(page).asReversed().forEach { node ->
-            text("/")
-            if (node.isNavigable) buildLink(node, page)
-            else text(node.name)
+        div(classes = "breadcrumbs") {
+            locationProvider.ancestors(page).asReversed().forEach { node ->
+                text("/")
+                if (node.isNavigable) buildLink(node, page)
+                else text(node.name)
+            }
         }
 
     private fun FlowContent.buildLink(to: PageNode, from: PageNode) =
@@ -257,7 +263,7 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildText(textNode: ContentText) {
-        when{
+        when {
             textNode.style.contains(TextStyle.Indented) -> consumer.onTagContentEntity(Entities.nbsp)
         }
         text(textNode.text)
