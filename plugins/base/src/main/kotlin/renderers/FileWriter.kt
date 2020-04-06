@@ -11,7 +11,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
     private val jarUriPrefix = "jar:file:"
     private val root = context.configuration.outputDir
 
-    override fun write(path: String, text: String, ext: String) {
+    override suspend fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {
             context.logger.error("An attempt to write ${root}/$path several times!")
             return
@@ -28,7 +28,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
         }
     }
 
-    override fun writeResources(pathFrom: String, pathTo: String) =
+    override suspend fun writeResources(pathFrom: String, pathTo: String) =
         if (javaClass.getResource(pathFrom).toURI().toString().startsWith(jarUriPrefix)) {
             copyFromJar(pathFrom, pathTo)
         } else {
