@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.gfm
 
+import kotlinx.coroutines.*
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
@@ -108,7 +109,7 @@ open class CommonmarkRenderer(
 
     override fun StringBuilder.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
         val distinct = content.platforms.map {
-            it to "${StringBuilder().apply {buildContentNode(content.inner, pageContext, it) }.toString()}"
+            it to StringBuilder().apply {buildContentNode(content.inner, pageContext, it) }.toString()
         }.groupBy(Pair<PlatformData, String>::second, Pair<PlatformData, String>::first)
 
         if (distinct.size == 1)
@@ -200,14 +201,14 @@ open class CommonmarkRenderer(
             append(to.name)
         }
 
-    override fun renderPage(page: PageNode) {
+    override suspend fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".md")
+            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> runBlocking { buildPageContent(c, p) } }, ".md")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".md")
+                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this@CommonmarkRenderer, page), ".md")
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(

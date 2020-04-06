@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.base.renderers
 
+import com.sun.jna.platform.win32.COM.Dispatch
+import kotlinx.coroutines.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.pages.*
@@ -22,10 +24,20 @@ abstract class DefaultRenderer<T>(
 
     abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)
-    abstract fun T.buildList(node: ContentList, pageContext: ContentPage, platformRestriction: PlatformData? = null)
+    abstract fun T.buildList(
+        node: ContentList,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    )
+
     abstract fun T.buildNewLine()
     abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
-    abstract fun T.buildTable(node: ContentTable, pageContext: ContentPage, platformRestriction: PlatformData? = null)
+    abstract fun T.buildTable(
+        node: ContentTable,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    )
+
     abstract fun T.buildText(textNode: ContentText)
     abstract fun T.buildNavigation(page: PageNode)
 
@@ -35,7 +47,11 @@ abstract class DefaultRenderer<T>(
     open fun T.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
         buildContentNode(content.inner, pageContext)
 
-    open fun T.buildGroup(node: ContentGroup, pageContext: ContentPage, platformRestriction: PlatformData? = null) =
+    open fun T.buildGroup(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    ) =
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
 
     open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
@@ -53,11 +69,19 @@ abstract class DefaultRenderer<T>(
         code.forEach { it.build(this, pageContext) }
     }
 
-    open fun T.buildHeader(node: ContentHeader, pageContext: ContentPage, platformRestriction: PlatformData? = null) {
+    open fun T.buildHeader(
+        node: ContentHeader,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    ) {
         buildHeader(node.level) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
     }
 
-    open fun ContentNode.build(builder: T, pageContext: ContentPage, platformRestriction: PlatformData? = null) =
+    open fun ContentNode.build(
+        builder: T,
+        pageContext: ContentPage,
+        platformRestriction: PlatformData? = null
+    ) =
         builder.buildContentNode(this, pageContext, platformRestriction)
 
     open fun T.buildContentNode(
@@ -93,14 +117,14 @@ abstract class DefaultRenderer<T>(
         page.content.build(context, page)
     }
 
-    open fun renderPage(page: PageNode) {
+    open suspend fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
-            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
+            is ContentPage -> outputWriter.write(path, runBlocking { buildPage(page) { c, p -> buildPageContent(c, p) } }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
+                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this@DefaultRenderer, page), ".html")
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(
@@ -109,12 +133,33 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    open fun renderPages(root: PageNode) {
-        renderPage(root)
-        root.children.forEach { renderPages(it) }
+    private suspend fun CoroutineScope.renderPages(root: PageNode) {
+        coroutineScope {
+            launch(Dispatchers.IO) { renderPage(root) }.join()
+            root.children.forEach {
+                renderPages(it)
+            }
+        }
     }
 
-    override fun render(root: RootPageNode) {
+    // reimplement this as preprocessor
+    open suspend fun renderPackageList(root: ContentPage) =
+        getPackageNamesAndPlatforms(root)
+            .keys
+            .joinToString("\n")
+            .also { outputWriter.write("${root.name}/package-list", it, "") }
+
+    open suspend fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
+        root.children
+            .map { getPackageNamesAndPlatforms(it) }
+            .fold(emptyMap<String, List<PlatformData>>()) { e, acc -> acc + e } +
+                if (root is PackagePageNode) {
+                    mapOf(root.name to root.platforms())
+                } else {
+                    emptyMap()
+                }
+
+    protected fun renderImpl(coroutineScope: CoroutineScope, root: RootPageNode): Job = coroutineScope.launch(Dispatchers.Default) {
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
@@ -122,6 +167,8 @@ abstract class DefaultRenderer<T>(
 
         renderPages(newRoot)
     }
+
+    override fun CoroutineScope.render(root: RootPageNode) = renderImpl(this, root)
 }
 
 fun ContentPage.platforms() = this.content.platforms.toList()

@@ -1,5 +1,9 @@
 package org.jetbrains.dokka.base.renderers.html
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.DokkaBase
@@ -264,7 +268,7 @@ open class HtmlRenderer(
         }
     }
 
-    override fun renderPage(page: PageNode) {
+    override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
         if (page is ContentPage) {
             pageList.add(
@@ -282,9 +286,11 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
-    override fun render(root: RootPageNode) {
-        super.render(root)
-        outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+    override fun CoroutineScope.render(root: RootPageNode): Job {
+        super.renderImpl(this, root)
+        return launch(Dispatchers.IO) {
+            outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+        }
     }
 
     private fun PageNode.root(path: String) = locationProvider.resolveRoot(this) + path

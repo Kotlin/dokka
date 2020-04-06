@@ -16,12 +16,12 @@ class TestOutputWriter(private val failOnOverwrite: Boolean = true): OutputWrite
 
     private val _contents = mutableMapOf<String, String>()
 
-    override fun write(path: String, text: String, ext: String) {
+    override suspend fun write(path: String, text: String, ext: String) {
         val fullPath = "$path$ext"
         _contents.putIfAbsent(fullPath, text)?.also {
             if (failOnOverwrite) throw AssertionError("File $fullPath is being overwritten.")
         }
     }
 
-    override fun writeResources(pathFrom: String, pathTo: String) = write(pathTo, "*** content of $pathFrom ***", "")
+    override suspend fun writeResources(pathFrom: String, pathTo: String) = write(pathTo, "*** content of $pathFrom ***", "")
 }
