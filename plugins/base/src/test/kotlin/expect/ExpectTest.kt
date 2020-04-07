@@ -7,7 +7,8 @@ class ExpectTest : AbstractExpectTest() {
     private val ignores: List<String> = listOf(
         "*.js",
         "*.css",
-        "*.svg"
+        "*.svg",
+        "*.map"
     )
 
     @TestFactory
