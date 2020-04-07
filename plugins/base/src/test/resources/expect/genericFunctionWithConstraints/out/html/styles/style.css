@@ -46,13 +46,7 @@
 }
 
 #searchBar {
-    width: 100%;
-    pointer-events: none;
-}
-
-#searchForm {
     float: right;
-    pointer-events: all;
 }
 
 #logo {
