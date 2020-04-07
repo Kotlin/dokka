@@ -12,6 +12,7 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.parsers.factories.DocTagsFromIElementFactory
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -22,7 +23,8 @@ import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
 class MarkdownParser(
     private val resolutionFacade: DokkaResolutionFacade,
-    private val declarationDescriptor: DeclarationDescriptor
+    private val declarationDescriptor: DeclarationDescriptor,
+    private val logger: DokkaLogger
 ) : Parser() {
 
     inner class MarkdownVisitor(val text: String, val destinationLinksMap: Map<String, String>) {
@@ -110,7 +112,7 @@ class MarkdownParser(
                             declarationDescriptor,
                             null,
                             link.split('.')
-                        ).also { if (it.size > 1) throw IllegalStateException("Markdown link resolved more than one element: $it") }
+                        ).also { if (it.size > 1) logger.warn("Markdown link resolved more than one element: $it") }
                             .firstOrNull()//.single()
                             ?.let { DRI.from(it) }
                     }
