@@ -25,9 +25,9 @@ val sourceJar by tasks.registering(Jar::class) {
 }
 
 task("copy_search", Copy::class) {
-    from(File(project(":search-component").projectDir, "dist/"))
+    from(File(project(":core:search-component").projectDir, "dist/"))
     destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
-}.dependsOn(":search-component:generateSearchFiles")
+}.dependsOn(":core:search-component:generateSearchFiles")
 
 tasks {
     processResources {

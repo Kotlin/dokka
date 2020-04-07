@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Select} from '@jetbrains/ring-ui/components/select/select';;
+import Select from '@jetbrains/ring-ui/components/select/select';
 import '@jetbrains/ring-ui/components/input-size/input-size.scss';
 
 class WithFuzzySearchFilterComponent extends Component {
@@ -44,8 +44,7 @@ export const WithFuzzySearchFilter = () => {
       ...page,
       label: page.name,
       key: i + 1,
-      type: page.kind,
-      icon: `${window.pathToRoot}${window.iconsFolderName}${page.kind}.png`
+      type: page.kind
     }));
   }
 
