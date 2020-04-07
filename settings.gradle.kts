@@ -1,6 +1,7 @@
 rootProject.name = "dokka"
 
 include("core")
+include("core:search-component")
 include("coreDependencies")
 include("testApi")
 include("test-tools")
@@ -13,7 +14,6 @@ include("plugins:gfm")
 include("plugins:jekyll")
 include("plugins:kotlin-as-java")
 include("integration-tests:gradle-integration-tests")
-include("search-component")
 
 pluginManagement {
     val kotlin_version: String by settings

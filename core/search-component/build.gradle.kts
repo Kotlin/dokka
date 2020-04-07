@@ -9,7 +9,7 @@ task("generateSearchFiles") {
 tasks {
     "npm_run_build" {
         inputs.dir("$projectDir/src/main/js/search/")
-        inputs.files("$projectDir/package.json", "$projectDir/*.config.js")
+        inputs.files("$projectDir/package.json", "$projectDir/webpack.config.js")
         outputs.dir("$projectDir/dist/")
     }
     clean {
