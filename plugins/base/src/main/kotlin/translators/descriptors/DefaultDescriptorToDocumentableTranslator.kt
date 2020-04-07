@@ -11,6 +11,7 @@ import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
@@ -40,7 +41,7 @@ class DefaultDescriptorToDocumentableTranslator(
         moduleName: String,
         packageFragments: Iterable<PackageFragmentDescriptor>,
         platformData: PlatformData
-    ) = DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade).run {
+    ) = DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade, context.logger).run {
         packageFragments.map {
             visitPackageFragmentDescriptor(
                 it,
@@ -60,7 +61,8 @@ fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, PlatformDependent.empty())
 
 private class DokkaDescriptorVisitor(
     private val platformData: PlatformData,
-    private val resolutionFacade: DokkaResolutionFacade
+    private val resolutionFacade: DokkaResolutionFacade,
+    private val logger: DokkaLogger
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
     override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor, parent: DRIWithPlatformInfo): Nothing {
         throw IllegalStateException("${javaClass.simpleName} should never enter ${descriptor.javaClass.simpleName}")
@@ -514,7 +516,7 @@ private class DokkaDescriptorVisitor(
         toBound().let { if (isMarkedNullable) Nullable(it) else it }
 
     private fun DeclarationDescriptor.getDocumentation() = findKDoc().let {
-        MarkdownParser(resolutionFacade, this).parseFromKDocTag(it)
+        MarkdownParser(resolutionFacade, this, logger).parseFromKDocTag(it)
     }
 
     private fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
