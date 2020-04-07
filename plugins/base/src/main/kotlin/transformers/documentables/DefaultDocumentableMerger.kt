@@ -139,6 +139,7 @@ fun DClasslike.setPlatformData(platformData: List<PlatformData>): DClasslike = w
     is DEnum -> copy(platformData = platformData)
     is DInterface -> copy(platformData = platformData)
     is DObject -> copy(platformData = platformData)
+    is DAnnotation -> copy(platformData = platformData)
     else -> throw IllegalStateException("${this::class.qualifiedName} ${this.name} cannot have platform set")
 }
 

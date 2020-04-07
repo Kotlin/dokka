@@ -49,6 +49,12 @@ class ActualTypealiasAdder : PreMergeDocumentableTransformer {
                 ).let(::listOf),
                 typealiases
             )
+            is DAnnotation -> addActualTypeAlias(
+                it.copy(
+                    classlikes = addActualTypeAliasToClasslikes(it.classlikes, typealiases)
+                ).let(::listOf),
+                typealiases
+            )
             else -> throw IllegalStateException("${it::class.qualifiedName} ${it.name} cannot have extra added")
         } as List<DClasslike>
     }
