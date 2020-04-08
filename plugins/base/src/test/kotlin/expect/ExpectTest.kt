@@ -15,5 +15,4 @@ class ExpectTest : AbstractExpectTest() {
     fun expectTest() = testDir?.dirsWithFormats(formats).orEmpty().map { (p, f) ->
         dynamicTest("${p.fileName}-$f") { testOutputWithExcludes(p, f, ignores) }
     }
-
 }
