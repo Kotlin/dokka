@@ -55,7 +55,8 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
                     doc?.get("Module")?.get(module.name)?.run {
                         pd to MarkdownParser(
                             facade,
-                            facade.moduleDescriptor
+                            facade.moduleDescriptor,
+                            context.logger
                         ).parse(this)
                     }
                 }.toMap()
@@ -70,7 +71,8 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
                     doc?.get("Package")?.get(it.name)?.run {
                         pd to MarkdownParser(
                             facade,
-                            descriptor
+                            descriptor,
+                            context.logger
                         ).parse(this)
                     }
                 }.toMap()
