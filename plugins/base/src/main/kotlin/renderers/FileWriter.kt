@@ -1,5 +1,7 @@
 package org.jetbrains.dokka.base.renderers
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.io.File
 import java.io.IOException
@@ -20,8 +22,10 @@ class FileWriter(val context: DokkaContext): OutputWriter {
 
         try {
             val dir = Paths.get(root, path.dropLastWhile { it != '/' }).toFile()
-            dir.mkdirsOrFail()
-            Files.write(Paths.get(root, "$path$ext"), text.lines())
+            withContext(Dispatchers.IO) {
+                dir.mkdirsOrFail()
+                Files.write(Paths.get(root, "$path$ext"), text.lines())
+            }
         } catch (e: Throwable) {
             context.logger.error("Failed to write $this. ${e.message}")
             e.printStackTrace()
@@ -36,13 +40,15 @@ class FileWriter(val context: DokkaContext): OutputWriter {
         }
 
 
-    private fun copyFromDirectory(pathFrom: String, pathTo: String) {
+    private suspend fun copyFromDirectory(pathFrom: String, pathTo: String) {
         val dest = Paths.get(root, pathTo).toFile()
         val uri = javaClass.getResource(pathFrom).toURI()
-        File(uri).copyRecursively(dest, true)
+        withContext(Dispatchers.IO) {
+            File(uri).copyRecursively(dest, true)
+        }
     }
 
-    private fun copyFromJar(pathFrom: String, pathTo: String) {
+    private suspend fun copyFromJar(pathFrom: String, pathTo: String) {
         val rebase = fun(path: String) =
             "$pathTo/${path.removePrefix(pathFrom)}"
         val dest = Paths.get(root, pathTo).toFile()
@@ -53,12 +59,16 @@ class FileWriter(val context: DokkaContext): OutputWriter {
         for (file in Files.walk(path).iterator()) {
             if (Files.isDirectory(file)) {
                 val dirPath = file.toAbsolutePath().toString()
-                Paths.get(root, rebase(dirPath)).toFile().mkdirsOrFail()
+                withContext(Dispatchers.IO) {
+                    Paths.get(root, rebase(dirPath)).toFile().mkdirsOrFail()
+                }
             } else {
                 val filePath = file.toAbsolutePath().toString()
-                Paths.get(root, rebase(filePath)).toFile().writeBytes(
-                    javaClass.getResourceAsStream(filePath).readBytes()
-                )
+                withContext(Dispatchers.IO) {
+                    Paths.get(root, rebase(filePath)).toFile().writeBytes(
+                        javaClass.getResourceAsStream(filePath).readBytes()
+                    )
+                }
             }
         }
     }

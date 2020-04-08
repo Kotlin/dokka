@@ -1,6 +1,5 @@
 package renderers.html
 
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.PlatformData
@@ -100,12 +99,7 @@ class PlatformDependentHintTest : RenderingOnlyTestBase() {
             }
         }
 
-        runBlocking {
-            val scope = this
-            with(HtmlRenderer(context)) {
-                scope.render(page)
-            }
-        }
+        HtmlRenderer(context).render(page)
         println(renderedContent)
         renderedContent.match(Div(Div("ab")))
     }

@@ -3,10 +3,6 @@ package org.jetbrains.dokka
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
@@ -114,12 +110,7 @@ class DokkaGenerator(
         context: DokkaContext
     ) {
         val renderer = context.single(CoreExtensions.renderer)
-        runBlocking {
-            val scope = this
-            with(renderer) {
-                scope.render(transformedPages).join()
-            }
-        }
+        renderer.render(transformedPages)
     }
 
     private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =

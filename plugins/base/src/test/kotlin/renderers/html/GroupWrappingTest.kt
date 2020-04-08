@@ -1,9 +1,7 @@
 package renderers.html
 
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
-import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import renderers.*
 
@@ -19,12 +17,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
             text("c")
         }
 
-        runBlocking {
-            val scope = this
-            with(HtmlRenderer(context)) {
-                scope.render(page)
-            }
-        }
+        HtmlRenderer(context).render(page)
 
         renderedContent.match("abc")
     }
@@ -39,12 +32,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
             text("c")
         }
 
-        runBlocking {
-            val scope = this
-            with(HtmlRenderer(context)) {
-                scope.render(page)
-            }
-        }
+        HtmlRenderer(context).render(page)
 
         renderedContent.match(P("ab"), "c")
     }
@@ -59,12 +47,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
             text("c")
         }
 
-        runBlocking {
-            val scope = this
-            with(HtmlRenderer(context)) {
-                scope.render(page)
-            }
-        }
+        HtmlRenderer(context).render(page)
 
         renderedContent.match(Div("ab"), "c")
     }
@@ -84,12 +67,7 @@ class GroupWrappingTest: RenderingOnlyTestBase() {
             }
         }
 
-        runBlocking {
-            val scope = this
-            with(HtmlRenderer(context)) {
-                scope.render(page)
-            }
-        }
+        HtmlRenderer(context).render(page)
 
         renderedContent.match(Div("a", Div(Div("bc")), "d"))
     }
