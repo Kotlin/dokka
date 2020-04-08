@@ -25,7 +25,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     abstract fun processBody(psiElement: PsiElement): String
     abstract fun processImports(psiElement: PsiElement): String
 
-    override fun invoke(input: RootPageNode): RootPageNode {
+    final override fun invoke(input: RootPageNode): RootPageNode {
 
         val analysis = setUpAnalysis(context)
 

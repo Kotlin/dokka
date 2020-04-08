@@ -131,7 +131,7 @@ class DokkaBase : DokkaPlugin() {
         htmlPreprocessors with RootCreator
     }
 
-    val defaultSamplesTransformer by extending(isFallback = true) {
+    val defaultSamplesTransformer by extending {
         samplesTransformer providing ::DefaultSamplesTransformer
     }
 
