@@ -28,6 +28,7 @@ import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToP
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
@@ -39,12 +40,12 @@ class DokkaBase : DokkaPlugin() {
     val htmlPreprocessors by extensionPoint<PageTransformer>()
     val samplesTransformer by extensionPoint<SamplesTransformer>()
 
-    val descriptorToDocumentableTranslator by extending(isFallback = true) {
-        CoreExtensions.descriptorToDocumentableTranslator providing ::DefaultDescriptorToDocumentableTranslator
+    val descriptorToDocumentableTranslator by extending {
+        CoreExtensions.sourceToDocumentableTranslator with DefaultDescriptorToDocumentableTranslator
     }
 
-    val psiToDocumentableTranslator by extending(isFallback = true) {
-        CoreExtensions.psiToDocumentableTranslator with DefaultPsiToDocumentableTranslator
+    val psiToDocumentableTranslator by extending {
+        CoreExtensions.sourceToDocumentableTranslator with DefaultPsiToDocumentableTranslator
     }
 
     val documentableMerger by extending(isFallback = true) {

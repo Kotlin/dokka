@@ -10,8 +10,8 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.descriptors.DescriptorToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
@@ -33,23 +33,28 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class DefaultDescriptorToDocumentableTranslator(
-    private val context: DokkaContext
-) : DescriptorToDocumentableTranslator {
-    override fun invoke(
-        moduleName: String,
-        packageFragments: Iterable<PackageFragmentDescriptor>,
-        platformData: PlatformData
-    ) = DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade, context.logger).run {
-        packageFragments.map {
-            visitPackageFragmentDescriptor(
-                it,
-                DRIWithPlatformInfo(DRI.topLevel, PlatformDependent.empty())
-            )
-        }
-    }.let { DModule(moduleName, it, PlatformDependent.empty(), listOf(platformData)) }
+object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
+    override fun invoke(platformData: PlatformData, context: DokkaContext): DModule {
+
+        val (environment, facade) = context.platforms.getValue(platformData)
+        val packageFragments = environment.getSourceFiles().asSequence()
+            .map { it.packageFqName }
+            .distinct()
+            .mapNotNull { facade.resolveSession.getPackageFragment(it) }
+            .toList()
+
+        return DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade, context.logger).run {
+            packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.map {
+                visitPackageFragmentDescriptor(
+                    it,
+                    DRIWithPlatformInfo(DRI.topLevel, PlatformDependent.empty())
+                )
+            }
+        }.let { DModule(platformData.name, it, PlatformDependent.empty(), listOf(platformData)) }
+    }
 }
 
 data class DRIWithPlatformInfo(
