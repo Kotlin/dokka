@@ -7,7 +7,6 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 
 abstract class Documentable {
@@ -423,10 +422,10 @@ interface DocumentableSource {
     val path: String
 }
 
-class DescriptorDocumentableSource(source: DeclarationDescriptor) : DocumentableSource {
-    override val path = source.toSourceElement.containingFile.toString()
+class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : DocumentableSource {
+    override val path = descriptor.toSourceElement.containingFile.toString()
 }
 
-class PsiDocumentableSource(source: PsiNamedElement) : DocumentableSource {
-    override val path = source.containingFile.virtualFile.path
+class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource {
+    override val path = psi.containingFile.virtualFile.path
 }
