@@ -1,9 +1,6 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.DokkaBase
@@ -286,10 +283,12 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
-    override fun CoroutineScope.render(root: RootPageNode): Job {
-        super.renderImpl(this, root)
-        return launch(Dispatchers.IO) {
-            outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+    override fun render(root: RootPageNode) {
+        super.render(root)
+        runBlocking {
+            launch(Dispatchers.IO) {
+                outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+            }
         }
     }
 

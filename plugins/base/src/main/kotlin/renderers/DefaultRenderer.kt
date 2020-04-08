@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.renderers
 
-import com.sun.jna.platform.win32.COM.Dispatch
 import kotlinx.coroutines.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
@@ -120,11 +119,11 @@ abstract class DefaultRenderer<T>(
     open suspend fun renderPage(page: PageNode) {
         val path by lazy { locationProvider.resolve(page, skipExtension = true) }
         when (page) {
-            is ContentPage -> outputWriter.write(path, runBlocking { buildPage(page) { c, p -> buildPageContent(c, p) } }, ".html")
+            is ContentPage -> outputWriter.write(path, buildPage(page) { c, p -> buildPageContent(c, p) }, ".html")
             is RendererSpecificPage -> when (val strategy = page.strategy) {
                 is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, path)
                 is RenderingStrategy.Write -> outputWriter.write(path, strategy.text, "")
-                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this@DefaultRenderer, page), ".html")
+                is RenderingStrategy.Callback -> outputWriter.write(path, strategy.instructions(this, page), ".html")
                 RenderingStrategy.DoNothing -> Unit
             }
             else -> throw AssertionError(
@@ -133,23 +132,28 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    private suspend fun CoroutineScope.renderPages(root: PageNode) {
+    private suspend fun renderPages(root: PageNode) {
         coroutineScope {
-            launch(Dispatchers.IO) { renderPage(root) }.join()
+            renderPage(root)
+
             root.children.forEach {
-                renderPages(it)
+                launch { renderPages(it) }
             }
         }
     }
 
     // reimplement this as preprocessor
-    open suspend fun renderPackageList(root: ContentPage) =
+    open fun renderPackageList(root: ContentPage) =
         getPackageNamesAndPlatforms(root)
             .keys
             .joinToString("\n")
-            .also { outputWriter.write("${root.name}/package-list", it, "") }
+            .also {
+                runBlocking {
+                    outputWriter.write("${root.name}/package-list", it, "")
+                }
+            }
 
-    open suspend fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
+    open fun getPackageNamesAndPlatforms(root: PageNode): Map<String, List<PlatformData>> =
         root.children
             .map { getPackageNamesAndPlatforms(it) }
             .fold(emptyMap<String, List<PlatformData>>()) { e, acc -> acc + e } +
@@ -159,16 +163,16 @@ abstract class DefaultRenderer<T>(
                     emptyMap()
                 }
 
-    protected fun renderImpl(coroutineScope: CoroutineScope, root: RootPageNode): Job = coroutineScope.launch(Dispatchers.Default) {
+    override fun render(root: RootPageNode) {
         val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
 
         locationProvider =
             context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
 
-        renderPages(newRoot)
+        runBlocking {
+            renderPages(newRoot)
+        }
     }
-
-    override fun CoroutineScope.render(root: RootPageNode) = renderImpl(this, root)
 }
 
 fun ContentPage.platforms() = this.content.platforms.toList()
