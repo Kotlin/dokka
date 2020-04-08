@@ -11,7 +11,7 @@ import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransf
 
 internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
 
-    override fun invoke(modules: List<DModule>, context: DokkaContext): List<DModule> = modules.map { original ->
+    override fun invoke(moduleViews: List<DPass>, context: DokkaContext): List<DPass> = moduleViews.map { original ->
         val packageOptions =
             context.configuration.passesConfigurations.first { original.platformData.contains(it.platformData) }
                 .perPackageOptions
@@ -28,11 +28,11 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
             else -> packageName != null && packageOptions.firstOrNull { packageName.startsWith(it.prefix) }?.includeNonPublic == true
         }
 
-        fun processModule(original: DModule) =
+        fun processModule(original: DPass) =
             filterPackages(original.packages).let { (modified, packages) ->
                 if (!modified) original
                 else
-                    DModule(
+                    DPass(
                         original.name,
                         packages = packages,
                         documentation = original.documentation,

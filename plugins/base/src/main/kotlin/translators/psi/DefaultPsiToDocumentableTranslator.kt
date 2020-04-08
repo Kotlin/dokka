@@ -27,13 +27,13 @@ object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
         psiFiles: List<PsiJavaFile>,
         platformData: PlatformData,
         context: DokkaContext
-    ): DModule {
+    ): DPass {
         val docParser =
             DokkaPsiParser(
                 platformData,
                 context.logger
             )
-        return DModule(
+        return DPass(
             moduleName,
             psiFiles.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)

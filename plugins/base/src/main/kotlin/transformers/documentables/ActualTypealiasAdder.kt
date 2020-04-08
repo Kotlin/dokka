@@ -8,9 +8,9 @@ import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransf
 
 
 class ActualTypealiasAdder : PreMergeDocumentableTransformer {
-    override fun invoke(modules: List<DModule>, context: DokkaContext) = modules.map { it.mergeTypealiases() }
+    override fun invoke(passes: List<DPass>, context: DokkaContext) = passes.map { it.mergeTypealiases() }
 
-    private fun DModule.mergeTypealiases(): DModule = copy(packages = packages.map { pkg ->
+    private fun DPass.mergeTypealiases(): DPass = copy(packages = packages.map { pkg ->
         if (pkg.typealiases.isEmpty()) {
             pkg
         } else {

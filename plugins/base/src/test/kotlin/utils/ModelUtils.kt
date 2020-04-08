@@ -1,7 +1,7 @@
 package utils
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.model.DModuleView
 import org.jetbrains.dokka.plugability.DokkaPlugin
 
 abstract class AbstractModelTest(val path: String? = null, val pkg: String) : ModelDSL(), AssertDSL {
@@ -14,7 +14,7 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
         cleanupOutput: Boolean = true,
         pluginsOverrides: List<DokkaPlugin> = emptyList(),
         configuration: DokkaConfigurationImpl? = null,
-        block: DModule.() -> Unit
+        block: DModuleView.() -> Unit
     ) {
         val testConfiguration = configuration ?: dokkaConfiguration {
             passes {

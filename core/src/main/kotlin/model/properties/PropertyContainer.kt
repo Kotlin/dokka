@@ -57,3 +57,5 @@ fun <C> C.mergeExtras(left: C, right: C): C where C : Any, C : WithExtraProperti
 
     return needingFullMerge.fold(withNewExtras(newExtras)) { acc, merger -> merger(acc, left, right) }
 }
+
+fun <C> C.mergeExtras(elems: Collection<C>): C where C : Any, C : WithExtraProperties<C> = elems.fold(this, ::mergeExtras)

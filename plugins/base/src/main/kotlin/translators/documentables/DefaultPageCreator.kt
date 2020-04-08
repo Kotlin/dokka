@@ -26,8 +26,8 @@ open class DefaultPageCreator(
 ) {
     protected open val contentBuilder = PageContentBuilder(commentsToContentConverter, signatureProvider, logger)
 
-    open fun pageForModule(m: DModule) =
-        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
+    open fun pageForModule(m: DModuleView) =
+        ModulePageNode(m.name.orEmpty().ifEmpty { "<root>" }, contentForModule(m), m, m.packages.map(::pageForPackage))
 
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
@@ -62,8 +62,8 @@ open class DefaultPageCreator(
     private val WithScope.filteredFunctions
         get() = functions.filter { it.extra[InheritedFunction]?.isInherited != true }
 
-    protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
-        header(1) { text(m.name) }
+    protected open fun contentForModule(m: DModuleView) = contentBuilder.contentFor(m) {
+        header(1) { text(m.name.orEmpty()) }
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
             link(it.name, it.dri)
         }

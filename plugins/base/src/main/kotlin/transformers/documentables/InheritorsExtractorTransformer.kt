@@ -9,12 +9,13 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
 class InheritorsExtractorTransformer : DocumentableTransformer {
-    override fun invoke(original: DModule, context: DokkaContext): DModule =
-        original.generateInheritanceMap().let { inheritanceMap -> original.appendInheritors(inheritanceMap) as DModule }
+    override fun invoke(original: DModuleView, context: DokkaContext): DModuleView =
+        original.generateInheritanceMap().let { inheritanceMap -> original.appendInheritors(inheritanceMap) as DModuleView }
 
     private fun <T : Documentable> T.appendInheritors(inheritanceMap: Map<PlatformData, Map<DRI, List<DRI>>>): Documentable =
         InheritorsInfo(PlatformDependent(inheritanceMap.getForDRI(dri))).let { info ->
             when (this) {
+                is DPass -> copy(packages = packages.map { it.appendInheritors(inheritanceMap) as DPackage })
                 is DModule -> copy(packages = packages.map { it.appendInheritors(inheritanceMap) as DPackage })
                 is DPackage -> copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
                 is DClass -> copy(
@@ -37,7 +38,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
             v to k[dri]
         }.map { (k, v) -> k to v.orEmpty() }.toMap())
 
-    private fun DModule.generateInheritanceMap() =
+    private fun DModuleView.generateInheritanceMap() =
         getInheritanceEntriesRec().filterNot { it.second.isEmpty() }.groupBy({ it.first }) { it.second }
             .map { (k, v) ->
                 k to v.flatMap { p -> p.groupBy({ it.first }) { it.second }.toList() }

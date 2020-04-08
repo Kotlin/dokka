@@ -5,7 +5,8 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
-import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.model.DModuleView
+import org.jetbrains.dokka.model.DPass
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -81,22 +82,22 @@ class DokkaGenerator(
             platforms.map { (pdata, _) -> translatePsi(pdata, context) }
 
     fun transformDocumentationModelBeforeMerge(
-        modulesFromPlatforms: List<DModule>,
+        modulesFromPlatforms: List<DPass>,
         context: DokkaContext
     ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc, context) }
 
     fun mergeDocumentationModels(
-        modulesFromPlatforms: List<DModule>,
+        modulesFromPlatforms: List<DPass>,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentableMerger).invoke(modulesFromPlatforms, context)
 
     fun transformDocumentationModelAfterMerge(
-        documentationModel: DModule,
+        documentationModel: DModuleView,
         context: DokkaContext
     ) = context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
     fun createPages(
-        transformedDocumentation: DModule,
+        transformedDocumentation: DModuleView,
         context: DokkaContext
     ) = context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
 
@@ -129,7 +130,7 @@ class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): DModule {
+    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): DPass {
         val (environment, facade) = context.platforms.getValue(platformData)
 
         val packageFragments = environment.getSourceFiles().asSequence()
@@ -142,7 +143,7 @@ class DokkaGenerator(
             .invoke(platformData.name, packageFragments, platformData)
     }
 
-    private fun translatePsi(platformData: PlatformData, context: DokkaContext): DModule {
+    private fun translatePsi(platformData: PlatformData, context: DokkaContext): DPass {
         val (environment, _) = context.platforms.getValue(platformData)
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
