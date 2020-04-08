@@ -77,8 +77,7 @@ class DokkaGenerator(
     fun createDocumentationModels(
         platforms: Map<PlatformData, EnvironmentAndFacade>,
         context: DokkaContext
-    ) = platforms.map { (pdata, _) -> translateDescriptors(pdata, context) } +
-            platforms.map { (pdata, _) -> translatePsi(pdata, context) }
+    ) = platforms.flatMap { (pdata, _) -> translateSources(pdata, context) }
 
     fun transformDocumentationModelBeforeMerge(
         modulesFromPlatforms: List<DModule>,
@@ -129,40 +128,10 @@ class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateDescriptors(platformData: PlatformData, context: DokkaContext): DModule {
-        val (environment, facade) = context.platforms.getValue(platformData)
-
-        val packageFragments = environment.getSourceFiles().asSequence()
-            .map { it.packageFqName }
-            .distinct()
-            .mapNotNull { facade.resolveSession.getPackageFragment(it) }
-            .toList()
-
-        return context.single(CoreExtensions.descriptorToDocumentableTranslator)
-            .invoke(platformData.name, packageFragments, platformData)
-    }
-
-    private fun translatePsi(platformData: PlatformData, context: DokkaContext): DModule {
-        val (environment, _) = context.platforms.getValue(platformData)
-
-        val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
-            ?.filterIsInstance<JavaSourceRoot>()
-            ?.map { it.file }
-            ?: listOf()
-        val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
-
-        val psiFiles = sourceRoots.map { sourceRoot ->
-            sourceRoot.absoluteFile.walkTopDown().mapNotNull {
-                localFileSystem.findFileByPath(it.path)?.let { vFile ->
-                    PsiManager.getInstance(environment.project).findFile(vFile) as? PsiJavaFile
-                }
-            }.toList()
-        }.flatten()
-
-        return context.single(CoreExtensions.psiToDocumentableTranslator)
-            .invoke(platformData.name, psiFiles, platformData, context)
-
-    }
+    private fun translateSources(platformData: PlatformData, context: DokkaContext) =
+        context[CoreExtensions.sourceToDocumentableTranslator].map {
+            it.invoke(platformData, context)
+        }
 
     class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
         override fun clear() {

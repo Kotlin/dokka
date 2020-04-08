@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.translators.psi
 
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.links.DRI
@@ -10,8 +11,10 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.psi.PsiToDocumentableTranslator
+import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
@@ -19,30 +22,43 @@ import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-object DefaultPsiToDocumentableTranslator : PsiToDocumentableTranslator {
+object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
-    override fun invoke(
-        moduleName: String,
-        psiFiles: List<PsiJavaFile>,
-        platformData: PlatformData,
-        context: DokkaContext
-    ): DModule {
+    override fun invoke(platformData: PlatformData, context: DokkaContext): DModule {
+
+        val (environment, _) = context.platforms.getValue(platformData)
+
+        val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
+            ?.filterIsInstance<JavaSourceRoot>()
+            ?.map { it.file }
+            ?: listOf()
+        val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
+
+        val psiFiles = sourceRoots.map { sourceRoot ->
+            sourceRoot.absoluteFile.walkTopDown().mapNotNull {
+                localFileSystem.findFileByPath(it.path)?.let { vFile ->
+                    PsiManager.getInstance(environment.project).findFile(vFile) as? PsiJavaFile
+                }
+            }.toList()
+        }.flatten()
+
         val docParser =
             DokkaPsiParser(
                 platformData,
                 context.logger
             )
         return DModule(
-            moduleName,
-            psiFiles.groupBy { it.packageName }.map { (packageName, psiFiles) ->
+            platformData.name,
+            psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(
                     dri,
                     emptyList(),
                     emptyList(),
-                    psiFiles.flatMap { psFile ->
-                        psFile.classes.map { docParser.parseClasslike(it, dri) }
+                    psiFiles.flatMap { psiFile ->
+                        psiFile.classes.map { docParser.parseClasslike(it, dri) }
                     },
                     emptyList(),
                     PlatformDependent.empty(),

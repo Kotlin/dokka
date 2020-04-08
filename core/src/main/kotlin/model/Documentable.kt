@@ -7,6 +7,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 
 abstract class Documentable {
@@ -418,9 +419,14 @@ sealed class JavaVisibility(name: String) : Visibility(name) {
 
 fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()
 
-sealed class DocumentableSource(val path: String)
+interface DocumentableSource {
+    val path: String
+}
 
-class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) :
-    DocumentableSource(descriptor.toSourceElement.containingFile.toString())
+class DescriptorDocumentableSource(source: DeclarationDescriptor) : DocumentableSource {
+    override val path = source.toSourceElement.containingFile.toString()
+}
 
-class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource(psi.containingFile.virtualFile.path)
+class PsiDocumentableSource(source: PsiNamedElement) : DocumentableSource {
+    override val path = source.containingFile.virtualFile.path
+}
