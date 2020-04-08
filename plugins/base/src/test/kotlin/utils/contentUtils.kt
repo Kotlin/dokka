@@ -53,7 +53,6 @@ fun ContentMatcherBuilder<*>.signatureWithReceiver(
 fun ContentMatcherBuilder<*>.pWrapped(text: String) =
     group {// TODO: remove it when double wrapping for descriptions will be resolved
         group { +text }
-        br()
     }
 
 fun ContentMatcherBuilder<*>.unnamedTag(tag: String, content: ContentMatcherBuilder<ContentGroup>.() -> Unit) =

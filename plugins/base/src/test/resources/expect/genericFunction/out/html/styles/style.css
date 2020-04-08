@@ -13,9 +13,10 @@
 }
 
 #leftColumn {
-    padding-left: 12px;
+    width: 280px;
     min-height: 100%;
-    border-right: 2px solid #DADFE6;
+    border-right: 1px solid #DADFE6;
+    flex: 0 0 auto;
 }
 
 @media screen and (max-width: 600px) {
@@ -29,12 +30,9 @@
 }
 
 #sideMenu {
-    padding-top: 12px;
-    padding-right: 12px;
-}
-
-#sideMenu .sideMenuPart {
-    padding-left: 1em;
+    padding-top: 16px;
+    position: relative;
+    overflow: auto;
 }
 
 #sideMenu img {
@@ -50,12 +48,14 @@
 }
 
 #logo {
-    padding: 5px;
-    background-size: 55% 90%;
-    border-bottom: 2px solid #DADFE6;
+    background-size: 125px 26px;
+    border-bottom: 1px solid #DADFE6;
     background-repeat: no-repeat;
     background-image: url(../images/docs_logo.svg);
-    height: 6vh;
+    background-origin: content-box;
+    padding-left: 24px;
+    padding-top: 24px;
+    height: 48px;
 }
 
 .monospace,
@@ -63,31 +63,76 @@
     font-family: monospace;
 }
 
+.overview > .navButton {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 24px;
+}
+
 .strikethrough {
     text-decoration: line-through;
 }
 
 .symbol:empty {
-    padding: 0px;
+    padding: 0;
 }
+
 .symbol {
-    padding: 5px;
     background-color: #F4F4F4;
+    align-items: center;
+    display: flex;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    font-weight: bold;
+    white-space: pre;
+}
+
+#nav-submenu > .sideMenuPart {
+    padding-left: 0; /* packages are same level as modules */
 }
 
 .sideMenuPart > .overview {
+    height: 40px;
     width: 100%;
-    display: inline-flex;
+    display: flex;
+    align-items: center;
+    position: relative;
+    user-select: none; /* there's a weird bug with text selection */
 }
 
-.overview > .navButton {
-    width: 100%;
-    display: inline-flex;
-    justify-content: flex-end;
+.sideMenuPart a {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    color: #637282;
 }
 
-.sideMenuPart > .overview:hover {
-    background-color: rgba(91, 93, 239, 0.15);
+.sideMenuPart > .overview:before {
+    box-sizing: border-box;
+    content: '';
+    top: 0;
+    width: 200%;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+.overview:hover:before {
+    background-color: #DADFE5;
+}
+
+#nav-submenu {
+    padding-left: 24px;
+}
+
+.sideMenuPart {
+    padding-left: 12px;
+    box-sizing: border-box;
 }
 
 .sideMenuPart .hidden > .overview .navButtonContent::before {
@@ -121,7 +166,7 @@ body, table {
     font: 14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: #F4F4F4;
     font-weight: 300;
-    margin-right: auto;
+    margin: 0;
     max-width: 1440px;
 }
 
@@ -134,6 +179,7 @@ table {
 
 tbody > tr {
     border-bottom: 2px solid #F4F4F4;
+    min-height: 56px;
 }
 
 td:first-child {
@@ -149,6 +195,12 @@ td:first-child {
 .symbol {
     font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
     font-size: 12px;
+    min-height: 43px;
+}
+
+.symbol > a {
+    color: #5B5DEF;
+    text-decoration: underline;
 }
 
 .identifier {
@@ -195,8 +247,8 @@ a {
 }
 
 a:hover {
-    color: inherit;
-    text-decoration: underline;
+    color: #282E34;
+    text-decoration: none;
 }
 
 a small {
@@ -343,41 +395,41 @@ footer {
 }
 
 .platform-tag {
-	text-indent: 100%;
-	white-space: nowrap;
-	overflow: hidden;
-	width: 10px;
-	height: 10px;
-	max-width: 10px;
-	max-height: 10px;
-	border-radius: 8px;
-	transition: width 1s, height 1s;
-	margin-left: 14px;
-	margin-top: auto;
-	margin-bottom: auto;
-	font-family: Inter, Arial, sans-serif;
-	font-size: 12px;
-	font-weight: 400;
-	font-style: normal;
-	font-stretch: normal;
-	line-height: normal;
-	letter-spacing: normal;
-	text-align: center;
-	color: #fff
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    max-width: 10px;
+    max-height: 10px;
+    border-radius: 8px;
+    transition: width 1s, height 1s;
+    margin-left: 14px;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-family: Inter, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff
 }
 
 .platform-tagged:hover .platform-tag,
-.platform-tagged:hover>.platform-tag {
-	text-indent: 0;
-	white-space: nowrap;
-	padding: 0 7px;
-	border-radius: 9px;
-	margin-left: 8px;
-	width: auto;
-	height: 15px;
-	max-width: 500px;
-	max-height: 500px;
-	transition: max-width 1s, max-height 1s
+.platform-tagged:hover > .platform-tag {
+    text-indent: 0;
+    white-space: nowrap;
+    padding: 0 7px;
+    border-radius: 9px;
+    margin-left: 8px;
+    width: auto;
+    height: 15px;
+    max-width: 500px;
+    max-height: 500px;
+    transition: max-width 1s, max-height 1s
 }
 
 .platform-tagged {
@@ -416,9 +468,23 @@ tr.platform-tagged {
     color: white;
 }
 
-.platform-tagged > .content {
-    display: block;
-    flex: auto;
+td.content {
+    padding-left: 24px;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content > a {
+    text-decoration: none;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    color: #282E34;
+}
+
+.content > a:hover {
+    color: #5B5DEF;
 }
 
 @media print, screen and (max-width: 960px) {

@@ -3,6 +3,7 @@ package model
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -393,6 +394,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
+    @Disabled("reenable after fixing subtypes")
     @Test
     fun inheritorLinks() {
         inlineModelTest(
