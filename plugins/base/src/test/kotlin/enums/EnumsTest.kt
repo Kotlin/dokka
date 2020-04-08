@@ -63,9 +63,8 @@ class EnumsTest : AbstractCoreTest() {
         """.trimMargin(),
             configuration
         ) {
-            documentablesCreationStage = {m ->
-                assertTrue(m.isNotEmpty(), "Module list cannot be empty")
-                m.first().packages.let { p ->
+            documentablesTransformationStage = { m ->
+                m.packages.let { p ->
                     assertTrue(p.isNotEmpty(), "Package list cannot be empty")
                     p.first().classlikes.let { c ->
                         assertTrue(c.isNotEmpty(), "Classlikes list cannot be empty")
