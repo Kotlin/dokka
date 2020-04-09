@@ -101,7 +101,12 @@ class ContentForParamsTest : AbstractCoreTest() {
                     }
                     header(3) { +"Description" }
                     platformHinted {
-                        unnamedTag("Author") { +"Kordyjan" }
+                        header(4) { +"Authors" }
+                        table {
+                            group {
+                                group { +"Kordyjan" }
+                            }
+                        }
                         unnamedTag("Since") { +"0.11" }
                     }
                 }
@@ -136,7 +141,12 @@ class ContentForParamsTest : AbstractCoreTest() {
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("comment to function")
-                        unnamedTag("Author") { +"Kordyjan" }
+                        header(4) { +"Authors" }
+                        table {
+                            group {
+                                group { +"Kordyjan" }
+                            }
+                        }
                         unnamedTag("Since") { +"0.11" }
                     }
                 }
@@ -412,7 +422,12 @@ class ContentForParamsTest : AbstractCoreTest() {
                                 group { +"comment to third param" }
                             }
                         }
-                        unnamedTag("Author") { +"Kordyjan" }
+                        header(4) { +"Authors" }
+                        table {
+                            group {
+                                group { +"Kordyjan" }
+                            }
+                        }
                         unnamedTag("Since") { +"0.11" }
                     }
                 }

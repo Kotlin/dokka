@@ -223,7 +223,12 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     header(3) { +"Description" }
                     platformHinted {
                         pWrapped("random comment")
-                        unnamedTag("Author") { +"pikinier20" }
+                        header(4) { +"Authors" }
+                        table {
+                             group {
+                                 group { +"pikinier20" }
+                             }
+                        }
                         unnamedTag("Since") { +"0.11" }
                         header(4) { +"See also" }
                         table {
