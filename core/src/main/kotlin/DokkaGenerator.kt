@@ -201,10 +201,12 @@ private class Timer(startTime: Long, private val logger: DokkaLogger?) {
         val namePad = steps.map { it.first.length }.max() ?: 0
         val timePad = steps.windowed(2).map { (p1, p2) -> p2.second - p1.second }.max()?.toString()?.length ?: 0
         steps.windowed(2).forEach { (p1, p2) ->
-            println("${p2.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
+            if (p1.first.isNotBlank()) {
+                println("${p1.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
+            }
         }
     }
 }
 
 private fun timed(logger: DokkaLogger? = null, block: Timer.() -> Unit): Timer =
-    Timer(System.currentTimeMillis(), logger).apply(block)
+    Timer(System.currentTimeMillis(), logger).apply(block).apply { report("") }
