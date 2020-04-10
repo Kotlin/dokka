@@ -284,6 +284,23 @@ open class DefaultPageCreator(
             }
         }
 
+        fun DocumentableContentBuilder.contentForSamples() {
+            val samples = tags.withTypeNamed<Sample>()
+            if (samples.isNotEmpty()) {
+                platforms.forEach { platformData ->
+                    val content = samples.filter { it.value.isEmpty() || platformData in it.value }
+                    if (content.isNotEmpty()) {
+                        group(platformData = setOf(platformData)) {
+                            header(4, kind = ContentKind.Comment) { text("Samples") }
+                            content.forEach {
+                                comment(Text(it.key))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         fun DocumentableContentBuilder.contentForUnnamedTags() {
             val unnamedTags: List<PlatformDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
@@ -305,6 +322,7 @@ open class DefaultPageCreator(
                 header(3) { text("Description") }
                 platformDependentHint(platformData = platforms.toSet()) {
                     contentForDescription()
+                    contentForSamples()
                     contentForParams()
                     contentForUnnamedTags()
                     contentForSeeAlso()

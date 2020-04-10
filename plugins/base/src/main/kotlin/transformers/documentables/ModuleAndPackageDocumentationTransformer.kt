@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.PlatformDependent
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -66,15 +68,15 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
                     }
                 }.toMap()
 
-            val packagesDocumentation = module.packages.map {
-                it.name to it.platformData.mapNotNull { pd ->
-                    val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
-                    val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.name}") }
-                    val descriptor = facade.resolveSession.getPackageFragment(FqName(it.name))
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find descriptor for $") }
-                    doc?.get("Package")?.get(it.name)?.run {
-                        pd to MarkdownParser(
+            val packagesDocumentation = module.packages.map { dPackage ->
+                dPackage.name to dPackage.platformData.mapNotNull { platformData ->
+                    val doc = modulesAndPackagesDocumentation[Pair(module.name, platformData)]
+                    val facade = context.platforms[platformData]?.facade
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${platformData.name}") }
+                    val descriptor = facade.resolveSession.getPackageFragment(FqName(dPackage.name))
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find descriptor for ${dPackage.name}") }
+                    doc?.get("Package")?.get(dPackage.name)?.run {
+                        platformData to MarkdownParser(
                             facade,
                             descriptor,
                             context.logger
@@ -84,11 +86,12 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
             }.toMap()
 
             module.copy(
-                documentation = module.documentation.let { PlatformDependent(it.map + moduleDocumentation) },
+                documentation = module.documentation.let { mergeDocumentation(it.map, moduleDocumentation) },
                 packages = module.packages.map {
-                    if (packagesDocumentation[it.name] != null)
+                    val packageDocumentation = packagesDocumentation[it.name]
+                    if (packageDocumentation != null && packageDocumentation.isNotEmpty())
                         it.copy(documentation = it.documentation.let { value ->
-                            PlatformDependent(value.map + packagesDocumentation[it.name]!!)
+                            mergeDocumentation(value.map, packageDocumentation)
                         })
                     else
                         it
@@ -96,4 +99,11 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
             )
         }
     }
+
+    private fun mergeDocumentation(origin: Map<PlatformData, DocumentationNode>, new: Map<PlatformData, DocumentationNode>) = PlatformDependent(
+        (origin.asSequence() + new.asSequence())
+            .distinct()
+            .groupBy({ it.key }, { it.value })
+            .mapValues { (_, values) -> DocumentationNode(values.flatMap { it.children }) }
+    )
 }

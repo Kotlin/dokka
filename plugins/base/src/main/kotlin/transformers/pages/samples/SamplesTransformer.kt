@@ -6,6 +6,7 @@ import org.jetbrains.dokka.EnvironmentAndFacade
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -30,9 +31,9 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         val analysis = setUpAnalysis(context)
 
         return input.transformContentPagesTree { page ->
-            page.documentable?.documentation?.map?.entries?.fold(page) { acc, entry ->
-                entry.value.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
-                    acc.modified(content = acc.content.addSample(page, entry.key, sample.name, analysis))
+            page.documentable?.documentation?.allEntries?.fold(page) { acc, entry ->
+                entry.second.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
+                    acc.modified(content = acc.content.addSample(page, entry.first, sample.name, analysis))
                 }
             } ?: page
         }
@@ -55,19 +56,35 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }.toMap()
 
-    private fun ContentNode.addSample(contentPage: ContentPage, platform: PlatformData, fqName: String, analysis: Map<PlatformData, EnvironmentAndFacade>): ContentNode {
-        val facade = analysis[platform]?.facade ?:
-            return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.name}")}
+    private fun ContentNode.addSample(contentPage: ContentPage, platform: PlatformData?, fqName: String, analysis: Map<PlatformData, EnvironmentAndFacade>): ContentNode {
+        val facade = if(platform == null) {
+            analysis.entries.find { it.key.platformType.name == "common" }?.value
+        } else {
+            analysis[platform]
+        }?.facade ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform?.name ?: "expect"}") }
         val psiElement = fqNameToPsiElement(facade, fqName) ?:
             return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports = processImports(psiElement) // TODO: Process somehow imports. Maybe just attach them at the top of each body
         val body = processBody(psiElement)
-        val node = platformHintedContentCode(platform, contentPage.dri, body, "kotlin")
-        return this.safeAs<ContentGroup>()?.run { copy(
-            children = children.indexOfFirst { contentNode ->
-                contentNode.safeAs<ContentHeader>()?.children?.firstOrNull()?.safeAs<ContentText>()?.text == "Sample"
-            }.takeIf { it != -1 }?.let { children.apply { this.safeAs<MutableList<ContentNode>>()?.add(it+1, node) } } ?: children.also { context.logger.warn("Not found Sample block in ${contentPage.dri}")}
-        ) } ?: this.also { context.logger.warn("ContentPage ${contentPage.dri} cannot be cast to ContentGroup") }
+        val node = contentCode(contentPage.platforms(), contentPage.dri, body, "kotlin")
+
+        return bfs(fqName, node)
+    }
+
+    private fun ContentNode.bfs(fqName: String, node: ContentCode): ContentNode {
+        return when(this) {
+            is ContentHeader -> copy(children.map { it.bfs(fqName, node) })
+            is ContentCode -> copy(children.map { it.bfs(fqName, node) })
+            is ContentDRILink -> copy(children.map { it.bfs(fqName, node) })
+            is ContentResolvedLink -> copy(children.map { it.bfs(fqName, node) })
+            is ContentEmbeddedResource -> copy(children.map { it.bfs(fqName, node) })
+            is ContentTable -> copy(children.map { it.bfs(fqName, node) as ContentGroup })
+            is ContentList -> copy(children.map { it.bfs(fqName, node) })
+            is ContentGroup -> copy(children.map { it.bfs(fqName, node) })
+            is PlatformHintedContent -> copy(inner.bfs(fqName, node))
+            is ContentText -> if (text == fqName) node else this
+            else -> this
+        }
     }
 
     private fun fqNameToPsiElement(resolutionFacade: DokkaResolutionFacade, functionName: String): PsiElement? {
@@ -79,24 +96,21 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 
-    private fun platformHintedContentCode(platformData: PlatformData, dri: Set<DRI>, content: String, language: String) =
-        PlatformHintedContent(
-            inner = ContentCode(
-                children = listOf(
-                    ContentText(
-                        text = content,
-                        dci = DCI(dri, ContentKind.BriefComment),
-                        platforms = setOf(platformData),
-                        style = emptySet(),
-                        extra = PropertyContainer.empty()
-                    )
-                ),
-                language = language,
-                extra = PropertyContainer.empty(),
-                dci = DCI(dri, ContentKind.Source),
-                platforms = setOf(platformData),
-                style = emptySet()
+    private fun contentCode(platforms: List<PlatformData>, dri: Set<DRI>, content: String, language: String) =
+        ContentCode(
+            children = listOf(
+                ContentText(
+                    text = content,
+                    dci = DCI(dri, ContentKind.BriefComment),
+                    platforms = platforms.toSet(),
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
             ),
-            platforms = setOf(platformData)
+            language = language,
+            extra = PropertyContainer.empty(),
+            dci = DCI(dri, ContentKind.Source),
+            platforms = platforms.toSet(),
+            style = emptySet()
         )
 }
