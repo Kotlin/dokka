@@ -499,12 +499,15 @@ private class DokkaDescriptorVisitor(
             .filter { it.kind == ClassKind.ENUM_ENTRY }
             .map { enumEntryDescriptor(it, parent) }
 
-
-    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData?): PlatformDependent<DocumentationNode> =
-        if (platformData != null) PlatformDependent.from(
-            platformData,
-            getDocumentation()
-        ) else PlatformDependent.expectFrom(getDocumentation())
+    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData?): PlatformDependent<DocumentationNode> {
+        val documentation = getDocumentation()
+        return if (documentation.children.isEmpty())
+            PlatformDependent.empty()
+        else if (platformData != null)
+            PlatformDependent.from(platformData, documentation)
+        else
+            PlatformDependent.expectFrom(documentation)
+    }
 
     private fun ClassDescriptor.resolveClassDescriptionData(platformData: PlatformData?): ClassInfo {
         return ClassInfo(
