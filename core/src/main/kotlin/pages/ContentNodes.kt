@@ -91,6 +91,7 @@ data class ContentResolvedLink(
 
 /** All links that do not need to be resolved */
 data class ContentEmbeddedResource(
+    override val children: List<ContentNode> = emptyList(),
     val address: String,
     val altText: String?,
     override val dci: DCI,
@@ -98,7 +99,6 @@ data class ContentEmbeddedResource(
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
-    override val children = emptyList<ContentNode>()
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentEmbeddedResource =
         copy(extra = newExtras)
 }
