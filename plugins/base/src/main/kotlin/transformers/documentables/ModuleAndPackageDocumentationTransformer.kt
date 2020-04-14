@@ -52,12 +52,17 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
                     val facade = context.platforms[pd]?.facade
                         ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.name}") }
-                    doc?.get("Module")?.get(module.name)?.run {
-                        pd to MarkdownParser(
-                            facade,
-                            facade.moduleDescriptor,
-                            context.logger
-                        ).parse(this)
+                    try {
+                        doc?.get("Module")?.get(module.name)?.run {
+                            pd to MarkdownParser(
+                                facade,
+                                facade.moduleDescriptor,
+                                context.logger
+                            ).parse(this)
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        context.logger.error(e.message.orEmpty())
+                        null
                     }
                 }.toMap()
 
