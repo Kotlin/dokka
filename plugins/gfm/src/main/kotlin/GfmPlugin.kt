@@ -50,7 +50,7 @@ open class CommonmarkRenderer(
 
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
-    override fun StringBuilder.buildHeader(level: Int, content: StringBuilder.() -> Unit) {
+    override fun StringBuilder.buildHeader(level: Int, node: ContentHeader, content: StringBuilder.() -> Unit) {
         buildParagraph()
         append("#".repeat(level) + " ")
         content()

@@ -65,7 +65,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
-            header(1) { text(m.name) }
+            header(1, m.name)
         }
         +contentForComments(m)
         block("Packages", 2, ContentKind.Packages, m.packages, m.sourceSets.toSet()) {
@@ -77,7 +77,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(kind = ContentKind.Cover) {
-            header(1) { text("Package ${p.name}") }
+            header(1, "Package ${p.name}")
         }
         +contentForComments(p)
         +contentForScope(p, p.dri, p.sourceSets)
@@ -108,7 +108,7 @@ open class DefaultPageCreator(
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
             val map = inheritors.value.filter { it.value.isNotEmpty() }
             if (map.values.any()) {
-                header(2) { text("Inheritors") }
+                header(2, "Inheritors") { }
                 +ContentTable(
                     emptyList(),
                     map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
@@ -130,7 +130,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
         group(kind = ContentKind.Cover) {
-            header(1) { text(e.name) }
+            header(1, e.name)
             +buildSignature(e)
         }
         +contentForComments(e)
@@ -139,8 +139,8 @@ open class DefaultPageCreator(
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         group(kind = ContentKind.Cover) {
-            header(1) { text(c.name.orEmpty()) }
-            sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
+            header(1, c.name.orEmpty())
+                sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
                 +buildSignature(c)
             }
         }
@@ -215,7 +215,7 @@ open class DefaultPageCreator(
                 val receiver = tags.withTypeUnnamed<Receiver>()
                 val params = tags.withTypeNamed<Param>()
                 platforms.forEach {
-                    header(4, kind = ContentKind.Parameters, platformData = setOf(it)) { text("Parameters") }
+                    header(4, "Parameters", kind = ContentKind.Parameters, platformData = setOf(it))
                 }
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
@@ -245,7 +245,7 @@ open class DefaultPageCreator(
             if (tags.isNotEmptyForTag<See>()) {
                 val seeAlsoTags = tags.withTypeNamed<See>()
                 platforms.forEach {
-                    header(4, kind = ContentKind.Comment, platformData = setOf(it)) { text("See also") }
+                    header(4, "See also", kind = ContentKind.Comment, platformData = setOf(it))
                 }
                 table(kind = ContentKind.Sample) {
                     platforms.flatMap { platform ->
@@ -270,7 +270,7 @@ open class DefaultPageCreator(
                     val content = samples.filter { it.value.isEmpty() || platformData in it.value }
                     if (content.isNotEmpty()) {
                         group(sourceSets = setOf(platformData)) {
-                            header(4, kind = ContentKind.Comment) { text("Samples") }
+                            header(4, "Samples", kind = ContentKind.Comment)
                             content.forEach {
                                 comment(Text(it.key))
                             }
@@ -288,7 +288,7 @@ open class DefaultPageCreator(
                 unnamedTags.forEach { pdTag ->
                     pdTag[platform]?.also { tag ->
                         group(sourceSets = setOf(platform)) {
-                            header(4) { text(tag.toHeaderString()) }
+                            header(4, tag.toHeaderString())
                             comment(tag.root)
                         }
                     }
@@ -298,7 +298,7 @@ open class DefaultPageCreator(
 
         return contentBuilder.contentFor(d) {
             if (tags.isNotEmpty()) {
-                header(3) { text("Description") }
+                header(3, "Description")
                 sourceSetDependentHint(sourceSets = platforms.toSet()) {
                     contentForDescription()
                     contentForSamples()
@@ -323,7 +323,7 @@ open class DefaultPageCreator(
     protected open fun contentForFunction(f: DFunction) = contentForMember(f)
     protected open fun contentForTypeAlias(t: DTypeAlias) = contentForMember(t)
     protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
-        header(1) { text(d.name.orEmpty()) }
+        header(1, d.name.orEmpty())
         divergentGroup(ContentDivergentGroup.GroupID("member")) {
             instance(setOf(d.dri), d.sourceSets.toSet()) {
                 divergent(kind = ContentKind.Symbol) {
@@ -342,7 +342,7 @@ open class DefaultPageCreator(
         kind: ContentKind
     ) {
         if (collection.any()) {
-            header(2) { text(name) }
+            header(2, name)
             table(kind) {
                 collection.groupBy { it.name }.map { (elementName, elements) -> // This groupBy should probably use LocationProvider
                     buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet(), kind = kind) {

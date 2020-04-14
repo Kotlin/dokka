@@ -85,15 +85,25 @@ open class PageContentBuilder(
 
         fun header(
             level: Int,
+            text: String,
             kind: Kind = ContentKind.Main,
             platformData: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
-            block: DocumentableContentBuilder.() -> Unit
+            block: DocumentableContentBuilder.() -> Unit = {}
         ) {
             contents += ContentHeader(
                 level,
-                contentFor(mainDRI, platformData, kind, styles, extra, block)
+                contentFor(
+                    mainDRI,
+                    platformData,
+                    kind,
+                    styles,
+                    extra + SimpleAttr("anchor", text.replace("\\s".toRegex(), "").toLowerCase())
+                ){
+                    text(text)
+                    block()
+                }
             )
         }
 
@@ -155,7 +165,7 @@ open class PageContentBuilder(
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (renderWhenEmpty || elements.any()) {
-                header(level) { text(name) }
+                header(level, name) { }
                 contents += ContentTable(
                     emptyList(),
                     elements.map {
