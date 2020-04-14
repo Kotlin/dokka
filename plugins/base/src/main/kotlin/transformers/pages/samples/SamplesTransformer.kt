@@ -78,7 +78,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             is ContentDRILink -> copy(children.map { it.bfs(fqName, node) })
             is ContentResolvedLink -> copy(children.map { it.bfs(fqName, node) })
             is ContentEmbeddedResource -> copy(children.map { it.bfs(fqName, node) })
-            is ContentTable -> copy(children.map { it.bfs(fqName, node) as ContentGroup })
+            is ContentTable -> copy(children = children.map { it.bfs(fqName, node) as ContentGroup })
             is ContentList -> copy(children.map { it.bfs(fqName, node) })
             is ContentGroup -> copy(children.map { it.bfs(fqName, node) })
             is PlatformHintedContent -> copy(inner.bfs(fqName, node))
