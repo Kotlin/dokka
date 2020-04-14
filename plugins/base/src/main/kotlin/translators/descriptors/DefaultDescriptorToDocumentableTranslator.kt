@@ -72,7 +72,9 @@ private class DokkaDescriptorVisitor(
         descriptor: PackageFragmentDescriptor,
         parent: DRIWithPlatformInfo
     ): DPackage {
-        val driWithPlatform = DRI(packageName = descriptor.fqName.asString()).withEmptyInfo()
+        val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?:
+                "<" + platformData.targets.joinToString(",")  + " root>"// TODO: error-prone, find a better way to do it
+        val driWithPlatform = DRI(packageName = name).withEmptyInfo()
         val scope = descriptor.getMemberScope()
 
         return DPackage(

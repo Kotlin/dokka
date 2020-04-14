@@ -60,7 +60,8 @@ private fun <T> mergeExpectActual(
 ): List<T> where T : Documentable, T : WithExpectActual {
 
     fun findExpect(actual: T, expects: List<T>): Expect<T> =
-        expects.find { it.platformData.containsAll(actual.platformData) }.let { Expect.from(it) }
+        expects.find { it.platformData.flatMap { it.targets }.containsAll(actual.platformData.flatMap { it.targets }) }
+            .let { Expect.from(it) }
 
     fun reduceExpectActual(entry: Map.Entry<Expect<T>, List<T>>): List<T> = when (val expect = entry.key) {
         Expect.NotFound -> entry.value

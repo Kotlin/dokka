@@ -14,8 +14,8 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """.trimIndent(),
             prependPackage = false
         ) {
-            with((this / "").cast<DPackage>()) {
-                name equals ""
+            with((this / "<jvm root>").cast<DPackage>()) {
+                name equals "<jvm root>"
                 children counts 0
             }
         }
