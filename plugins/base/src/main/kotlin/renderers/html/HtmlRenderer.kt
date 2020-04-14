@@ -197,29 +197,31 @@ open class HtmlRenderer(
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
-                div(classes = "table-row") {
-                    it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
-                        div("main-subrow " + node.style.joinToString(" ")) {
-                            it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
-                                .forEach {
-                                    it.build(this, pageContext, sourceSetRestriction)
-                                    if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
-                                        createPlatformTags(node)
-                                }
-                        }
-                    }
-
-                    it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
-                        div("platform-dependent-row keyValue") {
-                            val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
-                            div {
-                                title.forEach {
-                                    it.build(this, pageContext, sourceSetRestriction)
-                                }
+                withAnchor(node.dci.dri.first().toString()) {
+                    div(classes = "table-row") {
+                        it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
+                            div("main-subrow " + node.style.joinToString(" ")) {
+                                it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
+                                    .forEach {
+                                        it.build(this, pageContext, sourceSetRestriction)
+                                        if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
+                                            createPlatformTags(node)
+                                    }
                             }
-                            div("title") {
-                                (it - title).forEach {
-                                    it.build(this, pageContext, sourceSetRestriction)
+                        }
+
+                        it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
+                            div("platform-dependent-row keyValue") {
+                                val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
+                                div {
+                                    title.forEach {
+                                        it.build(this, pageContext, sourceSetRestriction)
+                                    }
+                                }
+                                div("title") {
+                                    (it - title).forEach {
+                                        it.build(this, pageContext, sourceSetRestriction)
+                                    }
                                 }
                             }
                         }
@@ -255,16 +257,25 @@ open class HtmlRenderer(
     }
 
 
-    override fun FlowContent.buildHeader(level: Int, content: FlowContent.() -> Unit) {
+    override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
+        val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue
         when (level) {
-            1 -> h1(block = content)
-            2 -> h2(block = content)
-            3 -> h3(block = content)
-            4 -> h4(block = content)
-            5 -> h5(block = content)
-            else -> h6(block = content)
+            1 -> h1() { withAnchor(anchor, content) }
+            2 -> h2() { withAnchor(anchor, content) }
+            3 -> h3() { withAnchor(anchor, content) }
+            4 -> h4() { withAnchor(anchor, content) }
+            5 -> h5() { withAnchor(anchor, content) }
+            else -> h6() { withAnchor(anchor, content) }
         }
     }
+
+    private fun FlowContent.withAnchor(anchorName: String?, content: FlowContent.() -> Unit) {
+        a {
+            anchorName?.let { attributes["name"] = it }
+        }
+        content()
+    }
+
 
     override fun FlowContent.buildNavigation(page: PageNode) =
         div(classes = "breadcrumbs") {

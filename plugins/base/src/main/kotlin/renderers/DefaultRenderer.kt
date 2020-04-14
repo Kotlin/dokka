@@ -23,7 +23,7 @@ abstract class DefaultRenderer<T>(
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
-    abstract fun T.buildHeader(level: Int, content: T.() -> Unit)
+    abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)
     abstract fun T.buildList(
         node: ContentList,
@@ -78,7 +78,7 @@ abstract class DefaultRenderer<T>(
         pageContext: ContentPage,
         sourceSetRestriction: Set<SourceSetData>? = null
     ) {
-        buildHeader(node.level) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
+        buildHeader(node.level, node) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
 
     open fun ContentNode.build(

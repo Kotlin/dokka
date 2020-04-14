@@ -60,7 +60,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
         node.dri.first(),
         node.documentable!!.sourceSets.toSet()
     ) {
-        header(2) { text("Sources") }
+        header(2, "Sources")
         +ContentTable(
             emptyList(),
             sources.map {
