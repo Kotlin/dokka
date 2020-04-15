@@ -1,5 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:300i,400,700);
-
+@import url('https://rsms.me/inter/inter.css');
+@import url('jetbrains-mono.css');
 
 #container {
     display: flex;
@@ -163,9 +164,12 @@
 }
 
 body, table {
-    font: 14px/1.5 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Inter';
     background: #F4F4F4;
-    font-weight: 300;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 24px;
     margin: 0;
     max-width: 1440px;
 }
@@ -193,7 +197,7 @@ td:first-child {
 }
 
 .symbol {
-    font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono;
     font-size: 12px;
     min-height: 43px;
 }
@@ -536,6 +540,10 @@ td.content {
     display: none
 }
 
+.sideMenuPart[data-active] {
+    background: rgba(91, 93, 239, 0.15);
+    border-left: 4px solid #5B5DEF;
+}
 
 @media print, screen and (max-width: 960px) {
 
