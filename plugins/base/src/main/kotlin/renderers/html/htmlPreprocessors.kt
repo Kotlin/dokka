@@ -65,7 +65,8 @@ object StyleAndScriptsAppender : PageTransformer {
             embeddedResources = it.embeddedResources + listOf(
                 "styles/style.css",
                 "scripts/navigationLoader.js",
-                "scripts/platformContentHandler.js"
+                "scripts/platformContentHandler.js",
+                "styles/jetbrains-mono.css"
             )
         )
     }
