@@ -306,7 +306,7 @@ open class HtmlRenderer(
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
             head {
-                meta(name = "viewport", content = "width=device-width, initial-scale=1")
+                meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 with(resources) {
                     filter { it.substringBefore('?').substringAfterLast('.') == "css" }
