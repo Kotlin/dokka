@@ -119,7 +119,7 @@ interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual
     val receiver: DParameter?
 }
 
-abstract class DClasslike : Documentable(), WithScope, WithVisibility, WithExpectActual
+sealed class DClasslike : Documentable(), WithScope, WithVisibility, WithExpectActual
 
 data class DModule(
     override val name: String,
