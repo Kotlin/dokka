@@ -74,13 +74,14 @@ open class PageContentBuilder(
         fun header(
             level: Int,
             kind: Kind = ContentKind.Main,
+            platformData: Set<PlatformData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contents += ContentHeader(
                 level,
-                contentFor(mainDRI, mainPlatformData, kind, styles, extra, block)
+                contentFor(mainDRI, platformData, kind, styles, extra, block)
             )
         }
 

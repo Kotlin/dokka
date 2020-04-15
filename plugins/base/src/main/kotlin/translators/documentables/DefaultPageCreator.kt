@@ -221,6 +221,9 @@ open class DefaultPageCreator(
             ?.mapValues { (_, v) -> PlatformDependent.from(v) }
             .orEmpty()
 
+    private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
+            this[T::class]?.isNotEmpty() ?: false
+
     protected open fun contentForComments(
         d: Documentable
     ): List<ContentNode> {
@@ -244,11 +247,12 @@ open class DefaultPageCreator(
         }
 
         fun DocumentableContentBuilder.contentForParams() {
-            val receiver = tags.withTypeUnnamed<Receiver>()
-            val params = tags.withTypeNamed<Param>()
-
-            if (params.isNotEmpty()) {
-                header(4, kind = ContentKind.Parameters) { text("Parameters") }
+            if (tags.isNotEmptyForTag<Param>()) {
+                val receiver = tags.withTypeUnnamed<Receiver>()
+                val params = tags.withTypeNamed<Param>()
+                platforms.forEach {
+                    header(4, kind = ContentKind.Parameters, platformData = setOf(it)) { text("Parameters") }
+                }
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
                         val receiverRow = receiver.getOrExpect(platform)?.let {
@@ -274,9 +278,11 @@ open class DefaultPageCreator(
         }
 
         fun DocumentableContentBuilder.contentForSeeAlso() {
-            val seeAlsoTags = tags.withTypeNamed<See>()
-            if (seeAlsoTags.isNotEmpty()) {
-                header(4, kind = ContentKind.Comment) { text("See also") }
+            if (tags.isNotEmptyForTag<See>()) {
+                val seeAlsoTags = tags.withTypeNamed<See>()
+                platforms.forEach {
+                    header(4, kind = ContentKind.Comment, platformData = setOf(it)) { text("See also") }
+                }
                 table(kind = ContentKind.Comment) {
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
