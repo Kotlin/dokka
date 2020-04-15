@@ -17,20 +17,34 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
             when (this) {
                 is DModule -> copy(packages = packages.map { it.appendInheritors(inheritanceMap) as DPackage })
                 is DPackage -> copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
-                is DClass -> copy(
-                    extra = extra + info,
-                    classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
-                is DEnum -> copy(
-                    extra = extra + info,
-                    classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
-                is DInterface -> copy(
-                    extra = extra + info,
-                    classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                is DClass -> if (info.isNotEmpty()) {
+                    copy(
+                        extra = extra + info,
+                        classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                } else {
+                    copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                }
+                is DEnum -> if (info.isNotEmpty()) {
+                    copy(
+                        extra = extra + info,
+                        classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                } else {
+                    copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                }
+                is DInterface -> if (info.isNotEmpty()) {
+                    copy(
+                        extra = extra + info,
+                        classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                } else {
+                    copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
+                }
                 is DObject -> copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
                 is DAnnotation -> copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
                 else -> this
             }
         }
+
+    private fun InheritorsInfo.isNotEmpty() = this.value.allValues.fold(0) { acc, list -> acc + list.size } > 0
 
     private fun Map<PlatformData, Map<DRI, List<DRI>>>.getForDRI(dri: DRI) =
         PlatformDependent(map { (v, k) ->
@@ -42,7 +56,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
             .map { (k, v) ->
                 k to v.flatMap { p -> p.groupBy({ it.first }) { it.second }.toList() }
                     .groupBy({ it.first }) { it.second }.map { (k2, v2) -> k2 to v2.flatten() }.toMap()
-            }.filter{ it.second.values.isEmpty() }.toMap()
+            }.filter { it.second.values.isNotEmpty() }.toMap()
 
     private fun <T : Documentable> T.getInheritanceEntriesRec(): List<Pair<PlatformData, List<Pair<DRI, DRI>>>> =
         this.toInheritanceEntries() + children.flatMap { it.getInheritanceEntriesRec() }

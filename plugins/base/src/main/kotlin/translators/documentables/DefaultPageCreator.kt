@@ -1,13 +1,16 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -129,26 +132,27 @@ open class DefaultPageCreator(
                 }
             }
         }
-        // TODO: Fix this after fixing InheritorsExtractorTransformer
-//        (s as? WithExtraProperties<Documentable>)?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-//            val map = inheritors.value.map
-//            if (map.values.any()) {
-//                header(2) { text("Subtypes") }
-//                +ContentTable(
-//                    emptyList(),
-//                        map.entries.groupBy({ it.value }, { it.key }).map { (types, platforms) ->
-//                            buildGroup(dri, platforms.toSet(), ContentKind.Subtypes) {
-//                            types.map {
-//                                link(it.toString(), it)
-//                                }
-//                            }
-//                        },
-//                    DCI(setOf(dri), ContentKind.Subtypes),
-//                    platformData.toSet(),
-//                    style = emptySet()
-//                )
-//            }
-//        }
+        s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
+            val map = inheritors.value.map.filter { it.value.isNotEmpty() }
+            if (map.values.any()) {
+                header(2) { text("Inheritors") }
+                +ContentTable(
+                    emptyList(),
+                    map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
+                        .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
+                        buildGroup(dri, platforms.toSet(), ContentKind.Inheritors) {
+                            link(
+                                classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
+                                    .also { logger.warn("No class name found for DRI $classlike") }, classlike
+                            )
+                        }
+                    },
+                    DCI(setOf(dri), ContentKind.Inheritors),
+                    platformData.toSet(),
+                    style = emptySet()
+                )
+            }
+        }
     }
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {

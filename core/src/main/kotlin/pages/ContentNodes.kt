@@ -171,11 +171,11 @@ interface Kind
 enum class ContentKind : Kind {
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Subtypes;
+    Empty, Source, TypeAliases, Cover, Inheritors;
 
     companion object {
         private val platformTagged =
-            setOf(Constructors, Functions, Properties, Classlikes, Packages, Source, TypeAliases)
+            setOf(Constructors, Functions, Properties, Classlikes, Packages, Source, TypeAliases, Inheritors)
 
         fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
