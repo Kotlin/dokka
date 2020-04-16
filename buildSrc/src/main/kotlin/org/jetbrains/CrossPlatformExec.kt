@@ -35,7 +35,7 @@ open class CrossPlatformExec : AbstractExecTask<CrossPlatformExec>(CrossPlatform
 
         return extensions.map { extension ->
             resolveCommandFromFile(Paths.get("$command$extension"))
-        }.firstOrNull() ?: command
+        }.firstOrNull { it.isNotBlank() } ?: command
     }
 
     private fun resolveCommandFromFile(commandFile: Path) =
