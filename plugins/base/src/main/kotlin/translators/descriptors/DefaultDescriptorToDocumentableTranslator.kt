@@ -5,9 +5,7 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.doc.Constructor
-import org.jetbrains.dokka.model.doc.Description
-import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
@@ -342,18 +340,18 @@ private class DokkaDescriptorVisitor(
                         map = PlatformDependent.from(it.map.map {
                             Pair(
                                 it.key,
-                                it.value.copy(children = it.value.children.find { it is Constructor }?.root?.let {
+                                it.value.copy(children = (it.value.children.find { it is Constructor }?.root?.let { constructor ->
                                     listOf(
-                                        Description(it)
+                                        Description(constructor)
                                     )
-                                } ?: emptyList())
+                                } ?: emptyList<TagWrapper>()) + it.value.children.filterIsInstance<Param>())
                             )
                         }),
-                        expect = it.expect?.copy(children = it.expect?.children?.find { it is Constructor }?.root?.let {
+                        expect = it.expect?.copy(children = (it.expect?.children?.find { it is Constructor }?.root?.let { constructor ->
                             listOf(
-                                Description(it)
+                                Description(constructor)
                             )
-                        } ?: emptyList())
+                        } ?: emptyList<TagWrapper>()) + it.expect!!.children.filterIsInstance<Param>())
                     )
                 } else {
                     it
