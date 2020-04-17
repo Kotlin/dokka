@@ -8,6 +8,6 @@ publishing {
 }
 
 dependencies {
-    implementation(project(":plugins:base"))
+    compileOnly(project(":plugins:base"))
     implementation(project(":plugins:gfm"))
 }

@@ -19,7 +19,7 @@ open class DokkaPlugin : Plugin<Project> {
         loadDokkaVersion()
         val dokkaRuntimeConfiguration = addConfiguration(project)
         val pluginsConfiguration = project.configurations.create("dokkaPlugins").apply {
-            defaultDependencies { it.add(project.dependencies.create("org.jetbrains.dokka:dokka-base:${DokkaVersion.version}")) }
+            dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-base:${DokkaVersion.version}"))
         }
         addDokkaTasks(project, dokkaRuntimeConfiguration, pluginsConfiguration, DokkaTask::class.java)
         addDokkaCollectorTasks(project, DokkaCollectorTask::class.java)
