@@ -193,6 +193,23 @@ open class PageContentBuilder(
         }
 
         fun link(
+            text: String,
+            address: String,
+            kind: Kind = ContentKind.Main,
+            platformData: Set<PlatformData> = mainPlatformData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra
+        ) =
+        ContentResolvedLink(
+            children = listOf(createText(text, kind, platformData, styles, extra)),
+            address = address,
+            extra = PropertyContainer.empty(),
+            dci = DCI(setOf(mainDRI), kind),
+            platforms = platformData,
+            style = emptySet()
+        )
+
+        fun link(
             address: DRI,
             kind: Kind = ContentKind.Main,
             platformData: Set<PlatformData> = mainPlatformData,

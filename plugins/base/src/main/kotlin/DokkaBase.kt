@@ -25,6 +25,7 @@ import org.jetbrains.dokka.base.transformers.pages.samples.SamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -135,7 +136,16 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sourceLinksTransformer by extending {
-        htmlPreprocessors providing ::SourceLinksTransformer order { after(rootCreator) }
+        htmlPreprocessors providing {
+            SourceLinksTransformer(
+                it,
+                PageContentBuilder(
+                    it.single(commentsToContentConverter),
+                    it.single(signatureProvider),
+                    it.logger
+                )
+            )
+        } order { after(rootCreator) }
     }
 
     val navigationPageInstaller by extending {
