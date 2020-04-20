@@ -33,7 +33,8 @@ interface DokkaContext {
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
             DokkaContextConfigurationImpl(logger, configuration, platforms).apply {
-                configuration.pluginsClasspath.map { it.relativeTo(File(".").absoluteFile).toURI().toURL() }
+                // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
+                configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
                     .toTypedArray()
                     .let { URLClassLoader(it, this.javaClass.classLoader) }
                     .also { checkClasspath(it) }
