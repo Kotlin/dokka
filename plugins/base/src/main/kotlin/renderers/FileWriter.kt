@@ -9,7 +9,7 @@ import java.nio.file.*
 class FileWriter(val context: DokkaContext): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val jarUriPrefix = "jar:file:"
-    private val root = context.configuration.outputDir
+    private val root = File(context.configuration.outputDir).absolutePath
 
     override fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {
