@@ -13,9 +13,10 @@ ringUiWebpackConfig.loaders.svgInlineLoader.include.push(
 );
 
 const webpackConfig = () => ({
-  entry: `${componentsPath}/app.js`,
+  entry: `${componentsPath}/root.tsx`,
   resolve: {
     mainFields: ['module', 'browser', 'main'],
+    extensions: ['.tsx', '.ts', '.js'],
     alias: {
       react: resolve('./node_modules/react'),
       'react-dom': resolve('./node_modules/react-dom'),
@@ -32,24 +33,25 @@ const webpackConfig = () => ({
     rules: [
       ...ringUiWebpackConfig.config.module.rules,
       {
-        test: /\.css$/,
-        include: componentsPath,
+        test: /\.s[ac]ss$/i,
         use: [
           'style-loader',
-          {loader: 'css-loader'},
-          {loader: 'postcss-loader'}
-        ]
-      },
-      {
-        test: /\.css$/,
-        include: /node_modules/,
+          'css-loader',
+          'sass-loader',
+        ],
+        include: componentsPath,
         exclude: ringUiWebpackConfig.componentsPath,
-        use: ['style-loader', 'css-loader']
       },
       {
-        test: /\.js$/,
-        include: [componentsPath],
-        loader: 'babel-loader?cacheDirectory'
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true
+            }
+          }
+        ]
       }
     ]
   },
