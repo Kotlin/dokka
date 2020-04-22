@@ -50,8 +50,10 @@ open class HtmlRenderer(
     ) {
         div("platform-tagged") {
             node.platforms.forEach {
-                div("platform-tag ${it.platformType.name}") {
-                    text(it.platformType.key.toUpperCase())
+                val targets = it.targets.joinToString(", ")
+                div("platform-tag") {
+                    if( targets == "common" ) classes = classes + "common"
+                    text(it.targets.joinToString(", "))
                 }
             }
             div("content") {
@@ -151,8 +153,10 @@ open class HtmlRenderer(
                 }
                 td("platform-tagged") {
                     it.platforms.forEach {
-                        div(("platform-tag ${it.platformType.key}")) {
-                            text(it.platformType.key.toUpperCase())
+                        div(("platform-tag")) {
+                            val targets = it.targets.joinToString(", ")
+                            if( targets == "common" ) classes = classes + "common"
+                            text(it.targets.joinToString(", "))
                         }
                     }
                 }
