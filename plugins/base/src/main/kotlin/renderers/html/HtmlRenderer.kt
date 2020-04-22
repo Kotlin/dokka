@@ -52,7 +52,7 @@ open class HtmlRenderer(
             node.platforms.forEach {
                 val targets = it.targets.joinToString(", ")
                 div("platform-tag") {
-                    if( targets == "common" ) classes = classes + "common"
+                    if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
                     text(it.targets.joinToString(", "))
                 }
             }
@@ -155,7 +155,7 @@ open class HtmlRenderer(
                     it.platforms.forEach {
                         div(("platform-tag")) {
                             val targets = it.targets.joinToString(", ")
-                            if( targets == "common" ) classes = classes + "common"
+                            if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
                             text(it.targets.joinToString(", "))
                         }
                     }
