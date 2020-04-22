@@ -164,7 +164,7 @@
 }
 
 body, table {
-    font-family: 'Inter';
+    font-family: 'Inter', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: #F4F4F4;
     font-style: normal;
     font-weight: normal;
@@ -192,12 +192,12 @@ td:first-child {
 
 .keyword {
     color: black;
-    font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
     font-size: 12px;
 }
 
 .symbol {
-    font-family: JetBrains Mono;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
     font-size: 12px;
     min-height: 43px;
 }
@@ -210,7 +210,7 @@ td:first-child {
 .identifier {
     color: darkblue;
     font-size: 12px;
-    font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    font-family: JetBrains Mono, Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
 }
 
 .brief {
