@@ -285,8 +285,8 @@ open class HtmlRenderer(
 
     override fun render(root: RootPageNode) {
         super.render(root)
-        runBlocking {
-            launch(Dispatchers.IO) {
+        runBlocking(Dispatchers.Default) {
+            launch {
                 outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
             }
         }
