@@ -2,25 +2,26 @@ import React from 'react';
 import {render} from 'react-dom';
 import RedBox from 'redbox-react';
 
-import {AppRoot} from './app-root';
-import './app.css';
+import App from "./app";
+import './app/index.scss';
 
 const appEl = document.getElementById('searchBar');
 const rootEl = document.createElement('div');
 
 let renderApp = () => {
   render(
-    <AppRoot/>,
-    rootEl
+      <App/>,
+      rootEl
   );
 };
 
+// @ts-ignore
 if (module.hot) {
   const renderAppHot = renderApp;
-  const renderError = error => {
+  const renderError = (error: Error) => {
     render(
-      <RedBox error={error}/>,
-      rootEl
+        <RedBox error={error}/>,
+        rootEl
     );
   };
 
@@ -32,10 +33,11 @@ if (module.hot) {
     }
   };
 
-  module.hot.accept('./app-root', () => {
+  // @ts-ignore
+  module.hot.accept('./app', () => {
     setTimeout(renderApp);
   });
 }
 
 renderApp();
-appEl.appendChild(rootEl);
+appEl!.appendChild(rootEl);

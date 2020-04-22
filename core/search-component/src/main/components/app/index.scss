@@ -1,4 +1,4 @@
-@import "@jetbrains/ring-ui/components/global/variables.css";
+@import "src/main/scss/index";
 
 html,
 .app-root {
@@ -17,5 +17,5 @@ html,
 }
 
 .search-content {
-  padding: 24px 41px;
+  margin: calc(var(--ring-unit) * 4);
 }
