@@ -11,7 +11,7 @@ import java.nio.file.*
 class FileWriter(val context: DokkaContext): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val jarUriPrefix = "jar:file:"
-    private val root = File(context.configuration.outputDir).absolutePath
+    private val root = context.configuration.outputDir
 
     override suspend fun write(path: String, text: String, ext: String) {
         if (createdFiles.contains(path)) {

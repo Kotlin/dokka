@@ -175,7 +175,7 @@ open class DokkaTask : DefaultTask() {
         val defaultModulesConfiguration = collectConfigurations()
             .map { defaultPassConfiguration(it, globalConfig) }
         return GradleDokkaConfigurationImpl().apply {
-            outputDir = outputDirectory
+            outputDir = project.file(outputDirectory).absolutePath
             format = outputFormat
             generateIndexPages = true
             cacheRoot = cacheRoot
