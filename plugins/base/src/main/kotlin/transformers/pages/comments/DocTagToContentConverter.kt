@@ -3,7 +3,6 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
 
 object DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
@@ -17,6 +16,11 @@ object DocTagToContentConverter : CommentsToContentConverter {
         fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: SimpleAttr? = null) =
             docTag.children.flatMap {
                 buildContent(it, dci, platforms, styles + newStyles, newExtras?.let { extra + it } ?: extra)
+            }
+
+        fun buildTableRows(rows: List<DocTag>, newStyle: Style): List<ContentGroup> =
+            rows.flatMap {
+                buildContent(it, dci, platforms, styles + newStyle, extra) as List<ContentGroup>
             }
 
         fun buildHeader(level: Int) =
@@ -42,9 +46,11 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 )
             )
 
-        fun buildNewLine() = listOf(ContentBreakLine(
-            platforms
-        ))
+        fun buildNewLine() = listOf(
+            ContentBreakLine(
+                platforms
+            )
+        )
 
         return when (docTag) {
             is H1 -> buildHeader(1)
@@ -120,6 +126,27 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Text -> listOf(
                 ContentText(
                     docTag.body,
+                    dci,
+                    platforms,
+                    styles
+                )
+            )
+            is Strikethrough -> buildChildren(docTag, setOf(TextStyle.Strikethrough))
+            is Table -> listOf(
+                ContentTable(
+                    buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
+                    buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
+                    dci,
+                    platforms,
+                    styles + CommentTable
+                )
+            )
+            is Th,
+            is Tr -> listOf(
+                ContentGroup(
+                    docTag.children.map {
+                        ContentGroup(buildChildren(it), dci, platforms, styles, extra)
+                    },
                     dci,
                     platforms,
                     styles

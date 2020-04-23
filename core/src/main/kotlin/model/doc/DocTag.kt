@@ -71,6 +71,7 @@ class Script(children: List<DocTag> = emptyList(), params: Map<String, String> =
 class Section(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())          : DocTag(children, params)
 class Small(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())            : DocTag(children, params)
 class Span(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())             : DocTag(children, params)
+class Strikethrough(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())    : DocTag(children, params)
 class Strong(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())           : DocTag(children, params)
 class Sub(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)
 class Sup(children: List<DocTag> = emptyList(), params: Map<String, String> = emptyMap())              : DocTag(children, params)

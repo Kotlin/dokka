@@ -21,7 +21,7 @@ open class HtmlRenderer(
     private val pageList = mutableListOf<String>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors } +
-                                    context.plugin<DokkaBase>().querySingle { samplesTransformer }
+            context.plugin<DokkaBase>().querySingle { samplesTransformer }
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
@@ -37,8 +37,8 @@ open class HtmlRenderer(
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { childrenCallback() }
-            node.style.contains(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
-            node.style.contains(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
+            node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
         }
     }
@@ -63,7 +63,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
-            val contents = content.platforms.mapIndexed { index,platform ->
+            val contents = content.platforms.mapIndexed { index, platform ->
                 platform to createHTML(prettyPrint = false).div(classes = "content") {
                     if (index == 0) attributes["data-active"] = ""
                     attributes["data-togglable"] = platform.targets.joinToString("-")
@@ -71,10 +71,10 @@ open class HtmlRenderer(
                 }
             }
 
-            if(contents.size != 1) {
+            if (contents.size != 1) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
-                    contents.forEachIndexed { index,pair ->
+                    contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.targets.joinToString("-")
@@ -181,7 +181,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         platformRestriction: PlatformData?
     ) {
-        table {
+        table(if (node.hasStyle(CommentTable)) "comment-table" else "") {
             thead {
                 node.header.forEach {
                     tr {
@@ -256,8 +256,11 @@ open class HtmlRenderer(
             val iterator = code.iterator()
             while (iterator.hasNext()) {
                 val element = iterator.next()
-                +((element as? ContentText)?.text
-                    ?: run { context.logger.error("Cannot cast $element as ContentText!"); "" })
+                +(when (element) {
+                    is ContentText -> element.text
+                    is ContentBreakLine -> "\n"
+                    else -> run { context.logger.error("Cannot cast $element as ContentText!"); "" }
+                })
                 if (iterator.hasNext()) {
                     buildNewLine()
                 }
@@ -278,7 +281,7 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildText(textNode: ContentText) {
         when {
-            textNode.style.contains(TextStyle.Indented) -> consumer.onTagContentEntity(Entities.nbsp)
+            textNode.hasStyle(TextStyle.Indented) -> consumer.onTagContentEntity(Entities.nbsp)
         }
         text(textNode.text)
     }
