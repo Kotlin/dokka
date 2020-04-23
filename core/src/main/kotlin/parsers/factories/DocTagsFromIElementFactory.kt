@@ -4,6 +4,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.jetbrains.dokka.links.DRI
 import java.lang.NullPointerException
 
@@ -33,6 +34,10 @@ object DocTagsFromIElementFactory {
             MarkdownTokenTypes.TEXT                     -> Text(body ?: throw NullPointerException("Text body should be at least empty string passed to DocNodes factory!"), children, params )
             MarkdownTokenTypes.HORIZONTAL_RULE          -> HorizontalRule
             MarkdownTokenTypes.HARD_LINE_BREAK          -> Br
+            GFMElementTypes.STRIKETHROUGH               -> Strikethrough(children, params)
+            GFMElementTypes.TABLE                       -> Table(children, params)
+            GFMElementTypes.HEADER                      -> Th(children, params)
+            GFMElementTypes.ROW                         -> Tr(children, params)
             else                                        -> CustomDocTag(children, params)
         }
 }

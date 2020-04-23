@@ -185,6 +185,8 @@ enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace, Indented
 }
 
+object CommentTable: Style
+
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
     this
 } else {
@@ -194,3 +196,5 @@ fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (pre
         null
     }
 }
+
+fun ContentNode.hasStyle(style: Style) = this.style.contains(style)

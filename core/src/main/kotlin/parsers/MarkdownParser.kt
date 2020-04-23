@@ -8,11 +8,14 @@ import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.ast.CompositeASTNode
 import org.intellij.markdown.ast.LeafASTNode
 import org.intellij.markdown.ast.impl.ListItemCompositeNode
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.parsers.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -106,15 +109,17 @@ class MarkdownParser(
                         java.net.URL(link)
                         null
                     } catch (e: MalformedURLException) {
-                        resolveKDocLink(
-                            resolutionFacade.resolveSession.bindingContext,
-                            resolutionFacade,
-                            declarationDescriptor,
-                            null,
-                            link.split('.')
-                        ).also { if (it.size > 1) logger.warn("Markdown link resolved more than one element: $it") }
-                            .firstOrNull()//.single()
-                            ?.let { DRI.from(it) }
+                        try {
+                            resolveKDocLink(
+                                resolutionFacade.resolveSession.bindingContext,
+                                resolutionFacade,
+                                declarationDescriptor,
+                                null,
+                                link.split('.')
+                            ).minBy { it is ClassDescriptor }?.let { DRI.from(it) }
+                        } catch (e1: IllegalArgumentException) {
+                            null
+                        }
                     }
                 }
 
@@ -249,8 +254,28 @@ class MarkdownParser(
                 MarkdownElementTypes.MARKDOWN_FILE -> if (node.children.size == 1) visitNode(node.children.first()) else defaultHandler(
                     node
                 )
+                GFMElementTypes.STRIKETHROUGH -> DocTagsFromIElementFactory.getInstance(
+                    GFMElementTypes.STRIKETHROUGH,
+                    body = text
+                        .substring(node.startOffset, node.endOffset).transform()
+                )
+                GFMElementTypes.TABLE -> DocTagsFromIElementFactory.getInstance(
+                    GFMElementTypes.TABLE,
+                    children = node.children.filterTabSeparators().evaluateChildren()
+                )
+                GFMElementTypes.HEADER -> DocTagsFromIElementFactory.getInstance(
+                    GFMElementTypes.HEADER,
+                    children = node.children.filterTabSeparators().evaluateChildren()
+                )
+                GFMElementTypes.ROW -> DocTagsFromIElementFactory.getInstance(
+                    GFMElementTypes.ROW,
+                    children = node.children.filterTabSeparators().evaluateChildren()
+                )
                 else -> defaultHandler(node)
             }
+
+        private fun List<ASTNode>.filterTabSeparators() =
+            this.filterNot { it.type == GFMTokenTypes.TABLE_SEPARATOR }
 
         private fun List<ASTNode>.evaluateChildren(): List<DocTag> =
             this.removeUselessTokens().mergeLeafASTNodes().map { visitNode(it) }
@@ -318,7 +343,7 @@ class MarkdownParser(
 
     private fun markdownToDocNode(text: String): DocTag {
 
-        val flavourDescriptor = CommonMarkFlavourDescriptor()
+        val flavourDescriptor = GFMFlavourDescriptor()
         val markdownAstRoot: ASTNode = IntellijMarkdownParser(flavourDescriptor).buildMarkdownTreeFromString(text)
 
         return MarkdownVisitor(text, getAllDestinationLinks(text, markdownAstRoot).toMap()).visitNode(markdownAstRoot)
