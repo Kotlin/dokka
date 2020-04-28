@@ -1,9 +1,12 @@
 package linkableContent
 
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Assertions
@@ -89,8 +92,13 @@ class LinkableContentTest : AbstractCoreTest() {
 
         testFromData(configuration) {
             renderingStage = { rootPageNode, dokkaContext ->
-                val newRoot = SourceLinksTransformer(dokkaContext).invoke(rootPageNode)
-
+                val newRoot = SourceLinksTransformer(dokkaContext,
+                    PageContentBuilder(
+                        dokkaContext.single(dokkaContext.plugin<DokkaBase>().commentsToContentConverter),
+                        dokkaContext.single(dokkaContext.plugin<DokkaBase>().signatureProvider),
+                        dokkaContext.logger
+                    )
+                ).invoke(rootPageNode)
                 val moduleChildren = newRoot.children
                 Assertions.assertEquals(1, moduleChildren.size)
                 val packageChildren = moduleChildren.first().children
@@ -98,7 +106,8 @@ class LinkableContentTest : AbstractCoreTest() {
                 packageChildren.forEach {
                     val name = it.name.substringBefore("Class")
                     val crl = it.safeAs<ClasslikePageNode>()?.content?.safeAs<ContentGroup>()?.children?.last()
-                        ?.safeAs<PlatformHintedContent>()?.children?.singleOrNull().safeAs<ContentResolvedLink>()
+                        ?.safeAs<ContentGroup>()?.children?.last()?.safeAs<ContentTable>()?.children?.singleOrNull()
+                        ?.safeAs<ContentGroup>()?.children?.singleOrNull()?.safeAs<ContentResolvedLink>()
                     Assertions.assertEquals(
                         "https://github.com/user/repo/tree/master/src/${name.toLowerCase()}Main/kotlin/${name}Class.kt#L3",
                         crl?.address
