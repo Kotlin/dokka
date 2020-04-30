@@ -422,8 +422,8 @@ footer {
     color: #fff
 }
 
-.platform-tagged:hover .platform-tag,
-.platform-tagged:hover > .platform-tag {
+.table-row:hover .platform-tag,
+.table-row:hover > .platform-tag {
     text-indent: 0;
     white-space: nowrap;
     padding: 0 7px;
@@ -436,7 +436,7 @@ footer {
     transition: max-width 1s, max-height 1s
 }
 
-.platform-tagged {
+.platform-tags {
     flex: auto;
     display: flex;
     flex-direction: row;
@@ -446,11 +446,7 @@ footer {
     justify-content: flex-end;
 }
 
-tr.platform-tagged {
-    flex-direction: row;
-}
-
-.platform-tagged > .platform-tag {
+.platform-tags > .platform-tag {
     align-self: center;
     margin: 10px;
 }
@@ -487,7 +483,7 @@ td.content {
     flex-direction: column;
 }
 
-.content > a {
+.title > a {
     text-decoration: none;
     font-style: normal;
     font-weight: 600;
@@ -495,7 +491,7 @@ td.content {
     color: #282E34;
 }
 
-.content > a:hover {
+.title > a:hover {
     color: #5B5DEF;
 }
 
@@ -552,9 +548,57 @@ td.content {
     display: none
 }
 
-.sideMenuPart[data-active] {
+.sideMenuPart[data-active] > .overview {
     background: rgba(91, 93, 239, 0.15);
     border-left: 4px solid #5B5DEF;
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+}
+
+.table-row {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    margin: 10px;
+    padding: 16px 24px 16px 24px;
+}
+
+.table-row > .main-subrow {
+    height: 24px;
+    display: grid;
+    grid-template-columns: 310px auto auto;
+}
+
+.table-row > .signature-subrow {
+    display: grid;
+    grid-template-columns: 310px auto;
+}
+
+.main-subrow > .title {
+    order: 1;
+}
+
+.main-subrow > .brief {
+    order: 2;
+}
+
+.main-subrow > .platform-tags {
+    grid-column-start: 3;
+}
+
+.main-subrow > * {
+    order: 4;
+}
+
+.signature-subrow > .signature {
+    grid-column-start: 2;
+}
+
+.signature-subrow > * {
+    order: 4;
 }
 
 @media print, screen and (max-width: 960px) {

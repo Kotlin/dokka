@@ -69,7 +69,7 @@ open class DefaultPageCreator(
         }
         +contentForComments(m)
         block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
-            link(it.name, it.dri)
+            link(it.name, it.dri, kind = ContentKind.Main)
         }
 //        text("Index\n") TODO
 //        text("Link to allpage here")
@@ -82,14 +82,12 @@ open class DefaultPageCreator(
         +contentForComments(p)
         +contentForScope(p, p.dri, p.platformData)
         block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
-            link(it.name, it.dri)
-            group {
-                platformDependentHint(it.dri, it.platformData.toSet()) {
-                    +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
-                }
+            link(it.name, it.dri, kind = ContentKind.Main)
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                +buildSignature(it)
+            }
+            group(kind = ContentKind.BriefComment) {
+                text(it.briefDocumentation())
             }
         }
     }
@@ -100,36 +98,30 @@ open class DefaultPageCreator(
         platformData: List<PlatformData>
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
-            link(it.name.orEmpty(), it.dri)
-            group {
-                platformDependentHint(it.dri, it.platformData.toSet()) {
-                    +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
-                }
+            link(it.name ?: "", it.dri, kind = ContentKind.Main)
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                +buildSignature(it)
+            }
+            group(kind = ContentKind.BriefComment) {
+                text(it.briefDocumentation())
             }
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
-            link(it.name, it.dri)
-            group {
-                platformDependentHint(it.dri, it.platformData.toSet()) {
-                    +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
-                }
+            link(it.name, it.dri, kind = ContentKind.Main)
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                +buildSignature(it)
+            }
+            group(kind = ContentKind.BriefComment) {
+                text(it.briefDocumentation())
             }
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
-            link(it.name, it.dri)
-            group {
-                platformDependentHint(it.dri, it.platformData.toSet()) {
-                    +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
-                }
+            link(it.name, it.dri, kind = ContentKind.Main)
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                +buildSignature(it)
+            }
+            group(kind = ContentKind.BriefComment) {
+                text(it.briefDocumentation())
             }
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
@@ -181,27 +173,23 @@ open class DefaultPageCreator(
                 c.constructors.filter { it.extra[PrimaryConstructorExtra] == null },
                 c.platformData.toSet()
             ) {
-                link(it.name, it.dri)
-                group {
-                    platformDependentHint(it.dri, it.platformData.toSet()) {
-                        +buildSignature(it)
-                    }
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                link(it.name, it.dri, kind = ContentKind.Main)
+                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                    +buildSignature(it)
+                }
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
         if (c is DEnum) {
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
-                link(it.name.orEmpty(), it.dri)
-                group {
-                    platformDependentHint(it.dri, it.platformData.toSet()) {
-                        +buildSignature(it)
-                    }
-                    group(kind = ContentKind.BriefComment) {
-                        text(it.briefDocumentation())
-                    }
+                link(it.name.orEmpty(), it.dri, kind = ContentKind.Main)
+                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                    +buildSignature(it)
+                }
+                group(kind = ContentKind.BriefComment) {
+                    text(it.briefDocumentation())
                 }
             }
         }
