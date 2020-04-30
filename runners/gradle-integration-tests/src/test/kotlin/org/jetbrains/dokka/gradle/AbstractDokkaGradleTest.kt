@@ -103,6 +103,6 @@ abstract class AbstractDokkaGradleTest {
                 .withArguments("-Pdokka_fatjar=$fatjar", "-Ptest_kotlin_version=$kotlinVersion", *arguments)
                 .withPluginClasspath(pluginClasspath)
                 .withGradleVersion(gradleVersion)
-                .withDebug(true)
+//                .withDebug(true) // use only when debugging, see https://github.com/gradle/gradle/issues/6862
     }
 }

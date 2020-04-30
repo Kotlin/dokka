@@ -20,6 +20,7 @@ import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
 
+@CacheableTask
 open class DokkaTask : DefaultTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val GLOBAL_PLATFORM_NAME = "global" // Used for copying perPackageOptions to other platforms
@@ -47,7 +48,7 @@ open class DokkaTask : DefaultTask() {
     @Input
     var outputFormat: String = "html"
 
-    @Input
+    @Internal
     var outputDirectory: String = ""
 
     var dokkaRuntime: Configuration? = null
@@ -283,6 +284,7 @@ open class DokkaTask : DefaultTask() {
 
     // Needed for Gradle incremental build
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     fun getInputFiles(): FileCollection {
         val config = collectConfigurations()
         return project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +

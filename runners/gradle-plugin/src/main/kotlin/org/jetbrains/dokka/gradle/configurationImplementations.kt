@@ -2,6 +2,7 @@ package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.util.ConfigureUtil
@@ -25,7 +26,7 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
 }
 
 open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
-    @Input @Optional override var classpath: List<String> = emptyList()
+    @Classpath @Optional override var classpath: List<String> = emptyList()
     @Input override var moduleName: String = ""
     @Input override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
     @Input override var samples: List<String> = emptyList()
