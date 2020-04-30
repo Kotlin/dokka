@@ -30,35 +30,12 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
-            ContentKind.shouldBePlatformTagged(node.dci.kind) -> wrapPlatformTagged(
-                node,
-                pageContext
-            ) { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
-        }
-    }
-
-    private fun FlowContent.wrapPlatformTagged(
-        node: ContentGroup,
-        pageContext: ContentPage,
-        childrenCallback: FlowContent.() -> Unit
-    ) {
-        div("platform-tagged") {
-            node.platforms.forEach {
-                val targets = it.targets.joinToString(", ")
-                div("platform-tag") {
-                    if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
-                    text(it.targets.joinToString(", "))
-                }
-            }
-            div("content") {
-                childrenCallback()
-            }
         }
     }
 
@@ -85,7 +62,6 @@ open class HtmlRenderer(
                     }
                 }
             }
-
             contents.forEach {
                 consumer.onTagContentUnsafe { +it.second }
             }
@@ -139,42 +115,55 @@ open class HtmlRenderer(
         }
     }
 
-    private fun TBODY.buildPlatformTaggedRow(
-        node: ContentTable,
+    private fun FlowContent.buildRow(
+        node: ContentGroup,
         pageContext: ContentPage,
         platformRestriction: PlatformData?
     ) {
-        node.children.filter { platformRestriction == null || platformRestriction in it.platforms }.forEach {
-            tr("platform-tagged") {
-                it.children.forEach {
-                    td("content") {
-                        it.build(this, pageContext, platformRestriction)
+        node.children
+            .filter {
+                platformRestriction == null || platformRestriction in it.platforms
+            }
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                div(classes = "table-row") {
+                    it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
+                        div("main-subrow") {
+                            it.filter { platformRestriction == null || platformRestriction in it.platforms }
+                                .forEach {
+                                    when(it.dci.kind){
+                                        ContentKind.Main -> div("title") {
+                                            it.build(this, pageContext, platformRestriction)
+                                        }
+                                        ContentKind.BriefComment, ContentKind.Comment -> div("brief") {
+                                            it.build(this, pageContext, platformRestriction)
+                                        }
+                                        else -> div { it.build(this, pageContext, platformRestriction) }
+                                    }
+                                }
+                            if (ContentKind.shouldBePlatformTagged(node.dci.kind)) {
+                                createPlatformTags(node)
+                            }
+                        }
                     }
-                }
-                td("platform-tagged") {
-                    it.platforms.forEach {
-                        div(("platform-tag")) {
-                            val targets = it.targets.joinToString(", ")
-                            if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
-                            text(it.targets.joinToString(", "))
+                    it.filter { it.dci.kind == ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
+                        div("signature-subrow") {
+                            div("signature"){
+                                it.first().build(this, pageContext, platformRestriction)
+                            }
                         }
                     }
                 }
             }
-        }
     }
 
-    private fun TBODY.buildRow(
-        node: ContentTable,
-        pageContext: ContentPage,
-        platformRestriction: PlatformData?
-    ) {
-        node.children.filter { platformRestriction == null || platformRestriction in it.platforms }.forEach {
-            tr {
-                it.children.forEach {
-                    td {
-                        it.build(this, pageContext, platformRestriction)
-                    }
+    private fun FlowContent.createPlatformTags( node: ContentNode ) {
+        div("platform-tags") {
+            node.platforms.forEach {
+                div("platform-tag") {
+                    val targets = it.targets.joinToString(", ")
+                    if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
+                    text(it.targets.joinToString(", "))
                 }
             }
         }
@@ -185,24 +174,9 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         platformRestriction: PlatformData?
     ) {
-        table(if (node.hasStyle(CommentTable)) "comment-table" else "") {
-            thead {
-                node.header.forEach {
-                    tr {
-                        it.children.forEach {
-                            th {
-                                it.build(this@table, pageContext, platformRestriction)
-                            }
-                        }
-                    }
-                }
-            }
-            tbody {
-                if (ContentKind.shouldBePlatformTagged(node.dci.kind)) {
-                    buildPlatformTaggedRow(node, pageContext, platformRestriction)
-                } else {
-                    buildRow(node, pageContext, platformRestriction)
-                }
+        div(classes = "table") {
+            node.children.forEach {
+                buildRow(it, pageContext, platformRestriction)
             }
         }
     }
