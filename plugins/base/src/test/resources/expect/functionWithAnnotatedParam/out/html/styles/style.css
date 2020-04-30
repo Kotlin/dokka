@@ -439,9 +439,11 @@ footer {
 .platform-tagged {
     flex: auto;
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     padding: 0px;
     min-width: 230px;
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 
 tr.platform-tagged {
@@ -450,26 +452,32 @@ tr.platform-tagged {
 
 .platform-tagged > .platform-tag {
     align-self: center;
+    margin: 10px;
 }
 
-.platform-tag.jvm {
-    background-color: crimson;
-    color: white;
-}
-
-.platform-tag.js {
-    background-color: orange;
-    color: white;
-}
-
-.platform-tag.native {
+.platform-tag:nth-child(1) {
     background-color: blue;
     color: white;
 }
 
-.platform-tag.common {
+.platform-tag:nth-child(2) {
+    background-color: orange;
+    color: white;
+}
+
+.platform-tag:nth-child(3) {
+    background-color: crimson;
+    color: white;
+}
+
+.platform-tag.nth-child(4) {
     background-color: gray;
     color: white;
+}
+
+.platform-tag.common {
+    background-color: #F4F4F4;
+    color: #637282;
 }
 
 td.content {
@@ -514,7 +522,7 @@ td.content {
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(1):hover {
-    border-top: 2px solid gray;
+    border-top: 2px solid blue;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(2):hover {
@@ -526,7 +534,11 @@ td.content {
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(4):hover {
-    border-top: 2px solid blue;
+    border-top: 2px solid gray;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-toggle='common']:hover {
+    border-top: 2px solid #F4F4F4;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
