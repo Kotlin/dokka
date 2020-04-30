@@ -34,7 +34,7 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { _ -> ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { _ -> ::DokkaExternalLocationProviderFactory },
-        testConfiguration = DokkaConfigurationImpl("", "", false, null, emptyList(), emptyList(), emptyList())
+        testConfiguration = DokkaConfigurationImpl("", "", false, null, emptyList(), emptyList(), emptyList(), emptyMap())
     )
 
     protected val renderedContent: Element by lazy {
