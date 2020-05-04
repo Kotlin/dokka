@@ -73,4 +73,5 @@ val Bound.name: String?
         is TypeConstructor -> dri.classNames
         is JavaObject -> "Object"
         is Void -> "void"
+        is Dynamic -> "dynamic"
     }

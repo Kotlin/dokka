@@ -3,6 +3,7 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
+import org.jetbrains.kotlin.psi.KtClass
 
 class AdditionalModifiers(val content: Set<ExtraModifiers>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
@@ -27,7 +28,7 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
 
     override val key: ExtraProperty.Key<Documentable, *> = Annotations
 
-    data class Annotation(val dri: DRI, val params: Map<String, String>) {
+    data class Annotation(val dri: DRI, val params: Map<String, AnnotationParameterValue>) {
         override fun equals(other: Any?): Boolean = when (other) {
             is Annotation -> dri == other.dri
             else -> false
@@ -36,6 +37,14 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
         override fun hashCode(): Int = dri.hashCode()
     }
 }
+
+sealed class AnnotationParameterValue
+class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
+class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
+class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
+class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue() // TODO Investigate if KtClassValue can be parameter of annotation
+class StringValue(val value: String) : AnnotationParameterValue()
+
 
 object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
     override val key: ExtraProperty.Key<DFunction, *> = this

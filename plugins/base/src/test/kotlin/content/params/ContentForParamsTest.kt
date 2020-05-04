@@ -39,7 +39,13 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(), "", "", emptySet(), "function", null, "abc" to ParamAttributes(
+                                        emptyMap(),
+                                        emptySet(),
+                                        "String"
+                                    )
+                                )
                             }
                         }
                     }
@@ -72,7 +78,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 pWrapped("comment to function")
@@ -109,7 +123,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 unnamedTag("Author") { +"Kordyjan" }
@@ -148,7 +170,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 pWrapped("comment to function")
@@ -187,7 +217,15 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 pWrapped("comment to function")
@@ -238,11 +276,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                         divergentInstance {
                             divergent {
                                 bareSignature(
-                                    "function",
-                                    null,
-                                    "first" to "String",
-                                    "second" to "Int",
-                                    "third" to "Double"
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
                                 )
                             }
                             after {
@@ -301,11 +338,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                         divergentInstance {
                             divergent {
                                 bareSignature(
-                                    "function",
-                                    null,
-                                    "first" to "String",
-                                    "second" to "Int",
-                                    "third" to "Double"
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
                                 )
                             }
                             after {
@@ -362,7 +398,16 @@ class ContentForParamsTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignatureWithReceiver("String", "function", null, "abc" to "String")
+                                bareSignatureWithReceiver(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "String",
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 pWrapped("comment to function")
@@ -416,11 +461,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                         divergentInstance {
                             divergent {
                                 bareSignature(
-                                    "function",
-                                    null,
-                                    "first" to "String",
-                                    "second" to "Int",
-                                    "third" to "Double"
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
                                 )
                             }
                             after {
@@ -478,11 +522,10 @@ class ContentForParamsTest : AbstractCoreTest() {
                         divergentInstance {
                             divergent {
                                 bareSignature(
-                                    "function",
-                                    null,
-                                    "first" to "String",
-                                    "second" to "Int",
-                                    "third" to "Double"
+                                    emptyMap(), "", "", emptySet(), "function", null,
+                                    "first" to ParamAttributes(emptyMap(), emptySet(), "String"),
+                                    "second" to ParamAttributes(emptyMap(), emptySet(), "Int"),
+                                    "third" to ParamAttributes(emptyMap(), emptySet(), "Double")
                                 )
                             }
                             after {

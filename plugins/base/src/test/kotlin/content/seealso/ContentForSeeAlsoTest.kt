@@ -6,6 +6,7 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 import utils.bareSignature
 import utils.pWrapped
+import utils.ParamAttributes
 import utils.unnamedTag
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
@@ -41,7 +42,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                         }
                     }
@@ -74,7 +83,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }
@@ -121,7 +138,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }
@@ -168,7 +193,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }
@@ -215,7 +248,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }
@@ -265,7 +306,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 pWrapped("random comment")
@@ -317,7 +366,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }
@@ -365,7 +422,15 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                     divergentGroup {
                         divergentInstance {
                             divergent {
-                                bareSignature("function", null, "abc" to "String")
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
                             }
                             after {
                                 header(2) { +"See also" }

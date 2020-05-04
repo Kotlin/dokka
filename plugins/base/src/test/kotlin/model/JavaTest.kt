@@ -338,7 +338,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 with(extra[Annotations].assertNotNull("Annotations")) {
                     with(content.single()) {
                         dri.classNames equals "Target"
-                        params["value"].assertNotNull("value") equals "{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
+//                        params["value"].assertNotNull("value") equals "{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
                     }
                 }
             }
