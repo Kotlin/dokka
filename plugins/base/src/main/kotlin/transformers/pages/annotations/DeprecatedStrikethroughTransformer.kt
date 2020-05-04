@@ -11,11 +11,11 @@ class DeprecatedStrikethroughTransformer(val context: DokkaContext) : PageTransf
     override fun invoke(input: RootPageNode): RootPageNode = input.transformContentPagesTree { contentPage ->
         if (contentPage.documentable?.isDeprecated() == true || contentPage.documentable?.hasDeprecatedChildren() == true) {
             val deprecatedDRIs =
-                contentPage.dri +
-                        contentPage.documentable?.children
-                            ?.filter { it.isDeprecated() }
-                            ?.map { it.dri }
-                            ?.toSet().orEmpty()
+                if (contentPage.documentable?.isDeprecated() == true) contentPage.dri else emptySet<DRI>() +
+                    contentPage.documentable?.children
+                        ?.filter { it.isDeprecated() }
+                        ?.map { it.dri }
+                        ?.toSet().orEmpty()
 
             contentPage.modified(content = contentPage.content.addStrikethroughToSignature(deprecatedDRIs))
         } else {

@@ -1,10 +1,13 @@
 package org.jetbrains.dokka.base.translators.psi
 
+import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import com.intellij.psi.impl.source.PsiImmediateClassType
+import com.intellij.psi.impl.source.tree.java.PsiArrayInitializerMemberValueImpl
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
@@ -24,6 +27,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
+import java.lang.ClassValue
 
 object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -162,7 +166,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         listOf(sourceSetData),
-                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toExtra()
+                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toListOfAnnotations().let(::Annotations)
                     )
                 isEnum -> DEnum(
                     dri,
@@ -177,7 +181,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             listOf(sourceSetData),
-                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toExtra()
+                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toListOfAnnotations().let(::Annotations)
                         )
                     },
                     documentation,
@@ -191,7 +195,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     constructors.map { parseFunction(it, true) },
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DEnum>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DEnum>() + annotations.toList().toListOfAnnotations().let(::Annotations)
                 )
                 isInterface -> DInterface(
                     dri,
@@ -207,7 +211,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DInterface>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DInterface>() + annotations.toList().toListOfAnnotations().let(::Annotations)
                 )
                 else -> DClass(
                     dri,
@@ -225,7 +229,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     modifiers,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DClass>() + annotations.toList().toExtra()
+                    PropertyContainer.empty<DClass>() + annotations.toList().toListOfAnnotations().let(::Annotations)
                 )
             }
         }
@@ -259,15 +263,17 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 null,
                 psi.getModifier().toPlatformDependant(),
                 listOf(sourceSetData),
-                PropertyContainer.withAll(
-                    InheritedFunction(isInherited),
-                    psi.annotations.toList().toExtra(),
-                    psi.additionalExtras()
-                )
+                psi.additionalExtras().let {
+                    PropertyContainer.withAll(
+                        InheritedFunction(isInherited),
+                        it,
+                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).let(::Annotations)
+                    )
+                }
             )
         }
 
-        private fun PsiMethod.additionalExtras() = AdditionalModifiers(
+        private fun PsiModifierListOwner.additionalExtras() = AdditionalModifiers(
             listOfNotNull(
                 ExtraModifiers.STATIC.takeIf { hasModifier(JvmModifier.STATIC) },
                 ExtraModifiers.NATIVE.takeIf { hasModifier(JvmModifier.NATIVE) },
@@ -278,6 +284,13 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 ExtraModifiers.TRANSITIVE.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
             ).toSet()
         )
+
+        private fun AdditionalModifiers.toListOfAnnotations() = this.content.map {
+            if (it.name != "STATIC")
+                Annotations.Annotation(DRI("kotlin.jvm", it.name.toLowerCase().capitalize()), emptyMap())
+            else
+                Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
+        }
 
         private fun getBound(type: PsiType): Bound =
             cachedBounds.getOrPut(type.canonicalText) {
@@ -295,7 +308,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         DRI("kotlin", "Array"),
                         listOf(getProjection(type.componentType))
                     )
-                    is PsiPrimitiveType -> if(type.name == "void") Void else PrimitiveJavaType(type.name)
+                    is PsiPrimitiveType -> if (type.name == "void") Void else PrimitiveJavaType(type.name)
+                    is PsiImmediateClassType -> JavaObject
                     else -> throw IllegalStateException("${type.presentableText} is not supported by PSI parser")
                 }
             }
@@ -375,26 +389,43 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 psi.getModifier().toPlatformDependant(),
                 listOf(sourceSetData),
                 emptyList(),
-                PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()
+                psi.additionalExtras().let {
+                    PropertyContainer.withAll<DProperty>(
+                        it,
+                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).let(::Annotations)
+                    )
+                }
             )
         }
 
-        private fun Collection<PsiAnnotation>.toExtra() = mapNotNull { annotation ->
-            val resolved = annotation.getChildOfType<PsiJavaCodeReferenceElement>()?.resolve() ?: run {
-                logger.error("$annotation cannot be resolved to symbol!")
-                return@mapNotNull null
-            }
+        private fun Collection<PsiAnnotation>.toListOfAnnotations() = mapNotNull { it.toAnnotation() }
 
-            Annotations.Annotation(
-                DRI.from(resolved),
-                annotation.attributes.mapNotNull { attr ->
-                    if (attr is PsiNameValuePair) {
-                        attr.value?.text?.let { attr.attributeName to it }
-                    } else {
-                        attr.attributeName to ""
-                    }
-                }.toMap()
+        private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
+            is PsiNameValuePair -> value?.toValue() ?: StringValue("")
+            else -> StringValue(this.attributeName)
+        }
+
+        private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue = when(this) {
+            is PsiAnnotation -> AnnotationValue(toAnnotation())
+            is PsiArrayInitializerMemberValue -> ArrayValue(this.initializers.map { it.toValue() })
+            is PsiReferenceExpression -> EnumValue(
+                text ?: "",
+                driOfReference()
             )
-        }.let(::Annotations)
+            is PsiClassObjectAccessExpression -> ClassValue(
+                text ?: "",
+                DRI.from(((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()!!)
+            )
+            else -> StringValue(text ?: "")
+        }
+
+        private fun PsiAnnotation.toAnnotation() = Annotations.Annotation(
+            driOfReference(),
+            attributes.mapNotNull { it.attributeName to it.toValue() }.toMap()
+        )
+
+        private fun PsiElement.driOfReference() = DRI.from(getChildOfType<PsiJavaCodeReferenceElement>()?.resolve() ?:
+            throw IllegalStateException("$this cannot be resolved to symbol!")
+        )
     }
 }
