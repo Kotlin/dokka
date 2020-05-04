@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
@@ -23,7 +24,6 @@ import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
-import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
@@ -31,9 +31,11 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
+import org.jetbrains.kotlin.types.DynamicType
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import java.lang.IllegalArgumentException
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -279,7 +281,11 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sourceSets = listOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                (descriptor.additionalExtras() + (descriptor.backingField?.getAnnotationsAsExtraModifiers()
+                    ?: emptyList())).toProperty(),
+                descriptor.getAllAnnotations()
+            )
         )
     }
 
@@ -369,7 +375,8 @@ private class DokkaDescriptorVisitor(
         type = descriptor.type.toBound(),
         expectPresentInSet = null,
         documentation = descriptor.resolveDescriptorData(),
-        sourceSets = listOf(sourceSet)
+        sourceSets = listOf(sourceSet),
+        extra = PropertyContainer.withAll(descriptor.getAnnotations())
     )
 
     private fun visitPropertyAccessorDescriptor(
@@ -389,7 +396,7 @@ private class DokkaDescriptorVisitor(
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 documentation = descriptor.resolveDescriptorData(),
                 sourceSets = listOf(sourceSet),
-                extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+                extra = PropertyContainer.withAll(descriptor.additionalExtras(), getAllAnnotations())
             )
 
         val name = run {
@@ -517,17 +524,20 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(additionalExtras())
         )
 
-    private fun KotlinType.toBound(): Bound = when (val ctor = constructor.declarationDescriptor) {
-        is TypeParameterDescriptor -> OtherParameter(ctor.name.asString()).let {
-            if (isMarkedNullable) Nullable(it) else it
+    private fun KotlinType.toBound(): Bound = when(this) {
+        is DynamicType -> Dynamic
+        else -> when (val ctor = constructor.declarationDescriptor) {
+            is TypeParameterDescriptor -> OtherParameter(ctor.name.asString()).let {
+                if (isMarkedNullable) Nullable(it) else it
+            }
+            else -> TypeConstructor(
+                DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
+                arguments.map { it.toProjection() },
+                if (isExtensionFunctionType) FunctionModifiers.EXTENSION
+                else if (isFunctionType) FunctionModifiers.FUNCTION
+                else FunctionModifiers.NONE
+            )
         }
-        else -> TypeConstructor(
-            DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
-            arguments.map { it.toProjection() },
-            if (isExtensionFunctionType) FunctionModifiers.EXTENSION
-            else if (isFunctionType) FunctionModifiers.FUNCTION
-            else FunctionModifiers.NONE
-        )
     }
 
     private fun TypeProjection.toProjection(): Projection =
@@ -564,7 +574,6 @@ private class DokkaDescriptorVisitor(
         DescriptorDocumentableSource(this).toSourceSetDependent()
 
     private fun FunctionDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.INFIX.takeIf { isInfix },
         ExtraModifiers.INLINE.takeIf { isInline },
         ExtraModifiers.SUSPEND.takeIf { isSuspend },
@@ -576,7 +585,6 @@ private class DokkaDescriptorVisitor(
     ).toProperty()
 
     private fun ClassDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.INLINE.takeIf { isInline },
         ExtraModifiers.EXTERNAL.takeIf { isExternal },
         ExtraModifiers.INNER.takeIf { isInner },
@@ -586,7 +594,6 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueParameterDescriptor.additionalExtras() =
         listOfNotNull(
-            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.NOINLINE.takeIf { isNoinline },
             ExtraModifiers.CROSSINLINE.takeIf { isCrossinline },
             ExtraModifiers.CONST.takeIf { isConst },
@@ -596,28 +603,39 @@ private class DokkaDescriptorVisitor(
 
     private fun TypeParameterDescriptor.additionalExtras() =
         listOfNotNull(
-            ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
             ExtraModifiers.REIFIED.takeIf { isReified }
         ).toProperty()
 
     private fun PropertyDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.DYNAMIC.takeIf { isDynamic() },
         ExtraModifiers.CONST.takeIf { isConst },
         ExtraModifiers.LATEINIT.takeIf { isLateInit },
         ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
         ExtraModifiers.EXTERNAL.takeIf { isExternal },
         ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
-    ).toProperty()
+    )
 
     private fun List<ExtraModifiers>.toProperty() =
         AdditionalModifiers(this.toSet())
 
-    private fun DeclarationDescriptor.getAnnotations() = annotations.map { annotation ->
+    private fun Annotated.getAnnotations() = getListOfAnnotations().let(::Annotations)
+
+    private fun Annotated.getListOfAnnotations() = annotations.map { annotation ->
         Annotations.Annotation(
             annotation.let { it.annotationClass as DeclarationDescriptor }.let { DRI.from(it) },
-            annotation.allValueArguments.map { (k, v) -> k.asString() to v.value.toString() }.toMap()
+            annotation.allValueArguments.map { (k, v) -> k.asString() to "(...)" }.toMap()
         )
-    }.let(::Annotations)
+    }
+
+    private fun PropertyDescriptor.getAllAnnotations() =
+        (getListOfAnnotations() + (backingField?.getListOfAnnotations() ?: emptyList())).let(::Annotations)
+
+    private fun FieldDescriptor.getAnnotationsAsExtraModifiers() = getAnnotations().content.mapNotNull {
+        try {
+            ExtraModifiers.valueOf(it.dri.classNames?.toUpperCase() ?: "")
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
 
     private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
