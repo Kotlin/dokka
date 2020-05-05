@@ -212,6 +212,7 @@ internal fun DObject.asJava(): DObject = copy(
                 getter = null,
                 platformData = platformData,
                 receiver = null,
+                generics = emptyList(),
                 extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))
             ),
     classlikes = classlikes.map { it.asJava() },

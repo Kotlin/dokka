@@ -132,7 +132,8 @@ fun DProperty.mergeWith(other: DProperty): DProperty = copy(
     modifier = modifier.mergeWith(other.modifier),
     platformData = (platformData + other.platformData).distinct(),
     getter = getter?.let { g -> other.getter?.let { g.mergeWith(it) } ?: g } ?: other.getter,
-    setter = setter?.let { s -> other.setter?.let { s.mergeWith(it) } ?: s } ?: other.setter
+    setter = setter?.let { s -> other.setter?.let { s.mergeWith(it) } ?: s } ?: other.setter,
+    generics = merge(generics + other.generics, DTypeParameter::mergeWith)
 ).mergeExtras(this, other)
 
 fun DClasslike.setPlatformData(platformData: List<PlatformData>): DClasslike = when (this) {

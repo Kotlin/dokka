@@ -163,6 +163,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         getter,
                         modifier,
                         filteredPlatforms,
+                        generics.mapNotNull { it.filter(filteredPlatforms) },
                         extra
                     )
                 }

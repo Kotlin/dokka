@@ -357,6 +357,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
                 psi.getModifier().toPlatformDependant(),
                 listOf(platformData),
+                emptyList(),
                 PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()
             )
         }

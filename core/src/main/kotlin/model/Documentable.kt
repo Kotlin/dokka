@@ -308,8 +308,9 @@ data class DProperty(
     val getter: DFunction?,
     override val modifier: PlatformDependent<Modifier>,
     override val platformData: List<PlatformData>,
+    override val generics: List<DTypeParameter>,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
-) : Documentable(), Callable, WithExtraProperties<DProperty> {
+) : Documentable(), Callable, WithExtraProperties<DProperty>, WithGenerics {
     override val children: List<Nothing>
         get() = emptyList()
 
