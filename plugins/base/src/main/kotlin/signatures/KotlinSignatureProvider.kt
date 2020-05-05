@@ -89,6 +89,18 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun propertySignature(p: DProperty, platformData: Set<PlatformData> = p.platformData.toSet()) =
         contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+            platformText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            platformText(p.modifier){ it.name + " "}
+            p.setter?.let { text("var ") } ?: text("val ")
+            list(p.generics, prefix = "<", suffix = "> ") {
+                +buildSignature(it)
+            }
+            p.receiver?.also {
+                signatureForProjection(it.type)
+                text(".")
+            }
+            link(p.name, p.dri)
+            text(": ")
             signatureForProjection(p.type)
         }
 

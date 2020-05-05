@@ -188,6 +188,59 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             }
         }
     }
+
+    @Test fun genericTopLevelExtensionProperty(){
+        inlineModelTest(
+            """ | val <T : Number> List<T>.sampleProperty: T
+                |   get() { TODO() }
+            """.trimIndent()
+        ){
+            with((this / "property" / "sampleProperty").cast<DProperty>()) {
+                name equals "sampleProperty"
+                with(receiver.assertNotNull("Property receiver")) {
+                    type.name equals "List"
+                }
+                with(getter.assertNotNull("Getter")) {
+                    type.name equals "T"
+                }
+                setter equals null
+                generics counts 1
+                generics.forEach {
+                    it.name equals "T"
+                    it.bounds.first().name equals "Number"
+                }
+                visibility.values allEquals KotlinVisibility.Public
+            }
+        }
+    }
+
+    @Test fun genericExtensionPropertyInClass(){
+        inlineModelTest(
+            """ | package test
+                | class XD<T> {
+                |   var List<T>.sampleProperty: T
+                |       get() { TODO() }
+                |       set(value) { TODO() }
+                | }
+            """.trimIndent()
+        ){
+            with((this / "property" / "XD" / "sampleProperty").cast<DProperty>()) {
+                name equals "sampleProperty"
+                children counts 0
+                with(receiver.assertNotNull("Property receiver")) {
+                    type.name equals "List"
+                }
+                with(getter.assertNotNull("Getter")) {
+                    type.name equals "T"
+                }
+                with(setter.assertNotNull("Setter")){
+                    type.name equals "Unit"
+                }
+                generics counts 0
+                visibility.values allEquals KotlinVisibility.Public
+            }
+        }
+    }
 //    @Test
 //    fun annotatedProperty() {
 //        checkSourceExistsAndVerifyModel(

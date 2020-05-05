@@ -275,6 +275,7 @@ private class DokkaDescriptorVisitor(
             else PlatformDependent.from(platformData, descriptor.modifier()),
             type = descriptor.returnType!!.toBound(),
             platformData = listOf(platformData),
+            generics = descriptor.typeParameters.map { it.toTypeParameter() },
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
