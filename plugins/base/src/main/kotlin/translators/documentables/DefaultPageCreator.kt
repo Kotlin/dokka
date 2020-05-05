@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<PlatformData?, TagWrapper>>>
+private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<SourceSetData?, TagWrapper>>>
 
 private val specialTags: Set<KClass<out TagWrapper>> =
     setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
@@ -68,8 +68,8 @@ open class DefaultPageCreator(
             header(1) { text(m.name) }
         }
         +contentForComments(m)
-        block("Packages", 2, ContentKind.Packages, m.packages, m.platformData.toSet()) {
-            link(it.name, it.dri, kind = ContentKind.Main)
+        block("Packages", 2, ContentKind.Packages, m.packages, m.sourceSets.toSet()) {
+            link(it.name, it.dri)
         }
 //        text("Index\n") TODO
 //        text("Link to allpage here")
@@ -80,10 +80,10 @@ open class DefaultPageCreator(
             header(1) { text("Package ${p.name}") }
         }
         +contentForComments(p)
-        +contentForScope(p, p.dri, p.platformData)
-        block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
+        +contentForScope(p, p.dri, p.sourceSets)
+        block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                 +buildSignature(it)
                 contentForBrief(it)
             }
@@ -93,47 +93,47 @@ open class DefaultPageCreator(
     protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
-        platformData: List<PlatformData>
+        sourceSets: List<SourceSetData>
     ) = contentBuilder.contentFor(s as Documentable) {
-        block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
+        block("Types", 2, ContentKind.Classlikes, s.classlikes, sourceSets.toSet()) {
             link(it.name ?: "", it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                 +buildSignature(it)
                 contentForBrief(it)
             }
         }
-        block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
+        block("Functions", 2, ContentKind.Functions, s.functions, sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                 +buildSignature(it)
                 contentForBrief(it)
             }
         }
-        block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
+        block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                 +buildSignature(it)
 
                 contentForBrief(it)
             }
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-            val map = inheritors.value.map.filter { it.value.isNotEmpty() }
+            val map = inheritors.value.filter { it.value.isNotEmpty() }
             if (map.values.any()) {
                 header(2) { text("Inheritors") }
                 +ContentTable(
                     emptyList(),
                     map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
-                        buildGroup(dri, platforms.toSet(), ContentKind.Inheritors) {
-                            link(
-                                classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
-                                    .also { logger.warn("No class name found for DRI $classlike") }, classlike
-                            )
-                        }
-                    },
+                            buildGroup(dri, platforms.toSet(), ContentKind.Inheritors) {
+                                link(
+                                    classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
+                                        .also { logger.warn("No class name found for DRI $classlike") }, classlike
+                                )
+                            }
+                        },
                     DCI(setOf(dri), ContentKind.Inheritors),
-                    platformData.toSet(),
+                    sourceSets.toSet(),
                     style = emptySet()
                 )
             }
@@ -146,13 +146,13 @@ open class DefaultPageCreator(
             +buildSignature(e)
         }
         +contentForComments(e)
-        +contentForScope(e, e.dri, e.platformData)
+        +contentForScope(e, e.dri, e.sourceSets)
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         group(kind = ContentKind.Cover) {
             header(1) { text(c.name.orEmpty()) }
-            platformDependentHint(c.dri, c.platformData.toSet()) {
+            sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
                 +buildSignature(c)
             }
         }
@@ -164,58 +164,57 @@ open class DefaultPageCreator(
                 2,
                 ContentKind.Constructors,
                 c.constructors.filter { it.extra[PrimaryConstructorExtra] == null },
-                c.platformData.toSet()
+                c.sourceSets.toSet()
             ) {
                 link(it.name, it.dri, kind = ContentKind.Main)
-                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+                sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                     +buildSignature(it)
                     contentForBrief(it)
                 }
             }
         }
         if (c is DEnum) {
-            block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
+            block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet()) {
                 link(it.name, it.dri, kind = ContentKind.Main)
-                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+                sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                     +buildSignature(it)
                     contentForBrief(it)
                 }
             }
         }
 
-        +contentForScope(c, c.dri, c.platformData)
+        +contentForScope(c, c.dri, c.sourceSets)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): PlatformDependent<T> =
-        (this[T::class] as List<Pair<PlatformData, T>>?)
-            ?.let { PlatformDependent.from(it) }.orEmpty()
+    private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
+        (this[T::class] as List<Pair<SourceSetData, T>>?)?.toMap().orEmpty()
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, PlatformDependent<T>> =
-        (this[T::class] as List<Pair<PlatformData, T>>?)
+    private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
+        (this[T::class] as List<Pair<SourceSetData, T>>?)
             ?.groupBy { it.second.name }
-            ?.mapValues { (_, v) -> PlatformDependent.from(v) }
+            ?.mapValues { (_, v) -> v.toMap() }
             .orEmpty()
 
     private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
-            this[T::class]?.isNotEmpty() ?: false
+        this[T::class]?.isNotEmpty() ?: false
 
     protected open fun contentForComments(
         d: Documentable
     ): List<ContentNode> {
-        val tags: GroupedTags = d.documentation.allEntries.flatMap { (pd, doc) ->
-            doc.children.asSequence().map { pd to it }
+        val tags: GroupedTags = d.documentation.flatMap { (pd, doc) ->
+            doc.children.asSequence().map { pd to it }.toList()
         }.groupBy { it.second::class }
 
-        val platforms = d.platformData
+        val platforms = d.sourceSets
 
         fun DocumentableContentBuilder.contentForDescription() {
             val description = tags.withTypeUnnamed<Description>()
             if (description.any { it.value.root.children.isNotEmpty() }) {
                 platforms.forEach { platform ->
-                    description.getOrExpect(platform)?.also {
-                        group(platformData = setOf(platform)) {
+                    description[platform]?.also {
+                        group(sourceSets = setOf(platform)) {
                             comment(it.root)
                         }
                     }
@@ -232,16 +231,16 @@ open class DefaultPageCreator(
                 }
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
-                        val receiverRow = receiver.getOrExpect(platform)?.let {
-                            buildGroup(platformData = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
+                        val receiverRow = receiver[platform]?.let {
+                            buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
                                 text("<receiver>")
                                 comment(it.root)
                             }
                         }
 
                         val paramRows = params.mapNotNull { (_, param) ->
-                            param.getOrExpect(platform)?.let {
-                                buildGroup(platformData = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
+                            param[platform]?.let {
+                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
                                     text(it.name, kind = ContentKind.Parameters)
                                     comment(it.root)
                                 }
@@ -263,8 +262,8 @@ open class DefaultPageCreator(
                 table(kind = ContentKind.Sample) {
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
-                            see.getOrExpect(platform)?.let {
-                                buildGroup(platformData = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.KeyValue) {
+                            see[platform]?.let {
+                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.KeyValue) {
                                     if (it.address != null) link(it.name, it.address!!, kind = ContentKind.Comment)
                                     else text(it.name, kind = ContentKind.Comment)
                                     comment(it.root)
@@ -282,7 +281,7 @@ open class DefaultPageCreator(
                 platforms.forEach { platformData ->
                     val content = samples.filter { it.value.isEmpty() || platformData in it.value }
                     if (content.isNotEmpty()) {
-                        group(platformData = setOf(platformData)) {
+                        group(sourceSets = setOf(platformData)) {
                             header(4, kind = ContentKind.Comment) { text("Samples") }
                             content.forEach {
                                 comment(Text(it.key))
@@ -294,13 +293,13 @@ open class DefaultPageCreator(
         }
 
         fun DocumentableContentBuilder.contentForUnnamedTags() {
-            val unnamedTags: List<PlatformDependent<TagWrapper>> =
+            val unnamedTags: List<SourceSetDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-                    .map { (_, v) -> PlatformDependent.from(v) }
+                    .map { (_, v) -> v.mapNotNull { (k,v) -> k?.let { it to v } }.toMap() }
             platforms.forEach { platform ->
                 unnamedTags.forEach { pdTag ->
-                    pdTag.getOrExpect(platform)?.also { tag ->
-                        group(platformData = setOf(platform)) {
+                    pdTag[platform]?.also { tag ->
+                        group(sourceSets = setOf(platform)) {
                             header(4) { text(tag.toHeaderString()) }
                             comment(tag.root)
                         }
@@ -312,7 +311,7 @@ open class DefaultPageCreator(
         return contentBuilder.contentFor(d) {
             if (tags.isNotEmpty()) {
                 header(3) { text("Description") }
-                platformDependentHint(platformData = platforms.toSet()) {
+                sourceSetDependentHint(sourceSets = platforms.toSet()) {
                     contentForDescription()
                     contentForSamples()
                     contentForParams()
@@ -324,11 +323,11 @@ open class DefaultPageCreator(
     }
 
     protected open fun DocumentableContentBuilder.contentForBrief(content: Documentable) {
-        content.platformData.forEach { platform ->
+        content.sourceSets.forEach { platform ->
             val root = content.documentation[platform]?.children?.firstOrNull()?.root
 
             root?.let {
-                group(platformData = setOf(platform), kind = ContentKind.BriefComment) {
+                group(sourceSets = setOf(platform), kind = ContentKind.BriefComment) {
                     text(it.docTagSummary(), kind = ContentKind.Comment)
                 }
             }
@@ -338,7 +337,7 @@ open class DefaultPageCreator(
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         group(kind = ContentKind.Cover) {
             header(1) { text(f.name) }
-            platformDependentHint(f.dri, f.platformData.toSet()) {
+            sourceSetDependentHint(f.dri, f.sourceSets.toSet()) {
                 +buildSignature(f)
             }
         }

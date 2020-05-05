@@ -6,8 +6,8 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
-class ActualTypealiasAdder : PreMergeDocumentableTransformer {
-    override fun invoke(modules: List<DModule>, context: DokkaContext) = modules.map { it.mergeTypealiases() }
+class ActualTypealiasAdder(val context: DokkaContext) : PreMergeDocumentableTransformer {
+    override fun invoke(modules: List<DModule>) = modules.map { it.mergeTypealiases() }
 
     private fun DModule.mergeTypealiases(): DModule = copy(packages = packages.map { pkg ->
         if (pkg.typealiases.isEmpty()) {
@@ -64,11 +64,11 @@ class ActualTypealiasAdder : PreMergeDocumentableTransformer {
         typealiases: Map<DRI, DTypeAlias>
     ): List<T> where T : DClasslike, T : WithExtraProperties<T>, T : WithExpectActual =
         elements.map { element ->
-            if (element.sources.expect != null) {
+            if (element.expectPresentInSet != null) {
                 typealiases[element.dri]?.let { ta ->
                     element.withNewExtras(
                         element.extra + ActualTypealias(
-                            PlatformDependent.from(ta.platformData.single(), ta.underlyingType.values.single())
+                            mapOf(ta.sourceSets.single() to ta.underlyingType.values.single())
                         )
                     )
                 } ?: element

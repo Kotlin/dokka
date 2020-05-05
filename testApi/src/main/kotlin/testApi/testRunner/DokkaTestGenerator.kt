@@ -3,7 +3,8 @@ package org.jetbrains.dokka.testApi.testRunner
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.EnvironmentAndFacade
-import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.model.SourceSetCache
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -16,11 +17,15 @@ internal class DokkaTestGenerator(
 
     fun generate() = with(testMethods) {
         val dokkaGenerator = DokkaGenerator(configuration, logger)
+        val sourceSetsCache = SourceSetCache()
 
-        val platforms: Map<PlatformData, EnvironmentAndFacade> = dokkaGenerator.setUpAnalysis(configuration)
+        val platforms: Map<SourceSetData, EnvironmentAndFacade> = dokkaGenerator.setUpAnalysis(
+            configuration,
+            sourceSetsCache
+        )
         analysisSetupStage(platforms)
 
-        val context = dokkaGenerator.initializePlugins(configuration, logger, platforms, pluginOverrides)
+        val context = dokkaGenerator.initializePlugins(configuration, logger, platforms, sourceSetsCache, pluginOverrides)
         pluginsSetupStage(context)
 
         val modulesFromPlatforms = dokkaGenerator.createDocumentationModels(platforms, context)

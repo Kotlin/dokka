@@ -8,8 +8,10 @@ import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
+import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -31,16 +33,16 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         val analysis = setUpAnalysis(context)
 
         return input.transformContentPagesTree { page ->
-            page.documentable?.documentation?.allEntries?.fold(page) { acc, entry ->
-                entry.second.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
-                    acc.modified(content = acc.content.addSample(page, entry.first, sample.name, analysis))
+            page.documentable?.documentation?.entries?.fold(page) { acc, entry ->
+                entry.value.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
+                    acc.modified(content = acc.content.addSample(page, entry.key, sample.name, analysis))
                 }
             } ?: page
         }
     }
 
     private fun setUpAnalysis(context: DokkaContext) = context.configuration.passesConfigurations.map {
-        it.platformData to AnalysisEnvironment(DokkaGenerator.DokkaMessageCollector(context.logger), it.analysisPlatform).run {
+        context.sourceSet(it) to AnalysisEnvironment(DokkaGenerator.DokkaMessageCollector(context.logger), it.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
@@ -56,12 +58,9 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }.toMap()
 
-    private fun ContentNode.addSample(contentPage: ContentPage, platform: PlatformData?, fqName: String, analysis: Map<PlatformData, EnvironmentAndFacade>): ContentNode {
-        val facade = if(platform == null) {
-            analysis.entries.find { it.key.platformType.name == "common" }?.value
-        } else {
-            analysis[platform]
-        }?.facade ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform?.name ?: "expect"}") }
+    private fun ContentNode.addSample(contentPage: ContentPage, platform: SourceSetData, fqName: String, analysis: Map<SourceSetData, EnvironmentAndFacade>): ContentNode {
+        val facade = analysis[platform]?.facade ?:
+            return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleName}")}
         val psiElement = fqNameToPsiElement(facade, fqName) ?:
             return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports = processImports(psiElement) // TODO: Process somehow imports. Maybe just attach them at the top of each body
@@ -96,13 +95,13 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 
-    private fun contentCode(platforms: List<PlatformData>, dri: Set<DRI>, content: String, language: String) =
+    private fun contentCode(sourceSets: List<SourceSetData>, dri: Set<DRI>, content: String, language: String) =
         ContentCode(
             children = listOf(
                 ContentText(
                     text = content,
                     dci = DCI(dri, ContentKind.BriefComment),
-                    platforms = platforms.toSet(),
+                    sourceSets = sourceSets.toSet(),
                     style = emptySet(),
                     extra = PropertyContainer.empty()
                 )
@@ -110,7 +109,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             language = language,
             extra = PropertyContainer.empty(),
             dci = DCI(dri, ContentKind.Source),
-            platforms = platforms.toSet(),
+            sourceSets = sourceSets.toSet(),
             style = emptySet()
         )
 }

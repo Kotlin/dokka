@@ -54,15 +54,15 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val preMergeDocumentableTransformer by extending(isFallback = true) {
-        CoreExtensions.preMergeDocumentableTransformer with DocumentableVisibilityFilter
+        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilter
     }
 
     val actualTypealiasAdder by extending {
-        CoreExtensions.preMergeDocumentableTransformer with ActualTypealiasAdder()
+        CoreExtensions.preMergeDocumentableTransformer providing ::ActualTypealiasAdder
     }
 
     val modulesAndPackagesDocumentation by extending(isFallback = true) {
-        CoreExtensions.preMergeDocumentableTransformer with ModuleAndPackageDocumentationTransformer
+        CoreExtensions.preMergeDocumentableTransformer providing ::ModuleAndPackageDocumentationTransformer
     }
 
     val kotlinSignatureProvider by extending(isFallback = true) {

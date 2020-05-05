@@ -1,5 +1,5 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location://fn/#//root/[jvm root]/fn.html
-[jvm root]
+$dokka.location://fn/#//root/[main root]/fn.html
+[main root]
 

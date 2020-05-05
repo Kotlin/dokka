@@ -30,8 +30,8 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             pluginsOverrides = listOf(InheritorsPlugin)
         ) {
             with((this / "inheritors" / "A").cast<DInterface>()) {
-                val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value.map
-                with(map.keys.also { it counts 1 }.find { it.platformType == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }
+                val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value
+                with(map.keys.also { it counts 1 }.find { it.platform == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }
                 ) {
                     this counts 1
                     first().classNames equals "B"
@@ -77,13 +77,13 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
         ) {
             documentablesTransformationStage = { m ->
                 with((m / "inheritors" / "A").cast<DInterface>()) {
-                    val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value.map
+                    val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value
                     with(map.keys.also { it counts 2 }) {
-                        with(find { it.platformType == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }) {
+                        with(find { it.platform == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }) {
                             this counts 1
                             first().classNames equals "B"
                         }
-                        with(find { it.platformType == Platform.js }.assertNotNull("js key").let { map[it]!! }) {
+                        with(find { it.platform == Platform.js }.assertNotNull("js key").let { map[it]!! }) {
                             this counts 2
                             val classes = listOf("B", "C")
                             assertTrue(all { classes.contains(it.classNames) }, "One of subclasses missing in js" )

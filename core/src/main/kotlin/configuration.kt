@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.pages.PlatformData
 import java.io.File
 import java.net.URL
 
@@ -37,8 +36,10 @@ interface DokkaConfiguration {
 
     interface PassConfiguration {
         val moduleName: String
+        val sourceSetName: String
         val classpath: List<String>
         val sourceRoots: List<SourceRoot>
+        val dependentSourceRoots: List<SourceRoot>
         val samples: List<String>
         val includes: List<String>
         val includeNonPublic: Boolean
@@ -59,9 +60,6 @@ interface DokkaConfiguration {
         val analysisPlatform: Platform
         val targets: List<String>
         val sinceKotlin: String?
-
-        val platformData: PlatformData
-        get() = PlatformData(moduleName, analysisPlatform, targets)
     }
 
     interface SourceRoot {

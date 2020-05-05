@@ -4,5 +4,5 @@ import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.plugability.DokkaContext
 
 interface PreMergeDocumentableTransformer {
-    operator fun invoke(modules: List<DModule>, context: DokkaContext): List<DModule>
+    operator fun invoke(modules: List<DModule>): List<DModule>
 }

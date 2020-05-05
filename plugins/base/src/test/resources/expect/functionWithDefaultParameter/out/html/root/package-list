@@ -1,5 +1,5 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location://f/#kotlin.String//root/[jvm root]/f.html
-[jvm root]
+$dokka.location://f/#kotlin.String//root/[main root]/f.html
+[main root]
 

@@ -54,8 +54,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         }
         if (c is WithSupertypes) {
             c.supertypes.map { (p, dris) ->
-                list(dris, prefix = " extends ", platformData = setOf(p)) {
-                    link(it.sureClassNames, it, platformData = setOf(p))
+                list(dris, prefix = " extends ", sourceSets = setOf(p)) {
+                    link(it.sureClassNames, it, sourceSets = setOf(p))
                 }
             }
         }
