@@ -4,6 +4,8 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -46,15 +48,14 @@ open class DefaultLocationProvider(
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode?): String =
+    override fun resolve(dri: DRI, platforms: List<SourceSetData>, context: PageNode?): String =
         pagesIndex[dri]?.let { resolve(it, context) } ?:
         // Not found in PageGraph, that means it's an external link
         getLocation(dri,
             this.dokkaContext.configuration.passesConfigurations
                 .filter { passConfig ->
-                    platforms.toSet()
-                        .contains(PlatformData(passConfig.moduleName, passConfig.analysisPlatform, passConfig.targets))
-                } // TODO: change targets to something better?
+                    platforms.toSet().contains(passConfig.sourceSet)
+                }
                 .groupBy({ it.jdkVersion }, { it.externalDocumentationLinks })
                 .map { it.key to it.value.flatten().distinct() }.toMap()
         )

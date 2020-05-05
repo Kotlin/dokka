@@ -5,7 +5,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DAnnotation
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 
@@ -13,7 +12,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
 
     override fun invoke(modules: List<DModule>, context: DokkaContext): List<DModule> = modules.map { original ->
         val packageOptions =
-            context.configuration.passesConfigurations.first { original.platformData.contains(it.platformData) }
+            context.configuration.passesConfigurations.first { original.sourceSets.contains(it.sourceSet) }
                 .perPackageOptions
 
         DocumentableFilter(packageOptions).processModule(original)
@@ -36,7 +35,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         original.name,
                         packages = packages,
                         documentation = original.documentation,
-                        platformData = original.platformData,
+                        sourceSets = original.sourceSets,
                         extra = original.extra
                     )
             }
@@ -69,7 +68,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                             classlikes,
                             it.typealiases,
                             it.documentation,
-                            it.platformData,
+                            it.sourceSets,
                             it.extra
                         )
                     }
@@ -78,26 +77,26 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
             return Pair(packagesListChanged, filteredPackages)
         }
 
-        private fun <T : WithVisibility> alwaysTrue(a: T, p: PlatformData) = true
-        private fun <T : WithVisibility> alwaysFalse(a: T, p: PlatformData) = false
+        private fun <T : WithVisibility> alwaysTrue(a: T, p: SourceSetData) = true
+        private fun <T : WithVisibility> alwaysFalse(a: T, p: SourceSetData) = false
 
-        private fun WithVisibility.visibilityForPlatform(data: PlatformData): Visibility? =
+        private fun WithVisibility.visibilityForPlatform(data: SourceSetData): Visibility? =
             visibility[data] ?: visibility.expect
 
         private fun <T> T.filterPlatforms(
-            additionalCondition: (T, PlatformData) -> Boolean = ::alwaysTrue,
-            alternativeCondition: (T, PlatformData) -> Boolean = ::alwaysFalse
+            additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
+            alternativeCondition: (T, SourceSetData) -> Boolean = ::alwaysFalse
         ) where T : Documentable, T : WithVisibility =
-            platformData.filter { d ->
+            sourceSets.filter { d ->
                 visibilityForPlatform(d)?.isAllowedInPackage(dri.packageName) == true &&
                         additionalCondition(this, d) ||
                         alternativeCondition(this, d)
             }
 
         private fun <T> List<T>.transform(
-            additionalCondition: (T, PlatformData) -> Boolean = ::alwaysTrue,
-            alternativeCondition: (T, PlatformData) -> Boolean = ::alwaysFalse,
-            recreate: (T, List<PlatformData>) -> T
+            additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
+            alternativeCondition: (T, SourceSetData) -> Boolean = ::alwaysFalse,
+            recreate: (T, List<SourceSetData>) -> T
         ): Pair<Boolean, List<T>> where T : Documentable, T : WithVisibility {
             var changed = false
             val values = mapNotNull { t ->
@@ -119,7 +118,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
 
         private fun filterFunctions(
             functions: List<DFunction>,
-            additionalCondition: (DFunction, PlatformData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DFunction, SourceSetData) -> Boolean = ::alwaysTrue
         ) =
             functions.transform(additionalCondition) { original, filteredPlatforms ->
                 with(original) {
@@ -141,13 +140,13 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                 }
             }
 
-        private fun hasVisibleAccessorsForPlatform(property: DProperty, data: PlatformData) =
+        private fun hasVisibleAccessorsForPlatform(property: DProperty, data: SourceSetData) =
             property.getter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true ||
                     property.setter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true
 
         private fun filterProperties(
             properties: List<DProperty>,
-            additionalCondition: (DProperty, PlatformData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DProperty, SourceSetData) -> Boolean = ::alwaysTrue
         ): Pair<Boolean, List<DProperty>> =
             properties.transform(additionalCondition, ::hasVisibleAccessorsForPlatform) { original, filteredPlatforms ->
                 with(original) {
@@ -169,11 +168,11 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                 }
             }
 
-        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: List<PlatformData>) =
+        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: List<SourceSetData>) =
             entries.mapNotNull { entry ->
-                if (filteredPlatforms.containsAll(entry.platformData)) entry
+                if (filteredPlatforms.containsAll(entry.sourceSets)) entry
                 else {
-                    val intersection = filteredPlatforms.intersect(entry.platformData).toList()
+                    val intersection = filteredPlatforms.intersect(entry.sourceSets).toList()
                     if (intersection.isEmpty()) null
                     else DEnumEntry(
                         entry.dri,
@@ -190,7 +189,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
 
         private fun filterClasslikes(
             classlikeList: List<DClasslike>,
-            additionalCondition: (DClasslike, PlatformData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DClasslike, SourceSetData) -> Boolean = ::alwaysTrue
         ): Pair<Boolean, List<DClasslike>> {
             var classlikesListChanged = false
             val filteredClasslikes: List<DClasslike> = classlikeList.mapNotNull {
@@ -200,7 +199,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         classlikesListChanged = true
                         null
                     } else {
-                        var modified = platformData.size != filteredPlatforms.size
+                        var modified = sourceSets.size != filteredPlatforms.size
                         val functions =
                             filterFunctions(functions) { _, data -> data in filteredPlatforms }.let { (listModified, list) ->
                                 modified = modified || listModified

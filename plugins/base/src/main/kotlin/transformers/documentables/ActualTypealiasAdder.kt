@@ -68,7 +68,7 @@ class ActualTypealiasAdder : PreMergeDocumentableTransformer {
                 typealiases[element.dri]?.let { ta ->
                     element.withNewExtras(
                         element.extra + ActualTypealias(
-                            PlatformDependent.from(ta.platformData.single(), ta.underlyingType.values.single())
+                            SourceSetDependent.from(ta.sourceSets.single(), ta.underlyingType.values.single())
                         )
                     )
                 } ?: element

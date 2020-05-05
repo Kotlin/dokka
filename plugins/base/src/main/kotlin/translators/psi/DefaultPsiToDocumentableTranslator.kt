@@ -9,7 +9,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -26,13 +25,13 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
-    override fun invoke(platformData: PlatformData, context: DokkaContext): DModule {
+    override fun invoke(platformData: SourceSetData, context: DokkaContext): DModule {
 
         val (environment, _) = context.platforms.getValue(platformData)
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
-            ?.map { it.file }
+            ?.mapNotNull { it.file.takeIf { platformData.sourceRoots.any { root -> it.path.startsWith(root.path) } } }
             ?: listOf()
         val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 
@@ -50,7 +49,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 context.logger
             )
         return DModule(
-            platformData.name,
+            platformData.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(
@@ -61,17 +60,17 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         psiFile.classes.map { docParser.parseClasslike(it, dri) }
                     },
                     emptyList(),
-                    PlatformDependent.empty(),
+                    SourceSetDependent.empty(),
                     listOf(platformData)
                 )
             },
-            PlatformDependent.empty(),
+            SourceSetDependent.empty(),
             listOf(platformData)
         )
     }
 
     class DokkaPsiParser(
-        private val platformData: PlatformData,
+        private val platformData: SourceSetData,
         private val logger: DokkaLogger
     ) {
 
@@ -104,7 +103,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
         }
 
         private fun <T> T.toPlatformDependant() =
-            PlatformDependent(mapOf(platformData to this))
+            SourceSetDependent(mapOf(platformData to this))
 
         fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())

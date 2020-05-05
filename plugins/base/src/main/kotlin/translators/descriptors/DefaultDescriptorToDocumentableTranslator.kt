@@ -7,7 +7,6 @@ import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -20,6 +19,7 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
+import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
@@ -37,35 +37,35 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
-    override fun invoke(platformData: PlatformData, context: DokkaContext): DModule {
+    override fun invoke(sourceSets: SourceSetData, context: DokkaContext): DModule {
 
-        val (environment, facade) = context.platforms.getValue(platformData)
+        val (environment, facade) = context.platforms.getValue(sourceSets)
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }
             .distinct()
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
 
-        return DokkaDescriptorVisitor(platformData, context.platforms.getValue(platformData).facade, context.logger).run {
+        return DokkaDescriptorVisitor(sourceSets, context.platforms.getValue(sourceSets).facade, context.logger).run {
             packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.map {
                 visitPackageFragmentDescriptor(
                     it,
-                    DRIWithPlatformInfo(DRI.topLevel, PlatformDependent.empty())
+                    DRIWithPlatformInfo(DRI.topLevel, SourceSetDependent.empty())
                 )
             }
-        }.let { DModule(platformData.name, it, PlatformDependent.empty(), listOf(platformData)) }
+        }.let { DModule(sourceSets.moduleName, it, SourceSetDependent.empty(), listOf(sourceSets)) }
     }
 }
 
 data class DRIWithPlatformInfo(
     val dri: DRI,
-    val actual: PlatformDependent<DocumentableSource>
+    val actual: SourceSetDependent<DocumentableSource>
 )
 
-fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, PlatformDependent.empty())
+fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, SourceSetDependent.empty())
 
 private class DokkaDescriptorVisitor(
-    private val platformData: PlatformData,
+    private val sourceSets: SourceSetData,
     private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
@@ -73,23 +73,28 @@ private class DokkaDescriptorVisitor(
         throw IllegalStateException("${javaClass.simpleName} should never enter ${descriptor.javaClass.simpleName}")
     }
 
+    private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
+            val path = it.toSourceElement.containingFile.toString()
+            path != null && sourceSets.sourceRoots.any { root -> path.startsWith(root.path) }
+    }
+
     override fun visitPackageFragmentDescriptor(
         descriptor: PackageFragmentDescriptor,
         parent: DRIWithPlatformInfo
     ): DPackage {
-        val name = descriptor.fqName.asString().takeUnless { it.isBlank() }
-            ?: "[" + platformData.targets.joinToString(" ") + " root]"// TODO: error-prone, find a better way to do it
+        val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?:
+                "[root]"// TODO: error-prone, find a better way to do it
         val driWithPlatform = DRI(packageName = name).withEmptyInfo()
         val scope = descriptor.getMemberScope()
 
         return DPackage(
             dri = driWithPlatform.dri,
-            functions = scope.functions(driWithPlatform),
-            properties = scope.properties(driWithPlatform),
-            classlikes = scope.classlikes(driWithPlatform),
-            typealiases = scope.typealiases(driWithPlatform),
-            documentation = descriptor.resolveDescriptorData(platformData),
-            platformData = listOf(platformData)
+            functions = scope.functions(driWithPlatform, true),
+            properties = scope.properties(driWithPlatform, true),
+            classlikes = scope.classlikes(driWithPlatform, true),
+            typealiases = scope.typealiases(driWithPlatform, true),
+            documentation = descriptor.resolveDescriptorData(sourceSets),
+            sourceSets = listOf(sourceSets)
         )
     }
 
@@ -106,7 +111,7 @@ private class DokkaDescriptorVisitor(
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
-        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) sourceSets else null)
 
 
         return DInterface(
@@ -116,14 +121,14 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            supertypes = if (isExpect) PlatformDependent.expectFrom(info.supertypes)
-            else PlatformDependent.from(platformData, info.supertypes),
+            visibility = if (isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                            else SourceSetDependent.from(sourceSets, descriptor.visibility.toDokkaVisibility()),
+            supertypes = if (isExpect) SourceSetDependent.expectFrom(info.supertypes)
+            else SourceSetDependent.from(sourceSets, info.supertypes),
             documentation = info.docs,
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -132,7 +137,7 @@ private class DokkaDescriptorVisitor(
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
-        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) sourceSets else null)
 
 
         return DObject(
@@ -142,12 +147,12 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            supertypes = if (isExpect) PlatformDependent.expectFrom(info.supertypes)
-            else PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) SourceSetDependent.expectFrom(info.supertypes)
+                else SourceSetDependent.from(sourceSets,info.supertypes),
             documentation = info.docs,
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -156,7 +161,7 @@ private class DokkaDescriptorVisitor(
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
-        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) sourceSets else null)
 
         return DEnum(
             dri = driWithPlatform.dri,
@@ -167,13 +172,13 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = descriptor.createSources(),
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            supertypes = if (isExpect) PlatformDependent.expectFrom(info.supertypes)
-            else PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) SourceSetDependent.expectFrom(info.supertypes)
+                else SourceSetDependent.from(sourceSets,info.supertypes),
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -186,11 +191,11 @@ private class DokkaDescriptorVisitor(
         return DEnumEntry(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
-            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null),
             classlikes = scope.classlikes(driWithPlatform),
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -202,14 +207,14 @@ private class DokkaDescriptorVisitor(
         return DAnnotation(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
-            documentation = descriptor.resolveDescriptorData(platformData),
+            documentation = descriptor.resolveDescriptorData(sourceSets),
             classlikes = scope.classlikes(driWithPlatform),
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations()),
             companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
-            visibility = PlatformDependent(mapOf(platformData to descriptor.visibility.toDokkaVisibility())),
+            visibility = SourceSetDependent(mapOf(sourceSets to descriptor.visibility.toDokkaVisibility())),
             constructors = descriptor.constructors.map { visitConstructorDescriptor(it, driWithPlatform) },
             sources = descriptor.createSources()
         )
@@ -219,7 +224,7 @@ private class DokkaDescriptorVisitor(
         val driWithPlatform = parent.dri.withClass(descriptor.name.asString()).withEmptyInfo()
         val scope = descriptor.unsubstitutedMemberScope
         val isExpect = descriptor.isExpect
-        val info = descriptor.resolveClassDescriptionData(if (!isExpect) platformData else null)
+        val info = descriptor.resolveClassDescriptionData(if (!isExpect) sourceSets else null)
         val actual = descriptor.createSources()
 
         return DClass(
@@ -229,23 +234,23 @@ private class DokkaDescriptorVisitor(
                 visitConstructorDescriptor(
                     it,
                     if (it.isPrimary) DRIWithPlatformInfo(driWithPlatform.dri, actual)
-                    else DRIWithPlatformInfo(driWithPlatform.dri, PlatformDependent.empty())
+                    else DRIWithPlatformInfo(driWithPlatform.dri, SourceSetDependent.empty())
                 )
             },
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             classlikes = scope.classlikes(driWithPlatform),
             sources = actual,
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            supertypes = if (isExpect) PlatformDependent.expectFrom(info.supertypes)
-            else PlatformDependent.from(platformData, info.supertypes),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            supertypes = if(isExpect) SourceSetDependent.expectFrom(info.supertypes)
+                else SourceSetDependent.from(sourceSets,info.supertypes),
             generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
             documentation = info.docs,
-            modifier = if (isExpect) PlatformDependent.expectFrom(descriptor.modifier())
-            else PlatformDependent.from(platformData, descriptor.modifier()),
+            modifier = if(isExpect) SourceSetDependent.expectFrom(descriptor.modifier())
+                    else SourceSetDependent.from(sourceSets, descriptor.modifier()),
             companion = descriptor.companion(driWithPlatform),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -268,13 +273,13 @@ private class DokkaDescriptorVisitor(
             setter = descriptor.accessors.filterIsInstance<PropertySetterDescriptor>().singleOrNull()?.let {
                 visitPropertyAccessorDescriptor(it, descriptor, dri)
             },
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
-            modifier = if (isExpect) PlatformDependent.expectFrom(descriptor.modifier())
-            else PlatformDependent.from(platformData, descriptor.modifier()),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null),
+            modifier = if(isExpect) SourceSetDependent.expectFrom(descriptor.modifier())
+            else SourceSetDependent.from(sourceSets, descriptor.modifier()),
             type = descriptor.returnType!!.toBound(),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
@@ -302,14 +307,14 @@ private class DokkaDescriptorVisitor(
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
-            modifier = if (isExpect) PlatformDependent.expectFrom(descriptor.modifier())
-            else PlatformDependent.from(platformData, descriptor.modifier()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null),
+            modifier = if(isExpect) SourceSetDependent.expectFrom(descriptor.modifier())
+            else SourceSetDependent.from(sourceSets, descriptor.modifier()),
             type = descriptor.returnType!!.toBound(),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(
                 InheritedFunction(isInherited),
                 descriptor.additionalExtras(), descriptor.getAnnotations()
@@ -333,12 +338,12 @@ private class DokkaDescriptorVisitor(
                 parameter(index, desc, DRIWithPlatformInfo(dri, actual))
             },
             sources = actual,
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null).let {
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null).let {
                 if (descriptor.isPrimary) {
                     it.copy(
-                        map = PlatformDependent.from(it.map.map {
+                        map = SourceSetDependent.from(it.map.map {
                             Pair(
                                 it.key,
                                 it.value.copy(children = (it.value.children.find { it is Constructor }?.root?.let { constructor ->
@@ -359,15 +364,14 @@ private class DokkaDescriptorVisitor(
                 }
             },
             type = descriptor.returnType.toBound(),
-            modifier = if (isExpect) PlatformDependent.expectFrom(descriptor.modifier())
-            else PlatformDependent.from(platformData, descriptor.modifier()),
+            modifier = if(isExpect) SourceSetDependent.expectFrom(descriptor.modifier())
+            else SourceSetDependent.from(sourceSets, descriptor.modifier()),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll<DFunction>(descriptor.additionalExtras(), descriptor.getAnnotations())
                 .let {
-                    if (descriptor.isPrimary) {
-                        it + PrimaryConstructorExtra
-                    } else it
+                    if(descriptor.isPrimary) { it + PrimaryConstructorExtra }
+                    else it
                 }
         )
     }
@@ -379,8 +383,8 @@ private class DokkaDescriptorVisitor(
         dri = parent.dri.copy(target = 0),
         name = null,
         type = descriptor.type.toBound(),
-        documentation = descriptor.resolveDescriptorData(platformData),
-        platformData = listOf(platformData)
+        documentation = descriptor.resolveDescriptorData(sourceSets),
+        sourceSets = listOf(sourceSets)
     )
 
     private fun visitPropertyAccessorDescriptor(
@@ -397,8 +401,8 @@ private class DokkaDescriptorVisitor(
                 parent.copy(target = 1),
                 this.name.asString(),
                 type = this.type.toBound(),
-                documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
-                platformData = listOf(platformData),
+                documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null),
+                sourceSets = listOf(sourceSets),
                 extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
             )
 
@@ -420,13 +424,13 @@ private class DokkaDescriptorVisitor(
             name,
             isConstructor = false,
             parameters = parameters,
-            visibility = if (isExpect) PlatformDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
-            else PlatformDependent.from(platformData, descriptor.visibility.toDokkaVisibility()),
-            documentation = descriptor.resolveDescriptorData(if (!isExpect) platformData else null),
+            visibility = if(isExpect) SourceSetDependent.expectFrom(descriptor.visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets,descriptor.visibility.toDokkaVisibility()),
+            documentation = descriptor.resolveDescriptorData(if (!isExpect) sourceSets else null),
             type = descriptor.returnType!!.toBound(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            modifier = if (isExpect) PlatformDependent.expectFrom(descriptor.modifier())
-            else PlatformDependent.from(platformData, descriptor.modifier()),
+            modifier = if(isExpect) SourceSetDependent.expectFrom(descriptor.modifier())
+            else SourceSetDependent.from(sourceSets, descriptor.modifier()),
             receiver = descriptor.extensionReceiverParameter?.let {
                 visitReceiverParameterDescriptor(
                     it,
@@ -434,7 +438,7 @@ private class DokkaDescriptorVisitor(
                 )
             },
             sources = descriptor.createSources(),
-            platformData = listOf(platformData),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
         )
     }
@@ -445,11 +449,11 @@ private class DokkaDescriptorVisitor(
                 dri = DRI.from(this),
                 name = name.asString(),
                 type = defaultType.toBound(),
-                underlyingType = PlatformDependent.from(platformData, underlyingType.toBound()),
-                visibility = if (isExpect) PlatformDependent.expectFrom(visibility.toDokkaVisibility())
-                else PlatformDependent.from(platformData, visibility.toDokkaVisibility()),
-                documentation = resolveDescriptorData(platformData),
-                platformData = listOf(platformData)
+                underlyingType = SourceSetDependent.from(sourceSets, underlyingType.toBound()),
+                visibility = if (isExpect) SourceSetDependent.expectFrom(visibility.toDokkaVisibility())
+                else SourceSetDependent.from(sourceSets, visibility.toDokkaVisibility()),
+                documentation = resolveDescriptorData(sourceSets),
+                sourceSets = listOf(sourceSets)
             )
         }
 
@@ -458,8 +462,8 @@ private class DokkaDescriptorVisitor(
             dri = parent.dri.copy(target = index + 1),
             name = descriptor.name.asString(),
             type = descriptor.type.toBound(),
-            documentation = descriptor.resolveDescriptorData(platformData),
-            platformData = listOf(platformData),
+            documentation = descriptor.resolveDescriptorData(sourceSets),
+            sourceSets = listOf(sourceSets),
             extra = PropertyContainer.withAll(
                 listOfNotNull(
                     descriptor.additionalExtras(),
@@ -468,18 +472,23 @@ private class DokkaDescriptorVisitor(
             )
         )
 
-    private fun MemberScope.functions(parent: DRIWithPlatformInfo): List<DFunction> =
-        getContributedDescriptors(DescriptorKindFilter.FUNCTIONS) { true }
+    private fun MemberScope.getContributedDescriptors(kindFilter: DescriptorKindFilter, shouldFilter: Boolean) =
+        getContributedDescriptors(kindFilter) { true }.let {
+            if (shouldFilter) it.filterDescriptorsInSourceSet() else it
+        }
+
+    private fun MemberScope.functions(parent: DRIWithPlatformInfo, packageLevel: Boolean = false): List<DFunction> =
+        getContributedDescriptors(DescriptorKindFilter.FUNCTIONS, packageLevel)
             .filterIsInstance<FunctionDescriptor>()
             .map { visitFunctionDescriptor(it, parent) }
 
-    private fun MemberScope.properties(parent: DRIWithPlatformInfo): List<DProperty> =
-        getContributedDescriptors(DescriptorKindFilter.VALUES) { true }
+    private fun MemberScope.properties(parent: DRIWithPlatformInfo, packageLevel: Boolean = false): List<DProperty> =
+        getContributedDescriptors(DescriptorKindFilter.VALUES, packageLevel)
             .filterIsInstance<PropertyDescriptor>()
             .map { visitPropertyDescriptor(it, parent) }
 
-    private fun MemberScope.classlikes(parent: DRIWithPlatformInfo): List<DClasslike> =
-        getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS) { true }
+    private fun MemberScope.classlikes(parent: DRIWithPlatformInfo, packageLevel: Boolean = false): List<DClasslike> =
+        getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS, packageLevel)
             .filter { it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY }
             .map { visitClassDescriptor(it as ClassDescriptor, parent) }
             .mapNotNull { it as? DClasslike }
@@ -489,8 +498,8 @@ private class DokkaDescriptorVisitor(
             .filterIsInstance<PackageFragmentDescriptor>()
             .map { visitPackageFragmentDescriptor(it, parent) }
 
-    private fun MemberScope.typealiases(parent: DRIWithPlatformInfo): List<DTypeAlias> =
-        getContributedDescriptors(DescriptorKindFilter.TYPE_ALIASES) { true }
+    private fun MemberScope.typealiases(parent: DRIWithPlatformInfo, packageLevel: Boolean = false): List<DTypeAlias> =
+        getContributedDescriptors(DescriptorKindFilter.TYPE_ALIASES, packageLevel)
             .filterIsInstance<TypeAliasDescriptor>()
             .map { visitTypeAliasDescriptor(it, parent) }
 
@@ -501,16 +510,13 @@ private class DokkaDescriptorVisitor(
             .map { enumEntryDescriptor(it, parent) }
 
 
-    private fun DeclarationDescriptor.resolveDescriptorData(platformData: PlatformData?): PlatformDependent<DocumentationNode> =
-        if (platformData != null) PlatformDependent.from(
-            platformData,
-            getDocumentation()
-        ) else PlatformDependent.expectFrom(getDocumentation())
+    private fun DeclarationDescriptor.resolveDescriptorData(sourceSets: SourceSetData?): SourceSetDependent<DocumentationNode> =
+        if(sourceSets != null) SourceSetDependent.from(sourceSets, getDocumentation()) else SourceSetDependent.expectFrom(getDocumentation())
 
-    private fun ClassDescriptor.resolveClassDescriptionData(platformData: PlatformData?): ClassInfo {
+    private fun ClassDescriptor.resolveClassDescriptionData(sourceSets: SourceSetData?): ClassInfo {
         return ClassInfo(
             (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) },
-            resolveDescriptorData(platformData)
+            resolveDescriptorData(sourceSets)
         )
     }
 
@@ -518,9 +524,9 @@ private class DokkaDescriptorVisitor(
         DTypeParameter(
             DRI.from(this),
             name.identifier,
-            PlatformDependent.from(platformData, getDocumentation()),
+            SourceSetDependent.from(sourceSets, getDocumentation()),
             upperBounds.map { it.toBound() },
-            listOf(platformData),
+            listOf(sourceSets),
             extra = PropertyContainer.withAll(additionalExtras())
         )
 
@@ -567,10 +573,10 @@ private class DokkaDescriptorVisitor(
         else -> KotlinModifier.Empty
     }
 
-    private fun MemberDescriptor.createSources(): PlatformDependent<DocumentableSource> = if (isExpect()) {
-        PlatformDependent(emptyMap(), DescriptorDocumentableSource(this))
+    private fun MemberDescriptor.createSources(): SourceSetDependent<DocumentableSource> = if (isExpect()) {
+        SourceSetDependent(emptyMap(), DescriptorDocumentableSource(this))
     } else {
-        PlatformDependent(mapOf(platformData to DescriptorDocumentableSource(this)))
+        SourceSetDependent(mapOf(sourceSets to DescriptorDocumentableSource(this)))
     }
 
     private fun FunctionDescriptor.additionalExtras() = listOfNotNull(
@@ -632,7 +638,7 @@ private class DokkaDescriptorVisitor(
     private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
 
-    private data class ClassInfo(val supertypes: List<DRI>, val docs: PlatformDependent<DocumentationNode>)
+    private data class ClassInfo(val supertypes: List<DRI>, val docs: SourceSetDependent<DocumentationNode>)
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
         Visibilities.PUBLIC -> KotlinVisibility.Public

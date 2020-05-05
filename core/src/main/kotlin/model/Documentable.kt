@@ -1,11 +1,12 @@
 package org.jetbrains.dokka.model
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 
@@ -13,8 +14,8 @@ abstract class Documentable {
     abstract val name: String?
     abstract val dri: DRI
     abstract val children: List<Documentable>
-    abstract val documentation: PlatformDependent<DocumentationNode>
-    abstract val platformData: List<PlatformData>
+    abstract val documentation: SourceSetDependent<DocumentationNode>
+    abstract val sourceSets: List<SourceSetData>
 
     override fun toString(): String =
         "${javaClass.simpleName}($dri)"
@@ -25,10 +26,10 @@ abstract class Documentable {
     override fun hashCode() = dri.hashCode()
 }
 
-data class PlatformDependent<out T>(
-    val map: Map<PlatformData, T>,
+data class SourceSetDependent<out T>(
+    val map: Map<SourceSetData, T>,
     val expect: T? = null
-) : Map<PlatformData, T> by map {
+) : Map<SourceSetData, T> by map {
     val prevalentValue: T?
         get() = map.values.distinct().singleOrNull()
 
@@ -37,33 +38,33 @@ data class PlatformDependent<out T>(
         yieldAll(map.values)
     }
 
-    val allEntries: Sequence<Pair<PlatformData?, T>> = sequence {
+    val allEntries: Sequence<Pair<SourceSetData?, T>> = sequence {
         expect?.also { yield(null to it) }
         map.forEach { (k, v) -> yield(k to v) }
     }
 
-    fun getOrExpect(platform: PlatformData): T? = map[platform] ?: expect
+    fun getOrExpect(platform: SourceSetData): T? = map[platform] ?: expect
 
     companion object {
-        fun <T> empty(): PlatformDependent<T> = PlatformDependent(emptyMap())
+        fun <T> empty(): SourceSetDependent<T> = SourceSetDependent(emptyMap())
 
-        fun <T> from(platformData: PlatformData, element: T) = PlatformDependent(mapOf(platformData to element))
+        fun <T> from(platformData: SourceSetData, element: T) = SourceSetDependent(mapOf(platformData to element))
 
         @Suppress("UNCHECKED_CAST")
-        fun <T> from(pairs: Iterable<Pair<PlatformData?, T>>) =
-            PlatformDependent(
-                pairs.filter { it.first != null }.toMap() as Map<PlatformData, T>,
+        fun <T> from(pairs: Iterable<Pair<SourceSetData?, T>>) =
+            SourceSetDependent(
+                pairs.filter { it.first != null }.toMap() as Map<SourceSetData, T>,
                 pairs.firstOrNull { it.first == null }?.second
             )
 
-        fun <T> from(vararg pairs: Pair<PlatformData?, T>) = from(pairs.asIterable())
+        fun <T> from(vararg pairs: Pair<SourceSetData?, T>) = from(pairs.asIterable())
 
-        fun <T> expectFrom(element: T) = PlatformDependent(map = emptyMap(), expect = element)
+        fun <T> expectFrom(element: T) = SourceSetDependent(map = emptyMap(), expect = element)
     }
 }
 
 interface WithExpectActual {
-    val sources: PlatformDependent<DocumentableSource>
+    val sources: SourceSetDependent<DocumentableSource>
 }
 
 interface WithScope {
@@ -73,7 +74,7 @@ interface WithScope {
 }
 
 interface WithVisibility {
-    val visibility: PlatformDependent<Visibility>
+    val visibility: SourceSetDependent<Visibility>
 }
 
 interface WithType {
@@ -81,7 +82,7 @@ interface WithType {
 }
 
 interface WithAbstraction {
-    val modifier: PlatformDependent<Modifier>
+    val modifier: SourceSetDependent<Modifier>
 }
 
 sealed class Modifier(val name: String)
@@ -112,7 +113,7 @@ interface WithGenerics {
 }
 
 interface WithSupertypes {
-    val supertypes: PlatformDependent<List<DRI>>
+    val supertypes: SourceSetDependent<List<DRI>>
 }
 
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
@@ -124,8 +125,8 @@ sealed class DClasslike : Documentable(), WithScope, WithVisibility, WithExpectA
 data class DModule(
     override val name: String,
     val packages: List<DPackage>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val platformData: List<PlatformData>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DModule> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DModule> {
     override val dri: DRI = DRI.topLevel
@@ -141,8 +142,8 @@ data class DPackage(
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
     val typealiases: List<DTypeAlias>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val platformData: List<PlatformData>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DPackage> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DPackage> {
     override val name = dri.packageName.orEmpty()
@@ -159,14 +160,14 @@ data class DClass(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val sources: PlatformDependent<DocumentableSource>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val sources: SourceSetDependent<DocumentableSource>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
-    override val supertypes: PlatformDependent<List<DRI>>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val modifier: PlatformDependent<Modifier>,
-    override val platformData: List<PlatformData>,
+    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val modifier: SourceSetDependent<Modifier>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
 ) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
     WithExtraProperties<DClass> {
@@ -181,16 +182,16 @@ data class DEnum(
     override val dri: DRI,
     override val name: String,
     val entries: List<DEnumEntry>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
-    override val supertypes: PlatformDependent<List<DRI>>,
-    override val platformData: List<PlatformData>,
+    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DEnum> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum> {
     override val children: List<Documentable>
@@ -202,11 +203,11 @@ data class DEnum(
 data class DEnumEntry(
     override val dri: DRI,
     override val name: String,
-    override val documentation: PlatformDependent<DocumentationNode>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val platformData: List<PlatformData>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
     override val children: List<Documentable>
@@ -220,14 +221,14 @@ data class DFunction(
     override val name: String,
     val isConstructor: Boolean,
     val parameters: List<DParameter>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
     override val generics: List<DTypeParameter>,
     override val receiver: DParameter?,
-    override val modifier: PlatformDependent<Modifier>,
-    override val platformData: List<PlatformData>,
+    override val modifier: SourceSetDependent<Modifier>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
     override val children: List<Documentable>
@@ -239,16 +240,16 @@ data class DFunction(
 data class DInterface(
     override val dri: DRI,
     override val name: String,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
-    override val supertypes: PlatformDependent<List<DRI>>,
-    override val platformData: List<PlatformData>,
+    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DInterface> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface> {
     override val children: List<Documentable>
@@ -260,14 +261,14 @@ data class DInterface(
 data class DObject(
     override val name: String?,
     override val dri: DRI,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val visibility: PlatformDependent<Visibility>,
-    override val supertypes: PlatformDependent<List<DRI>>,
-    override val platformData: List<PlatformData>,
+    override val visibility: SourceSetDependent<Visibility>,
+    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DObject> = PropertyContainer.empty()
 ) : DClasslike(), WithSupertypes, WithExtraProperties<DObject> {
     override val children: List<Documentable>
@@ -279,15 +280,15 @@ data class DObject(
 data class DAnnotation(
     override val name: String,
     override val dri: DRI,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
-    override val platformData: List<PlatformData>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DAnnotation> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithExtraProperties<DAnnotation> {
     override val children: List<Documentable>
@@ -299,15 +300,15 @@ data class DAnnotation(
 data class DProperty(
     override val dri: DRI,
     override val name: String,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val sources: PlatformDependent<DocumentableSource>,
-    override val visibility: PlatformDependent<Visibility>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sources: SourceSetDependent<DocumentableSource>,
+    override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
     override val receiver: DParameter?,
     val setter: DFunction?,
     val getter: DFunction?,
-    override val modifier: PlatformDependent<Modifier>,
-    override val platformData: List<PlatformData>,
+    override val modifier: SourceSetDependent<Modifier>,
+    override val sourceSets: List<SourceSetData>,
     override val generics: List<DTypeParameter>,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<DProperty>, WithGenerics {
@@ -321,9 +322,9 @@ data class DProperty(
 data class DParameter(
     override val dri: DRI,
     override val name: String?,
-    override val documentation: PlatformDependent<DocumentationNode>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
     val type: Bound,
-    override val platformData: List<PlatformData>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DParameter> {
     override val children: List<Nothing>
@@ -335,9 +336,9 @@ data class DParameter(
 data class DTypeParameter(
     override val dri: DRI,
     override val name: String,
-    override val documentation: PlatformDependent<DocumentationNode>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
     val bounds: List<Bound>,
-    override val platformData: List<PlatformData>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DTypeParameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DTypeParameter> {
     override val children: List<Nothing>
@@ -350,10 +351,10 @@ data class DTypeAlias(
     override val dri: DRI,
     override val name: String,
     override val type: Bound,
-    val underlyingType: PlatformDependent<Bound>,
-    override val visibility: PlatformDependent<Visibility>,
-    override val documentation: PlatformDependent<DocumentationNode>,
-    override val platformData: List<PlatformData>,
+    val underlyingType: SourceSetDependent<Bound>,
+    override val visibility: SourceSetDependent<Visibility>,
+    override val documentation: SourceSetDependent<DocumentationNode>,
+    override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
 ) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias> {
     override val children: List<Nothing>
@@ -417,7 +418,7 @@ sealed class JavaVisibility(name: String) : Visibility(name) {
     object Default : JavaVisibility("")
 }
 
-fun <T> PlatformDependent<T>?.orEmpty(): PlatformDependent<T> = this ?: PlatformDependent.empty()
+fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: SourceSetDependent.empty()
 
 interface DocumentableSource {
     val path: String
@@ -430,3 +431,22 @@ class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : Docu
 class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource {
     override val path = psi.containingFile.virtualFile.path
 }
+
+data class SourceSetData(
+    override val moduleName: String,
+    override val sourceSetName: String,
+    override val platform: Platform,
+    override val sourceRoots: List<DokkaConfiguration.SourceRoot> = emptyList()
+) : DokkaConfiguration.SourceSetIdentifier
+
+private object SourceSetCache {
+    private val sourceSets = HashMap<String, SourceSetData>()
+
+    fun getSourceSet(pass: DokkaConfiguration.PassConfiguration) =
+        sourceSets.getOrPut("${pass.moduleName}/${pass.sourceSetName}",
+            { SourceSetData(pass.moduleName, pass.sourceSetName, pass.analysisPlatform, pass.sourceRoots) }
+        )
+}
+
+val DokkaConfiguration.PassConfiguration.sourceSet: SourceSetData
+    get() = SourceSetCache.getSourceSet(this)

@@ -1,9 +1,7 @@
 package model
 
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
-import org.jetbrains.dokka.pages.PlatformData
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest

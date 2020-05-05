@@ -10,7 +10,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
@@ -33,7 +32,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
 
-    private fun actualTypealiasedSignature(dri: DRI, name: String, aliasedTypes: PlatformDependent<Bound>) =
+    private fun actualTypealiasedSignature(dri: DRI, name: String, aliasedTypes: SourceSetDependent<Bound>) =
         aliasedTypes.entries.groupBy({ it.value }, { it.key }).map { (bound, platforms) ->
             contentBuilder.contentFor(dri, platforms.toSet(), ContentKind.Symbol, setOf(TextStyle.Monospace)) {
                 text("actual typealias ")
@@ -47,17 +46,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         (c as? WithExtraProperties<out DClasslike>)?.let {
             c.extra[ActualTypealias]?.let {
                 contentBuilder.contentFor(c) {
-                    +regularSignature(c, platformData = c.platformData.toSet() - it.underlyingType.keys)
+                    +regularSignature(c, sourceSets = c.sourceSets.toSet() - it.underlyingType.keys)
                     +actualTypealiasedSignature(c.dri, c.name.orEmpty(), it.underlyingType)
                 }
             } ?: regularSignature(c)
         } ?: regularSignature(c)
 
-    private fun regularSignature(c: DClasslike, platformData: Set<PlatformData> = c.platformData.toSet()) =
-        contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
-            platformText(c.visibility, platformData) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+    private fun regularSignature(c: DClasslike, sourceSets: Set<SourceSetData> = c.sourceSets.toSet()) =
+        contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
+            platformText(c.visibility, sourceSets) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             if (c is DClass) {
-                platformText(c.modifier, platformData) {
+                platformText(c.modifier, sourceSets) {
                     if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true && it.name == "final") "data "
                     else it.name + " "
                 }
@@ -72,23 +71,23 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             link(c.name!!, c.dri)
             if (c is DClass) {
                 val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
-                list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.platformData.orEmpty().toSet()) {
+                list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.sourceSets.orEmpty().toSet()) {
                     text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold).plus(TextStyle.Indented))
                     text(": ")
                     signatureForProjection(it.type)
                 }
             }
             if (c is WithSupertypes) {
-                c.supertypes.filter { it.key in platformData }.map { (p, dris) ->
-                    list(dris, prefix = " : ", platformData = setOf(p)) {
-                        link(it.sureClassNames, it, platformData = setOf(p))
+                c.supertypes.filter { it.key in sourceSets }.map { (p, dris) ->
+                    list(dris, prefix = " : ", sourceSets = setOf(p)) {
+                        link(it.sureClassNames, it, sourceSets = setOf(p))
                     }
                 }
             }
         }
 
-    private fun propertySignature(p: DProperty, platformData: Set<PlatformData> = p.platformData.toSet()) =
-        contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+    private fun propertySignature(p: DProperty, sourceSets: Set<SourceSetData> = p.sourceSets.toSet()) =
+        contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
             platformText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             platformText(p.modifier){ it.name + " "}
             p.setter?.let { text("var ") } ?: text("val ")
@@ -104,8 +103,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             signatureForProjection(p.type)
         }
 
-    private fun functionSignature(f: DFunction, platformData: Set<PlatformData> = f.platformData.toSet()) =
-        contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace), platformData = platformData) {
+    private fun functionSignature(f: DFunction, sourceSets: Set<SourceSetData> = f.sourceSets.toSet()) =
+        contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
             platformText(f.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             platformText(f.modifier) { it.name + " " }
             text("fun ")
@@ -145,7 +144,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     t,
                     ContentKind.Symbol,
                     setOf(TextStyle.Monospace),
-                    platformData = platforms.toSet()
+                    sourceSets = platforms.toSet()
                 ) {
                     platformText(t.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
                     text("typealias ")
@@ -194,8 +193,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
         }
 
-    private fun funType(dri: DRI, platformData: Set<PlatformData>, type: TypeConstructor) =
-        contentBuilder.contentFor(dri, platformData, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+    private fun funType(dri: DRI, sourceSets: Set<SourceSetData>, type: TypeConstructor) =
+        contentBuilder.contentFor(dri, sourceSets, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
             if (type.extension) {
                 signatureForProjection(type.projections.first())
                 text(".")

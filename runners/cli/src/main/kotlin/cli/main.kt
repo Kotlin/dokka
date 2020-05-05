@@ -65,12 +65,23 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         ""
     )
 
+    override val sourceSetName: String by parser.stringOption(
+        listOf("-module"),
+        "Name of the source set",
+        "main"
+    )
+
     override val classpath: List<String> by parser.repeatableOption(
         listOf("-classpath"),
         "Classpath for symbol resolution"
     )
 
     override val sourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
+        listOf("-src"),
+        "Source file or directory (allows many paths separated by the system path separator)"
+    ) { SourceRootImpl(it) }
+
+    override val dependentSourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
         listOf("-src"),
         "Source file or directory (allows many paths separated by the system path separator)"
     ) { SourceRootImpl(it) }

@@ -41,13 +41,13 @@ object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFu
     override val key: ExtraProperty.Key<DFunction, *> = this
 }
 
-data class ActualTypealias(val underlyingType: PlatformDependent<Bound>) : ExtraProperty<DClasslike> {
+data class ActualTypealias(val underlyingType: SourceSetDependent<Bound>) : ExtraProperty<DClasslike> {
     companion object : ExtraProperty.Key<DClasslike, ActualTypealias> {
         override fun mergeStrategyFor(
             left: ActualTypealias,
             right: ActualTypealias
         ) =
-            MergeStrategy.Replace(ActualTypealias(PlatformDependent(left.underlyingType + right.underlyingType)))
+            MergeStrategy.Replace(ActualTypealias(SourceSetDependent(left.underlyingType + right.underlyingType)))
     }
 
     override val key: ExtraProperty.Key<DClasslike, ActualTypealias> = ActualTypealias

@@ -37,18 +37,18 @@ internal fun DPackage.asJava(): DPackage {
                                 nodes.filterIsInstance<DFunction>()
                                     .map { it.asJava(syntheticClassName) }), // TODO: methods are static and receiver is a param
                 classlikes = emptyList(),
-                sources = PlatformDependent.empty(),
-                visibility = PlatformDependent(
-                    platformData.map {
+                sources = SourceSetDependent.empty(),
+                visibility = SourceSetDependent(
+                    sourceSets.map {
                         it to JavaVisibility.Public
                     }.toMap()
                 ),
                 companion = null,
                 generics = emptyList(),
-                supertypes = PlatformDependent.empty(),
-                documentation = PlatformDependent.empty(),
-                modifier = PlatformDependent(map = platformData.map{ it to JavaModifier.Final}.toMap()),
-                platformData = platformData,
+                supertypes = SourceSetDependent.empty(),
+                documentation = SourceSetDependent.empty(),
+                modifier = SourceSetDependent(map = sourceSets.map{ it to JavaModifier.Final}.toMap()),
+                sourceSets = sourceSets,
                 extra = PropertyContainer.empty()
             )
         }
@@ -68,9 +68,9 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
             dri.withClass(relocateToClass)
         },
         modifier = if (setter == null) {
-            PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
+            SourceSetDependent(map = sourceSets.map{it to JavaModifier.Final}.toMap())
         } else {
-            PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
+            SourceSetDependent(map = sourceSets.map{it to JavaModifier.Empty}.toMap())
         },
         visibility = visibility.copy(
             map = visibility.mapValues { JavaVisibility.Private }
@@ -91,9 +91,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "get" + name.capitalize(),
             modifier = if (setter == null) {
-                PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
+                SourceSetDependent(map = sourceSets.map{it to JavaModifier.Final}.toMap())
             } else {
-                PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
+                SourceSetDependent(map = sourceSets.map{it to JavaModifier.Empty}.toMap())
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -109,9 +109,9 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "set" + name.capitalize(),
             modifier = if (setter == null) {
-                PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
+                SourceSetDependent(map = sourceSets.map{it to JavaModifier.Final}.toMap())
             } else {
-                PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
+                SourceSetDependent(map = sourceSets.map{it to JavaModifier.Empty}.toMap())
             },
             visibility = visibility.copy(
                 map = visibility.mapValues { JavaVisibility.Public }
@@ -132,8 +132,8 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
         name = newName,
         type = type.asJava(),
         modifier = if(modifier.all{(_,v)-> v is KotlinModifier.Final} && isConstructor)
-            PlatformDependent(map = platformData.map{it to JavaModifier.Empty}.toMap())
-        else PlatformDependent(map = platformData.map{it to modifier.allValues.first()}.toMap()),
+            SourceSetDependent(map = sourceSets.map{it to JavaModifier.Empty}.toMap())
+        else SourceSetDependent(map = sourceSets.map{it to modifier.allValues.first()}.toMap()),
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         receiver = null
     ) // TODO static if toplevel
@@ -159,8 +159,8 @@ internal fun DClass.asJava(): DClass = copy(
     supertypes = supertypes.copy(
         map = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
     ),
-    modifier = if (modifier.all{(_,v) -> v is KotlinModifier.Empty}) PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap())
-    else PlatformDependent(map = platformData.map{it to modifier.allValues.first()}.toMap())
+    modifier = if (modifier.all{(_,v) -> v is KotlinModifier.Empty}) SourceSetDependent(map = sourceSets.map{it to JavaModifier.Final}.toMap())
+    else SourceSetDependent(map = sourceSets.map{it to modifier.allValues.first()}.toMap())
 )
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
@@ -198,19 +198,19 @@ internal fun DObject.asJava(): DObject = copy(
     properties = properties.map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
-                modifier = PlatformDependent(map = platformData.map{it to JavaModifier.Final}.toMap()),
+                modifier = SourceSetDependent(map = sourceSets.map{it to JavaModifier.Final}.toMap()),
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
-                documentation = PlatformDependent.empty(),
-                sources = PlatformDependent.empty(),
-                visibility = PlatformDependent(
-                    platformData.map {
+                documentation = SourceSetDependent.empty(),
+                sources = SourceSetDependent.empty(),
+                visibility = SourceSetDependent(
+                    sourceSets.map {
                         it to JavaVisibility.Public
                     }.toMap()
                 ),
                 type = TypeConstructor(dri, emptyList()),
                 setter = null,
                 getter = null,
-                platformData = platformData,
+                sourceSets = sourceSets,
                 receiver = null,
                 generics = emptyList(),
                 extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))

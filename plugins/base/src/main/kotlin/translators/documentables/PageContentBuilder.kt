@@ -19,46 +19,46 @@ open class PageContentBuilder(
 ) {
     fun contentFor(
         dri: DRI,
-        platformData: Set<PlatformData>,
+        sourceSets: Set<SourceSetData>,
         kind: Kind = ContentKind.Main,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         block: DocumentableContentBuilder.() -> Unit
     ): ContentGroup =
-        DocumentableContentBuilder(dri, platformData, styles, extra)
+        DocumentableContentBuilder(dri, sourceSets, styles, extra)
             .apply(block)
-            .build(platformData, kind, styles, extra)
+            .build(sourceSets, kind, styles, extra)
 
     fun contentFor(
         d: Documentable,
         kind: Kind = ContentKind.Main,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
-        platformData: Set<PlatformData> = d.platformData.toSet(),
+        sourceSets: Set<SourceSetData> = d.sourceSets.toSet(),
         block: DocumentableContentBuilder.() -> Unit = {}
     ): ContentGroup =
-        DocumentableContentBuilder(d.dri, platformData, styles, extra)
+        DocumentableContentBuilder(d.dri, sourceSets, styles, extra)
             .apply(block)
-            .build(platformData, kind, styles, extra)
+            .build(sourceSets, kind, styles, extra)
 
     @ContentBuilderMarker
     open inner class DocumentableContentBuilder(
         val mainDRI: DRI,
-        val mainPlatformData: Set<PlatformData>,
+        val mainPlatformData: Set<SourceSetData>,
         val mainStyles: Set<Style>,
         val mainExtra: PropertyContainer<ContentNode>
     ) {
         protected val contents = mutableListOf<ContentNode>()
 
         fun build(
-            platformData: Set<PlatformData>,
+            sourceSets: Set<SourceSetData>,
             kind: Kind,
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
         ) = ContentGroup(
             contents.toList(),
             DCI(setOf(mainDRI), kind),
-            platformData,
+            sourceSets,
             styles,
             extra
         )
@@ -74,7 +74,7 @@ open class PageContentBuilder(
         fun header(
             level: Int,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            platformData: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
@@ -88,11 +88,11 @@ open class PageContentBuilder(
         fun text(
             text: String,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
-            contents += createText(text, kind, platformData, styles, extra)
+            contents += createText(text, kind, sourceSets, styles, extra)
         }
 
         fun buildSignature(d: Documentable) = signatureProvider.signature(d)
@@ -100,26 +100,26 @@ open class PageContentBuilder(
         fun linkTable(
             elements: List<DRI>,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
             contents += ContentTable(
                 emptyList(),
                 elements.map {
-                    contentFor(it, platformData, kind, styles, extra) {
+                    contentFor(it, sourceSets, kind, styles, extra) {
                         link(it.classNames ?: "", it)
                     }
                 },
                 DCI(setOf(mainDRI), kind),
-                platformData, styles, extra
+                sourceSets, styles, extra
             )
         }
 
         fun table(
             dri: DRI = mainDRI,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             operation: DocumentableContentBuilder.() -> List<ContentGroup>
@@ -128,7 +128,7 @@ open class PageContentBuilder(
                 emptyList(),
                 operation(),
                 DCI(setOf(mainDRI), kind),
-                platformData, styles, extra
+                sourceSets, styles, extra
             )
         }
 
@@ -137,7 +137,7 @@ open class PageContentBuilder(
             level: Int,
             kind: Kind = ContentKind.Main,
             elements: Iterable<T>,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             renderWhenEmpty: Boolean = false,
@@ -148,12 +148,12 @@ open class PageContentBuilder(
                 contents += ContentTable(
                     emptyList(),
                     elements.map {
-                        buildGroup(it.dri, it.platformData.toSet(), kind, styles, extra) {
+                        buildGroup(it.dri, it.sourceSets.toSet(), kind, styles, extra) {
                             operation(it)
                         }
                     },
                     DCI(setOf(mainDRI), kind),
-                    platformData, styles, extra
+                    sourceSets, styles, extra
                 )
             }
         }
@@ -163,17 +163,17 @@ open class PageContentBuilder(
             prefix: String = "",
             suffix: String = "",
             separator: String = ", ",
-            platformData: Set<PlatformData> = mainPlatformData, // TODO: children should be aware of this platform data
+            sourceSets: Set<SourceSetData> = mainPlatformData, // TODO: children should be aware of this platform data
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (elements.isNotEmpty()) {
-                if (prefix.isNotEmpty()) text(prefix, platformData = platformData)
+                if (prefix.isNotEmpty()) text(prefix, sourceSets = sourceSets)
                 elements.dropLast(1).forEach {
                     operation(it)
-                    text(separator, platformData = platformData)
+                    text(separator, sourceSets = sourceSets)
                 }
                 operation(elements.last())
-                if (suffix.isNotEmpty()) text(suffix, platformData = platformData)
+                if (suffix.isNotEmpty()) text(suffix, sourceSets = sourceSets)
             }
         }
 
@@ -181,98 +181,98 @@ open class PageContentBuilder(
             text: String,
             address: DRI,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
             contents += ContentDRILink(
-                listOf(createText(text, kind, platformData, styles, extra)),
+                listOf(createText(text, kind, sourceSets, styles, extra)),
                 address,
                 DCI(setOf(mainDRI), kind),
-                platformData
+                sourceSets
             )
         }
 
         fun link(
             address: DRI,
             kind: Kind = ContentKind.Main,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contents += ContentDRILink(
-                contentFor(mainDRI, platformData, kind, styles, extra, block).children,
+                contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
                 address,
                 DCI(setOf(mainDRI), kind),
-                platformData
+                sourceSets
             )
         }
 
         fun comment(
             docTag: DocTag,
             kind: Kind = ContentKind.Comment,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
             val content = commentsConverter.buildContent(
                 docTag,
                 DCI(setOf(mainDRI), kind),
-                platformData
+                sourceSets
             )
-            contents += ContentGroup(content, DCI(setOf(mainDRI), kind), platformData, styles, extra)
+            contents += ContentGroup(content, DCI(setOf(mainDRI), kind), sourceSets, styles, extra)
         }
 
         fun group(
             dri: DRI = mainDRI,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             kind: Kind = ContentKind.Main,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
-            contents += buildGroup(dri, platformData, kind, styles, extra, block)
+            contents += buildGroup(dri, sourceSets, kind, styles, extra, block)
         }
 
         fun buildGroup(
             dri: DRI = mainDRI,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             kind: Kind = ContentKind.Main,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
-        ): ContentGroup = contentFor(dri, platformData, kind, styles, extra, block)
+        ): ContentGroup = contentFor(dri, sourceSets, kind, styles, extra, block)
 
         fun platformDependentHint(
             dri: DRI = mainDRI,
-            platformData: Set<PlatformData> = mainPlatformData,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
             kind: Kind = ContentKind.Main,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contents += PlatformHintedContent(
-                buildGroup(dri, platformData, kind, styles, extra, block),
-                platformData
+                buildGroup(dri, sourceSets, kind, styles, extra, block),
+                sourceSets
             )
         }
 
         protected fun createText(
             text: String,
             kind: Kind,
-            platformData: Set<PlatformData>,
+            sourceSets: Set<SourceSetData>,
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
         ) =
-            ContentText(text, DCI(setOf(mainDRI), kind), platformData, styles, extra)
+            ContentText(text, DCI(setOf(mainDRI), kind), sourceSets, styles, extra)
 
         fun <T> platformText(
-            value: PlatformDependent<T>,
-            platforms: Set<PlatformData> = value.keys,
+            value: SourceSetDependent<T>,
+            platforms: Set<SourceSetData> = value.keys,
             transform: (T) -> String
         ) = value.entries.filter { it.key in platforms }.forEach { (p, v) ->
-            transform(v).takeIf { it.isNotBlank() }?.also { text(it, platformData = setOf(p)) }
+            transform(v).takeIf { it.isNotBlank() }?.also { text(it, sourceSets = setOf(p)) }
         }
     }
 }

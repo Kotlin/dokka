@@ -2,7 +2,7 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.EnvironmentAndFacade
-import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 import java.net.URLClassLoader
@@ -21,7 +21,7 @@ interface DokkaContext {
 
     val logger: DokkaLogger
     val configuration: DokkaConfiguration
-    val platforms: Map<PlatformData, EnvironmentAndFacade>
+    val platforms: Map<SourceSetData, EnvironmentAndFacade>
     val unusedPoints: Collection<ExtensionPoint<*>>
 
 
@@ -29,7 +29,7 @@ interface DokkaContext {
         fun create(
             configuration: DokkaConfiguration,
             logger: DokkaLogger,
-            platforms: Map<PlatformData, EnvironmentAndFacade>,
+            platforms: Map<SourceSetData, EnvironmentAndFacade>,
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
             DokkaContextConfigurationImpl(logger, configuration, platforms).apply {
@@ -56,7 +56,7 @@ interface DokkaContextConfiguration {
 private class DokkaContextConfigurationImpl(
     override val logger: DokkaLogger,
     override val configuration: DokkaConfiguration,
-    override val platforms: Map<PlatformData, EnvironmentAndFacade>
+    override val platforms: Map<SourceSetData, EnvironmentAndFacade>
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()

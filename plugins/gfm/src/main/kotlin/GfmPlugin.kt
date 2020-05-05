@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -62,7 +63,7 @@ open class CommonmarkRenderer(
         append("]($address)")
     }
 
-    override fun StringBuilder.buildList(node: ContentList, pageContext: ContentPage, platformRestriction: PlatformData?) {
+    override fun StringBuilder.buildList(node: ContentList, pageContext: ContentPage, platformRestriction: SourceSetData?) {
         buildParagraph()
         buildListLevel(node, pageContext)
         buildParagraph()
@@ -107,15 +108,15 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
-        val distinct = content.platforms.map {
+        val distinct = content.sourceSets.map {
             it to StringBuilder().apply {buildContentNode(content.inner, pageContext, it) }.toString()
-        }.groupBy(Pair<PlatformData, String>::second, Pair<PlatformData, String>::first)
+        }.groupBy(Pair<SourceSetData, String>::second, Pair<SourceSetData, String>::first)
 
         if (distinct.size == 1)
             append(distinct.keys.single())
         else
             distinct.forEach { text, platforms ->
-                append(platforms.joinToString(prefix = " [", postfix = "] $text") { it.name })
+                append(platforms.joinToString(prefix = " [", postfix = "] $text") { "${it.moduleName}/${it.sourceSetName}"  })
             }
     }
 
@@ -123,7 +124,7 @@ open class CommonmarkRenderer(
         append("Resource")
     }
 
-    override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage, platformRestriction: PlatformData?) {
+    override fun StringBuilder.buildTable(node: ContentTable, pageContext: ContentPage, platformRestriction: SourceSetData?) {
 
         buildParagraph()
         val size = node.children.firstOrNull()?.children?.size ?: 0

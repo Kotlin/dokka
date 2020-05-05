@@ -1,7 +1,8 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.PlatformDependent
+import org.jetbrains.dokka.model.SourceSetDependent
+import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -17,7 +18,7 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
         val modulesAndPackagesDocumentation =
             context.configuration.passesConfigurations
                 .map {
-                    Pair(it.moduleName, it.platformData) to
+                    Pair(it.moduleName, it.sourceSet) to
                             it.includes.map { Paths.get(it) }
                                 .also {
                                     it.forEach {
@@ -48,10 +49,10 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
         return original.map { module ->
 
             val moduleDocumentation =
-                module.platformData.mapNotNull { pd ->
+                module.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
                     val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.name}") }
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetName}") }
                     try {
                         doc?.get("Module")?.get(module.name)?.run {
                             pd to MarkdownParser(
@@ -67,10 +68,10 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
                 }.toMap()
 
             val packagesDocumentation = module.packages.map {
-                it.name to it.platformData.mapNotNull { pd ->
+                it.name to it.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
                     val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.name}") }
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetName}") }
                     val descriptor = facade.resolveSession.getPackageFragment(FqName(it.name))
                         ?: return@mapNotNull null.also { context.logger.warn("Could not find descriptor for $") }
                     doc?.get("Package")?.get(it.name)?.run {
@@ -84,11 +85,11 @@ internal object ModuleAndPackageDocumentationTransformer : PreMergeDocumentableT
             }.toMap()
 
             module.copy(
-                documentation = module.documentation.let { PlatformDependent(it.map + moduleDocumentation) },
+                documentation = module.documentation.let { SourceSetDependent(it.map + moduleDocumentation) },
                 packages = module.packages.map {
                     if (packagesDocumentation[it.name] != null)
                         it.copy(documentation = it.documentation.let { value ->
-                            PlatformDependent(value.map + packagesDocumentation[it.name]!!)
+                            SourceSetDependent(value.map + packagesDocumentation[it.name]!!)
                         })
                     else
                         it

@@ -32,6 +32,6 @@ object SameMethodNamePageMergerStrategy : PageMergerStrategy {
     }
 
     fun asGroup(dci: DCI, nodes: List<ContentNode>): ContentGroup =
-        nodes.first().let { ContentGroup(nodes, dci, it.platforms, it.style, it.extra) }
+        nodes.first().let { ContentGroup(nodes, dci, it.sourceSets, it.style, it.extra) }
 
 }

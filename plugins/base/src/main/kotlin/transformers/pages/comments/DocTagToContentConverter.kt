@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.comments
 
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -8,7 +9,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        platforms: Set<PlatformData>,
+        platforms: Set<SourceSetData>,
         styles: Set<Style>,
         extra: PropertyContainer<ContentNode>
     ): List<ContentNode> {
@@ -110,7 +111,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     address = docTag.params["href"]!!,
                     altText = docTag.params["alt"],
                     dci = dci,
-                    platforms = platforms,
+                    sourceSets = platforms,
                     style = styles,
                     extra = extra
                 )
