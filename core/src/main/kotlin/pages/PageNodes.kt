@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.pages
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
@@ -149,10 +150,6 @@ class MemberPageNode(
     ): MemberPageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
         else MemberPageNode(name, content, dri, documentable, children, embeddedResources)
-}
-
-data class PlatformData(val name: String, val platformType: Platform, val targets: List<String>) {
-    override fun toString() = targets.toString()
 }
 
 fun PageNode.dfs(predicate: (PageNode) -> Boolean): PageNode? = if (predicate(this)) {

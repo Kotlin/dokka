@@ -1,8 +1,8 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location://function/#kotlin.Function0[kotlin.Unit]//root/[jvm root]/function.html
-$dokka.location:/Fancy/equals/#kotlin.Any?//root/[jvm root]/-fancy/equals.html
-$dokka.location:/Fancy/hashCode/#//root/[jvm root]/-fancy/hash-code.html
-$dokka.location:/Fancy/toString/#//root/[jvm root]/-fancy/to-string.html
-[jvm root]
+$dokka.location://function/#kotlin.Function0[kotlin.Unit]//root/[main root]/function.html
+$dokka.location:/Fancy/equals/#kotlin.Any?//root/[main root]/-fancy/equals.html
+$dokka.location:/Fancy/hashCode/#//root/[main root]/-fancy/hash-code.html
+$dokka.location:/Fancy/toString/#//root/[main root]/-fancy/to-string.html
+[main root]
 

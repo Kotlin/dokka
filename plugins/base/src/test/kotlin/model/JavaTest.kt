@@ -112,7 +112,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             with((this / "java" / "Foo").cast<DClass>()) {
                 val sups = listOf("Exception", "Cloneable")
                 assertTrue(
-                    sups.all { s -> supertypes.map.values.flatten().any { it.classNames == s } })
+                    sups.all { s -> supertypes.values.flatten().any { it.classNames == s } })
                 "Foo must extend ${sups.joinToString(", ")}"
             }
         }
@@ -410,7 +410,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 val dri = (this / "Bar").assertNotNull("Foo dri").dri
                 with((this / "Foo").cast<DClass>()) {
                     with(extra[InheritorsInfo].assertNotNull("InheritorsInfo")) {
-                        with(value.map.values.flatten().distinct()) {
+                        with(value.values.flatten().distinct()) {
                             this counts 1
                             first() equals dri
                         }

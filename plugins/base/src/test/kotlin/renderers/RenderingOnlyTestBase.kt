@@ -14,6 +14,8 @@ import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransfo
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.SourceSetCache
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -34,6 +36,7 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { _ -> ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { _ -> ::DokkaExternalLocationProviderFactory },
+        sourceSetCache = SourceSetCache(),
         testConfiguration = DokkaConfigurationImpl("", "", false, null, emptyList(), emptyList(), emptyList(), emptyMap())
     )
 
@@ -105,7 +108,7 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        platforms: Set<PlatformData>,
+        sourceSets: Set<SourceSetData>,
         styles: Set<Style>,
         extras: PropertyContainer<ContentNode>
     ): List<ContentNode> = emptyList()
@@ -113,7 +116,7 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
 
 internal object EmptyLocationProviderFactory: LocationProviderFactory {
     override fun getLocationProvider(pageNode: RootPageNode) = object : LocationProvider {
-        override fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode?): String = ""
+        override fun resolve(dri: DRI, sourceSets: List<SourceSetData>, context: PageNode?): String = ""
 
         override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String = node.name
 

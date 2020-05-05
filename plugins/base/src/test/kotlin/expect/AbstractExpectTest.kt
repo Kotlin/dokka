@@ -17,7 +17,7 @@ abstract class AbstractExpectTest(
             format = outFormat
             passes {
                 pass {
-                    sourceRoots = listOf(path.asString())
+                    sourceRoots = listOf(path.toAbsolutePath().asString())
                 }
             }
         }

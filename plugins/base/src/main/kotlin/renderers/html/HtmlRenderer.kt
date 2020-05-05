@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -42,10 +43,10 @@ open class HtmlRenderer(
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
-            val contents = content.platforms.mapIndexed { index, platform ->
+            val contents = content.sourceSets.mapIndexed { index, platform ->
                 platform to createHTML(prettyPrint = false).div(classes = "content") {
                     if (index == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = platform.targets.joinToString("-")
+                    attributes["data-togglable"] = platform.sourceSetName
                     buildContentNode(content.inner, pageContext, platform)
                 }
             }
@@ -56,8 +57,8 @@ open class HtmlRenderer(
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.targets.joinToString("-")
-                            text(pair.first.targets.joinToString(", "));
+                            attributes["data-toggle"] = pair.first.sourceSetName
+                            text(pair.first.sourceSetName)
                         }
                     }
                 }
@@ -71,27 +72,27 @@ open class HtmlRenderer(
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: PlatformData?
-    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, platformRestriction) }
-    else ul { buildListItems(node.children, pageContext, platformRestriction) }
+        sourceSetRestriction: SourceSetData?
+    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        sourceSetRestriction: SourceSetData? = null
     ) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
             else
-                li { it.build(this, pageContext, platformRestriction) }
+                li { it.build(this, pageContext, sourceSetRestriction) }
         }
     }
 
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        sourceSetRestriction: SourceSetData? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -118,64 +119,63 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        platformRestriction: PlatformData?
+        sourceSetRestriction: SourceSetData?
     ) {
         node.children
             .filter {
-                platformRestriction == null || platformRestriction in it.platforms
+                sourceSetRestriction == null || sourceSetRestriction in it.sourceSets
             }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 div(classes = "table-row") {
                     it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
                         div("main-subrow ${node.style.joinToString { it.toString().decapitalize() }}") {
-                            it.filter { platformRestriction == null || platformRestriction in it.platforms }
+                            it.filter { sourceSetRestriction == null || sourceSetRestriction in it.sourceSets }
                                 .forEach {
                                     when(it.dci.kind){
-                                        ContentKind.PlatformDependantHint -> {
+                                        ContentKind.SourceSetDependantHint -> {
                                             div("platform-dependant-row keyValue"){
                                                 div()
                                                 div("title"){
-                                                    it.build(this, pageContext, platformRestriction)
+                                                    it.build(this, pageContext, sourceSetRestriction)
                                                 }
                                             }
                                         }
                                         ContentKind.Main -> {
                                             div("title-row"){
-                                                it.build(this, pageContext, platformRestriction)
+                                                it.build(this, pageContext, sourceSetRestriction)
                                                 div()
-                                                if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.platforms.size == 1) {
+                                                if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.sourceSets.size == 1) {
                                                     createPlatformTags(node)
                                                 } else {
                                                     div()
                                                 }
                                             }
                                         }
-                                        else -> div { it.build(this, pageContext, platformRestriction) }
+                                        else -> div { it.build(this, pageContext, sourceSetRestriction) }
                                     }
                                 }
                         }
                     }
                     it.filter { it.dci.kind == ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
                         div("signature-subrow") {
-                            div("signatures"){
+                            div("signatures") {
                                 it.forEach {
-                                    it.build(this, pageContext, platformRestriction)
+                                    it.build(this, pageContext, sourceSetRestriction)
                                 }
                             }
                         }
                     }
                 }
-        }
+            }
     }
 
-    private fun FlowContent.createPlatformTags( node: ContentNode ) {
+    private fun FlowContent.createPlatformTags(node: ContentNode) {
         div("platform-tags") {
-            node.platforms.forEach {
+            node.sourceSets.forEach {
                 div("platform-tag") {
-                    val targets = it.targets.joinToString(", ")
-                    if( targets.equals("common", ignoreCase = true) ) classes = classes + "common"
-                    text(it.targets.joinToString(", "))
+                    if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
+                    text(it.sourceSetName)
                 }
             }
         }
@@ -184,11 +184,11 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: PlatformData?
+        sourceSetRestriction: SourceSetData?
     ) {
         div(classes = "table") {
             node.children.forEach {
-                buildRow(it, pageContext, platformRestriction)
+                buildRow(it, pageContext, sourceSetRestriction)
             }
         }
     }
@@ -221,7 +221,7 @@ open class HtmlRenderer(
 
     fun FlowContent.buildLink(
         to: DRI,
-        platforms: List<PlatformData>,
+        platforms: List<SourceSetData>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
     ) = buildLink(locationProvider.resolve(to, platforms, from), block)

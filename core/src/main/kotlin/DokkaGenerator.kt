@@ -1,23 +1,20 @@
 package org.jetbrains.dokka
 
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.PsiJavaFile
-import com.intellij.psi.PsiManager
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.pages.PlatformData
+import org.jetbrains.dokka.model.SourceSetCache
+import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
@@ -31,13 +28,14 @@ class DokkaGenerator(
 ) {
     fun generate() = timed {
         report("Setting up analysis environments")
-        val platforms: Map<PlatformData, EnvironmentAndFacade> = setUpAnalysis(configuration)
+        val sourceSetsCache = SourceSetCache()
+        val sourceSets: Map<SourceSetData, EnvironmentAndFacade> = setUpAnalysis(configuration, sourceSetsCache)
 
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, platforms)
+        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
 
         report("Creating documentation models")
-        val modulesFromPlatforms = createDocumentationModels(platforms, context)
+        val modulesFromPlatforms = createDocumentationModels(sourceSets, context)
 
         report("Transforming documentation model before merging")
         val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms, context)
@@ -62,27 +60,31 @@ class DokkaGenerator(
         logger.report()
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
-    fun setUpAnalysis(configuration: DokkaConfiguration): Map<PlatformData, EnvironmentAndFacade> =
+    fun setUpAnalysis(
+        configuration: DokkaConfiguration,
+        sourceSetsCache: SourceSetCache
+    ): Map<SourceSetData, EnvironmentAndFacade> =
         configuration.passesConfigurations.map {
-            it.platformData to createEnvironmentAndFacade(it)
+            sourceSetsCache.getSourceSet(it) to createEnvironmentAndFacade(it)
         }.toMap()
 
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        platforms: Map<PlatformData, EnvironmentAndFacade>,
+        sourceSets: Map<SourceSetData, EnvironmentAndFacade>,
+        sourceSetsCache: SourceSetCache,
         pluginOverrides: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, platforms, pluginOverrides)
+    ) = DokkaContext.create(configuration, logger, sourceSets, sourceSetsCache, pluginOverrides)
 
     fun createDocumentationModels(
-        platforms: Map<PlatformData, EnvironmentAndFacade>,
+        platforms: Map<SourceSetData, EnvironmentAndFacade>,
         context: DokkaContext
     ) = platforms.flatMap { (pdata, _) -> translateSources(pdata, context) }
 
     fun transformDocumentationModelBeforeMerge(
         modulesFromPlatforms: List<DModule>,
         context: DokkaContext
-    ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc, context) }
+    ) = context[CoreExtensions.preMergeDocumentableTransformer].fold(modulesFromPlatforms) { acc, t -> t(acc) }
 
     fun mergeDocumentationModels(
         modulesFromPlatforms: List<DModule>,
@@ -119,7 +121,7 @@ class DokkaGenerator(
             }
             pass.classpath.forEach { addClasspath(File(it)) }
 
-            addSources(pass.sourceRoots.map { it.path })
+            addSources((pass.sourceRoots +  pass.dependentSourceRoots).map { it.path })
 
             loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
 
@@ -128,7 +130,7 @@ class DokkaGenerator(
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateSources(platformData: PlatformData, context: DokkaContext) =
+    private fun translateSources(platformData: SourceSetData, context: DokkaContext) =
         context[CoreExtensions.sourceToDocumentableTranslator].map {
             it.invoke(platformData, context)
         }

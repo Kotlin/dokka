@@ -27,7 +27,9 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
 open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
     @Input @Optional override var classpath: List<String> = emptyList()
     @Input override var moduleName: String = ""
+    @Input override var sourceSetName: String = ""
     @Input override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
+    @Input override var dependentSourceRoots: MutableList<SourceRoot> = mutableListOf()
     @Input override var samples: List<String> = emptyList()
     @Input override var includes: List<String> = emptyList()
     @Input override var includeNonPublic: Boolean = false

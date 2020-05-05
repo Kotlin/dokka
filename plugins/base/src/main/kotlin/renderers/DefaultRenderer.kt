@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.renderers
 import kotlinx.coroutines.*
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -26,7 +27,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     )
 
     abstract fun T.buildNewLine()
@@ -34,7 +35,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     )
 
     abstract fun T.buildText(textNode: ContentText)
@@ -49,7 +50,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     ) =
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
 
@@ -59,7 +60,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildLinkText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     ) {
         nodes.forEach { it.build(this, pageContext, platformRestriction) }
     }
@@ -71,7 +72,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildHeader(
         node: ContentHeader,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     ) {
         buildHeader(node.level) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
     }
@@ -79,22 +80,22 @@ abstract class DefaultRenderer<T>(
     open fun ContentNode.build(
         builder: T,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     ) =
         builder.buildContentNode(this, pageContext, platformRestriction)
 
     open fun T.buildContentNode(
         node: ContentNode,
         pageContext: ContentPage,
-        platformRestriction: PlatformData? = null
+        platformRestriction: SourceSetData? = null
     ) {
-        if (platformRestriction == null || platformRestriction in node.platforms) {
+        if (platformRestriction == null || platformRestriction in node.sourceSets) {
             when (node) {
                 is ContentText -> buildText(node)
                 is ContentHeader -> buildHeader(node, pageContext, platformRestriction)
                 is ContentCode -> buildCode(node.children, node.language, pageContext)
                 is ContentDRILink ->
-                    buildLink(locationProvider.resolve(node.address, node.platforms.toList(), pageContext)) {
+                    buildLink(locationProvider.resolve(node.address, node.sourceSets.toList(), pageContext)) {
                         buildLinkText(node.children, pageContext, platformRestriction)
                     }
                 is ContentResolvedLink -> buildLink(node.address) {
@@ -154,4 +155,4 @@ abstract class DefaultRenderer<T>(
     }
 }
 
-fun ContentPage.platforms() = this.content.platforms.toList()
+fun ContentPage.platforms() = this.content.sourceSets.toList()

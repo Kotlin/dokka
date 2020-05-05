@@ -1,6 +1,6 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location://fn/kotlin.String#//root/[jvm root]/fn.html
-$dokka.location://fn/kotlin.String#kotlin.Int//root/[jvm root]/fn.html
-[jvm root]
+$dokka.location://fn/kotlin.String#//root/[main root]/fn.html
+$dokka.location://fn/kotlin.String#kotlin.Int//root/[main root]/fn.html
+[main root]
 

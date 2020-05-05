@@ -83,6 +83,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var suppress: Boolean = false
     }
 
+    @Parameter(required = true, defaultValue = "\${project.sourceSet}")
+    var sourceSetName: String = ""
+
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
 
@@ -201,7 +204,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
         val passConfiguration = PassConfigurationImpl(
             classpath = classpath,
-            sourceRoots = sourceDirectories.map { SourceRootImpl(it) } + sourceRoots.map { SourceRootImpl(path = it.path) },
+            sourceSetName = sourceSetName,
+            sourceRoots = sourceDirectories.map { SourceRootImpl(it) },
+            dependentSourceRoots = sourceRoots.map { SourceRootImpl(path = it.path) },
             samples = samples,
             includes = includes,
             collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries, // TODO: Should we implement this?

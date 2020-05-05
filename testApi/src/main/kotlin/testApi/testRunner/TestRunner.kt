@@ -3,8 +3,8 @@ package org.jetbrains.dokka.testApi.testRunner
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.DModule
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -104,7 +104,7 @@ abstract class AbstractCoreTest {
     }
 
     protected class TestBuilder {
-        var analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit = {}
+        var analysisSetupStage: (Map<SourceSetData, EnvironmentAndFacade>) -> Unit = {}
         var pluginsSetupStage: (DokkaContext) -> Unit = {}
         var documentablesCreationStage: (List<DModule>) -> Unit = {}
         var documentablesFirstTransformationStep: (List<DModule>) -> Unit = {}
@@ -167,8 +167,10 @@ abstract class AbstractCoreTest {
     @DokkaConfigurationDsl
     protected class DokkaPassConfigurationBuilder(
         var moduleName: String = "root",
+        var sourceSetName: String = "main",
         var classpath: List<String> = emptyList(),
         var sourceRoots: List<String> = emptyList(),
+        var dependentSourceRoots: List<String> = emptyList(),
         var samples: List<String> = emptyList(),
         var includes: List<String> = emptyList(),
         var includeNonPublic: Boolean = true,
@@ -192,8 +194,10 @@ abstract class AbstractCoreTest {
     ) {
         fun build() = PassConfigurationImpl(
             moduleName = moduleName,
+            sourceSetName = sourceSetName,
             classpath = classpath,
             sourceRoots = sourceRoots.map { SourceRootImpl(it) },
+            dependentSourceRoots = dependentSourceRoots.map { SourceRootImpl(it) },
             samples = samples,
             includes = includes,
             includeNonPublic = includeNonPublic,
@@ -235,7 +239,7 @@ abstract class AbstractCoreTest {
 }
 
 data class TestMethods(
-    val analysisSetupStage: (Map<PlatformData, EnvironmentAndFacade>) -> Unit,
+    val analysisSetupStage: (Map<SourceSetData, EnvironmentAndFacade>) -> Unit,
     val pluginsSetupStage: (DokkaContext) -> Unit,
     val documentablesCreationStage: (List<DModule>) -> Unit,
     val documentablesFirstTransformationStep: (List<DModule>) -> Unit,

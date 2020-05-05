@@ -9,7 +9,7 @@ import java.io.InputStream
 import java.util.*
 
 internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
-internal const val MULTIPLATFORM_EXTENSION_NAME = "multiplatform"
+internal const val SOURCE_SETS_EXTENSION_NAME = "dokkaSourceSets"
 internal const val DOKKA_TASK_NAME = "dokka"
 internal const val DOKKA_COLLECTOR_TASK_NAME = "dokkaCollector"
 
@@ -45,7 +45,7 @@ open class DokkaPlugin : Plugin<Project> {
             project.tasks.create(DOKKA_TASK_NAME, taskClass)
         }
         project.tasks.withType(taskClass) { task ->
-            task.multiplatform = project.container(GradlePassConfigurationImpl::class.java)
+            task.dokkaSourceSets = project.container(GradlePassConfigurationImpl::class.java)
             task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = runtimeConfiguration
             task.pluginsConfig = pluginsConfiguration

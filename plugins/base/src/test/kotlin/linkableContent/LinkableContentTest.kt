@@ -29,6 +29,7 @@ class LinkableContentTest : AbstractCoreTest() {
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         "$testDataDir/$it/kotlin"
                     }
+                    sourceSetName = "js"
                     includes = listOf("$includesDir/include2.md")
                 }
                 pass {
@@ -38,6 +39,7 @@ class LinkableContentTest : AbstractCoreTest() {
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         "$testDataDir/$it/kotlin"
                     }
+                    sourceSetName = "jvm"
                     includes = listOf("$includesDir/include1.md")
                 }
             }
@@ -73,6 +75,7 @@ class LinkableContentTest : AbstractCoreTest() {
                             lineSuffix = "#L"
                         )
                     )
+                    sourceSetName = "js"
                 }
                 pass {
                     moduleName = "example"
@@ -86,6 +89,7 @@ class LinkableContentTest : AbstractCoreTest() {
                             lineSuffix = "#L"
                         )
                     )
+                    sourceSetName = "jvm"
                 }
             }
         }
@@ -129,6 +133,7 @@ class LinkableContentTest : AbstractCoreTest() {
                     analysisPlatform = "js"
                     targets = listOf("js")
                     sourceRoots = listOf("$testDataDir/jsMain/kotlin")
+                    sourceSetName = "js"
                     samples = listOf("$testDataDir/jsMain/resources/Samples.kt")
                 }
                 pass {
@@ -136,6 +141,7 @@ class LinkableContentTest : AbstractCoreTest() {
                     analysisPlatform = "jvm"
                     targets = listOf("jvm")
                     sourceRoots = listOf("$testDataDir/jvmMain/kotlin")
+                    sourceSetName = "jvm"
                     samples = listOf("$testDataDir/jvmMain/resources/Samples.kt")
                 }
             }
