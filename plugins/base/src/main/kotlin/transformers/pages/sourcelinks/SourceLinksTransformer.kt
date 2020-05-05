@@ -17,13 +17,12 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 class SourceLinksTransformer(val context: DokkaContext, val builder: PageContentBuilder) : PageTransformer {
-    private val sourceLinks = getSourceLinks()
 
     override fun invoke(input: RootPageNode) =
         input.transformContentPagesTree { node ->
-            when(val documentable = node.documentable){
+            when (val documentable = node.documentable) {
                 is WithExpectActual -> resolveSources(documentable)
-                    .takeIf{ it.isNotEmpty() }
+                    .takeIf { it.isNotEmpty() }
                     ?.let { node.addSourcesContent(it) }
                     ?: node
                 else -> node
@@ -33,9 +32,9 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     private fun getSourceLinks() = context.configuration.passesConfigurations
         .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it.platformData) } }
 
-    private fun resolveSources(documentable: WithExpectActual) = documentable.sources.map.entries
+    private fun resolveSources(documentable: WithExpectActual) = documentable.sources
         .mapNotNull { entry ->
-            sourceLinks.find { entry.value.path.contains(it.path) && it.platformData == entry.key }?.let {
+            getSourceLinks().find { entry.value.path.contains(it.path) && it.platformData == entry.key }?.let {
                 Pair(
                     entry.key,
                     entry.value.toLink(it)
@@ -53,27 +52,27 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
     private fun PageContentBuilder.buildSourcesContent(
         node: ContentPage,
-        sources: List<Pair<PlatformData,String>>
+        sources: List<Pair<PlatformData, String>>
     ) = contentFor(
-            node.dri.first(),
-            node.documentable!!.platformData.toSet()
-        ) {
-            header(2) { text("Sources") }
-            +ContentTable(
-                emptyList(),
-                sources.map {
-                    buildGroup(node.dri.first(), setOf(it.first)) {
-                        +link("(source)", it.second)
-                    }
-                },
-                DCI(node.dri, ContentKind.Source),
-                node.documentable!!.platformData.toSet(),
-                style = emptySet()
-            )
-        }
+        node.dri.first(),
+        node.documentable!!.platformData.toSet()
+    ) {
+        header(2) { text("Sources") }
+        +ContentTable(
+            emptyList(),
+            sources.map {
+                buildGroup(node.dri.first(), setOf(it.first)) {
+                    +link("(source)", it.second)
+                }
+            },
+            DCI(node.dri, ContentKind.Source),
+            node.documentable!!.platformData.toSet(),
+            style = emptySet()
+        )
+    }
 
     private fun DocumentableSource.toLink(sourceLink: SourceLink): String {
-        val lineNumber = when(this){
+        val lineNumber = when (this) {
             is DescriptorDocumentableSource -> this.descriptor
                 .cast<DeclarationDescriptorWithSource>()
                 .source.getPsi()

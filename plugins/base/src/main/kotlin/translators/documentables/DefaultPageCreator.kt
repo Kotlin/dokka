@@ -283,7 +283,7 @@ open class DefaultPageCreator(
                 platforms.forEach {
                     header(4, kind = ContentKind.Comment, platformData = setOf(it)) { text("See also") }
                 }
-                table(kind = ContentKind.Comment) {
+                table(kind = ContentKind.Sample) {
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
                             see.getOrExpect(platform)?.let {
