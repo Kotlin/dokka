@@ -64,7 +64,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
         +ContentTable(
             emptyList(),
             sources.map {
-                buildGroup(node.dri.first(), setOf(it.first)) {
+                buildGroup(node.dri, setOf(it.first)) {
                     +link("(source)", it.second)
                 }
             },

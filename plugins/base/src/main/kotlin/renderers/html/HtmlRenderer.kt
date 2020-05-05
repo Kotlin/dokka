@@ -40,14 +40,40 @@ open class HtmlRenderer(
         }
     }
 
-    override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
+    private fun FlowContent.wrapPlatformTagged(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        childrenCallback: FlowContent.() -> Unit
+    ) {
+        div("platform-tagged") {
+            node.sourceSets.forEach {
+                div("platform-tag") {
+                    if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
+                    text(it.sourceSetName)
+                }
+            }
+            div("content") {
+                childrenCallback()
+            }
+        }
+    }
+
+    override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
+        buildPlatformDependent(content.sourceSets.map { it to setOf(content.inner) }.toMap(), pageContext)
+
+    private fun FlowContent.buildPlatformDependent(
+        nodes: Map<SourceSetData, Collection<ContentNode>>,
+        pageContext: ContentPage
+    ) {
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
-            val contents = content.sourceSets.mapIndexed { index, platform ->
-                platform to createHTML(prettyPrint = false).div(classes = "content") {
+            val contents = nodes.toList().mapIndexed { index, (sourceSet, elements) ->
+                sourceSet to createHTML(prettyPrint = false).div(classes = "content") {
                     if (index == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = platform.sourceSetName
-                    buildContentNode(content.inner, pageContext, platform)
+                    attributes["data-togglable"] = sourceSet.sourceSetName
+                    elements.forEach {
+                        buildContentNode(it, pageContext, setOf(sourceSet))
+                    }
                 }
             }
 
@@ -69,17 +95,61 @@ open class HtmlRenderer(
         }
     }
 
+    override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+        val distinct =
+            node.children.map { instance ->
+                instance to Pair(
+                    createHTML(prettyPrint = false).div {
+                        instance.before?.let { before ->
+                            buildContentNode(before, pageContext, instance.sourceSets)
+                        }
+                    }.drop(5).dropLast(6),
+                    createHTML(prettyPrint = false).div {
+                        instance.after?.let { after ->
+                            buildContentNode(after, pageContext, instance.sourceSets)
+                        }
+                    }.drop(5).dropLast(6)  // TODO: Find a way to do it without arbitrary trims
+                )
+
+            }.groupBy(
+                Pair<ContentDivergentInstance, Pair<String, String>>::second,
+                Pair<ContentDivergentInstance, Pair<String, String>>::first
+            )
+
+        distinct.forEach {
+            consumer.onTagContentUnsafe { +it.key.first }
+            consumer.onTagContentUnsafe {
+                +createHTML(prettyPrint = false).div {
+                    if (node.implicitlySourceSetHinted) {
+                        buildPlatformDependent(
+                            it.value.groupBy { it.sourceSets }
+                                .flatMap { (sourceSets, elements) ->
+                                    sourceSets.map { sourceSet -> sourceSet to elements.map { e -> e.divergent } }
+                                }.toMap(),
+                            pageContext
+                        )
+                    } else {
+                        it.value.forEach {
+                            buildContentNode(it.divergent, pageContext, null)
+                        }
+                    }
+                }.drop(5).dropLast(6)
+            }
+            consumer.onTagContentUnsafe { +it.key.second }
+        }
+    }
+
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: SourceSetData?
+        sourceSetRestriction: Set<SourceSetData>?
     ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
     else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: SourceSetData? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -92,7 +162,7 @@ open class HtmlRenderer(
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: SourceSetData? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -119,18 +189,18 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: SourceSetData?
+        sourceSetRestriction: Set<SourceSetData>?
     ) {
         node.children
             .filter {
-                sourceSetRestriction == null || sourceSetRestriction in it.sourceSets
+                sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction }
             }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 div(classes = "table-row") {
                     it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
                         div("main-subrow ${node.style.joinToString { it.toString().decapitalize() }}") {
-                            it.filter { sourceSetRestriction == null || sourceSetRestriction in it.sourceSets }
+                            it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                                 .forEach {
                                     when(it.dci.kind){
                                         ContentKind.SourceSetDependantHint -> {
@@ -170,6 +240,7 @@ open class HtmlRenderer(
             }
     }
 
+
     private fun FlowContent.createPlatformTags(node: ContentNode) {
         div("platform-tags") {
             node.sourceSets.forEach {
@@ -184,7 +255,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: SourceSetData?
+        sourceSetRestriction: Set<SourceSetData>?
     ) {
         div(classes = "table") {
             node.children.forEach {
