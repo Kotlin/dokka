@@ -27,6 +27,7 @@ import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocum
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
+import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor

@@ -95,20 +95,8 @@ open class DefaultPageCreator(
         dri: DRI,
         sourceSets: List<SourceSetData>
     ) = contentBuilder.contentFor(s as Documentable) {
-        block("Types", 2, ContentKind.Classlikes, s.classlikes, sourceSets.toSet()) {
-            link(it.name ?: "", it.dri, kind = ContentKind.Main)
-            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
-                +buildSignature(it)
-                contentForBrief(it)
-            }
-        }
-        block("Functions", 2, ContentKind.Functions, s.functions, sourceSets.toSet()) {
-            link(it.name, it.dri, kind = ContentKind.Main)
-            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
-                +buildSignature(it)
-                contentForBrief(it)
-            }
-        }
+        divergentBlock("Types", s.classlikes, ContentKind.Classlikes)
+        divergentBlock("Functions", s.functions, ContentKind.Functions)
         block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
             sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
@@ -125,7 +113,7 @@ open class DefaultPageCreator(
                     emptyList(),
                     map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
-                            buildGroup(dri, platforms.toSet(), ContentKind.Inheritors) {
+                            buildGroup(setOf(dri), platforms.toSet(), ContentKind.Inheritors) {
                                 link(
                                     classlike.classNames?.substringBeforeLast(".") ?: classlike.toString()
                                         .also { logger.warn("No class name found for DRI $classlike") }, classlike
@@ -219,6 +207,7 @@ open class DefaultPageCreator(
                         }
                     }
                 }
+
             }
         }
 
@@ -334,23 +323,59 @@ open class DefaultPageCreator(
         }
     }
 
-    protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
-        group(kind = ContentKind.Cover) {
-            header(1) { text(f.name) }
-            sourceSetDependentHint(f.dri, f.sourceSets.toSet()) {
-                +buildSignature(f)
+    protected open fun contentForFunction(f: DFunction) = contentForMember(f)
+    protected open fun contentForTypeAlias(t: DTypeAlias) = contentForMember(t)
+    protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
+        header(1) { text(d.name.orEmpty()) }
+        divergentGroup(ContentDivergentGroup.GroupID("member")) {
+            instance(setOf(d.dri), d.sourceSets.toSet()) {
+                divergent(kind = ContentKind.Symbol) {
+                    +buildSignature(d)
+                }
+                after {
+                    +contentForComments(d)
+                }
             }
         }
-        +contentForComments(f)
     }
 
-    protected open fun contentForTypeAlias(t: DTypeAlias) = contentBuilder.contentFor(t) {
-        group(kind = ContentKind.Cover) {
-            header(1) { text(t.name) }
-            +buildSignature(t)
+    protected open fun DocumentableContentBuilder.divergentBlock(
+        name: String,
+        collection: Collection<Documentable>,
+        kind: ContentKind
+    ) {
+        if (collection.any()) {
+            header(2) { text(name) }
+            table(kind) {
+                collection.groupBy { it.name }.map { (elementName, elements) -> // This groupBy should probably use LocationProvider
+                    buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet()) {
+                        link(elementName.orEmpty(), elements.first().dri)
+                        divergentGroup(
+                            ContentDivergentGroup.GroupID(name),
+                            elements.map { it.dri }.toSet(),
+                            kind = ContentKind.Symbol
+                        ) {
+                            elements.map {
+                                instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                    divergent {
+                                        group(kind = ContentKind.Symbol) {
+                                            +buildSignature(it)
+                                        }
+                                    }
+                                    after {
+                                        group(kind = ContentKind.BriefComment) {
+                                            contentForBrief(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        +contentForComments(t)
     }
+
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
 }

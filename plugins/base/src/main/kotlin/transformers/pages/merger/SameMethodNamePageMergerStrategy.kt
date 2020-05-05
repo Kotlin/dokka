@@ -4,34 +4,34 @@ import org.jetbrains.dokka.pages.*
 
 object SameMethodNamePageMergerStrategy : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>, path: List<String>): List<PageNode> {
-        val name = pages.first().name
-        val members = pages.filterIsInstance<MemberPageNode>()
-
-        if (members.isEmpty()) return pages
-
-        val others = pages.filterNot { it is MemberPageNode }
-
-        val resChildren = members.flatMap { it.children }.distinct()
+        val members = pages.filterIsInstance<MemberPageNode>().takeIf { it.isNotEmpty() } ?: return pages
+        val name = pages.first().name.also {
+            if (pages.any { page -> page.name != it }) { // Is this even possible?
+                println("Page names for $it do not match!") // TODO pass logger here somehow
+            }
+        }
         val dri = members.flatMap { it.dri }.toSet()
-        val dci = DCI(
-            dri = dri,
-            kind = members.first().content.dci.kind
-        )
 
         val merged = MemberPageNode(
             dri = dri,
             name = name,
-            children = resChildren,
-            content = asGroup(
-                dci,
-                members.map { it.content }),
+            children = members.flatMap { it.children }.distinct(),
+            content = squashDivergentInstances(members),
             documentable = null
         )
 
-        return others + listOf(merged)
+        return (pages - members) + listOf(merged)
     }
 
-    fun asGroup(dci: DCI, nodes: List<ContentNode>): ContentGroup =
-        nodes.first().let { ContentGroup(nodes, dci, it.sourceSets, it.style, it.extra) }
-
+    private fun squashDivergentInstances(nodes: List<MemberPageNode>): ContentNode =
+        nodes.map { it.content }
+            .reduce { acc, node ->
+                acc.mapTransform<ContentDivergentGroup, ContentNode> { g ->
+                    g.copy(children = (g.children +
+                            (node.dfs { it is ContentDivergentGroup && it.groupID == g.groupID } as? ContentDivergentGroup)
+                                ?.children?.single()
+                            ).filterNotNull()
+                    )
+                }
+            }
 }
