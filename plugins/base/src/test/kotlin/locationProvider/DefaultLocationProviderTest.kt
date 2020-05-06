@@ -3,8 +3,8 @@ package locationProvider
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.junit.Assert.assertNotEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
 
 class DefaultLocationProviderTest: AbstractCoreTest() {
     @Test
