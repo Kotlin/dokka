@@ -394,7 +394,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
-    @Disabled("reenable after fixing subtypes")
     @Test
     fun inheritorLinks() {
         inlineModelTest(

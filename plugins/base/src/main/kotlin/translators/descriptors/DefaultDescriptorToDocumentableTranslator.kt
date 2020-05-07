@@ -1,10 +1,11 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.parsers.MarkdownParser
@@ -127,7 +128,7 @@ private class DokkaDescriptorVisitor(
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
-            generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
+            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -216,6 +217,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations()),
             companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
+            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             constructors = descriptor.constructors.map { visitConstructorDescriptor(it, driWithPlatform) },
             sources = descriptor.createSources()
         )
@@ -245,7 +247,7 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = sourceSet.takeIf { isExpect },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             supertypes = info.supertypes.toSourceSetDependent(),
-            generics = descriptor.typeConstructor.parameters.map { it.toTypeParameter() },
+            generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             documentation = info.docs,
             modifier =   descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
@@ -364,7 +366,7 @@ private class DokkaDescriptorVisitor(
         descriptor: ReceiverParameterDescriptor,
         parent: DRIWithPlatformInfo
     ) = DParameter(
-        dri = parent.dri.copy(target = 0),
+        dri = parent.dri.copy(target = PointingToDeclaration),
         name = null,
         type = descriptor.type.toBound(),
         expectPresentInSet = null,
@@ -383,7 +385,7 @@ private class DokkaDescriptorVisitor(
 
         fun PropertyDescriptor.asParameter(parent: DRI) =
             DParameter(
-                parent.copy(target = 1),
+                parent.copy(target = PointingToCallableParameters(parameterIndex = 1)),
                 this.name.asString(),
                 type = this.type.toBound(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
@@ -444,7 +446,7 @@ private class DokkaDescriptorVisitor(
 
     private fun parameter(index: Int, descriptor: ValueParameterDescriptor, parent: DRIWithPlatformInfo) =
         DParameter(
-            dri = parent.dri.copy(target = index + 1),
+            dri = parent.dri.copy(target = PointingToCallableParameters(index)),
             name = descriptor.name.asString(),
             type = descriptor.type.toBound(),
             expectPresentInSet = null,
@@ -518,7 +520,10 @@ private class DokkaDescriptorVisitor(
         )
 
     private fun KotlinType.toBound(): Bound = when (val ctor = constructor.declarationDescriptor) {
-        is TypeParameterDescriptor -> OtherParameter(ctor.name.asString()).let {
+        is TypeParameterDescriptor -> OtherParameter(
+            declarationDRI = DRI.from(ctor.containingDeclaration),
+            name = ctor.name.asString()
+        ).let {
             if (isMarkedNullable) Nullable(it) else it
         }
         else -> TypeConstructor(

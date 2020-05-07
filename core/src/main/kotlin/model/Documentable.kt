@@ -263,9 +263,10 @@ data class DAnnotation(
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
+    override val generics: List<DTypeParameter>,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DAnnotation> = PropertyContainer.empty()
-) : DClasslike(), WithCompanion, WithConstructors, WithExtraProperties<DAnnotation> {
+) : DClasslike(), WithCompanion, WithConstructors, WithExtraProperties<DAnnotation>, WithGenerics {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + constructors) as List<Documentable>
 
@@ -344,7 +345,7 @@ data class DTypeAlias(
 
 sealed class Projection
 sealed class Bound : Projection()
-data class OtherParameter(val name: String) : Bound()
+data class OtherParameter(val declarationDRI: DRI, val name: String) : Bound()
 object Star : Projection()
 data class TypeConstructor(
     val dri: DRI,

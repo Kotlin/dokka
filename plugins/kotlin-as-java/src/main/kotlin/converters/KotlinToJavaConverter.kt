@@ -1,12 +1,13 @@
 package org.jetbrains.dokka.kotlinAsJava.converters
 
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.DAnnotation
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.name.ClassId
@@ -243,7 +244,7 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     classNames = classNames(),
     callable = dri?.callable,//?.asJava(), TODO: check this
     extra = null,
-    target = null
+    target = PointingToDeclaration
 )
 
 private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: Set<ExtraModifiers>) =

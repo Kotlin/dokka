@@ -92,7 +92,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
-        is OtherParameter -> text(p.name)
+        is OtherParameter -> link(p.name, p.declarationDRI)
 
         is TypeConstructor -> group {
             link(p.dri.classNames.orEmpty(), p.dri)

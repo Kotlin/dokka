@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -159,6 +160,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         visibility,
                         null,
                         constructors.map { parseFunction(it, true) },
+                        mapTypeParameters(dri),
                         listOf(sourceSetData),
                         PropertyContainer.empty<DAnnotation>() + annotations.toList().toExtra()
                     )
@@ -238,9 +240,9 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 dri,
                 if (isConstructor) "<init>" else psi.name,
                 isConstructor,
-                psi.parameterList.parameters.mapIndexed { index, psiParameter ->
+                psi.parameterList.parameters.map { psiParameter ->
                     DParameter(
-                        dri.copy(target = index + 1),
+                        dri.copy(target = dri.target.nextTarget()),
                         psiParameter.name,
                         javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
                         null,
@@ -321,9 +323,9 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 if (bounds.isEmpty()) emptyList() else bounds.mapNotNull {
                     (it as? PsiClassType)?.let { classType -> Nullable(getBound(classType)) }
                 }
-            return typeParameters.mapIndexed { index, type ->
+            return typeParameters.map { type ->
                 DTypeParameter(
-                    dri.copy(genericTarget = index),
+                    dri.copy(target = dri.target.nextTarget()),
                     type.name.orEmpty(),
                     javadocParser.parseDocumentation(type).toPlatformDependant(),
                     null,
