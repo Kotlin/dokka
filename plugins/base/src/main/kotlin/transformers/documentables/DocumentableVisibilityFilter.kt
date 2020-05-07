@@ -265,6 +265,7 @@ internal class DocumentableVisibilityFilter(val context: DokkaContext) : PreMerg
                                 visibility.filtered(filteredPlatforms),
                                 companion,
                                 constructors,
+                                generics,
                                 filteredPlatforms,
                                 extra
                             )

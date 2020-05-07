@@ -425,7 +425,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ) {
             with((this / "classes" / "Foo").cast<DClass>()) {
                 with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
-                    dri.toString() equals "kotlin/Suppress////"
+                    dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
                     with(params["names"].assertNotNull("param")) {
                         this equals "[\"abc\"]"
                     }
@@ -456,6 +456,31 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                         params["value"].assertNotNull("value") equals "(java/lang/annotation/RetentionPolicy, SOURCE)"
                     }
                 }
+            }
+        }
+    }
+
+    @Test fun genericAnnotationClass() {
+        inlineModelTest(
+            """annotation class Foo<A,B,C,D:Number>() {}"""
+        ) {
+            with((this / "classes" / "Foo").cast<DAnnotation>()){
+                generics.map { it.name to it.bounds.first().name } equals listOf("A" to "Any", "B" to "Any", "C" to "Any", "D" to "Number")
+            }
+        }
+    }
+
+    @Test fun nestedGenericClasses(){
+        inlineModelTest(
+            """
+            |class Outer<OUTER> {
+            |   inner class Inner<INNER, T : OUTER> { }
+            |}
+        """.trimMargin()
+        ){
+            with((this / "classes" / "Outer").cast<DClass>()){
+                val inner = classlikes.single().cast<DClass>()
+                inner.generics.map { it.name to it.bounds.first().name } equals listOf("INNER" to "Any", "T" to "OUTER")
             }
         }
     }

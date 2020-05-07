@@ -175,7 +175,8 @@ fun DAnnotation.mergeWith(other: DAnnotation): DAnnotation = copy(
     expectPresentInSet = expectPresentInSet ?: other.expectPresentInSet,
     sources = sources+ other.sources,
     visibility = visibility + other.visibility,
-    sourceSets = sourceSets + other.sourceSets
+    sourceSets = sourceSets + other.sourceSets,
+    generics = merge(generics + other.generics, DTypeParameter::mergeWith)
 ).mergeExtras(this, other)
 
 fun DParameter.mergeWith(other: DParameter): DParameter = copy(

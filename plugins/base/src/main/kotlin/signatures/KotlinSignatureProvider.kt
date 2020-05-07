@@ -2,11 +2,10 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DriOfAny
-import org.jetbrains.dokka.links.DriOfUnit
-import org.jetbrains.dokka.links.sureClassNames
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
+import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
@@ -71,6 +70,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 is DAnnotation -> text("annotation class ")
             }
             link(c.name!!, c.dri)
+            if(c is WithGenerics){
+                list(c.generics, prefix = "<", suffix = "> ") {
+                    +buildSignature(it)
+                }
+            }
             if (c is DClass) {
                 val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
                 list(pConstructor?.parameters.orEmpty(), "(", ")", ",", pConstructor?.sourceSets.orEmpty().toSet()) {
@@ -158,7 +162,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 
     private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
-        link(t.name, t.dri)
+        link(t.name, t.dri.withTargetToDeclaration())
         list(t.bounds, prefix = " : ") {
             signatureForProjection(it)
         }
@@ -166,7 +170,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit =
         when (p) {
-            is OtherParameter -> text(p.name)
+            is OtherParameter -> link(p.name, p.declarationDRI)
 
             is TypeConstructor -> if (p.function)
                 +funType(mainDRI.single(), mainPlatformData, p)
