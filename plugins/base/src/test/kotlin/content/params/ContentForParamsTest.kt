@@ -5,8 +5,8 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 import utils.pWrapped
-import utils.signature
-import utils.signatureWithReceiver
+import utils.functionSignature
+import utils.functionSignatureWithReceiver
 import utils.unnamedTag
 
 class ContentForParamsTest : AbstractCoreTest() {
@@ -38,7 +38,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                 }
             }
@@ -65,7 +65,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -97,7 +97,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -131,7 +131,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -165,7 +165,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -206,7 +206,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null,
+                            "first" to mapOf("Type" to setOf("String")),
+                            "second" to mapOf("Type" to setOf("Int")),
+                            "third" to mapOf("Type" to setOf("Double"))
+                        )
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -254,7 +258,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null,
+                            "first" to mapOf("Type" to setOf("String")),
+                            "second" to mapOf("Type" to setOf("Int")),
+                            "third" to mapOf("Type" to setOf("Double"))
+                        )
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -301,7 +309,7 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signatureWithReceiver("String", "function", null, "abc" to "String")
+                        functionSignatureWithReceiver(emptySet(), "", "", emptySet(), "String", "function",null, "abc" to mapOf("Type" to setOf("String")))
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -345,7 +353,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null,
+                            "first" to mapOf("Type" to setOf("String")),
+                            "second" to mapOf("Type" to setOf("Int")),
+                            "third" to mapOf("Type" to setOf("Double"))
+                        )
                     }
                     header(3) { +"Description" }
                     platformHinted {
@@ -392,7 +404,11 @@ class ContentForParamsTest : AbstractCoreTest() {
                 page.content.assertNode {
                     group {
                         header(1) { +"function" }
-                        signature("function", null, "first" to "String", "second" to "Int", "third" to "Double")
+                        functionSignature(emptySet(), "", "", emptySet(), "function",null,
+                            "first" to mapOf("Type" to setOf("String")),
+                            "second" to mapOf("Type" to setOf("Int")),
+                            "third" to mapOf("Type" to setOf("Double"))
+                        )
                     }
                     header(3) { +"Description" }
                     platformHinted {
