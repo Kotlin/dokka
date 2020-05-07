@@ -141,20 +141,22 @@ open class HtmlRenderer(
                                         else -> div { it.build(this, pageContext, platformRestriction) }
                                     }
                                 }
-                            if (ContentKind.shouldBePlatformTagged(node.dci.kind)) {
+                            if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.platforms.size == 1) {
                                 createPlatformTags(node)
                             }
                         }
                     }
                     it.filter { it.dci.kind == ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
                         div("signature-subrow") {
-                            div("signature"){
-                                it.first().build(this, pageContext, platformRestriction)
+                            div("signatures"){
+                                it.forEach {
+                                    it.build(this, pageContext, platformRestriction)
+                                }
                             }
                         }
                     }
                 }
-            }
+        }
     }
 
     private fun FlowContent.createPlatformTags( node: ContentNode ) {
