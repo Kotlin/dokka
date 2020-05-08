@@ -282,9 +282,9 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (config.moduleName == "") {
             config.moduleName = project.name
         }
-        /*if (config.targets.isEmpty() && multiplatform.isNotEmpty()) {
-            config.targets = listOf(config.name)
-        }*/
+        if (config.sourceSetName.isEmpty()) {
+            config.sourceSetName = config.platform ?: config.name
+        }
         config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
         config.samples = config.samples.map { project.file(it).absolutePath }
@@ -293,7 +293,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (project.isAndroidProject() && !config.noAndroidSdkLink) { // TODO: introduce Android as a separate Dokka platform?
             config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
         }
-        if (config.platform != null && config.platform.toString().isNotEmpty()) {
+        if (config.platform != null && config.platform.toString().isNotBlank()) {
             config.analysisPlatform = dokkaPlatformFromString(config.platform.toString())
         }
         if (globalConfig != null) {
