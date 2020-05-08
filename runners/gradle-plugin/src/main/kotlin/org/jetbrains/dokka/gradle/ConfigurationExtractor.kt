@@ -24,28 +24,41 @@ import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
-    fun extractConfiguration(targetName: String, variantName: String?) = extractFromKotlinProject(targetName, variantName)
+    fun extractConfiguration(targetName: String, variantName: String?) =
+        extractFromKotlinProject(targetName, variantName)
 
-    fun extractFromKotlinProject(sourceSetName: String, variantName: String?): PlatformData {
+    fun extractFromKotlinProject(sourceSetName: String, variantName: String?): PlatformData? {
         val projectExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
-        val sourceSet = projectExtension.sourceSets.findByName(sourceSetName) ?: throw IllegalArgumentException("No source set with name '$sourceSetName' found")
-        val compilation = when(projectExtension) {
-            is KotlinMultiplatformExtension -> projectExtension.targets.flatMap { it.compilations }.first { it.kotlinSourceSets.contains(sourceSet) }
-            is KotlinSingleTargetExtension -> projectExtension.target.compilations.find { it.kotlinSourceSets.contains(sourceSet) }
+        val sourceSet = projectExtension.sourceSets.findByName(sourceSetName)
+            ?: run { project.logger.error("No source set with name '$sourceSetName' found"); return null }
+        val compilation = when (projectExtension) {
+            is KotlinMultiplatformExtension -> projectExtension.targets.flatMap { it.compilations }
+                .first { it.kotlinSourceSets.contains(sourceSet) }
+            is KotlinSingleTargetExtension -> projectExtension.target.compilations.find {
+                it.kotlinSourceSets.contains(
+                    sourceSet
+                )
+            }
             else -> null
-        } ?: throw IllegalArgumentException("No compilation found for set with name '$sourceSetName'")
+        } ?: run { project.logger.error("No compilation found for set with name '$sourceSetName'"); return null }
 
         val classpath = compilation.compileDependencyFiles.files.filter { it.exists() }
         val dependencies = (compilation.allKotlinSourceSets - sourceSet).flatMap { it.kotlin.sourceDirectories }
-        return PlatformData(sourceSetName, classpath, sourceSet.kotlin.sourceDirectories.filter { it.exists() }.toList(), dependencies, compilation.target.targetName)
+        return PlatformData(
+            sourceSetName,
+            classpath,
+            sourceSet.kotlin.sourceDirectories.filter { it.exists() }.toList(),
+            dependencies,
+            compilation.target.targetName
+        )
     }
 
     fun extractFromJavaPlugin(): PlatformData? =
         project.convention.findPlugin(JavaPluginConvention::class.java)
             ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
-            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(),"") }
+            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(), "") }
 
-    fun extractFromKotlinTasks(passName: String,  kotlinTasks: List<Task>): PlatformData? =
+    fun extractFromKotlinTasks(passName: String, kotlinTasks: List<Task>): PlatformData? =
         try {
             kotlinTasks.find { it.toString() == passName }?.let { extractFromKotlinTask(it) }
         } catch (e: Throwable) {
@@ -68,7 +81,15 @@ class ConfigurationExtractor(private val project: Project) {
                         .flatMap { it.compilations }.firstOrNull { it.compileKotlinTask == task }
                 else -> throw e
             }
-        }.let { PlatformData(task.name, getClasspath(it), getSourceSet(it), getDependentSourceSet(it), it?.platformType?.toString() ?: "") }
+        }.let {
+            PlatformData(
+                task.name,
+                getClasspath(it),
+                getSourceSet(it),
+                getDependentSourceSet(it),
+                it?.platformType?.toString() ?: ""
+            )
+        }
 
     private fun extractFromKotlinTasksTheHardWay(passName: String, kotlinTasks: List<Task>): PlatformData? {
         val allClasspath = mutableSetOf<File>()
@@ -107,7 +128,7 @@ class ConfigurationExtractor(private val project: Project) {
         }
         classpath.addAll(project.files(allClasspath).toList())
 
-        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(),"")
+        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(), "")
     }
 
     private fun getSourceSet(target: KotlinTarget, variantName: String? = null): List<File> =
@@ -133,7 +154,7 @@ class ConfigurationExtractor(private val project: Project) {
         .orEmpty()
 
     private fun getDependentSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
-        ?.let { it.allKotlinSourceSets - it.kotlinSourceSets}
+        ?.let { it.allKotlinSourceSets - it.kotlinSourceSets }
         ?.flatMap { it.kotlin.sourceDirectories }
         ?.filter { it.exists() }
         .orEmpty()

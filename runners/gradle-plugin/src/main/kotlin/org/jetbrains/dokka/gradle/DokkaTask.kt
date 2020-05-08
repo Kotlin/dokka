@@ -223,8 +223,8 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (disableAutoconfiguration) return userConfig
 
         val baseConfig = configExtractor.extractConfiguration(userConfig.name, userConfig.androidVariant)
-            .let { mergeUserConfigurationAndPlatformData(userConfig, it) }
-            if (this.dokkaSourceSets.isNotEmpty()) {
+            ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
+            ?: if (this.dokkaSourceSets.isNotEmpty()) {
                 if (outputDiagnosticInfo)
                     logger.warn(
                         "Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
