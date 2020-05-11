@@ -178,7 +178,7 @@ class DokkaBase : DokkaPlugin() {
         htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator)}
     }
 
-    val allModulePageCreators by extending {
+    val allModulePageCreators by extending(isFallback = true) {
         CoreExtensions.allModulePageCreator providing {
             MultimodulePageCreator(it)
         }
