@@ -184,10 +184,7 @@ open class DefaultPageCreator(
         }
         if (c is DEnum) {
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
-                link(it.name.orEmpty(), it.dri, kind = ContentKind.Main)
-                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
-                    +buildSignature(it)
-                }
+                link(it.name, it.dri, kind = ContentKind.Main)
                 group(kind = ContentKind.BriefComment) {
                     text(it.briefDocumentation())
                 }
