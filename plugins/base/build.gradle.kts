@@ -10,6 +10,17 @@ dependencies {
     testImplementation(project(":test-tools"))
 }
 
+task("copy_search", Copy::class) {
+    from(File(project(":plugins:base:search-component").projectDir, "dist/"))
+    destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
+}.dependsOn(":plugins:base:search-component:generateSearchFiles")
+
+tasks {
+    processResources {
+        dependsOn("copy_search")
+    }
+}
+
 publishing {
     publications {
         register<MavenPublication>("basePlugin") {
