@@ -5,11 +5,12 @@ plugins {
 }
 
 repositories {
-    maven(url = "https://dl.bintray.com/orangy/maven")
+    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.1.0-dev-3")
+    implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.2.1")
+    implementation("com.google.code.gson:gson:2.8.5")
     implementation(project(":core"))
 }
 

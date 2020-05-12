@@ -8,27 +8,24 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import java.util.function.BiConsumer
 
 
-fun parsePerPackageOptions(arg: String): List<PackageOptions> {
-    if (arg.isBlank()) return emptyList()
-
-    return arg.split(";").map { it.split(",") }.map {
-        val prefix = it.first()
-        if (prefix == "")
-            throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
-        val args = it.subList(1, it.size)
-        val deprecated = args.find { it.endsWith("deprecated") }?.startsWith("+") ?: true
-        val reportUndocumented = args.find { it.endsWith("reportUndocumented") }?.startsWith("+") ?: true
-        val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+") ?: false
-        val suppress = args.find { it.endsWith("suppress") }?.startsWith("+") ?: false
-        PackageOptionsImpl(
-            prefix,
-            includeNonPublic = privateApi,
-            reportUndocumented = reportUndocumented,
-            skipDeprecated = !deprecated,
-            suppress = suppress
-        )
-    }
+fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map { it.split(",") }.map {
+    val prefix = it.first()
+    if (prefix == "")
+        throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
+    val args = it.subList(1, it.size)
+    val deprecated = args.find { it.endsWith("deprecated") }?.startsWith("+") ?: true
+    val reportUndocumented = args.find { it.endsWith("reportUndocumented") }?.startsWith("+") ?: true
+    val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+") ?: false
+    val suppress = args.find { it.endsWith("suppress") }?.startsWith("+") ?: false
+    PackageOptionsImpl(
+        prefix,
+        includeNonPublic = privateApi,
+        reportUndocumented = reportUndocumented,
+        skipDeprecated = !deprecated,
+        suppress = suppress
+    )
 }
+
 
 class DokkaBootstrapImpl : DokkaBootstrap {
 
@@ -60,9 +57,9 @@ class DokkaBootstrapImpl : DokkaBootstrap {
             if (warningsCount > 0 || errorsCount > 0) {
                 println(
                     "Generation completed with $warningsCount warning" +
-                            (if (DokkaConsoleLogger.warningsCount == 1) "" else "s") +
+                            (if (warningsCount == 1) "" else "s") +
                             " and $errorsCount error" +
-                            if (DokkaConsoleLogger.errorsCount == 1) "" else "s"
+                            if (errorsCount == 1) "" else "s"
                 )
             } else {
                 println("generation completed successfully")

@@ -27,9 +27,9 @@ object DokkaConsoleLogger : DokkaLogger {
 
     override fun report() {
         if (warningsCount > 0 || errorsCount > 0) {
-            println("Generation completed with warningsCount warning" +
+            println("Generation completed with $warningsCount warning" +
                     (if(warningsCount == 1) "" else "s") +
-                    " and errorsCount error" +
+                    " and $errorsCount error" +
                     if(errorsCount == 1) "" else "s"
             )
         } else {
