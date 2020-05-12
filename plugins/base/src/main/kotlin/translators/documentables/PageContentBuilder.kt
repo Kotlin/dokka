@@ -244,7 +244,7 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ): ContentGroup = contentFor(dri, sourceSets, kind, styles, extra, block)
 
-        fun platformDependentHint(
+        fun sourceSetDependentHint(
             dri: DRI = mainDRI,
             sourceSets: Set<SourceSetData> = mainPlatformData,
             kind: Kind = ContentKind.Main,

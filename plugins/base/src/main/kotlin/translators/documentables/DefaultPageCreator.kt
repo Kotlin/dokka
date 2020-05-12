@@ -83,7 +83,7 @@ open class DefaultPageCreator(
         +contentForScope(p, p.dri, p.sourceSets)
         block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.sourceSets.toSet()) {
             link(it.name, it.dri)
-            platformDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
                 +buildSignature(it)
             }
             group(kind = ContentKind.BriefComment) {
@@ -99,7 +99,7 @@ open class DefaultPageCreator(
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, sourceSets.toSet()) {
             link(it.name ?: "", it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
                 +buildSignature(it)
             }
             group(kind = ContentKind.BriefComment) {
@@ -108,7 +108,7 @@ open class DefaultPageCreator(
         }
         block("Functions", 2, ContentKind.Functions, s.functions, sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
                 +buildSignature(it)
             }
             group(kind = ContentKind.BriefComment) {
@@ -117,7 +117,7 @@ open class DefaultPageCreator(
         }
         block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
                 +buildSignature(it)
             }
             group(kind = ContentKind.BriefComment) {
@@ -159,7 +159,7 @@ open class DefaultPageCreator(
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         group(kind = ContentKind.Cover) {
             header(1) { text(c.name.orEmpty()) }
-            platformDependentHint(c.dri, c.sourceSets.toSet()) {
+            sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
                 +buildSignature(c)
             }
         }
@@ -174,7 +174,7 @@ open class DefaultPageCreator(
                 c.sourceSets.toSet()
             ) {
                 link(it.name, it.dri, kind = ContentKind.Main)
-                platformDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
+                sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.Symbol) {
                     +buildSignature(it)
                 }
                 group(kind = ContentKind.BriefComment) {
@@ -302,7 +302,7 @@ open class DefaultPageCreator(
         return contentBuilder.contentFor(d) {
             if (tags.isNotEmpty()) {
                 header(3) { text("Description") }
-                platformDependentHint(sourceSets = platforms.toSet()) {
+                sourceSetDependentHint(sourceSets = platforms.toSet()) {
                     contentForDescription()
                     contentForParams()
                     contentForUnnamedTags()
@@ -315,7 +315,7 @@ open class DefaultPageCreator(
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         group(kind = ContentKind.Cover) {
             header(1) { text(f.name) }
-            platformDependentHint(f.dri, f.sourceSets.toSet()) {
+            sourceSetDependentHint(f.dri, f.sourceSets.toSet()) {
                 +buildSignature(f)
             }
         }

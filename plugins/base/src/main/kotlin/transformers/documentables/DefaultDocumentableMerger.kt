@@ -2,7 +2,6 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.mergeExtras
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
@@ -45,15 +44,6 @@ private fun <T> mergeExpectActual(
     fun analyzeExpectActual(sameDriElements: List<T>) = sameDriElements.reduce(reducer)
 
     return elements.groupBy { it.dri }.values.map(::analyzeExpectActual)
-}
-
-private sealed class Expect<out T : Any> {
-    object NotFound : Expect<Nothing>()
-    data class Found<T : Any>(val expect: T) : Expect<T>()
-
-    companion object {
-        fun <T : Any> from(t: T?) = t?.let(::Found) ?: NotFound
-    }
 }
 
 fun DPackage.mergeWith(other: DPackage): DPackage = copy(

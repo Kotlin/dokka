@@ -26,7 +26,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
 
         return input.transformContentPagesTree { node ->
             node.documentable.safeAs<WithExpectActual>()?.sources?.entries?.fold(node) { acc, entry ->
-                sourceLinks.find { entry.value.path.contains(it.path) && it.platformData == entry.key }?.run {
+                sourceLinks.find { entry.value.path.contains(it.path) && it.sourceSetData == entry.key }?.run {
                     acc.modified(
                         content = acc.content.addSource(
                             entry.key,
@@ -44,13 +44,13 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
         sourceLink.lineSuffix +
         "${this.descriptor.cast<DeclarationDescriptorWithSource>().source.getPsi()?.lineNumber() ?: 1}"
 
-    private fun ContentNode.addSource(platformData: SourceSetData, address: String?): ContentNode =
+    private fun ContentNode.addSource(sourceSetData: SourceSetData, address: String?): ContentNode =
         if (address != null) when (this) {
             is ContentGroup -> copy(
-                children = children + listOf(platformHintedContentResolvedLink(platformData, dci.dri, address))
+                children = children + listOf(platformHintedContentResolvedLink(sourceSetData, dci.dri, address))
             )
             else -> ContentGroup(
-                children = listOf(this, platformHintedContentResolvedLink(platformData, dci.dri, address)),
+                children = listOf(this, platformHintedContentResolvedLink(sourceSetData, dci.dri, address)),
                 extra = this.extra,
                 sourceSets = this.sourceSets,
                 dci = this.dci,
@@ -58,14 +58,14 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
             )
         } else this
 
-    private fun platformHintedContentResolvedLink(platformData: SourceSetData, dri: Set<DRI>, address: String) =
+    private fun platformHintedContentResolvedLink(sourceSetData: SourceSetData, dri: Set<DRI>, address: String) =
         PlatformHintedContent(
             inner = ContentResolvedLink(
                 children = listOf(
                     ContentText(
                         text = "(source)",
                         dci = DCI(dri, ContentKind.BriefComment),
-                        sourceSets = setOf(platformData),
+                        sourceSets = setOf(sourceSetData),
                         style = emptySet(),
                         extra = PropertyContainer.empty()
                     )
@@ -73,10 +73,10 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
                 address = address,
                 extra = PropertyContainer.empty(),
                 dci = DCI(dri, ContentKind.Source),
-                sourceSets = setOf(platformData),
+                sourceSets = setOf(sourceSetData),
                 style = emptySet()
             ),
-            sourceSets = setOf(platformData)
+            sourceSets = setOf(sourceSetData)
         )
 
     private fun PsiElement.lineNumber(): Int? {
@@ -86,8 +86,8 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
     }
 }
 
-data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val platformData: SourceSetData) {
-    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, platformData: SourceSetData) : this(
-        sourceLinkDefinition.path, sourceLinkDefinition.url, sourceLinkDefinition.lineSuffix, platformData
+data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: SourceSetData) {
+    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: SourceSetData) : this(
+        sourceLinkDefinition.path, sourceLinkDefinition.url, sourceLinkDefinition.lineSuffix, sourceSetData
     )
 }

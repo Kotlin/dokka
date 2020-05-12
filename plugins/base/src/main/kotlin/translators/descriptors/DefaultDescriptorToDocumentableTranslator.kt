@@ -75,7 +75,7 @@ private class DokkaDescriptorVisitor(
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
             val path = it.toSourceElement.containingFile.toString()
-            path != null && sourceSet.sourceRoots.any { root -> path.startsWith(root.path) }
+            path.isNotBlank() && sourceSet.sourceRoots.any { root -> path.startsWith(root.path) }
     }
 
     private fun <T> T.toSourceSetDependent() = mapOf(sourceSet to this)
@@ -85,7 +85,7 @@ private class DokkaDescriptorVisitor(
         parent: DRIWithPlatformInfo
     ): DPackage {
         val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?:
-                "[root]"// TODO: error-prone, find a better way to do it
+            "[${sourceSet.sourceSetName} root]"// TODO: error-prone, find a better way to do it
         val driWithPlatform = DRI(packageName = name).withEmptyInfo()
         val scope = descriptor.getMemberScope()
 

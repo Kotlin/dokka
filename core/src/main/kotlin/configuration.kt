@@ -66,13 +66,6 @@ interface DokkaConfiguration {
         val path: String
     }
 
-    interface SourceSetIdentifier {
-        val moduleName: String
-        val sourceSetName: String
-        val platform: Platform
-        val sourceRoots: List<SourceRoot>
-    }
-
     interface SourceLinkDefinition {
         val path: String
         val url: String

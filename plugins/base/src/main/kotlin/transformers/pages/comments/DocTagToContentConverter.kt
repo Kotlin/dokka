@@ -9,19 +9,19 @@ object DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        platforms: Set<SourceSetData>,
+        sourceSets: Set<SourceSetData>,
         styles: Set<Style>,
         extra: PropertyContainer<ContentNode>
     ): List<ContentNode> {
 
         fun buildChildren(docTag: DocTag, newStyles: Set<Style> = emptySet(), newExtras: SimpleAttr? = null) =
             docTag.children.flatMap {
-                buildContent(it, dci, platforms, styles + newStyles, newExtras?.let { extra + it } ?: extra)
+                buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extra + it } ?: extra)
             }
 
         fun buildTableRows(rows: List<DocTag>, newStyle: Style): List<ContentGroup> =
             rows.flatMap {
-                buildContent(it, dci, platforms, styles + newStyle, extra) as List<ContentGroup>
+                buildContent(it, dci, sourceSets, styles + newStyle, extra) as List<ContentGroup>
             }
 
         fun buildHeader(level: Int) =
@@ -30,7 +30,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     level,
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -41,7 +41,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     ordered,
                     dci,
-                    platforms,
+                    sourceSets,
                     styles,
                     ((PropertyContainer.empty<ContentNode>()) + SimpleAttr("start", start.toString()))
                 )
@@ -49,7 +49,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
 
         fun buildNewLine() = listOf(
             ContentBreakLine(
-                platforms
+                sourceSets
             )
         )
 
@@ -72,7 +72,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     docTag.params.get("href")!!,
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -84,7 +84,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                         setOf(docTag.dri),
                         ContentKind.Symbol
                     ),
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -93,7 +93,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     "",
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -102,7 +102,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildChildren(docTag),
                     "",
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -111,7 +111,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     address = docTag.params["href"]!!,
                     altText = docTag.params["alt"],
                     dci = dci,
-                    sourceSets = platforms,
+                    sourceSets = sourceSets,
                     style = styles,
                     extra = extra
                 )
@@ -120,7 +120,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentText(
                     "",
                     dci,
-                    platforms,
+                    sourceSets,
                     setOf()
                 )
             )
@@ -128,7 +128,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                 ContentText(
                     docTag.body,
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )
@@ -138,7 +138,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
                     buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
                     dci,
-                    platforms,
+                    sourceSets,
                     styles + CommentTable
                 )
             )
@@ -146,10 +146,10 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is Tr -> listOf(
                 ContentGroup(
                     docTag.children.map {
-                        ContentGroup(buildChildren(it), dci, platforms, styles, extra)
+                        ContentGroup(buildChildren(it), dci, sourceSets, styles, extra)
                     },
                     dci,
-                    platforms,
+                    sourceSets,
                     styles
                 )
             )

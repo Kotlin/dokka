@@ -15,7 +15,7 @@ import kotlin.reflect.full.memberProperties
 class MockContext(
     vararg extensions: Pair<ExtensionPoint<*>, (DokkaContext) -> Any>,
     private val testConfiguration: DokkaConfiguration? = null,
-    private val testPlatforms: Map<SourceSetData, EnvironmentAndFacade>? = null,
+    private val testSourceSets: Map<SourceSetData, EnvironmentAndFacade>? = null,
     private val unusedExtensionPoints: List<ExtensionPoint<*>>? = null
 ) : DokkaContext {
     private val extensionMap by lazy {
@@ -40,7 +40,7 @@ class MockContext(
         get() = testConfiguration ?: throw IllegalStateException("This mock context doesn't provide configuration")
 
     override val platforms: Map<SourceSetData, EnvironmentAndFacade>
-        get() = testPlatforms ?: throw IllegalStateException("This mock context doesn't provide platforms data")
+        get() = testSourceSets ?: throw IllegalStateException("This mock context doesn't provide platforms data")
     override val unusedPoints: Collection<ExtensionPoint<*>>
         get() = unusedExtensionPoints
             ?: throw IllegalStateException("This mock context doesn't provide unused extension points")

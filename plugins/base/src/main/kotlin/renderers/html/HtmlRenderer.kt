@@ -72,27 +72,27 @@ open class HtmlRenderer(
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: SourceSetData?
-    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, platformRestriction) }
-    else ul { buildListItems(node.children, pageContext, platformRestriction) }
+        sourceSetRestriction: SourceSetData?
+    ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
+    else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: SourceSetData? = null
+        sourceSetRestriction: SourceSetData? = null
     ) {
         items.forEach {
             if (it is ContentList)
                 buildList(it, pageContext)
             else
-                li { it.build(this, pageContext, platformRestriction) }
+                li { it.build(this, pageContext, sourceSetRestriction) }
         }
     }
 
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: SourceSetData? = null
+        sourceSetRestriction: SourceSetData? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -119,27 +119,27 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        platformRestriction: SourceSetData?
+        sourceSetRestriction: SourceSetData?
     ) {
         node.children
             .filter {
-                platformRestriction == null || platformRestriction in it.sourceSets
+                sourceSetRestriction == null || sourceSetRestriction in it.sourceSets
             }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 div(classes = "table-row") {
                     it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
                         div("main-subrow") {
-                            it.filter { platformRestriction == null || platformRestriction in it.sourceSets }
+                            it.filter { sourceSetRestriction == null || sourceSetRestriction in it.sourceSets }
                                 .forEach {
                                     when (it.dci.kind) {
                                         ContentKind.Main -> div("title") {
-                                            it.build(this, pageContext, platformRestriction)
+                                            it.build(this, pageContext, sourceSetRestriction)
                                         }
                                         ContentKind.BriefComment, ContentKind.Comment -> div("brief") {
-                                            it.build(this, pageContext, platformRestriction)
+                                            it.build(this, pageContext, sourceSetRestriction)
                                         }
-                                        else -> div { it.build(this, pageContext, platformRestriction) }
+                                        else -> div { it.build(this, pageContext, sourceSetRestriction) }
                                     }
                                 }
                             if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.sourceSets.size == 1) {
@@ -151,7 +151,7 @@ open class HtmlRenderer(
                         div("signature-subrow") {
                             div("signatures") {
                                 it.forEach {
-                                    it.build(this, pageContext, platformRestriction)
+                                    it.build(this, pageContext, sourceSetRestriction)
                                 }
                             }
                         }
@@ -174,11 +174,11 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: SourceSetData?
+        sourceSetRestriction: SourceSetData?
     ) {
         div(classes = "table") {
             node.children.forEach {
-                buildRow(it, pageContext, platformRestriction)
+                buildRow(it, pageContext, sourceSetRestriction)
             }
         }
     }

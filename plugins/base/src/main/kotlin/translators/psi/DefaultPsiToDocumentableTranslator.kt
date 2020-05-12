@@ -22,16 +22,21 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import java.io.File
 
 object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
     override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
 
+        fun isFileInSourceRoots(file: File) : Boolean {
+            return sourceSetData.sourceRoots.any { root -> file.path.startsWith(root.path) }
+        }
+
         val (environment, _) = context.platforms.getValue(sourceSetData)
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
-            ?.mapNotNull { it.file.takeIf { sourceSetData.sourceRoots.any { root -> it.path.startsWith(root.path) } } }
+            ?.mapNotNull { it.file.takeIf(::isFileInSourceRoots) }
             ?: listOf()
         val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 

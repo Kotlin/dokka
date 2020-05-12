@@ -81,14 +81,14 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 
-    private fun platformHintedContentCode(platformData: SourceSetData, dri: Set<DRI>, content: String, language: String) =
+    private fun platformHintedContentCode(sourceSetData: SourceSetData, dri: Set<DRI>, content: String, language: String) =
         PlatformHintedContent(
             inner = ContentCode(
                 children = listOf(
                     ContentText(
                         text = content,
                         dci = DCI(dri, ContentKind.BriefComment),
-                        sourceSets = setOf(platformData),
+                        sourceSets = setOf(sourceSetData),
                         style = emptySet(),
                         extra = PropertyContainer.empty()
                     )
@@ -96,9 +96,9 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
                 language = language,
                 extra = PropertyContainer.empty(),
                 dci = DCI(dri, ContentKind.Source),
-                sourceSets = setOf(platformData),
+                sourceSets = setOf(sourceSetData),
                 style = emptySet()
             ),
-            sourceSets = setOf(platformData)
+            sourceSets = setOf(sourceSetData)
         )
 }

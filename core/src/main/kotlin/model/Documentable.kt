@@ -29,43 +29,6 @@ abstract class Documentable {
 
 typealias SourceSetDependent<T> = Map<SourceSetData, T>
 
-/*data class SourceSetDependent<out T>(
-    val map: Map<SourceSetData, T>,
-    val expect: T? = null
-) : Map<SourceSetData, T> by map {
-    val prevalentValue: T?
-        get() = map.values.distinct().singleOrNull()
-
-    val allValues: Sequence<T> = sequence {
-        expect?.also { yield(it) }
-        yieldAll(map.values)
-    }
-
-    val allEntries: Sequence<Pair<SourceSetData?, T>> = sequence {
-        expect?.also { yield(null to it) }
-        map.forEach { (k, v) -> yield(k to v) }
-    }
-
-    fun getOrExpect(platform: SourceSetData): T? = map[platform] ?: expect
-
-    companion object {
-        fun <T> empty(): SourceSetDependent<T> = SourceSetDependent(emptyMap())
-
-        fun <T> from(platformData: SourceSetData, element: T) = SourceSetDependent(mapOf(platformData to element))
-
-        @Suppress("UNCHECKED_CAST")
-        fun <T> from(pairs: Iterable<Pair<SourceSetData?, T>>) =
-            SourceSetDependent(
-                pairs.filter { it.first != null }.toMap() as Map<SourceSetData, T>,
-                pairs.firstOrNull { it.first == null }?.second
-            )
-
-        fun <T> from(vararg pairs: Pair<SourceSetData?, T>) = from(pairs.asIterable())
-
-        fun <T> expectFrom(element: T) = SourceSetDependent(map = emptyMap(), expect = element)
-    }
-}*/
-
 interface WithExpectActual {
     val sources: SourceSetDependent<DocumentableSource>
 }
@@ -447,22 +410,3 @@ class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : Docu
 class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource {
     override val path = psi.containingFile.virtualFile.path
 }
-
-data class SourceSetData(
-    override val moduleName: String,
-    override val sourceSetName: String,
-    override val platform: Platform,
-    override val sourceRoots: List<DokkaConfiguration.SourceRoot> = emptyList()
-) : DokkaConfiguration.SourceSetIdentifier
-
-private object SourceSetCache {
-    private val sourceSets = HashMap<String, SourceSetData>()
-
-    fun getSourceSet(pass: DokkaConfiguration.PassConfiguration) =
-        sourceSets.getOrPut("${pass.moduleName}/${pass.sourceSetName}",
-            { SourceSetData(pass.moduleName, pass.sourceSetName, pass.analysisPlatform, pass.sourceRoots) }
-        )
-}
-
-val DokkaConfiguration.PassConfiguration.sourceSet: SourceSetData
-    get() = SourceSetCache.getSourceSet(this)
