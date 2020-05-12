@@ -3,10 +3,8 @@ package org.jetbrains.dokka.analysis
 import com.google.common.collect.ImmutableMap
 import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreModuleManager
-import com.intellij.mock.MockApplication
 import com.intellij.mock.MockComponentManager
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
@@ -26,7 +24,7 @@ import org.jetbrains.kotlin.analyzer.common.CommonResolverForModuleFactory
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JvmBuiltIns
-import org.jetbrains.kotlin.caches.resolve.JsResolverForModuleFactory
+import org.jetbrains.kotlin.caches.resolve.*
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.ContentRoot
 import org.jetbrains.kotlin.cli.common.config.KotlinSourceRoot
@@ -73,10 +71,15 @@ import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
-import org.jetbrains.kotlin.ide.konan.NativeKlibLibraryInfo
+import org.jetbrains.kotlin.extensions.ApplicationExtensionDescriptor
+import org.jetbrains.kotlin.ide.konan.NativePlatformKindResolution
 import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
+import org.jetbrains.kotlin.platform.IdePlatformKind
+import org.jetbrains.kotlin.platform.impl.CommonIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.JsIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.JvmIdePlatformKind
+import org.jetbrains.kotlin.platform.impl.NativeIdePlatformKind
 import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import java.io.File
 
@@ -137,6 +140,26 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         projectComponentManager.registerService(
             ProjectRootManager::class.java,
             CoreProjectRootManager(projectFileIndex)
+        )
+
+        registerExtensionPoint(
+            ApplicationExtensionDescriptor("org.jetbrains.kotlin.idePlatformKind", IdePlatformKind::class.java),
+            listOf(
+                CommonIdePlatformKind,
+                JvmIdePlatformKind,
+                JsIdePlatformKind,
+                NativeIdePlatformKind
+            )
+        )
+
+        registerExtensionPoint(
+            IdePlatformKindResolution.Companion,
+            listOf(
+                CommonPlatformKindResolution(),
+                JvmPlatformKindResolution(),
+                JsPlatformKindResolution(),
+                NativePlatformKindResolution()
+            )
         )
 
         return environment
@@ -495,6 +518,19 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
      */
     override fun dispose() {
         Disposer.dispose(this)
+    }
+
+    companion object {
+        private fun <T : Any> registerExtensionPoint(
+            appExtension: ApplicationExtensionDescriptor<T>,
+            instances: List<T>
+        ) {
+            if (Extensions.getRootArea().hasExtensionPoint(appExtension.extensionPointName))
+                return
+
+            appExtension.registerExtensionPoint()
+            instances.forEach(appExtension::registerExtension)
+        }
     }
 }
 
