@@ -66,7 +66,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
                 val filePath = file.toAbsolutePath().toString()
                 withContext(Dispatchers.IO) {
                     Paths.get(root, rebase(filePath)).toFile().writeBytes(
-                        javaClass.getResourceAsStream(filePath).readBytes()
+                        this@FileWriter.javaClass.getResourceAsStream(filePath).readBytes()
                     )
                 }
             }

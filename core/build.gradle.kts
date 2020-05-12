@@ -24,17 +24,6 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
-task("copy_search", Copy::class) {
-    from(File(project(":core:search-component").projectDir, "dist/"))
-    destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
-}.dependsOn(":core:search-component:generateSearchFiles")
-
-tasks {
-    processResources {
-        dependsOn("copy_search")
-    }
-}
-
 publishing {
     publications {
         register<MavenPublication>("dokkaCore") {
