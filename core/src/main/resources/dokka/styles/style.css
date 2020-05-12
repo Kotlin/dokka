@@ -427,29 +427,24 @@ footer {
     align-self: center;
 }
 
-.platform-tag:nth-child(1) {
+.platform-tag.jvm-like {
     background-color: #4DBB5F;
     color: white;
 }
 
-.platform-tag:nth-child(2) {
-    background-color: orange;
+.platform-tag.js-like {
+    background-color: #FED236;
     color: white;
 }
 
-.platform-tag:nth-child(3) {
-    background-color: crimson;
+.platform-tag.native-like {
+    background-color: #CD74F6;
     color: white;
 }
 
-.platform-tag:nth-child(4) {
-    background-color: gray;
+.platform-tag.common-like {
+    background-color: #A6AFBA;
     color: white;
-}
-
-.platform-tag.common {
-    background-color: #F4F4F4;
-    color: #637282;
 }
 
 td.content {
@@ -496,29 +491,46 @@ td.content {
     margin: 0;
 }
 
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(1):hover {
-    border-top: 2px solid #4DBB5F;
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.jvm-like:hover {
+    border-top: 2px solid rgba(77, 187, 95, 0.3);
 }
 
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(2):hover {
-    border-top: 2px solid orange;
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.js-like:hover {
+    border-top: 2px solid rgba(254, 175, 54, 0.3);
 }
 
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(3):hover {
-    border-top: 2px solid crimson;
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.native-like:hover {
+    border-top: 2px solid rgba(105, 118, 249, 0.3);
 }
 
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:nth-child(4):hover {
-    border-top: 2px solid gray;
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.common-like:hover {
+    border-top: 2px solid rgba(161, 170, 180, 0.3);
 }
 
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-toggle='common']:hover {
-    border-top: 2px solid #F4F4F4;
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.jvm-like[data-active=''] {
     border: 2px solid #F4F4F4;
     border-top: 2px solid #4DBB5F;
+
+    background: #F4F4F4;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.js-like[data-active=''] {
+    border: 2px solid #F4F4F4;
+    border-top: 2px solid #FED236;
+
+    background: #F4F4F4;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.native-like[data-active=''] {
+    border: 2px solid #F4F4F4;
+    border-top: 2px solid #CD74F6;
+
+    background: #F4F4F4;
+}
+
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark.common-like[data-active=''] {
+    border: 2px solid #F4F4F4;
+    border-top: 2px solid #A6AFBA;
 
     background: #F4F4F4;
 }

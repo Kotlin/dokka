@@ -66,6 +66,15 @@ open class HtmlRenderer(
                         button(classes = "platform-bookmark") {
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetName
+                            when(
+                                pair.first.platform.key
+                            ){
+                            "common" -> classes = classes + "common-like"
+                            "native" -> classes = classes + "native-like"
+                            "jvm" -> classes = classes + "jvm-like"
+                            "js" -> classes = classes + "js-like"
+                            }
+                            attributes["data-toggle"] = pair.first.sourceSetName
                             text(pair.first.sourceSetName)
                         }
                     }
@@ -213,14 +222,18 @@ open class HtmlRenderer(
             }
     }
 
-
     private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
             div("platform-tags") {
-                node.sourceSets.filter { sourceSetRestriction == null || it in sourceSetRestriction }.forEach {
+                node.sourceSets.filter { sourceSetRestriction == null || it in sourceSetRestriction }.forEach { data ->
                     div("platform-tag") {
-                        if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
-                        text(it.sourceSetName)
+                        when(data.platform.key){
+                            "common" -> classes = classes + "common-like"
+                            "native" -> classes = classes + "native-like"
+                            "jvm" -> classes = classes + "jvm-like"
+                            "js" -> classes = classes + "js-like"
+                        }
+                        text(data.sourceSetName)
                     }
                 }
             }
