@@ -1,9 +1,7 @@
 package org.jetbrains.dokka.model
 
-fun <T> SourceSetDependent<T>.filtered(platformDataList: List<SourceSetData>) = SourceSetDependent(
-    map.filter { it.key in platformDataList },
-    expect
-)
+fun <T> SourceSetDependent<T>.filtered(platformDataList: List<SourceSetData>) = filter { it.key in platformDataList }
+fun SourceSetData?.filtered(platformDataList: List<SourceSetData>) = takeIf { this in platformDataList }
 
 fun DTypeParameter.filter(filteredData: List<SourceSetData>) =
     if (filteredData.containsAll(sourceSets)) this
@@ -14,6 +12,7 @@ fun DTypeParameter.filter(filteredData: List<SourceSetData>) =
             dri,
             name,
             documentation.filtered(intersection),
+            expectPresentInSet?.takeIf { intersection.contains(expectPresentInSet) },
             bounds,
             intersection,
             extra

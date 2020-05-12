@@ -16,6 +16,7 @@ abstract class Documentable {
     abstract val children: List<Documentable>
     abstract val documentation: SourceSetDependent<DocumentationNode>
     abstract val sourceSets: List<SourceSetData>
+    abstract val expectPresentInSet: SourceSetData?
 
     override fun toString(): String =
         "${javaClass.simpleName}($dri)"
@@ -26,7 +27,9 @@ abstract class Documentable {
     override fun hashCode() = dri.hashCode()
 }
 
-data class SourceSetDependent<out T>(
+typealias SourceSetDependent<T> = Map<SourceSetData, T>
+
+/*data class SourceSetDependent<out T>(
     val map: Map<SourceSetData, T>,
     val expect: T? = null
 ) : Map<SourceSetData, T> by map {
@@ -61,7 +64,7 @@ data class SourceSetDependent<out T>(
 
         fun <T> expectFrom(element: T) = SourceSetDependent(map = emptyMap(), expect = element)
     }
-}
+}*/
 
 interface WithExpectActual {
     val sources: SourceSetDependent<DocumentableSource>
@@ -126,6 +129,7 @@ data class DModule(
     override val name: String,
     val packages: List<DPackage>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData? = null,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DModule> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DModule> {
@@ -143,6 +147,7 @@ data class DPackage(
     override val classlikes: List<DClasslike>,
     val typealiases: List<DTypeAlias>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData? = null,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DPackage> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DPackage> {
@@ -166,6 +171,7 @@ data class DClass(
     override val generics: List<DTypeParameter>,
     override val supertypes: SourceSetDependent<List<DRI>>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val modifier: SourceSetDependent<Modifier>,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
@@ -183,6 +189,7 @@ data class DEnum(
     override val name: String,
     val entries: List<DEnumEntry>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -204,6 +211,7 @@ data class DEnumEntry(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
@@ -222,6 +230,7 @@ data class DFunction(
     val isConstructor: Boolean,
     val parameters: List<DParameter>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
@@ -241,6 +250,7 @@ data class DInterface(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -262,6 +272,7 @@ data class DObject(
     override val name: String?,
     override val dri: DRI,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -281,6 +292,7 @@ data class DAnnotation(
     override val name: String,
     override val dri: DRI,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -301,6 +313,7 @@ data class DProperty(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
@@ -323,6 +336,7 @@ data class DParameter(
     override val dri: DRI,
     override val name: String?,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     val type: Bound,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
@@ -337,6 +351,7 @@ data class DTypeParameter(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     val bounds: List<Bound>,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DTypeParameter> = PropertyContainer.empty()
@@ -354,6 +369,7 @@ data class DTypeAlias(
     val underlyingType: SourceSetDependent<Bound>,
     override val visibility: SourceSetDependent<Visibility>,
     override val documentation: SourceSetDependent<DocumentationNode>,
+    override val expectPresentInSet: SourceSetData?,
     override val sourceSets: List<SourceSetData>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
 ) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias> {
@@ -418,7 +434,7 @@ sealed class JavaVisibility(name: String) : Visibility(name) {
     object Default : JavaVisibility("")
 }
 
-fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: SourceSetDependent.empty()
+fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: emptyMap()
 
 interface DocumentableSource {
     val path: String

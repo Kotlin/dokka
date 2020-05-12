@@ -125,7 +125,7 @@ open class DefaultPageCreator(
             }
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
-            val map = inheritors.value.map.filter { it.value.isNotEmpty() }
+            val map = inheritors.value.filter { it.value.isNotEmpty() }
             if (map.values.any()) {
                 header(2) { text("Inheritors") }
                 +ContentTable(
@@ -196,14 +196,13 @@ open class DefaultPageCreator(
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
-        (this[T::class] as List<Pair<SourceSetData, T>>?)
-            ?.let { SourceSetDependent.from(it) }.orEmpty()
+        (this[T::class] as List<Pair<SourceSetData, T>>?)?.toMap().orEmpty()
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
         (this[T::class] as List<Pair<SourceSetData, T>>?)
             ?.groupBy { it.second.name }
-            ?.mapValues { (_, v) -> SourceSetDependent.from(v) }
+            ?.mapValues { (_, v) -> v.toMap() }
             .orEmpty()
 
     private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
@@ -212,8 +211,8 @@ open class DefaultPageCreator(
     protected open fun contentForComments(
         d: Documentable
     ): List<ContentNode> {
-        val tags: GroupedTags = d.documentation.allEntries.flatMap { (pd, doc) ->
-            doc.children.asSequence().map { pd to it }
+        val tags: GroupedTags = d.documentation.flatMap { (pd, doc) ->
+            doc.children.asSequence().map { pd to it }.toList()
         }.groupBy { it.second::class }
 
         val platforms = d.sourceSets
@@ -222,7 +221,7 @@ open class DefaultPageCreator(
             val description = tags.withTypeUnnamed<Description>()
             if (description.any { it.value.root.children.isNotEmpty() }) {
                 platforms.forEach { platform ->
-                    description.getOrExpect(platform)?.also {
+                    description[platform]?.also {
                         group(sourceSets = setOf(platform)) {
                             comment(it.root)
                         }
@@ -240,7 +239,7 @@ open class DefaultPageCreator(
                 }
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
-                        val receiverRow = receiver.getOrExpect(platform)?.let {
+                        val receiverRow = receiver[platform]?.let {
                             buildGroup(sourceSets = setOf(platform)) {
                                 text("<receiver>")
                                 comment(it.root)
@@ -248,7 +247,7 @@ open class DefaultPageCreator(
                         }
 
                         val paramRows = params.mapNotNull { (_, param) ->
-                            param.getOrExpect(platform)?.let {
+                            param[platform]?.let {
                                 buildGroup(sourceSets = setOf(platform)) {
                                     text(it.name)
                                     comment(it.root)
@@ -271,7 +270,7 @@ open class DefaultPageCreator(
                 table(kind = ContentKind.Comment) {
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
-                            see.getOrExpect(platform)?.let {
+                            see[platform]?.let {
                                 buildGroup(sourceSets = setOf(platform)) {
                                     if (it.address != null) link(it.name, it.address!!)
                                     else text(it.name)
@@ -287,10 +286,10 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForUnnamedTags() {
             val unnamedTags: List<SourceSetDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-                    .map { (_, v) -> SourceSetDependent.from(v) }
+                    .map { (_, v) -> v.mapNotNull { (k,v) -> k?.let { it to v } }.toMap() }
             platforms.forEach { platform ->
                 unnamedTags.forEach { pdTag ->
-                    pdTag.getOrExpect(platform)?.also { tag ->
+                    pdTag[platform]?.also { tag ->
                         group(sourceSets = setOf(platform)) {
                             header(4) { text(tag.toHeaderString()) }
                             comment(tag.root)

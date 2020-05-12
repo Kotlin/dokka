@@ -68,6 +68,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                             classlikes,
                             it.typealiases,
                             it.documentation,
+                            it.expectPresentInSet,
                             it.sourceSets,
                             it.extra
                         )
@@ -80,8 +81,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
         private fun <T : WithVisibility> alwaysTrue(a: T, p: SourceSetData) = true
         private fun <T : WithVisibility> alwaysFalse(a: T, p: SourceSetData) = false
 
-        private fun WithVisibility.visibilityForPlatform(data: SourceSetData): Visibility? =
-            visibility[data] ?: visibility.expect
+        private fun WithVisibility.visibilityForPlatform(data: SourceSetData): Visibility? = visibility[data]
 
         private fun <T> T.filterPlatforms(
             additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
@@ -128,6 +128,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         isConstructor,
                         parameters,
                         documentation.filtered(filteredPlatforms),
+                        expectPresentInSet.filtered(filteredPlatforms),
                         sources.filtered(filteredPlatforms),
                         visibility.filtered(filteredPlatforms),
                         type,
@@ -154,6 +155,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         dri,
                         name,
                         documentation.filtered(filteredPlatforms),
+                        expectPresentInSet.filtered(filteredPlatforms),
                         sources.filtered(filteredPlatforms),
                         visibility.filtered(filteredPlatforms),
                         type,
@@ -178,6 +180,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                         entry.dri,
                         entry.name,
                         entry.documentation.filtered(intersection),
+                        entry.expectPresentInSet.filtered(filteredPlatforms),
                         filterFunctions(entry.functions) { _, data -> data in intersection }.second,
                         filterProperties(entry.properties) { _, data -> data in intersection }.second,
                         filterClasslikes(entry.classlikes) { _, data -> data in intersection }.second,
@@ -245,6 +248,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                                 generics,
                                 supertypes.filtered(filteredPlatforms),
                                 documentation.filtered(filteredPlatforms),
+                                expectPresentInSet.filtered(filteredPlatforms),
                                 modifier,
                                 filteredPlatforms,
                                 extra
@@ -253,6 +257,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                                 name,
                                 dri,
                                 documentation.filtered(filteredPlatforms),
+                                expectPresentInSet.filtered(filteredPlatforms),
                                 sources.filtered(filteredPlatforms),
                                 functions,
                                 properties,
@@ -268,6 +273,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                                 name,
                                 enumEntries,
                                 documentation.filtered(filteredPlatforms),
+                                expectPresentInSet.filtered(filteredPlatforms),
                                 sources.filtered(filteredPlatforms),
                                 functions,
                                 properties,
@@ -283,6 +289,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                                 dri,
                                 name,
                                 documentation.filtered(filteredPlatforms),
+                                expectPresentInSet.filtered(filteredPlatforms),
                                 sources.filtered(filteredPlatforms),
                                 functions,
                                 properties,
@@ -298,6 +305,7 @@ internal object DocumentableVisibilityFilter : PreMergeDocumentableTransformer {
                                 name,
                                 dri,
                                 documentation.filtered(filteredPlatforms),
+                                expectPresentInSet.filtered(filteredPlatforms),
                                 sources.filtered(filteredPlatforms),
                                 functions,
                                 properties,

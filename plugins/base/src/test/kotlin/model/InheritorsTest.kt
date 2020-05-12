@@ -30,7 +30,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             pluginsOverrides = listOf(InheritorsPlugin)
         ) {
             with((this / "inheritors" / "A").cast<DInterface>()) {
-                val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value.map
+                val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value
                 with(map.keys.also { it counts 1 }.find { it.platform == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }
                 ) {
                     this counts 1
@@ -77,7 +77,7 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
         ) {
             documentablesTransformationStage = { m ->
                 with((m / "inheritors" / "A").cast<DInterface>()) {
-                    val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value.map
+                    val map = extra[InheritorsInfo].assertNotNull("InheritorsInfo").value
                     with(map.keys.also { it counts 2 }) {
                         with(find { it.platform == Platform.jvm }.assertNotNull("jvm key").let { map[it]!! }) {
                             this counts 1

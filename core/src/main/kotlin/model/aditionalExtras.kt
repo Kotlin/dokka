@@ -47,7 +47,7 @@ data class ActualTypealias(val underlyingType: SourceSetDependent<Bound>) : Extr
             left: ActualTypealias,
             right: ActualTypealias
         ) =
-            MergeStrategy.Replace(ActualTypealias(SourceSetDependent(left.underlyingType + right.underlyingType)))
+            MergeStrategy.Replace(ActualTypealias(left.underlyingType + right.underlyingType))
     }
 
     override val key: ExtraProperty.Key<DClasslike, ActualTypealias> = ActualTypealias

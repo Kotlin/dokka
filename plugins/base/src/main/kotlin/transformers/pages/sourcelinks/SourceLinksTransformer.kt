@@ -25,7 +25,7 @@ class SourceLinksTransformer(val context: DokkaContext) : PageTransformer {
             .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it.sourceSet) } }
 
         return input.transformContentPagesTree { node ->
-            node.documentable.safeAs<WithExpectActual>()?.sources?.map?.entries?.fold(node) { acc, entry ->
+            node.documentable.safeAs<WithExpectActual>()?.sources?.entries?.fold(node) { acc, entry ->
                 sourceLinks.find { entry.value.path.contains(it.path) && it.platformData == entry.key }?.run {
                     acc.modified(
                         content = acc.content.addSource(

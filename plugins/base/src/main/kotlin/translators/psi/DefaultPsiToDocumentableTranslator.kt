@@ -25,13 +25,13 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
-    override fun invoke(platformData: SourceSetData, context: DokkaContext): DModule {
+    override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
 
-        val (environment, _) = context.platforms.getValue(platformData)
+        val (environment, _) = context.platforms.getValue(sourceSetData)
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
-            ?.mapNotNull { it.file.takeIf { platformData.sourceRoots.any { root -> it.path.startsWith(root.path) } } }
+            ?.mapNotNull { it.file.takeIf { sourceSetData.sourceRoots.any { root -> it.path.startsWith(root.path) } } }
             ?: listOf()
         val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 
@@ -45,11 +45,11 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         val docParser =
             DokkaPsiParser(
-                platformData,
+                sourceSetData,
                 context.logger
             )
         return DModule(
-            platformData.moduleName,
+            sourceSetData.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(
@@ -60,17 +60,19 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         psiFile.classes.map { docParser.parseClasslike(it, dri) }
                     },
                     emptyList(),
-                    SourceSetDependent.empty(),
-                    listOf(platformData)
+                    emptyMap(),
+                    null,
+                    listOf(sourceSetData)
                 )
             },
-            SourceSetDependent.empty(),
-            listOf(platformData)
+            emptyMap(),
+            null,
+            listOf(sourceSetData)
         )
     }
 
     class DokkaPsiParser(
-        private val platformData: SourceSetData,
+        private val sourceSetData: SourceSetData,
         private val logger: DokkaLogger
     ) {
 
@@ -103,7 +105,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
         }
 
         private fun <T> T.toPlatformDependant() =
-            SourceSetDependent(mapOf(platformData to this))
+            mapOf(sourceSetData to this)
 
         fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
@@ -144,6 +146,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         name.orEmpty(),
                         dri,
                         documentation,
+                        null,
                         source,
                         allFunctions,
                         fields.mapNotNull { parseField(it, accessors[it].orEmpty()) },
@@ -151,7 +154,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         visibility,
                         null,
                         constructors.map { parseFunction(it, true) },
-                        listOf(platformData),
+                        listOf(sourceSetData),
                         PropertyContainer.empty<DAnnotation>() + annotations.toList().toExtra()
                     )
                 isEnum -> DEnum(
@@ -162,14 +165,16 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                             dri.withClass("$name.${entry.name}"),
                             entry.name.orEmpty(),
                             javadocParser.parseDocumentation(entry).toPlatformDependant(),
+                            null,
                             emptyList(),
                             emptyList(),
                             emptyList(),
-                            listOf(platformData),
+                            listOf(sourceSetData),
                             PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toExtra()
                         )
                     },
                     documentation,
+                    null,
                     source,
                     allFunctions,
                     fields.filter { it !is PsiEnumConstant }.map { parseField(it, accessors[it].orEmpty()) },
@@ -178,13 +183,14 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     constructors.map { parseFunction(it, true) },
                     ancestors,
-                    listOf(platformData),
+                    listOf(sourceSetData),
                     PropertyContainer.empty<DEnum>() + annotations.toList().toExtra()
                 )
                 isInterface -> DInterface(
                     dri,
                     name.orEmpty(),
                     documentation,
+                    null,
                     source,
                     allFunctions,
                     fields.mapNotNull { parseField(it, accessors[it].orEmpty()) },
@@ -193,7 +199,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     mapTypeParameters(dri),
                     ancestors,
-                    listOf(platformData),
+                    listOf(sourceSetData),
                     PropertyContainer.empty<DInterface>() + annotations.toList().toExtra()
                 )
                 else -> DClass(
@@ -209,8 +215,9 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     documentation,
+                    null,
                     modifiers,
-                    listOf(platformData),
+                    listOf(sourceSetData),
                     PropertyContainer.empty<DClass>() + annotations.toList().toExtra()
                 )
             }
@@ -231,18 +238,20 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         dri.copy(target = index + 1),
                         psiParameter.name,
                         javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
+                        null,
                         getBound(psiParameter.type),
-                        listOf(platformData)
+                        listOf(sourceSetData)
                     )
                 },
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
+                null,
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
                 psi.returnType?.let { getBound(type = it) } ?: Void,
                 psi.mapTypeParameters(dri),
                 null,
                 psi.getModifier().toPlatformDependant(),
-                listOf(platformData),
+                listOf(sourceSetData),
                 PropertyContainer.withAll(
                     InheritedFunction(isInherited),
                     psi.annotations.toList().toExtra(),
@@ -312,8 +321,9 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     dri.copy(genericTarget = index),
                     type.name.orEmpty(),
                     javadocParser.parseDocumentation(type).toPlatformDependant(),
+                    null,
                     mapBounds(type.bounds),
-                    listOf(platformData)
+                    listOf(sourceSetData)
                 )
             }
         }
@@ -348,6 +358,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 dri,
                 psi.name!!, // TODO: Investigate if this is indeed nullable
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
+                null,
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
                 getBound(psi.type),
@@ -355,7 +366,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
                 psi.getModifier().toPlatformDependant(),
-                listOf(platformData),
+                listOf(sourceSetData),
                 emptyList(),
                 PropertyContainer.empty<DProperty>() + psi.annotations.toList().toExtra()
             )

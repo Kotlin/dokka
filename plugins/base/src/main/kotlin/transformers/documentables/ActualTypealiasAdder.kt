@@ -64,11 +64,11 @@ class ActualTypealiasAdder : PreMergeDocumentableTransformer {
         typealiases: Map<DRI, DTypeAlias>
     ): List<T> where T : DClasslike, T : WithExtraProperties<T>, T : WithExpectActual =
         elements.map { element ->
-            if (element.sources.expect != null) {
+            if (element.expectPresentInSet != null) {
                 typealiases[element.dri]?.let { ta ->
                     element.withNewExtras(
                         element.extra + ActualTypealias(
-                            SourceSetDependent.from(ta.sourceSets.single(), ta.underlyingType.values.single())
+                            mapOf(ta.sourceSets.single() to ta.underlyingType.values.single())
                         )
                     )
                 } ?: element

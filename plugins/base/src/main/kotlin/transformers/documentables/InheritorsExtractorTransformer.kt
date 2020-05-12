@@ -12,7 +12,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
         original.generateInheritanceMap().let { inheritanceMap -> original.appendInheritors(inheritanceMap) as DModule }
 
     private fun <T : Documentable> T.appendInheritors(inheritanceMap: Map<SourceSetData, Map<DRI, List<DRI>>>): Documentable =
-        InheritorsInfo(SourceSetDependent(inheritanceMap.getForDRI(dri))).let { info ->
+        InheritorsInfo(inheritanceMap.getForDRI(dri)).let { info ->
             when (this) {
                 is DModule -> copy(packages = packages.map { it.appendInheritors(inheritanceMap) as DPackage })
                 is DPackage -> copy(classlikes = classlikes.map { it.appendInheritors(inheritanceMap) as DClasslike })
@@ -43,12 +43,12 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
             }
         }
 
-    private fun InheritorsInfo.isNotEmpty() = this.value.allValues.fold(0) { acc, list -> acc + list.size } > 0
+    private fun InheritorsInfo.isNotEmpty() = this.value.values.fold(0) { acc, list -> acc + list.size } > 0
 
     private fun Map<SourceSetData, Map<DRI, List<DRI>>>.getForDRI(dri: DRI) =
-        SourceSetDependent(map { (v, k) ->
+        map { (v, k) ->
             v to k[dri]
-        }.map { (k, v) -> k to v.orEmpty() }.toMap())
+        }.map { (k, v) -> k to v.orEmpty() }.toMap()
 
     private fun DModule.generateInheritanceMap() =
         getInheritanceEntriesRec().filterNot { it.second.isEmpty() }.groupBy({ it.first }) { it.second }
@@ -62,7 +62,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
 
     private fun <T : Documentable> T.toInheritanceEntries() =
         (this as? WithSupertypes)?.let {
-            it.supertypes.map.map { (k, v) -> k to v.map { it to dri } }
+            it.supertypes.map { (k, v) -> k to v.map { it to dri } }
         }.orEmpty()
 
 }
@@ -72,11 +72,9 @@ class InheritorsInfo(val value: SourceSetDependent<List<DRI>>) : ExtraProperty<D
         override fun mergeStrategyFor(left: InheritorsInfo, right: InheritorsInfo): MergeStrategy<Documentable> =
             MergeStrategy.Replace(
                 InheritorsInfo(
-                    SourceSetDependent(
-                        (left.value.map.entries.toList() + right.value.map.entries.toList())
+                        (left.value.entries.toList() + right.value.entries.toList())
                             .groupBy({ it.key }) { it.value }
                             .map { (k, v) -> k to v.flatten() }.toMap()
-                    )
                 )
             )
     }
