@@ -8,7 +8,7 @@ import kotlin.streams.toList
 data class ProcessResult(val code: Int, val out: String, val err: String? = null)
 
 internal fun Path.dirsWithFormats(formats: List<String>): List<Pair<Path, String>> =
-    Files.list(this).toList().flatMap { p -> formats.map { p to it } }
+    Files.list(this).toList().filter { Files.isDirectory(it) }.flatMap { p -> formats.map { p to it } }
 
 internal fun Path.asString() = normalize().toString()
 internal fun Path.deleteRecursively() = toFile().deleteRecursively()
