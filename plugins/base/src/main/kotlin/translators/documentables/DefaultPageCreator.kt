@@ -83,11 +83,9 @@ open class DefaultPageCreator(
         +contentForScope(p, p.dri, p.platformData)
         block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.platformData.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
                 +buildSignature(it)
-            }
-            group(kind = ContentKind.BriefComment) {
-                text(it.briefDocumentation())
+                contentForBrief(it)
             }
         }
     }
@@ -99,29 +97,24 @@ open class DefaultPageCreator(
     ) = contentBuilder.contentFor(s as Documentable) {
         block("Types", 2, ContentKind.Classlikes, s.classlikes, platformData.toSet()) {
             link(it.name ?: "", it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
                 +buildSignature(it)
-            }
-            group(kind = ContentKind.BriefComment) {
-                text(it.briefDocumentation())
+                contentForBrief(it)
             }
         }
         block("Functions", 2, ContentKind.Functions, s.functions, platformData.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
                 +buildSignature(it)
-            }
-            group(kind = ContentKind.BriefComment) {
-                text(it.briefDocumentation())
+                contentForBrief(it)
             }
         }
         block("Properties", 2, ContentKind.Properties, s.properties, platformData.toSet()) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+            platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
                 +buildSignature(it)
-            }
-            group(kind = ContentKind.BriefComment) {
-                text(it.briefDocumentation())
+
+                contentForBrief(it)
             }
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
@@ -174,19 +167,18 @@ open class DefaultPageCreator(
                 c.platformData.toSet()
             ) {
                 link(it.name, it.dri, kind = ContentKind.Main)
-                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.Symbol) {
+                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
                     +buildSignature(it)
-                }
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
+                    contentForBrief(it)
                 }
             }
         }
         if (c is DEnum) {
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.platformData.toSet()) {
                 link(it.name, it.dri, kind = ContentKind.Main)
-                group(kind = ContentKind.BriefComment) {
-                    text(it.briefDocumentation())
+                platformDependentHint(it.dri, it.platformData.toSet(), kind = ContentKind.PlatformDependantHint) {
+                    +buildSignature(it)
+                    contentForBrief(it)
                 }
             }
         }
@@ -241,7 +233,7 @@ open class DefaultPageCreator(
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
                         val receiverRow = receiver.getOrExpect(platform)?.let {
-                            buildGroup(platformData = setOf(platform)) {
+                            buildGroup(platformData = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
                                 text("<receiver>")
                                 comment(it.root)
                             }
@@ -249,8 +241,8 @@ open class DefaultPageCreator(
 
                         val paramRows = params.mapNotNull { (_, param) ->
                             param.getOrExpect(platform)?.let {
-                                buildGroup(platformData = setOf(platform)) {
-                                    text(it.name)
+                                buildGroup(platformData = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
+                                    text(it.name, kind = ContentKind.Parameters)
                                     comment(it.root)
                                 }
                             }
@@ -272,9 +264,9 @@ open class DefaultPageCreator(
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
                             see.getOrExpect(platform)?.let {
-                                buildGroup(platformData = setOf(platform)) {
-                                    if (it.address != null) link(it.name, it.address!!)
-                                    else text(it.name)
+                                buildGroup(platformData = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.KeyValue) {
+                                    if (it.address != null) link(it.name, it.address!!, kind = ContentKind.Comment)
+                                    else text(it.name, kind = ContentKind.Comment)
                                     comment(it.root)
                                 }
                             }
@@ -331,6 +323,18 @@ open class DefaultPageCreator(
         }.children
     }
 
+    protected open fun DocumentableContentBuilder.contentForBrief(content: Documentable) {
+        content.platformData.forEach { platform ->
+            val root = content.documentation[platform]?.children?.firstOrNull()?.root
+
+            root?.let {
+                group(platformData = setOf(platform), kind = ContentKind.BriefComment) {
+                    text(it.docTagSummary(), kind = ContentKind.Comment)
+                }
+            }
+        }
+    }
+
     protected open fun contentForFunction(f: DFunction) = contentBuilder.contentFor(f) {
         group(kind = ContentKind.Cover) {
             header(1) { text(f.name) }
@@ -350,13 +354,4 @@ open class DefaultPageCreator(
     }
 
     protected open fun TagWrapper.toHeaderString() = this.javaClass.toGenericString().split('.').last()
-
-    //TODO: It isn't platform-aware and produces wrong docs Probably should use platformDependentHint
-    protected open fun Documentable.briefDocumentation() = " "
-//        documentation.values
-//            .firstOrNull()
-//            ?.children
-//            ?.firstOrNull()
-//            ?.root
-//            ?.docTagSummary() ?: ""
 }

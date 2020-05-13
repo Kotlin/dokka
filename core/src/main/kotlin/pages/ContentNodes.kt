@@ -171,7 +171,7 @@ interface Kind
 enum class ContentKind : Kind {
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Inheritors;
+    Empty, Source, TypeAliases, Cover, Inheritors, PlatformDependantHint;
 
     companion object {
         private val platformTagged =
@@ -183,6 +183,10 @@ enum class ContentKind : Kind {
 
 enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace, Indented
+}
+
+enum class ContentStyle : Style {
+    KeyValue
 }
 
 object CommentTable: Style

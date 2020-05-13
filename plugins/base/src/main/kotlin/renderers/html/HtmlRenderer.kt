@@ -128,22 +128,32 @@ open class HtmlRenderer(
             ?.let {
                 div(classes = "table-row") {
                     it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
-                        div("main-subrow") {
+                        div("main-subrow ${node.style.joinToString { it.toString().decapitalize() }}") {
                             it.filter { platformRestriction == null || platformRestriction in it.platforms }
                                 .forEach {
                                     when(it.dci.kind){
-                                        ContentKind.Main -> div("title") {
-                                            it.build(this, pageContext, platformRestriction)
+                                        ContentKind.PlatformDependantHint -> {
+                                            div("platform-dependant-row keyValue"){
+                                                div()
+                                                div("title"){
+                                                    it.build(this, pageContext, platformRestriction)
+                                                }
+                                            }
                                         }
-                                        ContentKind.BriefComment, ContentKind.Comment -> div("brief") {
-                                            it.build(this, pageContext, platformRestriction)
+                                        ContentKind.Main -> {
+                                            div("title-row"){
+                                                it.build(this, pageContext, platformRestriction)
+                                                div()
+                                                if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.platforms.size == 1) {
+                                                    createPlatformTags(node)
+                                                } else {
+                                                    div()
+                                                }
+                                            }
                                         }
                                         else -> div { it.build(this, pageContext, platformRestriction) }
                                     }
                                 }
-                            if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.platforms.size == 1) {
-                                createPlatformTags(node)
-                            }
                         }
                     }
                     it.filter { it.dci.kind == ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {

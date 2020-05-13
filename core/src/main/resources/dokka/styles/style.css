@@ -89,6 +89,7 @@
     box-sizing: border-box;
     font-weight: bold;
     white-space: pre;
+    flex-wrap: wrap;
 }
 
 #nav-submenu > .sideMenuPart {
@@ -214,10 +215,9 @@ td:first-child {
 }
 
 .brief {
-    width: 40vw;
-    white-space: nowrap;
+    white-space: pre-wrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    padding-top: 24px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -424,6 +424,7 @@ footer {
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-end;
+    height: 24px;
 }
 
 .platform-tags > .platform-tag {
@@ -462,7 +463,7 @@ td.content {
     flex-direction: column;
 }
 
-.title > a {
+.title-row > a {
     text-decoration: none;
     font-style: normal;
     font-weight: 600;
@@ -470,7 +471,7 @@ td.content {
     color: #282E34;
 }
 
-.title > a:hover {
+.title-row > a:hover {
     color: #5B5DEF;
 }
 
@@ -536,7 +537,6 @@ td.content {
 .table {
     display: flex;
     flex-direction: column;
-    flex-direction: column;
 }
 
 .table-row {
@@ -547,42 +547,29 @@ td.content {
     padding: 16px 24px 16px 24px;
 }
 
-.table-row > .main-subrow {
-    height: 24px;
+.platform-dependant-row {
     display: grid;
-    grid-template-columns: 310px auto auto;
+    padding-top: 8px;
 }
 
-.table-row > .signature-subrow {
+.title-row {
     display: grid;
-    grid-template-columns: 310px auto;
+    grid-template-columns: auto auto 7em;
+    width: 100%;
 }
 
-.main-subrow > .title {
-    order: 1;
+.keyValue {
+    display: grid;
 }
 
-.main-subrow > .brief {
-    order: 2;
-}
+@media print, screen and (min-width: 960px) {
+    .keyValue {
+        grid-template-columns: 20% auto;
+    }
 
-.main-subrow > .platform-tags {
-    grid-column-start: 3;
-}
-
-.main-subrow > * {
-    order: 4;
-}
-
-.signature-subrow > .signatures {
-    grid-column-start: 2;
-    display: flex;
-    flex-direction: column;
-    margin-top: 5px;
-}
-
-.signature-subrow > * {
-    order: 4;
+    .title-row {
+        grid-template-columns: 20% auto 7em;
+    }
 }
 
 @media print, screen and (max-width: 960px) {
@@ -640,7 +627,7 @@ td.content {
 
 @media print, screen and (max-width: 480px) {
     body {
-        padding: 15px;
+        padding-right: 15px;
     }
 
     header ul {
