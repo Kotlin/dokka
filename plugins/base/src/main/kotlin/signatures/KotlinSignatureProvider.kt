@@ -31,7 +31,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         )
     }
 
-    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
+    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace)){
+        link(e.name, e.dri)
+    }
 
     private fun actualTypealiasedSignature(dri: DRI, name: String, aliasedTypes: PlatformDependent<Bound>) =
         aliasedTypes.entries.groupBy({ it.value }, { it.key }).map { (bound, platforms) ->
