@@ -1,0 +1,8 @@
+images/
+scripts/
+images/
+styles/
+*.js
+*.svg
+*.map
+*.css
