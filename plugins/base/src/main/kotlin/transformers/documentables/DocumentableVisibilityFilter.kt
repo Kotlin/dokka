@@ -14,17 +14,25 @@ internal class DocumentableVisibilityFilter(val context: DokkaContext) : PreMerg
         val packageOptions =
             context.configuration.passesConfigurations.first { original.sourceSets.contains(context.sourceSet(it)) }
                 .perPackageOptions
+        val passOptions = context.configuration.passesConfigurations.first {
+            original.platformData.contains(it.platformData)
+        }
 
-        DocumentableFilter(packageOptions).processModule(original)
+        DocumentableFilter(packageOptions, passOptions).processModule(original)
     }
 
-    private class DocumentableFilter(val packageOptions: List<DokkaConfiguration.PackageOptions>) {
+    private class DocumentableFilter(
+        val packageOptions: List<DokkaConfiguration.PackageOptions>,
+        val globalOptions: DokkaConfiguration.PassConfiguration
+    ) {
 
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
             is JavaVisibility.Public,
             is JavaVisibility.Default,
             is KotlinVisibility.Public -> true
-            else -> packageName != null && packageOptions.firstOrNull { packageName.startsWith(it.prefix) }?.includeNonPublic == true
+            else -> packageName != null
+                    && packageOptions.firstOrNull { packageName.startsWith(it.prefix) }?.includeNonPublic
+                    ?: globalOptions.includeNonPublic
         }
 
         fun processModule(original: DModule) =
@@ -58,7 +66,10 @@ internal class DocumentableVisibilityFilter(val context: DokkaContext) : PreMerg
                 }
                 when {
                     !modified -> it
-                    functions.isEmpty() && properties.isEmpty() && classlikes.isEmpty() -> null
+                    functions.isEmpty() && properties.isEmpty() && classlikes.isEmpty() -> {
+                        packagesListChanged = true
+                        null
+                    }
                     else -> {
                         packagesListChanged = true
                         DPackage(
