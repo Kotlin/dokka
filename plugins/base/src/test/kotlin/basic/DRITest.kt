@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 class DRITest : AbstractCoreTest() {
     @Test
-    fun `#634`() {
+    fun issue634() {
         val configuration = dokkaConfiguration {
             passes {
                 pass {
@@ -46,7 +46,7 @@ class DRITest : AbstractCoreTest() {
     }
 
     @Test
-    fun `#634 with immediate nullable self`() {
+    fun issue634WithImmediateNullableSelf() {
         val configuration = dokkaConfiguration {
             passes {
                 pass {
@@ -76,7 +76,7 @@ class DRITest : AbstractCoreTest() {
     }
 
     @Test
-    fun `#634 with generic nullable receiver`() {
+    fun issue634WithGenericNullableReceiver() {
         val configuration = dokkaConfiguration {
             passes {
                 pass {
@@ -106,7 +106,7 @@ class DRITest : AbstractCoreTest() {
     }
 
     @Test
-    fun `#642 with * and Any?`() {
+    fun issue642WithStarAndAny() {
         val configuration = dokkaConfiguration {
             passes {
                 pass {
