@@ -588,8 +588,7 @@ private class DokkaDescriptorVisitor(
         ExtraModifiers.INLINE.takeIf { isInline },
         ExtraModifiers.EXTERNAL.takeIf { isExternal },
         ExtraModifiers.INNER.takeIf { isInner },
-        ExtraModifiers.DATA.takeIf { isData },
-        ExtraModifiers.OVERRIDE.takeIf { getSuperInterfaces().isNotEmpty() || getSuperClassNotAny() != null }
+        ExtraModifiers.DATA.takeIf { isData }
     ).toProperty()
 
     private fun ValueParameterDescriptor.additionalExtras() =

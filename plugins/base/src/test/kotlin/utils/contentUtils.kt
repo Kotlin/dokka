@@ -122,32 +122,28 @@ fun ContentMatcherBuilder<*>.propertySignature(
         table {
             group {
                 link { +name }
-                group {
-                    platformHinted {
+                platformHinted {
+                    group {
                         group {
-                            group {
-                                annotations.forEach {
-                                    group {
-                                        link { +it }
-                                    }
+                            annotations.forEach {
+                                group {
+                                    link { +it }
                                 }
-                                +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
-                                link { +name }
-                                if (type != null) {
-                                    +(": ")
-                                    group {
-                                        link {
-                                            +(type)
-                                        }
+                            }
+                            +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
+                            link { +name }
+                            if (type != null) {
+                                +(": ")
+                                group {
+                                    link {
+                                        +(type)
                                     }
                                 }
                             }
                         }
                     }
-                    group {
-
-                    }
                 }
+                group { } // This is brief comment content group
             }
         }
     }

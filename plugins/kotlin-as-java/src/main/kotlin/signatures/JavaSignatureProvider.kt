@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.kotlinAsJava.signatures
 
+import org.jetbrains.dokka.base.signatures.JvmSingatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
@@ -13,19 +14,14 @@ import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
-class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider {
+class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
+    JvmSingatureUtils by JavaSignatureUtils {
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Default)
+
     private val ignoredModifiers =
         setOf(KotlinModifier.Open, JavaModifier.Empty, KotlinModifier.Empty, KotlinModifier.Sealed)
-    private val ignoredAnnotations = setOf(
-        Annotations.Annotation(DRI("kotlin.jvm", "Transient"), emptyMap()),
-        Annotations.Annotation(DRI("kotlin.jvm", "Volatile"), emptyMap()),
-        Annotations.Annotation(DRI("kotlin.jvm", "Transitive"), emptyMap()),
-        Annotations.Annotation(DRI("kotlin.jvm", "Strictfp"), emptyMap()),
-        Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
-    )
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is DFunction -> signature(documentable)
@@ -38,44 +34,45 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         )
     }
 
-    private fun signature(e: DEnumEntry)= contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
+    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
 
-    private fun signature(c: DClasslike) = contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+    private fun signature(c: DClasslike) =
+        contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+            platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
-        if (c is DClass) {
-            platformText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-            text(c.javaAdditionalModifiers())
-        }
-
-        when (c) {
-            is DClass -> text("class ")
-            is DInterface -> text("interface ")
-            is DEnum -> text("enum ")
-            is DObject -> text("class ")
-            is DAnnotation -> text("@interface ")
-        }
-        link(c.name!!, c.dri)
-        if (c is WithGenerics) {
-            list(c.generics, prefix = "<", suffix = ">") {
-                +buildSignature(it)
+            if (c is DClass) {
+                platformText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
+                text(c.modifiers().toSignatureString())
             }
-        }
-        if (c is WithSupertypes) {
-            c.supertypes.map { (p, dris) ->
-                list(dris, prefix = " extends ", sourceSets = setOf(p)) {
-                    link(it.sureClassNames, it, sourceSets = setOf(p))
+
+            when (c) {
+                is DClass -> text("class ")
+                is DInterface -> text("interface ")
+                is DEnum -> text("enum ")
+                is DObject -> text("class ")
+                is DAnnotation -> text("@interface ")
+            }
+            link(c.name!!, c.dri)
+            if (c is WithGenerics) {
+                list(c.generics, prefix = "<", suffix = ">") {
+                    +buildSignature(it)
+                }
+            }
+            if (c is WithSupertypes) {
+                c.supertypes.map { (p, dris) ->
+                    list(dris, prefix = " extends ", sourceSets = setOf(p)) {
+                        link(it.sureClassNames, it, sourceSets = setOf(p))
+                    }
                 }
             }
         }
-    }
 
     private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         group(styles = setOf(TextStyle.Block)) {
-            javaAnnotationsBlock(p)
+            annotationsBlock(p)
             platformText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             platformText(p.modifier) { it.name + " " }
-            text(p.javaAdditionalModifiers())
+            text(p.modifiers().toSignatureString())
             signatureForProjection(p.type)
             text(nbsp.toString())
             link(p.name, p.dri)
@@ -84,9 +81,9 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         group(styles = setOf(TextStyle.Block)) {
-            javaAnnotationsBlock(f)
+            annotationsBlock(f)
             platformText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-            text(f.javaAdditionalModifiers())
+            text(f.modifiers().toSignatureString())
             val returnType = f.type
             signatureForProjection(returnType)
             text(nbsp.toString())
@@ -95,8 +92,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 +buildSignature(it)
             }
             list(f.parameters, "(", ")") {
-                javaAnnotationsInline(it)
-                text(it.javaAdditionalModifiers())
+                annotationsInline(it)
+                text(it.modifiers().toSignatureString())
                 signatureForProjection(it.type)
                 text(nbsp.toString())
                 link(it.name!!, it.dri)
@@ -134,13 +131,4 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
     }
-
-    fun PageContentBuilder.DocumentableContentBuilder.javaAnnotationsBlock(d: Documentable) =
-        annotationsBlock(d, ignoredAnnotations)
-
-    fun PageContentBuilder.DocumentableContentBuilder.javaAnnotationsInline(d: Documentable) =
-        annotationsInline(d, ignoredAnnotations)
-
-    private fun <T : Documentable> WithExtraProperties<T>.javaAdditionalModifiers() =
-        this.modifiers(ExtraModifiers.javaOnlyModifiers).toSignatureString()
 }
