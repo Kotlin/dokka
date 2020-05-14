@@ -179,7 +179,7 @@ abstract class AbstractCoreTest {
         var dependentSourceSets: List<String> = emptyList(),
         var samples: List<String> = emptyList(),
         var includes: List<String> = emptyList(),
-        var includeNonPublic: Boolean = true,
+        var includeNonPublic: Boolean = false,
         var includeRootPackage: Boolean = true,
         var reportUndocumented: Boolean = false,
         var skipEmptyPackages: Boolean = false,
