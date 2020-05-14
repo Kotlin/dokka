@@ -2,6 +2,7 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Generation.DocumentationMerger
+import org.junit.Ignore
 import org.junit.Test
 
 abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
@@ -508,6 +509,16 @@ class JVMMarkdownFormatTest: BaseMarkdownFormatTest(Platform.jvm) {
     @Test
     fun javaCodeLiteralTags() {
         verifyJavaMarkdownNode("javaCodeLiteralTags", defaultModelConfig)
+    }
+
+    @Test
+    fun javaLinkTag() {
+        verifyJavaMarkdownNode("javaLinkTag", defaultModelConfig)
+    }
+
+    @Test
+    fun javaLinkTagWithLabel() {
+        verifyJavaMarkdownNode("javaLinkTagWithLabel", defaultModelConfig)
     }
 
     @Test

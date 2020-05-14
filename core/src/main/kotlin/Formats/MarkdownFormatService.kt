@@ -100,7 +100,15 @@ open class MarkdownOutputBuilder(to: StringBuilder,
         val codeBlockStart = to.length
         maxBackticksInCodeBlock = 0
 
-        wrapIfNotEmpty("`", "`", body, checkEndsWith = true)
+        val startLength = to.length
+        val backtick = "`"
+        wrapIfNotEmpty(backtick, backtick, body, checkEndsWith = true)
+        // The body() itself could have backticks. Double backticks like `` could
+        // result in wrong markdown. Sanitize if that is the case.
+        val prefixEndIdx = startLength + backtick.length
+        if (to.startsWith(backtick, prefixEndIdx)) {
+            to.replace(startLength, prefixEndIdx + backtick.length, "")
+        }
 
         if (maxBackticksInCodeBlock > 0) {
             val extraBackticks = "`".repeat(maxBackticksInCodeBlock)
