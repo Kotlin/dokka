@@ -43,9 +43,6 @@ interface AssertDSL {
 inline fun <reified T : Any> Any?.assertIsInstance(name: String): T =
     this.let { it as? T } ?: throw AssertionError("$name should not be null")
 
-fun List<DocumentationNode>.commentsToString(): String =
-    this.flatMap { it.children }.joinToString(separator = "\n") { it.root.docTagSummary() }
-
 fun TagWrapper.text(): String = when (val t = this) {
     is NamedTagWrapper -> "${t.name}: [${t.root.text()}]"
     else -> t.root.text()
