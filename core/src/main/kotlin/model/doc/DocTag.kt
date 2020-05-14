@@ -6,13 +6,6 @@ sealed class DocTag(
     val children: List<DocTag>,
     val params: Map<String, String>
 ) {
-    fun docTagSummary(): String {
-        if(this.children.isEmpty() && this is Text)
-            return this.body
-
-        return this.children.joinToString(" ") { it.docTagSummary() }
-    }
-
     override fun equals(other: Any?): Boolean =
         (
             other != null &&

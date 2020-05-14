@@ -163,7 +163,7 @@ open class DefaultPageCreator(
         }
         if (c is DEnum) {
             block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet()) {
-                link(it.name, it.dri, kind = ContentKind.Main)
+                link(it.name, it.dri)
                 sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                     +buildSignature(it)
                     contentForBrief(it)
@@ -317,7 +317,7 @@ open class DefaultPageCreator(
 
             root?.let {
                 group(sourceSets = setOf(platform), kind = ContentKind.BriefComment) {
-                    text(it.docTagSummary(), kind = ContentKind.Comment)
+                    comment(it)
                 }
             }
         }
@@ -353,7 +353,7 @@ open class DefaultPageCreator(
                         divergentGroup(
                             ContentDivergentGroup.GroupID(name),
                             elements.map { it.dri }.toSet(),
-                            kind = ContentKind.Symbol
+                            kind = ContentKind.SourceSetDependantHint
                         ) {
                             elements.map {
                                 instance(setOf(it.dri), it.sourceSets.toSet()) {
@@ -363,9 +363,7 @@ open class DefaultPageCreator(
                                         }
                                     }
                                     after {
-                                        group(kind = ContentKind.BriefComment) {
-                                            contentForBrief(it)
-                                        }
+                                        contentForBrief(it)
                                     }
                                 }
                             }
