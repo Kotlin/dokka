@@ -2,7 +2,6 @@ package org.jetbrains.dokka.tests
 
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.Generation.DocumentationMerger
-import org.junit.Ignore
 import org.junit.Test
 
 abstract class BaseMarkdownFormatTest(val analysisPlatform: Platform): FileGeneratorTestCase() {
