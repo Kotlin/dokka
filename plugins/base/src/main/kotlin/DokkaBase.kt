@@ -11,10 +11,10 @@ import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.transformers.documentables.*
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
-import org.jetbrains.dokka.base.transformers.documentables.DocumentableVisibilityFilter
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
 import org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
+import org.jetbrains.dokka.base.transformers.documentables.DocumentableFilter
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -52,7 +52,11 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val preMergeDocumentableTransformer by extending(isFallback = true) {
-        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilter
+        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableFilter
+    }
+
+    val actualTypealiasAdder by extending {
+        CoreExtensions.documentableTransformer with ActualTypealiasAdder()
     }
 
     val modulesAndPackagesDocumentation by extending(isFallback = true) {
@@ -73,13 +77,11 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableTransformer with InheritorsExtractorTransformer()
     }
 
-    val actualTypealiasAdder by extending {
-        CoreExtensions.documentableTransformer with ActualTypealiasAdder()
-    }
 
     val undocumentedCodeReporter by extending {
         CoreExtensions.documentableTransformer with ReportUndocumentedTransformer()
     }
+
 
     val documentableToPageTranslator by extending(isFallback = true) {
         CoreExtensions.documentableToPageTranslator providing { ctx ->

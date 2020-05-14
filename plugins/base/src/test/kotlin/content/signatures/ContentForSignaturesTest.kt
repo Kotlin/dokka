@@ -16,6 +16,7 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             pass {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
+                includeNonPublic = true
             }
         }
     }

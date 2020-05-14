@@ -1,4 +1,4 @@
-package visibility
+package filter
 
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
@@ -61,7 +61,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
         ) {
             documentablesFirstTransformationStep = {
                 Assertions.assertTrue(
-                    it.component2().packages.isEmpty()
+                    it.component2().packages.first().functions.size == 0
                 )
             }
         }
@@ -165,7 +165,7 @@ class VisibilityFilterTest : AbstractCoreTest() {
         ) {
             documentablesFirstTransformationStep = {
                  Assertions.assertTrue(
-                     it.component2().packages.isEmpty()
+                     it.component2().packages.first().functions.size == 0
                  )
              }
         }
