@@ -33,11 +33,9 @@ class ConfigurationExtractor(private val project: Project) {
             ?: run { project.logger.error("No source set with name '$sourceSetName' found"); return null }
         val compilation = when (projectExtension) {
             is KotlinMultiplatformExtension -> projectExtension.targets.flatMap { it.compilations }
-                .first { it.kotlinSourceSets.contains(sourceSet) }
+                .find { it.kotlinSourceSets.contains(sourceSet) }
             is KotlinSingleTargetExtension -> projectExtension.target.compilations.find {
-                it.kotlinSourceSets.contains(
-                    sourceSet
-                )
+                it.kotlinSourceSets.contains(sourceSet)
             }
             else -> null
         } ?: run { project.logger.error("No compilation found for set with name '$sourceSetName'"); return null }
