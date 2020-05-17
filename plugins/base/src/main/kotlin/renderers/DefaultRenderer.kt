@@ -28,7 +28,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     )
 
     abstract fun T.buildNewLine()
@@ -36,7 +36,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     )
 
     abstract fun T.buildText(textNode: ContentText)
@@ -51,9 +51,9 @@ abstract class DefaultRenderer<T>(
     open fun T.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) =
-        wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
+        wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
 
     open fun T.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) =
          node.children.forEach { it.build(this, pageContext) }
@@ -64,9 +64,9 @@ abstract class DefaultRenderer<T>(
     open fun T.buildLinkText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) {
-        nodes.forEach { it.build(this, pageContext, platformRestriction) }
+        nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
 
     open fun T.buildCode(code: List<ContentNode>, language: String, pageContext: ContentPage) {
@@ -76,39 +76,39 @@ abstract class DefaultRenderer<T>(
     open fun T.buildHeader(
         node: ContentHeader,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) {
-        buildHeader(node.level) { node.children.forEach { it.build(this, pageContext, platformRestriction) } }
+        buildHeader(node.level) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
 
     open fun ContentNode.build(
         builder: T,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) =
-        builder.buildContentNode(this, pageContext, platformRestriction)
+        builder.buildContentNode(this, pageContext, sourceSetRestriction)
 
     open fun T.buildContentNode(
         node: ContentNode,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<SourceSetData>? = null
     ) {
-        if (platformRestriction == null || node.sourceSets.any { it in platformRestriction }  ) {
+        if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }  ) {
             when (node) {
                 is ContentText -> buildText(node)
-                is ContentHeader -> buildHeader(node, pageContext, platformRestriction)
+                is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
                 is ContentCode -> buildCode(node.children, node.language, pageContext)
                 is ContentDRILink ->
                     buildLink(locationProvider.resolve(node.address, node.sourceSets.toList(), pageContext)) {
-                        buildLinkText(node.children, pageContext, platformRestriction)
+                        buildLinkText(node.children, pageContext, sourceSetRestriction)
                     }
                 is ContentResolvedLink -> buildLink(node.address) {
-                    buildLinkText(node.children, pageContext, platformRestriction)
+                    buildLinkText(node.children, pageContext, sourceSetRestriction)
                 }
                 is ContentEmbeddedResource -> buildResource(node, pageContext)
-                is ContentList -> buildList(node, pageContext, platformRestriction)
-                is ContentTable -> buildTable(node, pageContext, platformRestriction)
-                is ContentGroup -> buildGroup(node, pageContext, platformRestriction)
+                is ContentList -> buildList(node, pageContext, sourceSetRestriction)
+                is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
+                is ContentGroup -> buildGroup(node, pageContext, sourceSetRestriction)
                 is ContentBreakLine -> buildNewLine()
                 is PlatformHintedContent -> buildPlatformDependent(node, pageContext)
                 is ContentDivergentGroup -> buildDivergent(node, pageContext)
