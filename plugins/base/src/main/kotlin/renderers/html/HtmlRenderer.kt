@@ -40,24 +40,6 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.wrapPlatformTagged(
-        node: ContentGroup,
-        pageContext: ContentPage,
-        childrenCallback: FlowContent.() -> Unit
-    ) {
-        div("platform-tagged") {
-            node.sourceSets.forEach {
-                div("platform-tag") {
-                    if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
-                    text(it.sourceSetName)
-                }
-            }
-            div("content") {
-                childrenCallback()
-            }
-        }
-    }
-
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
         buildPlatformDependent(content.sourceSets.map { it to setOf(content.inner) }.toMap(), pageContext)
 
