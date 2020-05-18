@@ -123,8 +123,6 @@ class LinkableContentTest : AbstractCoreTest() {
         }
     }
 
-    // TODO: enable after fixing SampleTransformer
-    @Disabled
     @Test
     fun `Samples multiplatform documentation`() {
 
