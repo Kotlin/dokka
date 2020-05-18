@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.utils.PathUtil
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
@@ -67,22 +66,25 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         val body = processBody(psiElement)
         val node = contentCode(contentPage.platforms(), contentPage.dri, body, "kotlin")
 
-        return bfs(fqName, node)
+        return dfs(fqName, node)
     }
 
-    private fun ContentNode.bfs(fqName: String, node: ContentCode): ContentNode {
+    private fun ContentNode.dfs(fqName: String, node: ContentCode): ContentNode {
         return when(this) {
-            is ContentHeader -> copy(children.map { it.bfs(fqName, node) })
-            is ContentCode -> copy(children.map { it.bfs(fqName, node) })
-            is ContentDRILink -> copy(children.map { it.bfs(fqName, node) })
-            is ContentResolvedLink -> copy(children.map { it.bfs(fqName, node) })
-            is ContentEmbeddedResource -> copy(children.map { it.bfs(fqName, node) })
-            is ContentTable -> copy(children = children.map { it.bfs(fqName, node) as ContentGroup })
-            is ContentList -> copy(children.map { it.bfs(fqName, node) })
-            is ContentGroup -> copy(children.map { it.bfs(fqName, node) })
-            is PlatformHintedContent -> copy(inner.bfs(fqName, node))
+            is ContentHeader -> copy(children.map { it.dfs(fqName, node) })
+            is ContentDivergentGroup -> copy(children.map { it.dfs(fqName, node) } as List<ContentDivergentInstance>)
+            is ContentDivergentInstance -> copy(before.let { it?.dfs(fqName, node) }, divergent.let { it.dfs(fqName, node) }, after.let { it?.dfs(fqName, node) })
+            is ContentCode -> copy(children.map { it.dfs(fqName, node) })
+            is ContentDRILink -> copy(children.map { it.dfs(fqName, node) })
+            is ContentResolvedLink -> copy(children.map { it.dfs(fqName, node) })
+            is ContentEmbeddedResource -> copy(children.map { it.dfs(fqName, node) })
+            is ContentTable -> copy(children = children.map { it.dfs(fqName, node) as ContentGroup })
+            is ContentList -> copy(children.map { it.dfs(fqName, node) })
+            is ContentGroup -> copy(children.map { it.dfs(fqName, node) })
+            is PlatformHintedContent -> copy(inner.dfs(fqName, node))
             is ContentText -> if (text == fqName) node else this
-            else -> this
+            is ContentBreakLine -> this
+            else -> this.also { context.logger.error("Could not recognize $this ContentNode in SamplesTransformer") }
         }
     }
 
