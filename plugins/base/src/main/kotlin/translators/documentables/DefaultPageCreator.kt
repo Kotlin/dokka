@@ -312,11 +312,9 @@ open class DefaultPageCreator(
     }
 
     protected open fun DocumentableContentBuilder.contentForBrief(content: Documentable) {
-        content.sourceSets.forEach { platform ->
-            val root = content.documentation[platform]?.children?.firstOrNull()?.root
-
-            root?.let {
-                group(sourceSets = setOf(platform), kind = ContentKind.BriefComment) {
+        content.sourceSets.forEach { sourceSet ->
+            content.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
+                group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
                     comment(it)
                 }
             }
@@ -348,12 +346,12 @@ open class DefaultPageCreator(
             header(2) { text(name) }
             table(kind) {
                 collection.groupBy { it.name }.map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                    buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet()) {
-                        link(elementName.orEmpty(), elements.first().dri)
+                    buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet(), kind = kind) {
+                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
                         divergentGroup(
                             ContentDivergentGroup.GroupID(name),
                             elements.map { it.dri }.toSet(),
-                            kind = ContentKind.SourceSetDependantHint
+                            kind = kind
                         ) {
                             elements.map {
                                 instance(setOf(it.dri), it.sourceSets.toSet()) {

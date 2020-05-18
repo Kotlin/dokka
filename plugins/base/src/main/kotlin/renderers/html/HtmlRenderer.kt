@@ -79,43 +79,48 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
         val distinct =
-            node.children.map { instance ->
-                instance to Pair(
-                    createHTML(prettyPrint = false).div {
-                        instance.before?.let { before ->
-                            buildContentNode(before, pageContext, instance.sourceSets)
-                        }
-                    }.drop(5).dropLast(6),
-                    createHTML(prettyPrint = false).div {
-                        instance.after?.let { after ->
-                            buildContentNode(after, pageContext, instance.sourceSets)
-                        }
-                    }.drop(5).dropLast(6)  // TODO: Find a way to do it without arbitrary trims
-                )
-
+            node.children.flatMap { instance ->
+                instance.sourceSets.map { sourceSet ->
+                    Pair(instance, sourceSet) to Pair(
+                        createHTML(prettyPrint = false).div {
+                            instance.before?.let { before ->
+                                buildContentNode(before, pageContext, setOf(sourceSet))
+                            }
+                        }.stripDiv(),
+                        createHTML(prettyPrint = false).div {
+                            instance.after?.let { after ->
+                                buildContentNode(after, pageContext, setOf(sourceSet))
+                            }
+                        }.stripDiv()
+                    )
+                }
             }.groupBy(
-                Pair<ContentDivergentInstance, Pair<String, String>>::second,
-                Pair<ContentDivergentInstance, Pair<String, String>>::first
+                Pair<Pair<ContentDivergentInstance, SourceSetData>, Pair<String, String>>::second,
+                Pair<Pair<ContentDivergentInstance, SourceSetData>, Pair<String, String>>::first
             )
 
         distinct.forEach {
+            val groupedDivergent = it.value.groupBy { it.second }
+
             consumer.onTagContentUnsafe { +it.key.first }
             consumer.onTagContentUnsafe {
-                +createHTML(prettyPrint = false).div {
+                +createHTML(prettyPrint = false).div("main-subrow") {
                     if (node.implicitlySourceSetHinted) {
                         buildPlatformDependent(
-                            it.value.groupBy { it.sourceSets }
-                                .flatMap { (sourceSets, elements) ->
-                                    sourceSets.map { sourceSet -> sourceSet to elements.map { e -> e.divergent } }
-                                }.toMap(),
+                            groupedDivergent.map { (sourceSet, elements) ->
+                                sourceSet to elements.map { e -> e.first.divergent }
+                            }.toMap(),
                             pageContext
                         )
+                        if (distinct.size > 1 && groupedDivergent.size == 1) {
+                            createPlatformTags(node, groupedDivergent.keys)
+                        }
                     } else {
                         it.value.forEach {
-                            buildContentNode(it.divergent, pageContext, null)
+                            buildContentNode(it.first.divergent, pageContext, setOf(it.second))
                         }
                     }
-                }.drop(5).dropLast(6)
+                }
             }
             consumer.onTagContentUnsafe { +it.key.second }
         }
@@ -174,44 +179,25 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<SourceSetData>?
     ) {
         node.children
-            .filter {
-                sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction }
-            }
+            .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
                 div(classes = "table-row") {
-                    it.filter { it.dci.kind != ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
-                        div("main-subrow ${node.style.joinToString { it.toString().decapitalize() }}") {
+                    it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
+                        div("main-subrow " + node.style.joinToString(" ")) {
                             it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                                 .forEach {
-                                    when(it.dci.kind){
-                                        ContentKind.SourceSetDependantHint -> {
-                                            div("platform-dependant-row keyValue"){
-                                                div()
-                                                div("title"){
-                                                    it.build(this, pageContext, sourceSetRestriction)
-                                                }
-                                            }
-                                        }
-                                        ContentKind.Main -> {
-                                            div("title-row"){
-                                                it.build(this, pageContext, sourceSetRestriction)
-                                                div()
-                                                if (ContentKind.shouldBePlatformTagged(node.dci.kind) && node.sourceSets.size == 1) {
-                                                    createPlatformTags(node)
-                                                } else {
-                                                    div()
-                                                }
-                                            }
-                                        }
-                                        else -> div { it.build(this, pageContext, sourceSetRestriction) }
-                                    }
+                                    it.build(this, pageContext, sourceSetRestriction)
+                                    if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
+                                        createPlatformTags(node)
                                 }
                         }
                     }
-                    it.filter { it.dci.kind == ContentKind.Symbol }.takeIf { it.isNotEmpty() }?.let {
-                        div("signature-subrow") {
-                            div("signatures") {
+
+                    it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
+                        div("platform-dependent-row keyValue") {
+                            div()
+                            div("title") {
                                 it.forEach {
                                     it.build(this, pageContext, sourceSetRestriction)
                                 }
@@ -223,12 +209,14 @@ open class HtmlRenderer(
     }
 
 
-    private fun FlowContent.createPlatformTags(node: ContentNode) {
-        div("platform-tags") {
-            node.sourceSets.forEach {
-                div("platform-tag") {
-                    if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
-                    text(it.sourceSetName)
+    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
+        node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
+            div("platform-tags") {
+                node.sourceSets.filter { sourceSetRestriction == null || it in sourceSetRestriction }.forEach {
+                    div("platform-tag") {
+                        if (it.sourceSetName.equals("common", ignoreCase = true)) classes = classes + "common"
+                        text(it.sourceSetName)
+                    }
                 }
             }
         }
@@ -390,15 +378,7 @@ open class HtmlRenderer(
 
 fun List<SimpleAttr>.joinAttr() = joinToString(" ") { it.extraKey + "=" + it.extraValue }
 
-private fun PageNode.pageKind() = when (this) {
-    is PackagePageNode -> "package"
-    is ClasslikePageNode -> "class"
-    is MemberPageNode -> when (this.documentable) {
-        is DFunction -> "function"
-        else -> "other"
-    }
-    else -> "other"
-}
+private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it without arbitrary trims
 
 private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
