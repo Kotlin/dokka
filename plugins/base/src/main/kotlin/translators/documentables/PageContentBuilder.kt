@@ -212,14 +212,14 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) =
-        ContentResolvedLink(
-            children = listOf(createText(text, kind, sourceSets, styles, extra)),
-            address = address,
-            extra = PropertyContainer.empty(),
-            dci = DCI(mainDRI, kind),
-            sourceSets = sourceSets,
-            style = emptySet()
-        )
+            ContentResolvedLink(
+                children = listOf(createText(text, kind, sourceSets, styles, extra)),
+                address = address,
+                extra = PropertyContainer.empty(),
+                dci = DCI(mainDRI, kind),
+                sourceSets = sourceSets,
+                style = emptySet()
+            )
 
         fun link(
             address: DRI,
@@ -360,7 +360,14 @@ open class PageContentBuilder(
             kind: Kind = mainKind,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) = ContentDivergentGroup(instances.toList(), DCI(mainDRI, kind), styles, extra, groupID, implicitlySourceSetHinted)
+        ) = ContentDivergentGroup(
+            instances.toList(),
+            DCI(mainDRI, kind),
+            styles,
+            extra,
+            groupID,
+            implicitlySourceSetHinted
+        )
     }
 
     @ContentBuilderMarker
@@ -382,7 +389,9 @@ open class PageContentBuilder(
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
-            before = contentFor(dri, sourceSets, kind, styles, extra, block)
+            contentFor(dri, sourceSets, kind, styles, extra, block)
+                .takeIf { it.children.isNotEmpty() }
+                .also { before = it }
         }
 
         fun divergent(
@@ -404,7 +413,9 @@ open class PageContentBuilder(
             extra: PropertyContainer<ContentNode> = mainExtra,
             block: DocumentableContentBuilder.() -> Unit
         ) {
-            after = contentFor(dri, sourceSets, kind, styles, extra, block)
+            contentFor(dri, sourceSets, kind, styles, extra, block)
+                .takeIf { it.children.isNotEmpty() }
+                .also { after = it }
         }
 
 

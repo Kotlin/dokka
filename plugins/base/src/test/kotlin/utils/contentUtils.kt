@@ -10,20 +10,26 @@ fun ContentMatcherBuilder<*>.signature(
     vararg params: Pair<String, String>
 ) =
     platformHinted {
-        group { // TODO: remove it when double wrapping for signatures will be resolved
-            +"final fun"
-            link { +name }
-            +"("
-            params.forEachIndexed { id, (n, t) ->
-                +"$n:"
-                group { link { +t } }
-                if (id != params.lastIndex)
-                    +", "
-            }
-            +")"
-            returnType?.let { +": $it" }
-        }
+        bareSignature(name, returnType, *params)
     }
+
+fun ContentMatcherBuilder<*>.bareSignature(
+    name: String,
+    returnType: String? = null,
+    vararg params: Pair<String, String>
+) = group {
+    +"final fun"
+    link { +name }
+    +"("
+    params.forEachIndexed { id, (n, t) ->
+        +"$n:"
+        group { link { +t } }
+        if (id != params.lastIndex)
+            +", "
+    }
+    +")"
+    returnType?.let { +": $it" }
+}
 
 fun ContentMatcherBuilder<*>.signatureWithReceiver(
     receiver: String,
@@ -32,21 +38,29 @@ fun ContentMatcherBuilder<*>.signatureWithReceiver(
     vararg params: Pair<String, String>
 ) =
     platformHinted {
-        group { // TODO: remove it when double wrapping for signatures will be resolved
-            +"final fun"
-            group {
-                link { +receiver }
-            }
-            +"."
-            link { +name }
-            +"("
-            params.forEach { (n, t) ->
-                +"$n:"
-                group { link { +t } }
-            }
-            +")"
-            returnType?.let { +": $it" }
+        bareSignatureWithReceiver(receiver, name, returnType, *params)
+    }
+
+fun ContentMatcherBuilder<*>.bareSignatureWithReceiver(
+    receiver: String,
+    name: String,
+    returnType: String? = null,
+    vararg params: Pair<String, String>
+) =
+    group {
+        +"final fun"
+        group {
+            link { +receiver }
         }
+        +"."
+        link { +name }
+        +"("
+        params.forEach { (n, t) ->
+            +"$n:"
+            group { link { +t } }
+        }
+        +")"
+        returnType?.let { +": $it" }
     }
 
 
