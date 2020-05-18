@@ -30,7 +30,7 @@ class DivergentTest : RenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("a")))
+        renderedContent.match(Div(Div(Div("a"))))
     }
 
     @Test
@@ -45,7 +45,7 @@ class DivergentTest : RenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        renderedContent.match("a")
+        renderedContent.match(Div("a"))
     }
 
     @Test
@@ -71,7 +71,7 @@ class DivergentTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("a"), Div("b"), Div("c")))
+        renderedContent.match(Div(Div(Div("a"), Div("b"), Div("c"))))
     }
 
     @Test
@@ -97,7 +97,7 @@ class DivergentTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("abc")))
+        renderedContent.match(Div(Div(Div("abc"))))
     }
 
     @Test
@@ -133,7 +133,7 @@ class DivergentTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("ae"), Div("bd"), Div("c")))
+        renderedContent.match(Div(Div(Div("ae"), Div("bd"), Div("c"))))
     }
 
     @Test
@@ -182,12 +182,12 @@ class DivergentTest : RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div(Div("a")),
+            Div(Div(Div("a")), Div(Div())),
             "a+",
-            Div(Div("bd")),
+            Div(Div(Div("bd")), Div(Div())),
             "bd+",
-            Div(Div("c")),
-            Div(Div("e")),
+            Div(Div(Div("c")), Div(Div())),
+            Div(Div(Div("e")), Div(Div())),
             "e+"
         )
     }
@@ -218,7 +218,7 @@ class DivergentTest : RenderingOnlyTestBase() {
         HtmlRenderer(context).render(page)
         renderedContent.match(
             "ab-",
-            Div(Div("ab"))
+            Div(Div(Div("ab")))
         )
     }
 
@@ -247,7 +247,7 @@ class DivergentTest : RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div(Div("ab")),
+            Div(Div(Div("ab"))),
             "ab+"
         )
     }
@@ -284,7 +284,7 @@ class DivergentTest : RenderingOnlyTestBase() {
         HtmlRenderer(context).render(page)
         renderedContent.match(
             "ab-",
-            Div(Div("ab")),
+            Div(Div(Div("ab"))),
             "ab+"
         )
     }
@@ -321,9 +321,9 @@ class DivergentTest : RenderingOnlyTestBase() {
         HtmlRenderer(context).render(page)
         renderedContent.match(
             "a-",
-            Div(Div("a")),
+            Div(Div(Div("a")), Div(Div("NATIVE"))),
             "ab+b-",
-            Div(Div("b")),
+            Div(Div(Div("b")), Div(Div("NATIVE"))),
             "ab+"
         )
     }

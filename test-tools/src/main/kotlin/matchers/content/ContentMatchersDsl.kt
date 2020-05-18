@@ -84,3 +84,18 @@ fun ContentMatcherBuilder<*>.somewhere(block: ContentMatcherBuilder<*>.() -> Uni
     block()
     skipAllNotMatching()
 }
+
+fun ContentMatcherBuilder<*>.divergentGroup(block: ContentMatcherBuilder<ContentDivergentGroup>.() -> Unit) =
+    composite(block)
+
+fun ContentMatcherBuilder<ContentDivergentGroup>.divergentInstance(block: ContentMatcherBuilder<ContentDivergentInstance>.() -> Unit) =
+    composite(block)
+
+fun ContentMatcherBuilder<ContentDivergentInstance>.before(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+    composite(block)
+
+fun ContentMatcherBuilder<ContentDivergentInstance>.divergent(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+    composite(block)
+
+fun ContentMatcherBuilder<ContentDivergentInstance>.after(block: ContentMatcherBuilder<ContentComposite>.() -> Unit) =
+    composite(block)

@@ -1,10 +1,11 @@
 package content.seealso
+
 import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
+import utils.bareSignature
 import utils.pWrapped
-import utils.signature
 import utils.unnamedTag
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
@@ -34,9 +35,13 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                        }
                     }
                 }
             }
@@ -61,18 +66,24 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"abc" }
-                                group { }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
+                                            group { }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -99,18 +110,24 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"abc" }
-                                group { +"Comment to abc" }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
+                                            group { +"Comment to abc" }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -137,18 +154,24 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "kotlin.collections/Collection////"
-                                link{ +"Collection"}
-                                group { }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "kotlin.collections/Collection////"
+                                            link { +"Collection" }
+                                            group { }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -175,18 +198,25 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"Collection" }
-                                group { +"Comment to stdliblink" }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"Collection" }
+                                            group { +"Comment to stdliblink" }
+                                        }
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -216,21 +246,27 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        pWrapped("random comment")
-                        unnamedTag("Author") { +"pikinier20" }
-                        unnamedTag("Since") { +"0.11" }
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"Collection" }
-                                group { +"Comment to stdliblink" }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    pWrapped("random comment")
+                                    unnamedTag("Author") { +"pikinier20" }
+                                    unnamedTag("Since") { +"0.11" }
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"Collection" }
+                                            group { +"Comment to stdliblink" }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -258,18 +294,24 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"abc" }
-                                group { +"Comment to abc2" }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
+                            }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
+                                            group { +"Comment to abc2" }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -297,23 +339,29 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    group {
-                        header(1) { +"function" }
-                        signature("function", null, "abc" to "String")
-                    }
-                    header(3) { +"Description" }
-                    platformHinted {
-                        header(4) { +"See also" }
-                        table {
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"abc" }
-                                group { +"Comment to abc1" }
+                    header(1) { +"function" }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature("function", null, "abc" to "String")
                             }
-                            group {
-                                //DRI should be "test//abc/#/-1/"
-                                link{ +"Collection" }
-                                group { +"Comment to collection" }
+                            after {
+                                header(3) { +"Description" }
+                                platformHinted {
+                                    header(4) { +"See also" }
+                                    table {
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"abc" }
+                                            group { +"Comment to abc1" }
+                                        }
+                                        group {
+                                            //DRI should be "test//abc/#/-1/"
+                                            link { +"Collection" }
+                                            group { +"Comment to collection" }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
