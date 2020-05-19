@@ -17,5 +17,5 @@ html,
 }
 
 .search-content {
-  margin: calc(var(--ring-unit) * 4);
+  padding: 24px 41px;
 }
