@@ -221,7 +221,7 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle
+    RowTitle, TabbedContent, TabbedContentBody, WithExtraAttributes
 }
 
 object CommentTable: Style

@@ -2,6 +2,84 @@
 @import url('https://rsms.me/inter/inter.css');
 @import url('jetbrains-mono.css');
 
+:root {
+    --breadcrumb-font-color: #A6AFBA;
+    --hover-link-color: #5B5DEF
+}
+
+#content {
+    padding: 0 41px;
+}
+
+.breadcrumbs {
+    padding: 24px 0;
+    color: var(--breadcrumb-font-color);
+}
+
+.breadcrumbs a {
+    color: var(--breadcrumb-font-color)
+}
+
+.breadcrumbs a:hover {
+    color: var(--hover-link-color)
+}
+
+.tabs-section-body > *:not([data-active]){
+    display: none;
+}
+
+.tabs-section > .section-tab:first-child {
+    margin-left: 0;
+}
+
+.section-tab {
+    border: 0;
+    cursor: pointer;
+    background-color: transparent;
+    border-bottom: 1px solid #DADFE6;
+    padding: 11px 3px;
+    font-size: 14px;
+    color: #637282;
+    outline:none;
+    margin: 0 8px;
+}
+
+.section-tab:hover {
+    color: #282E34;
+    border-bottom: 2px solid var(--hover-link-color);
+}
+
+.section-tab[data-active=''] {
+    color: #282E34;
+    border-bottom: 2px solid var(--hover-link-color);
+}
+
+.tabs-section-body {
+    padding: 24px 0
+}
+
+.cover > .platform-hinted {
+    padding: 24px 0
+}
+
+.tabbedcontent {
+    padding: 24px 0;
+}
+
+.cover .platform-hinted .single-content > .symbol {
+    background-color: white;
+}
+
+.divergent-group {
+    background-color: white;
+    padding: 12px 8px;
+    margin-bottom: 2px;
+}
+
+.divergent-group .table-row {
+    background-color: #F4F4F4;
+}
+
 #container {
     display: flex;
     flex-direction: row;
@@ -204,7 +282,7 @@ td:first-child {
 }
 
 .symbol > a {
-    color: #5B5DEF;
+    color: var(--hover-link-color);
     text-decoration: underline;
 }
 
@@ -217,7 +295,7 @@ td:first-child {
 .brief {
     white-space: pre-wrap;
     overflow: hidden;
-    padding-top: 24px;
+    padding-top: 8px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -233,7 +311,9 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 28px;
+    font-size: 60px;
+    line-height: 64px;
+    letter-spacing: -1.5px;
 }
 
 h2 {
@@ -470,7 +550,7 @@ td.content {
 }
 
 .main-subrow > a:hover {
-    color: #5B5DEF;
+    color: var(--hover-link-color);
 }
 
 .platform-hinted {
@@ -541,7 +621,7 @@ td.content {
 
 .sideMenuPart[data-active] > .overview {
     background: rgba(91, 93, 239, 0.15);
-    border-left: 4px solid #5B5DEF;
+    border-left: 4px solid var(--hover-link-color);
 }
 
 .table {
@@ -553,7 +633,7 @@ td.content {
     display: flex;
     flex-direction: column;
     background: white;
-    margin: 10px;
+    margin-bottom: 2px;
     padding: 16px 24px 16px 24px;
 }
 

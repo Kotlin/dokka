@@ -2,7 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import RedBox from 'redbox-react';
 
-import AppRoot from './app-root';
+import {AppRoot} from './app-root';
 import './app.css';
 
 const appEl = document.getElementById('searchBar');

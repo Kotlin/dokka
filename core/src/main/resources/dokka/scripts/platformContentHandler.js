@@ -1,8 +1,31 @@
 window.addEventListener('load', () => {
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
+    document.querySelectorAll("div[tabs-section]")
+    .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
+    document.querySelector(".tabs-section-body")
+        .querySelector("div[data-togglable]")
+        .setAttribute("data-active", "")
+})
+
+function toggleSections(evt){
+    if(!evt.target.getAttribute("data-togglable")) return
+
+    const activateTabs = (containerClass) => {
+        for(const element of document.getElementsByClassName(containerClass)){
+            for(const child of element.children){
+                if(child.getAttribute("data-togglable") === evt.target.getAttribute("data-togglable")){
+                    child.setAttribute("data-active", "")
+                } else {
+                    child.removeAttribute("data-active")
+                }
+            }
+        }
     }
-)
+
+    activateTabs("tabs-section")
+    activateTabs("tabs-section-body")
+}
 
 function togglePlatformDependent(e, container) {
     let target = e.target

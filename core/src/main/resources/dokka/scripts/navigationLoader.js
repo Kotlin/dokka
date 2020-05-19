@@ -6,7 +6,6 @@ window.addEventListener('load', () => {
         }).then(() => {
         document.querySelectorAll(".overview > a").forEach(link => {
             link.setAttribute("href", pathToRoot + link.getAttribute("href"));
-            console.log(link.attributes["href"])
         })
     }).then(() => {
         document.querySelectorAll(".sideMenuPart").forEach(nav => {

@@ -70,7 +70,8 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
             },
             DCI(node.dri, ContentKind.Source),
             node.documentable!!.sourceSets.toSet(),
-            style = emptySet()
+            style = emptySet(),
+            extra = mainExtra + SimpleAttr.header("Sources")
         )
     }
 
@@ -91,9 +92,22 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
     private fun ContentNode.addTable(table: ContentGroup): ContentNode =
         when (this) {
-            is ContentGroup -> copy(
-                children = children + table
-            )
+            is ContentGroup -> {
+                if(hasTabbedContent()){
+                    copy(
+                        children = children.map {
+                            if(it.hasStyle(ContentStyle.TabbedContent) && it is ContentGroup){
+                                it.copy(children = it.children + table)
+                            } else {
+                                it
+                            }
+                        }
+                    )
+                } else {
+                    copy(children = children + table)
+                }
+
+            }
             else -> ContentGroup(
                 children = listOf(this, table),
                 extra = this.extra,
@@ -115,3 +129,5 @@ data class SourceLink(val path: String, val url: String, val lineSuffix: String?
         sourceLinkDefinition.path, sourceLinkDefinition.url, sourceLinkDefinition.lineSuffix, sourceSetData
     )
 }
+
+fun ContentGroup.hasTabbedContent(): Boolean = children.any { it.hasStyle(ContentStyle.TabbedContent) }

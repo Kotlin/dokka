@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -36,6 +37,30 @@ open class HtmlRenderer(
     ) {
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
+            node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
+                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }.filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
+                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
+
+                val renderable = firstLevel.union(secondLevel)
+
+                div(classes = "tabs-section"){
+                    attributes["tabs-section"] = "tabs-section"
+                    renderable.forEachIndexed { index, node ->
+                        button(classes = "section-tab"){
+                            if(index == 0 ) attributes["data-active"] = ""
+                            attributes["data-togglable"] = node.text
+                            text(node.text)
+                        }
+                    }
+                }
+                div(classes = "tabs-section-body"){
+                    childrenCallback()
+                }
+            }
+            node.hasStyle(ContentStyle.WithExtraAttributes) -> div() {
+                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                childrenCallback()
+            }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { childrenCallback() }
@@ -46,15 +71,18 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
-        buildPlatformDependent(content.sourceSets.map { it to setOf(content.inner) }.toMap(), pageContext)
+        buildPlatformDependent(content.sourceSets.map { it to setOf(content.inner) }.toMap(), pageContext, content.extra)
 
     private fun FlowContent.buildPlatformDependent(
         nodes: Map<SourceSetData, Collection<ContentNode>>,
-        pageContext: ContentPage
+        pageContext: ContentPage,
+        extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
     ) {
         var mergedToOneSourceSet : SourceSetData? = null
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
+            extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+            val additionalClasses = if(nodes.toList().size == 1) "single-content" else ""
             var counter = 0
             val contents = nodes.toList().map { (sourceSet, elements) ->
                 sourceSet to createHTML(prettyPrint = false).div {
@@ -66,7 +94,7 @@ open class HtmlRenderer(
                 sourceSets.filterNot {
                     sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
                 }.map {
-                    it to createHTML(prettyPrint = false).div(classes = "content") {
+                    it to createHTML(prettyPrint = false).div(classes = "content $additionalClasses") {
                         if (counter++ == 0) attributes["data-active"] = ""
                         attributes["data-togglable"] = it.sourceSetName
                         unsafe {
@@ -130,27 +158,29 @@ open class HtmlRenderer(
         distinct.forEach {
             val groupedDivergent = it.value.groupBy { it.second }
 
-            consumer.onTagContentUnsafe { +it.key.first }
             consumer.onTagContentUnsafe {
-                +createHTML(prettyPrint = false).div("main-subrow") {
-                    if (node.implicitlySourceSetHinted) {
-                        buildPlatformDependent(
-                            groupedDivergent.map { (sourceSet, elements) ->
-                                sourceSet to elements.map { e -> e.first.divergent }
-                            }.toMap(),
-                            pageContext
-                        )
-                        if (distinct.size > 1 && groupedDivergent.size == 1) {
-                            createPlatformTags(node, groupedDivergent.keys)
-                        }
-                    } else {
-                        it.value.forEach {
-                            buildContentNode(it.first.divergent, pageContext, setOf(it.second))
+                +createHTML().div("divergent-group"){
+                    consumer.onTagContentUnsafe { +it.key.first }
+                    div("main-subrow") {
+                        if (node.implicitlySourceSetHinted) {
+                            buildPlatformDependent(
+                                groupedDivergent.map { (sourceSet, elements) ->
+                                    sourceSet to elements.map { e -> e.first.divergent }
+                                }.toMap(),
+                                pageContext
+                            )
+                            if (distinct.size > 1 && groupedDivergent.size == 1) {
+                                createPlatformTags(node, groupedDivergent.keys)
+                            }
+                        } else {
+                            it.value.forEach {
+                                buildContentNode(it.first.divergent, pageContext, setOf(it.second))
+                            }
                         }
                     }
+                    consumer.onTagContentUnsafe { +it.key.second }
                 }
             }
-            consumer.onTagContentUnsafe { +it.key.second }
         }
     }
 
@@ -273,6 +303,7 @@ open class HtmlRenderer(
         sourceSetRestriction: Set<SourceSetData>?
     ) {
         div(classes = "table") {
+            node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
             node.children.forEach {
                 buildRow(it, pageContext, sourceSetRestriction)
             }
@@ -436,3 +467,5 @@ private fun String.stripDiv() = drop(5).dropLast(6) // TODO: Find a way to do it
 
 private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
+
+fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
