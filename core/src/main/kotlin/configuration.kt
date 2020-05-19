@@ -40,6 +40,7 @@ interface DokkaConfiguration {
         val classpath: List<String>
         val sourceRoots: List<SourceRoot>
         val dependentSourceRoots: List<SourceRoot>
+        val dependentSourceSets: List<String>
         val samples: List<String>
         val includes: List<String>
         val includeNonPublic: Boolean

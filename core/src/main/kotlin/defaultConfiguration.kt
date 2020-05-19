@@ -20,6 +20,7 @@ data class PassConfigurationImpl (
     override val classpath: List<String>,
     override val sourceRoots: List<SourceRootImpl>,
     override val dependentSourceRoots: List<SourceRootImpl>,
+    override val dependentSourceSets: List<String>,
     override val samples: List<String>,
     override val includes: List<String>,
     override val includeNonPublic: Boolean,

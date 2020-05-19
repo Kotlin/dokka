@@ -47,6 +47,7 @@ class ConfigurationExtractor(private val project: Project) {
             classpath,
             sourceSet.kotlin.sourceDirectories.filter { it.exists() }.toList(),
             dependencies,
+            sourceSet.dependsOn.map {  it.name },
             compilation.target.targetName
         )
     }
@@ -54,7 +55,7 @@ class ConfigurationExtractor(private val project: Project) {
     fun extractFromJavaPlugin(): PlatformData? =
         project.convention.findPlugin(JavaPluginConvention::class.java)
             ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
-            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(), "") }
+            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(), emptyList(), "") }
 
     fun extractFromKotlinTasks(passName: String, kotlinTasks: List<Task>): PlatformData? =
         try {
@@ -84,7 +85,8 @@ class ConfigurationExtractor(private val project: Project) {
                 task.name,
                 getClasspath(it),
                 getSourceSet(it),
-                getDependentSourceSet(it),
+                getDependentSourceSetRoots(it),
+                getDependentSourceSet(it).map { it.name },
                 it?.platformType?.toString() ?: ""
             )
         }
@@ -126,7 +128,7 @@ class ConfigurationExtractor(private val project: Project) {
         }
         classpath.addAll(project.files(allClasspath).toList())
 
-        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(), "")
+        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(), emptyList(),"")
     }
 
     private fun getSourceSet(target: KotlinTarget, variantName: String? = null): List<File> =
@@ -151,11 +153,12 @@ class ConfigurationExtractor(private val project: Project) {
         ?.filter { it.exists() }
         .orEmpty()
 
-    private fun getDependentSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
-        ?.let { it.allKotlinSourceSets - it.kotlinSourceSets }
-        ?.flatMap { it.kotlin.sourceDirectories }
-        ?.filter { it.exists() }
-        .orEmpty()
+    private fun getDependentSourceSet(compilation: KotlinCompilation<*>?) = compilation
+        ?.let { it.allKotlinSourceSets - it.kotlinSourceSets }.orEmpty()
+
+    private fun getDependentSourceSetRoots(compilation: KotlinCompilation<*>?): List<File> =
+        getDependentSourceSet(compilation)?.flatMap { it.kotlin.sourceDirectories }
+        .filter { it.exists() }
 
     private fun getClasspath(compilation: KotlinCompilation<*>?): List<File> = compilation
         ?.compileDependencyFiles
@@ -212,6 +215,7 @@ class ConfigurationExtractor(private val project: Project) {
         val classpath: List<File>,
         val sourceRoots: List<File>,
         val dependentSourceRoots: List<File>,
+        val dependentSourceSets: List<String>,
         val platform: String
     ) : Serializable
 }

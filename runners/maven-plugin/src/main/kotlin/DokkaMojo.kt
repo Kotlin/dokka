@@ -93,6 +93,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var sourceRoots: List<SourceRoot> = emptyList()
 
     @Parameter
+    var dependentSourceRoots: List<SourceRoot> = emptyList()
+
+    @Parameter
+    var dependentSourceSets: List<String> = emptyList()
+
+    @Parameter
     var samples: List<String> = emptyList()
 
     @Parameter
@@ -206,7 +212,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             classpath = classpath,
             sourceSetName = sourceSetName,
             sourceRoots = sourceDirectories.map { SourceRootImpl(it) },
-            dependentSourceRoots = sourceRoots.map { SourceRootImpl(path = it.path) },
+            dependentSourceRoots = dependentSourceRoots.map { SourceRootImpl(path = it.path) },
+            dependentSourceSets = dependentSourceSets,
             samples = samples,
             includes = includes,
             collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries, // TODO: Should we implement this?

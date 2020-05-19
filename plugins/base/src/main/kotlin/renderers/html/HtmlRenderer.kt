@@ -6,7 +6,6 @@ import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -18,6 +17,12 @@ import java.io.File
 open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
+
+    private val sourceSetDependencyMap = with(context.sourceSetCache) {
+        allSourceSets.map { sourceSet ->
+            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetName ) }
+        }.toMap()
+    }
 
     private val pageList = mutableListOf<String>()
 
@@ -49,16 +54,26 @@ open class HtmlRenderer(
     ) {
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
-            val contents = nodes.toList().mapIndexed { index, (sourceSet, elements) ->
-                sourceSet to createHTML(prettyPrint = false).div(classes = "content") {
-                    if (index == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = sourceSet.sourceSetName
+            var counter = 0
+            val contents = nodes.toList().map { (sourceSet, elements) ->
+                sourceSet to createHTML(prettyPrint = false).div {
                     elements.forEach {
                         buildContentNode(it, pageContext, setOf(sourceSet))
                     }
+                }.stripDiv()
+            }.groupBy(Pair<SourceSetData, String>::second, Pair<SourceSetData, String>::first).entries.flatMap { (html, sourceSets) ->
+                sourceSets.filterNot {
+                    sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
+                }.map {
+                    it to createHTML(prettyPrint = false).div(classes = "content") {
+                        if (counter++ == 0) attributes["data-active"] = ""
+                        attributes["data-togglable"] = it.sourceSetName
+                        unsafe {
+                            +html
+                        }
+                    }
                 }
             }
-
             if (contents.size != 1) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
