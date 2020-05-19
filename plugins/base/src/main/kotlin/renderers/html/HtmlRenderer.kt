@@ -196,9 +196,14 @@ open class HtmlRenderer(
 
                     it.filter { it !is ContentLink }.takeIf { it.isNotEmpty() }?.let {
                         div("platform-dependent-row keyValue") {
-                            div()
+                            val title = it.filter { it.style.contains(ContentStyle.RowTitle) }
+                            div {
+                                title.forEach {
+                                    it.build(this, pageContext, sourceSetRestriction)
+                                }
+                            }
                             div("title") {
-                                it.forEach {
+                                (it - title).forEach {
                                     it.build(this, pageContext, sourceSetRestriction)
                                 }
                             }

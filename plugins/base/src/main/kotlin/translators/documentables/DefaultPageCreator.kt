@@ -220,16 +220,16 @@ open class DefaultPageCreator(
                 table(kind = ContentKind.Parameters) {
                     platforms.flatMap { platform ->
                         val receiverRow = receiver[platform]?.let {
-                            buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
-                                text("<receiver>")
+                            buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
+                                text("<receiver>", styles = mainStyles + ContentStyle.RowTitle)
                                 comment(it.root)
                             }
                         }
 
                         val paramRows = params.mapNotNull { (_, param) ->
                             param[platform]?.let {
-                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.KeyValue) {
-                                    text(it.name, kind = ContentKind.Parameters)
+                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
+                                    text(it.name, kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.RowTitle)
                                     comment(it.root)
                                 }
                             }
@@ -251,7 +251,7 @@ open class DefaultPageCreator(
                     platforms.flatMap { platform ->
                         seeAlsoTags.mapNotNull { (_, see) ->
                             see[platform]?.let {
-                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.KeyValue) {
+                                buildGroup(sourceSets = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.RowTitle) {
                                     if (it.address != null) link(it.name, it.address!!, kind = ContentKind.Comment)
                                     else text(it.name, kind = ContentKind.Comment)
                                     comment(it.root)
