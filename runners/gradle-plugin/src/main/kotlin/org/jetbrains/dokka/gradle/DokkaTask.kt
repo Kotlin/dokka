@@ -283,7 +283,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             config.moduleName = project.name
         }
         if (config.sourceSetName.isEmpty()) {
-            config.sourceSetName = config.platform ?: config.name
+            config.sourceSetName = config.name.substringBeforeLast("Main").takeIf(String::isNotBlank) ?: config.platform.toString()
         }
         config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
