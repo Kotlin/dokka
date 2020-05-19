@@ -14,7 +14,6 @@ subprojects {
 
     tasks.test {
         useJUnitPlatform()
-        ignoreFailures = true
         testLogging {
             events("passed", "skipped", "failed")
         }
