@@ -27,20 +27,19 @@ enum class Platform(val key: String) {
 interface DokkaConfiguration {
     val outputDir: String
     val format: String
-    val generateIndexPages: Boolean
     val cacheRoot: String?
+    val offlineMode: Boolean
     val passesConfigurations: List<PassConfiguration>
     val modules: List<DokkaModuleDescription>
-    val impliedPlatforms: List<String>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
 
     interface PassConfiguration {
         val moduleName: String
-        val sourceSetName: String
+        val displayName: String
+        val sourceSetID: String
         val classpath: List<String>
         val sourceRoots: List<SourceRoot>
-        val dependentSourceRoots: List<SourceRoot>
         val dependentSourceSets: List<String>
         val samples: List<String>
         val includes: List<String>
@@ -58,10 +57,7 @@ interface DokkaConfiguration {
         val noStdlibLink: Boolean
         val noJdkLink: Boolean
         val suppressedFiles: List<String>
-        val collectInheritedExtensionsFromLibraries: Boolean
         val analysisPlatform: Platform
-        val targets: List<String>
-        val sinceKotlin: String?
     }
 
     interface SourceRoot {

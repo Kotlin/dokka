@@ -35,9 +35,9 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
         System.setProperty(DokkaTask.COLORS_ENABLED_PROPERTY, "false")
 
         try {
-            loadFatJar()
+            loadCore()
             val bootstrapClass =
-                ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
+                ClassloaderContainer.coreClassLoader!!.loadClass("org.jetbrains.dokka.DokkaMultimoduleBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
             val bootstrapProxy: DokkaBootstrap = automagicTypedProxy(
                 javaClass.classLoader,
@@ -85,10 +85,10 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
                 }
         }
 
-    private fun loadFatJar() {
-        if (ClassloaderContainer.fatJarClassLoader == null) {
+    private fun loadCore() {
+        if (ClassloaderContainer.coreClassLoader == null) {
             val jars = dokkaRuntime!!.resolve()
-            ClassloaderContainer.fatJarClassLoader = URLClassLoader(
+            ClassloaderContainer.coreClassLoader = URLClassLoader(
                 jars.map { it.toURI().toURL() }.toTypedArray(),
                 ClassLoader.getSystemClassLoader().parent
             )

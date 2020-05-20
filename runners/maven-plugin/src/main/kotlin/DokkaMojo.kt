@@ -29,10 +29,8 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import java.io.File
 import java.net.URL
-
 
 class SourceLinkMapItem {
     @Parameter(name = "path", required = true)
@@ -92,8 +90,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var sourceRoots: List<SourceRoot> = emptyList()
 
-    @Parameter
-    var dependentSourceRoots: List<SourceRoot> = emptyList()
 
     @Parameter
     var dependentSourceSets: List<String> = emptyList()
@@ -146,6 +142,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var cacheRoot: String? = null
 
+    @Parameter(defaultValue = "JVM")
+    var displayName: String = "JVM"
+
+    @Parameter(defaultValue = "false")
+    var offlineMode: Boolean = false
+
     @Parameter
     var languageVersion: String? = null
 
@@ -158,23 +160,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var suppressedFiles: List<String> = emptyList()
 
-    @Parameter
-    var collectInheritedExtensionsFromLibraries: Boolean = false
 
     @Parameter
     var platform: String = ""
 
     @Parameter
-    var targets: List<String> = emptyList()
-
-    @Parameter
-    var sinceKotlin: String? = null
-
-    @Parameter
     var includeNonPublic: Boolean = false
-
-    @Parameter
-    var generateIndexPages: Boolean = false
 
     @Parameter
     var dokkaPlugins: List<Dependency> = emptyList()
@@ -209,19 +200,21 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         }
 
         val passConfiguration = PassConfigurationImpl(
+            moduleName = moduleName,
+            displayName = displayName,
+            sourceSetID = sourceSetName,
             classpath = classpath,
-            sourceSetName = sourceSetName,
             sourceRoots = sourceDirectories.map { SourceRootImpl(it) },
-            dependentSourceRoots = dependentSourceRoots.map { SourceRootImpl(path = it.path) },
             dependentSourceSets = dependentSourceSets,
             samples = samples,
             includes = includes,
-            collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries, // TODO: Should we implement this?
-            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, it.url, it.lineSuffix) },
-            jdkVersion = jdkVersion,
-            skipDeprecated = skipDeprecated,
-            skipEmptyPackages = skipEmptyPackages,
+            includeNonPublic = includeNonPublic,
+            includeRootPackage = includeRootPackage,
             reportUndocumented = reportUndocumented,
+            skipEmptyPackages = skipEmptyPackages,
+            skipDeprecated = skipDeprecated,
+            jdkVersion = jdkVersion,
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, it.url, it.lineSuffix) },
             perPackageOptions = perPackageOptions.map {
                 PackageOptionsImpl(
                     prefix = it.prefix,
@@ -232,18 +225,13 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                 )
             },
             externalDocumentationLinks = externalDocumentationLinks.map { it.build() as ExternalDocumentationLinkImpl },
-            noStdlibLink = noStdlibLink,
-            noJdkLink = noJdkLink,
             languageVersion = languageVersion,
             apiVersion = apiVersion,
-            moduleName = moduleName,
+            noStdlibLink = noStdlibLink,
+            noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles,
-            sinceKotlin = sinceKotlin,
-            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
-            targets = targets,
-            includeNonPublic = includeNonPublic,
-            includeRootPackage = includeRootPackage
-        ).let{
+            analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT
+        ).let {
             it.copy(
                 externalDocumentationLinks = defaultLinks(it) + it.externalDocumentationLinks
             )
@@ -254,12 +242,11 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         val configuration = DokkaConfigurationImpl(
             outputDir = getOutDir(),
             format = getOutFormat(),
-            impliedPlatforms = impliedPlatforms,
+            offlineMode = offlineMode,
             cacheRoot = cacheRoot,
             passesConfigurations = listOf(passConfiguration).also {
-                if(passConfiguration.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+                if (passConfiguration.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },
-            generateIndexPages = generateIndexPages,
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),
             pluginsConfiguration = mutableMapOf(), //TODO implement as it is in Gradle

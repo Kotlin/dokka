@@ -22,7 +22,7 @@ open class HtmlRenderer(
 
     private val sourceSetDependencyMap = with(context.sourceSetCache) {
         allSourceSets.map { sourceSet ->
-            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetName) }
+            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID ) }
         }.toMap()
     }
 
@@ -93,14 +93,14 @@ open class HtmlRenderer(
             group.sourceSets.forEach {
                 button(classes = "platform-tag platform-selector") {
                     attributes["data-active"] = ""
-                    attributes["data-filter"] = it.sourceSetName
-                    when (it.platform.key) {
+                    attributes["data-filter"] = it.sourceSetID
+                    when(it.platform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
                         "js" -> classes = classes + "js-like"
                     }
-                    text(it.sourceSetName)
+                    text(it.displayName)
                 }
             }
         }
@@ -161,10 +161,10 @@ open class HtmlRenderer(
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
-                            attributes["data-filterable-current"] = pair.first.sourceSetName
-                            attributes["data-filterable-set"] = pair.first.sourceSetName
+                            attributes["data-filterable-current"] = pair.first.sourceSetID
+                            attributes["data-filterable-set"] = pair.first.sourceSetID
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.sourceSetName
+                            attributes["data-toggle"] = pair.first.sourceSetID
                             when (
                                 pair.first.platform.key
                                 ) {
@@ -173,8 +173,8 @@ open class HtmlRenderer(
                                 "jvm" -> classes = classes + "jvm-like"
                                 "js" -> classes = classes + "js-like"
                             }
-                            attributes["data-toggle"] = pair.first.sourceSetName
-                            text(pair.first.sourceSetName)
+                            attributes["data-toggle"] = pair.first.sourceSetID
+                            text(pair.first.displayName)
                         }
                     }
                 }
@@ -242,10 +242,10 @@ open class HtmlRenderer(
             consumer.onTagContentUnsafe {
                 +createHTML().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetName
+                        it.sourceSetID
                     }
                     attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetName
+                        it.sourceSetID
                     }
 
                     val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
@@ -346,12 +346,13 @@ open class HtmlRenderer(
                     div(classes = "table-row") {
                         if (!style.contains(MultimoduleTable)) {
                             attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetName
+                                it.sourceSetID
                             }
                             attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetName
+                                it.sourceSetID
                             }
                         }
+                        
                         it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
                             div("main-subrow " + node.style.joinToString(" ")) {
                                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
@@ -396,7 +397,7 @@ open class HtmlRenderer(
                         "jvm" -> classes = classes + "jvm-like"
                         "js" -> classes = classes + "js-like"
                     }
-                    text(it.sourceSetName)
+                    text(it.displayName)
                 }
             }
         }

@@ -6,22 +6,33 @@ import org.jetbrains.dokka.plugability.DokkaContext
 
 data class SourceSetData(
     val moduleName: String,
-    val sourceSetName: String,
+    val sourceSetID: String,
+    val displayName: String,
     val platform: Platform,
     val sourceRoots: List<DokkaConfiguration.SourceRoot> = emptyList(),
-    val dependentSourceSets: List<String>  = emptyList()
+    val dependentSourceSets: List<String> = emptyList()
 )
 
 class SourceSetCache {
     private val sourceSets = HashMap<String, SourceSetData>()
 
     val allSourceSets: List<SourceSetData>
-    get() = sourceSets.values.toList()
+        get() = sourceSets.values.toList()
 
     fun getSourceSet(pass: DokkaConfiguration.PassConfiguration) =
-        sourceSets.getOrPut("${pass.moduleName}/${pass.sourceSetName}",
-            { SourceSetData(pass.moduleName, pass.sourceSetName, pass.analysisPlatform, pass.sourceRoots, pass.dependentSourceSets) }
+        sourceSets.getOrPut("${pass.moduleName}/${pass.sourceSetID}",
+            {
+                SourceSetData(
+                    pass.moduleName,
+                    pass.sourceSetID,
+                    pass.displayName,
+                    pass.analysisPlatform,
+                    pass.sourceRoots,
+                    pass.dependentSourceSets
+                )
+            }
         )
 }
 
-fun DokkaContext.sourceSet(pass: DokkaConfiguration.PassConfiguration) : SourceSetData = sourceSetCache.getSourceSet(pass)
+fun DokkaContext.sourceSet(pass: DokkaConfiguration.PassConfiguration): SourceSetData =
+    sourceSetCache.getSourceSet(pass)

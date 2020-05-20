@@ -53,7 +53,7 @@ internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContex
                 module.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
                     val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetName}") }
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetID}") }
                     try {
                         doc?.get("Module")?.get(module.name)?.run {
                             pd to MarkdownParser(
@@ -72,7 +72,7 @@ internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContex
                 it.name to it.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
                     val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetName}") }
+                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetID}") }
                     val descriptor = facade.moduleDescriptor.getPackage(FqName(it.name.let { if(it == "[JS root]") "" else it }))
                     doc?.get("Package")?.get(it.name)?.run {
                         pd to MarkdownParser(

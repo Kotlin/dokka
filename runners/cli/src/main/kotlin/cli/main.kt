@@ -35,24 +35,22 @@ open class GlobalArguments(parser: DokkaArgumentsParser) : DokkaConfiguration {
         }
     }
 
-    override val generateIndexPages: Boolean by parser.singleFlag(
-        listOf("-generateIndexPages"),
-        "Generate index page"
-    )
-
     override val cacheRoot: String? by parser.stringOption(
         listOf("-cacheRoot"),
         "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled",
         null
     )
 
-    override val impliedPlatforms: List<String> = emptyList()
+    override val offlineMode: Boolean by parser.singleFlag(
+        listOf("-offlineMode"),
+        "Offline mode (do not download package lists from the Internet)"
+    )
 
     override val passesConfigurations: List<Arguments> by parser.repeatableFlag(
         listOf("-pass"),
         "Single dokka pass"
     ) {
-        Arguments(parser).also { if(it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
+        Arguments(parser).also { if (it.moduleName.isEmpty()) DokkaConsoleLogger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module") }
     }
 
     override val modules: List<DokkaConfiguration.DokkaModuleDescription> = emptyList()
@@ -67,12 +65,17 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         ""
     )
 
-    override val sourceSetName: String by parser.stringOption(
-        listOf("-sourceSetName"),
-        "Name of the source set",
-        "main"
+    override val displayName: String by parser.stringOption(
+        listOf("-displayName"),
+        "Name displayed in the generated documentation",
+        ""
     )
 
+    override val sourceSetID: String by parser.stringOption(
+        listOf("-sourceSetID"),
+        "Source set ID used for declaring dependent source sets",
+        "main"
+    )
 
     override val classpath: List<String> by parser.repeatableOption<String>(
         listOf("-classpath"),
@@ -82,11 +85,6 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
     override val sourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
         listOf("-src"),
         "Source file or directory (allows many paths separated by the system path separator)"
-    ) { SourceRootImpl(it) }
-
-    override val dependentSourceRoots: List<DokkaConfiguration.SourceRoot> by parser.repeatableOption(
-        listOf("-dependentRoots"),
-        "Source roots of dependent source sets"
     ) { SourceRootImpl(it) }
 
     override val dependentSourceSets: List<String> by parser.repeatableOption<String>(
@@ -163,16 +161,6 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         ""
     )
 
-    override val sinceKotlin: String? by parser.stringOption(
-        listOf("-sinceKotlin"),
-        "Kotlin Api version to use as base version, if none specified",
-        null
-    )
-
-    override val collectInheritedExtensionsFromLibraries: Boolean by parser.singleFlag(
-        listOf("-collectInheritedExtensionsFromLibraries"),
-        "Search for applicable extensions in libraries"
-    )
 
     override val analysisPlatform: Platform by parser.singleOption(
         listOf("-analysisPlatform"),
@@ -181,10 +169,6 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
         { Platform.DEFAULT }
     )
 
-    override val targets: List<String> by parser.repeatableOption<String>(
-        listOf("-target"),
-        "Generation targets"
-    )
 
     override val perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> by parser.singleOption(
         listOf("-packageOptions"),
@@ -215,16 +199,16 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 object MainKt {
     fun defaultLinks(config: DokkaConfiguration.PassConfiguration): MutableList<ExternalDocumentationLink> =
         mutableListOf<ExternalDocumentationLink>().apply {
-        if (!config.noJdkLink)
-            this += DokkaConfiguration.ExternalDocumentationLink
-                .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
-                .build()
+            if (!config.noJdkLink)
+                this += DokkaConfiguration.ExternalDocumentationLink
+                    .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
+                    .build()
 
-        if (!config.noStdlibLink)
-            this += DokkaConfiguration.ExternalDocumentationLink
-                .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
-                .build()
-    }
+            if (!config.noStdlibLink)
+                this += DokkaConfiguration.ExternalDocumentationLink
+                    .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    .build()
+        }
 
     fun parseLinks(links: String): List<ExternalDocumentationLink> {
         val (parsedLinks, parsedOfflineLinks) = links.split("^^")

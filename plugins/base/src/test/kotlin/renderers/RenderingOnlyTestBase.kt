@@ -33,10 +33,10 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().outputWriter to { _ -> files },
         DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory,
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
-        DokkaBase().externalLocationProviderFactory to { _ -> ::JavadocExternalLocationProviderFactory },
-        DokkaBase().externalLocationProviderFactory to { _ -> ::DokkaExternalLocationProviderFactory },
+        DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
+        DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
         sourceSetCache = SourceSetCache(),
-        testConfiguration = DokkaConfigurationImpl("", "", false, null, emptyList(), emptyList(), emptyList(), emptyMap(), emptyList())
+        testConfiguration = DokkaConfigurationImpl("", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList())
     )
 
     protected val renderedContent: Element by lazy {

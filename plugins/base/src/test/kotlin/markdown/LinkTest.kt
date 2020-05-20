@@ -70,7 +70,7 @@ class LinkTest : AbstractCoreTest() {
                 val innerClass = root.children.first { it is ClasslikePageNode }
                 val foo = innerClass.children.first { it.name == "foo" } as MemberPageNode
 
-                assertEquals(root.dri.first().toString(), "[main root]/Outer///PointingToDeclaration/")
+                assertEquals(root.dri.first().toString(), "[JVM root]/Outer///PointingToDeclaration/")
                 assertNotNull(foo.content.dfs { it is ContentDRILink && it.address.toString() == root.dri.first().toString() } )
             }
         }

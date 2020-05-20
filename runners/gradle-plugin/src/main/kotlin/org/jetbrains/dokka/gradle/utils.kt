@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 
-fun Project.isAndroidProject() = try {
+internal fun Project.isAndroidProject() = try {
     project.extensions.getByName("android")
     true
 } catch(e: UnknownDomainObjectException) {
@@ -16,4 +16,17 @@ fun Project.isAndroidProject() = try {
     false
 }
 
-fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
+internal fun Project.isNotMultiplatformProject() = !isMultiplatformProject()
+
+internal fun Project.isMultiplatformProject() = try {
+    project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+    true
+} catch(e: UnknownDomainObjectException) {
+    false
+} catch (e: NoClassDefFoundError){
+    false
+} catch(e: ClassNotFoundException) {
+    false
+}
+
+internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm

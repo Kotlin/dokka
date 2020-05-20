@@ -12,9 +12,9 @@ import renderers.TestPage
 import renderers.match
 
 class SourceSetDependentHintTest : RenderingOnlyTestBase() {
-    private val pl1 = SourceSetData("root", "pl1", Platform.js, listOf(SourceRootImpl("pl1")))
-    private val pl2 = SourceSetData("root","pl2", Platform.jvm, listOf(SourceRootImpl("pl1")))
-    private val pl3 = SourceSetData("root","pl3", Platform.native, listOf(SourceRootImpl("pl1")))
+    private val pl1 = SourceSetData("root", "pl1", "pl3",Platform.js, listOf(SourceRootImpl("pl1")))
+    private val pl2 = SourceSetData("root","pl2", "pl3", Platform.jvm, listOf(SourceRootImpl("pl1")))
+    private val pl3 = SourceSetData("root","pl3", "pl3", Platform.native, listOf(SourceRootImpl("pl1")))
 
     @Test
     fun platformIndependentCase() {

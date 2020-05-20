@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import renderers.*
 
 class DivergentTest : RenderingOnlyTestBase() {
-    private val js = SourceSetData("root", "JS", Platform.js, listOf(SourceRootImpl("pl1")))
-    private val jvm = SourceSetData("root", "JVM", Platform.jvm, listOf(SourceRootImpl("pl1")))
-    private val native = SourceSetData("root", "NATIVE", Platform.native, listOf(SourceRootImpl("pl1")))
+    private val js = SourceSetData("root", "js", "JS", Platform.js, listOf(SourceRootImpl("pl1")))
+    private val jvm = SourceSetData("root", "jvm", "JVM", Platform.jvm, listOf(SourceRootImpl("pl1")))
+    private val native = SourceSetData("root", "native", "NATIVE", Platform.native, listOf(SourceRootImpl("pl1")))
 
     @Test
     fun simpleWrappingCase() {
