@@ -2,11 +2,11 @@ package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.kotlin.utils.addToStdlib.cast
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Test
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
-
-    fun fail(msg: String) = assert(false) { msg }
 
     @Test
     fun topLevelTest() {
@@ -37,8 +37,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
             pagesGenerationStage = { root ->
                 val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
 
-                val children = content.mainContents
-                    .filterIsInstance<ContentTable>()
+                val children = content.mainContents.first().cast<ContentGroup>()
+                    .children.filterIsInstance<ContentTable>()
                     .filter { it.children.isNotEmpty() }
 
                 children.assertCount(2)
@@ -77,7 +77,7 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     .map { it.content }
 
                 val children = contentList.flatMap { content ->
-                    content.mainContents
+                    content.mainContents.first().cast<ContentGroup>().children
                         .filterIsInstance<ContentTable>()
                         .filter { it.children.isNotEmpty() }
                 }.filterNot { it.toString().contains("<init>") }
