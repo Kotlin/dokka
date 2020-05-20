@@ -48,12 +48,10 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
                 pass {
                     sourceRoots = listOf("common/src/", "jvm/src/")
                     analysisPlatform = "jvm"
-                    targets = listOf("jvm")
                 }
                 pass {
                     sourceRoots = listOf("common/src/", "js/src/")
                     analysisPlatform = "js"
-                    targets = listOf("js")
                 }
             }
         }

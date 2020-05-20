@@ -1,9 +1,5 @@
 package org.jetbrains.dokka.gradle
 
-import com.android.build.gradle.*
-import com.android.build.gradle.api.BaseVariant
-import com.android.builder.core.BuilderConstants
-import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownDomainObjectException
@@ -13,57 +9,60 @@ import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.jetbrains.dokka.ReflectDsl
-import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
-import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.io.Serializable
 
 class ConfigurationExtractor(private val project: Project) {
 
-    fun extractConfiguration(targetName: String, variantName: String?) =
-        extractFromKotlinProject(targetName, variantName)
-
-    fun extractFromKotlinProject(sourceSetName: String, variantName: String?): PlatformData? {
+    fun extractConfiguration(sourceSetName: String): PlatformData? {
         val projectExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
         val sourceSet = projectExtension.sourceSets.findByName(sourceSetName)
             ?: run { project.logger.error("No source set with name '$sourceSetName' found"); return null }
         val compilation = when (projectExtension) {
-            is KotlinMultiplatformExtension -> projectExtension.targets.flatMap { it.compilations }
-                .find { it.kotlinSourceSets.contains(sourceSet) }
+            is KotlinMultiplatformExtension -> {
+                val targets = projectExtension.targets.flatMap { it.compilations }
+                targets.find { it.name == sourceSetName } ?: targets.find { it.kotlinSourceSets.contains(sourceSet) }
+            }
             is KotlinSingleTargetExtension -> projectExtension.target.compilations.find {
                 it.kotlinSourceSets.contains(sourceSet)
             }
             else -> null
-        } ?: run { project.logger.error("No compilation found for set with name '$sourceSetName'"); return null }
+        }
 
-        val classpath = compilation.compileDependencyFiles.files.filter { it.exists() }
-        val dependencies = (compilation.allKotlinSourceSets - sourceSet).flatMap { it.kotlin.sourceDirectories }
+        val sourceRoots = sourceSet.sourceFiles
+        val classpath = compilation?.classpath
+            ?: sourceRoots + sourceSet.allParentSourceFiles()
+
         return PlatformData(
             sourceSetName,
-            classpath,
-            sourceSet.kotlin.sourceDirectories.filter { it.exists() }.toList(),
-            dependencies,
-            sourceSet.dependsOn.map {  it.name },
-            compilation.target.targetName
+            classpath.filter { it.exists() },
+            sourceRoots,
+            sourceSet.dependsOn.map { it.name },
+            compilation?.target?.platformType?.name ?: "common"
         )
     }
+
+    private fun KotlinSourceSet.allParentSourceFiles(): List<File> =
+        sourceFiles + dependsOn.flatMap { it.allParentSourceFiles() }
 
     fun extractFromJavaPlugin(): PlatformData? =
         project.convention.findPlugin(JavaPluginConvention::class.java)
             ?.run { sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)?.allSource?.srcDirs }
-            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(), emptyList(), "") }
+            ?.let { PlatformData(null, emptyList(), it.toList(), emptyList(), "") }
 
-    fun extractFromKotlinTasks(passName: String, kotlinTasks: List<Task>): PlatformData? =
+    fun extractFromKotlinTasks(kotlinTasks: List<Task>): List<PlatformData> =
         try {
-            kotlinTasks.find { it.toString() == passName }?.let { extractFromKotlinTask(it) }
+            kotlinTasks.map { extractFromKotlinTask(it) }
         } catch (e: Throwable) {
             when (e) {
                 is UnknownDomainObjectException, is NoClassDefFoundError, is ClassNotFoundException ->
-                    extractFromKotlinTasksTheHardWay(passName, kotlinTasks)
+                    listOfNotNull(extractFromKotlinTasksTheHardWay(kotlinTasks))
                 else -> throw e
             }
         }
@@ -80,18 +79,17 @@ class ConfigurationExtractor(private val project: Project) {
                         .flatMap { it.compilations }.firstOrNull { it.compileKotlinTask == task }
                 else -> throw e
             }
-        }.let {
+        }.let { compilation ->
             PlatformData(
                 task.name,
-                getClasspath(it),
-                getSourceSet(it),
-                getDependentSourceSetRoots(it),
-                getDependentSourceSet(it).map { it.name },
-                it?.platformType?.toString() ?: ""
+                compilation?.classpath.orEmpty(),
+                compilation?.sourceFiles.orEmpty(),
+                compilation?.dependentSourceSets?.map { it.name }.orEmpty(),
+                compilation?.platformType?.toString() ?: ""
             )
         }
 
-    private fun extractFromKotlinTasksTheHardWay(passName: String, kotlinTasks: List<Task>): PlatformData? {
+    private fun extractFromKotlinTasksTheHardWay(kotlinTasks: List<Task>): PlatformData? {
         val allClasspath = mutableSetOf<File>()
         var allClasspathFileCollection: FileCollection = project.files()
         val allSourceRoots = mutableSetOf<File>()
@@ -128,93 +126,41 @@ class ConfigurationExtractor(private val project: Project) {
         }
         classpath.addAll(project.files(allClasspath).toList())
 
-        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(), emptyList(),"")
+        return PlatformData(null, classpath, allSourceRoots.toList(), emptyList(), "")
     }
 
-    private fun getSourceSet(target: KotlinTarget, variantName: String? = null): List<File> =
-        if (variantName != null)
-            getSourceSet(getCompilation(target, variantName))
-        else
-            getSourceSet(getMainCompilation(target))
+    private val KotlinCompilation<*>.sourceFiles: List<File>
+        get() = kotlinSourceSets.flatMap { it.sourceFiles }
 
-    private fun getClasspath(target: KotlinTarget, variantName: String? = null): List<File> =
-        if (target.isAndroidTarget()) {
-            if (variantName != null)
-                getClasspathFromAndroidTask(getCompilation(target, variantName))
-            else
-                getClasspathFromAndroidTask(getMainCompilation(target))
+    private val KotlinSourceSet.sourceFiles: List<File>
+        get() = kotlin.sourceDirectories.filter { it.exists() }.toList()
+
+    private val KotlinCompilation<*>.dependentSourceSets: Set<KotlinSourceSet>
+        get() = (allKotlinSourceSets - kotlinSourceSets)
+
+    private val KotlinCompilation<*>.classpath: List<File>
+        get() = if (target.isAndroidTarget()) {
+            getClasspathFromAndroidTask(this)
         } else {
-            getClasspath(getMainCompilation(target))
+            getClasspathFromRegularTask(this)
         }
-
-    private fun getSourceSet(compilation: KotlinCompilation<*>?): List<File> = compilation
-        ?.kotlinSourceSets
-        ?.flatMap { it.kotlin.sourceDirectories }
-        ?.filter { it.exists() }
-        .orEmpty()
-
-    private fun getDependentSourceSet(compilation: KotlinCompilation<*>?) = compilation
-        ?.let { it.allKotlinSourceSets - it.kotlinSourceSets }.orEmpty()
-
-    private fun getDependentSourceSetRoots(compilation: KotlinCompilation<*>?): List<File> =
-        getDependentSourceSet(compilation)?.flatMap { it.kotlin.sourceDirectories }
-        .filter { it.exists() }
-
-    private fun getClasspath(compilation: KotlinCompilation<*>?): List<File> = compilation
-        ?.compileDependencyFiles
-        ?.files
-        ?.toList()
-        ?.filter { it.exists() }
-        .orEmpty()
 
     // This is a workaround for KT-33893
     private fun getClasspathFromAndroidTask(compilation: KotlinCompilation<*>): List<File> = (compilation
         .compileKotlinTask as? KotlinCompile)
-        ?.classpath?.files?.toList() ?: getClasspath(compilation)
+        ?.classpath?.files?.toList() ?: getClasspathFromRegularTask(compilation)
 
-    private fun getMainCompilation(target: KotlinTarget) =
-        getCompilation(target, getMainCompilationName(target))
-
-    private fun getCompilation(target: KotlinTarget, name: String) =
-        target.compilations.getByName(name)
-
-    private fun getMainCompilationName(target: KotlinTarget) = if (target.isAndroidTarget())
-        getVariants(project).filter { it.buildType.name == BuilderConstants.RELEASE }.map { it.name }.first()
-    else
-        KotlinCompilation.MAIN_COMPILATION_NAME
-
-    private fun getVariants(project: Project): Set<BaseVariant> {
-        val androidExtension = project.extensions.getByName("android")
-        val baseVariants = when (androidExtension) {
-            is AppExtension -> androidExtension.applicationVariants.toSet()
-            is LibraryExtension -> {
-                androidExtension.libraryVariants.toSet() +
-                        if (androidExtension is FeatureExtension) {
-                            androidExtension.featureVariants.toSet()
-                        } else {
-                            emptySet<BaseVariant>()
-                        }
-            }
-            is TestExtension -> androidExtension.applicationVariants.toSet()
-            else -> emptySet()
-        }
-        val testVariants = if (androidExtension is TestedExtension) {
-            androidExtension.testVariants.toSet() + androidExtension.unitTestVariants.toSet()
-        } else {
-            emptySet<BaseVariant>()
-        }
-
-        return baseVariants + testVariants
-    }
-
-    private fun getPlatformName(platform: KotlinPlatformType): String =
-        if (platform == KotlinPlatformType.androidJvm) KotlinPlatformType.jvm.toString() else platform.toString()
+    private fun getClasspathFromRegularTask(compilation: KotlinCompilation<*>): List<File> =
+        compilation
+            .compileDependencyFiles
+            .files
+            .toList()
+            .filter { it.exists() }
 
     data class PlatformData(
         val name: String?,
         val classpath: List<File>,
         val sourceRoots: List<File>,
-        val dependentSourceRoots: List<File>,
         val dependentSourceSets: List<String>,
         val platform: String
     ) : Serializable

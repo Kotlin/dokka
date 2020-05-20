@@ -9,7 +9,6 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
     fun inlineModelTest(
         query: String,
         platform: String = "jvm",
-        targetList: List<String> = listOf("jvm"),
         prependPackage: Boolean = true,
         cleanupOutput: Boolean = true,
         pluginsOverrides: List<DokkaPlugin> = emptyList(),
@@ -21,7 +20,6 @@ abstract class AbstractModelTest(val path: String? = null, val pkg: String) : Mo
                 pass {
                     sourceRoots = listOf("src/")
                     analysisPlatform = platform
-                    targets = targetList
                 }
             }
         }

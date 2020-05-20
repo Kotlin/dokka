@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") apply false
     id("com.jfrog.bintray") apply false
+    id("java")
 }
 
 val dokka_version: String by project
@@ -39,6 +40,12 @@ allprojects {
 subprojects {
     apply {
         plugin("org.jetbrains.kotlin.jvm")
+        plugin("java")
+    }
+
+    // Gradle metadata
+    java {
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 

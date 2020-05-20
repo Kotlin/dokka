@@ -4,9 +4,9 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
+import utils.ParamAttributes
 import utils.bareSignature
 import utils.pWrapped
-import utils.ParamAttributes
 import utils.unnamedTag
 
 class ContentForSeeAlsoTest : AbstractCoreTest() {
@@ -15,7 +15,6 @@ class ContentForSeeAlsoTest : AbstractCoreTest() {
             pass {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
-                targets = listOf("jvm")
             }
         }
     }

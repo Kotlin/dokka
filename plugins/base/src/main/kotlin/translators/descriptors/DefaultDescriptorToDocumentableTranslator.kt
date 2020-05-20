@@ -739,7 +739,7 @@ private class DokkaDescriptorVisitor(
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 
-    private fun fallbackPackageName(): String = "[${sourceSet.sourceSetName} root]"// TODO: error-prone, find a better way to do it
+    private fun fallbackPackageName(): String = "[${sourceSet.displayName} root]"// TODO: error-prone, find a better way to do it
 }
 
 private fun DRI.withPackageFallbackTo(fallbackPackage: String): DRI {

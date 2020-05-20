@@ -15,15 +15,16 @@ import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
 import org.jetbrains.dokka.plugability.Configurable
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
+import kotlin.system.exitProcess
 
 open class DokkaTask : DefaultTask(), Configurable {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val GLOBAL_CONFIGURATION_NAME = "global" // Used for copying perPackageOptions to other platforms
+    private val configExtractor = ConfigurationExtractor(project)
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun defaultKotlinTasks(): List<Task> = with(ReflectDsl) {
@@ -57,8 +58,6 @@ open class DokkaTask : DefaultTask(), Configurable {
     var subProjects: List<String> = emptyList()
 
     @Input
-    var impliedPlatforms: MutableList<String> = arrayListOf()
-
     override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @Optional
@@ -66,54 +65,47 @@ open class DokkaTask : DefaultTask(), Configurable {
     var cacheRoot: String? = null
 
     @Classpath
-    lateinit var pluginsConfig: Configuration
+    lateinit var pluginsClasspathConfiguration: Configuration
 
     var dokkaSourceSets: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
         @Nested get() = (DslObject(this).extensions.getByName(SOURCE_SETS_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>)
         internal set(value) = DslObject(this).extensions.add(SOURCE_SETS_EXTENSION_NAME, value)
 
-    var configuration: GradlePassConfigurationImpl
-        @Suppress("UNCHECKED_CAST")
-        @Nested get() = DslObject(this).extensions.getByType(GradlePassConfigurationImpl::class.java)
-        internal set(value) = DslObject(this).extensions.add(CONFIGURATION_EXTENSION_NAME, value)
-
-    var config: GradleDokkaConfigurationImpl? = null
-
-    // Configure Dokka with closure in Gradle Kotlin DSL
-    fun configuration(action: Action<in GradlePassConfigurationImpl>) = action.execute(configuration)
-
     private val kotlinTasks: List<Task> by lazy {
-        extractKotlinCompileTasks(
-            configuration.collectKotlinTasks ?: { defaultKotlinTasks() })
+        extractKotlinCompileTasks({
+            dokkaSourceSets.map {
+                it.collectKotlinTasks?.invoke()
+            }
+        }.takeIf { it().isNotEmpty() } ?: { defaultKotlinTasks() }
+        )
     }
-
-    private val configExtractor = ConfigurationExtractor(project)
 
     @Input
     var disableAutoconfiguration: Boolean = false
 
+    @Input
+    var offlineMode: Boolean = false
+
     private var outputDiagnosticInfo: Boolean =
         false // Workaround for Gradle, which fires some methods (like collectConfigurations()) multiple times in its lifecycle
 
-    private fun loadFatJar() {
-        if (ClassloaderContainer.fatJarClassLoader == null) {
+    private fun loadCore() {
+        if (ClassloaderContainer.coreClassLoader == null) {
             val jars = dokkaRuntime!!.resolve()
-            ClassloaderContainer.fatJarClassLoader = URLClassLoader(
+            ClassloaderContainer.coreClassLoader = URLClassLoader(
                 jars.map { it.toURI().toURL() }.toTypedArray(),
                 ClassLoader.getSystemClassLoader().parent
             )
         }
     }
 
-    private fun extractKotlinCompileTasks(collectTasks: () -> List<Any?>?): List<Task> {
+    protected fun extractKotlinCompileTasks(collectTasks: () -> List<Any?>?): List<Task> {
         val inputList = (collectTasks.invoke() ?: emptyList()).filterNotNull()
         val (paths, other) = inputList.partition { it is String }
 
-        val taskContainer = project.tasks
-
         val tasksByPath = paths.map {
-            taskContainer.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found")
+            project.tasks.findByPath(it as String) ?: throw IllegalArgumentException("Task with path '$it' not found")
         }
 
         other
@@ -134,7 +126,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     private fun Iterable<String>.toProjects(): List<Project> =
         project.subprojects.toList().filter { this.contains(it.name) }
 
-    private fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
+    protected open fun collectSuppressedFiles(sourceRoots: List<SourceRoot>) =
         if (project.isAndroidProject()) {
             val generatedRoot = project.buildDir.resolve("generated").absoluteFile
             sourceRoots
@@ -147,24 +139,20 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
 
     @TaskAction
-    fun generate() {
-        generateForConfig(config ?: getConfiguration())
-    }
+    fun generate() = getConfiguration()?.let { generate(it) } ?: exitProcess(0)
 
-    internal fun generateForConfig(configuration: GradleDokkaConfigurationImpl) {
+    protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
         try {
-            loadFatJar()
+            loadCore()
 
             val bootstrapClass =
-                ClassloaderContainer.fatJarClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
+                ClassloaderContainer.coreClassLoader!!.loadClass("org.jetbrains.dokka.DokkaBootstrapImpl")
             val bootstrapInstance = bootstrapClass.constructors.first().newInstance()
             val bootstrapProxy: DokkaBootstrap =
                 automagicTypedProxy(javaClass.classLoader, bootstrapInstance)
-
-            val gson = GsonBuilder().setPrettyPrinting().create()
 
             bootstrapProxy.configure(
                 BiConsumer { level, message ->
@@ -176,7 +164,7 @@ open class DokkaTask : DefaultTask(), Configurable {
                         "error" -> logger.error(message)
                     }
                 },
-                gson.toJson(configuration)
+                GsonBuilder().setPrettyPrinting().create().toJson(configuration)
             )
 
             bootstrapProxy.generate()
@@ -186,68 +174,78 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
-    internal fun getConfiguration(): GradleDokkaConfigurationImpl {
+    internal open fun getConfiguration(): GradleDokkaConfigurationImpl? {
         val globalConfig = dokkaSourceSets.toList().find { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
-        val defaultModulesConfiguration = collectConfigurations()
-            .map { defaultPassConfiguration(it, globalConfig) }
+        val defaultModulesConfiguration = passConfigurations
+            .map { defaultPassConfiguration(it, globalConfig) }.takeIf { it.isNotEmpty() }
+            ?: listOf(
+                defaultPassConfiguration(
+                    collectSinglePassConfiguration(GradlePassConfigurationImpl("main")),
+                    null
+                )
+            ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
+
+        if (defaultModulesConfiguration.isEmpty()) {
+            logger.error("No source sets to document found, exiting")
+            return null
+        }
+
         return GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
             format = outputFormat
-            generateIndexPages = true
-            cacheRoot = cacheRoot
-            impliedPlatforms = impliedPlatforms
+            cacheRoot = this@DokkaTask.cacheRoot
+            offlineMode = this@DokkaTask.offlineMode
             passesConfigurations = defaultModulesConfiguration
-            pluginsClasspath = pluginsConfig.resolve().toList()
+            pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
         }
     }
 
-    private fun collectConfigurations() =
-        if (this.dokkaSourceSets.isNotEmpty()) collectMultipassConfiguration() else listOf(collectSinglePassConfiguration(configuration))
 
-    private fun collectMultipassConfiguration() = dokkaSourceSets
-        .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
-        .map { collectSinglePassConfiguration(it) }
+    protected val passConfigurations: List<GradlePassConfigurationImpl>
+        get() = dokkaSourceSets
+            .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
+            .map { collectSinglePassConfiguration(it) }
 
-    private fun collectSinglePassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
+    protected fun collectSinglePassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
         val userConfig = config
-        /*.let {
-            if (it.collectKotlinTasks != null) {
-                configExtractor.extractFromKotlinTasks(extractKotlinCompileTasks(it.collectKotlinTasks!!))
-                    ?.let { platformData -> mergeUserConfigurationAndPlatformData(it, platformData) } ?: it
-            } else {
-                it
+            .apply {
+                collectKotlinTasks?.let {
+                    configExtractor.extractFromKotlinTasks(extractKotlinCompileTasks(it))
+                        .fold(this) { config, platformData ->
+                            mergeUserConfigurationAndPlatformData(config, platformData)
+                        }
+                }
             }
-        }*/
 
         if (disableAutoconfiguration) return userConfig
 
-        val baseConfig = configExtractor.extractConfiguration(userConfig.name, userConfig.androidVariant)
+        val baseConfig = configExtractor.extractConfiguration(userConfig.name)
             ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
             ?: if (this.dokkaSourceSets.isNotEmpty()) {
                 if (outputDiagnosticInfo)
                     logger.warn(
-                        "Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
-                                "using only user provided configuration for this target"
+                        "Could not find source set with name: ${userConfig.name} in Kotlin Gradle Plugin, " +
+                                "using only user provided configuration for this source set"
                     )
                 userConfig
             } else {
-                logger.warn("Could not find target with name: ${userConfig.name} in Kotlin Gradle Plugin")
-                collectFromSinglePlatformOldPlugin(userConfig.name)
+                if (outputDiagnosticInfo)
+                    logger.warn("Could not find source set with name: ${userConfig.name} in Kotlin Gradle Plugin")
+                collectFromSinglePlatformOldPlugin(userConfig.name, userConfig)
             }
 
         return if (subProjects.isNotEmpty()) {
             try {
-                subProjects.toProjects().fold(baseConfig) { config, subProject ->
+                subProjects.toProjects().fold(baseConfig) { configAcc, subProject ->
                     mergeUserConfigurationAndPlatformData(
-                        config,
-                        ConfigurationExtractor(subProject).extractConfiguration(config.name, config.androidVariant)!!
+                        configAcc,
+                        ConfigurationExtractor(subProject).extractConfiguration(userConfig.name)!!
                     )
                 }
             } catch (e: NullPointerException) {
                 logger.warn(
-                    "Cannot extract sources from subProjects. Do you have the Kotlin plugin in version 1.3.30+ " +
-                            "and the Kotlin plugin applied in the root project?"
+                    "Cannot extract sources from subProjects. Do you have the Kotlin plugin applied in the root project?"
                 )
                 baseConfig
             }
@@ -256,49 +254,52 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
-    private fun collectFromSinglePlatformOldPlugin(name: String) =
-        configExtractor.extractFromKotlinTasks(name, kotlinTasks)
-            ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
+    protected fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradlePassConfigurationImpl) =
+        kotlinTasks.find { it.name == name }
+            ?.let { configExtractor.extractFromKotlinTasks(listOf(it)) }
+            ?.singleOrNull()
+            ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
             ?: configExtractor.extractFromJavaPlugin()
-                ?.let { mergeUserConfigurationAndPlatformData(configuration, it) }
-            ?: configuration
+                ?.let { mergeUserConfigurationAndPlatformData(userConfig, it) }
+            ?: userConfig
 
-    private fun mergeUserConfigurationAndPlatformData(
+    protected fun mergeUserConfigurationAndPlatformData(
         userConfig: GradlePassConfigurationImpl,
         autoConfig: PlatformData
     ) =
         userConfig.copy().apply {
-            sourceSetName = autoConfig.name ?: ""
+            sourceSetID = autoConfig.name ?: ""
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
-            dependentSourceRoots.addAll(userConfig.dependentSourceRoots.union(autoConfig.dependentSourceRoots.toSourceRoots()).distinct())
             dependentSourceSets.addAll(userConfig.dependentSourceSets.union(autoConfig.dependentSourceSets).distinct())
             classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
             if (userConfig.platform == null && autoConfig.platform != "")
                 platform = autoConfig.platform
         }
 
-    private fun defaultPassConfiguration(
+    protected fun defaultPassConfiguration(
         config: GradlePassConfigurationImpl,
         globalConfig: GradlePassConfigurationImpl?
     ): GradlePassConfigurationImpl {
-        if (config.moduleName == "") {
+        if (config.moduleName.isBlank()) {
             config.moduleName = project.name
         }
-        if (config.sourceSetName.isEmpty()) {
-            config.sourceSetName = config.name.substringBeforeLast("Main").takeIf(String::isNotBlank) ?: config.platform.toString()
+        if (config.sourceSetID.isBlank()) {
+            config.sourceSetID = config.name.takeIf(String::isNotBlank) ?: config.analysisPlatform.key
         }
-        config.classpath = (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
+        config.displayName = config.sourceSetID.substringBeforeLast("Main")
+        config.classpath =
+            (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
         config.samples = config.samples.map { project.file(it).absolutePath }
         config.includes = config.includes.map { project.file(it).absolutePath }
         config.suppressedFiles += collectSuppressedFiles(config.sourceRoots)
-        if (project.isAndroidProject() && !config.noAndroidSdkLink) { // TODO: introduce Android as a separate Dokka platform?
+        if (project.isAndroidProject() && !config.noAndroidSdkLink) {
             config.externalDocumentationLinks.add(ANDROID_REFERENCE_URL)
         }
-        if (config.platform != null && config.platform.toString().isNotBlank()) {
+        if (config.platform?.isNotBlank() == true) {
             config.analysisPlatform = dokkaPlatformFromString(config.platform.toString())
         }
-        if (globalConfig != null) {
+        globalConfig?.let {
             config.perPackageOptions.addAll(globalConfig.perPackageOptions)
             config.externalDocumentationLinks.addAll(globalConfig.externalDocumentationLinks)
             config.sourceLinks.addAll(globalConfig.sourceLinks)
@@ -309,7 +310,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
     private fun dokkaPlatformFromString(platform: String) = when (platform.toLowerCase()) {
-        KotlinPlatformType.androidJvm.toString().toLowerCase(), "androidjvm", "android" -> Platform.jvm
+        "androidjvm", "android" -> Platform.jvm
         "metadata" -> Platform.common
         else -> Platform.fromString(platform)
     }
@@ -321,7 +322,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     // Needed for Gradle incremental build
     @InputFiles
     fun getInputFiles(): FileCollection {
-        val config = collectConfigurations()
+        val config = passConfigurations
         return project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
                 project.files(config.flatMap { it.includes }) +
                 project.files(config.flatMap { it.samples }.map { project.fileTree(File(it)) })
@@ -329,7 +330,7 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     @Classpath
     fun getInputClasspath(): FileCollection =
-        project.files((collectConfigurations().flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
+        project.files((passConfigurations.flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"

@@ -5,7 +5,6 @@ import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetCache
 import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -81,7 +80,7 @@ class DokkaGenerator(
         sourceSetsCache: SourceSetCache
     ): Map<SourceSetData, EnvironmentAndFacade> =
         configuration.passesConfigurations.map {
-            sourceSetsCache.getSourceSet(it) to createEnvironmentAndFacade(it)
+            sourceSetsCache.getSourceSet(it) to createEnvironmentAndFacade(configuration, it)
         }.toMap()
 
     fun initializePlugins(
@@ -139,14 +138,21 @@ class DokkaGenerator(
         renderer.render(transformedPages)
     }
 
-    private fun createEnvironmentAndFacade(pass: DokkaConfiguration.PassConfiguration): EnvironmentAndFacade =
+    private fun createEnvironmentAndFacade(
+        configuration: DokkaConfiguration,
+        pass: DokkaConfiguration.PassConfiguration
+    ): EnvironmentAndFacade =
         AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
             pass.classpath.forEach { addClasspath(File(it)) }
 
-            addSources((pass.sourceRoots + pass.dependentSourceRoots).map { it.path })
+            addSources(
+                (pass.sourceRoots + configuration.passesConfigurations.filter { it.sourceSetID in pass.dependentSourceSets }
+                    .flatMap { it.sourceRoots })
+                    .map { it.path }
+            )
 
             loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
 

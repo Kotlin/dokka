@@ -27,9 +27,9 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
 open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
     @Input @Optional override var classpath: List<String> = emptyList()
     @Input override var moduleName: String = ""
-    @Input override var sourceSetName: String = ""
+    @Input override var displayName: String = ""
+    @Input override var sourceSetID: String = ""
     @Input override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
-    @Input override var dependentSourceRoots: MutableList<SourceRoot> = mutableListOf()
     @Input override var dependentSourceSets: MutableList<String> = mutableListOf()
     @Input override var samples: List<String> = emptyList()
     @Input override var includes: List<String> = emptyList()
@@ -48,13 +48,9 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input override var noJdkLink: Boolean = false
     @Input var noAndroidSdkLink: Boolean = false
     @Input override var suppressedFiles: List<String> = emptyList()
-    @Input override var collectInheritedExtensionsFromLibraries: Boolean = false
     @Input override var analysisPlatform: Platform = Platform.DEFAULT
     @Input @Optional var platform: String? = null
-    @Input override var targets: List<String> = emptyList()
-    @Input @Optional override var sinceKotlin: String? = null
     @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
-    @Input @Optional @Transient var androidVariant: String? = null
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }
@@ -129,9 +125,8 @@ class GradleDokkaModuleDescription: DokkaModuleDescription {
 class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var outputDir: String = ""
     override var format: String = "html"
-    override var generateIndexPages: Boolean = false
     override var cacheRoot: String? = null
-    override var impliedPlatforms: List<String> = emptyList()
+    override var offlineMode: Boolean = false
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
     override var pluginsConfiguration: Map<String, String> = mutableMapOf()

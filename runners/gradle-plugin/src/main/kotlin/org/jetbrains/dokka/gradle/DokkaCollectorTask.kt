@@ -20,7 +20,7 @@ open class DokkaCollectorTask : DefaultTask() {
 
     @TaskAction
     fun collect() {
-        val passesConfigurations = getProjects(project).filter { it.name in modules }.map {
+        val passesConfigurations = getProjects(project).filter { it.name in modules }.mapNotNull {
             val task = try {
                 it.tasks.getByName(DOKKA_TASK_NAME, DokkaTask::class)
             } catch (e: UnknownTaskException) {
@@ -33,12 +33,11 @@ open class DokkaCollectorTask : DefaultTask() {
             outputDir = outputDirectory
             cacheRoot = passesConfigurations.first().cacheRoot
             format = passesConfigurations.first().format
-            generateIndexPages = passesConfigurations.first().generateIndexPages
         }
 
         configuration = passesConfigurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
-            if(acc.format != it.format || acc.generateIndexPages != it.generateIndexPages || acc.cacheRoot != it.cacheRoot)
-                throw IllegalStateException("Dokka task configurations differ on core arguments (format, generateIndexPages, cacheRoot)")
+            if(acc.format != it.format || acc.cacheRoot != it.cacheRoot)
+                throw IllegalStateException("Dokka task configurations differ on core arguments (format, cacheRoot)")
             acc.passesConfigurations = acc.passesConfigurations + it.passesConfigurations
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc

@@ -139,7 +139,7 @@ abstract class AbstractCoreTest {
     protected class DokkaConfigurationBuilder {
         var outputDir: String = "out"
         var format: String = "html"
-        var generateIndexPages: Boolean = true
+        var offlineMode: Boolean = false
         var cacheRoot: String? = null
         var pluginsClasspath: List<File> = emptyList()
         var pluginsConfigurations: Map<String, String> = emptyMap()
@@ -147,9 +147,8 @@ abstract class AbstractCoreTest {
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
             format = format,
-            generateIndexPages = generateIndexPages,
             cacheRoot = cacheRoot,
-            impliedPlatforms = emptyList(),
+            offlineMode = offlineMode,
             passesConfigurations = passesConfigurations,
             pluginsClasspath = pluginsClasspath,
             pluginsConfiguration = pluginsConfigurations,
@@ -171,9 +170,9 @@ abstract class AbstractCoreTest {
     protected class DokkaPassConfigurationBuilder(
         var moduleName: String = "root",
         var sourceSetName: String = "main",
+        var displayName: String = "JVM",
         var classpath: List<String> = emptyList(),
         var sourceRoots: List<String> = emptyList(),
-        var dependentSourceRoots: List<String> = emptyList(),
         var dependentSourceSets: List<String> = emptyList(),
         var samples: List<String> = emptyList(),
         var includes: List<String> = emptyList(),
@@ -188,20 +187,17 @@ abstract class AbstractCoreTest {
         var noStdlibLink: Boolean = false,
         var noJdkLink: Boolean = false,
         var suppressedFiles: List<String> = emptyList(),
-        var collectInheritedExtensionsFromLibraries: Boolean = true,
         var analysisPlatform: String = "jvm",
-        var targets: List<String> = listOf("jvm"),
-        var sinceKotlin: String? = null,
         var perPackageOptions: List<PackageOptionsImpl> = emptyList(),
         var externalDocumentationLinks: List<ExternalDocumentationLinkImpl> = emptyList(),
         var sourceLinks: List<SourceLinkDefinitionImpl> = emptyList()
     ) {
         fun build() = PassConfigurationImpl(
             moduleName = moduleName,
-            sourceSetName = sourceSetName,
+            displayName = displayName,
+            sourceSetID = sourceSetName,
             classpath = classpath,
             sourceRoots = sourceRoots.map { SourceRootImpl(it) },
-            dependentSourceRoots = dependentSourceRoots.map { SourceRootImpl(it) },
             dependentSourceSets = dependentSourceSets,
             samples = samples,
             includes = includes,
@@ -211,18 +207,15 @@ abstract class AbstractCoreTest {
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
+            sourceLinks = sourceLinks,
+            perPackageOptions = perPackageOptions,
+            externalDocumentationLinks = externalDocumentationLinks,
             languageVersion = languageVersion,
             apiVersion = apiVersion,
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles,
-            collectInheritedExtensionsFromLibraries = collectInheritedExtensionsFromLibraries,
-            analysisPlatform = Platform.fromString(analysisPlatform),
-            targets = targets,
-            sinceKotlin = sinceKotlin,
-            perPackageOptions = perPackageOptions,
-            externalDocumentationLinks = externalDocumentationLinks,
-            sourceLinks = sourceLinks
+            analysisPlatform = Platform.fromString(analysisPlatform)
         )
     }
 

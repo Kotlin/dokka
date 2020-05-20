@@ -98,26 +98,19 @@ open class DefaultLocationProvider(
                 if (info == null) {
                     toResolve.getOrPut(jdk) { mutableListOf() }.add(link)
                 } else if (info.packages.contains(dri.packageName)) {
-                    return link.url.toExternalForm() + getLink(
-                        dri,
-                        info
-                    )
+                    return link.url.toExternalForm() + getLink(dri, info)
                 }
             }
         }
         // Not in cache, resolve packageLists
         for ((jdk, links) in toResolve) {
             for (link in links) {
+                if(dokkaContext.configuration.offlineMode && link.packageListUrl.protocol.toLowerCase() != "file")
+                    continue
                 val locationInfo =
-                    loadPackageList(
-                        jdk,
-                        link.packageListUrl
-                    )
+                    loadPackageList(jdk, link.packageListUrl)
                 if (locationInfo.packages.contains(dri.packageName)) {
-                    return link.url.toExternalForm() + getLink(
-                        dri,
-                        locationInfo
-                    )
+                    return link.url.toExternalForm() + getLink(dri, locationInfo)
                 }
             }
             toResolve.remove(jdk)

@@ -120,7 +120,7 @@ open class CommonmarkRenderer(
             append(distinct.keys.single())
         else
             distinct.forEach { text, platforms ->
-                append(platforms.joinToString(prefix = " [", postfix = "] $text") { "${it.moduleName}/${it.sourceSetName}"  })
+                append(platforms.joinToString(prefix = " [", postfix = "] $text") { "${it.moduleName}/${it.sourceSetID}"  })
             }
     }
 

@@ -6,21 +6,20 @@ import java.net.URL
 data class DokkaConfigurationImpl(
     override val outputDir: String,
     override val format: String,
-    override val generateIndexPages: Boolean,
     override val cacheRoot: String?,
-    override val impliedPlatforms: List<String>,
+    override val offlineMode: Boolean,
     override val passesConfigurations: List<PassConfigurationImpl>,
     override val pluginsClasspath: List<File>,
     override val pluginsConfiguration: Map<String, String>,
     override val modules: List<DokkaModuleDescriptionImpl>
 ) : DokkaConfiguration
 
-data class PassConfigurationImpl (
+data class PassConfigurationImpl(
     override val moduleName: String,
-    override val sourceSetName: String,
+    override val displayName: String,
+    override val sourceSetID: String,
     override val classpath: List<String>,
     override val sourceRoots: List<SourceRootImpl>,
-    override val dependentSourceRoots: List<SourceRootImpl>,
     override val dependentSourceSets: List<String>,
     override val samples: List<String>,
     override val includes: List<String>,
@@ -38,10 +37,7 @@ data class PassConfigurationImpl (
     override val noStdlibLink: Boolean,
     override val noJdkLink: Boolean,
     override val suppressedFiles: List<String>,
-    override val collectInheritedExtensionsFromLibraries: Boolean,
-    override val analysisPlatform: Platform,
-    override val targets: List<String>,
-    override val sinceKotlin: String?
+    override val analysisPlatform: Platform
 ) : DokkaConfiguration.PassConfiguration
 
 data class DokkaModuleDescriptionImpl(
