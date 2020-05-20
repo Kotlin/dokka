@@ -112,8 +112,8 @@ class LinkableContentTest : AbstractCoreTest() {
                 packageChildren.forEach {
                     val name = it.name.substringBefore("Class")
                     val crl = it.safeAs<ClasslikePageNode>()?.content?.safeAs<ContentGroup>()?.children?.last()
-                        ?.safeAs<ContentGroup>()?.children?.last()?.safeAs<ContentTable>()?.children?.singleOrNull()
-                        ?.safeAs<ContentGroup>()?.children?.singleOrNull()?.safeAs<ContentResolvedLink>()
+                        ?.safeAs<ContentGroup>()?.children?.last()?.safeAs<ContentGroup>()?.children?.lastOrNull()
+                        ?.safeAs<ContentTable>()?.children?.singleOrNull()?.safeAs<ContentGroup>()?.children?.singleOrNull().safeAs<ContentResolvedLink>()
                     Assertions.assertEquals(
                         "https://github.com/user/repo/tree/master/src/${name.toLowerCase()}Main/kotlin/${name}Class.kt#L3",
                         crl?.address
@@ -166,8 +166,11 @@ class LinkableContentTest : AbstractCoreTest() {
                         .cast<ContentDivergentGroup>().children.single()
                         .cast<ContentDivergentInstance>().after
                         .cast<ContentGroup>().children.last()
+                        .cast<ContentGroup>().children.last()
                         .cast<PlatformHintedContent>().children.single()
-                        .cast<ContentGroup>().children.single().cast<ContentGroup>().children.last()
+                        .cast<ContentGroup>().children.single()
+                        .cast<ContentTable>().children.single()
+                        .cast<ContentGroup>().children.single()
                         .cast<ContentGroup>().children.single()
                         .cast<ContentCode>().children.single().cast<ContentText>().text
                     Assertions.assertEquals(

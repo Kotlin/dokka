@@ -33,7 +33,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -64,17 +66,16 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
                                 bareSignature("function", null, "abc" to "String")
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                }
+                                pWrapped("comment to function")
                             }
                         }
                     }
@@ -102,18 +103,17 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
                                 bareSignature("function", null, "abc" to "String")
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    unnamedTag("Author") { +"Kordyjan" }
-                                    unnamedTag("Since") { +"0.11" }
-                                }
+                                unnamedTag("Author") { +"Kordyjan" }
+                                unnamedTag("Since") { +"0.11" }
                             }
                         }
                     }
@@ -142,19 +142,18 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
                                 bareSignature("function", null, "abc" to "String")
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    unnamedTag("Author") { +"Kordyjan" }
-                                    unnamedTag("Since") { +"0.11" }
-                                }
+                                pWrapped("comment to function")
+                                unnamedTag("Author") { +"Kordyjan" }
+                                unnamedTag("Since") { +"0.11" }
                             }
                         }
                     }
@@ -182,21 +181,24 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
                                 bareSignature("function", null, "abc" to "String")
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"abc"
-                                            group { +"comment to param" }
+                                pWrapped("comment to function")
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"abc"
+                                                group { +"comment to param" }
+                                            }
                                         }
                                     }
                                 }
@@ -229,7 +231,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -242,22 +246,23 @@ class ContentForParamsTest : AbstractCoreTest() {
                                 )
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { +"comment to first param" }
-                                        }
-                                        group {
-                                            +"second"
-                                            group { +"comment to second param" }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { +"comment to third param" }
+                                pWrapped("comment to function")
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"first"
+                                                group { +"comment to first param" }
+                                            }
+                                            group {
+                                                +"second"
+                                                group { +"comment to second param" }
+                                            }
+                                            group {
+                                                +"third"
+                                                group { +"comment to third param" }
+                                            }
                                         }
                                     }
                                 }
@@ -289,7 +294,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -302,21 +309,22 @@ class ContentForParamsTest : AbstractCoreTest() {
                                 )
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { +"comment to first param" }
-                                        }
-                                        group {
-                                            +"second"
-                                            group { +"comment to second param" }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { +"comment to third param" }
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"first"
+                                                group { +"comment to first param" }
+                                            }
+                                            group {
+                                                +"second"
+                                                group { +"comment to second param" }
+                                            }
+                                            group {
+                                                +"third"
+                                                group { +"comment to third param" }
+                                            }
                                         }
                                     }
                                 }
@@ -348,25 +356,28 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
                                 bareSignatureWithReceiver("String", "function", null, "abc" to "String")
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"<receiver>"
-                                            group { +"comment to receiver" }
-                                        }
-                                        group {
-                                            +"abc"
-                                            group { +"comment to param" }
+                                pWrapped("comment to function")
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"<receiver>"
+                                                group { +"comment to receiver" }
+                                            }
+                                            group {
+                                                +"abc"
+                                                group { +"comment to param" }
+                                            }
                                         }
                                     }
                                 }
@@ -398,7 +409,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -411,18 +424,19 @@ class ContentForParamsTest : AbstractCoreTest() {
                                 )
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { +"comment to first param" }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { +"comment to third param" }
+                                pWrapped("comment to function")
+                                header(2) { +"Parameters" }
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"first"
+                                                group { +"comment to first param" }
+                                            }
+                                            group {
+                                                +"third"
+                                                group { +"comment to third param" }
+                                            }
                                         }
                                     }
                                 }
@@ -457,7 +471,9 @@ class ContentForParamsTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -470,26 +486,28 @@ class ContentForParamsTest : AbstractCoreTest() {
                                 )
                             }
                             after {
-                                header(3) { +"Description" }
-                                platformHinted {
-                                    pWrapped("comment to function")
-                                    header(4) { +"Parameters" }
-                                    table {
-                                        group {
-                                            +"first"
-                                            group { +"comment to first param" }
-                                        }
-                                        group {
-                                            +"second"
-                                            group { +"comment to second param" }
-                                        }
-                                        group {
-                                            +"third"
-                                            group { +"comment to third param" }
+                                pWrapped("comment to function")
+                                unnamedTag("Author") { +"Kordyjan" }
+                                unnamedTag("Since") { +"0.11" }
+                                header(2) { +"Parameters" }
+
+                                group {
+                                    platformHinted {
+                                        table {
+                                            group {
+                                                +"first"
+                                                group { +"comment to first param" }
+                                            }
+                                            group {
+                                                +"second"
+                                                group { +"comment to second param" }
+                                            }
+                                            group {
+                                                +"third"
+                                                group { +"comment to third param" }
+                                            }
                                         }
                                     }
-                                    unnamedTag("Author") { +"Kordyjan" }
-                                    unnamedTag("Since") { +"0.11" }
                                 }
                             }
                         }

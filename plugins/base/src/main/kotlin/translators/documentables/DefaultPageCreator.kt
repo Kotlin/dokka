@@ -202,7 +202,7 @@ open class DefaultPageCreator(
 
     protected open fun contentForDescription(
         d: Documentable
-    ): ContentNode {
+    ): List<ContentNode> {
         val tags: GroupedTags = d.documentation.flatMap { (pd, doc) ->
             doc.children.asSequence().map { pd to it }.toList()
         }.groupBy { it.second::class }
@@ -224,17 +224,19 @@ open class DefaultPageCreator(
             val unnamedTags: List<SourceSetDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
                     .map { (_, v) -> v.mapNotNull { (k,v) -> k?.let { it to v } }.toMap() }
-            platforms.forEach { platform ->
-                unnamedTags.forEach { pdTag ->
-                    pdTag[platform]?.also { tag ->
-                        group(sourceSets = setOf(platform)) {
-                            header(4, tag.toHeaderString())
-                            comment(tag.root)
+            if(unnamedTags.isNotEmpty()){
+                platforms.forEach { platform ->
+                    unnamedTags.forEach { pdTag ->
+                        pdTag[platform]?.also { tag ->
+                            group(sourceSets = setOf(platform)) {
+                                header(4, tag.toHeaderString())
+                                comment(tag.root)
+                            }
                         }
                     }
                 }
             }
-        }
+        }.children
     }
 
     protected open fun contentForComments(
