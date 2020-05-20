@@ -4,21 +4,21 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
+import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
-class ActualTypealiasAdder(val context: DokkaContext) : PreMergeDocumentableTransformer {
-    override fun invoke(modules: List<DModule>) = modules.map { it.mergeTypealiases() }
+class ActualTypealiasAdder : DocumentableTransformer {
 
-    private fun DModule.mergeTypealiases(): DModule = copy(packages = packages.map { pkg ->
-        if (pkg.typealiases.isEmpty()) {
-            pkg
-        } else {
-            val typealiases = pkg.typealiases.map { it.dri to it }.toMap()
-            pkg.copy(
-                classlikes = addActualTypeAliasToClasslikes(pkg.classlikes, typealiases)
-            )
-        }
-    })
+    override fun invoke(modules: DModule, context: DokkaContext) = modules.generateTypealiasesMap().let { aliases ->
+        modules.copy(packages = modules.packages.map { it.copy(classlikes = addActualTypeAliasToClasslikes(it.classlikes, aliases)) })
+    }
+
+    private fun DModule.generateTypealiasesMap(): Map<DRI, DTypeAlias> =
+        packages.flatMap { pkg ->
+            pkg.typealiases.map { typeAlias ->
+                typeAlias.dri to typeAlias
+            }
+        }.toMap()
+
 
     private fun addActualTypeAliasToClasslikes(
         elements: Iterable<DClasslike>,
@@ -56,7 +56,7 @@ class ActualTypealiasAdder(val context: DokkaContext) : PreMergeDocumentableTran
                 typealiases
             )
             else -> throw IllegalStateException("${it::class.qualifiedName} ${it.name} cannot have extra added")
-        } as List<DClasslike>
+        }
     }
 
     private fun <T> addActualTypeAlias(
@@ -70,7 +70,16 @@ class ActualTypealiasAdder(val context: DokkaContext) : PreMergeDocumentableTran
                         element.extra + ActualTypealias(
                             mapOf(ta.sourceSets.single() to ta.underlyingType.values.single())
                         )
-                    )
+                    ).let {
+                        when(it) {
+                            is DClass -> it.copy(sourceSets = element.sourceSets + ta.sourceSets)
+                            is DEnum ->  it.copy(sourceSets = element.sourceSets + ta.sourceSets)
+                            is DInterface -> it.copy(sourceSets = element.sourceSets + ta.sourceSets)
+                            is DObject -> it.copy(sourceSets = element.sourceSets + ta.sourceSets)
+                            is DAnnotation -> it.copy(sourceSets = element.sourceSets + ta.sourceSets)
+                            else -> throw IllegalStateException("${it::class.qualifiedName} ${it.name} cannot have copy its sourceSets")
+                        }
+                    } as T
                 } ?: element
             } else {
                 element

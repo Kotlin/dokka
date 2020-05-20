@@ -58,10 +58,6 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilter
     }
 
-    val actualTypealiasAdder by extending {
-        CoreExtensions.preMergeDocumentableTransformer providing ::ActualTypealiasAdder
-    }
-
     val modulesAndPackagesDocumentation by extending(isFallback = true) {
         CoreExtensions.preMergeDocumentableTransformer providing ::ModuleAndPackageDocumentationTransformer
     }
@@ -74,6 +70,10 @@ class DokkaBase : DokkaPlugin() {
 
     val inheritorsExtractor by extending {
         CoreExtensions.documentableTransformer with InheritorsExtractorTransformer()
+    }
+
+    val actualTypealiasAdder by extending {
+        CoreExtensions.documentableTransformer with ActualTypealiasAdder()
     }
 
     val documentableToPageTranslator by extending(isFallback = true) {
