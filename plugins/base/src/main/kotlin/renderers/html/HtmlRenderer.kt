@@ -52,6 +52,7 @@ open class HtmlRenderer(
         nodes: Map<SourceSetData, Collection<ContentNode>>,
         pageContext: ContentPage
     ) {
+        var mergedToOneSourceSet : SourceSetData? = null
         div("platform-hinted") {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             var counter = 0
@@ -94,11 +95,14 @@ open class HtmlRenderer(
                         }
                     }
                 }
+            } else if (nodes.size > 1) {
+                mergedToOneSourceSet = contents.first().first
             }
             contents.forEach {
                 consumer.onTagContentUnsafe { +it.second }
             }
         }
+        mergedToOneSourceSet?.let { createPlatformTagBubbles(listOf(it)) }
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
@@ -239,21 +243,27 @@ open class HtmlRenderer(
             }
     }
 
-    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
-        node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
-            div("platform-tags") {
-                node.sourceSets.filter { sourceSetRestriction == null || it in sourceSetRestriction }.forEach { data ->
-                    div("platform-tag") {
-                        when(data.platform.key){
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
-                        }
-                        text(data.sourceSetName)
+    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<SourceSetData>) {
+        div("platform-tags") {
+            sourceSets.forEach {
+                div("platform-tag") {
+                    when(it.platform.key){
+                        "common" -> classes = classes + "common-like"
+                        "native" -> classes = classes + "native-like"
+                        "jvm" -> classes = classes + "jvm-like"
+                        "js" -> classes = classes + "js-like"
                     }
+                    text(it.sourceSetName)
                 }
             }
+        }
+    }
+
+    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
+        node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
+            createPlatformTagBubbles( node.sourceSets.filter {
+                sourceSetRestriction == null || it in sourceSetRestriction
+            })
         }
     }
 
