@@ -1,12 +1,70 @@
+filteringContext = {
+    dependencies: {},
+    restrictedDependencies: [],
+    activeFilters: []
+}
 window.addEventListener('load', () => {
+    initializeFiltering()
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
     document.querySelectorAll("div[tabs-section]")
-    .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
+        .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
+    document.getElementById('filter-section').addEventListener('click', (event) => filterButtonHandler(event))
     document.querySelector(".tabs-section-body")
         .querySelector("div[data-togglable]")
         .setAttribute("data-active", "")
 })
+
+function filterButtonHandler(event) {
+        if(event.target.tagName == "BUTTON" && event.target.hasAttribute("data-filter")) {
+            let sourceset = event.target.getAttribute("data-filter")
+            if(filteringContext.activeFilters.indexOf(sourceset) != -1) {
+                filterSourceset(sourceset)
+            } else {
+                unfilterSourceset(sourceset)
+            }
+        }
+        refreshFilterButtons();
+        refreshPlatformTabs()
+}
+
+function initializeFiltering() {
+    filteringContext.dependencies = JSON.parse(sourceset_dependencies)
+    document.querySelectorAll("#filter-section > button")
+        .forEach(p => filteringContext.restrictedDependencies.push(p.getAttribute("data-filter")))
+    Object.keys(filteringContext.dependencies).forEach(p => {
+        filteringContext.dependencies[p] = filteringContext.dependencies[p]
+            .filter(q => -1 !== filteringContext.restrictedDependencies.indexOf(q))
+    })
+    filteringContext.activeFilters = filteringContext.restrictedDependencies
+}
+
+function refreshFilterButtons() {
+    document.querySelectorAll("#filter-section > button")
+        .forEach(f => {
+            if(filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1){
+                f.setAttribute("data-active","")
+            } else {
+                f.removeAttribute("data-active")
+            }
+        })
+}
+
+function filterSourceset(sourceset) {
+    filteringContext.activeFilters = filteringContext.activeFilters.filter(p => p != sourceset)
+    refreshFiltering()
+}
+
+function unfilterSourceset(sourceset) {
+    if(filteringContext.activeFilters.length == 0) {
+        filteringContext.activeFilters = filteringContext.dependencies[sourceset].concat([sourceset])
+        refreshFiltering()
+    } else {
+        filteringContext.activeFilters.push(sourceset)
+        refreshFiltering()
+    }
+}
+
 
 function toggleSections(evt){
     if(!evt.target.getAttribute("data-togglable")) return
@@ -49,4 +107,39 @@ function togglePlatformDependent(e, container) {
             child.removeAttribute('data-active')
         }
     }
+}
+
+function refreshFiltering() {
+    let sourcesetList = filteringContext.activeFilters
+    document.querySelectorAll("[data-filterable-set]")
+        .forEach(
+            elem => {
+                let platformList = elem.getAttribute("data-filterable-set").split(' ').filter(v => -1 !== sourcesetList.indexOf(v))
+                elem.setAttribute("data-filterable-current", platformList.join(' '))
+            }
+        )
+}
+
+function refreshPlatformTabs() {
+    document.querySelectorAll(".platform-hinted > .platform-bookmarks-row").forEach(
+        p => {
+            let active = false;
+            let firstAvailable = null
+            p.childNodes.forEach(
+                element => {
+                    if(element.getAttribute("data-filterable-current") != ''){
+                        if( firstAvailable == null) {
+                            firstAvailable = element
+                        }
+                        if(element.hasAttribute("data-active")) {
+                            active = true;
+                        }
+                    }
+                }
+            )
+            if( active == false && firstAvailable !== null ) {
+                firstAvailable.click()
+            }
+        }
+    )
 }

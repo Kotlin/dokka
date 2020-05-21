@@ -62,6 +62,11 @@
     padding: 24px 0
 }
 
+.cover {
+    display: flex;
+    flex-direction: column;
+}
+
 .tabbedcontent {
     padding: 24px 0;
 }
@@ -483,9 +488,11 @@ footer {
     display: flex;
     flex-direction: row;
     padding: 4px 8px;
-    height: 16px;
+    height: 24px;
     border-radius: 100px;
-
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    margin: 2px;
     font-family: Inter, Arial, sans-serif;
     font-size: 12px;
     font-weight: 400;
@@ -494,6 +501,7 @@ footer {
     line-height: normal;
     letter-spacing: normal;
     text-align: center;
+    outline: none;
 
     color: #fff
 
@@ -526,6 +534,27 @@ footer {
 .platform-tag.common-like {
     background-color: #A6AFBA;
     color: white;
+}
+
+.filter-section {
+    display: flex;
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+    min-height: 30px;
+}
+
+.platform-selector:hover {
+    border: 1px solid #A6AFBA !important;
+}
+
+[data-filterable-current=''] {
+    display: none !important;
+}
+.platform-selector:not([data-active]) {
+    border: 1px solid #DADFE6;
+    background-color: white;
+    color: #637282;
 }
 
 td.content {
