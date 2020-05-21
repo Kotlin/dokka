@@ -6,7 +6,6 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
-import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
@@ -15,7 +14,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
 class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
-    JvmSingatureUtils by KotlinSignatureUtils {
+    JvmSignatureUtils by KotlinSignatureUtils {
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Public, KotlinVisibility.Public)
@@ -69,7 +68,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 if (c is DClass) {
                     platformText(c.modifier, sourceSets) {
                         if (it !in ignoredModifiers)
-                            if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.DATA) == true) ""
+                            if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true) ""
                             else (if (it is JavaModifier.Empty) KotlinModifier.Open else it).let { it.name + " " }
                         else
                             ""

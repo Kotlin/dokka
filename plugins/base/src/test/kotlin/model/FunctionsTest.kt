@@ -1,5 +1,6 @@
 package model
 
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
@@ -145,7 +146,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     with(content.first()) {
                         dri.classNames equals "Suppress"
                         params.entries counts 1
-//                        params["names"].assertNotNull("names") equals "[\"FOO\"]"
+                        (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("\"FOO\""))
                     }
                 }
             }
@@ -161,7 +162,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "f").cast<DFunction>()) {
                 extra[AdditionalModifiers]?.content counts 1
-                extra[AdditionalModifiers]?.content exists ExtraModifiers.INLINE
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.KotlinOnlyModifiers.Inline
             }
         }
     }
@@ -175,7 +176,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "f").cast<DFunction>()) {
                 extra[AdditionalModifiers]?.content counts 1
-                extra[AdditionalModifiers]?.content exists ExtraModifiers.SUSPEND
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.KotlinOnlyModifiers.Suspend
             }
         }
     }
@@ -189,8 +190,8 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "f").cast<DFunction>()) {
                 extra[AdditionalModifiers]?.content counts 2
-                extra[AdditionalModifiers]?.content exists ExtraModifiers.SUSPEND
-                extra[AdditionalModifiers]?.content exists ExtraModifiers.INLINE
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.KotlinOnlyModifiers.Suspend
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.KotlinOnlyModifiers.Inline
             }
         }
     }
@@ -205,8 +206,8 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
             with((this / "function" / "f").cast<DFunction>()) {
                 with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
                     content counts 2
-                    content exists ExtraModifiers.SUSPEND
-                    content exists ExtraModifiers.INLINE
+                    content exists ExtraModifiers.KotlinOnlyModifiers.Suspend
+                    content exists ExtraModifiers.KotlinOnlyModifiers.Inline
                 }
             }
         }
@@ -229,10 +230,18 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     content counts 3
                     with(content.map { it.dri.classNames to it }.toMap()) {
                         with(this["Target"].assertNotNull("Target")) {
-//                            params["allowedTargets"].assertNotNull("allowedTargets") equals "[AnnotationTarget.VALUE_PARAMETER]"
+                            (params["allowedTargets"].assertNotNull("allowedTargets") as ArrayValue).value equals listOf(
+                                EnumValue(
+                                    "AnnotationTarget.VALUE_PARAMETER",
+                                    DRI("kotlin.annotation", "AnnotationTarget.VALUE_PARAMETER")
+                                )
+                            )
                         }
                         with(this["Retention"].assertNotNull("Retention")) {
-//                            params["value"].assertNotNull("value") equals "(kotlin/annotation/AnnotationRetention, SOURCE)"
+                            (params["value"].assertNotNull("value") as EnumValue) equals EnumValue(
+                                "AnnotationRetention.SOURCE",
+                                DRI("kotlin.annotation", "AnnotationRetention.SOURCE")
+                            )
                         }
                         this["MustBeDocumented"].assertNotNull("MustBeDocumented").params.entries counts 0
                     }
@@ -260,7 +269,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         ) {
             with((this / "function" / "f" / "notInlined").cast<DParameter>()) {
                 extra[AdditionalModifiers]?.content counts 1
-                extra[AdditionalModifiers]?.content exists ExtraModifiers.NOINLINE
+                extra[AdditionalModifiers]?.content exists ExtraModifiers.KotlinOnlyModifiers.NoInline
             }
         }
     }
@@ -291,10 +300,18 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     content counts 3
                     with(content.map { it.dri.classNames to it }.toMap()) {
                         with(this["Target"].assertNotNull("Target")) {
-//                            params["allowedTargets"].assertNotNull("allowedTargets") equals "[AnnotationTarget.VALUE_PARAMETER]"
+                            (params["allowedTargets"].assertNotNull("allowedTargets") as ArrayValue).value equals listOf(
+                                EnumValue(
+                                    "AnnotationTarget.VALUE_PARAMETER",
+                                    DRI("kotlin.annotation", "AnnotationTarget.VALUE_PARAMETER")
+                                )
+                            )
                         }
                         with(this["Retention"].assertNotNull("Retention")) {
-//                            params["value"].assertNotNull("value") equals "(kotlin/annotation/AnnotationRetention, SOURCE)"
+                            (params["value"].assertNotNull("value") as EnumValue) equals EnumValue(
+                                "AnnotationRetention.SOURCE",
+                                DRI("kotlin.annotation", "AnnotationRetention.SOURCE")
+                            )
                         }
                         this["MustBeDocumented"].assertNotNull("MustBeDocumented").params.entries counts 0
                     }
@@ -307,7 +324,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     with(content.first()) {
                         dri.classNames equals "Fancy"
                         params.entries counts 1
-//                        params["size"] equals "1"
+                        (params["size"] as StringValue).value equals "1"
                     }
                 }
             }
@@ -369,7 +386,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
                     with(content.first()) {
                         dri.classNames equals "SinceKotlin"
                         params.entries counts 1
-//                        params["version"].assertNotNull("version") equals "1.1"
+                        (params["version"].assertNotNull("version") as StringValue).value equals "\"1.1\""
                     }
                 }
             }

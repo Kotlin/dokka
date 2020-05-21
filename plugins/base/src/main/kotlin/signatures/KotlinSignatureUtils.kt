@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.base.signatures
 
-import javaslang.Tuple2
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.model.AdditionalModifiers
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.ExtraModifiers
-import org.jetbrains.dokka.model.ExtraModifiers.Companion.kotlinOnlyModifiers
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-object KotlinSignatureUtils : JvmSingatureUtils {
+object KotlinSignatureUtils : JvmSignatureUtils {
 
     private val strategy = OnlyOnce
-    private val listBrackets = Tuple2('[', ']')
+    private val listBrackets = Pair('[', ']')
     private val classExtension = "::class"
 
     override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Documentable) =
@@ -20,5 +19,5 @@ object KotlinSignatureUtils : JvmSingatureUtils {
         annotationsInlineWithIgnored(d, emptySet(), strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =
-        modifiersWithFilter(kotlinOnlyModifiers)
+        extra[AdditionalModifiers]?.content?.filterIsInstance<ExtraModifiers.KotlinOnlyModifiers>()?.toSet() ?: emptySet()
 }

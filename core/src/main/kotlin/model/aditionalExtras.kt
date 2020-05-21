@@ -39,11 +39,11 @@ class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
 }
 
 sealed class AnnotationParameterValue
-class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
-class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
-class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
-class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue() // TODO Investigate if KtClassValue can be parameter of annotation
-class StringValue(val value: String) : AnnotationParameterValue()
+data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
+data class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
+data class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
+data class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue()
+data class StringValue(val value: String) : AnnotationParameterValue()
 
 
 object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {

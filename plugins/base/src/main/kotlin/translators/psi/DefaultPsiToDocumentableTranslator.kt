@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.psi
 
+import com.intellij.icons.AllIcons.Nodes.Static
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.JvmModifier
 import com.intellij.lang.jvm.types.JvmReferenceType
@@ -275,18 +276,18 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         private fun PsiModifierListOwner.additionalExtras() = AdditionalModifiers(
             listOfNotNull(
-                ExtraModifiers.STATIC.takeIf { hasModifier(JvmModifier.STATIC) },
-                ExtraModifiers.NATIVE.takeIf { hasModifier(JvmModifier.NATIVE) },
-                ExtraModifiers.SYNCHRONIZED.takeIf { hasModifier(JvmModifier.SYNCHRONIZED) },
-                ExtraModifiers.STRICTFP.takeIf { hasModifier(JvmModifier.STRICTFP) },
-                ExtraModifiers.TRANSIENT.takeIf { hasModifier(JvmModifier.TRANSIENT) },
-                ExtraModifiers.VOLATILE.takeIf { hasModifier(JvmModifier.VOLATILE) },
-                ExtraModifiers.TRANSITIVE.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
+                ExtraModifiers.JavaOnlyModifiers.Static.takeIf { hasModifier(JvmModifier.STATIC) },
+                ExtraModifiers.JavaOnlyModifiers.Native.takeIf { hasModifier(JvmModifier.NATIVE) },
+                ExtraModifiers.JavaOnlyModifiers.Synchronized.takeIf { hasModifier(JvmModifier.SYNCHRONIZED) },
+                ExtraModifiers.JavaOnlyModifiers.StrictFP.takeIf { hasModifier(JvmModifier.STRICTFP) },
+                ExtraModifiers.JavaOnlyModifiers.Transient.takeIf { hasModifier(JvmModifier.TRANSIENT) },
+                ExtraModifiers.JavaOnlyModifiers.Volatile.takeIf { hasModifier(JvmModifier.VOLATILE) },
+                ExtraModifiers.JavaOnlyModifiers.Transitive.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
             ).toSet()
         )
 
         private fun AdditionalModifiers.toListOfAnnotations() = this.content.map {
-            if (it.name != "STATIC")
+            if (it !is ExtraModifiers.JavaOnlyModifiers.Static)
                 Annotations.Annotation(DRI("kotlin.jvm", it.name.toLowerCase().capitalize()), emptyMap())
             else
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())

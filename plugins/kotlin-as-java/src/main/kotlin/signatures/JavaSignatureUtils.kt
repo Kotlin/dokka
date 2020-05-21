@@ -1,14 +1,13 @@
 package org.jetbrains.dokka.kotlinAsJava.signatures
-import javaslang.Tuple2
+
 import org.jetbrains.dokka.base.signatures.All
-import org.jetbrains.dokka.base.signatures.JvmSingatureUtils
+import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.ExtraModifiers.Companion.javaOnlyModifiers
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-object JavaSignatureUtils : JvmSingatureUtils {
+object JavaSignatureUtils : JvmSignatureUtils {
 
     val ignoredAnnotations = setOf(
         Annotations.Annotation(DRI("kotlin.jvm", "Transient"), emptyMap()),
@@ -19,7 +18,7 @@ object JavaSignatureUtils : JvmSingatureUtils {
     )
 
     private val strategy = All
-    private val listBrackets = Tuple2('{', '}')
+    private val listBrackets = Pair('{', '}')
     private val classExtension = ".class"
 
     override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Documentable) =
@@ -29,6 +28,6 @@ object JavaSignatureUtils : JvmSingatureUtils {
         annotationsInlineWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =
-        modifiersWithFilter(javaOnlyModifiers)
+        extra[AdditionalModifiers]?.content?.filterIsInstance<ExtraModifiers.JavaOnlyModifiers>()?.toSet() ?: emptySet()
 
 }

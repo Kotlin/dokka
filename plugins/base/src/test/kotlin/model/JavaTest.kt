@@ -1,9 +1,9 @@
 package model
 
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
@@ -297,7 +297,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             with((this / "java" / "C" / "foo").cast<DFunction>()) {
                 with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
                     content counts 1
-                    content.first() equals ExtraModifiers.STATIC
+                    content.first() equals ExtraModifiers.JavaOnlyModifiers.Static
                 }
             }
         }
@@ -338,7 +338,11 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 with(extra[Annotations].assertNotNull("Annotations")) {
                     with(content.single()) {
                         dri.classNames equals "Target"
-//                        params["value"].assertNotNull("value") equals "{ElementType.FIELD, ElementType.TYPE, ElementType.METHOD}"
+                        (params["value"].assertNotNull("value") as ArrayValue).value equals listOf(
+                            EnumValue("ElementType.FIELD", DRI("java.lang.annotation", "ElementType")),
+                            EnumValue("ElementType.TYPE", DRI("java.lang.annotation", "ElementType")),
+                            EnumValue("ElementType.METHOD", DRI("java.lang.annotation", "ElementType"))
+                        )
                     }
                 }
             }

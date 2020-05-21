@@ -46,7 +46,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
-import java.lang.IllegalArgumentException
+import kotlin.IllegalArgumentException
 import kotlin.reflect.jvm.internal.impl.resolve.constants.KClassValue
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
@@ -546,9 +546,7 @@ private class DokkaDescriptorVisitor(
             is TypeParameterDescriptor -> OtherParameter(
                 declarationDRI = DRI.from(ctor.containingDeclaration),
                 name = ctor.name.asString()
-            ).let {
-                if (isMarkedNullable) Nullable(it) else it
-            }
+            )
             else -> TypeConstructor(
                 DRI.from(constructor.declarationDescriptor!!), // TODO: remove '!!'
                 arguments.map { it.toProjection() },
@@ -556,6 +554,8 @@ private class DokkaDescriptorVisitor(
                 else if (isFunctionType) FunctionModifiers.FUNCTION
                 else FunctionModifiers.NONE
             )
+        }.let {
+            if (isMarkedNullable) Nullable(it) else it
         }
     }
 
@@ -593,43 +593,43 @@ private class DokkaDescriptorVisitor(
         DescriptorDocumentableSource(this).toSourceSetDependent()
 
     private fun FunctionDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.INFIX.takeIf { isInfix },
-        ExtraModifiers.INLINE.takeIf { isInline },
-        ExtraModifiers.SUSPEND.takeIf { isSuspend },
-        ExtraModifiers.OPERATOR.takeIf { isOperator },
-        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-        ExtraModifiers.TAILREC.takeIf { isTailrec },
-        ExtraModifiers.EXTERNAL.takeIf { isExternal },
-        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+        ExtraModifiers.KotlinOnlyModifiers.Infix.takeIf { isInfix },
+        ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
+        ExtraModifiers.KotlinOnlyModifiers.Suspend.takeIf { isSuspend },
+        ExtraModifiers.KotlinOnlyModifiers.Operator.takeIf { isOperator },
+        ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+        ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { isTailrec },
+        ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
+        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { DescriptorUtils.isOverride(this) }
     ).toProperty()
 
     private fun ClassDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.INLINE.takeIf { isInline },
-        ExtraModifiers.EXTERNAL.takeIf { isExternal },
-        ExtraModifiers.INNER.takeIf { isInner },
-        ExtraModifiers.DATA.takeIf { isData }
+        ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
+        ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
+        ExtraModifiers.KotlinOnlyModifiers.Inner.takeIf { isInner },
+        ExtraModifiers.KotlinOnlyModifiers.Data.takeIf { isData }
     ).toProperty()
 
     private fun ValueParameterDescriptor.additionalExtras() =
         listOfNotNull(
-            ExtraModifiers.NOINLINE.takeIf { isNoinline },
-            ExtraModifiers.CROSSINLINE.takeIf { isCrossinline },
-            ExtraModifiers.CONST.takeIf { isConst },
-            ExtraModifiers.LATEINIT.takeIf { isLateInit },
-            ExtraModifiers.VARARG.takeIf { isVararg }
+            ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
+            ExtraModifiers.KotlinOnlyModifiers.CrossInline.takeIf { isCrossinline },
+            ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
+            ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { isLateInit },
+            ExtraModifiers.KotlinOnlyModifiers.VarArg.takeIf { isVararg }
         ).toProperty()
 
     private fun TypeParameterDescriptor.additionalExtras() =
         listOfNotNull(
-            ExtraModifiers.REIFIED.takeIf { isReified }
+            ExtraModifiers.KotlinOnlyModifiers.Reified.takeIf { isReified }
         ).toProperty()
 
     private fun PropertyDescriptor.additionalExtras() = listOfNotNull(
-        ExtraModifiers.CONST.takeIf { isConst },
-        ExtraModifiers.LATEINIT.takeIf { isLateInit },
-        ExtraModifiers.STATIC.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-        ExtraModifiers.EXTERNAL.takeIf { isExternal },
-        ExtraModifiers.OVERRIDE.takeIf { DescriptorUtils.isOverride(this) }
+        ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
+        ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { isLateInit },
+        ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+        ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
+        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { DescriptorUtils.isOverride(this) }
     )
 
     private fun List<ExtraModifiers>.toProperty() =
@@ -640,11 +640,12 @@ private class DokkaDescriptorVisitor(
     private fun Annotated.getListOfAnnotations() = annotations.map { it.toAnnotation() }
 
     private fun ConstantValue<*>.toValue(): AnnotationParameterValue = when (this) {
-        is ConstantsAnnotationValue -> AnnotationValue(value.let { it.toAnnotation() })
+        is ConstantsAnnotationValue -> AnnotationValue(value.toAnnotation())
         is ConstantsArrayValue -> ArrayValue(value.map { it.toValue() })
         is ConstantsEnumValue -> EnumValue(
-            enumEntryName.identifier,
-            enumClassId.let { DRI(it.packageFqName.asString(), it.relativeClassName.asString()) })
+            fullEnumEntryName(),
+            DRI(enumClassId.packageFqName.asString(), fullEnumEntryName())
+        )
         is ConstantsKtClassValue -> when(value) {
             is NormalClass -> (value as NormalClass).value.classId.let {
                 ClassValue(
@@ -672,7 +673,7 @@ private class DokkaDescriptorVisitor(
 
     private fun FieldDescriptor.getAnnotationsAsExtraModifiers() = getAnnotations().content.mapNotNull {
         try {
-            ExtraModifiers.valueOf(it.dri.classNames?.toUpperCase() ?: "")
+            ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
         } catch (e: IllegalArgumentException) {
             null
         }
@@ -690,4 +691,7 @@ private class DokkaDescriptorVisitor(
         Visibilities.PRIVATE -> KotlinVisibility.Private
         else -> KotlinVisibility.Public
     }
+
+    private fun ConstantsEnumValue.fullEnumEntryName() =
+        "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 }

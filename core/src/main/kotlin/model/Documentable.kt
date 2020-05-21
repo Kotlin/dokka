@@ -367,23 +367,6 @@ enum class FunctionModifiers {
     NONE, FUNCTION, EXTENSION
 }
 
-enum class ExtraModifiers {
-    STATIC, INLINE, INFIX, SUSPEND, REIFIED, CROSSINLINE, NOINLINE,
-    OVERRIDE, DATA, CONST, EXTERNAL, INNER, LATEINIT, OPERATOR, TAILREC, VARARG,
-    NATIVE, SYNCHRONIZED, STRICTFP, TRANSIENT, VOLATILE, TRANSITIVE;
-
-    companion object {
-        val kotlinOnlyModifiers = setOf(
-            INLINE, INFIX, EXTERNAL, SUSPEND, REIFIED, CROSSINLINE, NOINLINE, OVERRIDE, DATA, CONST, INNER, LATEINIT, OPERATOR,
-            TAILREC, VARARG
-        )
-
-        val javaOnlyModifiers = setOf(
-            STATIC, NATIVE, SYNCHRONIZED, STRICTFP, TRANSIENT, VOLATILE, TRANSITIVE
-        )
-    }
-}
-
 private fun String.shorten(maxLength: Int) = lineSequence().first().let {
     if (it.length != length || it.length > maxLength) it.take(maxLength - 3) + "..." else it
 }
