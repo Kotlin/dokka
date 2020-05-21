@@ -19,11 +19,11 @@ function useComponentVisible(initialIsVisible) {
     };
 
     useEffect(() => {
-        document.addEventListener("keydown", handleHideDropdown, true);
-        document.addEventListener("click", handleClickOutside, true);
+        document.addEventListener("keydown", handleHideDropdown, false);
+        document.addEventListener("click", handleClickOutside, false);
         return () => {
-            document.removeEventListener("keydown", handleHideDropdown, true);
-            document.removeEventListener("click", handleClickOutside, true);
+            document.removeEventListener("keydown", handleHideDropdown, false);
+            document.removeEventListener("click", handleClickOutside, false);
         };
     });
 
