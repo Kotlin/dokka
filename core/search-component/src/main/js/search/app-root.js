@@ -19,11 +19,11 @@ function useComponentVisible(initialIsVisible) {
     };
 
     useEffect(() => {
-        document.addEventListener("keydown", handleHideDropdown, true);
-        document.addEventListener("click", handleClickOutside, true);
+        document.addEventListener("dokka-keydown", handleHideDropdown, true);
+        document.addEventListener("dokka-click", handleClickOutside, true);
         return () => {
-            document.removeEventListener("keydown", handleHideDropdown, true);
-            document.removeEventListener("click", handleClickOutside, true);
+            document.removeEventListener("dokka-keydown", handleHideDropdown, true);
+            document.removeEventListener("dokka-click", handleClickOutside, true);
         };
     });
 
