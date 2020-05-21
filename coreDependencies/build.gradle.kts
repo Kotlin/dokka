@@ -31,6 +31,8 @@ dependencies {
         because("it's published only on bintray")
     }
     implementation("org.jetbrains.kotlin:ide-common-ij193:$kotlin_plugin_version")
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
 }
 
 tasks {
