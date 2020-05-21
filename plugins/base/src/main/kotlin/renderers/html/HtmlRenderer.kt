@@ -63,10 +63,32 @@ open class HtmlRenderer(
             }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
-            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { childrenCallback() }
+            node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
+                filterButtons(node)
+                childrenCallback()
+            }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
             else -> childrenCallback()
+        }
+    }
+
+    private fun FlowContent.filterButtons(group: ContentGroup) {
+        div(classes = "filter-section") {
+            id = "filter-section"
+            group.sourceSets.forEach {
+                button(classes = "platform-tag platform-selector") {
+                    attributes["data-active"] = ""
+                    attributes["data-filter"] = it.sourceSetName
+                    when(it.platform.key){
+                        "common" -> classes = classes + "common-like"
+                        "native" -> classes = classes + "native-like"
+                        "jvm" -> classes = classes + "jvm-like"
+                        "js" -> classes = classes + "js-like"
+                    }
+                    text(it.sourceSetName)
+                }
+            }
         }
     }
 
@@ -108,6 +130,8 @@ open class HtmlRenderer(
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
+                            attributes["data-filterable-current"] = pair.first.sourceSetName
+                            attributes["data-filterable-set"] = pair.first.sourceSetName
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetName
                             when(
@@ -160,8 +184,15 @@ open class HtmlRenderer(
 
             consumer.onTagContentUnsafe {
                 +createHTML().div("divergent-group"){
+                    attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
+                        it.sourceSetName
+                    }
+                    attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
+                        it.sourceSetName
+                    }
                     consumer.onTagContentUnsafe { +it.key.first }
                     div("main-subrow") {
+
                         if (node.implicitlySourceSetHinted) {
                             buildPlatformDependent(
                                 groupedDivergent.map { (sourceSet, elements) ->
@@ -242,6 +273,12 @@ open class HtmlRenderer(
             ?.let {
                 withAnchor(node.dci.dri.first().toString()) {
                     div(classes = "table-row") {
+                        attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
+                            it.sourceSetName
+                        }
+                        attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
+                            it.sourceSetName
+                        }
                         it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
                             div("main-subrow " + node.style.joinToString(" ")) {
                                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }

@@ -174,4 +174,10 @@ class DokkaBase : DokkaPlugin() {
             )
         } order { after(rootCreator) }
     }
+
+    val sourcesetDependencyAppender by extending {
+        htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator)}
+    }
+
+
 }

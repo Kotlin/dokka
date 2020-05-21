@@ -6,6 +6,7 @@ import kotlinx.html.table
 import kotlinx.html.tbody
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 
@@ -66,8 +67,33 @@ object StyleAndScriptsAppender : PageTransformer {
                 "styles/style.css",
                 "scripts/navigationLoader.js",
                 "scripts/platformContentHandler.js",
+                "scripts/sourceset_dependencies.js",
                 "styles/jetbrains-mono.css"
             )
+        )
+    }
+}
+
+class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer{
+    override fun invoke(input: RootPageNode): RootPageNode {
+        val dependenciesMap = context.configuration.passesConfigurations.map {
+            it.sourceSetName to it.dependentSourceSets
+        }.toMap()
+        fun createDependenciesJson() : String = "sourceset_dependencies = '{${
+            dependenciesMap.entries.joinToString(", ") {
+                "\"${it.key}\": [${it.value.joinToString(","){
+                    "\"$it\""
+                }}]" 
+            }
+        }}'"
+        val deps = RendererSpecificResourcePage(
+            name = "scripts/sourceset_dependencies.js",
+            children = emptyList(),
+            strategy = RenderingStrategy.Write(createDependenciesJson())
+        )
+
+        return input.modified(
+            children = input.children + deps
         )
     }
 }
