@@ -101,8 +101,7 @@ private class DokkaDescriptorVisitor(
         descriptor: PackageFragmentDescriptor,
         parent: DRIWithPlatformInfo
     ): DPackage {
-        val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?:
-            "[${sourceSet.sourceSetName} root]"// TODO: error-prone, find a better way to do it
+        val name = descriptor.fqName.asString().takeUnless { it.isBlank() } ?: fallbackPackageName()
         val driWithPlatform = DRI(packageName = name).withEmptyInfo()
         val scope = descriptor.getMemberScope()
 
@@ -544,7 +543,7 @@ private class DokkaDescriptorVisitor(
         is DynamicType -> Dynamic
         else -> when (val ctor = constructor.declarationDescriptor) {
             is TypeParameterDescriptor -> OtherParameter(
-                declarationDRI = DRI.from(ctor.containingDeclaration),
+                declarationDRI = DRI.from(ctor.containingDeclaration).withPackageFallbackTo(fallbackPackageName()),
                 name = ctor.name.asString()
             )
             else -> TypeConstructor(
@@ -694,4 +693,14 @@ private class DokkaDescriptorVisitor(
 
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
+
+    private fun fallbackPackageName(): String = "[${sourceSet.sourceSetName} root]"// TODO: error-prone, find a better way to do it
+}
+
+private fun DRI.withPackageFallbackTo(fallbackPackage: String): DRI {
+    return if(packageName.isNullOrBlank()){
+        copy(packageName = fallbackPackage)
+    } else {
+        this
+    }
 }

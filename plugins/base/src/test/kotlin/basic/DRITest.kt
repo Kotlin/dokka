@@ -4,6 +4,7 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DParameter
+import org.jetbrains.dokka.model.OtherParameter
 import org.jetbrains.dokka.pages.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
@@ -212,7 +213,7 @@ class DRITest : AbstractCoreTest() {
             |package example
             |
             |class Sample<S>(first: S){
-            |    fun <T> genericFun(param1: String): Triple<S,T> = TODO()
+            |    fun <T> genericFun(param1: String): Tuple<S,T> = TODO()
             |}
             |
             |
@@ -234,6 +235,43 @@ class DRITest : AbstractCoreTest() {
                 assertEquals( 1, functionDocumentable.generics.size)
                 assertEquals( "T", functionDocumentable.generics.first().name)
                 assertEquals( "example/Sample/genericFun/#kotlin.String/PointingToGenericParameters(0)/", functionDocumentable.generics.first().dri.toString())
+            }
+        }
+    }
+
+    @Test
+    fun driForFunctionNestedInsideInnerClass() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |package example
+            |
+            |class Sample<S>(first: S){
+            |    inner class SampleInner {
+            |       fun foo(): S = TODO()
+            |    }
+            |}
+            |
+            |
+        """.trimMargin(),
+            configuration
+        ) {
+            pagesGenerationStage = { module ->
+                val sampleClass = module.dfs { it.name == "Sample" } as ClasslikePageNode
+                val sampleInner = sampleClass.children.first { it.name == "SampleInner" } as ClasslikePageNode
+                val foo = sampleInner.children.first { it.name == "foo" } as MemberPageNode
+                val documentable = foo.documentable as DFunction
+
+                assertEquals(sampleClass.dri.first().toString(), (documentable.type as OtherParameter).declarationDRI.toString())
+                assertEquals(0, documentable.generics.size)
             }
         }
     }
