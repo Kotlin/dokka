@@ -113,20 +113,3 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
         extras: PropertyContainer<ContentNode>
     ): List<ContentNode> = emptyList()
 }
-
-internal object EmptyLocationProviderFactory: LocationProviderFactory {
-    override fun getLocationProvider(pageNode: RootPageNode) = object : LocationProvider {
-        override fun resolve(dri: DRI, sourceSets: List<SourceSetData>, context: PageNode?): String = ""
-
-        override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String = node.name
-
-        override fun resolveRoot(node: PageNode): String {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun ancestors(node: PageNode): List<PageNode> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-    }
-}

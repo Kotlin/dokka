@@ -11,7 +11,6 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 
@@ -179,6 +178,48 @@ class LinkableContentTest : AbstractCoreTest() {
                         text
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `Documenting return type for a function in inner class with generic parent`(){
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |class Sample<S>(first: S){
+            |    inner class SampleInner {
+            |       fun foo(): S = TODO()
+            |    }
+            |}
+            |
+        """.trimIndent(),
+            dokkaConfiguration {
+                passes {
+                    pass {
+                        sourceRoots = listOf("src/")
+                        analysisPlatform = "jvm"
+                        targets = listOf("jvm")
+                    }
+                }
+            }
+        ) {
+            renderingStage = { module, _ ->
+                val sample = module.children.single { it.name == "test" }
+                    .children.single { it.name == "Sample" }.cast<ClasslikePageNode>()
+                val foo = sample
+                    .children.single { it.name == "SampleInner" }.cast<ClasslikePageNode>()
+                    .children.single { it.name == "foo" }.cast<MemberPageNode>()
+
+                val returnTypeNode = foo.content.dfs {
+                    val link = it.safeAs<ContentDRILink>()?.children
+                    val child = link?.first().safeAs<ContentText>()
+                    child?.text == "S"
+                }?.safeAs<ContentDRILink>()
+
+                Assertions.assertEquals(sample.dri.first(), returnTypeNode?.address)
             }
         }
     }

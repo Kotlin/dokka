@@ -51,14 +51,14 @@ class LinkTest : AbstractCoreTest() {
         val configuration = dokkaConfiguration {
             passes {
                 pass {
-                    sourceRoots = listOf("src/main/kotlin/parser")
+                    sourceRoots = listOf("src/main/kotlin")
                 }
             }
         }
+        //This does not contain a package to check for situation when the package has to be artificially generated
         testInline(
             """
             |/src/main/kotlin/parser/Test.kt
-            |package parser
             |
             |class Outer<OUTER> {
             |   inner class Inner<INNER> {
@@ -73,7 +73,8 @@ class LinkTest : AbstractCoreTest() {
                 val innerClass = root.children.first { it is ClasslikePageNode }
                 val foo = innerClass.children.first { it.name == "foo" } as MemberPageNode
 
-                assertNotNull(foo.content.dfs { it is ContentDRILink && it.address.toString() == "parser/Outer///PointingToDeclaration/" } )
+                assertEquals(root.dri.first().toString(), "[main root]/Outer///PointingToDeclaration/")
+                assertNotNull(foo.content.dfs { it is ContentDRILink && it.address.toString() == root.dri.first().toString() } )
             }
         }
     }

@@ -101,7 +101,6 @@ class SourceSetDependentHintTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        println(renderedContent)
         renderedContent.match(Div(Div("ab")))
     }
 
