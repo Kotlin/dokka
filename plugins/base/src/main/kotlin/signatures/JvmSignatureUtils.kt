@@ -1,11 +1,10 @@
 package org.jetbrains.dokka.base.signatures
 
-import javaslang.Tuple2
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-interface JvmSingatureUtils {
+interface JvmSignatureUtils {
 
     fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Documentable)
 
@@ -20,7 +19,7 @@ interface JvmSingatureUtils {
         extra[Annotations]?.content ?: emptyList()
 
     private fun Annotations.Annotation.toSignatureString(): String =
-        "@${this.dri.classNames}(${this.params.entries.joinToString { it.key + "=" + it.value }})"
+        "@" + this.dri.classNames + "(" + this.params.entries.joinToString { it.key + "=" + it.value } + ")"
 
     private fun PageContentBuilder.DocumentableContentBuilder.annotations(
         d: Documentable,
@@ -45,15 +44,10 @@ interface JvmSingatureUtils {
         }
     } ?: Unit
 
-    fun <T : Documentable> WithExtraProperties<T>.modifiersWithFilter(
-        filter: Set<ExtraModifiers> = ExtraModifiers.values().toSet()
-    ): Set<ExtraModifiers> =
-        extra[AdditionalModifiers]?.content?.filter { it in filter }?.toSet() ?: emptySet()
-
     fun PageContentBuilder.DocumentableContentBuilder.toSignatureString(
         a: Annotations.Annotation,
         renderAtStrategy: AtStrategy,
-        listBrackets: Tuple2<Char, Char>,
+        listBrackets: Pair<Char, Char>,
         classExtension: String
     ) {
         when (renderAtStrategy) {
@@ -78,17 +72,17 @@ interface JvmSingatureUtils {
     private fun PageContentBuilder.DocumentableContentBuilder.valueToSignature(
         a: AnnotationParameterValue,
         renderAtStrategy: AtStrategy,
-        listBrackets: Tuple2<Char, Char>,
+        listBrackets: Pair<Char, Char>,
         classExtension: String
     ): Unit = when (a) {
         is AnnotationValue -> toSignatureString(a.annotation, renderAtStrategy, listBrackets, classExtension)
         is ArrayValue -> {
-            text(listBrackets._1.toString())
+            text(listBrackets.first.toString())
             a.value.forEachIndexed { i, it ->
                 valueToSignature(it, renderAtStrategy, listBrackets, classExtension)
                 if (i != a.value.size - 1) text(", ")
             }
-            text(listBrackets._2.toString())
+            text(listBrackets.second.toString())
         }
         is EnumValue -> link(a.enumName, a.enumDri)
         is ClassValue -> link(a.className + classExtension, a.classDRI)
@@ -99,7 +93,7 @@ interface JvmSingatureUtils {
         d: Documentable,
         ignored: Set<Annotations.Annotation>,
         renderAtStrategy: AtStrategy,
-        listBrackets: Tuple2<Char, Char>,
+        listBrackets: Pair<Char, Char>,
         classExtension: String
     ) {
         annotations(d, ignored) {
@@ -113,7 +107,7 @@ interface JvmSingatureUtils {
         d: Documentable,
         ignored: Set<Annotations.Annotation>,
         renderAtStrategy: AtStrategy,
-        listBrackets: Tuple2<Char, Char>,
+        listBrackets: Pair<Char, Char>,
         classExtension: String
     ) {
         annotations(d, ignored) {

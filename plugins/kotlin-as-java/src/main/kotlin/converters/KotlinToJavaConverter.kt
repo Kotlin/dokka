@@ -47,7 +47,7 @@ internal fun DPackage.asJava(): DPackage {
                 generics = emptyList(),
                 supertypes = emptyMap(),
                 documentation = emptyMap(),
-                modifier = sourceSets.map{ it to JavaModifier.Final}.toMap(),
+                modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
                 sourceSets = sourceSets,
                 extra = PropertyContainer.empty()
             )
@@ -68,15 +68,15 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
             dri.withClass(relocateToClass)
         },
         modifier = if (setter == null) {
-            sourceSets.map{it to JavaModifier.Final}.toMap()
+            sourceSets.map { it to JavaModifier.Final }.toMap()
         } else {
-            sourceSets.map{it to JavaModifier.Empty}.toMap()
+            sourceSets.map { it to JavaModifier.Empty }.toMap()
         },
         visibility = visibility.mapValues { JavaVisibility.Private },
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
-        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else extra
+        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else extra
     )
 
 internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
@@ -89,13 +89,13 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "get" + name.capitalize(),
             modifier = if (setter == null) {
-                sourceSets.map{it to JavaModifier.Final}.toMap()
+                sourceSets.map { it to JavaModifier.Final }.toMap()
             } else {
-                sourceSets.map{it to JavaModifier.Empty}.toMap()
+                sourceSets.map { it to JavaModifier.Empty }.toMap()
             },
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else getter!!.extra
+            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else getter!!.extra
         ),
         setter?.copy(
             dri = if (relocateToClass.isNullOrBlank()) {
@@ -105,13 +105,13 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             name = "set" + name.capitalize(),
             modifier = if (setter == null) {
-                sourceSets.map{it to JavaModifier.Final}.toMap()
+                sourceSets.map { it to JavaModifier.Final }.toMap()
             } else {
-                sourceSets.map{it to JavaModifier.Empty}.toMap()
+                sourceSets.map { it to JavaModifier.Empty }.toMap()
             },
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.STATIC))) else setter!!.extra
+            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else setter!!.extra
         )
     )
 
@@ -125,9 +125,9 @@ internal fun DFunction.asJava(containingClassName: String): DFunction {
 //        dri = dri.copy(callable = dri.callable?.asJava()),
         name = newName,
         type = type.asJava(),
-        modifier = if(modifier.all{(_,v)-> v is KotlinModifier.Final} && isConstructor)
-            sourceSets.map{it to JavaModifier.Empty}.toMap()
-        else sourceSets.map{it to modifier.values.first()}.toMap(),
+        modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor)
+            sourceSets.map { it to JavaModifier.Empty }.toMap()
+        else sourceSets.map { it to modifier.values.first() }.toMap(),
         parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
         receiver = null
     ) // TODO static if toplevel
@@ -151,8 +151,9 @@ internal fun DClass.asJava(): DClass = copy(
     classlikes = classlikes.map { it.asJava() },
     generics = generics.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.possiblyAsJava() } },
-    modifier = if (modifier.all{(_,v) -> v is KotlinModifier.Empty}) sourceSets.map{it to JavaModifier.Final}.toMap()
-    else sourceSets.map{it to modifier.values.first()}.toMap()
+    modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Empty }) sourceSets.map { it to JavaModifier.Final }
+        .toMap()
+    else sourceSets.map { it to modifier.values.first() }.toMap()
 )
 
 private fun DTypeParameter.asJava(): DTypeParameter = copy(
@@ -188,7 +189,7 @@ internal fun DObject.asJava(): DObject = copy(
     properties = properties.map { it.asJava() } +
             DProperty(
                 name = "INSTANCE",
-                modifier = sourceSets.map{it to JavaModifier.Final}.toMap(),
+                modifier = sourceSets.map { it to JavaModifier.Final }.toMap(),
                 dri = dri.copy(callable = Callable("INSTANCE", null, emptyList())),
                 documentation = emptyMap(),
                 sources = emptyMap(),
@@ -202,7 +203,7 @@ internal fun DObject.asJava(): DObject = copy(
                 receiver = null,
                 generics = emptyList(),
                 expectPresentInSet = expectPresentInSet,
-                extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.STATIC))
+                extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))
             ),
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }

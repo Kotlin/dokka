@@ -40,8 +40,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -78,7 +79,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -115,7 +118,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -152,8 +157,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -190,7 +196,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {
@@ -227,7 +235,9 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" }
                     .children.single { it.name == "function" } as ContentPage
                 page.content.assertNode {
-                    header(1) { +"function" }
+                    group {
+                        header(1) { +"function" }
+                    }
                     divergentGroup {
                         divergentInstance {
                             divergent {

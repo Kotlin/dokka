@@ -139,26 +139,28 @@ fun ContentMatcherBuilder<*>.propertySignature(
         header { +"Package test" }
     }
     group {
-        skipAllNotMatching()
-        header { +"Properties" }
-        table {
-            group {
-                link { +name }
-                platformHinted {
-                    group {
+        group {
+            skipAllNotMatching()
+            header { +"Properties" }
+            table {
+                group {
+                    link { +name }
+                    platformHinted {
                         group {
-                            annotations.entries.forEach {
-                                group {
-                                    unwrapAnnotation(it)
+                            group {
+                                annotations.entries.forEach {
+                                    group {
+                                        unwrapAnnotation(it)
+                                    }
                                 }
-                            }
-                            +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
-                            link { +name }
-                            if (type != null) {
-                                +(": ")
-                                group {
-                                    link {
-                                        +(type)
+                                +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
+                                link { +name }
+                                if (type != null) {
+                                    +(": ")
+                                    group {
+                                        link {
+                                            +(type)
+                                        }
                                     }
                                 }
                             }

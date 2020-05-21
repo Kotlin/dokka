@@ -152,7 +152,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 visibility.values allEquals KotlinVisibility.Public
                 with(extra[AdditionalModifiers].assertNotNull("Extras")) {
                     content counts 1
-                    content.first() equals ExtraModifiers.DATA
+                    content.first() equals ExtraModifiers.KotlinOnlyModifiers.Data
                 }
             }
         }
@@ -185,7 +185,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                     with(content.first()) {
                         dri.classNames equals "Deprecated"
                         params.entries counts 1
-//                        params["message"].assertNotNull("message") equals "should no longer be used"
+                        (params["message"].assertNotNull("message") as StringValue).value equals "\"should no longer be used\""
                     }
                 }
             }
@@ -275,7 +275,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 with((this / "D").cast<DClass>()) {
                     with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
                         content counts 1
-                        content.first() equals ExtraModifiers.INNER
+                        content.first() equals ExtraModifiers.KotlinOnlyModifiers.Inner
                     }
                 }
             }
@@ -426,9 +426,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Foo").cast<DClass>()) {
                 with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
                     dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
-//                    with(params["names"].assertNotNull("param")) {
-//                        this equals "[\"abc\"]"
-//                    }
+                    (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("\"abc\""))
                 }
             }
         }
