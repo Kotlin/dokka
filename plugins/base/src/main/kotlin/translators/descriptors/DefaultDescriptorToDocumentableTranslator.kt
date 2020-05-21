@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import java.nio.file.Paths
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -75,8 +76,11 @@ private class DokkaDescriptorVisitor(
     }
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
-            val path = it.toSourceElement.containingFile.toString()
-            path.isNotBlank() && sourceSet.sourceRoots.any { root -> path.startsWith(root.path) }
+            it.toSourceElement.containingFile.toString().let { path ->
+                path.isNotBlank() && sourceSet.sourceRoots.any { root ->
+                    Paths.get(path).startsWith(Paths.get(root.path))
+                }
+            }
     }
 
     private fun <T> T.toSourceSetDependent() = mapOf(sourceSet to this)
