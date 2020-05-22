@@ -67,8 +67,10 @@ open class DefaultPageCreator(
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
             header(1, m.name)
+            sourceSetDependentHint(m.dri, m.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint){
+                +contentForDescription(m)
+            }
         }
-        +contentForDescription(m)
         +contentForComments(m)
         block("Packages", 2, ContentKind.Packages, m.packages, m.sourceSets.toSet()) {
             link(it.name, it.dri)
@@ -80,7 +82,9 @@ open class DefaultPageCreator(
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(kind = ContentKind.Cover) {
             header(1, "Package ${p.name}")
-            +contentForDescription(p)
+            sourceSetDependentHint(p.dri, p.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint){
+                +contentForDescription(p)
+            }
         }
         group(styles = setOf(ContentStyle.TabbedContent)){
             +contentForComments(p)
@@ -207,7 +211,7 @@ open class DefaultPageCreator(
             doc.children.asSequence().map { pd to it }.toList()
         }.groupBy { it.second::class }
 
-        val platforms = d.sourceSets
+        val platforms = d.sourceSets.toSet()
 
         return contentBuilder.contentFor(d) {
             val description = tags.withTypeUnnamed<Description>()
