@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.nio.file.Paths
 
 class LinkableContentTest : AbstractCoreTest() {
 
@@ -29,20 +30,20 @@ class LinkableContentTest : AbstractCoreTest() {
                     analysisPlatform = "js"
                     targets = listOf("js")
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
-                        "$testDataDir/$it/kotlin"
+                        Paths.get("$testDataDir/$it/kotlin").toString()
                     }
                     sourceSetName = "js"
-                    includes = listOf("$includesDir/include2.md")
+                    includes = listOf(Paths.get("$includesDir/include2.md").toString())
                 }
                 pass {
                     moduleName = "example"
                     analysisPlatform = "jvm"
                     targets = listOf("jvm")
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
-                        "$testDataDir/$it/kotlin"
+                        Paths.get("$testDataDir/$it/kotlin").toString()
                     }
                     sourceSetName = "jvm"
-                    includes = listOf("$includesDir/include1.md")
+                    includes = listOf(Paths.get("$includesDir/include1.md").toString())
                 }
             }
         }
