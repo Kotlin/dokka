@@ -41,7 +41,7 @@ internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContex
                                         } // Matches space between Module/Package and fully qualified name
                                 }.groupBy({ it[0] }, {
                                     it[1].split(Regex("\n"), 2) // Matches new line after fully qualified name
-                                        .let { it[0] to it[1].trim() }
+                                        .let { it[0].trim() to it[1].trim() }
                                 }).mapValues {
                                     it.value.toMap()
                                 }
