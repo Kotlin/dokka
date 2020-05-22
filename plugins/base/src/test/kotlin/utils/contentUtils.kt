@@ -137,6 +137,7 @@ fun ContentMatcherBuilder<*>.propertySignature(
 ) {
     group {
         header { +"Package test" }
+        skipAllNotMatching()
     }
     group {
         group {
