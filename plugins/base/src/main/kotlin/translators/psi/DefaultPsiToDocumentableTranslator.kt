@@ -17,6 +17,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.descriptors.Visibilities
@@ -399,7 +400,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             )
         }
 
-        private fun Collection<PsiAnnotation>.toListOfAnnotations() = mapNotNull { it.toAnnotation() }
+        private fun Collection<PsiAnnotation>.toListOfAnnotations() = filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: StringValue("")
@@ -408,7 +409,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue = when(this) {
             is PsiAnnotation -> AnnotationValue(toAnnotation())
-            is PsiArrayInitializerMemberValue -> ArrayValue(this.initializers.map { it.toValue() })
+            is PsiArrayInitializerMemberValue -> ArrayValue(initializers.map { it.toValue() })
             is PsiReferenceExpression -> EnumValue(
                 text ?: "",
                 driOfReference()
@@ -422,11 +423,13 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         private fun PsiAnnotation.toAnnotation() = Annotations.Annotation(
             driOfReference(),
-            attributes.mapNotNull { it.attributeName to it.toValue() }.toMap()
+            attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }.toMap()
         )
 
-        private fun PsiElement.driOfReference() = DRI.from(getChildOfType<PsiJavaCodeReferenceElement>()?.resolve() ?:
-            throw IllegalStateException("$this cannot be resolved to symbol!")
-        )
+        private fun PsiElement.driOfReference() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()?.let {
+            DRI.from(it)
+        } ?: DRI("", getChildOfType<PsiJavaCodeReferenceElement>()?.qualifiedName ?: "").also {
+            logger.error("$this cannot be resolved to symbol!")
+        }
     }
 }
