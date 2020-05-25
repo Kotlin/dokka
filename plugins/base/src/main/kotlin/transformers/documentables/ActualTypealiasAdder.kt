@@ -66,11 +66,7 @@ class ActualTypealiasAdder : DocumentableTransformer {
         elements.map { element ->
             if (element.expectPresentInSet != null) {
                 typealiases[element.dri]?.let { ta ->
-                    element.withNewExtras(
-                        element.extra + ActualTypealias(
-                            mapOf(ta.sourceSets.single() to ta.underlyingType.values.single())
-                        )
-                    ).let {
+                    element.withNewExtras(element.extra + ActualTypealias(ta.underlyingType)).let {
                         when(it) {
                             is DClass -> it.copy(sourceSets = element.sourceSets + ta.sourceSets)
                             is DEnum ->  it.copy(sourceSets = element.sourceSets + ta.sourceSets)
