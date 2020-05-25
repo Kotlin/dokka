@@ -24,8 +24,9 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
-import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.calls.callUtil.getValueArgumentsInParentheses
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
@@ -41,9 +42,12 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
+import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.types.DynamicType
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
 import kotlin.IllegalArgumentException
@@ -212,7 +216,11 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             sourceSets = listOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras(),
+                descriptor.getAnnotations(),
+                ConstructorValues(descriptor.getAppliedConstructorParameters())
+            )
         )
     }
 
@@ -499,7 +507,6 @@ private class DokkaDescriptorVisitor(
         getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS, packageLevel)
             .filter { it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY }
             .map { visitClassDescriptor(it as ClassDescriptor, parent) }
-            .mapNotNull { it as? DClasslike }
 
     private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<DPackage> =
         getContributedDescriptors(DescriptorKindFilter.PACKAGES) { true }
@@ -680,6 +687,19 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
+
+    private fun ClassDescriptor.getAppliedConstructorParameters() =
+        (source as PsiSourceElement).psi?.children?.flatMap {
+            it.safeAs<KtInitializerList>()?.initializersAsText().orEmpty()
+        }.orEmpty()
+
+    private fun KtInitializerList.initializersAsText() =
+        initializers.firstIsInstanceOrNull<KtCallElement>()
+        ?.getValueArgumentsInParentheses()
+        ?.flatMap { it.childrenAsText() }
+        .orEmpty()
+
+    private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map {it.text }.orEmpty()
 
     private data class ClassInfo(val supertypes: List<DRI>, val docs: SourceSetDependent<DocumentationNode>)
 

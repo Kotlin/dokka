@@ -33,8 +33,16 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun signature(e: DEnumEntry) =
-        contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-            link(e.name, e.dri)
+        contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = e.sourceSets.toSet()) {
+            group(styles = setOf(TextStyle.Block)){
+                annotationsBlock(e)
+                link(e.name, e.dri, styles = emptySet())
+                e.extra[ConstructorValues]?.let {
+                    list(it.values, prefix = "(", suffix = ")"){
+                        text(it)
+                    }
+                }
+            }
         }
 
     private fun actualTypealiasedSignature(dri: DRI, name: String, aliasedTypes: SourceSetDependent<Bound>) =
@@ -87,7 +95,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         +buildSignature(it)
                     }
                 }
-                if (c is DClass) {
+                if (c is WithConstructors) {
                     val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
                     if (pConstructor?.annotations()?.isNotEmpty() == true) {
                         text(nbsp.toString())
