@@ -3,7 +3,6 @@ package org.jetbrains.dokka.model
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
-import org.jetbrains.kotlin.psi.KtClass
 
 class AdditionalModifiers(val content: Set<ExtraModifiers>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
