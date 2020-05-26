@@ -30,6 +30,7 @@ interface DokkaConfiguration {
     val generateIndexPages: Boolean
     val cacheRoot: String?
     val passesConfigurations: List<PassConfiguration>
+    val modules: List<DokkaModuleDescription>
     val impliedPlatforms: List<String>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
@@ -71,6 +72,12 @@ interface DokkaConfiguration {
         val path: String
         val url: String
         val lineSuffix: String?
+    }
+
+    interface DokkaModuleDescription {
+        val name: String
+        val path: String
+        val docFile: String
     }
 
     interface PackageOptions {

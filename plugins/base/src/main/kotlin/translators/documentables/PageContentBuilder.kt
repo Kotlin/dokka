@@ -100,7 +100,7 @@ open class PageContentBuilder(
                     kind,
                     styles,
                     extra + SimpleAttr("anchor", text.replace("\\s".toRegex(), "").toLowerCase())
-                ){
+                ) {
                     text(text)
                     block()
                 }
@@ -206,13 +206,22 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
         ) {
-            contents += ContentDRILink(
-                listOf(createText(text, kind, sourceSets, styles, extra)),
-                address,
-                DCI(mainDRI, kind),
-                sourceSets
-            )
+            contents += linkNode(text, address, kind, sourceSets, styles, extra)
         }
+
+        fun linkNode(
+            text: String,
+            address: DRI,
+            kind: Kind = ContentKind.Main,
+            sourceSets: Set<SourceSetData> = mainPlatformData,
+            styles: Set<Style> = mainStyles,
+            extra: PropertyContainer<ContentNode> = mainExtra
+        ) = ContentDRILink(
+            listOf(createText(text, kind, sourceSets, styles, extra)),
+            address,
+            DCI(mainDRI, kind),
+            sourceSets
+        )
 
         fun link(
             text: String,

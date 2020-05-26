@@ -150,7 +150,8 @@ abstract class AbstractCoreTest {
             impliedPlatforms = emptyList(),
             passesConfigurations = passesConfigurations,
             pluginsClasspath = pluginsClasspath,
-            pluginsConfiguration = pluginsConfigurations
+            pluginsConfiguration = pluginsConfigurations,
+            modules = emptyList()
         )
 
         fun passes(block: Passes.() -> Unit) {

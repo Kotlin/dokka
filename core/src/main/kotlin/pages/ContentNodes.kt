@@ -46,7 +46,6 @@ data class ContentHeader(
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
     constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.sourceSets, c.style, c.extra)
-
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 }
 
@@ -225,6 +224,8 @@ enum class ContentStyle : Style {
 }
 
 object CommentTable: Style
+
+object MultimoduleTable: Style
 
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
     this

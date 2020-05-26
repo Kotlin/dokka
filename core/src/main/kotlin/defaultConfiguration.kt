@@ -11,7 +11,8 @@ data class DokkaConfigurationImpl(
     override val impliedPlatforms: List<String>,
     override val passesConfigurations: List<PassConfigurationImpl>,
     override val pluginsClasspath: List<File>,
-    override val pluginsConfiguration: Map<String, String>
+    override val pluginsConfiguration: Map<String, String>,
+    override val modules: List<DokkaModuleDescriptionImpl>
 ) : DokkaConfiguration
 
 data class PassConfigurationImpl (
@@ -43,6 +44,11 @@ data class PassConfigurationImpl (
     override val sinceKotlin: String?
 ) : DokkaConfiguration.PassConfiguration
 
+data class DokkaModuleDescriptionImpl(
+    override val name: String,
+    override val path: String,
+    override val docFile: String
+): DokkaConfiguration.DokkaModuleDescription
 
 data class SourceRootImpl(
     override val path: String
