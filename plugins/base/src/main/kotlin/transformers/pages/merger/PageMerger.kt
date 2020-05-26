@@ -8,11 +8,11 @@ class PageMerger(private val strategies: Iterable<PageMergerStrategy>) : PageTra
     override fun invoke(input: RootPageNode): RootPageNode =
         input.modified(children = input.children.map { it.mergeChildren(emptyList()) })
 
-    private fun PageNode.mergeChildren(path: List<String>): PageNode = children.groupBy { it.name }
-        .map { (n, v) -> mergePageNodes(v, path + n) }
-        .let { pages ->
-            modified(children = pages.map { it.assertSingle(path) }.map { it.mergeChildren(path + it.name) })
-        }
+    private fun PageNode.mergeChildren(path: List<String>): PageNode = children.groupBy { it::class }.map {
+        it.value.groupBy { it.name }.map { (n, v) -> mergePageNodes(v, path + n) }.map { it.assertSingle(path) }
+    }.let { pages ->
+        modified(children = pages.flatten().map { it.mergeChildren(path + it.name) })
+    }
 
     private fun mergePageNodes(pages: List<PageNode>, path: List<String>): List<PageNode> =
         strategies.fold(pages) { acc, strategy -> tryMerge(strategy, acc, path) }
