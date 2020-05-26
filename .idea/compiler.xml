@@ -45,6 +45,8 @@
       <module name="dokka.integration.main" target="1.8" />
       <module name="dokka.integration.test" target="1.8" />
       <module name="dokka.plugins.base.main" target="1.8" />
+      <module name="dokka.plugins.base.search-component.main" target="1.8" />
+      <module name="dokka.plugins.base.search-component.test" target="1.8" />
       <module name="dokka.plugins.base.test" target="1.8" />
       <module name="dokka.plugins.gfm.main" target="1.8" />
       <module name="dokka.plugins.gfm.test" target="1.8" />

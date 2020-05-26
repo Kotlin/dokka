@@ -25,8 +25,8 @@ import java.net.MalformedURLException
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
 class MarkdownParser(
-    private val resolutionFacade: DokkaResolutionFacade,
-    private val declarationDescriptor: DeclarationDescriptor,
+    private val resolutionFacade: DokkaResolutionFacade? = null,
+    private val declarationDescriptor: DeclarationDescriptor? = null,
     private val logger: DokkaLogger
 ) : Parser() {
 
@@ -110,13 +110,15 @@ class MarkdownParser(
                         null
                     } catch (e: MalformedURLException) {
                         try {
-                            resolveKDocLink(
-                                resolutionFacade.resolveSession.bindingContext,
-                                resolutionFacade,
-                                declarationDescriptor,
-                                null,
-                                link.split('.')
-                            ).minBy { it is ClassDescriptor }?.let { DRI.from(it) }
+                            if (resolutionFacade != null && declarationDescriptor != null) {
+                                resolveKDocLink(
+                                    resolutionFacade.resolveSession.bindingContext,
+                                    resolutionFacade,
+                                    declarationDescriptor,
+                                    null,
+                                    link.split('.')
+                                ).minBy { it is ClassDescriptor }?.let { DRI.from(it) }
+                            } else null
                         } catch (e1: IllegalArgumentException) {
                             null
                         }
@@ -394,7 +396,7 @@ class MarkdownParser(
                             parseStringToDocNode("[${it.getSubjectName()}]")
                                 .let {
                                     val link = it.children[0]
-                                    if(link is DocumentationLink) link.dri
+                                    if (link is DocumentationLink) link.dri
                                     else null
                                 }
                         )

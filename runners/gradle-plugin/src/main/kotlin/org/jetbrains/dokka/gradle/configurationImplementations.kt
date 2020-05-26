@@ -120,6 +120,12 @@ class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink, Serializa
     override var packageListUrl: URL = URL("http://")
 }
 
+class GradleDokkaModuleDescription: DokkaModuleDescription {
+    override var name: String = ""
+    override var path: String = ""
+    override var docFile: String = ""
+}
+
 class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var outputDir: String = ""
     override var format: String = "html"
@@ -129,6 +135,7 @@ class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
     override var pluginsConfiguration: Map<String, String> = mutableMapOf()
+    override var modules: List<GradleDokkaModuleDescription> = emptyList()
 }
 
 class GradlePackageOptionsImpl: PackageOptions, Serializable {

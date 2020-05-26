@@ -163,6 +163,31 @@ fun PageNode.asSequence(): Sequence<PageNode> = sequence {
     children.asSequence().flatMap { it.asSequence() }.forEach { yield(it) }
 }
 
+class MultimoduleRootPageNode(
+    override val name: String,
+    override val dri: Set<DRI>,
+    override val content: ContentNode,
+    override val embeddedResources: List<String> = emptyList()
+) : RootPageNode(), ContentPage {
+
+    override val children: List<PageNode> = emptyList()
+
+    override val documentable: Documentable? = null
+
+    override fun modified(name: String, children: List<PageNode>): RootPageNode =
+        MultimoduleRootPageNode(name, dri, content, embeddedResources)
+
+    override fun modified(
+        name: String,
+        content: ContentNode,
+        dri: Set<DRI>,
+        embeddedResources: List<String>,
+        children: List<PageNode>
+    ) =
+    if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
+    else MultimoduleRootPageNode(name, dri, content, embeddedResources)
+}
+
 inline fun <reified T: PageNode> PageNode.children() = children.filterIsInstance<T>()
 
 private infix fun <T> List<T>.shallowEq(other: List<T>) =

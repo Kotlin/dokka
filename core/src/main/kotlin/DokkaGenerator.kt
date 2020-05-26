@@ -60,6 +60,22 @@ class DokkaGenerator(
         logger.report()
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
+    fun generateAllModulesPage() = timed {
+        val sourceSetsCache = SourceSetCache()
+        val sourceSets = emptyMap<SourceSetData, EnvironmentAndFacade>()
+        report("Initializing plugins")
+        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
+
+        report("Creating all modules page")
+        val pages = createAllModulePage(context)
+
+        report("Transforming pages")
+        val transformedPages = transformAllModulesPage(pages, context)
+
+        report("Rendering")
+        render(transformedPages, context)
+    }.dump("\n\n === TIME MEASUREMENT ===\n")
+
     fun setUpAnalysis(
         configuration: DokkaConfiguration,
         sourceSetsCache: SourceSetCache
@@ -101,10 +117,19 @@ class DokkaGenerator(
         context: DokkaContext
     ) = context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
 
+    fun createAllModulePage(
+        context: DokkaContext
+    ) = context.single(CoreExtensions.allModulePageCreator).invoke()
+
     fun transformPages(
         pages: RootPageNode,
         context: DokkaContext
     ) = context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc) }
+
+    fun transformAllModulesPage(
+        pages: RootPageNode,
+        context: DokkaContext
+    ) = context[CoreExtensions.allModulePageTransformer].fold(pages) { acc, t -> t(acc) }
 
     fun render(
         transformedPages: RootPageNode,

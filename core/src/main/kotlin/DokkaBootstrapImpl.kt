@@ -32,7 +32,7 @@ fun parsePerPackageOptions(arg: String): List<PackageOptions> {
 
 class DokkaBootstrapImpl : DokkaBootstrap {
 
-    private class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+    class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
         override var warningsCount: Int = 0
         override var errorsCount: Int = 0
 

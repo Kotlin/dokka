@@ -265,7 +265,8 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<SourceSetData>?,
+        style: Set<Style>
     ) {
         node.children
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
@@ -273,11 +274,13 @@ open class HtmlRenderer(
             ?.let {
                 withAnchor(node.dci.dri.first().toString()) {
                     div(classes = "table-row") {
-                        attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
-                            it.sourceSetName
-                        }
-                        attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
-                            it.sourceSetName
+                        if (!style.contains(MultimoduleTable)) {
+                            attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
+                                it.sourceSetName
+                            }
+                            attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
+                                it.sourceSetName
+                            }
                         }
                         it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
                             div("main-subrow " + node.style.joinToString(" ")) {
@@ -344,7 +347,7 @@ open class HtmlRenderer(
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 node.children.forEach {
-                    buildRow(it, pageContext, sourceSetRestriction)
+                    buildRow(it, pageContext, sourceSetRestriction, node.style)
                 }
             }
         }
