@@ -21,6 +21,7 @@ interface ContentPage: PageNode {
     val dri: Set<DRI>
     val documentable: Documentable?
     val embeddedResources: List<String>
+    val enforceDirectory: Boolean
 
     fun modified(
         name: String = this.name,
@@ -69,6 +70,7 @@ class ModulePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : RootPageNode(), ContentPage {
+    override val enforceDirectory: Boolean = false
     override val dri: Set<DRI> = setOf(DRI.topLevel)
 
     override fun modified(name: String, children: List<PageNode>): ModulePageNode =
@@ -94,6 +96,8 @@ class PackagePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
+    override val enforceDirectory: Boolean = false
+
     override fun modified(name: String, children: List<PageNode>): PackagePageNode =
         modified(name = name, content = this.content, children = children)
 
@@ -116,6 +120,8 @@ class ClasslikePageNode(
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
+    override val enforceDirectory: Boolean = true
+
     override fun modified(name: String, children: List<PageNode>): ClasslikePageNode =
         modified(name = name, content = this.content, children = children)
 
@@ -138,6 +144,8 @@ class MemberPageNode(
     override val children: List<PageNode> = emptyList(),
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
+    override val enforceDirectory: Boolean = false
+
     override fun modified(name: String, children: List<PageNode>): MemberPageNode =
         modified(name = name, content = this.content, children = children) as MemberPageNode
 

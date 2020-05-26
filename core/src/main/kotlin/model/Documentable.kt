@@ -335,7 +335,7 @@ data class DTypeAlias(
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: SourceSetData?,
     override val sourceSets: List<SourceSetData>,
-    override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty(),
 ) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias> {
     override val children: List<Nothing>
         get() = emptyList()

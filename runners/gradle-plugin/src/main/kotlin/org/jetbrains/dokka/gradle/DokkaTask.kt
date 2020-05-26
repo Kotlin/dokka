@@ -309,7 +309,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
     private fun dokkaPlatformFromString(platform: String) = when (platform.toLowerCase()) {
-        KotlinPlatformType.androidJvm.toString().toLowerCase(), "androidjvm", "android" -> Platform.jvm
+        "androidjvm", "android" -> Platform.jvm
         "metadata" -> Platform.common
         else -> Platform.fromString(platform)
     }

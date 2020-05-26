@@ -1,13 +1,14 @@
 package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.utilities.DokkaLogger
 
-object SameMethodNamePageMergerStrategy : PageMergerStrategy {
+class SameMethodNamePageMergerStrategy(val logger: DokkaLogger) : PageMergerStrategy {
     override fun tryMerge(pages: List<PageNode>, path: List<String>): List<PageNode> {
         val members = pages.filterIsInstance<MemberPageNode>().takeIf { it.isNotEmpty() } ?: return pages
         val name = pages.first().name.also {
             if (pages.any { page -> page.name != it }) { // Is this even possible?
-                println("Page names for $it do not match!") // TODO pass logger here somehow
+                logger.error("Page names for $it do not match!")
             }
         }
         val dri = members.flatMap { it.dri }.toSet()
