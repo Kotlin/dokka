@@ -99,7 +99,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sameMethodNameMerger by extending {
-        pageMergerStrategy with SameMethodNamePageMergerStrategy order {
+        pageMergerStrategy providing { ctx -> SameMethodNamePageMergerStrategy(ctx.logger) } order {
             before(fallbackMerger)
         }
     }

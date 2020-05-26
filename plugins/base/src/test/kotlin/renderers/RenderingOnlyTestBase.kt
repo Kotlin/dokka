@@ -55,6 +55,7 @@ class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Uni
     override val dri: Set<DRI> = setOf(DRI.topLevel)
     override val documentable: Documentable? = null
     override val embeddedResources: List<String> = emptyList()
+    override val enforceDirectory: Boolean = false
     override val name: String
         get() = "testPage"
     override val children: List<PageNode>
