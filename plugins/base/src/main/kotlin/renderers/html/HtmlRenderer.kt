@@ -302,10 +302,45 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<SourceSetData>?
     ) {
-        div(classes = "table") {
-            node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            node.children.forEach {
-                buildRow(it, pageContext, sourceSetRestriction)
+        when(node.dci.kind){
+            ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
+            else -> div(classes = "table") {
+                node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
+                node.children.forEach {
+                    buildRow(it, pageContext, sourceSetRestriction)
+                }
+            }
+        }
+
+    }
+
+    fun FlowContent.buildDefaultTable(
+        node: ContentTable,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<SourceSetData>?
+    ) {
+        table {
+            thead {
+                node.header.forEach {
+                    tr {
+                        it.children.forEach {
+                            th {
+                                it.build(this@table, pageContext, sourceSetRestriction)
+                            }
+                        }
+                    }
+                }
+            }
+            tbody {
+                node.children.forEach {
+                    tr {
+                        it.children.forEach {
+                            td {
+                                it.build(this, pageContext, sourceSetRestriction)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

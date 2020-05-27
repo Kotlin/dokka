@@ -326,14 +326,14 @@ h3, h4, h5, h6 {
 }
 
 a {
-    color: #258aaf;
+    color: #5B5DEF;
     font-weight: 400;
     text-decoration: none;
 }
 
 a:hover {
-    color: #282E34;
-    text-decoration: none;
+    color: #5B5DEF;
+    text-decoration: underline;
 }
 
 a small {
