@@ -104,9 +104,8 @@ class JavadocClasslikePageNode(
         JavadocClasslikePageNode(name, content as JavadocContentNode, dri, documentable, children, embeddedResources)
 }
 
-class AllClassesPage(val classes: List<JavadocClasslikePageNode>) :
-    JavadocPageNode {
-    val classEntries = classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.platforms()) }
+class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageNode {
+    val classEntries = classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.platforms().toSet()) }
 
     override val contentMap: Map<String, Any?> = mapOf(
         "title" to "All Classes",
@@ -122,7 +121,8 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) :
     override val content: ContentNode =
         EmptyNode(
             DRI.topLevel,
-            ContentKind.Classlikes
+            ContentKind.Classlikes,
+            classes.flatMap { it.platforms() }.toSet()
         )
 
     override fun modified(
@@ -141,7 +141,8 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) :
 }
 
 class TreeViewPage(
-    override val name: String, val packages: List<JavadocPackagePageNode>?,
+    override val name: String,
+    val packages: List<JavadocPackagePageNode>?,
     val classes: List<JavadocClasslikePageNode>?,
     override val dri: Set<DRI>,
     override val documentable: Documentable?,
@@ -208,7 +209,8 @@ class TreeViewPage(
 
     override val content: ContentNode = EmptyNode(
         DRI.topLevel,
-        ContentKind.Classlikes
+        ContentKind.Classlikes,
+        emptySet()
     )
 
     private fun generateInheritanceTree(): Pair<InheritanceNode, InheritanceNode> {
@@ -307,7 +309,7 @@ class TreeViewPage(
         (this as? WithExpectActual).descriptorForPlatform(platform)
 
     private fun WithExpectActual?.descriptorForPlatform(platform: Platform = Platform.jvm) = this?.let {
-        it.sources.map.entries.find { it.key.platformType == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
+        it.sources.entries.find { it.key.platform == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
     }
 
     data class InheritanceNode(

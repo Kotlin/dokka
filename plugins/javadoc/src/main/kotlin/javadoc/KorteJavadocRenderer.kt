@@ -92,7 +92,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
 
     fun Pair<String, String>.pairToTag() = "\n<td>${first}</td>\n<td>${second}</td>"
     fun LinkJavadocListEntry.toLinkTag(parent: String? = null) =
-        createLinkTag(locationProvider.resolve(dri.first(), platformData).let {
+        createLinkTag(locationProvider.resolve(dri.first(), sourceSets.toList()).let {
             if (parent != null) it.relativizePath(parent)
             else it
         }, name)
@@ -109,7 +109,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun String.toNormalized() = Paths.get(this).toNormalized()
     private fun String.relativizePath(parent: String) = Paths.get(parent).relativize(Paths.get(this)).toNormalized()
 
-    private fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, ".html")
+    private suspend fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, ".html")
     private fun CoroutineScope.writeFromTemplate(
         writer: OutputWriter,
         path: String,

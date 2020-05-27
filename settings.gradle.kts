@@ -35,3 +35,5 @@ pluginManagement {
 }
 include("plugins:base:search-component")
 findProject(":plugins:base:search-component")?.name = "search-component"
+
+//enableFeaturePreview("GRADLE_METADATA")

@@ -5,9 +5,9 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.PlatformData
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -23,7 +23,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
             .filterNotNull().take(1).firstOrNull()
     private val externalDocumentationLinks by lazy {
         context.configuration.passesConfigurations
-            .filter { passConfig -> passConfig.platformData.platformType == Platform.jvm }
+            .filter { passConfig -> passConfig.analysisPlatform == Platform.jvm }
             .flatMap { it.externalDocumentationLinks }
             .distinct()
     }
@@ -65,7 +65,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
 
     private operator fun IdentityHashMap<PageNode, List<String>>.get(dri: DRI) = this[nodeIndex[dri]]
 
-    override fun resolve(dri: DRI, platforms: List<PlatformData>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: List<SourceSetData>, context: PageNode?): String =
         context?.let { resolve(it, skipExtension = false) } ?: nodeIndex[dri]?.let {
             resolve(it, skipExtension = true)
         } ?: with(externalLocationProvider!!) {
