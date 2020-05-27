@@ -10,10 +10,23 @@ window.addEventListener('load', () => {
     document.querySelectorAll("div[tabs-section]")
         .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
     document.getElementById('filter-section').addEventListener('click', (event) => filterButtonHandler(event))
-    document.querySelector(".tabs-section-body")
-        .querySelector("div[data-togglable]")
-        .setAttribute("data-active", "")
+    initTabs()
 })
+
+function initTabs(){
+    document.querySelectorAll("div[tabs-section]")
+        .forEach(element => {
+            showCorrespondingTabBody(element)
+            element.addEventListener('click', (event) => toggleSections(event))
+        })
+}
+
+function showCorrespondingTabBody(element){
+    const key = element.querySelector("button[data-active]").getAttribute("data-togglable")
+    document.querySelector(".tabs-section-body")
+        .querySelector("div[data-togglable='" + key + "']")
+        .setAttribute("data-active", "")
+}
 
 function filterButtonHandler(event) {
         if(event.target.tagName == "BUTTON" && event.target.hasAttribute("data-filter")) {
