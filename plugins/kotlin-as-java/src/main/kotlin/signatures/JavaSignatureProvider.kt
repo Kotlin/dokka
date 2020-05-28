@@ -41,7 +41,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
             if (c is DClass) {
                 platformText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-                text(c.modifiers().toSignatureString())
+                platformText(c.modifiers()) { it.toSignatureString() }
             }
 
             when (c) {
@@ -71,7 +71,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             annotationsBlock(p)
             platformText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
             platformText(p.modifier) { it.name + " " }
-            text(p.modifiers().toSignatureString())
+            platformText(p.modifiers()) { it.toSignatureString() }
             signatureForProjection(p.type)
             text(nbsp.toString())
             link(p.name, p.dri)
@@ -82,7 +82,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         group(styles = setOf(TextStyle.Block)) {
             annotationsBlock(f)
             platformText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-            text(f.modifiers().toSignatureString())
+            platformText(f.modifiers()) { it.toSignatureString() }
             val returnType = f.type
             signatureForProjection(returnType)
             text(nbsp.toString())
@@ -92,7 +92,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             }
             list(f.parameters, "(", ")") {
                 annotationsInline(it)
-                text(it.modifiers().toSignatureString())
+                platformText(it.modifiers()) { it.toSignatureString() }
                 signatureForProjection(it.type)
                 text(nbsp.toString())
                 link(it.name!!, it.dri)

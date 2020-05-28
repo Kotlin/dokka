@@ -19,5 +19,7 @@ object KotlinSignatureUtils : JvmSignatureUtils {
         annotationsInlineWithIgnored(d, emptySet(), strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =
-        extra[AdditionalModifiers]?.content?.filterIsInstance<ExtraModifiers.KotlinOnlyModifiers>()?.toSet() ?: emptySet()
+        extra[AdditionalModifiers]?.content?.entries?.map {
+            it.key to it.value.filterIsInstance<ExtraModifiers.KotlinOnlyModifiers>().toSet()
+        }?.toMap() ?: emptyMap()
 }
