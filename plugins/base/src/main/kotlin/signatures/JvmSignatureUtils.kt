@@ -15,8 +15,8 @@ interface JvmSignatureUtils {
     fun Set<ExtraModifiers>.toSignatureString(): String =
         joinToString("") { it.name.toLowerCase() + " " }
 
-    fun <T : Documentable> WithExtraProperties<T>.annotations(): List<Annotations.Annotation> =
-        extra[Annotations]?.content ?: emptyList()
+    fun <T : Documentable> WithExtraProperties<T>.annotations(): SourceSetDependent<List<Annotations.Annotation>> =
+        extra[Annotations]?.content ?: emptyMap()
 
     private fun Annotations.Annotation.toSignatureString(): String =
         "@" + this.dri.classNames + "(" + this.params.entries.joinToString { it.key + "=" + it.value } + ")"
@@ -24,7 +24,7 @@ interface JvmSignatureUtils {
     private fun PageContentBuilder.DocumentableContentBuilder.annotations(
         d: Documentable,
         ignored: Set<Annotations.Annotation>,
-        operation: (Annotations.Annotation) -> Unit
+        operation: PageContentBuilder.DocumentableContentBuilder.(Annotations.Annotation) -> Unit
     ): Unit = when (d) {
         is DFunction -> d.annotations()
         is DProperty -> d.annotations()
@@ -39,8 +39,12 @@ interface JvmSignatureUtils {
         is DParameter -> d.annotations()
         else -> null
     }?.let {
-        it.filter { it !in ignored }.forEach {
-            operation(it)
+        it.entries.forEach {
+            group(sourceSets = setOf(it.key)) {
+                it.value.filter { it !in ignored }.forEach {
+                    operation(it)
+                }
+            }
         }
     } ?: Unit
 
@@ -50,6 +54,7 @@ interface JvmSignatureUtils {
         listBrackets: Pair<Char, Char>,
         classExtension: String
     ) {
+
         when (renderAtStrategy) {
             is All, is OnlyOnce -> text("@")
             is Never -> Unit

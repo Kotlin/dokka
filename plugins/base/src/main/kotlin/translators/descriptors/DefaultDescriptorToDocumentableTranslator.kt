@@ -13,7 +13,6 @@ import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
-import org.jetbrains.kotlin.asJava.classes.tryResolveMarkerInterfaceFQName
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
@@ -36,7 +35,6 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
-import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -47,7 +45,6 @@ import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
 import kotlin.IllegalArgumentException
-import kotlin.reflect.jvm.internal.impl.resolve.constants.KClassValue
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -88,11 +85,11 @@ private class DokkaDescriptorVisitor(
     }
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
-            it.toSourceElement.containingFile.toString().let { path ->
-                path.isNotBlank() && sourceSet.sourceRoots.any { root ->
-                    Paths.get(path).startsWith(Paths.get(root.path))
-                }
+        it.toSourceElement.containingFile.toString().let { path ->
+            path.isNotBlank() && sourceSet.sourceRoots.any { root ->
+                Paths.get(path).startsWith(Paths.get(root.path))
             }
+        }
     }
 
     private fun <T> T.toSourceSetDependent() = mapOf(sourceSet to this)
@@ -264,7 +261,7 @@ private class DokkaDescriptorVisitor(
             supertypes = info.supertypes.toSourceSetDependent(),
             generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             documentation = info.docs,
-            modifier =   descriptor.modifier().toSourceSetDependent(),
+            modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
@@ -297,7 +294,7 @@ private class DokkaDescriptorVisitor(
             sourceSets = listOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             extra = PropertyContainer.withAll(
-                (descriptor.additionalExtras() + (descriptor.backingField?.getAnnotationsAsExtraModifiers()
+                (descriptor.additionalExtras() + (descriptor.backingField?.getAnnotationsAsExtraModifiers()?.entries?.single()?.value
                     ?: emptyList())).toProperty(),
                 descriptor.getAllAnnotations()
             )
@@ -361,9 +358,11 @@ private class DokkaDescriptorVisitor(
             documentation = descriptor.resolveDescriptorData().let { sourceSetDependent ->
                 if (descriptor.isPrimary) {
                     sourceSetDependent.map { entry ->
-                        Pair(entry.key, entry.value.copy(children = (entry.value.children.find { it is Constructor }?.root?.let { constructor ->
-                            listOf( Description(constructor) )
-                        } ?: emptyList<TagWrapper>()) + entry.value.children.filterIsInstance<Param>()))
+                        Pair(
+                            entry.key,
+                            entry.value.copy(children = (entry.value.children.find { it is Constructor }?.root?.let { constructor ->
+                                listOf(Description(constructor))
+                            } ?: emptyList<TagWrapper>()) + entry.value.children.filterIsInstance<Param>()))
                     }.toMap()
                 } else {
                     sourceSetDependent
@@ -375,8 +374,9 @@ private class DokkaDescriptorVisitor(
             sourceSets = listOf(sourceSet),
             extra = PropertyContainer.withAll<DFunction>(descriptor.additionalExtras(), descriptor.getAnnotations())
                 .let {
-                    if(descriptor.isPrimary) { it + PrimaryConstructorExtra }
-                    else it
+                    if (descriptor.isPrimary) {
+                        it + PrimaryConstructorExtra
+                    } else it
                 }
         )
     }
@@ -634,18 +634,19 @@ private class DokkaDescriptorVisitor(
     private fun List<ExtraModifiers>.toProperty() =
         AdditionalModifiers(this.toSet())
 
-    private fun Annotated.getAnnotations() = getListOfAnnotations().let(::Annotations)
+    private fun Annotated.getAnnotations() = getListOfSourceSetDependentAnnotations().let(::Annotations)
 
-    private fun Annotated.getListOfAnnotations() = annotations.map { it.toAnnotation() }
+    private fun Annotated.getListOfSourceSetDependentAnnotations() =
+        mapOf(sourceSet to annotations.mapNotNull { it.toAnnotation() })
 
-    private fun ConstantValue<*>.toValue(): AnnotationParameterValue = when (this) {
-        is ConstantsAnnotationValue -> AnnotationValue(value.toAnnotation())
-        is ConstantsArrayValue -> ArrayValue(value.map { it.toValue() })
+    private fun ConstantValue<*>.toValue(): AnnotationParameterValue? = when (this) {
+        is ConstantsAnnotationValue -> value.toAnnotation()?.let { AnnotationValue(it) }
+        is ConstantsArrayValue -> ArrayValue(value.mapNotNull { it.toValue() })
         is ConstantsEnumValue -> EnumValue(
             fullEnumEntryName(),
             DRI(enumClassId.packageFqName.asString(), fullEnumEntryName())
         )
-        is ConstantsKtClassValue -> when(value) {
+        is ConstantsKtClassValue -> when (value) {
             is NormalClass -> (value as NormalClass).value.classId.let {
                 ClassValue(
                     it.relativeClassName.asString(),
@@ -662,19 +663,28 @@ private class DokkaDescriptorVisitor(
         else -> StringValue(toString())
     }
 
-    private fun AnnotationDescriptor.toAnnotation() = Annotations.Annotation(
-        DRI.from(annotationClass as DeclarationDescriptor),
-        allValueArguments.map { it.key.asString() to it.value.toValue() }.toMap()
-    )
+    private fun AnnotationDescriptor.toAnnotation(): Annotations.Annotation? =
+        DRI.from(annotationClass as DeclarationDescriptor)
+            .takeIf { it.classNames != "<ERROR CLASS>" }?.let {
+                Annotations.Annotation(
+                    it,
+                    allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
+                        it.second != null
+                    }.toMap() as Map<String, AnnotationParameterValue>
+                )
+            }
 
-    private fun PropertyDescriptor.getAllAnnotations() =
-        (getListOfAnnotations() + (backingField?.getListOfAnnotations() ?: emptyList())).let(::Annotations)
+    private fun PropertyDescriptor.getAllAnnotations(): Annotations =
+        (getListOfSourceSetDependentAnnotations() + (backingField?.getListOfSourceSetDependentAnnotations()
+            ?: emptyMap())).let(::Annotations)
 
-    private fun FieldDescriptor.getAnnotationsAsExtraModifiers() = getAnnotations().content.mapNotNull {
-        try {
-            ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
-        } catch (e: IllegalArgumentException) {
-            null
+    private fun FieldDescriptor.getAnnotationsAsExtraModifiers() = getAnnotations().content.mapValues {
+        it.value.mapNotNull {
+            try {
+                ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
+            } catch (e: IllegalArgumentException) {
+                null
+            }
         }
     }
 

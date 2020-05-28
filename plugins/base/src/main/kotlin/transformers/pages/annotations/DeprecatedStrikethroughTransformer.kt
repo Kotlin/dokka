@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.annotations
 
+import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
@@ -9,17 +10,22 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class DeprecatedStrikethroughTransformer(val context: DokkaContext) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.transformContentPagesTree { contentPage ->
-        if (contentPage.documentable?.isDeprecated() == true || contentPage.documentable?.hasDeprecatedChildren() == true) {
-            val deprecatedDRIs =
-                if (contentPage.documentable?.isDeprecated() == true) contentPage.dri else emptySet<DRI>() +
-                    contentPage.documentable?.children
-                        ?.filter { it.isDeprecated() }
-                        ?.map { it.dri }
-                        ?.toSet().orEmpty()
+        contentPage.platforms().fold(contentPage) { acc, sourceSetData ->
+            if (acc.documentable?.isDeprecated(sourceSetData) == true || acc.documentable?.hasDeprecatedChildren(
+                    sourceSetData
+                ) == true
+            ) {
+                val deprecatedDRIs =
+                    if (acc.documentable?.isDeprecated(sourceSetData) == true) contentPage.dri else emptySet<DRI>() +
+                            contentPage.documentable?.children
+                                ?.filter { it.isDeprecated(sourceSetData) }
+                                ?.map { it.dri }
+                                ?.toSet().orEmpty()
 
-            contentPage.modified(content = contentPage.content.addStrikethroughToSignature(deprecatedDRIs))
-        } else {
-            contentPage
+                acc.modified(content = acc.content.addStrikethroughToSignature(deprecatedDRIs))
+            } else {
+                acc
+            }
         }
     }
 
@@ -34,23 +40,24 @@ class DeprecatedStrikethroughTransformer(val context: DokkaContext) : PageTransf
         else -> this
     }
 
-    private fun Documentable.isDeprecated(): Boolean = when (this) {
-        is DClass -> this.isKotlinOrJavaDeprecated()
-        is DAnnotation -> this.isKotlinOrJavaDeprecated()
-        is DObject -> this.isKotlinOrJavaDeprecated()
-        is DInterface -> this.isKotlinOrJavaDeprecated()
-        is DEnum -> this.isKotlinOrJavaDeprecated()
-        is DFunction -> this.isKotlinOrJavaDeprecated()
-        is DProperty -> this.isKotlinOrJavaDeprecated()
-        is DEnumEntry -> this.isKotlinOrJavaDeprecated()
+    private fun Documentable.isDeprecated(sourceSetData: SourceSetData) = when (this) {
+        is DClass -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DAnnotation -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DObject -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DInterface -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DEnum -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DFunction -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DProperty -> this.isKotlinOrJavaDeprecated(sourceSetData)
+        is DEnumEntry -> this.isKotlinOrJavaDeprecated(sourceSetData)
 
         else -> false
     }
 
-    private fun Documentable.hasDeprecatedChildren() = children.any { it.isDeprecated() }
+    private fun Documentable.hasDeprecatedChildren(sourceSetData: SourceSetData) =
+        children.any { it.isDeprecated(sourceSetData) }
 
-    private fun <T : Documentable> WithExtraProperties<T>.isKotlinOrJavaDeprecated() =
-        extra[Annotations]?.content?.any {
+    private fun <T : Documentable> WithExtraProperties<T>.isKotlinOrJavaDeprecated(sourceSetData: SourceSetData) =
+        extra[Annotations]?.content?.get(sourceSetData)?.any {
             it.dri == DRI("kotlin", "Deprecated")
                     || it.dri == DRI("java.lang", "Deprecated")
         } == true
