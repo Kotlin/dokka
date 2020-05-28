@@ -1,5 +1,6 @@
 package model
 
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
 import org.junit.jupiter.api.Assertions.assertNull
@@ -150,9 +151,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Klass").cast<DClass>()) {
                 name equals "Klass"
                 visibility.values allEquals KotlinVisibility.Public
-                with(extra[AdditionalModifiers].assertNotNull("Extras")) {
-                    content counts 1
-                    content.first() equals ExtraModifiers.KotlinOnlyModifiers.Data
+                with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("Extras")) {
+                    this counts 1
+                    first() equals ExtraModifiers.KotlinOnlyModifiers.Data
                 }
             }
         }
@@ -180,9 +181,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 """
         ) {
             with((this / "classes" / "Foo").cast<DClass>()) {
-                with(extra[Annotations].assertNotNull("Annotations")) {
-                    this.content counts 1
-                    with(content.first()) {
+                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                    this counts 1
+                    with(first()) {
                         dri.classNames equals "Deprecated"
                         params.entries counts 1
                         (params["message"].assertNotNull("message") as StringValue).value equals "\"should no longer be used\""
@@ -273,9 +274,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "C").cast<DClass>()) {
 
                 with((this / "D").cast<DClass>()) {
-                    with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
-                        content counts 1
-                        content.first() equals ExtraModifiers.KotlinOnlyModifiers.Inner
+                    with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("AdditionalModifiers")) {
+                        this counts 1
+                        first() equals ExtraModifiers.KotlinOnlyModifiers.Inner
                     }
                 }
             }
@@ -359,9 +360,9 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 """
         ) {
             with((this / "classes" / "C").cast<DClass>()) {
-                with(extra[Annotations].assertNotNull("Annotations")) {
-                    this.content counts 1
-                    with(content.first()) {
+                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                    this counts 1
+                    with(first()) {
                         dri.classNames equals "SinceKotlin"
                         params.entries counts 1
                         (params["version"].assertNotNull("version") as StringValue).value equals "\"1.1\""
@@ -424,7 +425,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """@Suppress("abc") class Foo() {}"""
         ) {
             with((this / "classes" / "Foo").cast<DClass>()) {
-                with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
+                with(extra[Annotations]!!.content.entries.single().value.firstOrNull().assertNotNull("annotations")) {
                     dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
                     (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("\"abc\""))
                 }
@@ -444,11 +445,14 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """
         ) {
             with((this / "classes" / "throws").cast<DAnnotation>()) {
-                with(extra[Annotations].assertNotNull("Annotations")) {
-                    content counts 1
-                    with(content.first()) {
+                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                    this counts 1
+                    with(first()) {
                         dri.classNames equals "Retention"
-//                        params["value"].assertNotNull("value") equals "(java/lang/annotation/RetentionPolicy, SOURCE)"
+                        params["value"].assertNotNull("value") equals EnumValue(
+                            "RetentionPolicy.SOURCE",
+                            DRI("java.lang.annotation", "RetentionPolicy.SOURCE")
+                        )
                     }
                 }
             }

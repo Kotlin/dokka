@@ -28,6 +28,8 @@ object JavaSignatureUtils : JvmSignatureUtils {
         annotationsInlineWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
 
     override fun <T : Documentable> WithExtraProperties<T>.modifiers() =
-        extra[AdditionalModifiers]?.content?.filterIsInstance<ExtraModifiers.JavaOnlyModifiers>()?.toSet() ?: emptySet()
+        extra[AdditionalModifiers]?.content?.entries?.map {
+            it.key to it.value.filterIsInstance<ExtraModifiers.JavaOnlyModifiers>().toSet()
+        }?.toMap() ?: emptyMap()
 
 }
