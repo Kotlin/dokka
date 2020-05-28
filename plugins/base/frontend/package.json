@@ -7,12 +7,9 @@
     "dist": "./dist"
   },
   "scripts": {
-    "create-component": "yo @jetbrains/ring-ui:react --path $npm_package_config_components",
     "build": "webpack --mode=production --devtool sourcemap",
-    "test": "karma start",
     "lint": "eslint . && npm run stylelint",
-    "stylelint": "stylelint --ignore-path .gitignore **/*.css",
-    "ci-test": "npm run lint && xvfb-maybe karma start --teamcity",
+    "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/*.scss",
     "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010"
   },
   "babel": {

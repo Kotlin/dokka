@@ -2,7 +2,7 @@ plugins {
     id("com.moowork.node") version "1.3.1"
 }
 
-task("generateSearchFiles") {
+task("generateFrontendFiles") {
     dependsOn("npm_install", "npm_run_build")
 }
 
