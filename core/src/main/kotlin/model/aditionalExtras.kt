@@ -19,10 +19,10 @@ class AdditionalModifiers(val content: Set<ExtraModifiers>) : ExtraProperty<Docu
     override val key: ExtraProperty.Key<Documentable, *> = AdditionalModifiers
 }
 
-class Annotations(val content: List<Annotation>) : ExtraProperty<Documentable> {
+class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, Annotations> {
         override fun mergeStrategyFor(left: Annotations, right: Annotations): MergeStrategy<Documentable> =
-            MergeStrategy.Replace(Annotations((left.content + right.content).distinct()))
+            MergeStrategy.Replace(Annotations(left.content + right.content))
     }
 
     override val key: ExtraProperty.Key<Documentable, *> = Annotations

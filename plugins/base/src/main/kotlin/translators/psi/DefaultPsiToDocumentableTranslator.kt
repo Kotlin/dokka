@@ -35,7 +35,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
     override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
 
-        fun isFileInSourceRoots(file: File) : Boolean {
+        fun isFileInSourceRoots(file: File): Boolean {
             return sourceSetData.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
         }
 
@@ -168,7 +168,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         listOf(sourceSetData),
-                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toListOfAnnotations()
+                            .let(::Annotations)
                     )
                 isEnum -> DEnum(
                     dri,
@@ -183,7 +184,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             listOf(sourceSetData),
-                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toListOfAnnotations().let(::Annotations)
+                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toListOfAnnotations()
+                                .let(::Annotations)
                         )
                     },
                     documentation,
@@ -213,7 +215,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DInterface>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.empty<DInterface>() + annotations.toList().toListOfAnnotations()
+                        .let(::Annotations)
                 )
                 else -> DClass(
                     dri,
@@ -287,12 +290,12 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             ).toSet()
         )
 
-        private fun AdditionalModifiers.toListOfAnnotations() = this.content.map {
+        private fun AdditionalModifiers.toListOfAnnotations() = mapOf(sourceSetData to this.content.map {
             if (it !is ExtraModifiers.JavaOnlyModifiers.Static)
                 Annotations.Annotation(DRI("kotlin.jvm", it.name.toLowerCase().capitalize()), emptyMap())
             else
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
-        }
+        })
 
         private fun getBound(type: PsiType): Bound =
             cachedBounds.getOrPut(type.canonicalText) {
@@ -400,14 +403,15 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             )
         }
 
-        private fun Collection<PsiAnnotation>.toListOfAnnotations() = filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
+        private fun Collection<PsiAnnotation>.toListOfAnnotations() =
+            mapOf(sourceSetData to filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() })
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: StringValue("")
             else -> StringValue(this.attributeName)
         }
 
-        private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue = when(this) {
+        private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue = when (this) {
             is PsiAnnotation -> AnnotationValue(toAnnotation())
             is PsiArrayInitializerMemberValue -> ArrayValue(initializers.map { it.toValue() })
             is PsiReferenceExpression -> EnumValue(
@@ -423,7 +427,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         private fun PsiAnnotation.toAnnotation() = Annotations.Annotation(
             driOfReference(),
-            attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }.toMap()
+            attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
+                .toMap()
         )
 
         private fun PsiElement.driOfReference() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()?.let {
