@@ -76,7 +76,13 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
-        extra = if (isTopLevel) extra.plus(extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else extra
+        extra = if (isTopLevel) extra +
+                extra.mergeAdditionalModifiers(
+                    sourceSets.map {
+                        it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                    }.toMap()
+                )
+        else extra
     )
 
 internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
@@ -95,7 +101,13 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) getter!!.extra.plus(getter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else getter!!.extra
+            extra = if (isTopLevel) getter!!.extra +
+                    getter!!.extra.mergeAdditionalModifiers(
+                        sourceSets.map {
+                            it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                        }.toMap()
+                    )
+            else getter!!.extra
         ),
         setter?.copy(
             dri = if (relocateToClass.isNullOrBlank()) {
@@ -111,7 +123,12 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
             },
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
-            extra = if (isTopLevel) setter!!.extra.plus(setter!!.extra.mergeAdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))) else setter!!.extra
+            extra = if (isTopLevel) setter!!.extra + setter!!.extra.mergeAdditionalModifiers(
+                sourceSets.map {
+                    it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                }.toMap()
+            )
+            else setter!!.extra
         )
     )
 
@@ -203,7 +220,9 @@ internal fun DObject.asJava(): DObject = copy(
                 receiver = null,
                 generics = emptyList(),
                 expectPresentInSet = expectPresentInSet,
-                extra = PropertyContainer.empty<DProperty>() + AdditionalModifiers(setOf(ExtraModifiers.JavaOnlyModifiers.Static))
+                extra = PropertyContainer.withAll(sourceSets.map {
+                    mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
+                })
             ),
     classlikes = classlikes.map { it.asJava() },
     supertypes = supertypes.mapValues { it.value.map { it.possiblyAsJava() } }
@@ -248,7 +267,7 @@ internal fun ClassId.toDRI(dri: DRI?): DRI = DRI(
     target = PointingToDeclaration
 )
 
-private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: Set<ExtraModifiers>) =
+private fun PropertyContainer<out Documentable>.mergeAdditionalModifiers(second: SourceSetDependent<Set<ExtraModifiers>>) =
     this[AdditionalModifiers]?.squash(AdditionalModifiers(second)) ?: AdditionalModifiers(second)
 
 private fun AdditionalModifiers.squash(second: AdditionalModifiers) =

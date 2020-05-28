@@ -149,6 +149,4 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
             }
         }
     }
-
-
 }

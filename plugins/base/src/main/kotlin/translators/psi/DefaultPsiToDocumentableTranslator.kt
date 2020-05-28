@@ -116,8 +116,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             return false
         }
 
-        private fun <T> T.toPlatformDependant() =
-            mapOf(sourceSetData to this)
+        private fun <T> T.toSourceSetDependent() = mapOf(sourceSetData to this)
 
         fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
@@ -144,14 +143,14 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             }
             parseSupertypes(superTypes)
             val (regularFunctions, accessors) = splitFunctionsAndAccessors()
-            val documentation = javadocParser.parseDocumentation(this).toPlatformDependant()
+            val documentation = javadocParser.parseDocumentation(this).toSourceSetDependent()
             val allFunctions = regularFunctions.mapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
                     superMethods.map { parseFunction(it, isInherited = true) }
-            val source = PsiDocumentableSource(this).toPlatformDependant()
+            val source = PsiDocumentableSource(this).toSourceSetDependent()
             val classlikes = innerClasses.map { parseClasslike(it, dri) }
-            val visibility = getVisibility().toPlatformDependant()
-            val ancestors = ancestorsSet.toList().toPlatformDependant()
-            val modifiers = getModifier().toPlatformDependant()
+            val visibility = getVisibility().toSourceSetDependent()
+            val ancestors = ancestorsSet.toList().toSourceSetDependent()
+            val modifiers = getModifier().toSourceSetDependent()
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -168,8 +167,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         listOf(sourceSetData),
-                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toListOfAnnotations()
-                            .let(::Annotations)
+                        PropertyContainer.empty<DAnnotation>() + annotations.toList().getAnnotations()
+                            .toSourceSetDependent().toAnnotations()
                     )
                 isEnum -> DEnum(
                     dri,
@@ -178,14 +177,14 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         DEnumEntry(
                             dri.withClass("$name.${entry.name}"),
                             entry.name.orEmpty(),
-                            javadocParser.parseDocumentation(entry).toPlatformDependant(),
+                            javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                             null,
                             emptyList(),
                             emptyList(),
                             emptyList(),
                             listOf(sourceSetData),
-                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toListOfAnnotations()
-                                .let(::Annotations)
+                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().getAnnotations()
+                                .toSourceSetDependent().toAnnotations()
                         )
                     },
                     documentation,
@@ -199,7 +198,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     constructors.map { parseFunction(it, true) },
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DEnum>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.empty<DEnum>() + annotations.toList().getAnnotations().toSourceSetDependent()
+                        .toAnnotations()
                 )
                 isInterface -> DInterface(
                     dri,
@@ -215,8 +215,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DInterface>() + annotations.toList().toListOfAnnotations()
-                        .let(::Annotations)
+                    PropertyContainer.empty<DInterface>() + annotations.toList().getAnnotations().toSourceSetDependent()
+                        .toAnnotations()
                 )
                 else -> DClass(
                     dri,
@@ -234,7 +234,8 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     modifiers,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DClass>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.empty<DClass>() + annotations.toList().getAnnotations().toSourceSetDependent()
+                        .toAnnotations()
                 )
             }
         }
@@ -253,49 +254,49 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     DParameter(
                         dri.copy(target = dri.target.nextTarget()),
                         psiParameter.name,
-                        javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
+                        javadocParser.parseDocumentation(psiParameter).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),
                         listOf(sourceSetData)
                     )
                 },
-                javadocParser.parseDocumentation(psi).toPlatformDependant(),
+                javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 null,
-                PsiDocumentableSource(psi).toPlatformDependant(),
-                psi.getVisibility().toPlatformDependant(),
+                PsiDocumentableSource(psi).toSourceSetDependent(),
+                psi.getVisibility().toSourceSetDependent(),
                 psi.returnType?.let { getBound(type = it) } ?: Void,
                 psi.mapTypeParameters(dri),
                 null,
-                psi.getModifier().toPlatformDependant(),
+                psi.getModifier().toSourceSetDependent(),
                 listOf(sourceSetData),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
                         InheritedFunction(isInherited),
-                        it,
-                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).let(::Annotations)
+                        it.toSourceSetDependent().toAdditionalModifiers(),
+                        (psi.annotations.toList().getAnnotations() + it.getAnnotations()).toSourceSetDependent()
+                            .toAnnotations()
                     )
                 }
             )
         }
 
-        private fun PsiModifierListOwner.additionalExtras() = AdditionalModifiers(
-            listOfNotNull(
-                ExtraModifiers.JavaOnlyModifiers.Static.takeIf { hasModifier(JvmModifier.STATIC) },
-                ExtraModifiers.JavaOnlyModifiers.Native.takeIf { hasModifier(JvmModifier.NATIVE) },
-                ExtraModifiers.JavaOnlyModifiers.Synchronized.takeIf { hasModifier(JvmModifier.SYNCHRONIZED) },
-                ExtraModifiers.JavaOnlyModifiers.StrictFP.takeIf { hasModifier(JvmModifier.STRICTFP) },
-                ExtraModifiers.JavaOnlyModifiers.Transient.takeIf { hasModifier(JvmModifier.TRANSIENT) },
-                ExtraModifiers.JavaOnlyModifiers.Volatile.takeIf { hasModifier(JvmModifier.VOLATILE) },
-                ExtraModifiers.JavaOnlyModifiers.Transitive.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
-            ).toSet()
-        )
+        private fun PsiModifierListOwner.additionalExtras() = listOfNotNull(
+            ExtraModifiers.JavaOnlyModifiers.Static.takeIf { hasModifier(JvmModifier.STATIC) },
+            ExtraModifiers.JavaOnlyModifiers.Native.takeIf { hasModifier(JvmModifier.NATIVE) },
+            ExtraModifiers.JavaOnlyModifiers.Synchronized.takeIf { hasModifier(JvmModifier.SYNCHRONIZED) },
+            ExtraModifiers.JavaOnlyModifiers.StrictFP.takeIf { hasModifier(JvmModifier.STRICTFP) },
+            ExtraModifiers.JavaOnlyModifiers.Transient.takeIf { hasModifier(JvmModifier.TRANSIENT) },
+            ExtraModifiers.JavaOnlyModifiers.Volatile.takeIf { hasModifier(JvmModifier.VOLATILE) },
+            ExtraModifiers.JavaOnlyModifiers.Transitive.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
+        ).toSet()
 
-        private fun AdditionalModifiers.toListOfAnnotations() = mapOf(sourceSetData to this.content.map {
+
+        private fun Set<ExtraModifiers>.getAnnotations() = map {
             if (it !is ExtraModifiers.JavaOnlyModifiers.Static)
                 Annotations.Annotation(DRI("kotlin.jvm", it.name.toLowerCase().capitalize()), emptyMap())
             else
                 Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
-        })
+        }
 
         private fun getBound(type: PsiType): Bound =
             cachedBounds.getOrPut(type.canonicalText) {
@@ -346,7 +347,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 DTypeParameter(
                     dri.copy(target = dri.target.nextTarget()),
                     type.name.orEmpty(),
-                    javadocParser.parseDocumentation(type).toPlatformDependant(),
+                    javadocParser.parseDocumentation(type).toSourceSetDependent(),
                     null,
                     mapBounds(type.bounds),
                     listOf(sourceSetData)
@@ -383,41 +384,39 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             return DProperty(
                 dri,
                 psi.name!!, // TODO: Investigate if this is indeed nullable
-                javadocParser.parseDocumentation(psi).toPlatformDependant(),
+                javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 null,
-                PsiDocumentableSource(psi).toPlatformDependant(),
-                psi.getVisibility().toPlatformDependant(),
+                PsiDocumentableSource(psi).toSourceSetDependent(),
+                psi.getVisibility().toSourceSetDependent(),
                 getBound(psi.type),
                 null,
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
-                psi.getModifier().toPlatformDependant(),
+                psi.getModifier().toSourceSetDependent(),
                 listOf(sourceSetData),
                 emptyList(),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll<DProperty>(
-                        it,
-                        (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).let(::Annotations)
+                        it.toSourceSetDependent().toAdditionalModifiers(),
+                        (psi.annotations.toList().getAnnotations() + it.getAnnotations()).toSourceSetDependent()
+                            .toAnnotations()
                     )
                 }
             )
         }
 
-        private fun Collection<PsiAnnotation>.toListOfAnnotations() =
-            mapOf(sourceSetData to filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() })
+        private fun Collection<PsiAnnotation>.getAnnotations() =
+            filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.toAnnotation() }
 
         private fun JvmAnnotationAttribute.toValue(): AnnotationParameterValue = when (this) {
             is PsiNameValuePair -> value?.toValue() ?: StringValue("")
             else -> StringValue(this.attributeName)
         }
 
-        private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue = when (this) {
-            is PsiAnnotation -> AnnotationValue(toAnnotation())
-            is PsiArrayInitializerMemberValue -> ArrayValue(initializers.map { it.toValue() })
-            is PsiReferenceExpression -> EnumValue(
-                text ?: "",
-                driOfReference()
-            )
+        private fun PsiAnnotationMemberValue.toValue(): AnnotationParameterValue? = when (this) {
+            is PsiAnnotation -> toAnnotation()?.let { AnnotationValue(it) }
+            is PsiArrayInitializerMemberValue -> ArrayValue(initializers.mapNotNull { it.toValue() })
+            is PsiReferenceExpression -> driOfReference()?.let { EnumValue(text ?: "", it) }
             is PsiClassObjectAccessExpression -> ClassValue(
                 text ?: "",
                 DRI.from(((type as PsiImmediateClassType).parameters.single() as PsiClassReferenceType).resolve()!!)
@@ -425,16 +424,16 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             else -> StringValue(text ?: "")
         }
 
-        private fun PsiAnnotation.toAnnotation() = Annotations.Annotation(
-            driOfReference(),
-            attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
-                .toMap()
-        )
+        private fun PsiAnnotation.toAnnotation() = driOfReference()?.let {
+            Annotations.Annotation(
+                it,
+                attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
+                    .toMap()
+            )
+        }
 
         private fun PsiElement.driOfReference() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()?.let {
             DRI.from(it)
-        } ?: DRI("", getChildOfType<PsiJavaCodeReferenceElement>()?.qualifiedName ?: "").also {
-            logger.error("$this cannot be resolved to symbol!")
         }
     }
 }

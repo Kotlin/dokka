@@ -28,36 +28,34 @@ fun ContentMatcherBuilder<*>.bareSignature(
     returnType: String? = null,
     vararg params: Pair<String, ParamAttributes>
 ) = group { // TODO: remove it when double wrapping for signatures will be resolved
-    group {
-        annotations.entries.forEach {
-            group {
-                unwrapAnnotation(it)
-            }
+    annotations.entries.forEach {
+        group {
+            unwrapAnnotation(it)
         }
-        +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
-        link { +name }
-        +"("
-        params.forEachIndexed { id, (n, t) ->
+    }
+    +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
+    link { +name }
+    +"("
+    params.forEachIndexed { id, (n, t) ->
 
-            t.annotations.forEach {
-                unwrapAnnotation(it)
-            }
-            t.keywords.forEach {
-                +it
-            }
-
-            +"$n:"
-            group { link { +(t.type) } }
-            if (id != params.lastIndex)
-                +", "
+        t.annotations.forEach {
+            unwrapAnnotation(it)
         }
-        +")"
-        if (returnType != null) {
-            +(": ")
-            group {
-                link {
-                    +(returnType)
-                }
+        t.keywords.forEach {
+            +it
+        }
+
+        +"$n:"
+        group { link { +(t.type) } }
+        if (id != params.lastIndex)
+            +", "
+    }
+    +")"
+    if (returnType != null) {
+        +(": ")
+        group {
+            link {
+                +(returnType)
             }
         }
     }
@@ -87,40 +85,38 @@ fun ContentMatcherBuilder<*>.bareSignatureWithReceiver(
     returnType: String? = null,
     vararg params: Pair<String, ParamAttributes>
 ) = group { // TODO: remove it when double wrapping for signatures will be resolved
-    group {
-        annotations.entries.forEach {
-            group {
-                unwrapAnnotation(it)
-            }
-        }
-        +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
+    annotations.entries.forEach {
         group {
-            link { +receiver }
+            unwrapAnnotation(it)
         }
-        +"."
-        link { +name }
-        +"("
-        params.forEachIndexed { id, (n, t) ->
+    }
+    +("$visibility $modifier ${keywords.joinToString("") { "$it " }} fun")
+    group {
+        link { +receiver }
+    }
+    +"."
+    link { +name }
+    +"("
+    params.forEachIndexed { id, (n, t) ->
 
-            t.annotations.forEach {
-                unwrapAnnotation(it)
-            }
-            t.keywords.forEach {
-                +it
-            }
-
-            +"$n:"
-            group { link { +(t.type) } }
-            if (id != params.lastIndex)
-                +", "
+        t.annotations.forEach {
+            unwrapAnnotation(it)
         }
-        +")"
-        if (returnType != null) {
-            +(": ")
-            group {
-                link {
-                    +(returnType)
-                }
+        t.keywords.forEach {
+            +it
+        }
+
+        +"$n:"
+        group { link { +(t.type) } }
+        if (id != params.lastIndex)
+            +", "
+    }
+    +")"
+    if (returnType != null) {
+        +(": ")
+        group {
+            link {
+                +(returnType)
             }
         }
     }
@@ -148,20 +144,18 @@ fun ContentMatcherBuilder<*>.propertySignature(
                     link { +name }
                     platformHinted {
                         group {
-                            group {
-                                annotations.entries.forEach {
-                                    group {
-                                        unwrapAnnotation(it)
-                                    }
+                            annotations.entries.forEach {
+                                group {
+                                    unwrapAnnotation(it)
                                 }
-                                +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
-                                link { +name }
-                                if (type != null) {
-                                    +(": ")
-                                    group {
-                                        link {
-                                            +(type)
-                                        }
+                            }
+                            +("$visibility $modifier ${keywords.joinToString("") { "$it " }} $preposition")
+                            link { +name }
+                            if (type != null) {
+                                +(": ")
+                                group {
+                                    link {
+                                        +(type)
                                     }
                                 }
                             }
@@ -185,14 +179,18 @@ fun ContentMatcherBuilder<*>.unnamedTag(tag: String, content: ContentMatcherBuil
     }
 
 private fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String>>) {
-    +"@"
-    link { +elem.key }
-    +"("
-    elem.value.forEach {
-        +("$it = ")
-        skipAllNotMatching()
+    group {
+        +"@"
+        link { +elem.key }
+        +"("
+        elem.value.forEach {
+            group {
+                +("$it = ")
+                skipAllNotMatching()
+            }
+        }
+        +")"
     }
-    +")"
 }
 
 data class ParamAttributes(

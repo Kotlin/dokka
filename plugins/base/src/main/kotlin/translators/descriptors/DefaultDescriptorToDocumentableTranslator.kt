@@ -143,7 +143,10 @@ private class DokkaDescriptorVisitor(
             generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -166,7 +169,10 @@ private class DokkaDescriptorVisitor(
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -191,7 +197,10 @@ private class DokkaDescriptorVisitor(
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -209,7 +218,10 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             sourceSets = listOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -226,7 +238,10 @@ private class DokkaDescriptorVisitor(
             properties = scope.properties(driWithPlatform),
             expectPresentInSet = null,
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations()),
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            ),
             companion = descriptor.companionObjectDescriptor?.let { objectDescriptor(it, driWithPlatform) },
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
@@ -264,7 +279,10 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -294,9 +312,9 @@ private class DokkaDescriptorVisitor(
             sourceSets = listOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             extra = PropertyContainer.withAll(
-                (descriptor.additionalExtras() + (descriptor.backingField?.getAnnotationsAsExtraModifiers()?.entries?.single()?.value
-                    ?: emptyList())).toProperty(),
-                descriptor.getAllAnnotations()
+                (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
+                    .toAdditionalExtras()).toSet().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
             )
         )
     }
@@ -332,7 +350,8 @@ private class DokkaDescriptorVisitor(
             sourceSets = listOf(sourceSet),
             extra = PropertyContainer.withAll(
                 InheritedFunction(isInherited),
-                descriptor.additionalExtras(), descriptor.getAnnotations()
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
             )
         )
     }
@@ -372,12 +391,14 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll<DFunction>(descriptor.additionalExtras(), descriptor.getAnnotations())
-                .let {
-                    if (descriptor.isPrimary) {
-                        it + PrimaryConstructorExtra
-                    } else it
-                }
+            extra = PropertyContainer.withAll<DFunction>(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            ).let {
+                if (descriptor.isPrimary) {
+                    it + PrimaryConstructorExtra
+                } else it
+            }
         )
     }
 
@@ -391,7 +412,7 @@ private class DokkaDescriptorVisitor(
         expectPresentInSet = null,
         documentation = descriptor.resolveDescriptorData(),
         sourceSets = listOf(sourceSet),
-        extra = PropertyContainer.withAll(descriptor.getAnnotations())
+        extra = PropertyContainer.withAll(descriptor.getAnnotations().toSourceSetDependent().toAnnotations())
     )
 
     private fun visitPropertyAccessorDescriptor(
@@ -411,7 +432,10 @@ private class DokkaDescriptorVisitor(
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 documentation = descriptor.resolveDescriptorData(),
                 sourceSets = listOf(sourceSet),
-                extra = PropertyContainer.withAll(descriptor.additionalExtras(), getAllAnnotations())
+                extra = PropertyContainer.withAll(
+                    descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                    getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
+                )
             )
 
         val name = run {
@@ -446,7 +470,10 @@ private class DokkaDescriptorVisitor(
             },
             sources = descriptor.createSources(),
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())
+            extra = PropertyContainer.withAll(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
@@ -472,12 +499,11 @@ private class DokkaDescriptorVisitor(
             expectPresentInSet = null,
             documentation = descriptor.resolveDescriptorData(),
             sourceSets = listOf(sourceSet),
-            extra = PropertyContainer.withAll(
-                listOfNotNull(
-                    descriptor.additionalExtras(),
-                    descriptor.getAnnotations(),
-                    descriptor.getDefaultValue()?.let { DefaultValue(it) })
-            )
+            extra = PropertyContainer.withAll(listOfNotNull(
+                descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                descriptor.getDefaultValue()?.let { DefaultValue(it) }
+            ))
         )
 
     private fun MemberScope.getContributedDescriptors(kindFilter: DescriptorKindFilter, shouldFilter: Boolean) =
@@ -536,7 +562,7 @@ private class DokkaDescriptorVisitor(
             null,
             upperBounds.map { it.toBound() },
             listOf(sourceSet),
-            extra = PropertyContainer.withAll(additionalExtras())
+            extra = PropertyContainer.withAll(additionalExtras().toSourceSetDependent().toAdditionalModifiers())
         )
 
     private fun KotlinType.toBound(): Bound = when (this) {
@@ -600,28 +626,26 @@ private class DokkaDescriptorVisitor(
         ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { isTailrec },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { DescriptorUtils.isOverride(this) }
-    ).toProperty()
+    ).toSet()
 
     private fun ClassDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         ExtraModifiers.KotlinOnlyModifiers.Inner.takeIf { isInner },
         ExtraModifiers.KotlinOnlyModifiers.Data.takeIf { isData }
-    ).toProperty()
+    ).toSet()
 
-    private fun ValueParameterDescriptor.additionalExtras() =
-        listOfNotNull(
-            ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
-            ExtraModifiers.KotlinOnlyModifiers.CrossInline.takeIf { isCrossinline },
-            ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
-            ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { isLateInit },
-            ExtraModifiers.KotlinOnlyModifiers.VarArg.takeIf { isVararg }
-        ).toProperty()
+    private fun ValueParameterDescriptor.additionalExtras() = listOfNotNull(
+        ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
+        ExtraModifiers.KotlinOnlyModifiers.CrossInline.takeIf { isCrossinline },
+        ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
+        ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { isLateInit },
+        ExtraModifiers.KotlinOnlyModifiers.VarArg.takeIf { isVararg }
+    ).toSet()
 
-    private fun TypeParameterDescriptor.additionalExtras() =
-        listOfNotNull(
-            ExtraModifiers.KotlinOnlyModifiers.Reified.takeIf { isReified }
-        ).toProperty()
+    private fun TypeParameterDescriptor.additionalExtras() = listOfNotNull(
+        ExtraModifiers.KotlinOnlyModifiers.Reified.takeIf { isReified }
+    ).toSet()
 
     private fun PropertyDescriptor.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { isConst },
@@ -631,13 +655,7 @@ private class DokkaDescriptorVisitor(
         ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { DescriptorUtils.isOverride(this) }
     )
 
-    private fun List<ExtraModifiers>.toProperty() =
-        AdditionalModifiers(this.toSet())
-
-    private fun Annotated.getAnnotations() = getListOfSourceSetDependentAnnotations().let(::Annotations)
-
-    private fun Annotated.getListOfSourceSetDependentAnnotations() =
-        mapOf(sourceSet to annotations.mapNotNull { it.toAnnotation() })
+    private fun Annotated.getAnnotations() = annotations.mapNotNull { it.toAnnotation() }
 
     private fun ConstantValue<*>.toValue(): AnnotationParameterValue? = when (this) {
         is ConstantsAnnotationValue -> value.toAnnotation()?.let { AnnotationValue(it) }
@@ -664,29 +682,30 @@ private class DokkaDescriptorVisitor(
     }
 
     private fun AnnotationDescriptor.toAnnotation(): Annotations.Annotation? =
-        DRI.from(annotationClass as DeclarationDescriptor)
-            .takeIf { it.classNames != "<ERROR CLASS>" }?.let {
-                Annotations.Annotation(
-                    it,
-                    allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
-                        it.second != null
-                    }.toMap() as Map<String, AnnotationParameterValue>
-                )
-            }
+        if(annotationClass?.visibility == Visibilities.PUBLIC)
+            DRI.from(annotationClass as DeclarationDescriptor)
+                .takeIf { it.classNames != "<ERROR CLASS>" }?.let {
+                    Annotations.Annotation(
+                        it,
+                        allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
+                            it.second != null
+                        }.toMap() as Map<String, AnnotationParameterValue>
+                    )
+                }
+        else
+            null
 
-    private fun PropertyDescriptor.getAllAnnotations(): Annotations =
-        (getListOfSourceSetDependentAnnotations() + (backingField?.getListOfSourceSetDependentAnnotations()
-            ?: emptyMap())).let(::Annotations)
+    private fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
+        getAnnotations() + (backingField?.getAnnotations() ?: emptyList())
 
-    private fun FieldDescriptor.getAnnotationsAsExtraModifiers() = getAnnotations().content.mapValues {
-        it.value.mapNotNull {
-            try {
-                ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
-            } catch (e: IllegalArgumentException) {
-                null
-            }
+    private fun List<Annotations.Annotation>.toAdditionalExtras() = mapNotNull {
+        try {
+            ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
+        } catch (e: IllegalArgumentException) {
+            null
         }
     }
+
 
     private fun ValueParameterDescriptor.getDefaultValue(): String? =
         (source as? KotlinSourceElement)?.psi?.children?.find { it is KtExpression }?.text
