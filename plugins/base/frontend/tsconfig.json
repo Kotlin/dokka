@@ -21,14 +21,10 @@
     "noEmit": true,
     "jsx": "react",
     "typeRoots": [
-      "./types"
+      "src/main/types"
     ]
   },
   "include": [
-    "src",
-    "node_modules/@types/node/globals.d.ts"
-  ],
-  "exclude": [
-    "./node_modules"
+    "./node_modules/@types/node/globals.d.ts"
   ]
 }

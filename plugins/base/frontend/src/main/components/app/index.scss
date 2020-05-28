@@ -1,4 +1,4 @@
-@import "src/main/scss/index";
+@import "src/main/scss/index.scss";
 
 html,
 .app-root {
@@ -17,5 +17,5 @@ html,
 }
 
 .search-content {
-  margin: calc(var(--ring-unit) * 4);
+  padding: 24px 41px;
 }

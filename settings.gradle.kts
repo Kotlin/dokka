@@ -8,7 +8,7 @@ include("runners:gradle-plugin")
 include("runners:cli")
 include("runners:maven-plugin")
 include("plugins:base")
-include("plugins:base:search-component")
+include("plugins:base:frontend")
 include("plugins:mathjax")
 include("plugins:gfm")
 include("plugins:jekyll")
@@ -32,3 +32,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+include("plugins:base:frontend")
+findProject(":plugins:base:frontend")?.name = "frontend"

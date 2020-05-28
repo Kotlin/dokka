@@ -10,14 +10,14 @@ dependencies {
     testImplementation(project(":test-tools"))
 }
 
-task("copy_search", Copy::class) {
-    from(File(project(":plugins:base:search-component").projectDir, "dist/"))
+task("copy_frontend", Copy::class) {
+    from(File(project(":plugins:base:frontend").projectDir, "dist/"))
     destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
-}.dependsOn(":plugins:base:search-component:generateSearchFiles")
+}.dependsOn(":plugins:base:frontend:generateFrontendFiles")
 
 tasks {
     processResources {
-        dependsOn("copy_search")
+        dependsOn("copy_frontend")
     }
 }
 
