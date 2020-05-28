@@ -295,9 +295,9 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "C" / "foo").cast<DFunction>()) {
-                with(extra[AdditionalModifiers].assertNotNull("AdditionalModifiers")) {
-                    content counts 1
-                    content.first() equals ExtraModifiers.JavaOnlyModifiers.Static
+                with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("AdditionalModifiers")) {
+                    this counts 1
+                    first() equals ExtraModifiers.JavaOnlyModifiers.Static
                 }
             }
         }
@@ -335,8 +335,8 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             """
         ) {
             with((this / "java" / "Attribute").cast<DAnnotation>()) {
-                with(extra[Annotations].assertNotNull("Annotations")) {
-                    with(content.single()) {
+                with(extra[Annotations]!!.content.entries.single().value.assertNotNull("Annotations")) {
+                    with(single()) {
                         dri.classNames equals "Target"
                         (params["value"].assertNotNull("value") as ArrayValue).value equals listOf(
                             EnumValue("ElementType.FIELD", DRI("java.lang.annotation", "ElementType")),

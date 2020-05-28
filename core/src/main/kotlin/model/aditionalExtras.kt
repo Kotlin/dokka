@@ -4,7 +4,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 
-class AdditionalModifiers(val content: Set<ExtraModifiers>) : ExtraProperty<Documentable> {
+class AdditionalModifiers(val content: SourceSetDependent<Set<ExtraModifiers>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
         override fun mergeStrategyFor(
             left: AdditionalModifiers,
@@ -18,6 +18,8 @@ class AdditionalModifiers(val content: Set<ExtraModifiers>) : ExtraProperty<Docu
     override fun hashCode() = content.hashCode()
     override val key: ExtraProperty.Key<Documentable, *> = AdditionalModifiers
 }
+
+fun SourceSetDependent<Set<ExtraModifiers>>.toAdditionalModifiers() = AdditionalModifiers(this)
 
 class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProperty<Documentable> {
     companion object : ExtraProperty.Key<Documentable, Annotations> {
@@ -36,6 +38,8 @@ class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProp
         override fun hashCode(): Int = dri.hashCode()
     }
 }
+
+fun SourceSetDependent<List<Annotations.Annotation>>.toAnnotations() = Annotations(this)
 
 sealed class AnnotationParameterValue
 data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()

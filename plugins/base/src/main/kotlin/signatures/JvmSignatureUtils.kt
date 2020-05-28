@@ -3,6 +3,7 @@ package org.jetbrains.dokka.base.signatures
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.dokka.pages.*
 
 interface JvmSignatureUtils {
 
@@ -10,7 +11,7 @@ interface JvmSignatureUtils {
 
     fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: Documentable)
 
-    fun <T : Documentable> WithExtraProperties<T>.modifiers(): Set<ExtraModifiers>
+    fun <T : Documentable> WithExtraProperties<T>.modifiers(): SourceSetDependent<Set<ExtraModifiers>>
 
     fun Set<ExtraModifiers>.toSignatureString(): String =
         joinToString("") { it.name.toLowerCase() + " " }
@@ -40,9 +41,11 @@ interface JvmSignatureUtils {
         else -> null
     }?.let {
         it.entries.forEach {
-            group(sourceSets = setOf(it.key)) {
-                it.value.filter { it !in ignored }.forEach {
-                    operation(it)
+            it.value.filter { it !in ignored }.takeIf { it.isNotEmpty() }?.let { annotations ->
+                group(sourceSets = setOf(it.key), styles = setOf(TextStyle.Block)) {
+                    annotations.forEach {
+                        operation(it)
+                    }
                 }
             }
         }
@@ -62,14 +65,16 @@ interface JvmSignatureUtils {
         link(a.dri.classNames!!, a.dri)
         text("(")
         a.params.entries.forEachIndexed { i, it ->
-            text(it.key + " = ")
-            when (renderAtStrategy) {
-                is All -> All
-                is Never, is OnlyOnce -> Never
-            }.let { strategy ->
-                valueToSignature(it.value, strategy, listBrackets, classExtension)
+            group(styles = setOf(TextStyle.Span)) {
+                text(it.key + " = ")
+                when (renderAtStrategy) {
+                    is All -> All
+                    is Never, is OnlyOnce -> Never
+                }.let { strategy ->
+                    valueToSignature(it.value, strategy, listBrackets, classExtension)
+                }
+                if (i != a.params.entries.size - 1) text(", ")
             }
-            if (i != a.params.entries.size - 1) text(", ")
         }
         text(")")
     }
