@@ -12,7 +12,7 @@ class JavadocPlugin : DokkaPlugin() {
         val dokkaBasePlugin = plugin<DokkaBase>()
         CoreExtensions.renderer providing { ctx ->
             KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views")
-        }
+        } applyIf { format == "javadoc" }
     }
 
     val pageTranslator by extending {

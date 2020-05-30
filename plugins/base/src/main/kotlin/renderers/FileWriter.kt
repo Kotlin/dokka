@@ -53,7 +53,7 @@ class FileWriter(val context: DokkaContext): OutputWriter {
             "$pathTo/${path.removePrefix(pathFrom)}"
         val dest = Paths.get(root, pathTo).toFile()
         dest.mkdirsOrFail()
-        val uri = ClassLoader.getSystemResource(pathFrom).toURI()
+        val uri = javaClass.getResource(pathFrom).toURI()
         val fs = getFileSystemForURI(uri)
         val path = fs.getPath(pathFrom)
         for (file in Files.walk(path).iterator()) {

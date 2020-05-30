@@ -248,7 +248,7 @@ class TreeViewPage(
             node.children.flatMap(::interfaceTreeRec)
         }
 
-        fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).single()
+        fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).first() // TODO.single()
 
         fun gatherPsiClasses(psi: PsiType): List<Pair<PsiType, List<PsiType>>> = psi.superTypes.toList().let { l ->
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }

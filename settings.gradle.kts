@@ -1,7 +1,6 @@
 rootProject.name = "dokka"
 
 include("core")
-include("core:search-component")
 include("coreDependencies")
 include("testApi")
 include("test-tools")
@@ -34,6 +33,3 @@ pluginManagement {
     }
 }
 include("plugins:base:search-component")
-findProject(":plugins:base:search-component")?.name = "search-component"
-
-//enableFeaturePreview("GRADLE_METADATA")

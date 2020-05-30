@@ -18,7 +18,3 @@ dependencies {
 }
 
 configureBintrayPublication("javadocPlugin")
-
-configurations {
-
-}
