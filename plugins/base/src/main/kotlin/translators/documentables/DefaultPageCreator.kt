@@ -66,9 +66,11 @@ open class DefaultPageCreator(
 
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
-            header(1, m.name)
-            sourceSetDependentHint(m.dri, m.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint){
-                +contentForDescription(m)
+            cover(m.name)
+            if(contentForDescription(m).isNotEmpty()){
+                sourceSetDependentHint(m.dri, m.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = setOf(TextStyle.UnderCoverText)){
+                    +contentForDescription(m)
+                }
             }
         }
         +contentForComments(m)
@@ -81,9 +83,11 @@ open class DefaultPageCreator(
 
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(kind = ContentKind.Cover) {
-            header(1, "Package ${p.name}")
-            sourceSetDependentHint(p.dri, p.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint){
-                +contentForDescription(p)
+            cover("Package ${p.name}")
+            if(contentForDescription(p).isNotEmpty()){
+                sourceSetDependentHint(p.dri, p.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = setOf(TextStyle.UnderCoverText)){
+                    +contentForDescription(p)
+                }
             }
         }
         group(styles = setOf(ContentStyle.TabbedContent)){
@@ -92,8 +96,8 @@ open class DefaultPageCreator(
             block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.sourceSets.toSet(), extra = mainExtra + SimpleAttr.header("Type aliases")) {
                 link(it.name, it.dri, kind = ContentKind.Main)
                 sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = emptySet()) {
-                    +buildSignature(it)
                     contentForBrief(it)
+                    +buildSignature(it)
                 }
             }
         }
@@ -109,9 +113,8 @@ open class DefaultPageCreator(
         block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet(), extra = mainExtra + SimpleAttr.header( "Properties")) {
             link(it.name, it.dri, kind = ContentKind.Main)
             sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
-                +buildSignature(it)
-
                 contentForBrief(it)
+                +buildSignature(it)
             }
         }
         s.safeAs<WithExtraProperties<Documentable>>()?.let { it.extra[InheritorsInfo] }?.let { inheritors ->
@@ -140,10 +143,10 @@ open class DefaultPageCreator(
 
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
         group(kind = ContentKind.Cover) {
-            header(1, e.name)
+            cover(e.name)
             sourceSetDependentHint(e.dri, e.sourceSets.toSet()) {
-                +buildSignature(e)
                 +contentForDescription(e)
+                +buildSignature(e)
             }
         }
         group(styles = setOf(ContentStyle.TabbedContent)){
@@ -154,10 +157,10 @@ open class DefaultPageCreator(
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
         group(kind = ContentKind.Cover) {
-            header(1, c.name.orEmpty())
-                sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
-                +buildSignature(c)
+            cover(c.name.orEmpty())
+            sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
                 +contentForDescription(c)
+                +buildSignature(c)
             }
         }
 
@@ -174,8 +177,8 @@ open class DefaultPageCreator(
                 ) {
                     link(it.name, it.dri, kind = ContentKind.Main)
                     sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = emptySet()) {
-                        +buildSignature(it)
                         contentForBrief(it)
+                        +buildSignature(it)
                     }
                 }
             }
@@ -183,8 +186,8 @@ open class DefaultPageCreator(
                 block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet(), extra = mainExtra + SimpleAttr.header("Entries"), styles = emptySet()) {
                     link(it.name, it.dri)
                     sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
-                        +buildSignature(it)
                         contentForBrief(it)
+                        +buildSignature(it)
                     }
                 }
             }
@@ -215,7 +218,7 @@ open class DefaultPageCreator(
 
         val platforms = d.sourceSets.toSet()
 
-        return contentBuilder.contentFor(d) {
+        return contentBuilder.contentFor(d, styles = setOf(TextStyle.Block)) {
             val description = tags.withTypeUnnamed<Description>()
             if (description.any { it.value.root.children.isNotEmpty() }) {
                 platforms.forEach { platform ->
@@ -317,13 +320,11 @@ open class DefaultPageCreator(
                 header(2, "Samples")
                 group(extra = mainExtra + SimpleAttr.header("Samples"), styles = setOf(ContentStyle.WithExtraAttributes)){
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
-                        table(kind = ContentKind.Sample) {
-                            platforms.map { platformData ->
-                                val content = samples.filter { it.value.isEmpty() || platformData in it.value }
-                                buildGroup(sourceSets = setOf(platformData), styles = setOf(ContentStyle.RowTitle)) {
-                                    content.forEach {
-                                        comment(Text(it.key))
-                                    }
+                        platforms.map { platformData ->
+                            val content = samples.filter { it.value.isEmpty() || platformData in it.value }
+                            group(sourceSets = setOf(platformData), kind = ContentKind.Sample, styles = setOf(TextStyle.Monospace)) {
+                                content.forEach {
+                                    text(it.key)
                                 }
                             }
                         }
@@ -355,16 +356,16 @@ open class DefaultPageCreator(
     protected open fun contentForTypeAlias(t: DTypeAlias) = contentForMember(t)
     protected open fun contentForMember(d: Documentable) = contentBuilder.contentFor(d) {
         group(kind = ContentKind.Cover) {
-            header(1, d.name.orEmpty())
+            cover(d.name.orEmpty())
         }
         divergentGroup(ContentDivergentGroup.GroupID("member")) {
             instance(setOf(d.dri), d.sourceSets.toSet()) {
-                divergent(kind = ContentKind.Symbol) {
-                    +buildSignature(d)
-                }
-                after {
+                before {
                     +contentForDescription(d)
                     +contentForComments(d)
+                }
+                divergent(kind = ContentKind.Symbol) {
+                    +buildSignature(d)
                 }
             }
         }
@@ -389,13 +390,13 @@ open class DefaultPageCreator(
                         ) {
                             elements.map {
                                 instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                    before {
+                                        contentForBrief(it)
+                                    }
                                     divergent {
-                                        group(kind = ContentKind.Symbol) {
+                                        group {
                                             +buildSignature(it)
                                         }
-                                    }
-                                    after {
-                                        contentForBrief(it)
                                     }
                                 }
                             }

@@ -33,15 +33,12 @@ class LinkTest : AbstractCoreTest() {
             configuration
         ) {
             renderingStage = { rootPageNode, _ ->
-                (rootPageNode.children.single().children.single() as MemberPageNode)
+                assertNotNull((rootPageNode.children.single().children.single() as MemberPageNode)
                     .content
-                    .dfs { node -> node is ContentDRILink }
-                    .let {
-                        assertEquals(
-                            "parser//test/#java.lang.ClassLoader/PointingToDeclaration/",
-                            (it as ContentDRILink).address.toString()
-                        )
-                    }
+                    .dfs { node ->
+                        node is ContentDRILink &&
+                                node.address.toString() == "parser//test/#java.lang.ClassLoader/PointingToDeclaration/"}
+                )
             }
         }
     }

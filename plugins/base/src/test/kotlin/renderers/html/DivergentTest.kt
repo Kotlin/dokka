@@ -6,12 +6,8 @@ import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ContentDivergentGroup
-import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
-import renderers.Div
-import renderers.RenderingOnlyTestBase
-import renderers.TestPage
-import renderers.match
+import renderers.*
 
 class DivergentTest : RenderingOnlyTestBase() {
     private val js = SourceSetData("root", "JS", Platform.js, listOf(SourceRootImpl("pl1")))
@@ -182,10 +178,10 @@ class DivergentTest : RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div(Div(Div(Div("a")), Div(Div())), "a+",),
-            Div(Div(Div(Div("bd")), Div(Div())), "bd+"),
-            Div(Div(Div(Div("c")), Div(Div()))),
-            Div(Div(Div(Div("e")), Div(Div())), "e+")
+            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))),"a+"),
+            Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))),"bd+"),
+            Div(Div(Span(Div(Div("JVM")))), Div(Div(Div("c")))),
+            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("e"))),"e+"),
         )
     }
 
@@ -215,7 +211,10 @@ class DivergentTest : RenderingOnlyTestBase() {
         HtmlRenderer(context).render(page)
         renderedContent.match(
             Div(
-                "ab-",
+                Div(
+                    "ab-",
+                    Span()
+                ),
                 Div(Div(Div("ab")))
             )
         )
@@ -283,10 +282,9 @@ class DivergentTest : RenderingOnlyTestBase() {
         }
 
         HtmlRenderer(context).render(page)
-        val r = renderedContent
         renderedContent.match(
             Div(
-                "ab-",
+                Div("ab-", Span()),
                 Div(Div(Div("ab"))),
                 "ab+"
             )
@@ -324,8 +322,8 @@ class DivergentTest : RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div("a-", Div(Div(Div("a")), Div(Div("NATIVE"))), "ab+"),
-            Div("b-", Div(Div(Div("b")), Div(Div("NATIVE"))), "ab+")
+            Div(Div("a-", Span()), Div(Div(Div("a"))), "ab+"),
+            Div(Div("b-", Span()), Div(Div(Div(("b")))), "ab+")
         )
     }
 }

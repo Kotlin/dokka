@@ -192,6 +192,9 @@ class EnumsTest : AbstractCoreTest() {
             |package enums
             |
             |enum class Test {
+            |    /**
+            |       Sample docs for E1
+            |    **/
             |    @SinceKotlin("1.3")
             |    E1
             |}
@@ -205,6 +208,11 @@ class EnumsTest : AbstractCoreTest() {
                 signature.assertNode {
                     header(1) { +"E1" }
                     platformHinted {
+                        group {
+                            group {
+                                + "Sample docs for E1"
+                            }
+                        }
                         group {
                             mapOf("SinceKotlin" to setOf("version")).entries.forEach {
                                 group {

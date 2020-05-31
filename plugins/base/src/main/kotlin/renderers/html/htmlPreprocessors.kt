@@ -5,6 +5,8 @@ import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
 import org.jetbrains.dokka.base.renderers.platforms
+import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -44,12 +46,19 @@ object NavigationPageInstaller : PageTransformer {
             page.name,
             page.dri.first(),
             page.platforms(),
-            if (page !is ClasslikePageNode)
-                page.children.filterIsInstance<ContentPage>()
-                    .map { visit(it) }
-            else
-                emptyList()
+            page.navigableChildren()
         )
+
+    private fun ContentPage.navigableChildren(): List<NavigationNode> {
+        if(this !is ClasslikePageNode){
+            return children.filterIsInstance<ContentPage>()
+                .map { visit(it) }
+        } else if(documentable is DEnum) {
+            return children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
+        }
+
+        return emptyList()
+    }
 }
 
 object ResourceInstaller : PageTransformer {
@@ -68,6 +77,7 @@ object StyleAndScriptsAppender : PageTransformer {
                 "scripts/navigationLoader.js",
                 "scripts/platformContentHandler.js",
                 "scripts/sourceset_dependencies.js",
+                "scripts/clipboard.js",
                 "styles/jetbrains-mono.css"
             )
         )
