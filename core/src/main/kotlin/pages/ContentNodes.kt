@@ -13,6 +13,8 @@ interface ContentNode : WithExtraProperties<ContentNode> {
     val dci: DCI
     val sourceSets: Set<SourceSetData>
     val style: Set<Style>
+
+    fun hasAnyContent(): Boolean
 }
 
 /** Simple text */
@@ -24,6 +26,8 @@ data class ContentText(
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
+
+    override fun hasAnyContent(): Boolean = !text.isBlank()
 }
 
 // TODO: Remove
@@ -34,6 +38,8 @@ data class ContentBreakLine(
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = copy(extra = newExtras)
+
+    override fun hasAnyContent(): Boolean = true
 }
 
 /** Headers */
@@ -106,6 +112,8 @@ data class ContentEmbeddedResource(
 /** Logical grouping of [ContentNode]s  */
 interface ContentComposite : ContentNode {
     val children: List<ContentNode>
+
+    override fun hasAnyContent(): Boolean = children.any { it.hasAnyContent() }
 }
 
 /** Tables */
@@ -144,7 +152,7 @@ data class ContentGroup(
 }
 
 /**
- * @property groupName is used for finding and copying [ContentDivergentInstance]s when merging [ContentPage]s
+ * @property groupID is used for finding and copying [ContentDivergentInstance]s when merging [ContentPage]s
  */
 data class ContentDivergentGroup(
     override val children: List<ContentDivergentInstance>,
@@ -216,11 +224,11 @@ enum class ContentKind : Kind {
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented
+    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace, Indented, Cover, UnderCoverText
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, TabbedContentBody, WithExtraAttributes
+    RowTitle, TabbedContent, WithExtraAttributes
 }
 
 object CommentTable: Style

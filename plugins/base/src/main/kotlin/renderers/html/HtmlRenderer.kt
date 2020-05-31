@@ -22,7 +22,7 @@ open class HtmlRenderer(
 
     private val sourceSetDependencyMap = with(context.sourceSetCache) {
         allSourceSets.map { sourceSet ->
-            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetName ) }
+            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetName) }
         }.toMap()
     }
 
@@ -38,22 +38,24 @@ open class HtmlRenderer(
         val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
-                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }.filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
-                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
+                val secondLevel = node.children.filterIsInstance<ContentComposite>().flatMap { it.children }
+                    .filterIsInstance<ContentHeader>().flatMap { it.children }.filterIsInstance<ContentText>()
+                val firstLevel = node.children.filterIsInstance<ContentHeader>().flatMap { it.children }
+                    .filterIsInstance<ContentText>()
 
                 val renderable = firstLevel.union(secondLevel)
 
-                div(classes = "tabs-section"){
+                div(classes = "tabs-section") {
                     attributes["tabs-section"] = "tabs-section"
                     renderable.forEachIndexed { index, node ->
-                        button(classes = "section-tab"){
-                            if(index == 0 ) attributes["data-active"] = ""
+                        button(classes = "section-tab") {
+                            if (index == 0) attributes["data-active"] = ""
                             attributes["data-togglable"] = node.text
                             text(node.text)
                         }
                     }
                 }
-                div(classes = "tabs-section-body"){
+                div(classes = "tabs-section-body") {
                     childrenCallback()
                 }
             }
@@ -61,7 +63,10 @@ open class HtmlRenderer(
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
-            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
+            node.dci.kind in setOf(ContentKind.Symbol, ContentKind.Sample) -> div("symbol $additionalClasses") {
+                childrenCallback()
+                if (node.hasStyle(TextStyle.Monospace)) copyButton()
+            }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
                 filterButtons(node)
@@ -80,7 +85,7 @@ open class HtmlRenderer(
                 button(classes = "platform-tag platform-selector") {
                     attributes["data-active"] = ""
                     attributes["data-filter"] = it.sourceSetName
-                    when(it.platform.key){
+                    when (it.platform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
@@ -92,40 +97,57 @@ open class HtmlRenderer(
         }
     }
 
+    private fun FlowContent.copyButton() = span(classes = "top-right-position") {
+        span("copy-icon") {
+            unsafe {
+                raw(
+                    """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg>""".trimIndent()
+                )
+            }
+        }
+        copiedPopup("Content copied to clipboard", "popup-to-left")
+    }
+
+    private fun FlowContent.copiedPopup(notificationContent: String, additionalClasses: String = "") =
+        div("copy-popup-wrapper $additionalClasses") {
+            unsafe {
+                raw(
+                    """
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+                    </svg>
+                    """.trimIndent()
+                )
+            }
+            span {
+                text(notificationContent)
+            }
+        }
+
     override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
-        buildPlatformDependent(content.sourceSets.map { it to setOf(content.inner) }.toMap(), pageContext, content.extra)
+        buildPlatformDependent(
+            content.sourceSets.map { it to setOf(content.inner) }.toMap(),
+            pageContext,
+            content.extra,
+            content.style
+        )
 
     private fun FlowContent.buildPlatformDependent(
         nodes: Map<SourceSetData, Collection<ContentNode>>,
         pageContext: ContentPage,
-        extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+        extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
+        styles: Set<Style> = emptySet()
     ) {
-        var mergedToOneSourceSet : SourceSetData? = null
-        div("platform-hinted") {
+        val contents = contentsForSourceSetDependent(nodes, pageContext)
+        val shouldHaveTabs = contents.size != 1
+
+        val styles = "platform-hinted ${styles.joinToString()}" + if (shouldHaveTabs) " with-platform-tabs" else ""
+        div(styles) {
             attributes["data-platform-hinted"] = "data-platform-hinted"
             extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
-            val additionalClasses = if(nodes.toList().size == 1) "single-content" else ""
-            var counter = 0
-            val contents = nodes.toList().map { (sourceSet, elements) ->
-                sourceSet to createHTML(prettyPrint = false).div {
-                    elements.forEach {
-                        buildContentNode(it, pageContext, setOf(sourceSet))
-                    }
-                }.stripDiv()
-            }.groupBy(Pair<SourceSetData, String>::second, Pair<SourceSetData, String>::first).entries.flatMap { (html, sourceSets) ->
-                sourceSets.filterNot {
-                    sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
-                }.map {
-                    it to createHTML(prettyPrint = false).div(classes = "content $additionalClasses") {
-                        if (counter++ == 0) attributes["data-active"] = ""
-                        attributes["data-togglable"] = it.sourceSetName
-                        unsafe {
-                            +html
-                        }
-                    }
-                }
-            }
-            if (contents.size != 1) {
+            if (shouldHaveTabs) {
                 div("platform-bookmarks-row") {
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
@@ -134,27 +156,53 @@ open class HtmlRenderer(
                             attributes["data-filterable-set"] = pair.first.sourceSetName
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetName
-                            when(
+                            when (
                                 pair.first.platform.key
-                            ){
-                            "common" -> classes = classes + "common-like"
-                            "native" -> classes = classes + "native-like"
-                            "jvm" -> classes = classes + "jvm-like"
-                            "js" -> classes = classes + "js-like"
+                                ) {
+                                "common" -> classes = classes + "common-like"
+                                "native" -> classes = classes + "native-like"
+                                "jvm" -> classes = classes + "jvm-like"
+                                "js" -> classes = classes + "js-like"
                             }
                             attributes["data-toggle"] = pair.first.sourceSetName
                             text(pair.first.sourceSetName)
                         }
                     }
                 }
-            } else if (nodes.size > 1) {
-                mergedToOneSourceSet = contents.first().first
             }
             contents.forEach {
                 consumer.onTagContentUnsafe { +it.second }
             }
         }
-        mergedToOneSourceSet?.let { createPlatformTagBubbles(listOf(it)) }
+    }
+
+    private fun contentsForSourceSetDependent(
+        nodes: Map<SourceSetData, Collection<ContentNode>>,
+        pageContext: ContentPage,
+    ): List<Pair<SourceSetData, String>> {
+        var counter = 0
+        return nodes.toList().map { (sourceSet, elements) ->
+            sourceSet to createHTML(prettyPrint = false).div {
+                elements.forEach {
+                    buildContentNode(it, pageContext, setOf(sourceSet))
+                }
+            }.stripDiv()
+        }.groupBy(
+            Pair<SourceSetData, String>::second,
+            Pair<SourceSetData, String>::first
+        ).entries.flatMap { (html, sourceSets) ->
+            sourceSets.filterNot {
+                sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
+            }.map {
+                it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
+                    if (counter++ == 0) attributes["data-active"] = ""
+                    attributes["data-togglable"] = it.sourceSetName
+                    unsafe {
+                        +html
+                    }
+                }
+            }
+        }
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
@@ -183,26 +231,38 @@ open class HtmlRenderer(
             val groupedDivergent = it.value.groupBy { it.second }
 
             consumer.onTagContentUnsafe {
-                +createHTML().div("divergent-group"){
+                +createHTML().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
                         it.sourceSetName
                     }
                     attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
                         it.sourceSetName
                     }
-                    consumer.onTagContentUnsafe { +it.key.first }
-                    div("main-subrow") {
 
-                        if (node.implicitlySourceSetHinted) {
-                            buildPlatformDependent(
-                                groupedDivergent.map { (sourceSet, elements) ->
-                                    sourceSet to elements.map { e -> e.first.divergent }
-                                }.toMap(),
-                                pageContext
-                            )
-                            if (distinct.size > 1 && groupedDivergent.size == 1) {
-                                createPlatformTags(node, groupedDivergent.keys)
+                    val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
+                        sourceSet to elements.map { e -> e.first.divergent }
+                    }.toMap()
+
+                    val content = contentsForSourceSetDependent(divergentForPlatformDependent, pageContext)
+
+                    consumer.onTagContentUnsafe {
+                        +createHTML().div("brief-with-platform-tags") {
+                            consumer.onTagContentUnsafe { +it.key.first }
+
+                            consumer.onTagContentUnsafe {
+                                +createHTML().span("pull-right") {
+                                    if ((distinct.size > 1 && groupedDivergent.size == 1) || groupedDivergent.size == 1 || content.size == 1) {
+                                        if (node.sourceSets.size != 1) {
+                                            createPlatformTags(node, setOf(content.first().first))
+                                        }
+                                    }
+                                }
                             }
+                        }
+                    }
+                    div("main-subrow") {
+                        if (node.implicitlySourceSetHinted) {
+                            buildPlatformDependent(divergentForPlatformDependent, pageContext)
                         } else {
                             it.value.forEach {
                                 buildContentNode(it.first.divergent, pageContext, setOf(it.second))
@@ -272,7 +332,8 @@ open class HtmlRenderer(
             .filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
             .takeIf { it.isNotEmpty() }
             ?.let {
-                withAnchor(node.dci.dri.first().toString()) {
+                val anchorName = node.dci.dri.first().toString()
+                withAnchor(anchorName) {
                     div(classes = "table-row") {
                         if (!style.contains(MultimoduleTable)) {
                             attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
@@ -286,7 +347,10 @@ open class HtmlRenderer(
                             div("main-subrow " + node.style.joinToString(" ")) {
                                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
                                     .forEach {
-                                        it.build(this, pageContext, sourceSetRestriction)
+                                        span {
+                                            it.build(this, pageContext, sourceSetRestriction)
+                                            buildAnchor(anchorName)
+                                        }
                                         if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
                                             createPlatformTags(node)
                                     }
@@ -317,7 +381,7 @@ open class HtmlRenderer(
         div("platform-tags") {
             sourceSets.forEach {
                 div("platform-tag") {
-                    when(it.platform.key){
+                    when (it.platform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
@@ -331,7 +395,7 @@ open class HtmlRenderer(
 
     private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
-            createPlatformTagBubbles( node.sourceSets.filter {
+            createPlatformTagBubbles(node.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
             })
         }
@@ -342,7 +406,7 @@ open class HtmlRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<SourceSetData>?
     ) {
-        when(node.dci.kind){
+        when (node.dci.kind) {
             ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
             else -> div(classes = "table") {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
@@ -388,13 +452,14 @@ open class HtmlRenderer(
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
         val anchor = node.extra[SimpleAttr.SimpleAttrKey("anchor")]?.extraValue
+        val classes = node.style.joinToString { it.toString() }.toLowerCase()
         when (level) {
-            1 -> h1() { withAnchor(anchor, content) }
-            2 -> h2() { withAnchor(anchor, content) }
-            3 -> h3() { withAnchor(anchor, content) }
-            4 -> h4() { withAnchor(anchor, content) }
-            5 -> h5() { withAnchor(anchor, content) }
-            else -> h6() { withAnchor(anchor, content) }
+            1 -> h1(classes = classes) { withAnchor(anchor, content) }
+            2 -> h2(classes = classes) { withAnchor(anchor, content) }
+            3 -> h3(classes = classes) { withAnchor(anchor, content) }
+            4 -> h4(classes = classes) { withAnchor(anchor, content) }
+            5 -> h5(classes = classes) { withAnchor(anchor, content) }
+            else -> h6(classes = classes) { withAnchor(anchor, content) }
         }
     }
 
@@ -419,6 +484,23 @@ open class HtmlRenderer(
         buildLink(locationProvider.resolve(to, from)) {
             text(to.name)
         }
+
+    private fun FlowContent.buildAnchor(pointingTo: String) {
+        span(classes = "anchor-wrapper") {
+            span(classes = "anchor-icon") {
+                attributes["pointing-to"] = pointingTo
+                unsafe {
+                    raw("""
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
+                    <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
+                </svg>
+            """.trimIndent())
+                }
+            }
+            copiedPopup("Link copied to clipboard")
+        }
+    }
 
     fun FlowContent.buildLink(
         to: DRI,
@@ -497,7 +579,7 @@ open class HtmlRenderer(
             }
         }
 
-    private fun resolveLink(link: String, page: PageNode) : String = if (URI(link).isAbsolute) link else page.root(link)
+    private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
 
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
@@ -506,9 +588,13 @@ open class HtmlRenderer(
                 title(page.name)
                 with(resources) {
                     filter { it.substringBefore('?').substringAfterLast('.') == "css" }
-                        .forEach { link(rel = LinkRel.stylesheet, href = resolveLink(it,page)) }
+                        .forEach { link(rel = LinkRel.stylesheet, href = resolveLink(it, page)) }
                     filter { it.substringBefore('?').substringAfterLast('.') == "js" }
-                        .forEach { script(type = ScriptType.textJavaScript, src = resolveLink(it,page)) { async = true } }
+                        .forEach {
+                            script(type = ScriptType.textJavaScript, src = resolveLink(it, page)) {
+                                async = true
+                            }
+                        }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
             }
@@ -532,6 +618,38 @@ open class HtmlRenderer(
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
                         script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
                         content()
+                        div(classes = "footer") {
+                            span("go-to-top-icon") {
+                                a(href = "#container") {
+                                    unsafe {
+                                        raw(
+                                            """
+                                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
+                                        <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
+                                    </svg>
+                                """.trimIndent()
+                                        )
+                                    }
+                                }
+                            }
+                            span { text("© 2020 Copyright") }
+                            span { text("Privacy Policy") }
+                            span("pull-right") {
+                                span { text("Sponsored and developed by Dokka") }
+                                span(classes = "padded-icon") {
+                                    unsafe {
+                                        raw(
+                                            """
+                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
+                                    </svg>
+                                """.trimIndent()
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -89,7 +89,6 @@ class PackagePageNode(
     override val name: String,
     override val content: ContentNode,
     override val dri: Set<DRI>,
-
     override val documentable: Documentable?,
     override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()

@@ -1,0 +1,14 @@
+.search {
+  button {
+    border: none;
+    fill: #637282;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.popup-wrapper {
+  min-width: calc(100% - 360px) !important;
+}

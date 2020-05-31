@@ -90,6 +90,7 @@ fun Element.match(vararg matchers: Any): Unit =
 open class Tag(val name: String, vararg val matchers: Any)
 class Div(vararg matchers: Any): Tag("div", *matchers)
 class P(vararg matchers: Any): Tag("p", *matchers)
+class Span(vararg matchers: Any): Tag("span", *matchers)
 
 private fun Any.accepts(n: Node) {
     when (this) {

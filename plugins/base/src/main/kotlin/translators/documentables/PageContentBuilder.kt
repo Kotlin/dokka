@@ -107,6 +107,16 @@ open class PageContentBuilder(
             )
         }
 
+        fun cover(
+            text: String,
+            platformData: Set<SourceSetData> = mainPlatformData,
+            styles: Set<Style> = mainStyles + TextStyle.Cover,
+            extra: PropertyContainer<ContentNode> = mainExtra,
+            block: DocumentableContentBuilder.() -> Unit = {}
+            ) {
+            header(1, text, platformData = platformData, styles = styles, extra = extra, block = block)
+        }
+
         fun text(
             text: String,
             kind: Kind = ContentKind.Main,
@@ -411,7 +421,7 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contentFor(dri, sourceSets, kind, styles, extra, block)
-                .takeIf { it.children.isNotEmpty() }
+                .takeIf { it.hasAnyContent() }
                 .also { before = it }
         }
 
@@ -435,7 +445,7 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ) {
             contentFor(dri, sourceSets, kind, styles, extra, block)
-                .takeIf { it.children.isNotEmpty() }
+                .takeIf { it.hasAnyContent() }
                 .also { after = it }
         }
 
