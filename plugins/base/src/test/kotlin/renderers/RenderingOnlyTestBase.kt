@@ -32,7 +32,6 @@ abstract class RenderingOnlyTestBase {
     val context = MockContext(
         DokkaBase().outputWriter to { _ -> files },
         DokkaBase().locationProviderFactory to ::DefaultLocationProviderFactory,
-        DokkaBase().samplesTransformer to ::DefaultSamplesTransformer,
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { _ -> ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { _ -> ::DokkaExternalLocationProviderFactory },

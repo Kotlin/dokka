@@ -21,16 +21,13 @@ import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
-import org.jetbrains.dokka.base.transformers.pages.samples.SamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
-import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()
@@ -40,7 +37,6 @@ class DokkaBase : DokkaPlugin() {
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
-    val samplesTransformer by extensionPoint<SamplesTransformer>()
 
     val descriptorToDocumentableTranslator by extending {
         CoreExtensions.sourceToDocumentableTranslator with DefaultDescriptorToDocumentableTranslator
@@ -133,7 +129,9 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val defaultSamplesTransformer by extending {
-        samplesTransformer providing ::DefaultSamplesTransformer
+        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer order {
+            before(pageMerger)
+        }
     }
 
     val sourceLinksTransformer by extending {
