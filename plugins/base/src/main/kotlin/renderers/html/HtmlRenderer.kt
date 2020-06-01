@@ -27,8 +27,7 @@ open class HtmlRenderer(
 
     private val pageList = mutableListOf<String>()
 
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors } +
-            context.plugin<DokkaBase>().querySingle { samplesTransformer }
+    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
     override fun FlowContent.wrapGroup(
         node: ContentGroup,
