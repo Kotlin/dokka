@@ -11,7 +11,7 @@ object ResourcesInstaller : PageTransformer {
                 RendererSpecificResourcePage(
                     "resourcePack",
                     emptyList(),
-                    RenderingStrategy.Copy("static_res")
+                    RenderingStrategy.Copy("/static_res")
                 )
     )
 }

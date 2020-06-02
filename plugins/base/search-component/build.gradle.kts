@@ -8,9 +8,10 @@ task("generateSearchFiles") {
 
 tasks {
     "npm_run_build" {
-        inputs.dir("$projectDir/src/main/js/search/")
-        inputs.files("$projectDir/package.json", "$projectDir/webpack.config.js")
+        inputs.dir("$projectDir/src/main/js/search/").withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files("$projectDir/package.json", "$projectDir/webpack.config.js").withPathSensitivity(PathSensitivity.RELATIVE)
         outputs.dir("$projectDir/dist/")
+        outputs.cacheIf { true }
     }
     clean {
         delete = setOf("$projectDir/node_modules", "$projectDir/dist/", "$projectDir/package-lock.json")

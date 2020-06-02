@@ -14,8 +14,6 @@ import org.jetbrains.dokka.pages.RenderingStrategy
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -82,7 +80,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         when (val strategy = node.strategy) {
             is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, "")
             is RenderingStrategy.Write -> outputWriter.writeHtml(path, strategy.text)
-            is RenderingStrategy.Callback -> outputWriter.writeHtml(
+            is RenderingStrategy.Callback -> outputWriter.writeResources(
                 path,
                 strategy.instructions(this@KorteJavadocRenderer, node)
             )
@@ -90,7 +88,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         }
     }
 
-    fun Pair<String, String>.pairToTag() = "\n<td>${first}</td>\n<td>${second}</td>"
+    fun Pair<String, String>.pairToTag() = "\n<th class=\"colFirst\" scope=\"row\">${first}</th>\n<td class=\"colLast\">${second}</td>"
+
     fun LinkJavadocListEntry.toLinkTag(parent: String? = null) =
         createLinkTag(locationProvider.resolve(dri.first(), sourceSets.toList()).let {
             if (parent != null) it.relativizePath(parent)
@@ -187,12 +186,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     val templateRenderer = Templates(ResourceTemplateProvider(resourceDir), config = config, cache = true)
 
     class ResourceTemplateProvider(val basePath: String) : TemplateProvider {
-        override suspend fun get(template: String): String? = kotlin.runCatching {
-            ClassLoader.getSystemResource("$basePath/$template").file.let(::File).readLines()
-                .joinToString("\n")
-        }.let {
-            if (it.isFailure) throw IllegalStateException("No template for $basePath/$template")
-            else it.getOrNull()
-        }
+        override suspend fun get(template: String): String =
+            javaClass.classLoader.getResourceAsStream("$basePath/$template")?.bufferedReader()?.lines()?.toArray()
+                ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")
     }
 }
