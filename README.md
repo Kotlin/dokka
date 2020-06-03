@@ -52,13 +52,12 @@ dokka {
 
 Kotlin
 ```kotlin
-tasks {
-    val dokka by getting(DokkaTask::class) {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/dokka"
-    }
+dokka {
+    outputFormat = "html"
+    outputDirectory = "$buildDir/dokka"
 }
 ```
+You may need to add an `import org.jetbrains.dokka.gradle.dokka` to the top of `build.gradle.kts` in this case.
 
 [Output formats](#output_formats)
 
@@ -225,7 +224,7 @@ kotlin {  // Kotlin Multiplatform plugin configuration
     js("customName")
 }
 
-val dokka by getting(DokkaTask::class) {
+dokka {
         outputDirectory = "$buildDir/dokka"
         outputFormat = "html"
 
