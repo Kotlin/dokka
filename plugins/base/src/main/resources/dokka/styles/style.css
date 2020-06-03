@@ -94,6 +94,7 @@
 #main {
     width: 100%;
     padding-left: 12px;
+    max-width: calc(100% - 280px);
 }
 
 #leftColumn {
@@ -172,8 +173,13 @@
     padding: 8px 16px;
     box-sizing: border-box;
     font-weight: bold;
-    white-space: pre;
+    white-space: pre-wrap;
     flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.breakable-word {
+    white-space: break-spaces;
 }
 
 #nav-submenu > .sideMenuPart {
@@ -564,6 +570,11 @@ td.content {
     flex-direction: column;
 }
 
+.content .symbol .block {
+    width: 100%;
+    white-space: nowrap;
+}
+
 .main-subrow {
     display: flex;
     flex-direction: row;
@@ -587,6 +598,7 @@ td.content {
     flex: auto;
     display: block;
     margin-bottom: 5px;
+    max-width: 100%;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
@@ -684,7 +696,7 @@ td.content {
 
 @media print, screen and (min-width: 960px) {
     .keyValue {
-        grid-template-columns: 20% auto;
+        grid-template-columns: 20% 80%;
     }
 
     .title-row {

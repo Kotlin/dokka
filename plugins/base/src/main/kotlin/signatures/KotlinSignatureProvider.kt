@@ -237,7 +237,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 
     private fun funType(dri: DRI, sourceSets: Set<SourceSetData>, type: TypeConstructor) =
-        contentBuilder.contentFor(dri, sourceSets, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
+        contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
             if (type.extension) {
                 signatureForProjection(type.projections.first())
                 text(".")
