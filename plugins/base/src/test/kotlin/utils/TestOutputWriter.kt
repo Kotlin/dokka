@@ -6,7 +6,7 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.io.File
 
 class TestOutputWriterPlugin(failOnOverwrite: Boolean = true): DokkaPlugin() {
-    private val writer = TestOutputWriter(failOnOverwrite)
+    val writer = TestOutputWriter(failOnOverwrite)
 
     val testWriter by extending { plugin<DokkaBase>().outputWriter with writer }
 }
