@@ -14,6 +14,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
+import java.net.URI
 
 open class HtmlRenderer(
     context: DokkaContext
@@ -493,6 +494,8 @@ open class HtmlRenderer(
             }
         }
 
+    private fun resolveLink(link: String, page: PageNode) : String = if (URI(link).isAbsolute) link else page.root(link)
+
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
             head {
@@ -500,9 +503,9 @@ open class HtmlRenderer(
                 title(page.name)
                 with(resources) {
                     filter { it.substringBefore('?').substringAfterLast('.') == "css" }
-                        .forEach { link(rel = LinkRel.stylesheet, href = page.root(it)) }
+                        .forEach { link(rel = LinkRel.stylesheet, href = resolveLink(it,page)) }
                     filter { it.substringBefore('?').substringAfterLast('.') == "js" }
-                        .forEach { script(type = ScriptType.textJavaScript, src = page.root(it)) { async = true } }
+                        .forEach { script(type = ScriptType.textJavaScript, src = resolveLink(it,page)) { async = true } }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
             }
