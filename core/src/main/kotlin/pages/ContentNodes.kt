@@ -224,7 +224,7 @@ enum class ContentKind : Kind {
 }
 
 enum class TextStyle : Style {
-    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Monospace, Indented, Cover, UnderCoverText
+    Bold, Italic, Strong, Strikethrough, Paragraph, Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable
 }
 
 enum class ContentStyle : Style {
