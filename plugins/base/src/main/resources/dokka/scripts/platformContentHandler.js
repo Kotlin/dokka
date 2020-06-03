@@ -4,12 +4,12 @@ filteringContext = {
     activeFilters: []
 }
 window.addEventListener('load', () => {
-    initializeFiltering()
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
     document.querySelectorAll("div[tabs-section]")
         .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
     document.getElementById('filter-section').addEventListener('click', (event) => filterButtonHandler(event))
+    initializeFiltering()
     initTabs()
 })
 
@@ -19,6 +19,14 @@ function initTabs(){
             showCorrespondingTabBody(element)
             element.addEventListener('click', (event) => toggleSections(event))
         })
+    let cached = localStorage.getItem("active-tab")
+    if (cached) {
+        let parsed = JSON.parse(cached)
+        let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + parsed + '"]')
+        if(tab) {
+            tab.click()
+        }
+    }
 }
 
 function showCorrespondingTabBody(element){
@@ -37,8 +45,6 @@ function filterButtonHandler(event) {
                 unfilterSourceset(sourceset)
             }
         }
-        refreshFilterButtons();
-        refreshPlatformTabs()
 }
 
 function initializeFiltering() {
@@ -49,38 +55,58 @@ function initializeFiltering() {
         filteringContext.dependencies[p] = filteringContext.dependencies[p]
             .filter(q => -1 !== filteringContext.restrictedDependencies.indexOf(q))
     })
-    filteringContext.activeFilters = filteringContext.restrictedDependencies
-}
-
-function refreshFilterButtons() {
-    document.querySelectorAll("#filter-section > button")
-        .forEach(f => {
-            if(filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1){
-                f.setAttribute("data-active","")
-            } else {
-                f.removeAttribute("data-active")
-            }
-        })
+    let cached = window.localStorage.getItem('inactive-filters')
+    if (cached) {
+        let parsed = JSON.parse(cached)
+        filteringContext.activeFilters = filteringContext.restrictedDependencies
+            .filter(q => parsed.indexOf(q) == -1 )
+    } else {
+        filteringContext.activeFilters = filteringContext.restrictedDependencies
+    }
+    refreshFiltering()
 }
 
 function filterSourceset(sourceset) {
     filteringContext.activeFilters = filteringContext.activeFilters.filter(p => p != sourceset)
     refreshFiltering()
+    addSourcesetFilterToCache(sourceset)
 }
 
 function unfilterSourceset(sourceset) {
     if(filteringContext.activeFilters.length == 0) {
         filteringContext.activeFilters = filteringContext.dependencies[sourceset].concat([sourceset])
         refreshFiltering()
+        filteringContext.dependencies[sourceset].concat([sourceset]).forEach(p => removeSourcesetFilterFromCache(p))
     } else {
         filteringContext.activeFilters.push(sourceset)
         refreshFiltering()
+        removeSourcesetFilterFromCache(sourceset)
+    }
+
+}
+
+function addSourcesetFilterToCache(sourceset) {
+    let cached = localStorage.getItem('inactive-filters')
+    if (cached) {
+        let parsed = JSON.parse(cached)
+        localStorage.setItem('inactive-filters', JSON.stringify(parsed.concat([sourceset])))
+    } else {
+        localStorage.setItem('inactive-filters', JSON.stringify([sourceset]))
+    }
+}
+
+function removeSourcesetFilterFromCache(sourceset) {
+    let cached = localStorage.getItem('inactive-filters')
+    if (cached) {
+        let parsed = JSON.parse(cached)
+        localStorage.setItem('inactive-filters', JSON.stringify(parsed.filter(p => p != sourceset)))
     }
 }
 
 
 function toggleSections(evt){
     if(!evt.target.getAttribute("data-togglable")) return
+    localStorage.setItem('active-tab', JSON.stringify(evt.target.getAttribute("data-togglable")))
 
     const activateTabs = (containerClass) => {
         for(const element of document.getElementsByClassName(containerClass)){
@@ -131,6 +157,8 @@ function refreshFiltering() {
                 elem.setAttribute("data-filterable-current", platformList.join(' '))
             }
         )
+    refreshFilterButtons()
+    refreshPlatformTabs()
 }
 
 function refreshPlatformTabs() {
@@ -150,9 +178,21 @@ function refreshPlatformTabs() {
                     }
                 }
             )
-            if( active == false && firstAvailable !== null ) {
+            if( active == false && firstAvailable) {
                 firstAvailable.click()
             }
         }
     )
 }
+
+function refreshFilterButtons() {
+    document.querySelectorAll("#filter-section > button")
+        .forEach(f => {
+            if(filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1){
+                f.setAttribute("data-active","")
+            } else {
+                f.removeAttribute("data-active")
+            }
+        })
+}
+
