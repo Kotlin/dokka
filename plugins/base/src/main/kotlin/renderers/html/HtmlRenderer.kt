@@ -67,6 +67,15 @@ open class HtmlRenderer(
                 childrenCallback()
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
+            node.hasStyle(TextStyle.BreakableAfter) -> {
+                span(){ childrenCallback() }
+                wbr {  }
+            }
+            node.hasStyle(TextStyle.Breakable) -> {
+                span("breakable-word"){ childrenCallback() }
+            }
+            node.hasStyle(TextStyle.Span) -> span(){ childrenCallback() }
+            node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
                 filterButtons(node)
