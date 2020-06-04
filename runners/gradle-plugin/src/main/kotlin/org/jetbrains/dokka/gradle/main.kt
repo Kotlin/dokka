@@ -109,7 +109,7 @@ object DokkaVersion {
     }
 }
 
-object ClassloaderContainer {
+internal object ClassloaderContainer {
     @JvmField
     var coreClassLoader: ClassLoader? = null
 }

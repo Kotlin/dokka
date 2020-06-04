@@ -142,7 +142,7 @@ class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var suppress: Boolean = false
 }
 
-fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {
+internal fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {
     val newObj = GradlePassConfigurationImpl(this.name)
     this::class.memberProperties.forEach { field ->
         if (field is KMutableProperty<*>) {

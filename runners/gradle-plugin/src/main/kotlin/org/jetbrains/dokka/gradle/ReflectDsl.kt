@@ -5,7 +5,7 @@ import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
-object ReflectDsl {
+internal object ReflectDsl {
 
     class CallOrPropAccess(private val receiver: Any?,
                            private val clz: KClass<*>,
