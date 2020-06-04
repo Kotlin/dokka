@@ -1,9 +1,6 @@
 package enums
 
-import matchers.content.assertNode
-import matchers.content.group
-import matchers.content.header
-import matchers.content.link
+import matchers.content.*
 import org.jetbrains.dokka.model.ConstructorValues
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.*
@@ -121,8 +118,8 @@ class EnumsTest : AbstractCoreTest() {
 
                         assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
                         assertEquals(1, second.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(listOf("\"e1\"", "1", "true"), first.extra.allOfType<ConstructorValues>().first().values)
-                        assertEquals(listOf("\"e2\"", "2", "false"), second.extra.allOfType<ConstructorValues>().first().values)
+                        assertEquals(listOf("\"e1\"", "1", "true"), first.extra.allOfType<ConstructorValues>().first().values.values.first())
+                        assertEquals(listOf("\"e2\"", "2", "false"), second.extra.allOfType<ConstructorValues>().first().values.values.first())
                     }
                 }
             }
@@ -171,7 +168,7 @@ class EnumsTest : AbstractCoreTest() {
                         val first = enum.entries.first()
 
                         assertEquals(1, first.extra.allOfType<ConstructorValues>().size)
-                        assertEquals(emptyList<String>(), first.extra.allOfType<ConstructorValues>().first().values)
+                        assertEquals(emptyList<String>(), first.extra.allOfType<ConstructorValues>().first().values.values.first())
                         assertNotNull(first.functions.find { it.name == "toBeImplemented" })
                     }
                 }
@@ -207,13 +204,16 @@ class EnumsTest : AbstractCoreTest() {
 
                 signature.assertNode {
                     header(1) { +"E1" }
-                    group {
-                        mapOf("SinceKotlin" to setOf("version")).entries.forEach {
-                            group {
+                    platformHinted {
+                        group {
+                            mapOf("SinceKotlin" to setOf("version")).entries.forEach {
                                 group {
-                                    unwrapAnnotation(it)
+                                    group {
+                                        unwrapAnnotation(it)
+                                    }
+                                    link { +"E1" }
+                                    +"()"
                                 }
-                                link { +"E1" }
                             }
                         }
                     }
