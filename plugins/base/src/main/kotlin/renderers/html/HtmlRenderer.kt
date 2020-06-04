@@ -400,7 +400,7 @@ open class HtmlRenderer(
 
     private fun FlowContent.withAnchor(anchorName: String?, content: FlowContent.() -> Unit) {
         a {
-            anchorName?.let { attributes["name"] = it }
+            anchorName?.let { attributes["data-name"] = it }
         }
         content()
     }

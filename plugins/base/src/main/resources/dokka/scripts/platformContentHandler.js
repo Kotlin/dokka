@@ -7,24 +7,47 @@ window.addEventListener('load', () => {
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event,elem)))
     document.querySelectorAll("div[tabs-section]")
-        .forEach(elem => elem.addEventListener('click', (event) => toggleSections(event)))
+        .forEach(elem => elem.addEventListener('click', (event) => toggleSectionsEventHandler(event)))
     document.getElementById('filter-section').addEventListener('click', (event) => filterButtonHandler(event))
     initializeFiltering()
     initTabs()
+    handleAnchor()
 })
+
+function handleAnchor() {
+    let searchForTab = function(element) {
+        if(element && element.hasAttribute) {
+            if(element.hasAttribute("data-togglable")) return element;
+            else return searchForTab(element.parentNode)
+        } else return null
+    }
+    let anchor = window.location.hash
+    if (anchor != "") {
+        anchor = anchor.substring(1)
+        let element = document.querySelector('a[data-name="' + anchor+'"]')
+        if (element) {
+            let tab = searchForTab(element)
+            if (tab) {
+                let found = document.querySelector('.tabs-section > .section-tab[data-togglable="' + tab.getAttribute("data-togglable") + '"]')
+                toggleSections(tab)
+                element.scrollIntoView({behavior: "smooth"})
+            }
+        }
+    }
+}
 
 function initTabs(){
     document.querySelectorAll("div[tabs-section]")
         .forEach(element => {
             showCorrespondingTabBody(element)
-            element.addEventListener('click', (event) => toggleSections(event))
+            element.addEventListener('click', (event) => toggleSectionsEventHandler(event))
         })
     let cached = localStorage.getItem("active-tab")
     if (cached) {
         let parsed = JSON.parse(cached)
         let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + parsed + '"]')
         if(tab) {
-            tab.click()
+            toggleSections(tab)
         }
     }
 }
@@ -103,15 +126,12 @@ function removeSourcesetFilterFromCache(sourceset) {
     }
 }
 
-
-function toggleSections(evt){
-    if(!evt.target.getAttribute("data-togglable")) return
-    localStorage.setItem('active-tab', JSON.stringify(evt.target.getAttribute("data-togglable")))
-
+function toggleSections(target) {
+    localStorage.setItem('active-tab', JSON.stringify(target.getAttribute("data-togglable")))
     const activateTabs = (containerClass) => {
         for(const element of document.getElementsByClassName(containerClass)){
             for(const child of element.children){
-                if(child.getAttribute("data-togglable") === evt.target.getAttribute("data-togglable")){
+                if(child.getAttribute("data-togglable") === target.getAttribute("data-togglable")){
                     child.setAttribute("data-active", "")
                 } else {
                     child.removeAttribute("data-active")
@@ -122,6 +142,11 @@ function toggleSections(evt){
 
     activateTabs("tabs-section")
     activateTabs("tabs-section-body")
+}
+
+function toggleSectionsEventHandler(evt){
+    if(!evt.target.getAttribute("data-togglable")) return
+    toggleSections(evt.target)
 }
 
 function togglePlatformDependent(e, container) {
