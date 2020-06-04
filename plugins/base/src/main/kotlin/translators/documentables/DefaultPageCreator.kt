@@ -141,8 +141,10 @@ open class DefaultPageCreator(
     protected open fun contentForEnumEntry(e: DEnumEntry) = contentBuilder.contentFor(e) {
         group(kind = ContentKind.Cover) {
             header(1, e.name)
-            +buildSignature(e)
-            +contentForDescription(e)
+            sourceSetDependentHint(e.dri, e.sourceSets.toSet()) {
+                +buildSignature(e)
+                +contentForDescription(e)
+            }
         }
         group(styles = setOf(ContentStyle.TabbedContent)){
             +contentForComments(e)

@@ -61,12 +61,10 @@ data class ActualTypealias(val underlyingType: SourceSetDependent<Bound>) : Extr
     override val key: ExtraProperty.Key<DClasslike, ActualTypealias> = ActualTypealias
 }
 
-data class ConstructorValues(val values: List<String>) : ExtraProperty<DEnumEntry>{
+data class ConstructorValues(val values: SourceSetDependent<List<String>>) : ExtraProperty<DEnumEntry>{
     companion object : ExtraProperty.Key<DEnumEntry, ConstructorValues> {
         override fun mergeStrategyFor(left: ConstructorValues, right: ConstructorValues) =
-            MergeStrategy.Fail{
-                throw IllegalArgumentException("Merging constructor parameters not applicable")
-            }
+            MergeStrategy.Replace(ConstructorValues(left.values + right.values))
     }
 
     override val key: ExtraProperty.Key<DEnumEntry, ConstructorValues> = ConstructorValues

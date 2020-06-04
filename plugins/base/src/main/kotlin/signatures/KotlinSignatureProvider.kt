@@ -37,9 +37,9 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             group(styles = setOf(TextStyle.Block)){
                 annotationsBlock(e)
                 link(e.name, e.dri, styles = emptySet())
-                e.extra[ConstructorValues]?.let {
-                    list(it.values, prefix = "(", suffix = ")"){
-                        text(it)
+                e.extra[ConstructorValues]?.let { constructorValues ->
+                    platformText(constructorValues.values, constructorValues.values.keys){
+                        it.joinToString(prefix = "(", postfix = ")")
                     }
                 }
             }

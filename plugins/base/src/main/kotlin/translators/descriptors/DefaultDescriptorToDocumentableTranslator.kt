@@ -219,7 +219,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras(),
                 descriptor.getAnnotations(),
-                ConstructorValues(descriptor.getAppliedConstructorParameters())
+                ConstructorValues(descriptor.getAppliedConstructorParameters().toSourceSetDependent())
             )
         )
     }
