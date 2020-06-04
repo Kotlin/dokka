@@ -13,7 +13,7 @@ import java.lang.reflect.Proxy
  * to create access proxy for [delegate] into [targetClassLoader].
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader, delegate: Any): T =
+internal inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader, delegate: Any): T =
         automagicProxy(targetClassLoader, T::class.java, delegate) as T
 
 
@@ -24,14 +24,14 @@ inline fun <reified T : Any> automagicTypedProxy(targetClassLoader: ClassLoader,
  * to create access proxy for [delegate] into [targetClassLoader].
  *
  */
-fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
+internal fun automagicProxy(targetClassLoader: ClassLoader, targetType: Class<*>, delegate: Any): Any =
         Proxy.newProxyInstance(
             targetClassLoader,
             arrayOf(targetType),
             DelegatedInvocationHandler(delegate)
         )
 
-class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
+internal class DelegatedInvocationHandler(private val delegate: Any) : InvocationHandler {
 
     @Throws(Throwable::class)
     override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any? {
