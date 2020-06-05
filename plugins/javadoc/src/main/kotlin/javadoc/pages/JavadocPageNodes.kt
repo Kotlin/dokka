@@ -146,7 +146,7 @@ class TreeViewPage(
     val classes: List<JavadocClasslikePageNode>?,
     override val dri: Set<DRI>,
     override val documentable: Documentable?,
-    val root: RootPageNode
+    val root: PageNode
 ) : JavadocPageNode {
     init {
         assert(packages == null || classes == null)
@@ -157,7 +157,7 @@ class TreeViewPage(
         getDocumentableEntries(node)
     }.groupBy({ it.first }) { it.second }.map { (l, r) -> l to r.first() }.toMap()
 
-    private val descriptorMap = getDescriptorMap(root)
+    private val descriptorMap = getDescriptorMap()
     private val inheritanceTuple = generateInheritanceTree()
     private val classGraph = inheritanceTuple.first
     private val interfaceGraph = inheritanceTuple.second
@@ -213,7 +213,7 @@ class TreeViewPage(
         emptySet()
     )
 
-    private fun generateInheritanceTree(): Pair<InheritanceNode, InheritanceNode> {
+    private fun generateInheritanceTree(): Pair<List<InheritanceNode>, List<InheritanceNode>> {
         val mergeMap = mutableMapOf<DRI, InheritanceNode>()
 
         fun addToMap(info: InheritanceNode, map: MutableMap<DRI, InheritanceNode>) {
@@ -250,35 +250,60 @@ class TreeViewPage(
 
         fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).first() // TODO.single()
 
-        fun gatherPsiClasses(psi: PsiType): List<Pair<PsiType, List<PsiType>>> = psi.superTypes.toList().let { l ->
+        fun gatherPsiClasses(psi: PsiClass): List<Pair<PsiClass, List<PsiClass>>> = psi.supers.toList().let { l ->
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
         }
 
-        fun gatherPsiClasses(psi: PsiClass): List<Pair<PsiType, List<PsiType>>> =
-            psi.superTypes.flatMap(::gatherPsiClasses)
 
-        val psiClasses = documentables.flatMap { (_, v) -> (v as? WithExpectActual)?.sources?.values.orEmpty() }
+        val psiInheritanceTree = documentables.flatMap { (_, v) -> (v as? WithExpectActual)?.sources?.values.orEmpty() }
             .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }.flatMap(::gatherPsiClasses)
-            .groupBy({ it.first }) { it.second }
-            .map { (k, v) -> k to v.flatten().distinct() }.toMap()
+            .flatMap { entry -> entry.second.map { it to entry.first } }
+            .let {
+                it + it.map { it.second to null }
+            }
+            .groupBy({it.first}) {it.second}
+            .map { it.key to it.value.filterNotNull().distinct() }
+            .map { (k,v) ->
+                InheritanceNode(
+                    DRI.from(k),
+                    v.map { InheritanceNode(DRI.from(it)) },
+                    k.supers.filter { it.isInterface }.map { DRI.from(it) },
+                    k.isInterface
+                )
 
-        val s1 = descriptorMap.flatMap { (k, v) ->
-            v.typeConstructor.supertypes.map { getClassDescriptorForType(it) }.map { it to listOf(v) }
-        }.let { it + it.flatMap { e -> e.second.map { it to emptyList<ClassDescriptor>() } } }
-            .groupBy({ it.first }) { it.second }
+            }
+
+        val descriptorInheritanceTree = descriptorMap.flatMap {
+                (_,v) -> v.typeConstructor.supertypes
+            .map { getClassDescriptorForType(it) to v }
+        }
+            .let {
+                it + it.map { it.second to null }
+            }
+            .groupBy ({ it.first }) { it.second }
+            .map { it.key to it.value.filterNotNull().distinct() }
             .map { (k, v) ->
                 InheritanceNode(
                     DRI.from(k),
-                    v.flatten().map { InheritanceNode(DRI.from(it)) },
+                    v.map { InheritanceNode(DRI.from(it)) },
                     k.typeConstructor.supertypes.map { getClassDescriptorForType(it) }
                         .mapNotNull { cd -> cd.takeIf { it.kind == ClassKind.INTERFACE }?.let { DRI.from(it) } },
                     isInterface = k.kind == ClassKind.INTERFACE
                 )
             }
-        s1.forEach { addToMap(it, mergeMap) }
-        val g = mergeMap.entries.find { it.key.classNames == "Any" }?.value?.dri?.let(::collect)
 
-        return g?.let{classTree(it) to interfaceTree(it)} ?: run { throw IllegalStateException("Building inheritance tree failed") }
+        descriptorInheritanceTree.forEach { addToMap(it, mergeMap) }
+        psiInheritanceTree.forEach { addToMap(it, mergeMap) }
+
+        val g = mergeMap.entries.find { it.key.classNames == "Any" || it.key.classNames == "Object" }?.value?.dri?.let(::collect)
+        val rootClasses = listOf("Any", "Object")
+        val rootNodes = mergeMap.entries.filter {
+            it.key.classNames in rootClasses //TODO: Probably should be matched by DRI, not just className
+        }.map {
+            collect(it.value.dri)
+        }
+
+        return rootNodes.let { Pair(it.map(::classTree), it.map(::interfaceTree)) }
     }
 
     private fun generateInterfaceGraph() {
@@ -289,7 +314,7 @@ class TreeViewPage(
         listOfNotNull(node.documentable?.let { it.dri to it }) +
                 node.children.filterIsInstance<ContentPage>().flatMap(::getDocumentableEntries)
 
-    private fun getDescriptorMap(root: RootPageNode): Map<DRI, ClassDescriptor> {
+    private fun getDescriptorMap(): Map<DRI, ClassDescriptor> {
         val map: MutableMap<DRI, ClassDescriptor> = mutableMapOf()
         documentables
             .mapNotNull { (k, v) ->

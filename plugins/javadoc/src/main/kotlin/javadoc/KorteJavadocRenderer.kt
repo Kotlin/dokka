@@ -150,10 +150,10 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                 }.joinToString("\n")
             },
             TeFunction("renderInheritanceGraph") { args ->
-                val node = args.first() as TreeViewPage.InheritanceNode
+                val rootNodes = args.first() as List<TreeViewPage.InheritanceNode>
 
-                fun drawRec(node: TreeViewPage.InheritanceNode): String =
-                    "<li class=\"circle\">" + node.dri.let { dri ->
+                fun drawRec(node: TreeViewPage.InheritanceNode) : String {
+                    val returnValue = "<li class=\"circle\">" + node.dri.let { dri ->
                         listOfNotNull(
                             dri.packageName,
                             dri.classNames
@@ -169,8 +169,9 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                     } + node.children.filterNot { it.isInterface }.takeUnless { it.isEmpty() }?.let {
                         "<ul>" + it.joinToString("\n", transform = ::drawRec) + "</ul>"
                     }.orEmpty() + "</li>"
-
-                drawRec(node)
+                    return returnValue
+                }
+                rootNodes.joinToString{ drawRec(it) }
             },
             Filter("length") { subject.dynamicLength() }
         ).forEach {
