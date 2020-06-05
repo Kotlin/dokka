@@ -10,6 +10,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.junit.rules.TemporaryFolder
+import testApi.logger.TestLogger
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -19,7 +20,7 @@ import java.nio.file.Paths
 
 // TODO: take dokka configuration from file
 abstract class AbstractCoreTest {
-    protected val logger = DokkaConsoleLogger
+    protected val logger = TestLogger(DokkaConsoleLogger)
 
     protected fun getTestDataDir(name: String) =
         File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
@@ -114,7 +115,8 @@ abstract class AbstractCoreTest {
         var pagesTransformationStage: (RootPageNode) -> Unit = {}
         var renderingStage: (RootPageNode, DokkaContext) -> Unit = { a, b -> }
 
-        fun build() = TestMethods(
+        @PublishedApi
+        internal fun build() = TestMethods(
             analysisSetupStage,
             pluginsSetupStage,
             documentablesCreationStage,

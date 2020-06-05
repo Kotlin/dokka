@@ -83,7 +83,7 @@ interface DokkaConfiguration {
     interface PackageOptions {
         val prefix: String
         val includeNonPublic: Boolean
-        val reportUndocumented: Boolean
+        val reportUndocumented: Boolean?
         val skipDeprecated: Boolean
         val suppress: Boolean
     }

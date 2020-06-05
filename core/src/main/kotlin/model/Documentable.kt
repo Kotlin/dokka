@@ -1,8 +1,6 @@
 package org.jetbrains.dokka.model
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -377,6 +375,15 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     } else {
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
+
+fun Documentable.withDescendants(): Sequence<Documentable> {
+    return sequence {
+        yield(this@withDescendants)
+        children.forEach { child ->
+            yieldAll(child.withDescendants())
+        }
+    }
+}
 
 sealed class Visibility(val name: String)
 sealed class KotlinVisibility(name: String) : Visibility(name) {

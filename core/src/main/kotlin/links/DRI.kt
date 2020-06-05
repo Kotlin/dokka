@@ -38,12 +38,13 @@ data class DRI(
         }
 
         fun from(psi: PsiElement) = psi.parentsWithSelf.run {
-            val callable = firstIsInstanceOrNull<PsiMethod>()
+            val psiMethod = firstIsInstanceOrNull<PsiMethod>()
+            val psiField = firstIsInstanceOrNull<PsiField>()
             val classes = filterIsInstance<PsiClass>().toList()
             DRI(
                 classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', ""),
                 classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
-                callable?.let { Callable.from(it) },
+                psiMethod?.let { Callable.from(it) }  ?: psiField?.let { Callable.from(it) } ,
                 DriTarget.from(psi)
             )
         }
@@ -85,11 +86,20 @@ data class Callable(
                 valueParameters.mapNotNull { TypeReference.from(it) }
             )
         }
+
         fun from(psi: PsiMethod) = with(psi) {
             Callable(
                 name,
                 null,
                 parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) })
+        }
+
+        fun from(psi: PsiField): Callable {
+            return Callable(
+                name = psi.name,
+                receiver = null,
+                params = emptyList()
+            )
         }
     }
 }
@@ -169,11 +179,12 @@ sealed class DriTarget {
 
     companion object {
         fun from(descriptor: DeclarationDescriptor): DriTarget = descriptor.parentsWithSelf.run {
-            return when(descriptor){
+            return when (descriptor) {
                 is TypeParameterDescriptor -> PointingToGenericParameters(descriptor.index)
                 else -> {
                     val callable = firstIsInstanceOrNull<CallableDescriptor>()
-                    val params = callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
+                    val params =
+                        callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
                     val parameterDescriptor = firstIsInstanceOrNull<ParameterDescriptor>()
 
                     parameterDescriptor?.let { PointingToCallableParameters(params.indexOf(it)) }
@@ -183,7 +194,7 @@ sealed class DriTarget {
         }
 
         fun from(psi: PsiElement): DriTarget = psi.parentsWithSelf.run {
-            return when(psi) {
+            return when (psi) {
                 is PsiTypeParameter -> PointingToGenericParameters(psi.index)
                 else -> firstIsInstanceOrNull<PsiParameter>()?.let {
                     val callable = firstIsInstanceOrNull<PsiMethod>()
@@ -199,15 +210,15 @@ data class PointingToGenericParameters(val parameterIndex: Int) : DriTarget() {
     override fun toString(): String = "PointingToGenericParameters($parameterIndex)"
 }
 
-object PointingToDeclaration: DriTarget()
+object PointingToDeclaration : DriTarget()
 
-data class PointingToCallableParameters(val parameterIndex: Int): DriTarget(){
+data class PointingToCallableParameters(val parameterIndex: Int) : DriTarget() {
     override fun toString(): String = "PointingToCallableParameters($parameterIndex)"
 }
 
-fun DriTarget.nextTarget(): DriTarget = when(this){
-        is PointingToGenericParameters -> PointingToGenericParameters(this.parameterIndex+1)
-        is PointingToCallableParameters -> PointingToCallableParameters(this.parameterIndex+1)
-        else -> this
-    }
+fun DriTarget.nextTarget(): DriTarget = when (this) {
+    is PointingToGenericParameters -> PointingToGenericParameters(this.parameterIndex + 1)
+    is PointingToCallableParameters -> PointingToCallableParameters(this.parameterIndex + 1)
+    else -> this
+}
 

@@ -16,7 +16,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.12.1")
 
     testImplementation(project(":testApi"))
-    testImplementation("junit:junit:4.13")
+    testImplementation(kotlin("test-junit"))
 }
 
 val sourceJar by tasks.registering(Jar::class) {

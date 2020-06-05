@@ -9,12 +9,12 @@ import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.resolvers.external.*
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
-import org.jetbrains.dokka.base.transformers.documentables.ActualTypealiasAdder
+import org.jetbrains.dokka.base.transformers.documentables.*
 import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMerger
-import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
-import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
 import org.jetbrains.dokka.base.transformers.documentables.DocumentableVisibilityFilter
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
+import org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer
+import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -71,6 +71,10 @@ class DokkaBase : DokkaPlugin() {
 
     val actualTypealiasAdder by extending {
         CoreExtensions.documentableTransformer with ActualTypealiasAdder()
+    }
+
+    val undocumentedCodeReporter by extending {
+        CoreExtensions.documentableTransformer with ReportUndocumentedTransformer()
     }
 
     val documentableToPageTranslator by extending(isFallback = true) {
@@ -175,7 +179,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val sourcesetDependencyAppender by extending {
-        htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator)}
+        htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator) }
     }
 
     val allModulePageCreators by extending {

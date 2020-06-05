@@ -17,7 +17,7 @@ fun parsePerPackageOptions(arg: String): List<PackageOptions> {
             throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
         val args = it.subList(1, it.size)
         val deprecated = args.find { it.endsWith("deprecated") }?.startsWith("+") ?: true
-        val reportUndocumented = args.find { it.endsWith("warnUndocumented") }?.startsWith("+") ?: true
+        val reportUndocumented = args.find { it.endsWith("reportUndocumented") }?.startsWith("+") ?: true
         val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+") ?: false
         val suppress = args.find { it.endsWith("suppress") }?.startsWith("+") ?: false
         PackageOptionsImpl(

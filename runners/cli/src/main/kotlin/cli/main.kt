@@ -188,7 +188,7 @@ class Arguments(val parser: DokkaArgumentsParser) : DokkaConfiguration.PassConfi
 
     override val perPackageOptions: MutableList<DokkaConfiguration.PackageOptions> by parser.singleOption(
         listOf("-packageOptions"),
-        "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" ",
+        "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+reportUndocumented,+suppress;...\" ",
         { parsePerPackageOptions(it).toMutableList() },
         { mutableListOf() }
     )
@@ -292,7 +292,7 @@ object MainKt {
 
         parseContext.cli.singleAction(
             listOf("-globalPackageOptions"),
-            "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
+            "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+reportUndocumented,+suppress;...\" "
         ) { link ->
             configuration.passesConfigurations.all {
                 it.perPackageOptions.toMutableList().addAll(parsePerPackageOptions(link))
