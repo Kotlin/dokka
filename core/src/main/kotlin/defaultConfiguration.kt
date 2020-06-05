@@ -73,7 +73,7 @@ data class SourceLinkDefinitionImpl(
 data class PackageOptionsImpl(
     override val prefix: String,
     override val includeNonPublic: Boolean,
-    override val reportUndocumented: Boolean,
+    override val reportUndocumented: Boolean?,
     override val skipDeprecated: Boolean,
     override val suppress: Boolean
 ): DokkaConfiguration.PackageOptions

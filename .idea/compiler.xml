@@ -11,7 +11,7 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="android-gradle-plugin_main" target="1.8" />
       <module name="android-gradle-plugin_test" target="1.8" />
       <module name="ant_main" target="1.8" />
@@ -28,62 +28,28 @@
       <module name="cli_test" target="1.8" />
       <module name="core_main" target="1.8" />
       <module name="core_test" target="1.8" />
-      <module name="dokka.buildSrc.main" target="1.8" />
-      <module name="dokka.buildSrc.test" target="1.8" />
-      <module name="dokka.core.main" target="1.8" />
       <module name="dokka.core.search-component.main" target="1.8" />
       <module name="dokka.core.search-component.test" target="1.8" />
-      <module name="dokka.core.test" target="1.8" />
       <module name="dokka.core.testApi.main" target="1.8" />
       <module name="dokka.core.testApi.test" target="1.8" />
-      <module name="dokka.coreDependencies.main" target="1.8" />
-      <module name="dokka.coreDependencies.test" target="1.8" />
-      <module name="dokka.integration-tests.gradle-integration-tests.main" target="1.8" />
-      <module name="dokka.integration-tests.gradle-integration-tests.test" target="1.8" />
-      <module name="dokka.integration-tests.main" target="1.8" />
-      <module name="dokka.integration-tests.test" target="1.8" />
       <module name="dokka.integration.main" target="1.8" />
       <module name="dokka.integration.test" target="1.8" />
-      <module name="dokka.plugins.base.main" target="1.8" />
       <module name="dokka.plugins.base.search-component.main" target="1.8" />
       <module name="dokka.plugins.base.search-component.test" target="1.8" />
-      <module name="dokka.plugins.base.test" target="1.8" />
-      <module name="dokka.plugins.gfm.main" target="1.8" />
-      <module name="dokka.plugins.gfm.test" target="1.8" />
       <module name="dokka.plugins.javadoc8.main" target="1.8" />
       <module name="dokka.plugins.javadoc8.test" target="1.8" />
-      <module name="dokka.plugins.jekyll.main" target="1.8" />
-      <module name="dokka.plugins.jekyll.test" target="1.8" />
-      <module name="dokka.plugins.kotlin-as-java.main" target="1.8" />
-      <module name="dokka.plugins.kotlin-as-java.test" target="1.8" />
       <module name="dokka.plugins.ma.main" target="1.8" />
       <module name="dokka.plugins.ma.test" target="1.8" />
-      <module name="dokka.plugins.main" target="1.8" />
-      <module name="dokka.plugins.mathjax.main" target="1.8" />
-      <module name="dokka.plugins.mathjax.test" target="1.8" />
-      <module name="dokka.plugins.test" target="1.8" />
       <module name="dokka.plugins.xml.main" target="1.8" />
       <module name="dokka.plugins.xml.test" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.main" target="1.8" />
       <module name="dokka.runners.android-gradle-plugin.test" target="1.8" />
       <module name="dokka.runners.ant.main" target="1.8" />
       <module name="dokka.runners.ant.test" target="1.8" />
-      <module name="dokka.runners.cli.main" target="1.8" />
-      <module name="dokka.runners.cli.test" target="1.8" />
       <module name="dokka.runners.fatjar.main" target="1.8" />
       <module name="dokka.runners.fatjar.test" target="1.8" />
       <module name="dokka.runners.gradle-integration-tests.main" target="1.8" />
       <module name="dokka.runners.gradle-integration-tests.test" target="1.8" />
-      <module name="dokka.runners.gradle-plugin.main" target="1.8" />
-      <module name="dokka.runners.gradle-plugin.test" target="1.8" />
-      <module name="dokka.runners.main" target="1.8" />
-      <module name="dokka.runners.maven-plugin.main" target="1.8" />
-      <module name="dokka.runners.maven-plugin.test" target="1.8" />
-      <module name="dokka.runners.test" target="1.8" />
-      <module name="dokka.test-tools.main" target="1.8" />
-      <module name="dokka.test-tools.test" target="1.8" />
-      <module name="dokka.testApi.main" target="1.8" />
-      <module name="dokka.testApi.test" target="1.8" />
       <module name="fatjar_main" target="1.8" />
       <module name="fatjar_test" target="1.8" />
       <module name="gradle-integration-tests.dokka.integration-tests.gradle-integration-tests.main" target="1.8" />

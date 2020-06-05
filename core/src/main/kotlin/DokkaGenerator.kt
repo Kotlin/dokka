@@ -146,7 +146,7 @@ class DokkaGenerator(
             }
             pass.classpath.forEach { addClasspath(File(it)) }
 
-            addSources((pass.sourceRoots +  pass.dependentSourceRoots).map { it.path })
+            addSources((pass.sourceRoots + pass.dependentSourceRoots).map { it.path })
 
             loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
 

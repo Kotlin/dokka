@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
-import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
@@ -11,15 +10,16 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
-import org.jetbrains.kotlin.asJava.classes.tryResolveMarkerInterfaceFQName
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.isJvmStaticInObjectOrClassOrInterface
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Visibility
+import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
@@ -29,15 +29,10 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getValueArgumentsInParentheses
 import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
-import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
-import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
-import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
-import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
+import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
-import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -46,12 +41,13 @@ import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.types.DynamicType
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Paths
-import kotlin.IllegalArgumentException
-import kotlin.reflect.jvm.internal.impl.resolve.constants.KClassValue
+import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnotationValue
+import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
+import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
+import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -272,7 +268,7 @@ private class DokkaDescriptorVisitor(
             supertypes = info.supertypes.toSourceSetDependent(),
             generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             documentation = info.docs,
-            modifier =   descriptor.modifier().toSourceSetDependent(),
+            modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
             sourceSets = listOf(sourceSet),
             extra = PropertyContainer.withAll(descriptor.additionalExtras(), descriptor.getAnnotations())

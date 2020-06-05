@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.psi
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.PsiFieldImpl
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -26,7 +27,7 @@ class JavadocParser(
 ) : JavaDocumentationParser {
 
     override fun parseDocumentation(element: PsiNamedElement): DocumentationNode {
-        val docComment = (element as? PsiDocCommentOwner)?.docComment ?: return DocumentationNode(emptyList())
+        val docComment = findClosestDocComment(element) ?: return DocumentationNode(emptyList())
         val nodes = mutableListOf<TagWrapper>()
         docComment.getDescription()?.let { nodes.add(it) }
         nodes.addAll(docComment.tags.mapNotNull { tag ->
@@ -41,6 +42,40 @@ class JavadocParser(
             }
         })
         return DocumentationNode(nodes)
+    }
+
+    private fun findClosestDocComment(element: PsiNamedElement): PsiDocComment? {
+        (element as? PsiDocCommentOwner)?.docComment?.run { return this }
+        if (element is PsiMethod) {
+            val superMethods = element.findSuperMethods()
+            if (superMethods.isEmpty()) return null
+
+            if (superMethods.size == 1) {
+                return findClosestDocComment(superMethods.single())
+            }
+
+            val superMethodDocumentation = superMethods.map(::findClosestDocComment)
+            if (superMethodDocumentation.size == 1) {
+                return superMethodDocumentation.single()
+            }
+
+            logger.warn(
+                "Conflicting documentation for ${DRI.from(element)}" +
+                        "${superMethods.map { DRI.from(it) }}"
+            )
+
+            /* Prioritize super class over interface */
+            val indexOfSuperClass = superMethods.indexOfFirst { method ->
+                val parent = method.parent
+                if (parent is PsiClass) !parent.isInterface
+                else false
+            }
+
+            return if (indexOfSuperClass >= 0) superMethodDocumentation[indexOfSuperClass]
+            else superMethodDocumentation.first()
+        }
+
+        return null
     }
 
     private fun getSeeTagElementContent(tag: PsiDocTag): List<DocTag> =
