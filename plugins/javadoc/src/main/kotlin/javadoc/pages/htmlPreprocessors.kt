@@ -31,7 +31,7 @@ object TreeViewInstaller : PageTransformer {
             packages = node.children<JavadocPackagePageNode>().map { installPackageTreeNode(it, root) },
             classes = null,
             dri = node.dri,
-            documentable = null,
+            documentable = node.documentable,
             root = root
         )
 
