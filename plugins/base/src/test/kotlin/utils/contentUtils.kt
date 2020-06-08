@@ -178,7 +178,7 @@ fun ContentMatcherBuilder<*>.unnamedTag(tag: String, content: ContentMatcherBuil
         group { content() }
     }
 
-private fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String>>) {
+fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String>>) {
     group {
         +"@"
         link { +elem.key }
