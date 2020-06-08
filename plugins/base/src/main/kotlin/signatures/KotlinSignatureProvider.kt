@@ -171,13 +171,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     text(".")
                 }
                 link(f.name, f.dri)
-                list(f.parameters, "(", ")") {
+                text("(")
+                list(f.parameters) {
                     annotationsInline(it)
                     text(it.modifiers().toSignatureString())
                     text(it.name!!)
                     text(": ")
                     signatureForProjection(it.type)
                 }
+                text(")")
                 if (f.documentReturnType()) {
                     text(": ")
                     signatureForProjection(f.type)
