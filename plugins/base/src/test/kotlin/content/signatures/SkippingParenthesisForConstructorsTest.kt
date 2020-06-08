@@ -36,10 +36,8 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                group {
-                                    +"class"
-                                    link { +"SomeClass" }
-                                }
+                                +"class"
+                                link { +"SomeClass" }
                             }
                         }
                     }
@@ -68,10 +66,8 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                group {
-                                    +"class"
-                                    link { +"SomeClass" }
-                                }
+                                +"class"
+                                link { +"SomeClass" }
                             }
                         }
                     }
@@ -100,13 +96,11 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                group {
-                                    +"class"
-                                    link { +"SomeClass" }
-                                    +"(a:"
-                                    group { link { +"String" } }
-                                    +")"
-                                }
+                                +"class"
+                                link { +"SomeClass" }
+                                +"(a:"
+                                group { link { +"String" } }
+                                +")"
                             }
                         }
                     }
@@ -135,13 +129,11 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                group {
-                                    +"class"
-                                    link { +"SomeClass" }
-                                    +"(a:" // TODO: Make sure if we still do not want to have "val" here
-                                    group { link { +"String" } }
-                                    +")"
-                                }
+                                +"class"
+                                link { +"SomeClass" }
+                                +"(a:" // TODO: Make sure if we still do not want to have "val" here
+                                group { link { +"String" } }
+                                +")"
                             }
                         }
                     }
@@ -171,13 +163,11 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header(1) { +"SomeClass" }
                         platformHinted {
                             group {
-                                group {
-                                    +"class"
-                                    link { +"SomeClass" }
-                                    +"(a:"
-                                    group { link { +"String" } }
-                                    +")"
-                                }
+                                +"class"
+                                link { +"SomeClass" }
+                                +"(a:"
+                                group { link { +"String" } }
+                                +")"
                             }
                         }
                     }

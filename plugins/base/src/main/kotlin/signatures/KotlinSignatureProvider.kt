@@ -94,26 +94,24 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     +buildSignature(it)
                 }
             }
-            if (c is DClass) {
-                if (c is WithConstructors) {
-                    val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
-                    if (pConstructor?.annotations()?.isNotEmpty() == true) {
-                        text(nbsp.toString())
-                        annotationsInline(pConstructor)
-                        text("constructor")
-                    }
-                    list(
-                        pConstructor?.parameters.orEmpty(),
-                        "(",
-                        ")",
-                        ",",
-                        pConstructor?.sourceSets.orEmpty().toSet()
-                    ) {
-                        annotationsInline(it)
-                        text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold))
-                        text(": ")
-                        signatureForProjection(it.type)
-                    }
+            if (c is WithConstructors) {
+                val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
+                if (pConstructor?.annotations()?.values?.any { it.isNotEmpty() } == true) {
+                    text(nbsp.toString())
+                    annotationsInline(pConstructor)
+                    text("constructor")
+                }
+                list(
+                    pConstructor?.parameters.orEmpty(),
+                    "(",
+                    ")",
+                    ",",
+                    pConstructor?.sourceSets.orEmpty().toSet()
+                ) {
+                    annotationsInline(it)
+                    text(it.name ?: "", styles = mainStyles.plus(TextStyle.Bold))
+                    text(": ")
+                    signatureForProjection(it.type)
                 }
             }
             if (c is WithSupertypes) {
