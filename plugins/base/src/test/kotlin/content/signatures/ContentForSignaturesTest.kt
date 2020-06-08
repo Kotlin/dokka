@@ -1,15 +1,12 @@
 package content.signatures
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
-import utils.functionSignature
 import utils.propertySignature
 
 class ContentForSignaturesTest : AbstractCoreTest() {
@@ -140,6 +137,46 @@ class ContentForSignaturesTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun `function without parameters`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |fun function(): String {
+            |    return "Hello"
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "function" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "function",
+                                    returnType = "String",
+                                )
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
 
     @Test
     fun `suspend function`() {
