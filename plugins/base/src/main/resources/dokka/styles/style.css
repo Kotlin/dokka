@@ -171,6 +171,7 @@
     display: flex;
     padding: 8px 16px;
     box-sizing: border-box;
+    white-space: pre-wrap;
     font-weight: bold;
     flex-wrap: wrap;
 }

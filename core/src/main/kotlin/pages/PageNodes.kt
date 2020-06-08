@@ -180,6 +180,8 @@ class MultimoduleRootPageNode(
 
     override val children: List<PageNode> = emptyList()
 
+    override val enforceDirectory: Boolean = false
+
     override val documentable: Documentable? = null
 
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
