@@ -27,7 +27,7 @@ abstract class Parser {
                 "deprecated"          -> Deprecated(parseStringToDocNode(it.second))
                 "sample"              -> Sample(parseStringToDocNode(it.second.substringAfter(' ')), it.second.substringBefore(' '))
                 "suppress"            -> Suppress(parseStringToDocNode(it.second))
-                else                  -> CustomWrapperTag(parseStringToDocNode(it.second), it.first)
+                else                  -> CustomTagWrapper(parseStringToDocNode(it.second), it.first)
             }
         }
         return DocumentationNode(mappedList)
