@@ -4,6 +4,7 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
@@ -72,6 +73,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
         }
     }
 
+    @Disabled
     @Test
     fun `property`() {
         testInline(
@@ -100,6 +102,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
             |/src/main/kotlin/test/source.kt
             |package test
             |
+            |@MustBeDocumented
             |@Retention(AnnotationRetention.SOURCE)
             |@Target(AnnotationTarget.FIELD)
             |annotation class BugReport(

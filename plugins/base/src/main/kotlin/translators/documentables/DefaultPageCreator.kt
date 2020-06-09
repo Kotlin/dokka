@@ -247,6 +247,8 @@ open class DefaultPageCreator(
                     }
                 }
             }
+
+            contentForSinceKotlin(d)
         }.children
     }
 
@@ -352,11 +354,26 @@ open class DefaultPageCreator(
         }.children
     }
 
-    protected open fun DocumentableContentBuilder.contentForBrief(content: Documentable) {
-        content.sourceSets.forEach { sourceSet ->
-            content.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
+    protected open fun DocumentableContentBuilder.contentForBrief(documentable: Documentable) {
+        documentable.sourceSets.forEach { sourceSet ->
+            documentable.documentation[sourceSet]?.children?.firstOrNull()?.root?.let {
                 group(sourceSets = setOf(sourceSet), kind = ContentKind.BriefComment) {
                     comment(it)
+                }
+            }
+        }
+    }
+
+    protected open fun DocumentableContentBuilder.contentForSinceKotlin(documentable: Documentable) {
+        documentable.documentation.mapValues {
+            it.value.children.find { it is CustomTagWrapper && it.name == "Since Kotlin" } as CustomTagWrapper?
+        }.run {
+            documentable.sourceSets.forEach { sourceSet ->
+                this[sourceSet]?.also { tag ->
+                    group(sourceSets = setOf(sourceSet)) {
+                        header(4, (tag as CustomTagWrapper).name)
+                        comment(tag.root)
+                    }
                 }
             }
         }
@@ -385,7 +402,7 @@ open class DefaultPageCreator(
         name: String,
         collection: Collection<Documentable>,
         kind: ContentKind,
-        extra: PropertyContainer<ContentNode> = mainExtra,
+        extra: PropertyContainer<ContentNode> = mainExtra
     ) {
         if (collection.any()) {
             header(2, name)
@@ -405,6 +422,7 @@ open class DefaultPageCreator(
                                 instance(setOf(it.dri), it.sourceSets.toSet()) {
                                     before {
                                         contentForBrief(it)
+                                        contentForSinceKotlin(it)
                                     }
                                     divergent {
                                         group {

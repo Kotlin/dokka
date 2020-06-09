@@ -15,6 +15,7 @@ import org.jetbrains.dokka.base.transformers.documentables.DocumentableVisibilit
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
 import org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -63,6 +64,10 @@ class DokkaBase : DokkaPlugin() {
         signatureProvider providing { ctx ->
             KotlinSignatureProvider(ctx.single(commentsToContentConverter), ctx.logger)
         }
+    }
+
+    val sinceKotlinTransformer by extending {
+        CoreExtensions.documentableTransformer providing ::SinceKotlinTransformer
     }
 
     val inheritorsExtractor by extending {

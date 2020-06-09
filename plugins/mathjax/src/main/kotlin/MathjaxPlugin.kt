@@ -2,7 +2,7 @@ package  org.jetbrains.dokka.mathjax
 
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.model.doc.CustomWrapperTag
+import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -28,5 +28,5 @@ object MathjaxTransformer : PageTransformer {
         get() = documentable?.documentation?.values
             ?.flatMap { it.children }
             .orEmpty()
-            .any { (it as? CustomWrapperTag)?.name == ANNOTATION }
+            .any { (it as? CustomTagWrapper)?.name == ANNOTATION }
 }

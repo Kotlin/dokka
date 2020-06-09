@@ -6,6 +6,7 @@ import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.unwrapAnnotation
 
@@ -176,6 +177,7 @@ class EnumsTest : AbstractCoreTest() {
         }
     }
 
+    @Disabled
     @Test
     fun enumWithAnnotationsOnEntries(){
         val configuration = dokkaConfiguration {
