@@ -54,9 +54,7 @@ class DokkaGenerator(
         report("Rendering")
         render(transformedPages, context)
 
-        context.unusedPoints.takeIf { it.isNotEmpty() }
-            ?.also { logger.warn("Unused extension points found: ${it.joinToString(", ")}") }
-        logger.report()
+        reportAfterRendering(context)
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
     fun generateAllModulesPage() = timed {
@@ -138,6 +136,20 @@ class DokkaGenerator(
         renderer.render(transformedPages)
     }
 
+    fun reportAfterRendering(context: DokkaContext) {
+        context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
+            logger.warn("Unused extension points found: ${it.joinToString(", ")}")
+        }
+
+        logger.report()
+
+        if (context.configuration.failOnWarning && (logger.warningsCount > 0 || logger.errorsCount > 0)) {
+            throw DokkaException(
+                "Failed with warningCount=${logger.warningsCount} and errorCount=${logger.errorsCount}"
+            )
+        }
+    }
+
     private fun createEnvironmentAndFacade(
         configuration: DokkaConfiguration,
         pass: DokkaConfiguration.PassConfiguration
@@ -211,4 +223,10 @@ private class Timer(startTime: Long, private val logger: DokkaLogger?) {
 }
 
 private fun timed(logger: DokkaLogger? = null, block: Timer.() -> Unit): Timer =
-    Timer(System.currentTimeMillis(), logger).apply(block).apply { report("") }
+    Timer(System.currentTimeMillis(), logger).apply {
+        try {
+            block()
+        } finally {
+            report("")
+        }
+    }

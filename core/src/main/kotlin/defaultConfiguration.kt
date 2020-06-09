@@ -11,7 +11,8 @@ data class DokkaConfigurationImpl(
     override val passesConfigurations: List<PassConfigurationImpl>,
     override val pluginsClasspath: List<File>,
     override val pluginsConfiguration: Map<String, String>,
-    override val modules: List<DokkaModuleDescriptionImpl>
+    override val modules: List<DokkaModuleDescriptionImpl>,
+    override val failOnWarning: Boolean
 ) : DokkaConfiguration
 
 data class PassConfigurationImpl(

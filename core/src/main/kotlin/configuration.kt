@@ -33,6 +33,7 @@ interface DokkaConfiguration {
     val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
+    val failOnWarning: Boolean
 
     interface PassConfiguration {
         val moduleName: String
