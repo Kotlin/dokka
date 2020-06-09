@@ -36,7 +36,9 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
         sourceSetCache = SourceSetCache(),
-        testConfiguration = DokkaConfigurationImpl("", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList())
+        testConfiguration = DokkaConfigurationImpl(
+            "", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
+        )
     )
 
     protected val renderedContent: Element by lazy {
@@ -50,7 +52,7 @@ abstract class RenderingOnlyTestBase {
 
 }
 
-class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RootPageNode(), ContentPage {
+class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit) : RootPageNode(), ContentPage {
     override val dri: Set<DRI> = setOf(DRI.topLevel)
     override val documentable: Documentable? = null
     override val embeddedResources: List<String> = emptyList()
@@ -88,14 +90,14 @@ fun Element.match(vararg matchers: Any): Unit =
         .forEach { (n, m) -> m.accepts(n) }
 
 open class Tag(val name: String, vararg val matchers: Any)
-class Div(vararg matchers: Any): Tag("div", *matchers)
-class P(vararg matchers: Any): Tag("p", *matchers)
-class Span(vararg matchers: Any): Tag("span", *matchers)
+class Div(vararg matchers: Any) : Tag("div", *matchers)
+class P(vararg matchers: Any) : Tag("p", *matchers)
+class Span(vararg matchers: Any) : Tag("span", *matchers)
 
 private fun Any.accepts(n: Node) {
     when (this) {
         is String -> assert(n is TextNode && n.text().trim() == this.trim()) { "\"$this\" expected but found: $n" }
-        is Tag ->  {
+        is Tag -> {
             assert(n is Element && n.tagName() == name) { "Tag $name expected but found: $n" }
             if (n is Element && matchers.isNotEmpty()) n.match(*matchers)
         }

@@ -25,7 +25,8 @@ internal class DokkaTestGenerator(
         )
         analysisSetupStage(platforms)
 
-        val context = dokkaGenerator.initializePlugins(configuration, logger, platforms, sourceSetsCache, pluginOverrides)
+        val context =
+            dokkaGenerator.initializePlugins(configuration, logger, platforms, sourceSetsCache, pluginOverrides)
         pluginsSetupStage(context)
 
         val modulesFromPlatforms = dokkaGenerator.createDocumentationModels(platforms, context)
@@ -48,5 +49,7 @@ internal class DokkaTestGenerator(
 
         dokkaGenerator.render(transformedPages, context)
         renderingStage(transformedPages, context)
+
+        dokkaGenerator.reportAfterRendering(context)
     }
 }

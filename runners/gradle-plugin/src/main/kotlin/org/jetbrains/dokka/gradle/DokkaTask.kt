@@ -86,6 +86,9 @@ open class DokkaTask : DefaultTask(), Configurable {
     var disableAutoconfiguration: Boolean = false
 
     @Input
+    var failOnWarning: Boolean = false
+
+    @Input
     var offlineMode: Boolean = false
 
     private var outputDiagnosticInfo: Boolean =
@@ -199,6 +202,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             passesConfigurations = defaultModulesConfiguration
             pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
+            failOnWarning = this@DokkaTask.failOnWarning
         }
     }
 
