@@ -29,7 +29,7 @@ class Annotations(val content: SourceSetDependent<List<Annotation>>) : ExtraProp
 
     override val key: ExtraProperty.Key<Documentable, *> = Annotations
 
-    data class Annotation(val dri: DRI, val params: Map<String, AnnotationParameterValue>) {
+    data class Annotation(val dri: DRI, val params: Map<String, AnnotationParameterValue>, val mustBeDocumented: Boolean = false) {
         override fun equals(other: Any?): Boolean = when (other) {
             is Annotation -> dri == other.dri
             else -> false
