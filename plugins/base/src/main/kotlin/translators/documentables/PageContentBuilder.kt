@@ -172,13 +172,20 @@ open class PageContentBuilder(
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra,
             renderWhenEmpty: Boolean = false,
+            needsSorting: Boolean = true,
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (renderWhenEmpty || elements.any()) {
                 header(level, name) { }
                 contents += ContentTable(
                     emptyList(),
-                    elements.map {
+                    elements
+                        .let{
+                            if (needsSorting)
+                                it.sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){ it.name })
+                            else it
+                        }
+                        .map {
                         buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, extra) {
                             operation(it)
                         }

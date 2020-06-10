@@ -12,6 +12,7 @@ object KotlinSignatureUtils : JvmSignatureUtils {
     private val listBrackets = Pair('[', ']')
     private val classExtension = "::class"
 
+
     override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: Documentable) =
         annotationsBlockWithIgnored(d, emptySet(), strategy, listBrackets, classExtension)
 
