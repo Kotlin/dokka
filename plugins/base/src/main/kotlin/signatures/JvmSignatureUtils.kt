@@ -13,7 +13,7 @@ interface JvmSignatureUtils {
 
     fun <T : Documentable> WithExtraProperties<T>.modifiers(): SourceSetDependent<Set<ExtraModifiers>>
 
-    fun Set<ExtraModifiers>.toSignatureString(): String =
+    fun Collection<ExtraModifiers>.toSignatureString(): String =
         joinToString("") { it.name.toLowerCase() + " " }
 
     fun <T : Documentable> WithExtraProperties<T>.annotations(): SourceSetDependent<List<Annotations.Annotation>> =

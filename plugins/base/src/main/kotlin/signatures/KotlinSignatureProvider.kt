@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.signatures
 
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.*
@@ -19,6 +20,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private val ignoredVisibilities = setOf(JavaVisibility.Public, KotlinVisibility.Public)
     private val ignoredModifiers = setOf(JavaModifier.Final, KotlinModifier.Final)
+    private val ignoredExtraModifiers = setOf(
+        ExtraModifiers.KotlinOnlyModifiers.TailRec,
+        ExtraModifiers.KotlinOnlyModifiers.External
+    )
+    private val platformSpecificModifiers : Map<ExtraModifiers, Set<Platform>> = mapOf(
+        ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js)
+    )
 
     override fun signature(documentable: Documentable): ContentNode = when (documentable) {
         is DFunction -> functionSignature(documentable)
@@ -30,6 +38,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
+    }
+
+    private fun <T> PageContentBuilder.DocumentableContentBuilder.processExtraModifiers (t: T)
+            where T: Documentable, T: WithExtraProperties<T> {
+        sourceSetDependentText(
+            t.modifiers()
+                .mapValues { entry ->
+                    entry.value.filter {
+                        it !in ignoredExtraModifiers || entry.key.platform in (platformSpecificModifiers[it] ?: emptySet())
+                    }
+                }
+        ) {
+            it.toSignatureString()
+        }
     }
 
     private fun signature(e: DEnumEntry) =
@@ -96,11 +118,26 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 }
             }
             when (c) {
-                is DClass -> text("class ")
-                is DInterface -> text("interface ")
-                is DEnum -> text("enum ")
-                is DObject -> text("object ")
-                is DAnnotation -> text("annotation class ")
+                is DClass -> {
+                    processExtraModifiers(c)
+                    text("class ")
+                }
+                is DInterface -> {
+                    processExtraModifiers(c)
+                    text("interface ")
+                }
+                is DEnum -> {
+                    processExtraModifiers(c)
+                    text("enum ")
+                }
+                is DObject -> {
+                    processExtraModifiers(c)
+                    text("object ")
+                }
+                is DAnnotation -> {
+                    processExtraModifiers(c)
+                    text("annotation class ")
+                }
             }
             link(c.name!!, c.dri)
             if (c is WithGenerics) {
@@ -146,7 +183,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { "$it " } ?: ""
             }
-            sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
+            processExtraModifiers(p)
             p.setter?.let { text("var ") } ?: text("val ")
             list(p.generics, prefix = "<", suffix = "> ") {
                 +buildSignature(it)
@@ -169,7 +206,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { "$it " } ?: ""
             }
-            sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
+            processExtraModifiers(f)
             text("fun ")
             list(f.generics, prefix = "<", suffix = "> ") {
                 +buildSignature(it)
@@ -182,7 +219,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             text("(")
             list(f.parameters) {
                 annotationsInline(it)
-                sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
+                processExtraModifiers(it)
                 text(it.name!!)
                 text(": ")
                 signatureForProjection(it.type)
@@ -211,7 +248,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     sourceSets = platforms.toSet()
                 ) {
                     sourceSetDependentText(t.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-                    sourceSetDependentText(t.modifiers()) { it.toSignatureString() }
+                    processExtraModifiers(t)
                     text("typealias ")
                     signatureForProjection(t.type)
                     text(" = ")

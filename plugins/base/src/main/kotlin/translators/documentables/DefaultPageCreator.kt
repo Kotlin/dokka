@@ -180,7 +180,7 @@ open class DefaultPageCreator(
                 }
             }
             if (c is DEnum) {
-                block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet(), extra = mainExtra + SimpleAttr.header("Entries"), styles = emptySet()) {
+                block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet(), needsSorting = false, extra = mainExtra + SimpleAttr.header("Entries"), styles = emptySet()) {
                     link(it.name, it.dri)
                     sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         contentForBrief(it)
@@ -201,6 +201,7 @@ open class DefaultPageCreator(
         (this[T::class] as List<Pair<SourceSetData, T>>?)
             ?.groupBy { it.second.name }
             ?.mapValues { (_, v) -> v.toMap() }
+            ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
             .orEmpty()
 
     private inline fun <reified T : TagWrapper> GroupedTags.isNotEmptyForTag(): Boolean =
@@ -377,7 +378,10 @@ open class DefaultPageCreator(
         if (collection.any()) {
             header(2, name)
             table(kind, extra = extra) {
-                collection.groupBy { it.name }.map { (elementName, elements) -> // This groupBy should probably use LocationProvider
+                collection
+                    .groupBy { it.name }
+                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
+                    .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
                     buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet(), kind = kind) {
                         link(elementName.orEmpty(), elements.first().dri, kind = kind)
                         divergentGroup(
