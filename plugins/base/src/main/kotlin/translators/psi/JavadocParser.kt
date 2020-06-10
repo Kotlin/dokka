@@ -1,18 +1,19 @@
 package org.jetbrains.dokka.base.translators.psi
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.PsiFieldImpl
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.*
-import com.intellij.psi.tree.java.IJavaDocElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -47,7 +48,7 @@ class JavadocParser(
     private fun findClosestDocComment(element: PsiNamedElement): PsiDocComment? {
         (element as? PsiDocCommentOwner)?.docComment?.run { return this }
         if (element is PsiMethod) {
-            val superMethods = element.findSuperMethods()
+            val superMethods = element.findSuperMethodsOrEmptyArray()
             if (superMethods.isEmpty()) return null
 
             if (superMethods.size == 1) {
@@ -76,6 +77,45 @@ class JavadocParser(
         }
 
         return null
+    }
+
+    /**
+     * Workaround for failing [PsiMethod.findSuperMethods].
+     * This might be resolved once ultra light classes are enabled for dokka
+     * See [KT-39518](https://youtrack.jetbrains.com/issue/KT-39518)
+     */
+    private fun PsiMethod.findSuperMethodsOrEmptyArray(): Array<PsiMethod> {
+        return try {
+            /*
+            We are not even attempting to call "findSuperMethods" on all methods called "getGetter" or "getSetter"
+            on any object implementing "kotlin.reflect.KProperty", since we know that those methods will fail
+            (KT-39518). Just catching the exception is not good enough, since "findSuperMethods" will
+            print the whole exception to stderr internally and then spoil the console.
+             */
+            val kPropertyFqName = FqName("kotlin.reflect.KProperty")
+            if (
+                this.parent?.safeAs<PsiClass>()?.implementsInterface(kPropertyFqName) == true &&
+                (this.name == "getSetter" || this.name == "getGetter")
+            ) {
+                logger.warn("Skipped lookup of super methods for ${getKotlinFqName()} (KT-39518)")
+                return emptyArray()
+            }
+            findSuperMethods()
+        } catch (exception: Throwable) {
+            logger.warn("Failed to lookup of super methods for ${getKotlinFqName()} (KT-39518)")
+            emptyArray()
+        }
+    }
+
+    private fun PsiClass.implementsInterface(fqName: FqName): Boolean {
+        return allInterfaces().any { it.getKotlinFqName() == fqName }
+    }
+
+    private fun PsiClass.allInterfaces(): Sequence<PsiClass> {
+        return sequence {
+            this.yieldAll(interfaces.toList())
+            interfaces.forEach { yieldAll(it.allInterfaces()) }
+        }
     }
 
     private fun getSeeTagElementContent(tag: PsiDocTag): List<DocTag> =
