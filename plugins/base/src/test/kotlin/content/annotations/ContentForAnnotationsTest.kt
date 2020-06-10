@@ -4,11 +4,9 @@ import matchers.content.*
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PackagePageNode
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
-import utils.functionSignature
 import utils.propertySignature
 
 
@@ -25,7 +23,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `function`() {
+    fun `function with documented annotation`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -73,9 +71,55 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
         }
     }
 
-    @Disabled
     @Test
-    fun `property`() {
+    fun `function with undocumented annotation`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION,
+            |    AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.EXPRESSION, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FIELD
+            |)
+            |@Retention(AnnotationRetention.SOURCE)
+            |annotation class Fancy
+            |
+            |@Fancy
+            |fun function(@Fancy abc: String): String {
+            |    return "Hello, " + abc
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" }
+                    .children.single { it.name == "function" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    "String",
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `property with undocumented annotation`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -88,7 +132,30 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
             pagesTransformationStage = { module ->
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
-                    propertySignature(mapOf("Suppress" to setOf("names")), "", "", emptySet(), "val", "property", "Int")
+                    propertySignature(emptyMap(), "", "", emptySet(), "val", "property", "Int")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `property with documented annotation`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |@MustBeDocumented
+            |annotation class Fancy
+            |
+            |@Fancy
+            |val property: Int = 6
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    propertySignature(mapOf("Fancy" to emptySet()), "", "", emptySet(), "val", "property", "Int")
                 }
             }
         }
@@ -96,7 +163,7 @@ class ContentForAnnotationsTest : AbstractCoreTest() {
 
 
     @Test
-    fun `rich annotation`() {
+    fun `rich documented annotation`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
