@@ -99,3 +99,5 @@ android.local.properties
 core/out/
 runners/**/out/
 .idea
+plugins/base/src/main/resources/dokka/scripts/main.js
+plugins/base/src/main/resources/dokka/scripts/main.js.map
