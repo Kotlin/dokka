@@ -6,9 +6,7 @@ import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import utils.unwrapAnnotation
 
 class EnumsTest : AbstractCoreTest() {
 
@@ -177,7 +175,6 @@ class EnumsTest : AbstractCoreTest() {
         }
     }
 
-    @Disabled
     @Test
     fun enumWithAnnotationsOnEntries(){
         val configuration = dokkaConfiguration {
@@ -197,7 +194,7 @@ class EnumsTest : AbstractCoreTest() {
             |    /**
             |       Sample docs for E1
             |    **/
-            |    @SinceKotlin("1.3")
+            |    @SinceKotlin("1.3") // This annotation is transparent due to lack of @MustBeDocumented annotation
             |    E1
             |}
         """.trimMargin(),
@@ -216,14 +213,9 @@ class EnumsTest : AbstractCoreTest() {
                             }
                         }
                         group {
-                            mapOf("SinceKotlin" to setOf("version")).entries.forEach {
-                                group {
-                                    group {
-                                        unwrapAnnotation(it)
-                                    }
-                                    link { +"E1" }
-                                    +"()"
-                                }
+                            group {
+                                link { +"E1" }
+                                +"()"
                             }
                         }
                     }
