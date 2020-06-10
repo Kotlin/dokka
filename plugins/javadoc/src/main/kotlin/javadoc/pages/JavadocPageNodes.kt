@@ -239,7 +239,7 @@ class TreeViewPage(
         else {
             listOf(node.copy(children = node.children.flatMap (::classTreeRec)))
         }
-        fun classTree(node: InheritanceNode) = classTreeRec(node).single()
+        fun classTree(node: InheritanceNode) = classTreeRec(node).singleOrNull()
 
         fun interfaceTreeRec(node: InheritanceNode): List<InheritanceNode> = if (node.isInterface) {
             listOf(node.copy(children = node.children.filter { it.isInterface }))
@@ -248,7 +248,7 @@ class TreeViewPage(
             node.children.flatMap(::interfaceTreeRec)
         }
 
-        fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).first() // TODO.single()
+        fun interfaceTree(node: InheritanceNode) = interfaceTreeRec(node).firstOrNull() // TODO.single()
 
         fun gatherPsiClasses(psi: PsiClass): List<Pair<PsiClass, List<PsiClass>>> = psi.supers.toList().let { l ->
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
@@ -303,7 +303,7 @@ class TreeViewPage(
             collect(it.value.dri)
         }
 
-        return rootNodes.let { Pair(it.map(::classTree), it.map(::interfaceTree)) }
+        return rootNodes.let { Pair(it.mapNotNull(::classTree), it.mapNotNull(::interfaceTree)) }
     }
 
     private fun generateInterfaceGraph() {
