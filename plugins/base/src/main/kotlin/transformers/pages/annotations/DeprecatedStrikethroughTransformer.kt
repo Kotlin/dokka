@@ -7,36 +7,39 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 
 class DeprecatedStrikethroughTransformer(val context: DokkaContext) : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode = input.transformContentPagesTree { contentPage ->
         contentPage.platforms().fold(contentPage) { acc, sourceSetData ->
-            if (acc.documentable?.isDeprecated(sourceSetData) == true || acc.documentable?.hasDeprecatedChildren(
-                    sourceSetData
-                ) == true
-            ) {
-                val deprecatedDRIs =
-                    if (acc.documentable?.isDeprecated(sourceSetData) == true) contentPage.dri else emptySet<DRI>() +
-                            contentPage.documentable?.children
-                                ?.filter { it.isDeprecated(sourceSetData) }
-                                ?.map { it.dri }
-                                ?.toSet().orEmpty()
-
-                acc.modified(content = acc.content.addStrikethroughToSignature(deprecatedDRIs))
-            } else {
-                acc
-            }
+            listOfNotNull(
+                contentPage.documentable?.children?.filter { it.isDeprecated(sourceSetData) }?.map { it.dri },
+                contentPage.dri.takeIf { acc.documentable?.isDeprecated(sourceSetData) == true }?.toList()
+            ).flatten().ifNotEmpty {
+                acc.modified(content = acc.content.addStrikethroughToSignature(sourceSetData, this.toSet()))
+            } ?: acc
         }
     }
 
-    private fun ContentNode.addStrikethroughToSignature(deprecatedDRIs: Set<DRI>): ContentNode = when (this) {
-        is ContentGroup -> if (dci.kind == ContentKind.Symbol && deprecatedDRIs.containsAll(dci.dri)) {
+    private fun ContentNode.addStrikethroughToSignature(
+        sourceSetData: SourceSetData,
+        deprecatedDRIs: Set<DRI>
+    ): ContentNode = when (this) {
+        is ContentGroup -> if (setOf(sourceSetData) == sourceSets && deprecatedDRIs.containsAll(dci.dri)) {
             copy(style = this.style + setOf(TextStyle.Strikethrough))
         } else {
-            copy(children = children.map { it.addStrikethroughToSignature(deprecatedDRIs) })
+            copy(children = children.map { it.addStrikethroughToSignature(sourceSetData, deprecatedDRIs) })
         }
-        is ContentTable -> copy(children = children.map { it.addStrikethroughToSignature(deprecatedDRIs) as ContentGroup })
-        is PlatformHintedContent -> copy(inner = inner.addStrikethroughToSignature(deprecatedDRIs))
+        is ContentTable -> copy(children = children.map {
+            it.addStrikethroughToSignature(
+                sourceSetData,
+                deprecatedDRIs
+            ) as ContentGroup
+        })
+        is PlatformHintedContent -> copy(inner = inner.addStrikethroughToSignature(sourceSetData, deprecatedDRIs))
+        is ContentDivergentGroup -> copy(children = children.map { it.addStrikethroughToSignature(sourceSetData, deprecatedDRIs) } as List<ContentDivergentInstance>)
+        is ContentDivergentInstance -> copy(divergent = divergent.addStrikethroughToSignature(sourceSetData, deprecatedDRIs))
         else -> this
     }
 
