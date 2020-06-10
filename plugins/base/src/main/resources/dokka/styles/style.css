@@ -230,7 +230,7 @@
 .symbol {
     background-color: #F4F4F4;
     align-items: center;
-    display: flex;
+    display: block;
     padding: 8px 8px 8px 16px;
     box-sizing: border-box;
     white-space: pre-wrap;
