@@ -32,8 +32,7 @@ class DokkaBasicTests : AbstractCoreTest() {
         ) {
             pagesGenerationStage = {
                 val root = it as ModulePageNode
-                println(root.dri)
-                assertTrue(root.getClasslikeToMemberMap().filterKeys { root.name == "Test" }.entries.firstOrNull()?.value?.size == 2)
+                assertTrue(root.getClasslikeToMemberMap().filterKeys { it.name == "Test" }.entries.firstOrNull()?.value?.size == 2)
             }
         }
     }
