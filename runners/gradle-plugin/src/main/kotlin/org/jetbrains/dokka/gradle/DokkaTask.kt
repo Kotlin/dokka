@@ -73,11 +73,10 @@ open class DokkaTask : DefaultTask(), Configurable {
         internal set(value) = DslObject(this).extensions.add(SOURCE_SETS_EXTENSION_NAME, value)
 
     private val kotlinTasks: List<Task> by lazy {
-        extractKotlinCompileTasks({
-            dokkaSourceSets.map {
+        extractKotlinCompileTasks(
+            dokkaSourceSets.mapNotNull {
                 it.collectKotlinTasks?.invoke()
-            }
-        }.takeIf { it().isNotEmpty() } ?: { defaultKotlinTasks() }
+            }.takeIf { it.isNotEmpty() }?.flatten() ?: defaultKotlinTasks()
         )
     }
 
@@ -100,8 +99,8 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
-    protected fun extractKotlinCompileTasks(collectTasks: () -> List<Any?>?): List<Task> {
-        val inputList = (collectTasks.invoke() ?: emptyList()).filterNotNull()
+    protected fun extractKotlinCompileTasks(collectTasks: List<Any?>?): List<Task> {
+        val inputList = (collectTasks ?: emptyList()).filterNotNull()
         val (paths, other) = inputList.partition { it is String }
 
         val tasksByPath = paths.map {
@@ -145,6 +144,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         outputDiagnosticInfo = true
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
+        configuration.passesConfigurations.flatMap { it.sourceRoots }.also(::println)
         try {
             loadCore()
 
@@ -211,7 +211,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         val userConfig = config
             .apply {
                 collectKotlinTasks?.let {
-                    configExtractor.extractFromKotlinTasks(extractKotlinCompileTasks(it))
+                    configExtractor.extractFromKotlinTasks(extractKotlinCompileTasks(it()))
                         .fold(this) { config, platformData ->
                             mergeUserConfigurationAndPlatformData(config, platformData)
                         }
@@ -286,7 +286,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (config.sourceSetID.isBlank()) {
             config.sourceSetID = config.name.takeIf(String::isNotBlank) ?: config.analysisPlatform.key
         }
-        config.displayName = config.sourceSetID.substringBeforeLast("Main")
+        config.displayName = config.moduleName + config.sourceSetID.substringBeforeLast("Main")
         config.classpath =
             (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
@@ -321,9 +321,8 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     // Needed for Gradle incremental build
     @InputFiles
-    fun getInputFiles(): FileCollection {
-        val config = passConfigurations
-        return project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
+    fun getInputFiles(): FileCollection = passConfigurations.let { config ->
+         project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
                 project.files(config.flatMap { it.includes }) +
                 project.files(config.flatMap { it.samples }.map { project.fileTree(File(it)) })
     }

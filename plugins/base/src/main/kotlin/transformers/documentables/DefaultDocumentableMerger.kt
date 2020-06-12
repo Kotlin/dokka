@@ -25,7 +25,7 @@ internal object DefaultDocumentableMerger : DocumentableMerger {
                 ),
                 documentation = list.map { it.documentation }.flatMap { it.entries }.associate { (k,v) -> k to v },
                 expectPresentInSet = list.firstNotNullResult { it.expectPresentInSet },
-                sourceSets = list.flatMap { it.sourceSets }
+                sourceSets = list.flatMap { it.sourceSets }.toSet()
             ).mergeExtras(left, right)
         }
     }

@@ -91,12 +91,12 @@ internal class DocumentableVisibilityFilter(val context: DokkaContext) : PreMerg
                 visibilityForPlatform(d)?.isAllowedInPackage(dri.packageName) == true &&
                         additionalCondition(this, d) ||
                         alternativeCondition(this, d)
-            }
+            }.toSet()
 
         private fun <T> List<T>.transform(
             additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
             alternativeCondition: (T, SourceSetData) -> Boolean = ::alwaysFalse,
-            recreate: (T, List<SourceSetData>) -> T
+            recreate: (T, Set<SourceSetData>) -> T
         ): Pair<Boolean, List<T>> where T : Documentable, T : WithVisibility {
             var changed = false
             val values = mapNotNull { t ->
@@ -170,11 +170,11 @@ internal class DocumentableVisibilityFilter(val context: DokkaContext) : PreMerg
                 }
             }
 
-        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: List<SourceSetData>) =
+        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: Set<SourceSetData>) =
             entries.mapNotNull { entry ->
                 if (filteredPlatforms.containsAll(entry.sourceSets)) entry
                 else {
-                    val intersection = filteredPlatforms.intersect(entry.sourceSets).toList()
+                    val intersection = filteredPlatforms.intersect(entry.sourceSets)
                     if (intersection.isEmpty()) null
                     else DEnumEntry(
                         entry.dri,

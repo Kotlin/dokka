@@ -74,12 +74,12 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     emptyList(),
                     emptyMap(),
                     null,
-                    listOf(sourceSetData)
+                    setOf(sourceSetData)
                 )
             },
             emptyMap(),
             null,
-            listOf(sourceSetData)
+            setOf(sourceSetData)
         )
     }
 
@@ -166,7 +166,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         null,
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
-                        listOf(sourceSetData),
+                        setOf(sourceSetData),
                         PropertyContainer.empty<DAnnotation>() + annotations.toList().getAnnotations()
                             .toSourceSetDependent().toAnnotations()
                     )
@@ -182,7 +182,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             emptyList(),
-                            listOf(sourceSetData),
+                            setOf(sourceSetData),
                             PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().getAnnotations()
                                 .toSourceSetDependent().toAnnotations()
                         )
@@ -197,7 +197,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     constructors.map { parseFunction(it, true) },
                     ancestors,
-                    listOf(sourceSetData),
+                    setOf(sourceSetData),
                     PropertyContainer.empty<DEnum>() + annotations.toList().getAnnotations().toSourceSetDependent()
                         .toAnnotations()
                 )
@@ -214,7 +214,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     mapTypeParameters(dri),
                     ancestors,
-                    listOf(sourceSetData),
+                    setOf(sourceSetData),
                     PropertyContainer.empty<DInterface>() + annotations.toList().getAnnotations().toSourceSetDependent()
                         .toAnnotations()
                 )
@@ -233,7 +233,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     documentation,
                     null,
                     modifiers,
-                    listOf(sourceSetData),
+                    setOf(sourceSetData),
                     PropertyContainer.empty<DClass>() + annotations.toList().getAnnotations().toSourceSetDependent()
                         .toAnnotations()
                 )
@@ -257,7 +257,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         javadocParser.parseDocumentation(psiParameter).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),
-                        listOf(sourceSetData)
+                        setOf(sourceSetData)
                     )
                 },
                 javadocParser.parseDocumentation(psi).toSourceSetDependent(),
@@ -268,7 +268,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 psi.mapTypeParameters(dri),
                 null,
                 psi.getModifier().toSourceSetDependent(),
-                listOf(sourceSetData),
+                setOf(sourceSetData),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
                         InheritedFunction(isInherited),
@@ -350,7 +350,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     javadocParser.parseDocumentation(type).toSourceSetDependent(),
                     null,
                     mapBounds(type.bounds),
-                    listOf(sourceSetData)
+                    setOf(sourceSetData)
                 )
             }
         }
@@ -393,7 +393,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 accessors.firstOrNull { it.hasParameters() }?.let { parseFunction(it) },
                 accessors.firstOrNull { it.returnType == psi.type }?.let { parseFunction(it) },
                 psi.getModifier().toSourceSetDependent(),
-                listOf(sourceSetData),
+                setOf(sourceSetData),
                 emptyList(),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll<DProperty>(
