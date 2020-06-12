@@ -77,7 +77,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
                         append("/")
                     }
 
-                    val sourceSetName = sourceSet.sourceSetName
+                    val sourceSetName = sourceSet.displayName
                     if (sourceSetName != null.toString()) {
                         append(" ($sourceSetName)")
                     }
@@ -91,7 +91,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     private fun isUndocumented(documentable: Documentable, sourceSet: SourceSetData): Boolean {
         fun resolveDependentSourceSets(sourceSet: SourceSetData): List<SourceSetData> {
             return sourceSet.dependentSourceSets.map { sourceSetName ->
-                documentable.sourceSets.single { it.sourceSetName == sourceSetName }
+                documentable.sourceSets.single { it.sourceSetID == sourceSetName }
             }
         }
 
@@ -111,11 +111,12 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     }
 
     private fun passConfiguration(context: DokkaContext, sourceSet: SourceSetData): PassConfiguration {
-        return context.configuration.passesConfigurations.single { configuration ->
-            // TODO: Use sourceSetID after gradle-rewrite
-            configuration.sourceSetName == sourceSet.sourceSetName &&
-                    configuration.analysisPlatform == sourceSet.platform
+        val passes = context.configuration.passesConfigurations.filter { configuration ->
+            configuration.sourceSetID == sourceSet.sourceSetID
         }
+        if (passes.size > 1)
+            context.logger.error("Expected one passConfiguration with ID: ${sourceSet.sourceSetID} found: ${passes.size}")
+        return passes.first()
     }
 
     private fun isFakeOverride(documentable: Documentable, sourceSet: SourceSetData): Boolean {

@@ -285,7 +285,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             config.moduleName = project.name
         }
         if (config.sourceSetID.isBlank()) {
-            config.sourceSetID = config.name.takeIf(String::isNotBlank) ?: config.analysisPlatform.key
+            config.sourceSetID = config.moduleName + "/" + config.name
         }
         config.dependentSourceSets = config.dependentSourceSets.map { config.moduleName + "/" + it }.toMutableList()
         if (config.displayName.isBlank()) {
