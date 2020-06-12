@@ -67,6 +67,8 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Classpath
     lateinit var pluginsClasspathConfiguration: Configuration
 
+    internal var config: GradleDokkaConfigurationImpl? = null
+
     var dokkaSourceSets: NamedDomainObjectContainer<GradlePassConfigurationImpl>
         @Suppress("UNCHECKED_CAST")
         @Nested get() = (DslObject(this).extensions.getByName(SOURCE_SETS_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>)
@@ -138,13 +140,12 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
 
     @TaskAction
-    fun generate() = getConfiguration()?.let { generate(it) } ?: exitProcess(0)
+    fun generate() = config?.let { generate(it) } ?: getConfiguration()?.let { generate(it) } ?: exitProcess(0)
 
     protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
         val kotlinColorsEnabledBefore = System.getProperty(COLORS_ENABLED_PROPERTY) ?: "false"
         System.setProperty(COLORS_ENABLED_PROPERTY, "false")
-        configuration.passesConfigurations.flatMap { it.sourceRoots }.also(::println)
         try {
             loadCore()
 
@@ -286,7 +287,10 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (config.sourceSetID.isBlank()) {
             config.sourceSetID = config.name.takeIf(String::isNotBlank) ?: config.analysisPlatform.key
         }
-        config.displayName = config.moduleName + config.sourceSetID.substringBeforeLast("Main")
+        config.dependentSourceSets = config.dependentSourceSets.map { config.moduleName + "/" + it }.toMutableList()
+        if (config.displayName.isBlank()) {
+            config.displayName = config.sourceSetID.substringBeforeLast("Main", config.platform.toString())
+        }
         config.classpath =
             (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
@@ -322,7 +326,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     // Needed for Gradle incremental build
     @InputFiles
     fun getInputFiles(): FileCollection = passConfigurations.let { config ->
-         project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
+        project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
                 project.files(config.flatMap { it.includes }) +
                 project.files(config.flatMap { it.samples }.map { project.fileTree(File(it)) })
     }

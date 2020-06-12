@@ -205,7 +205,7 @@ open class HtmlRenderer(
             }.map {
                 it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = it.sourceSetName
+                    attributes["data-togglable"] = it.sourceSetID
                     unsafe {
                         +html
                     }
