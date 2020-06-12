@@ -24,15 +24,20 @@ class ConfigurationExtractor(private val project: Project) {
         val projectExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
         val sourceSet = projectExtension.sourceSets.findByName(sourceSetName)
             ?: run { project.logger.error("No source set with name '$sourceSetName' found"); return null }
-        val compilation = when (projectExtension) {
-            is KotlinMultiplatformExtension -> {
-                val targets = projectExtension.targets.flatMap { it.compilations }
-                targets.find { it.name == sourceSetName } ?: targets.find { it.kotlinSourceSets.contains(sourceSet) }
+        val compilation = try {
+            when (projectExtension) {
+                is KotlinMultiplatformExtension -> {
+                    val targets = projectExtension.targets.flatMap { it.compilations }
+                    targets.find { it.name == sourceSetName }
+                        ?: targets.find { it.kotlinSourceSets.contains(sourceSet) }
+                }
+                is KotlinSingleTargetExtension -> projectExtension.target.compilations.find {
+                    it.kotlinSourceSets.contains(sourceSet)
+                }
+                else -> null
             }
-            is KotlinSingleTargetExtension -> projectExtension.target.compilations.find {
-                it.kotlinSourceSets.contains(sourceSet)
-            }
-            else -> null
+        } catch (e: NoClassDefFoundError) { // Old Kotlin plugin versions
+            null
         }
 
         val sourceRoots = sourceSet.sourceFiles

@@ -106,7 +106,7 @@ open class DefaultPageCreator(
     protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
-        sourceSets: List<SourceSetData>
+        sourceSets: Set<SourceSetData>
     ) = contentBuilder.contentFor(s as Documentable) {
         divergentBlock("Types", s.classlikes, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
         divergentBlock("Functions", s.functions, ContentKind.Functions, extra = mainExtra + SimpleAttr.header( "Functions"))

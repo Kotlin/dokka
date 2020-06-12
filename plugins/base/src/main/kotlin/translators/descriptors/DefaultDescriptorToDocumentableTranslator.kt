@@ -67,7 +67,7 @@ object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslato
                     DRIWithPlatformInfo(DRI.topLevel, emptyMap())
                 )
             }
-        }.let { DModule(sourceSet.moduleName, it, emptyMap(), null, listOf(sourceSet)) }
+        }.let { DModule(sourceSet.moduleName, it, emptyMap(), null, setOf(sourceSet)) }
     }
 }
 
@@ -112,7 +112,7 @@ private class DokkaDescriptorVisitor(
             classlikes = scope.classlikes(driWithPlatform, true),
             typealiases = scope.typealiases(driWithPlatform, true),
             documentation = descriptor.resolveDescriptorData(),
-            sourceSets = listOf(sourceSet)
+            sourceSets = setOf(sourceSet)
         )
     }
 
@@ -145,7 +145,7 @@ private class DokkaDescriptorVisitor(
             documentation = info.docs,
             generics = descriptor.declaredTypeParameters.map { it.toTypeParameter() },
             companion = descriptor.companion(driWithPlatform),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -171,7 +171,7 @@ private class DokkaDescriptorVisitor(
             visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -199,7 +199,7 @@ private class DokkaDescriptorVisitor(
             supertypes = info.supertypes.toSourceSetDependent(),
             documentation = info.docs,
             companion = descriptor.companion(driWithPlatform),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -219,7 +219,7 @@ private class DokkaDescriptorVisitor(
             classlikes = scope.classlikes(driWithPlatform),
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
@@ -241,7 +241,7 @@ private class DokkaDescriptorVisitor(
             functions = scope.functions(driWithPlatform),
             properties = scope.properties(driWithPlatform),
             expectPresentInSet = null,
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -282,7 +282,7 @@ private class DokkaDescriptorVisitor(
             documentation = info.docs,
             modifier = descriptor.modifier().toSourceSetDependent(),
             companion = descriptor.companion(driWithPlatform),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -313,7 +313,7 @@ private class DokkaDescriptorVisitor(
             modifier = descriptor.modifier().toSourceSetDependent(),
             type = descriptor.returnType!!.toBound(),
             expectPresentInSet = sourceSet.takeIf { isExpect },
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
             extra = PropertyContainer.withAll(
                 (descriptor.additionalExtras() + descriptor.getAnnotationsWithBackingField()
@@ -351,7 +351,7 @@ private class DokkaDescriptorVisitor(
             documentation = descriptor.resolveDescriptorData(),
             modifier = descriptor.modifier().toSourceSetDependent(),
             type = descriptor.returnType!!.toBound(),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 InheritedFunction(isInherited),
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
@@ -394,7 +394,7 @@ private class DokkaDescriptorVisitor(
             type = descriptor.returnType.toBound(),
             modifier = descriptor.modifier().toSourceSetDependent(),
             generics = descriptor.typeParameters.map { it.toTypeParameter() },
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll<DFunction>(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -415,7 +415,7 @@ private class DokkaDescriptorVisitor(
         type = descriptor.type.toBound(),
         expectPresentInSet = null,
         documentation = descriptor.resolveDescriptorData(),
-        sourceSets = listOf(sourceSet),
+        sourceSets = setOf(sourceSet),
         extra = PropertyContainer.withAll(descriptor.getAnnotations().toSourceSetDependent().toAnnotations())
     )
 
@@ -435,7 +435,7 @@ private class DokkaDescriptorVisitor(
                 type = this.type.toBound(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 documentation = descriptor.resolveDescriptorData(),
-                sourceSets = listOf(sourceSet),
+                sourceSets = setOf(sourceSet),
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     getAnnotationsWithBackingField().toSourceSetDependent().toAnnotations()
@@ -473,7 +473,7 @@ private class DokkaDescriptorVisitor(
                 )
             },
             sources = descriptor.createSources(),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
@@ -491,7 +491,7 @@ private class DokkaDescriptorVisitor(
                 underlyingType = underlyingType.toBound().toSourceSetDependent(),
                 visibility = visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = resolveDescriptorData(),
-                sourceSets = listOf(sourceSet)
+                sourceSets = setOf(sourceSet)
             )
         }
 
@@ -502,7 +502,7 @@ private class DokkaDescriptorVisitor(
             type = descriptor.type.toBound(),
             expectPresentInSet = null,
             documentation = descriptor.resolveDescriptorData(),
-            sourceSets = listOf(sourceSet),
+            sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(listOfNotNull(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
@@ -564,7 +564,7 @@ private class DokkaDescriptorVisitor(
             resolveDescriptorData(),
             null,
             upperBounds.map { it.toBound() },
-            listOf(sourceSet),
+            setOf(sourceSet),
             extra = PropertyContainer.withAll(additionalExtras().toSourceSetDependent().toAdditionalModifiers())
         )
 

@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.model
 
-fun <T> SourceSetDependent<T>.filtered(platformDataList: List<SourceSetData>) = filter { it.key in platformDataList }
-fun SourceSetData?.filtered(platformDataList: List<SourceSetData>) = takeIf { this in platformDataList }
+fun <T> SourceSetDependent<T>.filtered(platformDataList: Set<SourceSetData>) = filter { it.key in platformDataList }
+fun SourceSetData?.filtered(platformDataList: Set<SourceSetData>) = takeIf { this in platformDataList }
 
-fun DTypeParameter.filter(filteredData: List<SourceSetData>) =
+fun DTypeParameter.filter(filteredData: Set<SourceSetData>) =
     if (filteredData.containsAll(sourceSets)) this
     else {
-        val intersection = filteredData.intersect(sourceSets).toList()
+        val intersection = filteredData.intersect(sourceSets)
         if (intersection.isEmpty()) null
         else DTypeParameter(
             dri,
