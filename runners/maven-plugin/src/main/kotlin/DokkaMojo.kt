@@ -74,7 +74,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var includeNonPublic: Boolean = false
 
         @Parameter
-        override var reportUndocumented: Boolean = true
+        override var reportUndocumented: Boolean = false
 
         @Parameter
         override var skipDeprecated: Boolean = false
