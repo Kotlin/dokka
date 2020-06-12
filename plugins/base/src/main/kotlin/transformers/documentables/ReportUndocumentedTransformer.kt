@@ -90,17 +90,21 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
 
     private fun isUndocumented(documentable: Documentable, sourceSet: SourceSetData): Boolean {
         fun resolveDependentSourceSets(sourceSet: SourceSetData): List<SourceSetData> {
-            return sourceSet.dependentSourceSets.map { sourceSetName ->
-                documentable.sourceSets.single { it.sourceSetID == sourceSetName }
+            return sourceSet.dependentSourceSets.mapNotNull { sourceSetID ->
+                documentable.sourceSets.singleOrNull { it.sourceSetID == sourceSetID }
             }
         }
 
-        fun flatDependentSourceSetsTree(sourceSet: SourceSetData): List<SourceSetData> {
-            return listOf(sourceSet) + resolveDependentSourceSets(sourceSet)
-                .flatMap { resolveDependentSourceSets -> flatDependentSourceSetsTree(resolveDependentSourceSets) }
+        fun withAllDependentSourceSets(sourceSet: SourceSetData): Sequence<SourceSetData> {
+            return sequence {
+                yield(sourceSet)
+                for (dependentSourceSet in resolveDependentSourceSets(sourceSet)) {
+                    yieldAll(withAllDependentSourceSets(dependentSourceSet))
+                }
+            }
         }
 
-        return flatDependentSourceSetsTree(sourceSet).all { sourceSetOrDependentSourceSet ->
+        return withAllDependentSourceSets(sourceSet).all { sourceSetOrDependentSourceSet ->
             documentable.documentation[sourceSetOrDependentSourceSet]?.children?.isEmpty() ?: true
         }
     }

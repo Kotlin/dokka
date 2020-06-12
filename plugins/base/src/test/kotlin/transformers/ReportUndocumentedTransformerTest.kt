@@ -537,6 +537,63 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
     }
 
     @Test
+    fun `multiplatform undocumented function gets reported`() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    reportUndocumented = true
+                    analysisPlatform = Platform.common.toString()
+                    sourceSetID = "commonMain"
+                    displayName = "commonMain"
+                    sourceRoots = listOf("src/commonMain/kotlin")
+                }
+
+                pass {
+                    reportUndocumented = true
+                    analysisPlatform = Platform.jvm.toString()
+                    sourceSetID = "jvmMain"
+                    displayName = "jvmMain"
+                    sourceRoots = listOf("src/jvmMain/kotlin")
+                    dependentSourceSets = listOf("commonMain")
+                }
+
+                pass {
+                    reportUndocumented = true
+                    analysisPlatform = Platform.native.toString()
+                    sourceSetID = "macosMain"
+                    displayName = "macosMain"
+                    sourceRoots = listOf("src/macosMain/kotlin")
+                    dependentSourceSets = listOf("commonMain")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/commonMain/kotlin/sample/Common.kt
+            |package sample
+            |expect fun x()
+            |
+            |/src/macosMain/kotlin/sample/MacosMain.kt    
+            |package sample
+            |/** Documented */
+            |actual fun x() = Unit
+            |
+            |/src/jvmMain/kotlin/sample/JvmMain.kt    
+            |package sample
+            |actual fun x() = Unit
+            """.trimIndent(),
+            configuration
+        ) {
+            pagesTransformationStage = {
+                assertNumberOfUndocumentedReports(2)
+                assertSingleUndocumentedReport(Regex("x.*commonMain"))
+                assertSingleUndocumentedReport(Regex("x.*jvmMain"))
+            }
+        }
+    }
+
+    @Test
     fun `java undocumented class gets reported`() {
         val configuration = dokkaConfiguration {
             passes {
@@ -830,5 +887,4 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
         skipDeprecated = skipDeprecated,
         suppress = suppress
     )
-
 }
