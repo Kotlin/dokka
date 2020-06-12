@@ -12,7 +12,6 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
             pass {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
-                targets = listOf("jvm")
             }
         }
     }
