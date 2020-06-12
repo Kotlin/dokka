@@ -60,7 +60,7 @@ open class DokkaPlugin : Plugin<Project> {
             task.dokkaSourceSets = project.container(GradlePassConfigurationImpl::class.java)
             task.dokkaRuntime = runtimeConfiguration
             task.pluginsClasspathConfiguration = pluginsConfiguration
-            task.outputDirectory = File(project.rootProject.buildDir, "$DOKKA_TASK_NAME/${project.name}").absolutePath
+            task.outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
         }
     }
 

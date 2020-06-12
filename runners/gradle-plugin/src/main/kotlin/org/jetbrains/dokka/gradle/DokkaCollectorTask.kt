@@ -20,14 +20,14 @@ open class DokkaCollectorTask : DefaultTask() {
 
     @TaskAction
     fun collect() {
-        val passesConfigurations = getProjects(project).filter { it.name in modules }.mapNotNull {
-            val task = try {
-                it.tasks.getByName(DOKKA_TASK_NAME, DokkaTask::class)
+        val passesConfigurations = getProjects(project).filter { it.name in modules }.flatMap {
+            val tasks = try {
+                it.tasks.withType(DokkaTask::class.java)
             } catch (e: UnknownTaskException) {
                 throw IllegalStateException("No dokka task declared in module ${it.name}")
             }
-            task.getConfiguration()
-        }
+            tasks.map { it.getConfiguration() }
+        }.filterNotNull()
 
         val initial = GradleDokkaConfigurationImpl().apply {
             outputDir = outputDirectory
@@ -42,7 +42,7 @@ open class DokkaCollectorTask : DefaultTask() {
             acc.pluginsClasspath = (acc.pluginsClasspath + it.pluginsClasspath).distinct()
             acc
         }
-        project.tasks.getByName(DOKKA_TASK_NAME).setProperty("config", configuration)
+        project.tasks.withType(DokkaTask::class.java).configureEach { it.config = configuration }
     }
 
     init {
@@ -50,6 +50,6 @@ open class DokkaCollectorTask : DefaultTask() {
     }
 
     private fun getProjects(project: Project): Set<Project> =
-            project.subprojects + project.subprojects.flatMap { getProjects(it) }
+        project.subprojects + project.subprojects.flatMap { getProjects(it) }
 
 }
