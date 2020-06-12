@@ -20,7 +20,7 @@ class SourceSetCache {
         get() = sourceSets.values.toList()
 
     fun getSourceSet(pass: DokkaConfiguration.PassConfiguration) =
-        sourceSets.getOrPut("${pass.moduleName}/${pass.sourceSetID}",
+        sourceSets.getOrPut(pass.sourceSetID,
             {
                 SourceSetData(
                     pass.moduleName,
