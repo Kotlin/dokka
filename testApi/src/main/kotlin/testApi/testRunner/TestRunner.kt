@@ -169,7 +169,7 @@ abstract class AbstractCoreTest {
     @DokkaConfigurationDsl
     protected class DokkaPassConfigurationBuilder(
         var moduleName: String = "root",
-        var sourceSetName: String = "main",
+        var sourceSetID: String = "main",
         var displayName: String = "JVM",
         var classpath: List<String> = emptyList(),
         var sourceRoots: List<String> = emptyList(),
@@ -195,7 +195,7 @@ abstract class AbstractCoreTest {
         fun build() = PassConfigurationImpl(
             moduleName = moduleName,
             displayName = displayName,
-            sourceSetID = sourceSetName,
+            sourceSetID = sourceSetID,
             classpath = classpath,
             sourceRoots = sourceRoots.map { SourceRootImpl(it) },
             dependentSourceSets = dependentSourceSets,

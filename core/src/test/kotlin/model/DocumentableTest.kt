@@ -24,7 +24,7 @@ class DocumentableTest {
             modifier = emptyMap(),
             properties = emptyList(),
             sources = emptyMap(),
-            sourceSets = emptyList(),
+            sourceSets = emptySet(),
             supertypes = emptyMap(),
             functions = listOf(
                 DFunction(
@@ -37,7 +37,7 @@ class DocumentableTest {
                     generics = emptyList(),
                     modifier = emptyMap(),
                     sources = emptyMap(),
-                    sourceSets = emptyList(),
+                    sourceSets = emptySet(),
                     type = Void,
                     receiver = null,
                     isConstructor = false,
@@ -48,7 +48,7 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
-                            sourceSets = emptyList(),
+                            sourceSets = emptySet(),
                             type = Void
                         ),
                         DParameter(
@@ -57,7 +57,7 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
-                            sourceSets = emptyList(),
+                            sourceSets = emptySet(),
                             type = Void
                         )
                     )
@@ -72,7 +72,7 @@ class DocumentableTest {
                     generics = emptyList(),
                     modifier = emptyMap(),
                     sources = emptyMap(),
-                    sourceSets = emptyList(),
+                    sourceSets = emptySet(),
                     type = Void,
                     receiver = null,
                     isConstructor = false,
@@ -83,7 +83,7 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
-                            sourceSets = emptyList(),
+                            sourceSets = emptySet(),
                             type = Void
                         ),
                         DParameter(
@@ -92,7 +92,7 @@ class DocumentableTest {
                             documentation = emptyMap(),
                             expectPresentInSet = null,
                             extra = PropertyContainer.empty(),
-                            sourceSets = emptyList(),
+                            sourceSets = emptySet(),
                             type = Void
                         )
                     )
