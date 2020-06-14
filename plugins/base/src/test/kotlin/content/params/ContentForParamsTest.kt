@@ -1,8 +1,18 @@
 package content.params
 
 import matchers.content.*
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.Param
+import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.MemberPageNode
+import org.jetbrains.dokka.pages.dfs
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Test
 import utils.*
 
@@ -559,4 +569,45 @@ class ContentForParamsTest : AbstractCoreTest() {
             }
         }
     }
+
+    @Test
+    fun javaDocCommentWithDocumentedParameters(){
+        testInline(
+            """
+            |/src/main/java/test/Main.java
+            |package test
+            | public class Main {
+            |
+            | /**
+            |  * comment to function
+            |  * @param first comment to first param
+            |  * @param second comment to second param
+            |  */
+            |   public void sample(String first, String second) {
+            |  
+            |   }
+            | }
+        """.trimIndent(), testConfiguration
+        ){
+            pagesTransformationStage = {
+                module ->
+                val sampleFunction = module.dfs {
+                    it is MemberPageNode && it.dri.first().toString() == "test/Main/sample/#java.lang.String#java.lang.String/PointingToDeclaration/"
+                } as MemberPageNode
+                val forJvm = (sampleFunction.documentable as DFunction).parameters.mapNotNull {
+                    val jvm = it.documentation.keys.first { it.platform == Platform.jvm }
+                    it.documentation[jvm]
+                }
+
+                assert(forJvm.size == 2)
+                val (first, second) = forJvm.map { it.paramsDescription() }
+                assert(first == "comment to first param")
+                assert(second == "comment to second param")
+            }
+        }
+    }
+
+    private fun DocumentationNode.paramsDescription(): String =
+        children.firstIsInstanceOrNull<Param>()?.root?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
+
 }

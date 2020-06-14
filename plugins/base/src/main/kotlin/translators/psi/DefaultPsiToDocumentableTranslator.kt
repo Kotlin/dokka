@@ -13,6 +13,10 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.doc.DocumentationLink
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.Param
+import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
@@ -27,6 +31,8 @@ import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 import java.lang.ClassValue
@@ -242,6 +248,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             isInherited: Boolean = false
         ): DFunction {
             val dri = DRI.from(psi)
+            val docs = javadocParser.parseDocumentation(psi).toPlatformDependant()
             return DFunction(
                 dri,
                 if (isConstructor) "<init>" else psi.name,
@@ -250,7 +257,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     DParameter(
                         dri.copy(target = dri.target.nextTarget()),
                         psiParameter.name,
-                        javadocParser.parseDocumentation(psiParameter).toPlatformDependant(),
+                        DocumentationNode(docs.entries.mapNotNull { it.value.children.filterIsInstance<Param>().firstOrNull { it.root.children.firstIsInstanceOrNull<DocumentationLink>()?.children?.firstIsInstanceOrNull<Text>()?.body == psiParameter.name } }).toPlatformDependant(),
                         null,
                         getBound(psiParameter.type),
                         listOf(sourceSetData)
@@ -379,7 +386,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             val dri = DRI.from(psi)
             return DProperty(
                 dri,
-                psi.name!!, // TODO: Investigate if this is indeed nullable
+                psi.name,
                 javadocParser.parseDocumentation(psi).toPlatformDependant(),
                 null,
                 PsiDocumentableSource(psi).toPlatformDependant(),
