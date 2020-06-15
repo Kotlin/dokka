@@ -60,16 +60,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesForDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block) + e.stylesForDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 group(styles = setOf(TextStyle.Block)) {
                     annotationsBlock(e)
                     link(e.name, e.dri, styles = emptySet())
                     e.extra[ConstructorValues]?.let { constructorValues ->
-                        sourceSetDependentText(constructorValues.values, constructorValues.values.keys) {
-                            it.joinToString(prefix = "(", postfix = ")")
-                        }
+                        constructorValues.values[it]
+                        text(constructorValues.values[it]?.joinToString(prefix = "(", postfix = ")") ?: "")
                     }
                 }
             }
@@ -108,18 +107,15 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             sourceSets = setOf(sourceSet)
         ) {
             annotationsBlock(c)
-            sourceSetDependentText(
-                c.visibility,
-                setOf(sourceSet)
-            ) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
+            text(c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
             if (c is DClass) {
-                sourceSetDependentText(c.modifier, setOf(sourceSet)) {
-                    if (it !in ignoredModifiers)
+                text(
+                    if (c.modifier[sourceSet] !in ignoredModifiers)
                         if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true) ""
-                        else (if (it is JavaModifier.Empty) KotlinModifier.Open else it).let { it.name + " " }
+                        else (if (c.modifier[sourceSet] is JavaModifier.Empty) KotlinModifier.Open.name else c.name).let { "$it " }
                     else
                         ""
-                }
+                )
             }
             if (c is DInterface) {
                 c.extra[AdditionalModifiers]?.content?.let { additionalModifiers ->
@@ -190,13 +186,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         p.sourceSets.map {
             contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace) + p.stylesForDeprecated(it), sourceSets = setOf(it)) {
                 annotationsBlock(p)
-                sourceSetDependentText(p.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-                sourceSetDependentText(p.modifier) {
-                    it.takeIf { it !in ignoredModifiers }?.let {
+                text(p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+                text(
+                    p.modifier[it].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { "$it " } ?: ""
-                }
-                processExtraModifiers(p)
+                )
+                text(p.modifiers()[it]?.toSignatureString() ?: "")
                 p.setter?.let { text("var ") } ?: text("val ")
                 list(p.generics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
@@ -215,13 +211,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         f.sourceSets.map {
             contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace) + f.stylesForDeprecated(it), sourceSets = setOf(it)) {
                 annotationsBlock(f)
-                sourceSetDependentText(f.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-                sourceSetDependentText(f.modifier) {
-                    it.takeIf { it !in ignoredModifiers }?.let {
+                text(f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
+                text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { "$it " } ?: ""
-                }
-                processExtraModifiers(f)
+                )
+                text(f.modifiers()[it]?.toSignatureString() ?: "")
                 text("fun ")
                 list(f.generics, prefix = "<", suffix = "> ") {
                     +buildSignature(it)
@@ -264,7 +259,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         setOf(TextStyle.Monospace),
                         sourceSets = platforms.toSet()
                     ) {
-                        sourceSetDependentText(t.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
+                        text(t.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                         processExtraModifiers(t)
                         text("typealias ")
                         signatureForProjection(t.type)
