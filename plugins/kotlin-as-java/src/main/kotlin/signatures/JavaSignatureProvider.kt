@@ -7,6 +7,7 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.TextStyle
@@ -22,7 +23,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private val ignoredModifiers =
         setOf(KotlinModifier.Open, JavaModifier.Empty, KotlinModifier.Empty, KotlinModifier.Sealed)
 
-    override fun signature(documentable: Documentable): ContentNode = when (documentable) {
+    override fun signature(documentable: Documentable): List<ContentNode> = when (documentable) {
         is DFunction -> signature(documentable)
         is DProperty -> signature(documentable)
         is DClasslike -> signature(documentable)
@@ -33,81 +34,114 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         )
     }
 
-    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace)){
-        link(e.name, e.dri)
-    }
+    private fun signature(e: DEnumEntry) =
+        e.sourceSets.map {
+            contentBuilder.contentFor(
+                e,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace) + e.stylesForDeprecated(it),
+                sourceSets = setOf(it)
+            ) {
+                link(e.name, e.dri)
+            }
+        }
 
     private fun signature(c: DClasslike) =
-        contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-            sourceSetDependentText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+        c.sourceSets.map {
+            contentBuilder.contentFor(
+                c,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesForDeprecated(it)
+                    ?: emptySet()),
+                sourceSets = setOf(it)
+            ) {
+                sourceSetDependentText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
-            if (c is DClass) {
-                sourceSetDependentText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-                sourceSetDependentText(c.modifiers()) { it.toSignatureString() }
-            }
-
-            when (c) {
-                is DClass -> text("class ")
-                is DInterface -> text("interface ")
-                is DEnum -> text("enum ")
-                is DObject -> text("class ")
-                is DAnnotation -> text("@interface ")
-            }
-            link(c.name!!, c.dri)
-            if (c is WithGenerics) {
-                list(c.generics, prefix = "<", suffix = ">") {
-                    +buildSignature(it)
+                if (c is DClass) {
+                    sourceSetDependentText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
+                    sourceSetDependentText(c.modifiers()) { it.toSignatureString() }
                 }
-            }
-            if (c is WithSupertypes) {
-                c.supertypes.map { (p, dris) ->
-                    list(dris, prefix = " extends ", sourceSets = setOf(p)) {
-                        link(it.sureClassNames, it, sourceSets = setOf(p))
+
+                when (c) {
+                    is DClass -> text("class ")
+                    is DInterface -> text("interface ")
+                    is DEnum -> text("enum ")
+                    is DObject -> text("class ")
+                    is DAnnotation -> text("@interface ")
+                }
+                link(c.name!!, c.dri)
+                if (c is WithGenerics) {
+                    list(c.generics, prefix = "<", suffix = ">") {
+                        +buildSignature(it)
+                    }
+                }
+                if (c is WithSupertypes) {
+                    c.supertypes.map { (p, dris) ->
+                        list(dris, prefix = " extends ", sourceSets = setOf(p)) {
+                            link(it.sureClassNames, it, sourceSets = setOf(p))
+                        }
                     }
                 }
             }
         }
 
-    private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        group(styles = setOf(TextStyle.Block)) {
-            annotationsBlock(p)
-            sourceSetDependentText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-            sourceSetDependentText(p.modifier) { it.name + " " }
-            sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
-            signatureForProjection(p.type)
-            text(nbsp.toString())
-            link(p.name, p.dri)
-        }
-    }
-
-    private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-        group(styles = setOf(TextStyle.Block)) {
-            annotationsBlock(f)
-            sourceSetDependentText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-            sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
-            val returnType = f.type
-            signatureForProjection(returnType)
-            text(nbsp.toString())
-            link(f.name, f.dri)
-            list(f.generics, prefix = "<", suffix = ">") {
-                +buildSignature(it)
-            }
-            list(f.parameters, "(", ")") {
-                annotationsInline(it)
-                sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
-                signatureForProjection(it.type)
+    private fun signature(p: DProperty) =
+        p.sourceSets.map {
+            contentBuilder.contentFor(
+                p,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesForDeprecated(it),
+                sourceSets = setOf(it)
+            ) {
+                annotationsBlock(p)
+                sourceSetDependentText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+                sourceSetDependentText(p.modifier) { it.name + " " }
+                sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
+                signatureForProjection(p.type)
                 text(nbsp.toString())
-                link(it.name!!, it.dri)
+                link(p.name, p.dri)
             }
         }
-    }
 
-    private fun signature(t: DTypeParameter) = contentBuilder.contentFor(t) {
-        text(t.name.substringAfterLast("."))
-        list(t.bounds, prefix = " extends ") {
-            signatureForProjection(it)
+    private fun signature(f: DFunction) =
+        f.sourceSets.map {
+            contentBuilder.contentFor(
+                f,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesForDeprecated(it),
+                sourceSets = setOf(it)
+            ) {
+                annotationsBlock(f)
+                sourceSetDependentText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
+                sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
+                val returnType = f.type
+                signatureForProjection(returnType)
+                text(nbsp.toString())
+                link(f.name, f.dri)
+                list(f.generics, prefix = "<", suffix = ">") {
+                    +buildSignature(it)
+                }
+                list(f.parameters, "(", ")") {
+                    annotationsInline(it)
+                    sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
+                    signatureForProjection(it.type)
+                    text(nbsp.toString())
+                    link(it.name!!, it.dri)
+                }
+
+            }
         }
-    }
+
+    private fun signature(t: DTypeParameter) =
+        t.sourceSets.map {
+            contentBuilder.contentFor(t, styles = t.stylesForDeprecated(it), sourceSets = setOf(it)) {
+                text(t.name.substringAfterLast("."))
+                list(t.bounds, prefix = " extends ") {
+                    signatureForProjection(it)
+                }
+            }
+
+        }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
         is OtherParameter -> link(p.name, p.declarationDRI)
