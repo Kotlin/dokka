@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}stylesheet.css" title="Style">
     <link rel="stylesheet" type="text/css" href="{{ pathToRoot }}jquery/jquery-ui.css" title="Style">
     <script src="{{ pathToRoot }}tag-search-index.js"></script>
-    <script src="{{ pathToRoot }} jquery/jszip/dist/jszip.js"></script>
+    <script src="{{ pathToRoot }}jquery/jszip/dist/jszip.js"></script>
     <script type="text/javascript" src="{{ pathToRoot }}script.js"></script>
     <script type="text/javascript" src="{{ pathToRoot }}jquery/jszip/dist/jszip.min.js"></script>
     <script type="text/javascript" src="{{ pathToRoot }}jquery/jszip-utils/dist/jszip-utils.min.js"></script>

@@ -8,10 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.PageNode
-import org.jetbrains.dokka.pages.RendererSpecificPage
-import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
 import java.nio.file.Path
@@ -62,7 +59,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun CoroutineScope.renderJavadocNode(node: JavadocPageNode) {
         val link = locationProvider.resolve(node, skipExtension = true)
         val dir = Paths.get(link).parent?.let { it.toNormalized() }.orEmpty()
-        val pathToRoot = dir.split("/").joinToString("/") { ".." }.let {
+        val pathToRoot = dir.split("/").filter { it.isNotEmpty()} .joinToString("/") { ".." }.let {
             if (it.isNotEmpty()) "$it/" else it
         }
 
@@ -123,6 +120,15 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
+    private fun renderContentNode(content: ContentNode) = when(content) {
+        is ContentText -> content.text
+        is ContentComposite -> renderContent(content.children)
+        else -> ""
+    }
+
+    private fun renderContent(content: List<ContentNode>): String =
+        content.joinToString("") { renderContentNode(it) }
+
     fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
             TeFunction("curDate") { LocalDate.now() },
@@ -133,7 +139,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             TeFunction("createTabRow") { args ->
                 val (link, doc) = args.first() as RowJavadocListEntry
                 val dir = args[1] as String?
-                (createLinkTag(locationProvider.resolve(link, dir.orEmpty()), link.name) to doc).pairToTag().trim()
+                (createLinkTag(locationProvider.resolve(link, dir.orEmpty()), link.name) to renderContent(doc)).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry
