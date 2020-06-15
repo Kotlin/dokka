@@ -91,6 +91,9 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableTransformer with ReportUndocumentedTransformer()
     }
 
+    val extensionsExtractor by extending {
+        CoreExtensions.documentableTransformer with ExtensionExtractorTransformer()
+    }
 
     val documentableToPageTranslator by extending(isFallback = true) {
         CoreExtensions.documentableToPageTranslator providing { ctx ->
