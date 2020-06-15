@@ -2,10 +2,7 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.AdditionalModifiers
-import org.jetbrains.dokka.model.Annotations
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.ExtraModifiers
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 object KotlinSignatureUtils : JvmSignatureUtils {

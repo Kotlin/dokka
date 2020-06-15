@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
@@ -128,6 +129,12 @@ interface JvmSignatureUtils {
             text(Typography.nbsp.toString())
         }
     }
+
+    fun <T : Documentable> WithExtraProperties<T>.stylesForDeprecated(sourceSetData: SourceSetData): Set<TextStyle> =
+        if (extra[Annotations]?.content?.get(sourceSetData)?.any {
+            it.dri == DRI("kotlin", "Deprecated")
+                    || it.dri == DRI("java.lang", "Deprecated")
+        } == true) setOf(TextStyle.Strikethrough) else emptySet()
 }
 
 sealed class AtStrategy

@@ -14,7 +14,6 @@ import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMe
 import org.jetbrains.dokka.base.transformers.documentables.DocumentableVisibilityFilter
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
 import org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer
-import org.jetbrains.dokka.base.transformers.pages.annotations.DeprecatedStrikethroughTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
@@ -108,10 +107,6 @@ class DokkaBase : DokkaPlugin() {
         pageMergerStrategy with SameMethodNamePageMergerStrategy order {
             before(fallbackMerger)
         }
-    }
-
-    val deprecatedStrikethroughTransformer by extending {
-        CoreExtensions.pageTransformer providing ::DeprecatedStrikethroughTransformer
     }
 
     val htmlRenderer by extending {
