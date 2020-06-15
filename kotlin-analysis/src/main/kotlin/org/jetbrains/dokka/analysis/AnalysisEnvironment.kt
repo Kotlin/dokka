@@ -633,4 +633,8 @@ class DokkaResolutionFacade(
         throw UnsupportedOperationException()
     }
 
+    override fun getResolverForProject(): ResolverForProject<out ModuleInfo> {
+        throw UnsupportedOperationException()
+    }
+
 }

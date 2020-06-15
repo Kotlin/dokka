@@ -42,4 +42,3 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=1G")
     }
 }
-

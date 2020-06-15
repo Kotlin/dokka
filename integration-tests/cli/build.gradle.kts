@@ -19,7 +19,12 @@ dependencies {
 }
 
 /* Create a fat base plugin jar for cli tests */
-val basePluginShadow: Configuration by configurations.creating
+val basePluginShadow: Configuration by configurations.creating {
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+    }
+}
+
 dependencies {
     basePluginShadow(project(":plugins:base"))
 }
