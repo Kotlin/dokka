@@ -55,11 +55,11 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                     ?: emptySet()),
                 sourceSets = setOf(it)
             ) {
-                sourceSetDependentText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+                text(c.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ") ?: "")
 
                 if (c is DClass) {
-                    sourceSetDependentText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-                    sourceSetDependentText(c.modifiers()) { it.toSignatureString() }
+                    text(c.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
+                    text(c.modifiers()[it]?.toSignatureString() ?: "")
                 }
 
                 when (c) {
@@ -94,9 +94,9 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
-                sourceSetDependentText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-                sourceSetDependentText(p.modifier) { it.name + " " }
-                sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
+                text(p.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.plus(" ") ?: "")
+                text(p.modifier[it]?.name + " ")
+                text(p.modifiers()[it]?.toSignatureString() ?: "")
                 signatureForProjection(p.type)
                 text(nbsp.toString())
                 link(p.name, p.dri)
@@ -112,8 +112,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(f)
-                sourceSetDependentText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-                sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
+                text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
+                text(f.modifiers()[it]?.toSignatureString() ?: "")
                 val returnType = f.type
                 signatureForProjection(returnType)
                 text(nbsp.toString())
@@ -123,7 +123,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 }
                 list(f.parameters, "(", ")") {
                     annotationsInline(it)
-                    sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
+                    text(it.modifiers()[it]?.toSignatureString() ?: "")
                     signatureForProjection(it.type)
                     text(nbsp.toString())
                     link(it.name!!, it.dri)
