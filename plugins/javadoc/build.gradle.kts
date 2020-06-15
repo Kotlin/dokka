@@ -14,6 +14,7 @@ dependencies {
     implementation("com.soywiz.korlibs.korte:korte-jvm:1.10.3")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     implementation(project(":plugins:base"))
+    implementation(project(":plugins:kotlin-as-java"))
 }
 
 configureBintrayPublication("javadocPlugin")

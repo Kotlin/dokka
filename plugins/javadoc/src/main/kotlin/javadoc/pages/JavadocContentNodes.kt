@@ -142,7 +142,7 @@ class LinkJavadocListEntry(
     }
 }
 
-data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: String) : JavadocListEntry {
+data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: List<ContentNode>) : JavadocListEntry {
     override val stringTag: String = ""
 }
 

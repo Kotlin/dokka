@@ -4,15 +4,20 @@ import javadoc.pages.*
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
+import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 open class JavadocPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
-    signatureProvider: SignatureProvider,
+    val signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
+
     fun pageForModule(m: DModule): JavadocModulePageNode =
         JavadocModulePageNode(
             m.name.ifEmpty { "root" },
@@ -46,12 +51,18 @@ open class JavadocPageCreator(
         ) {
             title(m.name, "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.map { p ->
-                val doc = p.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
-                    it.children.joinToString("\n") { it.root.toString() }
+                val description = p.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
+                    it.children.firstIsInstanceOrNull<Description>()?.let { description ->
+                        DocTagToContentConverter.buildContent(
+                            description.root,
+                            DCI(setOf(p.dri), JavadocContentKind.OverviewSummary),
+                            sourceSets
+                        )
+                    }
                 }.orEmpty()
                 RowJavadocListEntry(
                     LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
-                    doc
+                    description
                 )
             })
         }
@@ -64,12 +75,9 @@ open class JavadocPageCreator(
         ) {
             title(p.name, "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.map { c ->
-                val doc = c.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
-                    it.children.joinToString("\n") { it.root.toString() }
-                }.orEmpty()
                 RowJavadocListEntry(
                     LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
-                    doc
+                    listOf(signatureProvider.signature(c))
                 )
             })
         }
