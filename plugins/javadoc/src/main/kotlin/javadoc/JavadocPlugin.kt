@@ -6,6 +6,7 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureProvider
 
 class JavadocPlugin : DokkaPlugin() {
     val dokkaJavadocPlugin by extending {
@@ -17,11 +18,11 @@ class JavadocPlugin : DokkaPlugin() {
 
     val pageTranslator by extending {
         val dokkaBasePlugin = plugin<DokkaBase>()
-        CoreExtensions.documentableToPageTranslator providing { ctx ->
+        CoreExtensions.documentableToPageTranslator providing { context ->
             JavadocDocumentableToPageTranslator(
                 dokkaBasePlugin.querySingle { commentsToContentConverter },
                 dokkaBasePlugin.querySingle { signatureProvider },
-                ctx.logger
+                context.logger
             )
         }
     }
