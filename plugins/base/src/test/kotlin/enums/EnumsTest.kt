@@ -126,7 +126,7 @@ class EnumsTest : AbstractCoreTest() {
                 val entryPage = module.dfs { it.name == "E1" } as ClasslikePageNode
                 val signaturePart = (entryPage.content.dfs {
                     it is ContentGroup && it.dci.toString() == "[enums/Test.E1///PointingToDeclaration/][Symbol]"
-                } as ContentGroup).children.first() as ContentGroup
+                } as ContentGroup)
                 assertEquals("(\"e1\", 1, true)", signaturePart.constructorSignature())
             }
         }
@@ -213,10 +213,8 @@ class EnumsTest : AbstractCoreTest() {
                             }
                         }
                         group {
-                            group {
-                                link { +"E1" }
-                                +"()"
-                            }
+                            link { +"E1" }
+                            +"()"
                         }
                     }
                 }
