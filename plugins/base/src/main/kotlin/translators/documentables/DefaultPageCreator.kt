@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
@@ -231,6 +232,10 @@ open class DefaultPageCreator(
                 }
             }
             +contentForScope(c, c.dri, c.sourceSets)
+
+            @Suppress("UNCHECKED_CAST")
+            val extensions = (c as WithExtraProperties<DClasslike>).extra[CallableExtensions]?.extensions?.filterIsInstance<Documentable>()
+            divergentBlock("Extensions", extensions.orEmpty(), ContentKind.Extensions, mainExtra + SimpleAttr.header("Extensions"))
         }
     }
 
