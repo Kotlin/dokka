@@ -53,7 +53,6 @@ tasks {
         exclude("inspectionDescriptions/**")
         exclude("intentionDescriptions/**")
         exclude("tips/**")
-        exclude("messages/**")
         exclude("src/**")
         exclude("**/*.kotlin_metadata")
         exclude("**/*.kotlin_builtins")

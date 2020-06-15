@@ -8,6 +8,9 @@ plugins {
 dependencies {
     api(project(":coreDependencies", configuration = "shadow"))
 
+    val coroutines_version: String by project
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+
     val kotlin_version: String by project
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")

@@ -1,5 +1,12 @@
-val dokkaPlugin: Configuration by configurations.creating
-val dokkaCore: Configuration by configurations.creating
+fun Configuration.setMetadata() {
+    attributes.attribute(
+        org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE,
+        project.objects.named(org.gradle.api.attributes.Usage::class.java, "java-runtime")
+    )
+}
+
+val dokkaPlugin: Configuration by configurations.creating { setMetadata() }
+val dokkaCore: Configuration by configurations.creating { setMetadata() }
 val kotlinGradle: Configuration by configurations.creating
 
 repositories {
