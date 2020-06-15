@@ -15,6 +15,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
     implementation(project(":plugins:base"))
     implementation(project(":plugins:kotlin-as-java"))
+
+    val coroutines_version: String by project
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 }
 
 configureBintrayPublication("javadocPlugin")
