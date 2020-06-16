@@ -3,6 +3,7 @@ package org.jetbrains.dokka
 import com.google.gson.Gson
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
+import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.*
@@ -18,12 +19,12 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
 
     override val outputDir by parser.option(ArgType.String, description = "Output directory path")
-        .default("./dokka")
+        .default(DokkaDefaults.outputDir)
 
     override val format by parser.option(
         ArgType.String,
         description = "Output format (html, gfm, jekyll)"
-    ).default("html")
+    ).default(DokkaDefaults.format)
 
     override val cacheRoot by parser.option(
         ArgType.String,
@@ -50,12 +51,12 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     override val offlineMode by parser.option(
         ArgType.Boolean,
         "Offline mode (do not download package lists from the Internet)"
-    ).default(false)
+    ).default(DokkaDefaults.offlineMode)
 
     override val failOnWarning by parser.option(
         ArgType.Boolean,
         "Throw an exception if the generation exited with warnings"
-    ).default(false)
+    ).default(DokkaDefaults.failOnWarning)
 
     val globalPackageOptions by parser.option(
         ArgType.String,
@@ -160,26 +161,26 @@ fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
     ).delimiter(";")
 
     val includeNonPublic: Boolean by parser.option(ArgType.Boolean, description = "Include non public")
-        .default(false)
+        .default(DokkaDefaults.includeNonPublic)
 
     val includeRootPackage by parser.option(ArgType.Boolean, description = "Include non public")
-        .default(false)
+        .default(DokkaDefaults.includeRootPackage)
 
     val reportUndocumented by parser.option(ArgType.Boolean, description = "Report undocumented members")
-        .default(false)
+        .default(DokkaDefaults.reportUndocumented)
 
     val skipEmptyPackages by parser.option(
         ArgType.Boolean,
         description = "Do not create index pages for empty packages"
-    ).default(false)
+    ).default(DokkaDefaults.skipEmptyPackages)
 
     val skipDeprecated by parser.option(ArgType.Boolean, description = "Do not output deprecated members")
-        .default(false)
+        .default(DokkaDefaults.skipDeprecated)
 
     val jdkVersion by parser.option(
         ArgType.Int,
         description = "Version of JDK to use for linking to JDK JavaDoc"
-    ).default(8)
+    ).default(DokkaDefaults.jdkVersion)
 
     val languageVersion by parser.option(
         ArgType.String,
@@ -192,10 +193,10 @@ fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
     )
 
     val noStdlibLink by parser.option(ArgType.Boolean, description = "Disable documentation link to stdlib")
-        .default(false)
+        .default(DokkaDefaults.noStdlibLink)
 
     val noJdkLink by parser.option(ArgType.Boolean, description = "Disable documentation link to JDK")
-        .default(false)
+        .default(DokkaDefaults.noJdkLink)
 
     val suppressedFiles by parser.option(
         ArgType.String,
@@ -205,7 +206,7 @@ fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
     val analysisPlatform: Platform by parser.option(
         ArgTypePlatform,
         description = "Platform for analysis"
-    ).default(Platform.DEFAULT)
+    ).default(DokkaDefaults.analysisPlatform)
 
     val perPackageOptions by parser.option(
         ArgType.String,
