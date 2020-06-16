@@ -7,9 +7,8 @@ env:
   bucket-name: 'dokka-snapshots'
 
 jobs:
-  build:
+  coroutines:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout dokka
         uses: actions/checkout@v2
@@ -24,16 +23,16 @@ jobs:
         run: ./gradlew clean publishToMavenLocal --stacktrace
         working-directory: ./dokka
 
-      - name: Checkout stdlib
+      - name: Checkout coroutines
         uses: actions/checkout@v2
         with:
-          repository: 'kamildoleglo/kotlin-dokka-stdlib'
-          ref: 'master'
-          path: stdlib
+          repository: 'kamildoleglo/kotlinx.coroutines'
+          ref: 'aws'
+          path: coroutines
 
-      - name: Document stdlib
-        run: ./gradlew clean callDokka --stacktrace
-        working-directory: ./stdlib
+      - name: Document coroutines
+        run: ./gradlew clean :dokkaCollector --stacktrace
+        working-directory: ./coroutines
 
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v1
@@ -44,6 +43,6 @@ jobs:
 
       - name: Copy files to dokka's S3 bucket
         run: |
-          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/prev
-          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/prev
-          aws s3 sync ./stdlib/build/dokka s3://${{ env.bucket-name }}/${{ env.branch-name }}/stdlib/latest
+          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
+          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/prev
+          aws s3 sync ./coroutines/build/dokkaCollector s3://${{ env.bucket-name }}/${{ env.branch-name }}/coroutines/latest
