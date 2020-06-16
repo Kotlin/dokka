@@ -119,7 +119,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
             configuration.sourceSetID == sourceSet.sourceSetID
         }
         if (passes.size > 1)
-            context.logger.error("Expected one passConfiguration with ID: ${sourceSet.sourceSetID} found: ${passes.size}")
+            context.logger.error("Expected one passConfiguration with ID: ${sourceSet.sourceSetID} found: ${passes.size} in [${passes.joinToString { it.moduleName }}]")
         return passes.first()
     }
 

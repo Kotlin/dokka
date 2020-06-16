@@ -273,7 +273,6 @@ open class DokkaTask : DefaultTask(), Configurable {
         autoConfig: PlatformData
     ) =
         userConfig.copy().apply {
-            sourceSetID = autoConfig.name ?: ""
             sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
             dependentSourceSets.addAll(userConfig.dependentSourceSets.union(autoConfig.dependentSourceSets).distinct())
             classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
