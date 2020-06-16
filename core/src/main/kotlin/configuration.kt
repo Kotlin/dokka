@@ -3,6 +3,25 @@ package org.jetbrains.dokka
 import java.io.File
 import java.net.URL
 
+object DokkaDefaults {
+    const val outputDir = "./dokka"
+    const val format: String = "html"
+    val cacheRoot: String? = null
+    const val offlineMode: Boolean = false
+    const val failOnWarning: Boolean = false
+
+    const val includeNonPublic: Boolean = false
+    const val includeRootPackage: Boolean = false
+    const val reportUndocumented: Boolean = false
+    const val skipEmptyPackages: Boolean = false
+    const val skipDeprecated: Boolean = false
+    const val jdkVersion: Int = 8
+    const val noStdlibLink: Boolean = false
+    const val noJdkLink: Boolean = false
+    val analysisPlatform: Platform = Platform.DEFAULT
+    const val suppress: Boolean = false
+}
+
 enum class Platform(val key: String) {
     jvm("jvm"),
     js("js"),
@@ -29,11 +48,11 @@ interface DokkaConfiguration {
     val format: String
     val cacheRoot: String?
     val offlineMode: Boolean
+    val failOnWarning: Boolean
     val passesConfigurations: List<PassConfiguration>
     val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
-    val failOnWarning: Boolean
 
     interface PassConfiguration {
         val moduleName: String
@@ -89,8 +108,10 @@ interface DokkaConfiguration {
         val url: URL
         val packageListUrl: URL
 
-        open class Builder(open var url: URL? = null,
-                           open var packageListUrl: URL? = null) {
+        open class Builder(
+            open var url: URL? = null,
+            open var packageListUrl: URL? = null
+        ) {
 
             constructor(root: String, packageList: String? = null) : this(URL(root), packageList?.let { URL(it) })
 

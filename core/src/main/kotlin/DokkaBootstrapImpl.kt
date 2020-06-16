@@ -11,12 +11,26 @@ import java.util.function.BiConsumer
 fun parsePerPackageOptions(args: List<String>): List<PackageOptions> = args.map { it.split(",") }.map {
     val prefix = it.first()
     if (prefix == "")
-        throw IllegalArgumentException("Please do not register packageOptions with all match pattern, use global settings instead")
+        throw IllegalArgumentException(
+            "Please do not register packageOptions with all match pattern, use global settings instead"
+        )
+
     val args = it.subList(1, it.size)
-    val deprecated = args.find { it.endsWith("deprecated") }?.startsWith("+") ?: true
-    val reportUndocumented = args.find { it.endsWith("reportUndocumented") }?.startsWith("+") ?: true
-    val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+") ?: false
-    val suppress = args.find { it.endsWith("suppress") }?.startsWith("+") ?: false
+
+    val deprecated = args.find { it.endsWith("deprecated") }?.startsWith("+")
+        ?: args.find { it.endsWith("skipDeprecated") }?.startsWith("+")
+        ?: DokkaDefaults.skipDeprecated
+
+    val reportUndocumented = args.find { it.endsWith("reportUndocumented") }?.startsWith("+")
+        ?: DokkaDefaults.reportUndocumented
+
+    val privateApi = args.find { it.endsWith("privateApi") }?.startsWith("+")
+        ?: args.find { it.endsWith("includeNonPublic") }?.startsWith("+")
+        ?: DokkaDefaults.includeNonPublic
+
+    val suppress = args.find { it.endsWith("suppress") }?.startsWith("+")
+        ?:DokkaDefaults.suppress
+
     PackageOptionsImpl(
         prefix,
         includeNonPublic = privateApi,

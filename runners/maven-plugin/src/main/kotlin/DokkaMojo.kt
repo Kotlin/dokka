@@ -29,6 +29,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import java.io.File
 import java.net.URL
 
@@ -69,16 +70,16 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var prefix: String = ""
 
         @Parameter
-        override var includeNonPublic: Boolean = false
+        override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
         @Parameter
-        override var reportUndocumented: Boolean = true
+        override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
 
         @Parameter
-        override var skipDeprecated: Boolean = false
+        override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
 
         @Parameter
-        override var suppress: Boolean = false
+        override var suppress: Boolean = DokkaDefaults.suppress
     }
 
     @Parameter(required = true, defaultValue = "\${project.sourceSet}")
@@ -89,7 +90,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
     @Parameter
     var sourceRoots: List<SourceRoot> = emptyList()
-
 
     @Parameter
     var dependentSourceSets: List<String> = emptyList()
@@ -112,17 +112,17 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(required = false, defaultValue = "false")
     var skip: Boolean = false
 
-    @Parameter(required = false, defaultValue = "6")
-    var jdkVersion: Int = 8
+    @Parameter(required = false, defaultValue = "${DokkaDefaults.jdkVersion}")
+    var jdkVersion: Int = DokkaDefaults.jdkVersion
 
     @Parameter
-    var skipDeprecated: Boolean = false
+    var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
 
     @Parameter
-    var skipEmptyPackages: Boolean = true
+    var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
 
     @Parameter
-    var reportUndocumented: Boolean = true
+    var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
 
     @Parameter
     var impliedPlatforms: List<String> = emptyList()
@@ -133,11 +133,11 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter
     var externalDocumentationLinks: List<ExternalDocumentationLinkBuilder> = emptyList()
 
-    @Parameter(defaultValue = "false")
-    var noStdlibLink: Boolean = false
+    @Parameter(defaultValue = "${DokkaDefaults.noStdlibLink}")
+    var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
 
-    @Parameter(defaultValue = "false")
-    var noJdkLink: Boolean = false
+    @Parameter(defaultValue = "${DokkaDefaults.noJdkLink}")
+    var noJdkLink: Boolean = DokkaDefaults.noJdkLink
 
     @Parameter
     var cacheRoot: String? = null
@@ -145,8 +145,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     @Parameter(defaultValue = "JVM")
     var displayName: String = "JVM"
 
-    @Parameter(defaultValue = "false")
-    var offlineMode: Boolean = false
+    @Parameter(defaultValue = "${DokkaDefaults.offlineMode}")
+    var offlineMode: Boolean = DokkaDefaults.offlineMode
 
     @Parameter
     var languageVersion: String? = null
@@ -155,20 +155,19 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var apiVersion: String? = null
 
     @Parameter
-    var includeRootPackage: Boolean = false
+    var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
 
     @Parameter
     var suppressedFiles: List<String> = emptyList()
-
 
     @Parameter
     var platform: String = ""
 
     @Parameter
-    var includeNonPublic: Boolean = false
+    var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
 
     @Parameter
-    var failOnWarning: Boolean = false
+    var failOnWarning: Boolean = DokkaDefaults.failOnWarning
 
     @Parameter
     var dokkaPlugins: List<Dependency> = emptyList()

@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.*
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.Platform
 import java.io.File
 import java.io.Serializable
@@ -33,22 +34,22 @@ open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassCo
     @Input override var dependentSourceSets: MutableList<String> = mutableListOf()
     @Input override var samples: List<String> = emptyList()
     @Input override var includes: List<String> = emptyList()
-    @Input override var includeNonPublic: Boolean = false
-    @Input override var includeRootPackage: Boolean = false
-    @Input override var reportUndocumented: Boolean = false
-    @Input override var skipEmptyPackages: Boolean = false
-    @Input override var skipDeprecated: Boolean = false
-    @Input override var jdkVersion: Int = 8
+    @Input override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+    @Input override var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
+    @Input override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+    @Input override var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
+    @Input override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+    @Input override var jdkVersion: Int = DokkaDefaults.jdkVersion
     @Input override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
     @Input override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
     @Input override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
     @Input @Optional override var languageVersion: String? = null
     @Input @Optional override var apiVersion: String? = null
-    @Input override var noStdlibLink: Boolean = false
-    @Input override var noJdkLink: Boolean = false
+    @Input override var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
+    @Input override var noJdkLink: Boolean = DokkaDefaults.noJdkLink
     @Input var noAndroidSdkLink: Boolean = false
     @Input override var suppressedFiles: List<String> = emptyList()
-    @Input override var analysisPlatform: Platform = Platform.DEFAULT
+    @Input override var analysisPlatform: Platform = DokkaDefaults.analysisPlatform
     @Input @Optional var platform: String? = null
     @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
 
@@ -124,22 +125,22 @@ class GradleDokkaModuleDescription: DokkaModuleDescription {
 
 class GradleDokkaConfigurationImpl: DokkaConfiguration {
     override var outputDir: String = ""
-    override var format: String = "html"
-    override var cacheRoot: String? = null
-    override var offlineMode: Boolean = false
+    override var format: String = DokkaDefaults.format
+    override var cacheRoot: String? = DokkaDefaults.cacheRoot
+    override var offlineMode: Boolean = DokkaDefaults.offlineMode
+    override var failOnWarning: Boolean = DokkaDefaults.failOnWarning
     override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
     override var pluginsConfiguration: Map<String, String> = mutableMapOf()
     override var modules: List<GradleDokkaModuleDescription> = emptyList()
-    override var failOnWarning: Boolean = false
 }
 
 class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var prefix: String = ""
-    override var includeNonPublic: Boolean = false
-    override var reportUndocumented: Boolean = true
-    override var skipDeprecated: Boolean = true
-    override var suppress: Boolean = false
+    override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+    override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+    override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+    override var suppress: Boolean = DokkaDefaults.suppress
 }
 
 internal fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {
