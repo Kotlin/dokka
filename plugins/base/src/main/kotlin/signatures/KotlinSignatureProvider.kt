@@ -244,6 +244,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is Void -> link("Unit", DriOfUnit)
             is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
             is Dynamic -> text("dynamic")
+            is UnresolvedBound -> text(p.name)
         }
 
     private fun funType(dri: DRI, sourceSets: Set<SourceSetData>, type: TypeConstructor) =
