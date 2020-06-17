@@ -3,16 +3,16 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.coroutines.*
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 import java.net.URI
 
@@ -22,11 +22,11 @@ open class HtmlRenderer(
 
     private val sourceSetDependencyMap = with(context.sourceSetCache) {
         allSourceSets.map { sourceSet ->
-            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID ) }
+            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
         }.toMap()
     }
 
-    private val pageList = mutableListOf<String>()
+    private val pageList = mutableMapOf<String, Pair<String, String>>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
@@ -68,13 +68,13 @@ open class HtmlRenderer(
                 if (node.hasStyle(TextStyle.Monospace)) copyButton()
             }
             node.hasStyle(TextStyle.BreakableAfter) -> {
-                span(){ childrenCallback() }
-                wbr {  }
+                span() { childrenCallback() }
+                wbr { }
             }
             node.hasStyle(TextStyle.Breakable) -> {
-                span("breakable-word"){ childrenCallback() }
+                span("breakable-word") { childrenCallback() }
             }
-            node.hasStyle(TextStyle.Span) -> span(){ childrenCallback() }
+            node.hasStyle(TextStyle.Span) -> span() { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
@@ -94,7 +94,7 @@ open class HtmlRenderer(
                 button(classes = "platform-tag platform-selector") {
                     attributes["data-active"] = ""
                     attributes["data-filter"] = it.sourceSetID
-                    when(it.platform.key) {
+                    when (it.platform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
@@ -352,7 +352,7 @@ open class HtmlRenderer(
                                 it.sourceSetID
                             }
                         }
-                        
+
                         it.filterIsInstance<ContentLink>().takeIf { it.isNotEmpty() }?.let {
                             div("main-subrow " + node.style.joinToString(" ")) {
                                 it.filter { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }
@@ -500,12 +500,14 @@ open class HtmlRenderer(
             span(classes = "anchor-icon") {
                 attributes["pointing-to"] = pointingTo
                 unsafe {
-                    raw("""
+                    raw(
+                        """
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21.2496 5.3C20.3496 4.5 19.2496 4 18.0496 4C16.8496 4 15.6496 4.5 14.8496 5.3L10.3496 9.8L11.7496 11.2L16.2496 6.7C17.2496 5.7 18.8496 5.7 19.8496 6.7C20.8496 7.7 20.8496 9.3 19.8496 10.3L15.3496 14.8L16.7496 16.2L21.2496 11.7C22.1496 10.8 22.5496 9.7 22.5496 8.5C22.5496 7.3 22.1496 6.2 21.2496 5.3Z"/>
                     <path d="M8.35 16.7998C7.35 17.7998 5.75 17.7998 4.75 16.7998C3.75 15.7998 3.75 14.1998 4.75 13.1998L9.25 8.6998L7.85 7.2998L3.35 11.7998C1.55 13.5998 1.55 16.3998 3.35 18.1998C4.25 19.0998 5.35 19.4998 6.55 19.4998C7.75 19.4998 8.85 19.0998 9.75 18.1998L14.25 13.6998L12.85 12.2998L8.35 16.7998Z"/>
                 </svg>
-            """.trimIndent())
+            """.trimIndent()
+                    )
                 }
             }
             copiedPopup("Link copied to clipboard")
@@ -551,14 +553,44 @@ open class HtmlRenderer(
         }
     }
 
+    private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
+
+    private fun flattenToText(node: ContentNode): String {
+        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: SourceSetData): List<ContentText> =
+            when (node) {
+                is ContentText -> listOf(node)
+                is ContentComposite -> node.children
+                    .filter { sourceSetRestriction in it.sourceSets }
+                    .flatMap { getContentTextNodes(it, sourceSetRestriction) }
+                    .takeIf { node.dci.kind != ContentKind.Annotations }
+                    .orEmpty()
+                else -> emptyList()
+            }
+
+        val sourceSetRestriction = node.sourceSets.find { it.platform == Platform.common } ?: node.sourceSets.first()
+        return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
+    }
+
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
-        if (page is ContentPage) {
-            pageList.add(
-                """{ "name": "${page.name}", ${if (page is ClasslikePageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
-                    page
-                )}" }"""
-            )
+        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode) {
+            val signature = getSymbolSignature(page)
+            val textNodes = signature?.let { flattenToText(it) }
+            val documentable = page.documentable
+            if (documentable != null) {
+                listOf(
+                    documentable.dri.packageName,
+                    documentable.dri.classNames,
+                    documentable.dri.callable?.name
+                )
+                    .filter { !it.isNullOrEmpty() }
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(".")
+                    ?.let {
+                        pageList.put(it, Pair(textNodes ?: page.name, locationProvider.resolve(page)))
+                    }
+
+            }
         }
     }
 
@@ -569,11 +601,33 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
+    private fun generatePagesList() =
+        pageList.entries
+            .filter { !it.key.isNullOrEmpty() }
+            .groupBy { it.key.substringAfterLast(".") }
+            .entries
+            .mapIndexed { topLevelIndex, entry ->
+                if (entry.value.size > 1) {
+                    listOf(
+                        "{\'name\': \'${entry.key}\', \'index\': \'$topLevelIndex\', \'disabled\': true}"
+                    ) + entry.value.mapIndexed { index, subentry ->
+                        "{\'name\': \'${subentry.value.first}\', \'level\': 1, \'index\': \'$topLevelIndex.$index\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\'}"
+                    }
+                } else {
+                    val subentry = entry.value.single()
+                    listOf(
+                        "{\'name\': \'${subentry.value.first}\', \'index\': \'$topLevelIndex\', \'description\':\'${subentry.key}\', \'location\':\'${subentry.value.second}\'}"
+                    )
+                }
+            }
+            .flatten()
+            .joinToString(prefix = "[", separator = ",\n", postfix = "]")
+
     override fun render(root: RootPageNode) {
         super.render(root)
         runBlocking(Dispatchers.Default) {
             launch {
-                outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+                outputWriter.write("scripts/pages", "var pages = ${generatePagesList()}", ".js")
             }
         }
     }
