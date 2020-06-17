@@ -6,7 +6,7 @@ import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -15,6 +15,8 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import java.io.File
 import java.net.URI
+import java.util.*
+import kotlin.NoSuchElementException
 
 open class HtmlRenderer(
     context: DokkaContext
@@ -26,7 +28,7 @@ open class HtmlRenderer(
         }.toMap()
     }
 
-    private val pageList = mutableListOf<String>()
+    private val pageList = mutableMapOf<String, Pair<String, String>>()
 
     override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
@@ -551,14 +553,55 @@ open class HtmlRenderer(
         }
     }
 
+    private fun getSymbolSignature(page: ContentPage) : ContentNode? {
+        val queue: Queue<ContentNode> = ArrayDeque()
+        queue.add(page.content)
+        while(queue.isNotEmpty()) {
+            val node = queue.poll()
+            if(node.dci.kind == ContentKind.Symbol) {
+                return node
+            }
+            else if (node is ContentComposite) {
+                queue.addAll(node.children)
+            }
+        }
+        return null
+    }
+    private fun flattenToText(node: ContentNode) : String {
+        fun getContentTextNodes(node: ContentNode) : List<ContentText> =
+            when(node){
+                is ContentText -> listOf(node)
+                is ContentComposite -> {
+                    if (node.dci.kind != ContentKind.Annotations)
+                        node.children.flatMap { getContentTextNodes(it) }
+                    else emptyList()
+                }
+                else -> emptyList()
+            }
+        return getContentTextNodes(node).joinToString("") { it.text }
+    }
+
+
     override suspend fun renderPage(page: PageNode) {
         super.renderPage(page)
-        if (page is ContentPage) {
-            pageList.add(
-                """{ "name": "${page.name}", ${if (page is ClasslikePageNode) "\"class\": \"${page.name}\"," else ""} "location": "${locationProvider.resolve(
-                    page
-                )}" }"""
-            )
+        if (page is ContentPage && page !is ModulePageNode && page !is PackagePageNode) {
+            val signature = getSymbolSignature(page)
+            val textNodes = signature?.let { flattenToText(it) }
+            val documentable = page.documentable
+            if(documentable != null) {
+                listOf(
+                    documentable.dri.packageName,
+                    documentable.dri.classNames,
+                    documentable.dri.callable?.name
+                )
+                    .filter { !it.isNullOrEmpty() }
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(".")
+                    ?.let {
+                        pageList.put( it, Pair(textNodes ?: page.name, locationProvider.resolve(page) ))
+                    }
+
+            }
         }
     }
 
@@ -569,11 +612,35 @@ open class HtmlRenderer(
         text(textNode.text)
     }
 
+    private fun generatePagesList() =
+        pageList.entries
+            .filter { !it.key.isNullOrEmpty() }
+            .groupBy {
+                it.key.substringAfterLast(".")
+            }
+            .entries
+            .mapIndexed { topLevelIndex, entry ->
+                if (entry.value.size > 1) {
+                    listOf(
+                    "{\"name\": \"${entry.key}\", \"index\": \'$topLevelIndex\', \"disabled\": true}"
+                    ) + entry.value.mapIndexed { index, subentry ->
+                        "{\"name\": \"${subentry.value.first}\", \'level\': 1, \"index\": \'$topLevelIndex.$index\', \"description\":\"${subentry.key}\", \"location\":\"${subentry.value.second}\"}"
+                    }
+                } else {
+                    val subentry = entry.value.single()
+                    listOf(
+                        "{\"name\": \"${subentry.value.first}\", \"index\": \'$topLevelIndex\', \"description\":\"${subentry.key}\", \"location\":\"${subentry.value.second}\"}"
+                    )
+                }
+            }
+            .flatten()
+            .joinToString(prefix="[", separator = ",\n", postfix = "]")
+
     override fun render(root: RootPageNode) {
         super.render(root)
         runBlocking(Dispatchers.Default) {
             launch {
-                outputWriter.write("scripts/pages", "var pages = [\n${pageList.joinToString(",\n")}\n]", ".js")
+                outputWriter.write("scripts/pages", "var pages = ${generatePagesList()}", ".js")
             }
         }
     }
