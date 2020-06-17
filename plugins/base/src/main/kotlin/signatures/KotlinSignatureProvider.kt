@@ -33,12 +33,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     }
 
     private fun signature(e: DEnumEntry) =
-        contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = e.sourceSets.toSet()) {
-            group(styles = setOf(TextStyle.Block)){
+        contentBuilder.contentFor(
+            e,
+            ContentKind.Symbol,
+            setOf(TextStyle.Monospace),
+            sourceSets = e.sourceSets.toSet()
+        ) {
+            group(styles = setOf(TextStyle.Block)) {
                 annotationsBlock(e)
                 link(e.name, e.dri, styles = emptySet())
                 e.extra[ConstructorValues]?.let { constructorValues ->
-                    platformText(constructorValues.values, constructorValues.values.keys){
+                    sourceSetDependentText(constructorValues.values, constructorValues.values.keys) {
                         it.joinToString(prefix = "(", postfix = ")")
                     }
                 }
@@ -55,6 +60,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T : DClasslike> classlikeSignature(c: T) =
         (c as? WithExtraProperties<out DClasslike>)?.let {
             c.extra[ActualTypealias]?.let {
@@ -68,17 +74,25 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun regularSignature(c: DClasslike, sourceSets: Set<SourceSetData> = c.sourceSets.toSet()) =
         contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
             annotationsBlock(c)
-            platformText(
+            sourceSetDependentText(
                 c.visibility,
                 sourceSets
             ) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
             if (c is DClass) {
-                platformText(c.modifier, sourceSets) {
+                sourceSetDependentText(c.modifier, sourceSets) {
                     if (it !in ignoredModifiers)
                         if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true) ""
                         else (if (it is JavaModifier.Empty) KotlinModifier.Open else it).let { it.name + " " }
                     else
                         ""
+                }
+            }
+            if (c is DInterface) {
+                c.extra[AdditionalModifiers]?.content?.let { additionalModifiers ->
+                    sourceSetDependentText(additionalModifiers, sourceSets) { extraModifiers ->
+                        if (ExtraModifiers.KotlinOnlyModifiers.Fun in extraModifiers) "fun "
+                        else ""
+                    }
                 }
             }
             when (c) {
@@ -123,17 +137,16 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-
     private fun propertySignature(p: DProperty, sourceSets: Set<SourceSetData> = p.sourceSets.toSet()) =
         contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
             annotationsBlock(p)
-            platformText(p.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-            platformText(p.modifier) {
+            sourceSetDependentText(p.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
+            sourceSetDependentText(p.modifier) {
                 it.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { "$it " } ?: ""
             }
-            platformText(p.modifiers()) { it.toSignatureString() }
+            sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
             p.setter?.let { text("var ") } ?: text("val ")
             list(p.generics, prefix = "<", suffix = "> ") {
                 +buildSignature(it)
@@ -150,13 +163,13 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
     private fun functionSignature(f: DFunction, sourceSets: Set<SourceSetData> = f.sourceSets.toSet()) =
         contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace), sourceSets = sourceSets) {
             annotationsBlock(f)
-            platformText(f.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-            platformText(f.modifier) {
+            sourceSetDependentText(f.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
+            sourceSetDependentText(f.modifier) {
                 it.takeIf { it !in ignoredModifiers }?.let {
                     if (it is JavaModifier.Empty) KotlinModifier.Open else it
                 }?.name?.let { "$it " } ?: ""
             }
-            platformText(f.modifiers()) { it.toSignatureString() }
+            sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
             text("fun ")
             list(f.generics, prefix = "<", suffix = "> ") {
                 +buildSignature(it)
@@ -169,7 +182,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             text("(")
             list(f.parameters) {
                 annotationsInline(it)
-                platformText(it.modifiers()) { it.toSignatureString() }
+                sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
                 text(it.name!!)
                 text(": ")
                 signatureForProjection(it.type)
@@ -197,8 +210,8 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                     setOf(TextStyle.Monospace),
                     sourceSets = platforms.toSet()
                 ) {
-                    platformText(t.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
-                    platformText(t.modifiers()) { it.toSignatureString() }
+                    sourceSetDependentText(t.visibility) { it.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "" }
+                    sourceSetDependentText(t.modifiers()) { it.toSignatureString() }
                     text("typealias ")
                     signatureForProjection(t.type)
                     text(" = ")

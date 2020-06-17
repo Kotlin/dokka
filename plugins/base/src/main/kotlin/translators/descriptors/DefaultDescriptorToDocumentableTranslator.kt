@@ -131,7 +131,6 @@ private class DokkaDescriptorVisitor(
         val isExpect = descriptor.isExpect
         val info = descriptor.resolveClassDescriptionData()
 
-
         return DInterface(
             dri = driWithPlatform.dri,
             name = descriptor.name.asString(),
@@ -635,7 +634,8 @@ private class DokkaDescriptorVisitor(
         ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         ExtraModifiers.KotlinOnlyModifiers.Inner.takeIf { isInner },
-        ExtraModifiers.KotlinOnlyModifiers.Data.takeIf { isData }
+        ExtraModifiers.KotlinOnlyModifiers.Data.takeIf { isData },
+        ExtraModifiers.KotlinOnlyModifiers.Fun.takeIf { isFun }
     ).toSet()
 
     private fun ValueParameterDescriptor.additionalExtras() = listOfNotNull(
