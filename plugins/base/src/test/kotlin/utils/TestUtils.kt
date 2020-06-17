@@ -74,4 +74,5 @@ val Bound.name: String?
         is JavaObject -> "Object"
         is Void -> "void"
         is Dynamic -> "dynamic"
+        is UnresolvedBound -> "<ERROR CLASS>"
     }

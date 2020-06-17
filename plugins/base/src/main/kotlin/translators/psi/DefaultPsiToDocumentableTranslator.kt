@@ -303,7 +303,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 when (type) {
                     is PsiClassReferenceType -> {
                         val resolved: PsiClass = type.resolve()
-                            ?: throw IllegalStateException("${type.presentableText} cannot be resolved")
+                            ?: return UnresolvedBound(type.presentableText)
                         if (resolved.qualifiedName == "java.lang.Object") {
                             JavaObject
                         } else {

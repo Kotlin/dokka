@@ -360,6 +360,7 @@ data class PrimitiveJavaType(val name: String) : Bound()
 object Void : Bound()
 object JavaObject : Bound()
 object Dynamic : Bound()
+data class UnresolvedBound(val name: String): Bound()
 
 enum class FunctionModifiers {
     NONE, FUNCTION, EXTENSION

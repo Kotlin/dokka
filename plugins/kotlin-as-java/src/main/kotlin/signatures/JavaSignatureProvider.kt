@@ -129,5 +129,6 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         is JavaObject, is Dynamic -> link("Object", DRI("java.lang", "Object"))
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
+        is UnresolvedBound -> text(p.name)
     }
 }
