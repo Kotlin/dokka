@@ -64,7 +64,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports = processImports(psiElement) // TODO: Process somehow imports. Maybe just attach them at the top of each body
         val body = processBody(psiElement)
-        val node = contentCode(contentPage.platforms(), contentPage.dri, body, "kotlin")
+        val node = contentCode(contentPage.platforms(), contentPage.dri, imports + "\n" + body, "kotlin")
 
         return dfs(fqName, node)
     }

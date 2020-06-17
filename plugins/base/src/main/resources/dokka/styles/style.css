@@ -401,6 +401,10 @@ td:first-child {
     text-decoration: underline;
 }
 
+.sample {
+    height: fit-content;
+}
+
 .identifier {
     color: darkblue;
     font-size: 12px;

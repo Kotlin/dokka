@@ -17,7 +17,7 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 // TODO Inspect below class for any bugs. Big chunk of was ripped from 0.10.1
-class KotlinWebsiteSamplesTransformer(context: DokkaContext): SamplesTransformer(context) {
+class KotlinWebsiteSamplesTransformer(context: DokkaContext) : SamplesTransformer(context) {
 
     private class SampleBuilder : KtTreeVisitorVoid() {
         val builder = StringBuilder()
@@ -165,7 +165,7 @@ class KotlinWebsiteSamplesTransformer(context: DokkaContext): SamplesTransformer
 
     override fun processImports(psiElement: PsiElement): String {
         val psiFile = psiElement.containingFile
-        return when(val text = psiFile.safeAs<KtFile>()?.importList) {
+        return when (val text = psiFile.safeAs<KtFile>()?.importList) {
             is KtImportList -> text.let {
                 it.allChildren.filter {
                     it !is KtImportDirective || it.importPath !in importsToIgnore
@@ -177,6 +177,7 @@ class KotlinWebsiteSamplesTransformer(context: DokkaContext): SamplesTransformer
 
     override fun processBody(psiElement: PsiElement): String {
         val text = processSampleBody(psiElement).trim { it == '\n' || it == '\r' }.trimEnd()
+            .let { "fun main() {\n //sampleStart\n$it\n//sampleEnd\n}" }
         val lines = text.split("\n")
         val indent = lines.filter(String::isNotBlank).map { it.takeWhile(Char::isWhitespace).count() }.min() ?: 0
         return lines.joinToString("\n") { it.drop(indent) }

@@ -535,7 +535,7 @@ open class HtmlRenderer(
         language: String,
         pageContext: ContentPage
     ) {
-        span(classes = "code") {
+        code(classes = "code") {
             val iterator = code.iterator()
             while (iterator.hasNext()) {
                 val element = iterator.next()
@@ -607,6 +607,7 @@ open class HtmlRenderer(
                         }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
+                unsafe { +"""<script src="https://unpkg.com/kotlin-playground@1" data-selector="code"></script>""" }
             }
             body {
                 div {

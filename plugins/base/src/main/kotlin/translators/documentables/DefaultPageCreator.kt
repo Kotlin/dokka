@@ -318,7 +318,7 @@ open class DefaultPageCreator(
             val samples = tags.withTypeNamed<Sample>()
             if (samples.isNotEmpty()) {
                 header(2, "Samples")
-                group(extra = mainExtra + SimpleAttr.header("Samples"), styles = setOf(ContentStyle.WithExtraAttributes)){
+                group(extra = mainExtra + SimpleAttr.header("Samples"), styles = setOf(ContentStyle.WithExtraAttributes, ContentStyle.Sample)){
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         platforms.map { platformData ->
                             val content = samples.filter { it.value.isEmpty() || platformData in it.value }
