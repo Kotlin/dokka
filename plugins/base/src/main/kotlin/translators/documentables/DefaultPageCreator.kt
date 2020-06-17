@@ -93,13 +93,6 @@ open class DefaultPageCreator(
         group(styles = setOf(ContentStyle.TabbedContent)){
             +contentForComments(p)
             +contentForScope(p, p.dri, p.sourceSets)
-            block("Type aliases", 2, ContentKind.TypeAliases, p.typealiases, p.sourceSets.toSet(), extra = mainExtra + SimpleAttr.header("Type aliases")) {
-                link(it.name, it.dri, kind = ContentKind.Main)
-                sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = emptySet()) {
-                    contentForBrief(it)
-                    +buildSignature(it)
-                }
-            }
         }
     }
 
@@ -108,7 +101,11 @@ open class DefaultPageCreator(
         dri: DRI,
         sourceSets: Set<SourceSetData>
     ) = contentBuilder.contentFor(s as Documentable) {
-        divergentBlock("Types", s.classlikes, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
+        val types = listOf(
+            s.classlikes,
+            (s as? DPackage)?.typealiases ?: emptyList()
+        ).flatten()
+        divergentBlock("Types", types, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
         divergentBlock("Functions", s.functions, ContentKind.Functions, extra = mainExtra + SimpleAttr.header( "Functions"))
         block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet(), extra = mainExtra + SimpleAttr.header( "Properties")) {
             link(it.name, it.dri, kind = ContentKind.Main)
