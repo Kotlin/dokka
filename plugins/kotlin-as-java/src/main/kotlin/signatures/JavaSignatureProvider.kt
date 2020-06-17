@@ -37,11 +37,11 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     private fun signature(c: DClasslike) =
         contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
-            platformText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            sourceSetDependentText(c.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
 
             if (c is DClass) {
-                platformText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-                platformText(c.modifiers()) { it.toSignatureString() }
+                sourceSetDependentText(c.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
+                sourceSetDependentText(c.modifiers()) { it.toSignatureString() }
             }
 
             when (c) {
@@ -69,9 +69,9 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private fun signature(p: DProperty) = contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         group(styles = setOf(TextStyle.Block)) {
             annotationsBlock(p)
-            platformText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
-            platformText(p.modifier) { it.name + " " }
-            platformText(p.modifiers()) { it.toSignatureString() }
+            sourceSetDependentText(p.visibility) { (it.takeIf { it !in ignoredVisibilities }?.name ?: "") + " " }
+            sourceSetDependentText(p.modifier) { it.name + " " }
+            sourceSetDependentText(p.modifiers()) { it.toSignatureString() }
             signatureForProjection(p.type)
             text(nbsp.toString())
             link(p.name, p.dri)
@@ -81,8 +81,8 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
     private fun signature(f: DFunction) = contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace)) {
         group(styles = setOf(TextStyle.Block)) {
             annotationsBlock(f)
-            platformText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
-            platformText(f.modifiers()) { it.toSignatureString() }
+            sourceSetDependentText(f.modifier) { it.takeIf { it !in ignoredModifiers }?.name.orEmpty() + " " }
+            sourceSetDependentText(f.modifiers()) { it.toSignatureString() }
             val returnType = f.type
             signatureForProjection(returnType)
             text(nbsp.toString())
@@ -92,7 +92,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             }
             list(f.parameters, "(", ")") {
                 annotationsInline(it)
-                platformText(it.modifiers()) { it.toSignatureString() }
+                sourceSetDependentText(it.modifiers()) { it.toSignatureString() }
                 signatureForProjection(it.type)
                 text(nbsp.toString())
                 link(it.name!!, it.dri)

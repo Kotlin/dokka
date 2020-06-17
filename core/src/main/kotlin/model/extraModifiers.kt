@@ -18,6 +18,7 @@ sealed class ExtraModifiers(val name: String) {
         object Operator : KotlinOnlyModifiers("operator")
         object TailRec : KotlinOnlyModifiers("tailrec")
         object VarArg : KotlinOnlyModifiers("vararg")
+        object Fun : KotlinOnlyModifiers("fun")
     }
 
     sealed class JavaOnlyModifiers(name: String) : ExtraModifiers(name) {
@@ -29,9 +30,9 @@ sealed class ExtraModifiers(val name: String) {
         object Volatile : JavaOnlyModifiers("volatile")
         object Transitive : JavaOnlyModifiers("transitive")
     }
-    
+
     companion object {
-        fun valueOf(str: String) = when(str) {
+        fun valueOf(str: String) = when (str) {
             "inline" -> KotlinOnlyModifiers.Inline
             "infix" -> KotlinOnlyModifiers.Infix
             "external" -> KotlinOnlyModifiers.External
@@ -54,6 +55,7 @@ sealed class ExtraModifiers(val name: String) {
             "transient" -> JavaOnlyModifiers.Transient
             "volatile" -> JavaOnlyModifiers.Volatile
             "transitive" -> JavaOnlyModifiers.Transitive
+            "fun" -> KotlinOnlyModifiers.Fun
             else -> throw IllegalArgumentException("There is no Extra Modifier for given name $str")
         }
     }
