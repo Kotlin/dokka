@@ -43,7 +43,7 @@ interface JvmSignatureUtils {
     }?.let {
         it.entries.forEach {
             it.value.filter { it !in ignored }.takeIf { it.isNotEmpty() }?.let { annotations ->
-                group(sourceSets = setOf(it.key), styles = styles) {
+                group(sourceSets = setOf(it.key), styles = styles, kind = ContentKind.Annotations) {
                     annotations.forEach {
                         operation(it)
                     }

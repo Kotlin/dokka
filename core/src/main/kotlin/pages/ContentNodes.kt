@@ -213,7 +213,7 @@ interface Kind
 enum class ContentKind : Kind {
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependantHint;
+    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependantHint, Annotations;
 
     companion object {
         private val platformTagged =
