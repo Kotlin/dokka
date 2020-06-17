@@ -8,6 +8,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.sureClassNames
+import org.jetbrains.dokka.model.ImplementedInterfaces
+import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
@@ -122,11 +125,11 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
-    private fun renderContentNode(content: ContentNode) = when(content) {
-        is ContentText -> content.text
-        is ContentComposite -> renderContent(content.children)
-        else -> ""
-    }
+//    private fun renderContentNode(content: ContentNode) = when(content) {
+//        is ContentText -> content.text
+//        is ContentComposite -> renderContent(content.children)
+//        else -> ""
+//    }
 
     private fun renderContent(content: List<ContentNode>): String =
         content.joinToString("") { renderContentNode(it) }
@@ -230,11 +233,33 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         mapOf(
             "constructors" to node.constructors.map { renderContentNodes(it) },
             "signature" to renderContentNode(node.signature),
-            "methods" to node.methods.map { renderContentNodes(it) },
+            "methods" to renderClasslikeMethods(node.methods),
             "entries" to node.entries.map { renderEntryNode(it) },
             "properties" to node.properties.map { renderPropertyNode(it)},
-            "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) }
+            "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) },
+            "implementedInterfaces" to renderImplementedInterfaces(node)
         ) + node.contentMap
+
+    private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
+        node.extras[ImplementedInterfaces]?.interfaces?.map { it.displayable() }.orEmpty()
+
+    private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): PageContent {
+        val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.isInherited ?: false }
+        return mapOf(
+            "own" to own.map { renderContentNodes(it) },
+            "inherited" to inherited.map { renderInheritedMethod(it) }.groupBy { it["inheritedFrom"] as String }.entries.map {
+                mapOf("inheritedFrom" to it.key, "names" to it.value.map{ it["name"] as String }.sorted().joinToString() )
+            }
+        )
+    }
+
+    private fun renderInheritedMethod(node: JavadocFunctionNode): PageContent {
+        val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
+        return mapOf(
+            "inheritedFrom" to inheritedFrom?.displayable().orEmpty(),
+            "name" to node.name
+        )
+    }
 
     private fun renderNestedClasslikeNode(node: JavadocClasslikePageNode): PageContent {
         return mapOf(
@@ -268,4 +293,6 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             is ContentLink -> """<a href="TODO">${node.children.joinToString { renderContentNode(it) }} </a>"""
             else -> ""
         }
+
+    private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"
 }

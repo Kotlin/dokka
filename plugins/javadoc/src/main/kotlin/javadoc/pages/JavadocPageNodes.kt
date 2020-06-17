@@ -6,6 +6,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -118,6 +119,7 @@ data class JavadocFunctionNode(
     override val children: List<PageNode> = emptyList(),
     override val documentable: Documentable? = null,
     override val embeddedResources: List<String> = emptyList(),
+    val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
 ): JavadocPageNode {
     override val contentMap: Map<String, Any?> = mapOf(
         "name" to name
@@ -155,7 +157,8 @@ class JavadocClasslikePageNode(
     val properties: List<JavadocPropertyNode>,
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
-    override val embeddedResources: List<String> = listOf()
+    override val embeddedResources: List<String> = listOf(),
+    val extras: PropertyContainer<Documentable>,
 ) : JavadocPageNode {
     override val contentMap: Map<String, Any?> by lazy {
         mapOf(
@@ -169,7 +172,7 @@ class JavadocClasslikePageNode(
     override fun modified(
         name: String,
         children: List<PageNode>
-    ): PageNode = JavadocClasslikePageNode(name, content, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources)
+    ): PageNode = JavadocClasslikePageNode(name, content, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources, extras)
 
     override fun modified(
         name: String,
@@ -178,7 +181,7 @@ class JavadocClasslikePageNode(
         embeddedResources: List<String>,
         children: List<PageNode>
     ): ContentPage =
-        JavadocClasslikePageNode(name, content as JavadocContentNode, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources)
+        JavadocClasslikePageNode(name, content as JavadocContentNode, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources, extras)
 }
 
 class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageNode {

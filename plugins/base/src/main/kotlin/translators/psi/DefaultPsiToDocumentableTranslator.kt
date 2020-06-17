@@ -1,14 +1,12 @@
 package org.jetbrains.dokka.base.translators.psi
 
-import com.intellij.icons.AllIcons.Nodes.Static
-import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.JvmModifier
+import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.lang.jvm.types.JvmReferenceType
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
-import com.intellij.psi.impl.source.tree.java.PsiArrayInitializerMemberValueImpl
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
@@ -31,11 +29,9 @@ import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
-import java.lang.ClassValue
 
 object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
@@ -127,23 +123,24 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
-            val ancestorsSet = hashSetOf<DRI>()
+            val ancestorsSet = hashSetOf<Ancestor>()
             val superMethodsKeys = hashSetOf<Int>()
-            val superMethods = mutableListOf<PsiMethod>()
+            val superMethods = mutableListOf<Pair<PsiMethod, DRI>>()
             methods.forEach { superMethodsKeys.add(it.hash) }
             fun parseSupertypes(superTypes: Array<PsiClassType>) {
                 superTypes.forEach { type ->
                     (type as? PsiClassType)?.takeUnless { type.shouldBeIgnored }?.resolve()?.let {
+                        val definedAt = DRI.from(it)
                         it.methods.forEach { method ->
                             val hash = method.hash
                             if (!method.isConstructor && !superMethodsKeys.contains(hash) &&
                                 method.getVisibility() != Visibilities.PRIVATE
                             ) {
                                 superMethodsKeys.add(hash)
-                                superMethods.add(method)
+                                superMethods.add(Pair(method, definedAt))
                             }
                         }
-                        ancestorsSet.add(DRI.from(it))
+                        ancestorsSet.add(Ancestor(DRI.from(it), it.isInterface))
                         parseSupertypes(it.superTypes)
                     }
                 }
@@ -152,12 +149,13 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             val (regularFunctions, accessors) = splitFunctionsAndAccessors()
             val documentation = javadocParser.parseDocumentation(this).toPlatformDependant()
             val allFunctions = regularFunctions.mapNotNull { if (!it.isConstructor) parseFunction(it) else null } +
-                    superMethods.map { parseFunction(it, isInherited = true) }
+                    superMethods.map { parseFunction(it.first, inheritedFrom = it.second) }
             val source = PsiDocumentableSource(this).toPlatformDependant()
             val classlikes = innerClasses.map { parseClasslike(it, dri) }
             val visibility = getVisibility().toPlatformDependant()
-            val ancestors = ancestorsSet.toList().toPlatformDependant()
+            val ancestors = ancestorsSet.toList().map { it.dri }.toPlatformDependant()
             val modifiers = getModifier().toPlatformDependant()
+            val implementedInterfacesExtra = ImplementedInterfaces(ancestorsSet.filter { it.isInterface }.map { it.dri }.toList())
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -174,7 +172,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         constructors.map { parseFunction(it, true) },
                         mapTypeParameters(dri),
                         listOf(sourceSetData),
-                        PropertyContainer.empty<DAnnotation>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                        PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().let(::Annotations))
                     )
                 isEnum -> DEnum(
                     dri,
@@ -189,7 +187,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                             emptyList(),
                             emptyList(),
                             listOf(sourceSetData),
-                            PropertyContainer.empty<DEnumEntry>() + entry.annotations.toList().toListOfAnnotations().let(::Annotations)
+                            PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().let(::Annotations))
                         )
                     },
                     documentation,
@@ -203,7 +201,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     constructors.map { parseFunction(it, true) },
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DEnum>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().let(::Annotations))
                 )
                 isInterface -> DInterface(
                     dri,
@@ -219,7 +217,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     mapTypeParameters(dri),
                     ancestors,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DInterface>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().let(::Annotations))
                 )
                 else -> DClass(
                     dri,
@@ -237,7 +235,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     null,
                     modifiers,
                     listOf(sourceSetData),
-                    PropertyContainer.empty<DClass>() + annotations.toList().toListOfAnnotations().let(::Annotations)
+                    PropertyContainer.withAll(implementedInterfacesExtra, annotations.toList().toListOfAnnotations().let(::Annotations))
                 )
             }
         }
@@ -245,7 +243,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
         private fun parseFunction(
             psi: PsiMethod,
             isConstructor: Boolean = false,
-            isInherited: Boolean = false
+            inheritedFrom: DRI? = null
         ): DFunction {
             val dri = DRI.from(psi)
             val docs = javadocParser.parseDocumentation(psi).toPlatformDependant()
@@ -263,7 +261,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                         listOf(sourceSetData)
                     )
                 },
-                javadocParser.parseDocumentation(psi).toPlatformDependant(),
+                docs,
                 null,
                 PsiDocumentableSource(psi).toPlatformDependant(),
                 psi.getVisibility().toPlatformDependant(),
@@ -274,7 +272,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 listOf(sourceSetData),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
-                        InheritedFunction(isInherited),
+                        InheritedFunction(inheritedFrom),
                         it,
                         (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).let(::Annotations)
                     )
@@ -439,4 +437,6 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             logger.error("$this cannot be resolved to symbol!")
         }
     }
+
+    private data class Ancestor(val dri: DRI, val isInterface: Boolean)
 }

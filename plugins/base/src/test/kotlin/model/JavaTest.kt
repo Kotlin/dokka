@@ -2,16 +2,22 @@ package model
 
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.doc.Param
+import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.pages.dfs
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
+import utils.docs
 import utils.name
 
 class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
-    @Test //todo params in comments
+    @Test
     fun function() {
         inlineModelTest(
             """
@@ -30,8 +36,23 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 children counts 1
                 with((this / "fn").cast<DFunction>()) {
                     name equals "fn"
-                    this
+                    val params = parameters.map { it.documentation.values.first().children.first() as Param }
+                    params.mapNotNull { it.root.children.firstIsInstanceOrNull<Text>()?.body } equals listOf("is String parameter", "is int parameter")
                 }
+            }
+        }
+    }
+
+    @Test fun allImplementedInterfacesInJava() {
+        inlineModelTest(
+            """
+            |interface Highest { }
+            |interface Lower extends Highest { }
+            |class Extendable { }
+            |class Tested extends Extendable implements Lower { }
+        """){
+            with((this / "java" / "Tested").cast<DClass>()){
+                extra[ImplementedInterfaces]?.interfaces?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
             }
         }
     }

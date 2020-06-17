@@ -91,7 +91,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
         }
     }?.joinToString("/")?.let {if (skipExtension) "$it.html" else it}?.let {
         Paths.get(dir).relativize(Paths.get(it)).toString()
-    } ?: run {throw IllegalStateException("Page for ${link.name} not found")}
+    } ?: run {""} //TODO just a glue to compile it on HMPP
 
     override fun resolveRoot(node: PageNode): String {
         TODO("Not yet implemented")
