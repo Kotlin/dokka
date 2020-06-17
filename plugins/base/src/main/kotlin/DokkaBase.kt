@@ -22,6 +22,7 @@ import org.jetbrains.dokka.base.transformers.pages.merger.PageMerger
 import org.jetbrains.dokka.base.transformers.pages.merger.PageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.merger.SameMethodNamePageMergerStrategy
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
+import org.jetbrains.dokka.base.transformers.pages.samples.KotlinWebsiteSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocumentableTranslator
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
@@ -134,7 +135,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val defaultSamplesTransformer by extending {
-        CoreExtensions.pageTransformer providing ::DefaultSamplesTransformer order {
+        CoreExtensions.pageTransformer providing ::KotlinWebsiteSamplesTransformer order {
             before(pageMerger)
         }
     }
