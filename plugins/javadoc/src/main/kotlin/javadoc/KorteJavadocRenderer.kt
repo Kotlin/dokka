@@ -8,12 +8,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.sureClassNames
+import org.jetbrains.dokka.model.ImplementedInterfaces
+import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDate
+
+typealias PageContent = Map<String, Any?>
 
 class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaContext, val resourceDir: String) :
     Renderer {
@@ -67,8 +73,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot,
             "dir" to dir
-        ) + node.contentMap
-//        DokkaConsoleLogger.info("${node::class.java.canonicalName}::${node.name} - $link")
+        ) + renderContentNodes(node)
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
         node.children.forEach { renderNode(it, link.toNormalized()) }
     }
@@ -120,11 +125,11 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
-    private fun renderContentNode(content: ContentNode) = when(content) {
-        is ContentText -> content.text
-        is ContentComposite -> renderContent(content.children)
-        else -> ""
-    }
+//    private fun renderContentNode(content: ContentNode) = when(content) {
+//        is ContentText -> content.text
+//        is ContentComposite -> renderContent(content.children)
+//        else -> ""
+//    }
 
     private fun renderContent(content: List<ContentNode>): String =
         content.joinToString("") { renderContentNode(it) }
@@ -179,7 +184,10 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                 }
                 rootNodes.joinToString{ drawRec(it) }
             },
-            Filter("length") { subject.dynamicLength() }
+            Filter("length") { subject.dynamicLength() },
+            TeFunction("hasAnyDescription"){ args ->
+                args.first().safeAs<List<HashMap<String, String>>>()?.any { it["description"]?.trim()?.isNotEmpty() ?: false }
+            }
         ).forEach {
             when (it) {
                 is TeFunction -> config.register(it)
@@ -197,4 +205,94 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             javaClass.classLoader.getResourceAsStream("$basePath/$template")?.bufferedReader()?.lines()?.toArray()
                 ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")
     }
+
+    private fun renderContentNodes(node: JavadocPageNode): PageContent =
+        when(node){
+            is JavadocClasslikePageNode -> renderClasslikeNode(node)
+            is JavadocFunctionNode -> renderFunctionNode(node)
+            else -> node.contentMap
+        }
+
+    private fun renderFunctionNode(node: JavadocFunctionNode): PageContent {
+        val (modifiers, signature) = node.modifiersAndSignature
+        return mapOf(
+            "signature" to renderContentNode(node.signature),
+            "brief" to renderContentNode(node.brief),
+            "parameters" to node.parameters.map { renderParameterNode(it) },
+            "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
+            "modifiers" to renderContentNode(modifiers),
+            "signatureWithoutModifiers" to renderContentNode(signature)) + node.contentMap
+    }
+
+    private fun renderParameterNode(node: JavadocParameterNode): PageContent =
+        mapOf(
+         "description" to renderContentNode(node.description),
+        ) + node.contentMap
+
+    private fun renderClasslikeNode(node: JavadocClasslikePageNode): PageContent =
+        mapOf(
+            "constructors" to node.constructors.map { renderContentNodes(it) },
+            "signature" to renderContentNode(node.signature),
+            "methods" to renderClasslikeMethods(node.methods),
+            "entries" to node.entries.map { renderEntryNode(it) },
+            "properties" to node.properties.map { renderPropertyNode(it)},
+            "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) },
+            "implementedInterfaces" to renderImplementedInterfaces(node)
+        ) + node.contentMap
+
+    private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
+        node.extras[ImplementedInterfaces]?.interfaces?.map { it.displayable() }.orEmpty()
+
+    private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): PageContent {
+        val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.isInherited ?: false }
+        return mapOf(
+            "own" to own.map { renderContentNodes(it) },
+            "inherited" to inherited.map { renderInheritedMethod(it) }.groupBy { it["inheritedFrom"] as String }.entries.map {
+                mapOf("inheritedFrom" to it.key, "names" to it.value.map{ it["name"] as String }.sorted().joinToString() )
+            }
+        )
+    }
+
+    private fun renderInheritedMethod(node: JavadocFunctionNode): PageContent {
+        val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
+        return mapOf(
+            "inheritedFrom" to inheritedFrom?.displayable().orEmpty(),
+            "name" to node.name
+        )
+    }
+
+    private fun renderNestedClasslikeNode(node: JavadocClasslikePageNode): PageContent {
+        return mapOf(
+            "modifiers" to (node.modifiers + "static" + node.contentMap["kind"]).joinToString(separator = " "),
+            "signature" to node.name,
+            "description" to node.description
+        )
+    }
+
+    private fun renderPropertyNode(node: JavadocPropertyNode): PageContent {
+        val (modifiers, signature) = node.modifiersAndSignature
+        return mapOf(
+            "modifiers" to renderContentNode(modifiers),
+            "signature" to renderContentNode(signature),
+            "description" to renderContentNode(node.brief)
+        )
+    }
+
+    private fun renderEntryNode(node: JavadocEntryNode): PageContent =
+        mapOf(
+            "signature" to renderContentNode(node.signature),
+        ) + node.contentMap
+
+
+    //TODO is it possible to use html renderer?
+    private fun renderContentNode(node: ContentNode): String =
+        when(node){
+            is ContentGroup -> node.children.joinToString(separator = "") { renderContentNode(it) }
+            is ContentText -> node.text
+            is TextNode -> node.text
+            is ContentLink -> """<a href="TODO">${node.children.joinToString { renderContentNode(it) }} </a>"""
+            else -> ""
+        }
+
+    private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"
 }

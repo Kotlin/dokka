@@ -78,8 +78,6 @@ class TitleNode(
             "packageName" to parent
         )
     }
-
-//    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = TODO()
 }
 
 fun JavaContentGroupBuilder.title(
@@ -90,6 +88,15 @@ fun JavaContentGroupBuilder.title(
     kind: Kind
 ) {
     list.add(TitleNode(title, version, parent, dri, kind, sourceSets))
+}
+
+data class TextNode(
+    val text: String,
+    override val sourceSets: Set<SourceSetData>
+) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
+    override val contentMap: Map<String, Any?> = mapOf(
+        "text" to text,
+    )
 }
 
 class ListNode(
