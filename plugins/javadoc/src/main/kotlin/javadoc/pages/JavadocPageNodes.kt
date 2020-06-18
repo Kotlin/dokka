@@ -6,10 +6,12 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.resolve.DescriptorUtils.getClassDescriptorForType
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 interface JavadocPageNode : ContentPage {
     val contentMap: Map<String, Any?>
@@ -79,20 +81,98 @@ class JavadocPackagePageNode(
         )
 }
 
+data class JavadocEntryNode(
+    val signature: ContentNode,
+    val brief: String
+) {
+    val contentMap: Map<String, Any?> = mapOf(
+        "brief" to brief
+    )
+}
+
+data class JavadocParameterNode(
+    val name: String,
+    val type: String,
+    val description: ContentNode
+) {
+    val contentMap: Map<String, Any?> = mapOf(
+        "name" to name,
+        "type" to type
+    )
+}
+
+data class JavadocPropertyNode(
+    val signature: ContentNode,
+    val brief: ContentNode
+){
+    val modifiersAndSignature: Pair<ContentNode, ContentNode>
+        get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
+}
+
+data class JavadocFunctionNode(
+    val signature: ContentNode,
+    val brief: ContentNode,
+    val parameters: List<JavadocParameterNode>,
+    override val name: String,
+    override val dri: Set<DRI> = emptySet(),
+    override val content: ContentNode = EmptyNode(DRI.topLevel, ContentKind.Classlikes, emptySet()),
+    override val children: List<PageNode> = emptyList(),
+    override val documentable: Documentable? = null,
+    override val embeddedResources: List<String> = emptyList(),
+    val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
+): JavadocPageNode {
+    override val contentMap: Map<String, Any?> = mapOf(
+        "name" to name
+    )
+
+    override fun modified(
+        name: String,
+        children: List<PageNode>
+    ): PageNode = TODO()
+
+    override fun modified(
+        name: String,
+        content: ContentNode,
+        dri: Set<DRI>,
+        embeddedResources: List<String>,
+        children: List<PageNode>
+    ): ContentPage = TODO()
+
+    val modifiersAndSignature: Pair<ContentNode, ContentNode>
+        get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
+
+}
+
 class JavadocClasslikePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val dri: Set<DRI>,
-
+    val modifiers: List<String>,
+    val signature: ContentNode,
+    val description: String,
+    val constructors: List<JavadocFunctionNode>,
+    val methods: List<JavadocFunctionNode>,
+    val entries: List<JavadocEntryNode>,
+    val classlikes: List<JavadocClasslikePageNode>,
+    val properties: List<JavadocPropertyNode>,
     override val documentable: Documentable? = null,
     override val children: List<PageNode> = emptyList(),
-    override val embeddedResources: List<String> = listOf()
+    override val embeddedResources: List<String> = listOf(),
+    val extras: PropertyContainer<Documentable>,
 ) : JavadocPageNode {
-    override val contentMap: Map<String, Any?> by lazy { mapOf("kind" to "class") + content.contentMap }
+    override val contentMap: Map<String, Any?> by lazy {
+        mapOf(
+            "kind" to documentable?.kind(),
+            "name" to name,
+            "package" to dri.first().packageName,
+            "classlikeDocumentation" to description
+        ) + content.contentMap
+    }
+
     override fun modified(
         name: String,
         children: List<PageNode>
-    ): PageNode = JavadocClasslikePageNode(name, content, dri, documentable, children, embeddedResources)
+    ): PageNode = JavadocClasslikePageNode(name, content, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources, extras)
 
     override fun modified(
         name: String,
@@ -101,7 +181,7 @@ class JavadocClasslikePageNode(
         embeddedResources: List<String>,
         children: List<PageNode>
     ): ContentPage =
-        JavadocClasslikePageNode(name, content as JavadocContentNode, dri, documentable, children, embeddedResources)
+        JavadocClasslikePageNode(name, content as JavadocContentNode, dri, modifiers, signature, description, constructors, methods, entries, classlikes, properties, documentable, children, embeddedResources, extras)
 }
 
 class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageNode {
@@ -295,10 +375,8 @@ class TreeViewPage(
         descriptorInheritanceTree.forEach { addToMap(it, mergeMap) }
         psiInheritanceTree.forEach { addToMap(it, mergeMap) }
 
-        val g = mergeMap.entries.find { it.key.classNames == "Any" || it.key.classNames == "Object" }?.value?.dri?.let(::collect)
-        val rootClasses = listOf("Any", "Object")
         val rootNodes = mergeMap.entries.filter {
-            it.key.classNames in rootClasses //TODO: Probably should be matched by DRI, not just className
+            it.key.classNames in setOf("Any", "Object") //TODO: Probably should be matched by DRI, not just className
         }.map {
             collect(it.value.dri)
         }
@@ -351,3 +429,19 @@ class TreeViewPage(
 interface ContentValue
 data class StringValue(val text: String) : ContentValue
 data class ListValue(val list: List<String>) : ContentValue
+
+private fun ContentGroup.splitSignatureIntoModifiersAndName(): Pair<ContentNode, ContentNode> {
+    val signature = children.firstIsInstance<ContentGroup>()
+    val modifiers = signature.children.takeWhile { it !is ContentLink }
+    return Pair(signature.copy(children = modifiers), signature.copy(children = signature.children.drop(modifiers.size)))
+}
+
+private fun Documentable.kind(): String? =
+    when(this){
+        is DClass -> "class"
+        is DEnum -> "enum"
+        is DAnnotation -> "annotation"
+        is DObject -> "object"
+        is DInterface -> "interface"
+        else -> null
+    }

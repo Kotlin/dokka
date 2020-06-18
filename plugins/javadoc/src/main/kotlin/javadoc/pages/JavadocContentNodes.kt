@@ -37,6 +37,8 @@ class EmptyNode(
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode =
         EmptyNode(dci.dri.first(), dci.kind, sourceSets, newExtras)
+
+    override fun hasAnyContent(): Boolean = false
 }
 
 class JavadocContentGroup(
@@ -56,6 +58,8 @@ class JavadocContentGroup(
         ): JavadocContentGroup =
             JavadocContentGroup(dri, kind, sourceSets, JavaContentGroupBuilder(sourceSets).apply(block).list)
     }
+
+    override fun hasAnyContent(): Boolean = children.isNotEmpty()
 }
 
 class JavaContentGroupBuilder(val sourceSets: Set<SourceSetData>) {
@@ -71,6 +75,8 @@ class TitleNode(
     sourceSets: Set<SourceSetData>
 ) : JavadocContentNode(dri, kind, sourceSets) {
 
+    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank()
+
     override val contentMap: Map<String, Any?> by lazy {
         mapOf(
             "title" to title,
@@ -78,8 +84,6 @@ class TitleNode(
             "packageName" to parent
         )
     }
-
-//    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = TODO()
 }
 
 fun JavaContentGroupBuilder.title(
@@ -92,6 +96,18 @@ fun JavaContentGroupBuilder.title(
     list.add(TitleNode(title, version, parent, dri, kind, sourceSets))
 }
 
+data class TextNode(
+    val text: String,
+    override val sourceSets: Set<SourceSetData>
+) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
+
+    override fun hasAnyContent(): Boolean = !text.isBlank()
+
+    override val contentMap: Map<String, Any?> = mapOf(
+        "text" to text,
+    )
+}
+
 class ListNode(
     val tabTitle: String,
     val colTitle: String,
@@ -100,6 +116,9 @@ class ListNode(
     val kind: Kind,
     sourceSets: Set<SourceSetData>
 ) : JavadocContentNode(dri, kind, sourceSets) {
+
+    override fun hasAnyContent(): Boolean = children.isNotEmpty()
+
     override val contentMap: Map<String, Any?> by lazy {
         mapOf(
             "tabTitle" to tabTitle,

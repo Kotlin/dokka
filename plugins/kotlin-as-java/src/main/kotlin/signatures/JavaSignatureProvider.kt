@@ -33,7 +33,9 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
         )
     }
 
-    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace))
+    private fun signature(e: DEnumEntry) = contentBuilder.contentFor(e, ContentKind.Symbol, setOf(TextStyle.Monospace)){
+        link(e.name, e.dri)
+    }
 
     private fun signature(c: DClasslike) =
         contentBuilder.contentFor(c, ContentKind.Symbol, setOf(TextStyle.Monospace)) {

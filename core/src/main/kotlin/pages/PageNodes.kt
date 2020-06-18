@@ -1,9 +1,7 @@
 package org.jetbrains.dokka.pages
 
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.Documentable
 import java.util.*
 
 interface PageNode {

@@ -114,7 +114,7 @@ data class DPackage(
 ) : Documentable(), WithScope, WithExtraProperties<DPackage> {
     override val name = dri.packageName.orEmpty()
     override val children: List<Documentable>
-        get() = (properties + functions + classlikes) as List<Documentable>
+        get() = (properties + functions + classlikes)
 
     override fun withNewExtras(newExtras: PropertyContainer<DPackage>) = copy(extra = newExtras)
 }
@@ -140,7 +140,7 @@ data class DClass(
     WithExtraProperties<DClass> {
 
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + constructors) as List<Documentable>
+        get() = (functions + properties + classlikes + constructors)
 
     override fun withNewExtras(newExtras: PropertyContainer<DClass>) = copy(extra = newExtras)
 }
@@ -163,7 +163,7 @@ data class DEnum(
     override val extra: PropertyContainer<DEnum> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum> {
     override val children: List<Documentable>
-        get() = (entries + functions + properties + classlikes + constructors) as List<Documentable>
+        get() = (entries + functions + properties + classlikes + constructors)
 
     override fun withNewExtras(newExtras: PropertyContainer<DEnum>) = copy(extra = newExtras)
 }
@@ -180,7 +180,7 @@ data class DEnumEntry(
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes) as List<Documentable>
+        get() = (functions + properties + classlikes)
 
     override fun withNewExtras(newExtras: PropertyContainer<DEnumEntry>) = copy(extra = newExtras)
 }
@@ -224,7 +224,7 @@ data class DInterface(
     override val extra: PropertyContainer<DInterface> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface> {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes) as List<Documentable>
+        get() = (functions + properties + classlikes)
 
     override fun withNewExtras(newExtras: PropertyContainer<DInterface>) = copy(extra = newExtras)
 }
@@ -266,7 +266,7 @@ data class DAnnotation(
     override val extra: PropertyContainer<DAnnotation> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithExtraProperties<DAnnotation>, WithGenerics {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + constructors) as List<Documentable>
+        get() = (functions + properties + classlikes + constructors)
 
     override fun withNewExtras(newExtras: PropertyContainer<DAnnotation>) = copy(extra = newExtras)
 }

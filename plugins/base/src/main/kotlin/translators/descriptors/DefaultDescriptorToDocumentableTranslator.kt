@@ -147,7 +147,8 @@ private class DokkaDescriptorVisitor(
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                ImplementedInterfaces(info.interfaces)
             )
         )
     }
@@ -173,7 +174,8 @@ private class DokkaDescriptorVisitor(
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                ImplementedInterfaces(info.interfaces)
             )
         )
     }
@@ -201,7 +203,8 @@ private class DokkaDescriptorVisitor(
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                ImplementedInterfaces(info.interfaces)
             )
         )
     }
@@ -284,7 +287,8 @@ private class DokkaDescriptorVisitor(
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
-                descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
+                descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
+                ImplementedInterfaces(info.interfaces)
             )
         )
     }
@@ -322,14 +326,14 @@ private class DokkaDescriptorVisitor(
         )
     }
 
-    fun CallableMemberDescriptor.createDRI(wasOverriden: Boolean = false): Pair<DRI, Boolean> =
+    fun CallableMemberDescriptor.createDRI(wasOverridenBy: DRI? = null): Pair<DRI, DRI?> =
         if (kind == CallableMemberDescriptor.Kind.DECLARATION || overriddenDescriptors.isEmpty())
-            Pair(DRI.from(this), wasOverriden)
+            Pair(DRI.from(this), wasOverridenBy)
         else
-            overriddenDescriptors.first().createDRI(true)
+            overriddenDescriptors.first().createDRI(DRI.from(this))
 
     override fun visitFunctionDescriptor(descriptor: FunctionDescriptor, parent: DRIWithPlatformInfo): DFunction {
-        val (dri, isInherited) = descriptor.createDRI()
+        val (dri, inheritedFrom) = descriptor.createDRI()
         val isExpect = descriptor.isExpect
 
         val actual = descriptor.createSources()
@@ -352,7 +356,7 @@ private class DokkaDescriptorVisitor(
             type = descriptor.returnType!!.toBound(),
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
-                InheritedFunction(isInherited),
+                InheritedFunction(inheritedFrom),
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
             )
@@ -550,8 +554,17 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
+        val superClasses = hashSetOf<ClassDescriptor>()
+
+        fun processSuperClasses(supers: List<ClassDescriptor>) {
+            supers.forEach {
+                superClasses.add(it)
+                processSuperClasses(it.getSuperInterfaces() + it.getAllSuperclassesWithoutAny())
+            }
+        }
+        processSuperClasses(getSuperInterfaces() + getAllSuperclassesWithoutAny())
         return ClassInfo(
-            (getSuperInterfaces() + getAllSuperclassesWithoutAny()).map { DRI.from(it) },
+            superClasses.map { Supertype(DRI.from(it), it.kind == ClassKind.INTERFACE) }.toList(),
             resolveDescriptorData()
         )
     }
@@ -726,7 +739,13 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map {it.text }.orEmpty()
 
-    private data class ClassInfo(val supertypes: List<DRI>, val docs: SourceSetDependent<DocumentationNode>)
+    private data class ClassInfo(private val allSupertypes: List<Supertype>, val docs: SourceSetDependent<DocumentationNode>){
+        val supertypes: List<DRI>
+            get() = allSupertypes.map { it.dri }
+
+        val interfaces: List<DRI>
+            get() = allSupertypes.filter { it.isInterface }.map { it.dri }
+    }
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
         Visibilities.PUBLIC -> KotlinVisibility.Public
@@ -740,6 +759,8 @@ private class DokkaDescriptorVisitor(
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 
     private fun fallbackPackageName(): String = "[${sourceSet.displayName} root]"// TODO: error-prone, find a better way to do it
+
+    private data class Supertype(val dri: DRI, val isInterface: Boolean)
 }
 
 private fun DRI.withPackageFallbackTo(fallbackPackage: String): DRI {

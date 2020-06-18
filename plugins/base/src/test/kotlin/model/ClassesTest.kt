@@ -1,6 +1,7 @@
 package model
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.KotlinModifier.*
 import org.junit.jupiter.api.Assertions.assertNull
@@ -425,7 +426,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """@Suppress("abc") class Foo() {}"""
         ) {
             with((this / "classes" / "Foo").cast<DClass>()) {
-                with(extra[Annotations]!!.content.entries.single().value.firstOrNull().assertNotNull("annotations")) {
+                with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
                     dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
                     (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("\"abc\""))
                 }
@@ -480,6 +481,22 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             with((this / "classes" / "Outer").cast<DClass>()){
                 val inner = classlikes.single().cast<DClass>()
                 inner.generics.map { it.name to it.bounds.first().name } equals listOf("INNER" to "Any", "T" to "OUTER")
+            }
+        }
+    }
+
+    @Test fun allImplementedInterfaces() {
+        inlineModelTest(
+            """
+                | interface Highest { }
+                | open class HighestImpl: Highest { }
+                | interface Lower { }
+                | interface LowerImplInterface: Lower { }
+                | class Tested : HighestImpl(), LowerImplInterface { }
+            """.trimIndent()
+        ){
+            with((this / "classes" / "Tested").cast<DClass>()){
+                extra[ImplementedInterfaces]?.interfaces?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower", "LowerImplInterface").sorted()
             }
         }
     }
