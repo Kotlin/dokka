@@ -84,7 +84,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
     fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) = with(configuration) {
 
-        fun defaultLinks(config: PassConfigurationImpl): List<ExternalDocumentationLinkImpl> {
+        fun defaultLinks(config: DokkaSourceSetImpl): List<ExternalDocumentationLinkImpl> {
             val links = mutableListOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
                 links += DokkaConfiguration.ExternalDocumentationLink
@@ -100,8 +100,8 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
         val configurationWithLinks =
             configuration.copy(
-                passesConfigurations =
-                passesConfigurations.map {
+                sourceSets =
+                sourceSets.map {
                     val links: List<ExternalDocumentationLinkImpl> =
                         it.externalDocumentationLinks + defaultLinks(it)
                     it.copy(externalDocumentationLinks = links)

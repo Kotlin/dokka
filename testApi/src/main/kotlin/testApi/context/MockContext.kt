@@ -2,8 +2,7 @@ package org.jetbrains.dokka.testApi.context
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.EnvironmentAndFacade
-import org.jetbrains.dokka.model.SourceSetCache
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.ExtensionPoint
@@ -16,9 +15,8 @@ import kotlin.reflect.full.memberProperties
 class MockContext(
     vararg extensions: Pair<ExtensionPoint<*>, (DokkaContext) -> Any>,
     private val testConfiguration: DokkaConfiguration? = null,
-    private val testSourceSets: Map<SourceSetData, EnvironmentAndFacade>? = null,
-    private val unusedExtensionPoints: List<ExtensionPoint<*>>? = null,
-    override val sourceSetCache: SourceSetCache
+    private val testSourceSets: Map<DokkaSourceSet, EnvironmentAndFacade>? = null,
+    private val unusedExtensionPoints: List<ExtensionPoint<*>>? = null
 ) : DokkaContext {
     private val extensionMap by lazy {
         extensions.groupBy(Pair<ExtensionPoint<*>, (DokkaContext) -> Any>::first) {
@@ -41,7 +39,7 @@ class MockContext(
     override val configuration: DokkaConfiguration
         get() = testConfiguration ?: throw IllegalStateException("This mock context doesn't provide configuration")
 
-    override val platforms: Map<SourceSetData, EnvironmentAndFacade>
+    override val platforms: Map<DokkaSourceSet, EnvironmentAndFacade>
         get() = testSourceSets ?: throw IllegalStateException("This mock context doesn't provide platforms data")
     override val unusedPoints: Collection<ExtensionPoint<*>>
         get() = unusedExtensionPoints

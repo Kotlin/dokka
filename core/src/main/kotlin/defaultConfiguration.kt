@@ -8,14 +8,14 @@ data class DokkaConfigurationImpl(
     override val format: String,
     override val cacheRoot: String?,
     override val offlineMode: Boolean,
-    override val passesConfigurations: List<PassConfigurationImpl>,
+    override val sourceSets: List<DokkaSourceSetImpl>,
     override val pluginsClasspath: List<File>,
     override val pluginsConfiguration: Map<String, String>,
     override val modules: List<DokkaModuleDescriptionImpl>,
     override val failOnWarning: Boolean
 ) : DokkaConfiguration
 
-data class PassConfigurationImpl(
+data class DokkaSourceSetImpl(
     override val moduleName: String,
     override val displayName: String,
     override val sourceSetID: String,
@@ -39,7 +39,7 @@ data class PassConfigurationImpl(
     override val noJdkLink: Boolean,
     override val suppressedFiles: List<String>,
     override val analysisPlatform: Platform
-) : DokkaConfiguration.PassConfiguration
+) : DokkaConfiguration.DokkaSourceSet
 
 data class DokkaModuleDescriptionImpl(
     override val name: String,

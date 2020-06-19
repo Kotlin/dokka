@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
@@ -50,11 +51,10 @@ import org.jetbrains.kotlin.resolve.constants.AnnotationValue as ConstantsAnnota
 import org.jetbrains.kotlin.resolve.constants.ArrayValue as ConstantsArrayValue
 import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
-import kotlin.IllegalArgumentException
 
 object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
 
-    override fun invoke(sourceSet: SourceSetData, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: DokkaSourceSet, context: DokkaContext): DModule {
 
         val (environment, facade) = context.platforms.getValue(sourceSet)
         val packageFragments = environment.getSourceFiles().asSequence()
@@ -82,7 +82,7 @@ data class DRIWithPlatformInfo(
 fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, emptyMap())
 
 private class DokkaDescriptorVisitor(
-    private val sourceSet: SourceSetData,
+    private val sourceSet: DokkaSourceSet,
     private val resolutionFacade: DokkaResolutionFacade,
     private val logger: DokkaLogger
 ) : DeclarationDescriptorVisitorEmptyBodies<Documentable, DRIWithPlatformInfo>() {
@@ -728,11 +728,11 @@ private class DokkaDescriptorVisitor(
 
     private fun KtInitializerList.initializersAsText() =
         initializers.firstIsInstanceOrNull<KtCallElement>()
-        ?.getValueArgumentsInParentheses()
-        ?.flatMap { it.childrenAsText() }
-        .orEmpty()
+            ?.getValueArgumentsInParentheses()
+            ?.flatMap { it.childrenAsText() }
+            .orEmpty()
 
-    private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map {it.text }.orEmpty()
+    private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
 
     private data class ClassInfo(val superclasses: List<DRI>, val interfaces: List<DRI>, val docs: SourceSetDependent<DocumentationNode>){
         val supertypes: List<DRI>
@@ -750,11 +750,12 @@ private class DokkaDescriptorVisitor(
     private fun ConstantsEnumValue.fullEnumEntryName() =
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 
-    private fun fallbackPackageName(): String = "[${sourceSet.displayName} root]"// TODO: error-prone, find a better way to do it
+    private fun fallbackPackageName(): String =
+        "[${sourceSet.displayName} root]"// TODO: error-prone, find a better way to do it
 }
 
 private fun DRI.withPackageFallbackTo(fallbackPackage: String): DRI {
-    return if(packageName.isNullOrBlank()){
+    return if (packageName.isNullOrBlank()) {
         copy(packageName = fallbackPackage)
     } else {
         this

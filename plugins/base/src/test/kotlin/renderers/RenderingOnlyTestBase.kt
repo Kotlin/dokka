@@ -1,21 +1,17 @@
 package renderers
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.signatures.KotlinSignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
-import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.SourceSetCache
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -35,7 +31,6 @@ abstract class RenderingOnlyTestBase {
         DokkaBase().htmlPreprocessors to { _ -> RootCreator },
         DokkaBase().externalLocationProviderFactory to { ::JavadocExternalLocationProviderFactory },
         DokkaBase().externalLocationProviderFactory to { ::DokkaExternalLocationProviderFactory },
-        sourceSetCache = SourceSetCache(),
         testConfiguration = DokkaConfigurationImpl(
             "", "", null, false, emptyList(), emptyList(), emptyMap(), emptyList(), false
         )
@@ -110,7 +105,7 @@ internal object EmptyCommentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        sourceSets: Set<SourceSetData>,
+        sourceSets: Set<DokkaSourceSet>,
         styles: Set<Style>,
         extras: PropertyContainer<ContentNode>
     ): List<ContentNode> = emptyList()

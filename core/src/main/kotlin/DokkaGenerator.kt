@@ -3,8 +3,7 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.SourceSetCache
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -27,11 +26,10 @@ class DokkaGenerator(
 ) {
     fun generate() = timed {
         report("Setting up analysis environments")
-        val sourceSetsCache = SourceSetCache()
-        val sourceSets: Map<SourceSetData, EnvironmentAndFacade> = setUpAnalysis(configuration, sourceSetsCache)
+        val sourceSets: Map<DokkaSourceSet, EnvironmentAndFacade> = setUpAnalysis(configuration)
 
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
+        val context = initializePlugins(configuration, logger, sourceSets)
 
         report("Creating documentation models")
         val modulesFromPlatforms = createDocumentationModels(sourceSets, context)
@@ -58,10 +56,9 @@ class DokkaGenerator(
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
     fun generateAllModulesPage() = timed {
-        val sourceSetsCache = SourceSetCache()
-        val sourceSets = emptyMap<SourceSetData, EnvironmentAndFacade>()
+        val sourceSets = emptyMap<DokkaSourceSet, EnvironmentAndFacade>()
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
+        val context = initializePlugins(configuration, logger, sourceSets)
 
         report("Creating all modules page")
         val pages = createAllModulePage(context)
@@ -73,24 +70,20 @@ class DokkaGenerator(
         render(transformedPages, context)
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
-    fun setUpAnalysis(
-        configuration: DokkaConfiguration,
-        sourceSetsCache: SourceSetCache
-    ): Map<SourceSetData, EnvironmentAndFacade> =
-        configuration.passesConfigurations.map {
-            sourceSetsCache.getSourceSet(it) to createEnvironmentAndFacade(configuration, it)
+    fun setUpAnalysis(configuration: DokkaConfiguration) =
+        configuration.sourceSets.map {
+            it to createEnvironmentAndFacade(configuration, it)
         }.toMap()
 
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        sourceSets: Map<SourceSetData, EnvironmentAndFacade>,
-        sourceSetsCache: SourceSetCache,
+        sourceSets: Map<DokkaSourceSet, EnvironmentAndFacade>,
         pluginOverrides: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, sourceSets, sourceSetsCache, pluginOverrides)
+    ) = DokkaContext.create(configuration, logger, sourceSets, pluginOverrides)
 
     fun createDocumentationModels(
-        platforms: Map<SourceSetData, EnvironmentAndFacade>,
+        platforms: Map<DokkaSourceSet, EnvironmentAndFacade>,
         context: DokkaContext
     ) = platforms.flatMap { (pdata, _) -> translateSources(pdata, context) }
 
@@ -152,28 +145,28 @@ class DokkaGenerator(
 
     private fun createEnvironmentAndFacade(
         configuration: DokkaConfiguration,
-        pass: DokkaConfiguration.PassConfiguration
+        sourceSet: DokkaSourceSet
     ): EnvironmentAndFacade =
-        AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
+        AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
-            pass.classpath.forEach { addClasspath(File(it)) }
+            sourceSet.classpath.forEach { addClasspath(File(it)) }
 
             addSources(
-                (pass.sourceRoots + configuration.passesConfigurations.filter { it.sourceSetID in pass.dependentSourceSets }
+                (sourceSet.sourceRoots + configuration.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
                     .flatMap { it.sourceRoots })
                     .map { it.path }
             )
 
-            loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
+            loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
 
             val environment = createCoreEnvironment()
             val (facade, _) = createResolutionFacade(environment)
             EnvironmentAndFacade(environment, facade)
         }
 
-    private fun translateSources(platformData: SourceSetData, context: DokkaContext) =
+    private fun translateSources(platformData: DokkaSourceSet, context: DokkaContext) =
         context[CoreExtensions.sourceToDocumentableTranslator].map {
             it.invoke(platformData, context)
         }

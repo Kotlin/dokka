@@ -4,15 +4,13 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 
 class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
 
     override fun invoke(modules: List<DModule>) = modules.map { original ->
-        val passOptions = context.configuration.passesConfigurations.first {
-            original.sourceSets.contains(context.sourceSet(it))
-        }
-        val packageOptions =
-            passOptions.perPackageOptions
+        val passOptions = original.sourceSets.single()
+        val packageOptions = passOptions.perPackageOptions
         original.let {
             DocumentableVisibilityFilter(packageOptions, passOptions).processModule(it)
         }
@@ -20,7 +18,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
     private class DocumentableVisibilityFilter(
         val packageOptions: List<DokkaConfiguration.PackageOptions>,
-        val globalOptions: DokkaConfiguration.PassConfiguration
+        val globalOptions: DokkaSourceSet
     ) {
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
             is JavaVisibility.Public,
@@ -82,14 +80,14 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
             return Pair(packagesListChanged, filteredPackages)
         }
 
-        private fun <T : WithVisibility> alwaysTrue(a: T, p: SourceSetData) = true
-        private fun <T : WithVisibility> alwaysFalse(a: T, p: SourceSetData) = false
+        private fun <T : WithVisibility> alwaysTrue(a: T, p: DokkaSourceSet) = true
+        private fun <T : WithVisibility> alwaysFalse(a: T, p: DokkaSourceSet) = false
 
-        private fun WithVisibility.visibilityForPlatform(data: SourceSetData): Visibility? = visibility[data]
+        private fun WithVisibility.visibilityForPlatform(data: DokkaSourceSet): Visibility? = visibility[data]
 
         private fun <T> T.filterPlatforms(
-            additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
-            alternativeCondition: (T, SourceSetData) -> Boolean = ::alwaysFalse
+            additionalCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysTrue,
+            alternativeCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysFalse
         ) where T : Documentable, T : WithVisibility =
             sourceSets.filter { d ->
                 visibilityForPlatform(d)?.isAllowedInPackage(dri.packageName) == true &&
@@ -98,9 +96,9 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
             }.toSet()
 
         private fun <T> List<T>.transform(
-            additionalCondition: (T, SourceSetData) -> Boolean = ::alwaysTrue,
-            alternativeCondition: (T, SourceSetData) -> Boolean = ::alwaysFalse,
-            recreate: (T, Set<SourceSetData>) -> T
+            additionalCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysTrue,
+            alternativeCondition: (T, DokkaSourceSet) -> Boolean = ::alwaysFalse,
+            recreate: (T, Set<DokkaSourceSet>) -> T
         ): Pair<Boolean, List<T>> where T : Documentable, T : WithVisibility {
             var changed = false
             val values = mapNotNull { t ->
@@ -122,7 +120,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
         private fun filterFunctions(
             functions: List<DFunction>,
-            additionalCondition: (DFunction, SourceSetData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DFunction, DokkaSourceSet) -> Boolean = ::alwaysTrue
         ) =
             functions.transform(additionalCondition) { original, filteredPlatforms ->
                 with(original) {
@@ -145,13 +143,13 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                 }
             }
 
-        private fun hasVisibleAccessorsForPlatform(property: DProperty, data: SourceSetData) =
+        private fun hasVisibleAccessorsForPlatform(property: DProperty, data: DokkaSourceSet) =
             property.getter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true ||
                     property.setter?.visibilityForPlatform(data)?.isAllowedInPackage(property.dri.packageName) == true
 
         private fun filterProperties(
             properties: List<DProperty>,
-            additionalCondition: (DProperty, SourceSetData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DProperty, DokkaSourceSet) -> Boolean = ::alwaysTrue
         ): Pair<Boolean, List<DProperty>> =
             properties.transform(additionalCondition, ::hasVisibleAccessorsForPlatform) { original, filteredPlatforms ->
                 with(original) {
@@ -174,7 +172,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
                 }
             }
 
-        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: Set<SourceSetData>) =
+        private fun filterEnumEntries(entries: List<DEnumEntry>, filteredPlatforms: Set<DokkaSourceSet>) =
             entries.mapNotNull { entry ->
                 if (filteredPlatforms.containsAll(entry.sourceSets)) entry
                 else {
@@ -196,7 +194,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
         private fun filterClasslikes(
             classlikeList: List<DClasslike>,
-            additionalCondition: (DClasslike, SourceSetData) -> Boolean = ::alwaysTrue
+            additionalCondition: (DClasslike, DokkaSourceSet) -> Boolean = ::alwaysTrue
         ): Pair<Boolean, List<DClasslike>> {
             var classlikesListChanged = false
             val filteredClasslikes: List<DClasslike> = classlikeList.mapNotNull {

@@ -2,8 +2,6 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.EnvironmentAndFacade
-import org.jetbrains.dokka.model.SourceSetCache
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 import java.net.URLClassLoader
@@ -20,10 +18,9 @@ interface DokkaContext {
 
     fun <T, E> single(point: E): T where T : Any, E : ExtensionPoint<T>
 
-    val sourceSetCache: SourceSetCache
     val logger: DokkaLogger
     val configuration: DokkaConfiguration
-    val platforms: Map<SourceSetData, EnvironmentAndFacade>
+    val platforms: Map<DokkaConfiguration.DokkaSourceSet, EnvironmentAndFacade>
     val unusedPoints: Collection<ExtensionPoint<*>>
 
 
@@ -31,11 +28,10 @@ interface DokkaContext {
         fun create(
             configuration: DokkaConfiguration,
             logger: DokkaLogger,
-            sourceSets: Map<SourceSetData, EnvironmentAndFacade>,
-            sourceSetsCache: SourceSetCache,
+            sourceSets: Map<DokkaConfiguration.DokkaSourceSet, EnvironmentAndFacade>,
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
-            DokkaContextConfigurationImpl(logger, configuration, sourceSets, sourceSetsCache).apply {
+            DokkaContextConfigurationImpl(logger, configuration, sourceSets).apply {
                 // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
                 configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
                     .toTypedArray()
@@ -59,8 +55,7 @@ interface DokkaContextConfiguration {
 private class DokkaContextConfigurationImpl(
     override val logger: DokkaLogger,
     override val configuration: DokkaConfiguration,
-    override val platforms: Map<SourceSetData, EnvironmentAndFacade>,
-    override val sourceSetCache: SourceSetCache
+    override val platforms: Map<DokkaConfiguration.DokkaSourceSet, EnvironmentAndFacade>
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()

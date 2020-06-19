@@ -1,11 +1,11 @@
 package javadoc
 
 import javadoc.pages.*
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
@@ -22,8 +22,8 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
         externalLocationProviderFactories.asSequence().map { it.getExternalLocationProvider("javadoc10") }
             .filterNotNull().take(1).firstOrNull()
     private val externalDocumentationLinks by lazy {
-        context.configuration.passesConfigurations
-            .filter { passConfig -> passConfig.analysisPlatform == Platform.jvm }
+        context.configuration.sourceSets
+            .filter { sourceSet -> sourceSet.analysisPlatform == Platform.jvm }
             .flatMap { it.externalDocumentationLinks }
             .distinct()
     }
@@ -65,7 +65,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
 
     private operator fun IdentityHashMap<PageNode, List<String>>.get(dri: DRI) = this[nodeIndex[dri]]
 
-    override fun resolve(dri: DRI, sourceSets: List<SourceSetData>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: List<DokkaSourceSet>, context: PageNode?): String =
         context?.let { resolve(it, skipExtension = false) } ?: nodeIndex[dri]?.let {
             resolve(it, skipExtension = true)
         } ?: with(externalLocationProvider!!) {
@@ -79,19 +79,20 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
             throw IllegalStateException("Path for ${node::class.java.canonicalName}:${node.name} not found")
         }
 
-    fun resolve(link: LinkJavadocListEntry, dir: String = "", skipExtension: Boolean = true) = pathIndex[link.dri.first()]?.let {
-        when (link.kind) {
-            JavadocContentKind.Class -> it
-            JavadocContentKind.OverviewSummary -> it.dropLast(1) + "index"
-            JavadocContentKind.PackageSummary -> it.dropLast(1) + "package-summary"
-            JavadocContentKind.AllClasses -> it.dropLast(1) + "allclasses"
-            JavadocContentKind.OverviewTree -> it.dropLast(1) + "overview-tree"
-            JavadocContentKind.PackageTree -> it.dropLast(1) + "package-tree"
-            else -> it
-        }
-    }?.joinToString("/")?.let {if (skipExtension) "$it.html" else it}?.let {
-        Paths.get(dir).relativize(Paths.get(it)).toString()
-    } ?: run {""} //TODO just a glue to compile it on HMPP
+    fun resolve(link: LinkJavadocListEntry, dir: String = "", skipExtension: Boolean = true) =
+        pathIndex[link.dri.first()]?.let {
+            when (link.kind) {
+                  JavadocContentKind.Class -> it
+                JavadocContentKind.OverviewSummary -> it.dropLast(1) + "index"
+                JavadocContentKind.PackageSummary -> it.dropLast(1) + "package-summary"
+                JavadocContentKind.AllClasses -> it.dropLast(1) + "allclasses"
+                JavadocContentKind.OverviewTree -> it.dropLast(1) + "overview-tree"
+                JavadocContentKind.PackageTree -> it.dropLast(1) + "package-tree"
+                else -> it
+            }
+        }?.joinToString("/")?.let { if (skipExtension) "$it.html" else it }?.let {
+            Paths.get(dir).relativize(Paths.get(it)).toString()
+        } ?: run { "" } //TODO just a glue to compile it on HMPP
 
     override fun resolveRoot(node: PageNode): String {
         TODO("Not yet implemented")

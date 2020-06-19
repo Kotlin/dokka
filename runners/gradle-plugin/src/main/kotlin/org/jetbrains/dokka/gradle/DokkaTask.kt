@@ -69,9 +69,9 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     internal var config: GradleDokkaConfigurationImpl? = null
 
-    var dokkaSourceSets: NamedDomainObjectContainer<GradlePassConfigurationImpl>
+    var dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSet>
         @Suppress("UNCHECKED_CAST")
-        @Nested get() = (DslObject(this).extensions.getByName(SOURCE_SETS_EXTENSION_NAME) as NamedDomainObjectContainer<GradlePassConfigurationImpl>)
+        @Nested get() = (DslObject(this).extensions.getByName(SOURCE_SETS_EXTENSION_NAME) as NamedDomainObjectContainer<GradleDokkaSourceSet>)
         internal set(value) = DslObject(this).extensions.add(SOURCE_SETS_EXTENSION_NAME, value)
 
     private val kotlinTasks: List<Task> by lazy {
@@ -184,7 +184,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             .map { defaultPassConfiguration(it, globalConfig) }.takeIf { it.isNotEmpty() }
             ?: listOf(
                 defaultPassConfiguration(
-                    collectSinglePassConfiguration(GradlePassConfigurationImpl("main")),
+                    collectSinglePassConfiguration(GradleDokkaSourceSet("main")),
                     null
                 )
             ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
@@ -199,7 +199,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             format = outputFormat
             cacheRoot = this@DokkaTask.cacheRoot
             offlineMode = this@DokkaTask.offlineMode
-            passesConfigurations = defaultModulesConfiguration
+            sourceSets = passConfigurations
             pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
             failOnWarning = this@DokkaTask.failOnWarning
@@ -207,12 +207,12 @@ open class DokkaTask : DefaultTask(), Configurable {
     }
 
 
-    protected val passConfigurations: List<GradlePassConfigurationImpl>
+    protected val passConfigurations: List<GradleDokkaSourceSet>
         get() = dokkaSourceSets
             .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
             .map { collectSinglePassConfiguration(it) }
 
-    protected fun collectSinglePassConfiguration(config: GradlePassConfigurationImpl): GradlePassConfigurationImpl {
+    protected fun collectSinglePassConfiguration(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
         val userConfig = config
             .apply {
                 collectKotlinTasks?.let {
@@ -259,7 +259,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
-    protected fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradlePassConfigurationImpl) =
+    protected fun collectFromSinglePlatformOldPlugin(name: String, userConfig: GradleDokkaSourceSet) =
         kotlinTasks.find { it.name == name }
             ?.let { configExtractor.extractFromKotlinTasks(listOf(it)) }
             ?.singleOrNull()
@@ -269,7 +269,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             ?: userConfig
 
     protected fun mergeUserConfigurationAndPlatformData(
-        userConfig: GradlePassConfigurationImpl,
+        userConfig: GradleDokkaSourceSet,
         autoConfig: PlatformData
     ) =
         userConfig.copy().apply {
@@ -281,9 +281,9 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
 
     protected fun defaultPassConfiguration(
-        config: GradlePassConfigurationImpl,
-        globalConfig: GradlePassConfigurationImpl?
-    ): GradlePassConfigurationImpl {
+        config: GradleDokkaSourceSet,
+        globalConfig: GradleDokkaSourceSet?
+    ): GradleDokkaSourceSet {
         if (config.moduleName.isBlank()) {
             config.moduleName = project.name
         }

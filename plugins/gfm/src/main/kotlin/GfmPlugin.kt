@@ -1,20 +1,19 @@
 package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import java.lang.StringBuilder
 
 
 class GfmPlugin : DokkaPlugin() {
@@ -66,7 +65,7 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>?
+        platformRestriction: Set<DokkaSourceSet>?
     ) {
         buildParagraph()
         buildListLevel(node, pageContext)
@@ -114,17 +113,21 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
         val distinct = content.sourceSets.map {
-            it to StringBuilder().apply {buildContentNode(content.inner, pageContext, setOf(it)) }.toString()
-        }.groupBy(Pair<SourceSetData, String>::second, Pair<SourceSetData, String>::first)
+            it to StringBuilder().apply { buildContentNode(content.inner, pageContext, setOf(it)) }.toString()
+        }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
 
         if (distinct.size == 1)
             append(distinct.keys.single())
         else
             distinct.forEach { text, platforms ->
-                append(platforms.joinToString(prefix = " [", postfix = "] $text") { "${it.moduleName}/${it.sourceSetID}"  })
+                append(
+                    platforms.joinToString(
+                        prefix = " [",
+                        postfix = "] $text"
+                    ) { "${it.moduleName}/${it.sourceSetID}" })
             }
     }
 
@@ -135,7 +138,7 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: Set<SourceSetData>?
+        platformRestriction: Set<DokkaSourceSet>?
     ) {
 
         buildParagraph()

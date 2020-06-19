@@ -16,7 +16,7 @@ import java.util.concurrent.Callable
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.memberProperties
 
-class GradleSourceRootImpl: SourceRoot, Serializable {
+class GradleSourceRootImpl : SourceRoot, Serializable {
     override var path: String = ""
         set(value) {
             field = File(value).absolutePath
@@ -25,33 +25,63 @@ class GradleSourceRootImpl: SourceRoot, Serializable {
     override fun toString(): String = path
 }
 
-open class GradlePassConfigurationImpl(@Transient val name: String = ""): PassConfiguration {
-    @Input @Optional override var classpath: List<String> = emptyList()
-    @Input override var moduleName: String = ""
-    @Input override var displayName: String = ""
-    @Input override var sourceSetID: String = ""
-    @Input override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
-    @Input override var dependentSourceSets: MutableList<String> = mutableListOf()
-    @Input override var samples: List<String> = emptyList()
-    @Input override var includes: List<String> = emptyList()
-    @Input override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
-    @Input override var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
-    @Input override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
-    @Input override var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
-    @Input override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
-    @Input override var jdkVersion: Int = DokkaDefaults.jdkVersion
-    @Input override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
-    @Input override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
-    @Input override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
-    @Input @Optional override var languageVersion: String? = null
-    @Input @Optional override var apiVersion: String? = null
-    @Input override var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
-    @Input override var noJdkLink: Boolean = DokkaDefaults.noJdkLink
-    @Input var noAndroidSdkLink: Boolean = false
-    @Input override var suppressedFiles: List<String> = emptyList()
-    @Input override var analysisPlatform: Platform = DokkaDefaults.analysisPlatform
-    @Input @Optional var platform: String? = null
-    @Transient var collectKotlinTasks: (() -> List<Any?>?)? = null
+open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceSet {
+    @Input
+    @Optional
+    override var classpath: List<String> = emptyList()
+    @Input
+    override var moduleName: String = ""
+    @Input
+    override var displayName: String = ""
+    @Input
+    override var sourceSetID: String = ""
+    @Input
+    override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
+    @Input
+    override var dependentSourceSets: MutableList<String> = mutableListOf()
+    @Input
+    override var samples: List<String> = emptyList()
+    @Input
+    override var includes: List<String> = emptyList()
+    @Input
+    override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+    @Input
+    override var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
+    @Input
+    override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+    @Input
+    override var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
+    @Input
+    override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+    @Input
+    override var jdkVersion: Int = DokkaDefaults.jdkVersion
+    @Input
+    override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
+    @Input
+    override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
+    @Input
+    override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
+    @Input
+    @Optional
+    override var languageVersion: String? = null
+    @Input
+    @Optional
+    override var apiVersion: String? = null
+    @Input
+    override var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
+    @Input
+    override var noJdkLink: Boolean = DokkaDefaults.noJdkLink
+    @Input
+    var noAndroidSdkLink: Boolean = false
+    @Input
+    override var suppressedFiles: List<String> = emptyList()
+    @Input
+    override var analysisPlatform: Platform = DokkaDefaults.analysisPlatform
+    @Input
+    @Optional
+    var platform: String? = null
+    @Transient
+    var collectKotlinTasks: (() -> List<Any?>?)? = null
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }
@@ -117,25 +147,25 @@ class GradleExternalDocumentationLinkImpl : ExternalDocumentationLink, Serializa
     override var packageListUrl: URL = URL("http://")
 }
 
-class GradleDokkaModuleDescription: DokkaModuleDescription {
+class GradleDokkaModuleDescription : DokkaModuleDescription {
     override var name: String = ""
     override var path: String = ""
     override var docFile: String = ""
 }
 
-class GradleDokkaConfigurationImpl: DokkaConfiguration {
+class GradleDokkaConfigurationImpl : DokkaConfiguration {
     override var outputDir: String = ""
     override var format: String = DokkaDefaults.format
     override var cacheRoot: String? = DokkaDefaults.cacheRoot
     override var offlineMode: Boolean = DokkaDefaults.offlineMode
     override var failOnWarning: Boolean = DokkaDefaults.failOnWarning
-    override var passesConfigurations: List<GradlePassConfigurationImpl> = emptyList()
+    override var sourceSets: List<GradleDokkaSourceSet> = emptyList()
     override var pluginsClasspath: List<File> = emptyList()
     override var pluginsConfiguration: Map<String, String> = mutableMapOf()
     override var modules: List<GradleDokkaModuleDescription> = emptyList()
 }
 
-class GradlePackageOptionsImpl: PackageOptions, Serializable {
+class GradlePackageOptionsImpl : PackageOptions, Serializable {
     override var prefix: String = ""
     override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
     override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
@@ -143,8 +173,8 @@ class GradlePackageOptionsImpl: PackageOptions, Serializable {
     override var suppress: Boolean = DokkaDefaults.suppress
 }
 
-internal fun GradlePassConfigurationImpl.copy(): GradlePassConfigurationImpl {
-    val newObj = GradlePassConfigurationImpl(this.name)
+internal fun GradleDokkaSourceSet.copy(): GradleDokkaSourceSet {
+    val newObj = GradleDokkaSourceSet(this.name)
     this::class.memberProperties.forEach { field ->
         if (field is KMutableProperty<*>) {
             val value = field.getter.call(this)

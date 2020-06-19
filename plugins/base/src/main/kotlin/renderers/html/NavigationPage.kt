@@ -3,7 +3,7 @@ package org.jetbrains.dokka.base.renderers.html
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificPage
 import org.jetbrains.dokka.pages.RenderingStrategy
@@ -25,7 +25,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
                 id = navId
                 attributes["pageId"] = node.dri.toString()
                 div("overview") {
-                    buildLink(node.dri, node.platforms) { +node.name }
+                    buildLink(node.dri, node.sourceSets) { +node.name }
                     if (node.children.isNotEmpty()) {
                         span("navButton") {
                             onClick = """document.getElementById("$navId").classList.toggle("hidden");"""
@@ -41,11 +41,11 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
 class NavigationNode(
     val name: String,
     val dri: DRI,
-    val platforms: List<SourceSetData>,
+    val sourceSets: List<DokkaSourceSet>,
     val children: List<NavigationNode>
 )
 
 fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode) = NavigationPage(root.transform(block))
 
 fun NavigationNode.transform(block: (NavigationNode) -> NavigationNode) =
-    run(block).let { NavigationNode(it.name, it.dri, it.platforms, it.children.map(block)) }
+    run(block).let { NavigationNode(it.name, it.dri, it.sourceSets, it.children.map(block)) }
