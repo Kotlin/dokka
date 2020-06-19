@@ -8,10 +8,9 @@ import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.EnvironmentAndFacade
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -40,8 +39,8 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }
 
-    private fun setUpAnalysis(context: DokkaContext) = context.configuration.passesConfigurations.map {
-        context.sourceSet(it) to AnalysisEnvironment(DokkaMessageCollector(context.logger), it.analysisPlatform).run {
+    private fun setUpAnalysis(context: DokkaContext) = context.configuration.sourceSets.map {
+        it to AnalysisEnvironment(DokkaMessageCollector(context.logger), it.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
@@ -59,9 +58,9 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private fun ContentNode.addSample(
         contentPage: ContentPage,
-        platform: SourceSetData,
+        platform: DokkaSourceSet,
         fqName: String,
-        analysis: Map<SourceSetData, EnvironmentAndFacade>
+        analysis: Map<DokkaSourceSet, EnvironmentAndFacade>
     ): ContentNode {
         val facade = analysis[platform]?.facade
             ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleName}") }
@@ -110,7 +109,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 
-    private fun contentCode(sourceSets: List<SourceSetData>, dri: Set<DRI>, content: String, language: String) =
+    private fun contentCode(sourceSets: List<DokkaSourceSet>, dri: Set<DRI>, content: String, language: String) =
         ContentCode(
             children = listOf(
                 ContentText(

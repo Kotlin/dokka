@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -26,12 +26,11 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     }
 
     private fun shouldBeReportedIfNotDocumented(
-        documentable: Documentable, sourceSet: SourceSetData, context: DokkaContext
+        documentable: Documentable, sourceSet: DokkaSourceSet, context: DokkaContext
     ): Boolean {
-        val passConfiguration = passConfiguration(context, sourceSet)
-        val packageOptionsOrNull = packageOptionsOrNull(passConfiguration, documentable)
+        val packageOptionsOrNull = packageOptionsOrNull(sourceSet, documentable)
 
-        if (!(packageOptionsOrNull?.reportUndocumented ?: passConfiguration.reportUndocumented)) {
+        if (!(packageOptionsOrNull?.reportUndocumented ?: sourceSet.reportUndocumented)) {
             return false
         }
 
@@ -61,7 +60,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     private fun reportIfUndocumented(
         context: DokkaContext,
         documentable: Documentable,
-        sourceSet: SourceSetData
+        sourceSet: DokkaSourceSet
     ) {
         if (isUndocumented(documentable, sourceSet)) {
             val documentableDescription = with(documentable) {
@@ -94,14 +93,14 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         }
     }
 
-    private fun isUndocumented(documentable: Documentable, sourceSet: SourceSetData): Boolean {
-        fun resolveDependentSourceSets(sourceSet: SourceSetData): List<SourceSetData> {
+    private fun isUndocumented(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
+        fun resolveDependentSourceSets(sourceSet: DokkaSourceSet): List<DokkaSourceSet> {
             return sourceSet.dependentSourceSets.mapNotNull { sourceSetID ->
                 documentable.sourceSets.singleOrNull { it.sourceSetID == sourceSetID }
             }
         }
 
-        fun withAllDependentSourceSets(sourceSet: SourceSetData): Sequence<SourceSetData> {
+        fun withAllDependentSourceSets(sourceSet: DokkaSourceSet): Sequence<DokkaSourceSet> {
             return sequence {
                 yield(sourceSet)
                 for (dependentSourceSet in resolveDependentSourceSets(sourceSet)) {
@@ -120,25 +119,16 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         return documentable.isConstructor
     }
 
-    private fun passConfiguration(context: DokkaContext, sourceSet: SourceSetData): PassConfiguration {
-        val passes = context.configuration.passesConfigurations.filter { configuration ->
-            configuration.sourceSetID == sourceSet.sourceSetID
-        }
-        if (passes.size > 1)
-            context.logger.error("Expected one passConfiguration with ID: ${sourceSet.sourceSetID} found: ${passes.size} in [${passes.joinToString { it.moduleName }}]")
-        return passes.first()
-    }
-
-    private fun isFakeOverride(documentable: Documentable, sourceSet: SourceSetData): Boolean {
+    private fun isFakeOverride(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
         return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == FAKE_OVERRIDE
     }
 
-    private fun isSynthesized(documentable: Documentable, sourceSet: SourceSetData): Boolean {
+    private fun isSynthesized(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
         return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == SYNTHESIZED
     }
 
     private fun callableMemberDescriptorOrNull(
-        documentable: Documentable, sourceSet: SourceSetData
+        documentable: Documentable, sourceSet: DokkaSourceSet
     ): CallableMemberDescriptor? {
         if (documentable is WithExpectActual) {
             return documentable.sources[sourceSet]
@@ -149,7 +139,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         return null
     }
 
-    private fun isPrivateOrInternalApi(documentable: Documentable, sourceSet: SourceSetData): Boolean {
+    private fun isPrivateOrInternalApi(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
         return when (documentable.safeAs<WithVisibility>()?.visibility?.get(sourceSet)) {
             KotlinVisibility.Public -> false
             KotlinVisibility.Private -> true
@@ -164,11 +154,11 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     }
 
     private fun packageOptionsOrNull(
-        passConfiguration: PassConfiguration,
+        dokkaSourceSet: DokkaSourceSet,
         documentable: Documentable
     ): DokkaConfiguration.PackageOptions? {
         val packageName = documentable.dri.packageName ?: return null
-        return passConfiguration.perPackageOptions
+        return dokkaSourceSet.perPackageOptions
             .filter { packageOptions -> packageName.startsWith(packageOptions.prefix) }
             .maxBy { packageOptions -> packageOptions.prefix.length }
     }

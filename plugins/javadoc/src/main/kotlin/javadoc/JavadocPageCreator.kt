@@ -1,6 +1,7 @@
 package javadoc
 
 import javadoc.pages.*
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.signatures.function
@@ -40,7 +41,7 @@ open class JavadocPageCreator(
         )
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
-        c.sourceSets.firstOrNull { it.platform == Platform.jvm }?.let { jvm ->
+        c.sourceSets.firstOrNull { it.analysisPlatform == Platform.jvm }?.let { jvm ->
             JavadocClasslikePageNode(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
@@ -72,11 +73,11 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            m.sourceSets.filter { it.analysisPlatform == Platform.jvm }.toSet()
         ) {
             title(m.name, "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.sortedBy { it.name }.map { p ->
-                val description = p.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
+                val description = p.documentation.entries.find { (k, _) -> k.analysisPlatform == Platform.jvm }?.value?.let {
                     it.children.firstIsInstanceOrNull<Description>()?.let { description ->
                         DocTagToContentConverter.buildContent(
                             description.root,
@@ -96,7 +97,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            p.sourceSets.filter { it.analysisPlatform == Platform.jvm }.toSet()
         ) {
             title(p.name, "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.sortedBy { it.name }.map { c ->
@@ -111,7 +112,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            c.sourceSets.filter { it.analysisPlatform == Platform.jvm }.toSet()
         ) {
             title(
                 c.name.orEmpty(),
@@ -146,7 +147,7 @@ open class JavadocPageCreator(
             is UnresolvedBound -> p.name
         }
 
-    private fun DFunction.toJavadocFunction(sourceSetData: SourceSetData) = JavadocFunctionNode(
+    private fun DFunction.toJavadocFunction(sourceSetData: DokkaSourceSet) = JavadocFunctionNode(
         name = name,
         signature = signatureProvider.signature(this).jvmSignature(),
         brief = TextNode(description(sourceSetData), setOf(sourceSetData)),
@@ -161,12 +162,12 @@ open class JavadocPageCreator(
     )
 
     fun List<ContentNode>.jvmSignature(): ContentNode =
-        first { it.sourceSets.any { it.platform == Platform.jvm } }
+        first { it.sourceSets.any { it.analysisPlatform == Platform.jvm } }
 
-    private fun Documentable.description(sourceSetData: SourceSetData): String =
+    private fun Documentable.description(sourceSetData: DokkaSourceSet): String =
         findNodeInDocumentation<Description>(sourceSetData)
 
-    private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData): String =
+    private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet): String =
         documentation[sourceSetData]?.children?.firstIsInstanceOrNull<T>()?.root?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
 }
 

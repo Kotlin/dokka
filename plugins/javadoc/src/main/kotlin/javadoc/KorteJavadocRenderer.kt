@@ -12,7 +12,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedFunction
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
@@ -269,13 +269,13 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             ) + renderJavadocContentNode(node.content)
 
         private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
-            node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
+            node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
             .orEmpty()
 
         private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
             val (inherited, own) = nodes.partition {
                 val extra = it.extras[InheritedFunction]
-                extra?.inheritedFrom?.keys?.first { it.platform == Platform.jvm }?.let { jvm ->
+                extra?.inheritedFrom?.keys?.first { it.analysisPlatform == Platform.jvm }?.let { jvm ->
                     extra.isInherited(jvm)
                 } ?: false
             }
@@ -294,7 +294,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         private fun renderInheritedMethod(node: JavadocFunctionNode): TemplateMap {
             val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
             return mapOf(
-                "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
+                "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.analysisPlatform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
                 .orEmpty(),
                 "name" to node.name
             )
@@ -370,7 +370,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             )
         }
 
-        private fun resolveLink(address: DRI, sourceSets: Set<SourceSetData>) =
+        private fun resolveLink(address: DRI, sourceSets: Set<DokkaSourceSet>) =
             locationProvider.resolve(address, sourceSets.toList()).let {
                 val afterFormattingToHtml = formatToEndWithHtml(it)
                 if (currentLocation != null) afterFormattingToHtml.relativizePath(currentLocation)

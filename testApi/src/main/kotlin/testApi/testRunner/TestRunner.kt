@@ -3,13 +3,11 @@ package org.jetbrains.dokka.testApi.testRunner
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.pages.ModulePageNode
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.rules.TemporaryFolder
 import testApi.logger.TestLogger
 import java.io.File
@@ -66,7 +64,7 @@ abstract class AbstractCoreTest {
         val newConfiguration =
             configuration.copy(
                 outputDir = testDirPath.toAbsolutePath().toString(),
-                passesConfigurations = configuration.passesConfigurations.map {
+                sourceSets = configuration.sourceSets.map {
                     it.copy(sourceRoots = it.sourceRoots.map { it.copy(path = "${testDirPath.toAbsolutePath()}/${it.path}") })
                 }
             )
@@ -143,13 +141,13 @@ abstract class AbstractCoreTest {
         var pluginsClasspath: List<File> = emptyList()
         var pluginsConfigurations: Map<String, String> = emptyMap()
         var failOnWarning: Boolean = false
-        private val passesConfigurations = mutableListOf<PassConfigurationImpl>()
+        private val sourceSets = mutableListOf<DokkaSourceSetImpl>()
         fun build() = DokkaConfigurationImpl(
             outputDir = outputDir,
             format = format,
             cacheRoot = cacheRoot,
             offlineMode = offlineMode,
-            passesConfigurations = passesConfigurations,
+            sourceSets = sourceSets,
             pluginsClasspath = pluginsClasspath,
             pluginsConfiguration = pluginsConfigurations,
             modules = emptyList(),
@@ -157,18 +155,18 @@ abstract class AbstractCoreTest {
         )
 
         fun passes(block: Passes.() -> Unit) {
-            passesConfigurations.addAll(Passes().apply(block))
+            sourceSets.addAll(Passes().apply(block))
         }
     }
 
     @DokkaConfigurationDsl
-    protected class Passes : ArrayList<PassConfigurationImpl>() {
-        fun pass(block: DokkaPassConfigurationBuilder.() -> Unit) =
-            add(DokkaPassConfigurationBuilder().apply(block).build())
+    protected class Passes : ArrayList<DokkaSourceSetImpl>() {
+        fun pass(block: DokkaSourceSetBuilder.() -> Unit) =
+            add(DokkaSourceSetBuilder().apply(block).build())
     }
 
     @DokkaConfigurationDsl
-    protected class DokkaPassConfigurationBuilder(
+    protected class DokkaSourceSetBuilder(
         var moduleName: String = "root",
         var sourceSetID: String = "main",
         var displayName: String = "JVM",
@@ -193,7 +191,7 @@ abstract class AbstractCoreTest {
         var externalDocumentationLinks: List<ExternalDocumentationLinkImpl> = emptyList(),
         var sourceLinks: List<SourceLinkDefinitionImpl> = emptyList()
     ) {
-        fun build() = PassConfigurationImpl(
+        fun build() = DokkaSourceSetImpl(
             moduleName = moduleName,
             displayName = displayName,
             sourceSetID = sourceSetID,

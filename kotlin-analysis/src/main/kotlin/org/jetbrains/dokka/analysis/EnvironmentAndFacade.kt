@@ -14,21 +14,21 @@ import java.io.File
 internal fun createEnvironmentAndFacade(
     logger: DokkaLogger,
     configuration: DokkaConfiguration,
-    pass: DokkaConfiguration.PassConfiguration
+    sourceSet: DokkaConfiguration.DokkaSourceSet
 ): EnvironmentAndFacade =
-    AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
+    AnalysisEnvironment(DokkaMessageCollector(logger), sourceSet.analysisPlatform).run {
         if (analysisPlatform == Platform.jvm) {
             addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
         }
-        pass.classpath.forEach { addClasspath(File(it)) }
+        sourceSet.classpath.forEach { addClasspath(File(it)) }
 
         addSources(
-            (pass.sourceRoots + configuration.passesConfigurations.filter { it.sourceSetID in pass.dependentSourceSets }
+            (sourceSet.sourceRoots + configuration.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
                 .flatMap { it.sourceRoots })
                 .map { it.path }
         )
 
-        loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
+        loadLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
 
         val environment = createCoreEnvironment()
         val (facade, _) = createResolutionFacade(environment)

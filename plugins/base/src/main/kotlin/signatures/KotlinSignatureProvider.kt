@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.signatures
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
@@ -24,7 +25,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         ExtraModifiers.KotlinOnlyModifiers.TailRec,
         ExtraModifiers.KotlinOnlyModifiers.External
     )
-    private val platformSpecificModifiers : Map<ExtraModifiers, Set<Platform>> = mapOf(
+    private val platformSpecificModifiers: Map<ExtraModifiers, Set<Platform>> = mapOf(
         ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js)
     )
 
@@ -40,13 +41,14 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         )
     }
 
-    private fun <T> PageContentBuilder.DocumentableContentBuilder.processExtraModifiers (t: T)
-            where T: Documentable, T: WithExtraProperties<T> {
+    private fun <T> PageContentBuilder.DocumentableContentBuilder.processExtraModifiers(t: T)
+            where T : Documentable, T : WithExtraProperties<T> {
         sourceSetDependentText(
             t.modifiers()
                 .mapValues { entry ->
                     entry.value.filter {
-                        it !in ignoredExtraModifiers || entry.key.platform in (platformSpecificModifiers[it] ?: emptySet())
+                        it !in ignoredExtraModifiers || entry.key.analysisPlatform in (platformSpecificModifiers[it]
+                            ?: emptySet())
                     }
                 }
         ) {
@@ -73,7 +75,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: SourceSetData, aliasedType: Bound) =
+    private fun actualTypealiasedSignature(c: DClasslike, sourceSet: DokkaSourceSet, aliasedType: Bound) =
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
@@ -97,7 +99,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         }
 
 
-    private fun regularSignature(c: DClasslike, sourceSet: SourceSetData) =
+    private fun regularSignature(c: DClasslike, sourceSet: DokkaSourceSet) =
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
@@ -315,7 +317,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is UnresolvedBound -> text(p.name)
         }
 
-    private fun funType(dri: DRI, sourceSets: Set<SourceSetData>, type: TypeConstructor) =
+    private fun funType(dri: DRI, sourceSets: Set<DokkaSourceSet>, type: TypeConstructor) =
         contentBuilder.contentFor(dri, sourceSets, ContentKind.Main) {
             if (type.extension) {
                 signatureForProjection(type.projections.first())

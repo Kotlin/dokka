@@ -1,10 +1,12 @@
 package org.jetbrains.dokka.base.renderers
 
-import kotlinx.coroutines.*
-import kotlinx.html.FlowContent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -28,7 +30,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     )
 
     abstract fun T.buildNewLine()
@@ -36,7 +38,7 @@ abstract class DefaultRenderer<T>(
     abstract fun T.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     )
 
     abstract fun T.buildText(textNode: ContentText)
@@ -48,18 +50,18 @@ abstract class DefaultRenderer<T>(
     open fun T.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) = buildContentNode(content.inner, pageContext)
 
     open fun T.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) =
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
 
     open fun T.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) =
-         node.children.forEach { it.build(this, pageContext) }
+        node.children.forEach { it.build(this, pageContext) }
 
     open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
         childrenCallback()
@@ -67,7 +69,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildLinkText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) {
         nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
@@ -79,7 +81,7 @@ abstract class DefaultRenderer<T>(
     open fun T.buildHeader(
         node: ContentHeader,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) {
         buildHeader(node.level, node) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
@@ -87,16 +89,16 @@ abstract class DefaultRenderer<T>(
     open fun ContentNode.build(
         builder: T,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) =
         builder.buildContentNode(this, pageContext, sourceSetRestriction)
 
     open fun T.buildContentNode(
         node: ContentNode,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) {
-        if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }  ) {
+        if (sourceSetRestriction == null || node.sourceSets.any { it in sourceSetRestriction }) {
             when (node) {
                 is ContentText -> buildText(node)
                 is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)

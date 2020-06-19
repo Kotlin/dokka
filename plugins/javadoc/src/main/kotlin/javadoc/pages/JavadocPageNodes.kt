@@ -418,7 +418,7 @@ class TreeViewPage(
         (this as? WithExpectActual).descriptorForPlatform(platform)
 
     private fun WithExpectActual?.descriptorForPlatform(platform: Platform = Platform.jvm) = this?.let {
-        it.sources.entries.find { it.key.platform == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
+        it.sources.entries.find { it.key.analysisPlatform == platform }?.value?.let { it as? DescriptorDocumentableSource }?.descriptor as? ClassDescriptor
     }
 
     data class InheritanceNode(

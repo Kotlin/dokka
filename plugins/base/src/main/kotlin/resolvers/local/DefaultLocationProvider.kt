@@ -1,16 +1,14 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
-import java.lang.IllegalStateException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
@@ -48,14 +46,12 @@ open class DefaultLocationProvider(
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: List<SourceSetData>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: List<DokkaSourceSet>, context: PageNode?): String =
         pagesIndex[dri]?.let { resolve(it, context) } ?:
         // Not found in PageGraph, that means it's an external link
-        getLocation(dri,
-            this.dokkaContext.configuration.passesConfigurations
-                .filter { passConfig ->
-                    sourceSets.toSet().contains(dokkaContext.sourceSet(passConfig))
-                }
+        getLocation(
+            dri,
+            sourceSets
                 .groupBy({ it.jdkVersion }, { it.externalDocumentationLinks })
                 .map { it.key to it.value.flatten().distinct() }.toMap()
         )
@@ -105,7 +101,7 @@ open class DefaultLocationProvider(
         // Not in cache, resolve packageLists
         for ((jdk, links) in toResolve) {
             for (link in links) {
-                if(dokkaContext.configuration.offlineMode && link.packageListUrl.protocol.toLowerCase() != "file")
+                if (dokkaContext.configuration.offlineMode && link.packageListUrl.protocol.toLowerCase() != "file")
                     continue
                 val locationInfo =
                     loadPackageList(jdk, link.packageListUrl)

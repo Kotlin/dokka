@@ -3,11 +3,11 @@ package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.model.DocumentableSource
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.model.DocumentableSource
 import org.jetbrains.dokka.model.WithExpectActual
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -29,8 +29,8 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
             }
         }
 
-    private fun getSourceLinks() = context.configuration.passesConfigurations
-        .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, context.sourceSetCache.getSourceSet(it)) } }
+    private fun getSourceLinks() = context.configuration.sourceSets
+        .flatMap { it.sourceLinks.map { sl -> SourceLink(sl, it) } }
 
     private fun resolveSources(documentable: WithExpectActual) = documentable.sources
         .mapNotNull { entry ->
@@ -42,7 +42,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
             }
         }
 
-    private fun ContentPage.addSourcesContent(sources: List<Pair<SourceSetData, String>>) = builder
+    private fun ContentPage.addSourcesContent(sources: List<Pair<DokkaSourceSet, String>>) = builder
         .buildSourcesContent(this, sources)
         .let {
             this.modified(
@@ -52,7 +52,7 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
 
     private fun PageContentBuilder.buildSourcesContent(
         node: ContentPage,
-        sources: List<Pair<SourceSetData, String>>
+        sources: List<Pair<DokkaSourceSet, String>>
     ) = contentFor(
         node.dri.first(),
         node.documentable!!.sourceSets.toSet()
@@ -121,8 +121,8 @@ class SourceLinksTransformer(val context: DokkaContext, val builder: PageContent
     }
 }
 
-data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: SourceSetData) {
-    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: SourceSetData) : this(
+data class SourceLink(val path: String, val url: String, val lineSuffix: String?, val sourceSetData: DokkaSourceSet) {
+    constructor(sourceLinkDefinition: DokkaConfiguration.SourceLinkDefinition, sourceSetData: DokkaSourceSet) : this(
         sourceLinkDefinition.path, sourceLinkDefinition.url, sourceLinkDefinition.lineSuffix, sourceSetData
     )
 }

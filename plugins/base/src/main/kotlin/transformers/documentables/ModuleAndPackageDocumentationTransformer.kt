@@ -3,9 +3,8 @@ package org.jetbrains.dokka.base.transformers.documentables
 import org.jetbrains.dokka.analysis.EnvironmentAndFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
-import org.jetbrains.dokka.model.sourceSet
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -23,9 +22,9 @@ internal class ModuleAndPackageDocumentationTransformer(
     override fun invoke(modules: List<DModule>): List<DModule> {
 
         val modulesAndPackagesDocumentation =
-            context.configuration.passesConfigurations
+            context.configuration.sourceSets
                 .map {
-                    Pair(it.moduleName, context.sourceSet(it)) to
+                    Pair(it.moduleName, it) to
                             it.includes.map { Paths.get(it) }
                                 .also {
                                     it.forEach {
@@ -101,7 +100,7 @@ internal class ModuleAndPackageDocumentationTransformer(
         }
     }
 
-    private fun mergeDocumentation(origin: Map<SourceSetData, DocumentationNode>, new: Map<SourceSetData, DocumentationNode>) =
+    private fun mergeDocumentation(origin: Map<DokkaSourceSet, DocumentationNode>, new: Map<DokkaSourceSet, DocumentationNode>) =
         (origin.asSequence() + new.asSequence())
             .distinct()
             .groupBy({ it.key }, { it.value })

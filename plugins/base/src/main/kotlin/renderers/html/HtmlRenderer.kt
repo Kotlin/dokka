@@ -1,13 +1,15 @@
 package org.jetbrains.dokka.base.renderers.html
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -20,11 +22,10 @@ open class HtmlRenderer(
     context: DokkaContext
 ) : DefaultRenderer<FlowContent>(context) {
 
-    private val sourceSetDependencyMap = with(context.sourceSetCache) {
-        allSourceSets.map { sourceSet ->
-            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
-        }.toMap()
-    }
+    private val sourceSetDependencyMap = context.configuration.sourceSets.map { sourceSet ->
+        sourceSet to context.configuration.sourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID) }
+    }.toMap()
+
 
     private val pageList = mutableMapOf<String, Pair<String, String>>()
 
@@ -94,7 +95,7 @@ open class HtmlRenderer(
                 button(classes = "platform-tag platform-selector") {
                     attributes["data-active"] = ""
                     attributes["data-filter"] = it.sourceSetID
-                    when (it.platform.key) {
+                    when (it.analysisPlatform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
@@ -138,7 +139,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) =
         buildPlatformDependent(
             content.sourceSets.filter {
@@ -150,7 +151,7 @@ open class HtmlRenderer(
         )
 
     private fun FlowContent.buildPlatformDependent(
-        nodes: Map<SourceSetData, Collection<ContentNode>>,
+        nodes: Map<DokkaSourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty(),
         styles: Set<Style> = emptySet()
@@ -172,7 +173,7 @@ open class HtmlRenderer(
                             if (index == 0) attributes["data-active"] = ""
                             attributes["data-toggle"] = pair.first.sourceSetID
                             when (
-                                pair.first.platform.key
+                                pair.first.analysisPlatform.key
                                 ) {
                                 "common" -> classes = classes + "common-like"
                                 "native" -> classes = classes + "native-like"
@@ -192,9 +193,9 @@ open class HtmlRenderer(
     }
 
     private fun contentsForSourceSetDependent(
-        nodes: Map<SourceSetData, Collection<ContentNode>>,
+        nodes: Map<DokkaSourceSet, Collection<ContentNode>>,
         pageContext: ContentPage,
-    ): List<Pair<SourceSetData, String>> {
+    ): List<Pair<DokkaSourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
             sourceSet to createHTML(prettyPrint = false).div {
@@ -203,8 +204,8 @@ open class HtmlRenderer(
                 }
             }.stripDiv()
         }.groupBy(
-            Pair<SourceSetData, String>::second,
-            Pair<SourceSetData, String>::first
+            Pair<DokkaSourceSet, String>::second,
+            Pair<DokkaSourceSet, String>::first
         ).entries.flatMap { (html, sourceSets) ->
             sourceSets.filterNot {
                 sourceSetDependencyMap[it].orEmpty().any { dependency -> sourceSets.contains(dependency) }
@@ -238,8 +239,8 @@ open class HtmlRenderer(
                     )
                 }
             }.groupBy(
-                Pair<Pair<ContentDivergentInstance, SourceSetData>, Pair<String, String>>::second,
-                Pair<Pair<ContentDivergentInstance, SourceSetData>, Pair<String, String>>::first
+                Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::second,
+                Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::first
             )
 
         distinct.forEach {
@@ -293,14 +294,14 @@ open class HtmlRenderer(
     override fun FlowContent.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) = if (node.ordered) ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
     else ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
 
     open fun OL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -313,7 +314,7 @@ open class HtmlRenderer(
     open fun UL.buildListItems(
         items: List<ContentNode>,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>? = null
+        sourceSetRestriction: Set<DokkaSourceSet>? = null
     ) {
         items.forEach {
             if (it is ContentList)
@@ -340,7 +341,7 @@ open class HtmlRenderer(
     private fun FlowContent.buildRow(
         node: ContentGroup,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?,
+        sourceSetRestriction: Set<DokkaSourceSet>?,
         style: Set<Style>
     ) {
         node.children
@@ -393,11 +394,11 @@ open class HtmlRenderer(
             }
     }
 
-    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<SourceSetData>) {
+    private fun FlowContent.createPlatformTagBubbles(sourceSets: List<DokkaSourceSet>) {
         div("platform-tags") {
             sourceSets.forEach {
                 div("platform-tag") {
-                    when (it.platform.key) {
+                    when (it.analysisPlatform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
                         "jvm" -> classes = classes + "jvm-like"
@@ -409,7 +410,7 @@ open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<SourceSetData>? = null) {
+    private fun FlowContent.createPlatformTags(node: ContentNode, sourceSetRestriction: Set<DokkaSourceSet>? = null) {
         node.takeIf { sourceSetRestriction == null || it.sourceSets.any { s -> s in sourceSetRestriction } }?.let {
             createPlatformTagBubbles(node.sourceSets.filter {
                 sourceSetRestriction == null || it in sourceSetRestriction
@@ -420,7 +421,7 @@ open class HtmlRenderer(
     override fun FlowContent.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
         when (node.dci.kind) {
             ContentKind.Comment -> buildDefaultTable(node, pageContext, sourceSetRestriction)
@@ -437,7 +438,7 @@ open class HtmlRenderer(
     fun FlowContent.buildDefaultTable(
         node: ContentTable,
         pageContext: ContentPage,
-        sourceSetRestriction: Set<SourceSetData>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
         table {
             thead {
@@ -522,7 +523,7 @@ open class HtmlRenderer(
 
     fun FlowContent.buildLink(
         to: DRI,
-        platforms: List<SourceSetData>,
+        platforms: List<DokkaSourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
     ) = buildLink(locationProvider.resolve(to, platforms, from), block)
@@ -562,7 +563,7 @@ open class HtmlRenderer(
     private fun getSymbolSignature(page: ContentPage) = page.content.dfs { it.dci.kind == ContentKind.Symbol }
 
     private fun flattenToText(node: ContentNode): String {
-        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: SourceSetData): List<ContentText> =
+        fun getContentTextNodes(node: ContentNode, sourceSetRestriction: DokkaSourceSet): List<ContentText> =
             when (node) {
                 is ContentText -> listOf(node)
                 is ContentComposite -> node.children
@@ -573,7 +574,8 @@ open class HtmlRenderer(
                 else -> emptyList()
             }
 
-        val sourceSetRestriction = node.sourceSets.find { it.platform == Platform.common } ?: node.sourceSets.first()
+        val sourceSetRestriction =
+            node.sourceSets.find { it.analysisPlatform == Platform.common } ?: node.sourceSets.first()
         return getContentTextNodes(node, sourceSetRestriction).joinToString("") { it.text }
     }
 

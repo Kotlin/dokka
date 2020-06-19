@@ -3,7 +3,6 @@ package renderers.html
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.Div
@@ -12,9 +11,28 @@ import renderers.TestPage
 import renderers.match
 
 class SourceSetDependentHintTest : RenderingOnlyTestBase() {
-    private val pl1 = SourceSetData("root", "pl1", "pl3",Platform.js, listOf(SourceRootImpl("pl1")))
-    private val pl2 = SourceSetData("root","pl2", "pl3", Platform.jvm, listOf(SourceRootImpl("pl1")))
-    private val pl3 = SourceSetData("root","pl3", "pl3", Platform.native, listOf(SourceRootImpl("pl1")))
+
+    private val pl1 = defaultSourceSet.copy(
+        "root",
+        "pl1",
+        "pl1",
+        analysisPlatform = Platform.js,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
+    private val pl2 = defaultSourceSet.copy(
+        "root",
+        "pl2",
+        "pl2",
+        analysisPlatform = Platform.jvm,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
+    private val pl3 = defaultSourceSet.copy(
+        "root",
+        "pl3",
+        "pl3",
+        analysisPlatform = Platform.native,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
 
     @Test
     fun platformIndependentCase() {

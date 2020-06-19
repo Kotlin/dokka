@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.transformers.pages.comments
 
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
@@ -9,7 +9,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
-        sourceSets: Set<SourceSetData>,
+        sourceSets: Set<DokkaSourceSet>,
         styles: Set<Style>,
         extra: PropertyContainer<ContentNode>
     ): List<ContentNode> {

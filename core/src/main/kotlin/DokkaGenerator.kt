@@ -1,8 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.SourceSetCache
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -18,13 +17,11 @@ class DokkaGenerator(
     private val logger: DokkaLogger
 ) {
     fun generate() = timed {
-        val sourceSetsCache = SourceSetCache()
-
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSetsCache)
+        val context = initializePlugins(configuration, logger)
 
         report("Creating documentation models")
-        val modulesFromPlatforms = createDocumentationModels(context, sourceSetsCache)
+        val modulesFromPlatforms = createDocumentationModels(context)
 
         report("Transforming documentation model before merging")
         val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms, context)
@@ -48,9 +45,8 @@ class DokkaGenerator(
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
     fun generateAllModulesPage() = timed {
-        val sourceSetsCache = SourceSetCache()
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSetsCache)
+        val context = initializePlugins(configuration, logger)
 
         report("Creating all modules page")
         val pages = createAllModulePage(context)
@@ -66,15 +62,12 @@ class DokkaGenerator(
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        sourceSetsCache: SourceSetCache,
         pluginOverrides: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, sourceSetsCache, pluginOverrides)
+    ) = DokkaContext.create(configuration, logger, pluginOverrides)
 
     fun createDocumentationModels(
-        context: DokkaContext,
-        sourceSetsCache: SourceSetCache
-    ) = context.configuration.passesConfigurations
-        .map { passConfiguration -> sourceSetsCache.getSourceSet(passConfiguration) }
+        context: DokkaContext
+    ) = context.configuration.sourceSets
         .flatMap { passConfiguration -> translateSources(passConfiguration, context) }
 
     fun transformDocumentationModelBeforeMerge(
@@ -133,9 +126,9 @@ class DokkaGenerator(
         }
     }
 
-    private fun translateSources(platformData: SourceSetData, context: DokkaContext) =
+    private fun translateSources(sourceSet: DokkaSourceSet, context: DokkaContext) =
         context[CoreExtensions.sourceToDocumentableTranslator].map {
-            it.invoke(platformData, context)
+            it.invoke(sourceSet, context)
         }
 }
 

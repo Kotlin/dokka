@@ -3,8 +3,6 @@ package content.params
 import matchers.content.*
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.Documentable
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
@@ -570,7 +568,7 @@ class ContentForParamsTest : AbstractCoreTest() {
     }
 
     @Test
-    fun javaDocCommentWithDocumentedParameters(){
+    fun javaDocCommentWithDocumentedParameters() {
         testInline(
             """
             |/src/main/java/test/Main.java
@@ -587,14 +585,14 @@ class ContentForParamsTest : AbstractCoreTest() {
             |   }
             | }
         """.trimIndent(), testConfiguration
-        ){
-            pagesTransformationStage = {
-                module ->
+        ) {
+            pagesTransformationStage = { module ->
                 val sampleFunction = module.dfs {
-                    it is MemberPageNode && it.dri.first().toString() == "test/Main/sample/#java.lang.String#java.lang.String/PointingToDeclaration/"
+                    it is MemberPageNode && it.dri.first()
+                        .toString() == "test/Main/sample/#java.lang.String#java.lang.String/PointingToDeclaration/"
                 } as MemberPageNode
                 val forJvm = (sampleFunction.documentable as DFunction).parameters.mapNotNull {
-                    val jvm = it.documentation.keys.first { it.platform == Platform.jvm }
+                    val jvm = it.documentation.keys.first { it.analysisPlatform == Platform.jvm }
                     it.documentation[jvm]
                 }
 

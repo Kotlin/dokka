@@ -49,12 +49,12 @@ interface DokkaConfiguration {
     val cacheRoot: String?
     val offlineMode: Boolean
     val failOnWarning: Boolean
-    val passesConfigurations: List<PassConfiguration>
+    val sourceSets: List<DokkaSourceSet>
     val modules: List<DokkaModuleDescription>
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
 
-    interface PassConfiguration {
+    interface DokkaSourceSet {
         val moduleName: String
         val displayName: String
         val sourceSetID: String
