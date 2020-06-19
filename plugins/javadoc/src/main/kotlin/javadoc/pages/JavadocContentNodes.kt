@@ -1,7 +1,7 @@
 package javadoc.pages
 
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
@@ -12,7 +12,7 @@ enum class JavadocContentKind : Kind {
 abstract class JavadocContentNode(
     dri: Set<DRI>,
     kind: Kind,
-    override val sourceSets: Set<SourceSetData>
+    override val sourceSets: Set<DokkaSourceSet>
 ) : ContentNode {
     override val dci: DCI = DCI(dri, kind)
     override val style: Set<Style> = emptySet()
@@ -27,7 +27,7 @@ interface JavadocListEntry {
 class EmptyNode(
     dri: DRI,
     kind: Kind,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
     override val dci: DCI = DCI(setOf(dri), kind)
@@ -42,7 +42,7 @@ class EmptyNode(
 class JavadocContentGroup(
     val dri: Set<DRI>,
     val kind: Kind,
-    sourceSets: Set<SourceSetData>,
+    sourceSets: Set<DokkaSourceSet>,
     val children: List<JavadocContentNode>
 ) : JavadocContentNode(dri, kind, sourceSets) {
 
@@ -50,7 +50,7 @@ class JavadocContentGroup(
         operator fun invoke(
             dri: Set<DRI>,
             kind: Kind,
-            sourceSets: Set<SourceSetData>,
+            sourceSets: Set<DokkaSourceSet>,
             block: JavaContentGroupBuilder.() -> Unit
         ): JavadocContentGroup =
             JavadocContentGroup(dri, kind, sourceSets, JavaContentGroupBuilder(sourceSets).apply(block).list)
@@ -59,7 +59,7 @@ class JavadocContentGroup(
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
 }
 
-class JavaContentGroupBuilder(val sourceSets: Set<SourceSetData>) {
+class JavaContentGroupBuilder(val sourceSets: Set<DokkaSourceSet>) {
     val list = mutableListOf<JavadocContentNode>()
 }
 
@@ -69,7 +69,7 @@ class TitleNode(
     val parent: String?,
     val dri: Set<DRI>,
     val kind: Kind,
-    sourceSets: Set<SourceSetData>
+    sourceSets: Set<DokkaSourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
     override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank()
 }
@@ -86,7 +86,7 @@ fun JavaContentGroupBuilder.title(
 
 data class TextNode(
     val text: String,
-    override val sourceSets: Set<SourceSetData>
+    override val sourceSets: Set<DokkaSourceSet>
 ) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
     override fun hasAnyContent(): Boolean = !text.isBlank()
 }
@@ -97,7 +97,7 @@ class ListNode(
     val children: List<JavadocListEntry>,
     val dri: Set<DRI>,
     val kind: Kind,
-    sourceSets: Set<SourceSetData>
+    sourceSets: Set<DokkaSourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
 }
@@ -117,7 +117,7 @@ class LinkJavadocListEntry(
     val name: String,
     val dri: Set<DRI>,
     val kind: Kind = ContentKind.Symbol,
-    val sourceSets: Set<SourceSetData>
+    val sourceSets: Set<DokkaSourceSet>
 ) :
     JavadocListEntry {
     override val stringTag: String
@@ -127,7 +127,7 @@ class LinkJavadocListEntry(
 
     private var builtString: String? = null
 
-    fun build(body: (String, Set<DRI>, Kind, List<SourceSetData>) -> String) {
+    fun build(body: (String, Set<DRI>, Kind, List<DokkaSourceSet>) -> String) {
         builtString = body(name, dri, kind, sourceSets.toList())
     }
 }

@@ -3,7 +3,7 @@ package org.jetbrains.dokka
 import com.google.gson.Gson
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration.*
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import java.io.*
@@ -31,9 +31,9 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Path to cache folder, or 'default' to use ~/.cache/dokka, if not provided caching is disabled"
     )
 
-    override val passesConfigurations by parser.option(
+    override val sourceSets by parser.option(
         ArgTypeArgument,
-        description = "Single dokka pass",
+        description = "Single dokka source set",
         fullName = "pass"
     ).multiple()
 
@@ -83,18 +83,18 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     init {
         parser.parse(args)
 
-        passesConfigurations.all {
+        sourceSets.all {
             it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>()
                 .addAll(parsePerPackageOptions(globalPackageOptions))
         }
 
-        passesConfigurations.all {
+        sourceSets.all {
             it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().addAll(parseLinks(globalLinks))
         }
 
         globalSrcLink.forEach {
             if (it.isNotEmpty() && it.contains("="))
-                passesConfigurations.all { pass ->
+                sourceSets.all { pass ->
                     pass.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>()
                         .add(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
                 }
@@ -103,13 +103,13 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
             }
         }
 
-        passesConfigurations.forEach {
+        sourceSets.forEach {
             it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().addAll(defaultLinks(it))
         }
     }
 }
 
-fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
+fun passArguments(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
 
     val parser = ArgParser("passConfiguration", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
@@ -226,7 +226,7 @@ fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
 
     parser.parse(args)
 
-    return object : DokkaConfiguration.PassConfiguration {
+    return object : DokkaConfiguration.DokkaSourceSet {
         override val moduleName = moduleName
         override val displayName = displayName
         override val sourceSetID = sourceSetID
@@ -289,8 +289,8 @@ object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefini
         get() = "{ String that represent source links }"
 }
 
-object ArgTypeArgument : ArgType<DokkaConfiguration.PassConfiguration>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.PassConfiguration =
+object ArgTypeArgument : ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.DokkaSourceSet =
         passArguments(value.split(" ").filter { it.isNotBlank() }.toTypedArray())
 
     override val description: kotlin.String
@@ -305,7 +305,7 @@ object ArgTypeHelpPass : ArgType<Any>(false) {
         get() = ""
 }
 
-fun defaultLinks(config: DokkaConfiguration.PassConfiguration): MutableList<ExternalDocumentationLink> =
+fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<ExternalDocumentationLink> =
     mutableListOf<ExternalDocumentationLink>().apply {
         if (!config.noJdkLink)
             this += DokkaConfiguration.ExternalDocumentationLink

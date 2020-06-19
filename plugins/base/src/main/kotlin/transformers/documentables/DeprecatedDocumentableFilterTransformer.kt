@@ -8,18 +8,16 @@ import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransf
 
 class DeprecatedDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
     override fun invoke(modules: List<DModule>) = modules.map { original ->
-        val passOptions = context.configuration.passesConfigurations.first {
-            original.sourceSets.contains(context.sourceSet(it))
-        }
+        val sourceSet = original.sourceSets.single()
         val packageOptions =
-            passOptions.perPackageOptions
+            sourceSet.perPackageOptions
         original.let {
-            DeprecatedDocumentableFilter(passOptions, packageOptions).processModule(it)
+            DeprecatedDocumentableFilter(sourceSet, packageOptions).processModule(it)
         }
     }
 
     private class DeprecatedDocumentableFilter(
-        val globalOptions: DokkaConfiguration.PassConfiguration,
+        val globalOptions: DokkaConfiguration.DokkaSourceSet,
         val packageOptions: List<DokkaConfiguration.PackageOptions>
     ) {
 

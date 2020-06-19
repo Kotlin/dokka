@@ -29,7 +29,6 @@ import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import java.io.File
 import java.net.URL
 
@@ -187,7 +186,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
                 throw MojoExecutionException("Incorrect path property, only Unix based path allowed.")
             }
         }
-        fun defaultLinks(config: PassConfigurationImpl): List<ExternalDocumentationLinkImpl> {
+        fun defaultLinks(config: DokkaSourceSetImpl): List<ExternalDocumentationLinkImpl> {
             val links = mutableListOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
                 links += DokkaConfiguration.ExternalDocumentationLink
@@ -201,7 +200,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             return links
         }
 
-        val passConfiguration = PassConfigurationImpl(
+        val sourceSet = DokkaSourceSetImpl(
             moduleName = moduleName,
             displayName = displayName,
             sourceSetID = sourceSetName,
@@ -246,8 +245,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             format = getOutFormat(),
             offlineMode = offlineMode,
             cacheRoot = cacheRoot,
-            passesConfigurations = listOf(passConfiguration).also {
-                if (passConfiguration.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+            sourceSets = listOf(sourceSet).also {
+                if (sourceSet.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),

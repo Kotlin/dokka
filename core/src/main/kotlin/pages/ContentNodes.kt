@@ -1,7 +1,7 @@
 package org.jetbrains.dokka.pages
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
@@ -11,7 +11,7 @@ data class DCI(val dri: Set<DRI>, val kind: Kind) {
 
 interface ContentNode : WithExtraProperties<ContentNode> {
     val dci: DCI
-    val sourceSets: Set<SourceSetData>
+    val sourceSets: Set<DokkaSourceSet>
     val style: Set<Style>
 
     fun hasAnyContent(): Boolean
@@ -21,7 +21,7 @@ interface ContentNode : WithExtraProperties<ContentNode> {
 data class ContentText(
     val text: String,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentNode {
@@ -32,7 +32,7 @@ data class ContentText(
 
 // TODO: Remove
 data class ContentBreakLine(
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
@@ -47,11 +47,12 @@ data class ContentHeader(
     override val children: List<ContentNode>,
     val level: Int,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
     constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.sourceSets, c.style, c.extra)
+
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 }
 
@@ -60,7 +61,7 @@ data class ContentCode(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -75,7 +76,7 @@ data class ContentDRILink(
     override val children: List<ContentNode>,
     val address: DRI,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -87,7 +88,7 @@ data class ContentResolvedLink(
     override val children: List<ContentNode>,
     val address: String,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -101,7 +102,7 @@ data class ContentEmbeddedResource(
     val address: String,
     val altText: String?,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style> = emptySet(),
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentLink {
@@ -121,7 +122,7 @@ data class ContentTable(
     val header: List<ContentGroup>,
     override val children: List<ContentGroup>,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -133,7 +134,7 @@ data class ContentList(
     override val children: List<ContentNode>,
     val ordered: Boolean,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -144,7 +145,7 @@ data class ContentList(
 data class ContentGroup(
     override val children: List<ContentNode>,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -164,7 +165,7 @@ data class ContentDivergentGroup(
 ) : ContentComposite {
     data class GroupID(val name: String)
 
-    override val sourceSets: Set<SourceSetData>
+    override val sourceSets: Set<DokkaSourceSet>
         get() = children.flatMap { it.sourceSets }.distinct().toSet()
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentDivergentGroup =
@@ -177,7 +178,7 @@ data class ContentDivergentInstance(
     val divergent: ContentNode,
     val after: ContentNode?,
     override val dci: DCI,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
@@ -190,7 +191,7 @@ data class ContentDivergentInstance(
 
 data class PlatformHintedContent(
     val inner: ContentNode,
-    override val sourceSets: Set<SourceSetData>
+    override val sourceSets: Set<DokkaSourceSet>
 ) : ContentComposite {
     override val children = listOf(inner)
 
@@ -231,9 +232,9 @@ enum class ContentStyle : Style {
     RowTitle, TabbedContent, WithExtraAttributes
 }
 
-object CommentTable: Style
+object CommentTable : Style
 
-object MultimoduleTable: Style
+object MultimoduleTable : Style
 
 fun ContentNode.dfs(predicate: (ContentNode) -> Boolean): ContentNode? = if (predicate(this)) {
     this

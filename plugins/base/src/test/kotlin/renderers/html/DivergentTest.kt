@@ -4,15 +4,33 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
 import renderers.*
 
 class DivergentTest : RenderingOnlyTestBase() {
-    private val js = SourceSetData("root", "js", "JS", Platform.js, listOf(SourceRootImpl("pl1")))
-    private val jvm = SourceSetData("root", "jvm", "JVM", Platform.jvm, listOf(SourceRootImpl("pl1")))
-    private val native = SourceSetData("root", "native", "NATIVE", Platform.native, listOf(SourceRootImpl("pl1")))
+    private val js = defaultSourceSet.copy(
+        "root",
+        "JS",
+        "js",
+        analysisPlatform = Platform.js,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
+    private val jvm = defaultSourceSet.copy(
+        "root",
+        "JVM",
+        "jvm",
+
+        analysisPlatform = Platform.jvm,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
+    private val native = defaultSourceSet.copy(
+        "root",
+        "NATIVE",
+        "native",
+        analysisPlatform = Platform.native,
+        sourceRoots = listOf(SourceRootImpl("pl1"))
+    )
 
     @Test
     fun simpleWrappingCase() {
@@ -178,10 +196,10 @@ class DivergentTest : RenderingOnlyTestBase() {
 
         HtmlRenderer(context).render(page)
         renderedContent.match(
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))),"a+"),
-            Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))),"bd+"),
+            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))), "a+"),
+            Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))), "bd+"),
             Div(Div(Span(Div(Div("JVM")))), Div(Div(Div("c")))),
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("e"))),"e+"),
+            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("e"))), "e+"),
         )
     }
 

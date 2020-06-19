@@ -86,7 +86,7 @@ object StyleAndScriptsAppender : PageTransformer {
 
 class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer{
     override fun invoke(input: RootPageNode): RootPageNode {
-        val dependenciesMap = context.configuration.passesConfigurations.map {
+        val dependenciesMap = context.configuration.sourceSets.map {
             it.sourceSetID to it.dependentSourceSets
         }.toMap()
         fun createDependenciesJson() : String = "sourceset_dependencies = '{${

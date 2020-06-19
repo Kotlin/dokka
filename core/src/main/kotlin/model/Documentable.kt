@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.model
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -13,8 +14,8 @@ abstract class Documentable {
     abstract val dri: DRI
     abstract val children: List<Documentable>
     abstract val documentation: SourceSetDependent<DocumentationNode>
-    abstract val sourceSets: Set<SourceSetData>
-    abstract val expectPresentInSet: SourceSetData?
+    abstract val sourceSets: Set<DokkaSourceSet>
+    abstract val expectPresentInSet: DokkaSourceSet?
 
     override fun toString(): String =
         "${javaClass.simpleName}($dri)"
@@ -25,7 +26,7 @@ abstract class Documentable {
     override fun hashCode() = dri.hashCode()
 }
 
-typealias SourceSetDependent<T> = Map<SourceSetData, T>
+typealias SourceSetDependent<T> = Map<DokkaSourceSet, T>
 
 interface WithExpectActual {
     val sources: SourceSetDependent<DocumentableSource>
@@ -90,8 +91,8 @@ data class DModule(
     override val name: String,
     val packages: List<DPackage>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData? = null,
-    override val sourceSets: Set<SourceSetData>,
+    override val expectPresentInSet: DokkaSourceSet? = null,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DModule> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DModule> {
     override val dri: DRI = DRI.topLevel
@@ -108,8 +109,8 @@ data class DPackage(
     override val classlikes: List<DClasslike>,
     val typealiases: List<DTypeAlias>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData? = null,
-    override val sourceSets: Set<SourceSetData>,
+    override val expectPresentInSet: DokkaSourceSet? = null,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DPackage> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DPackage> {
     override val name = dri.packageName.orEmpty()
@@ -132,9 +133,9 @@ data class DClass(
     override val generics: List<DTypeParameter>,
     override val supertypes: SourceSetDependent<List<DRI>>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val modifier: SourceSetDependent<Modifier>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
 ) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
     WithExtraProperties<DClass> {
@@ -150,7 +151,7 @@ data class DEnum(
     override val name: String,
     val entries: List<DEnumEntry>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -159,7 +160,7 @@ data class DEnum(
     override val companion: DObject?,
     override val constructors: List<DFunction>,
     override val supertypes: SourceSetDependent<List<DRI>>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DEnum> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum> {
     override val children: List<Documentable>
@@ -172,11 +173,11 @@ data class DEnumEntry(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
     override val children: List<Documentable>
@@ -191,14 +192,14 @@ data class DFunction(
     val isConstructor: Boolean,
     val parameters: List<DParameter>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
     override val generics: List<DTypeParameter>,
     override val receiver: DParameter?,
     override val modifier: SourceSetDependent<Modifier>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
     override val children: List<Documentable>
@@ -211,7 +212,7 @@ data class DInterface(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -220,7 +221,7 @@ data class DInterface(
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
     override val supertypes: SourceSetDependent<List<DRI>>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DInterface> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface> {
     override val children: List<Documentable>
@@ -233,14 +234,14 @@ data class DObject(
     override val name: String?,
     override val dri: DRI,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
     override val visibility: SourceSetDependent<Visibility>,
     override val supertypes: SourceSetDependent<List<DRI>>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DObject> = PropertyContainer.empty()
 ) : DClasslike(), WithSupertypes, WithExtraProperties<DObject> {
     override val children: List<Documentable>
@@ -253,7 +254,7 @@ data class DAnnotation(
     override val name: String,
     override val dri: DRI,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
@@ -262,7 +263,7 @@ data class DAnnotation(
     override val companion: DObject?,
     override val constructors: List<DFunction>,
     override val generics: List<DTypeParameter>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DAnnotation> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithExtraProperties<DAnnotation>, WithGenerics {
     override val children: List<Documentable>
@@ -275,7 +276,7 @@ data class DProperty(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val type: Bound,
@@ -283,7 +284,7 @@ data class DProperty(
     val setter: DFunction?,
     val getter: DFunction?,
     override val modifier: SourceSetDependent<Modifier>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val generics: List<DTypeParameter>,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : Documentable(), Callable, WithExtraProperties<DProperty>, WithGenerics {
@@ -298,9 +299,9 @@ data class DParameter(
     override val dri: DRI,
     override val name: String?,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     val type: Bound,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DParameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DParameter> {
     override val children: List<Nothing>
@@ -313,9 +314,9 @@ data class DTypeParameter(
     override val dri: DRI,
     override val name: String,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
+    override val expectPresentInSet: DokkaSourceSet?,
     val bounds: List<Bound>,
-    override val sourceSets: Set<SourceSetData>,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DTypeParameter> = PropertyContainer.empty()
 ) : Documentable(), WithExtraProperties<DTypeParameter> {
     override val children: List<Nothing>
@@ -331,8 +332,8 @@ data class DTypeAlias(
     val underlyingType: SourceSetDependent<Bound>,
     override val visibility: SourceSetDependent<Visibility>,
     override val documentation: SourceSetDependent<DocumentationNode>,
-    override val expectPresentInSet: SourceSetData?,
-    override val sourceSets: Set<SourceSetData>,
+    override val expectPresentInSet: DokkaSourceSet?,
+    override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
 ) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias> {
     override val children: List<Nothing>

@@ -5,13 +5,14 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
 class InheritorsExtractorTransformer : DocumentableTransformer {
     override fun invoke(original: DModule, context: DokkaContext): DModule =
         original.generateInheritanceMap().let { inheritanceMap -> original.appendInheritors(inheritanceMap) as DModule }
 
-    private fun <T : Documentable> T.appendInheritors(inheritanceMap: Map<SourceSetData, Map<DRI, List<DRI>>>): Documentable =
+    private fun <T : Documentable> T.appendInheritors(inheritanceMap: Map<DokkaSourceSet, Map<DRI, List<DRI>>>): Documentable =
         InheritorsInfo(inheritanceMap.getForDRI(dri)).let { info ->
             when (this) {
                 is DModule -> copy(packages = packages.map { it.appendInheritors(inheritanceMap) as DPackage })
@@ -45,7 +46,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
 
     private fun InheritorsInfo.isNotEmpty() = this.value.values.fold(0) { acc, list -> acc + list.size } > 0
 
-    private fun Map<SourceSetData, Map<DRI, List<DRI>>>.getForDRI(dri: DRI) =
+    private fun Map<DokkaSourceSet, Map<DRI, List<DRI>>>.getForDRI(dri: DRI) =
         map { (v, k) ->
             v to k[dri]
         }.map { (k, v) -> k to v.orEmpty() }.toMap()
@@ -57,7 +58,7 @@ class InheritorsExtractorTransformer : DocumentableTransformer {
                     .groupBy({ it.first }) { it.second }.map { (k2, v2) -> k2 to v2.flatten() }.toMap()
             }.filter { it.second.values.isNotEmpty() }.toMap()
 
-    private fun <T : Documentable> T.getInheritanceEntriesRec(): List<Pair<SourceSetData, List<Pair<DRI, DRI>>>> =
+    private fun <T : Documentable> T.getInheritanceEntriesRec(): List<Pair<DokkaSourceSet, List<Pair<DRI, DRI>>>> =
         this.toInheritanceEntries() + children.flatMap { it.getInheritanceEntriesRec() }
 
     private fun <T : Documentable> T.toInheritanceEntries() =

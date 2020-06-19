@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.translators.documentables
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
@@ -14,8 +15,9 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 
-private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<SourceSetData?, TagWrapper>>>
+private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
 
 private val specialTags: Set<KClass<out TagWrapper>> =
     setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
@@ -71,8 +73,13 @@ open class DefaultPageCreator(
     protected open fun contentForModule(m: DModule) = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
             cover(m.name)
-            if(contentForDescription(m).isNotEmpty()){
-                sourceSetDependentHint(m.dri, m.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = setOf(TextStyle.UnderCoverText)){
+            if (contentForDescription(m).isNotEmpty()) {
+                sourceSetDependentHint(
+                    m.dri,
+                    m.sourceSets.toSet(),
+                    kind = ContentKind.SourceSetDependantHint,
+                    styles = setOf(TextStyle.UnderCoverText)
+                ) {
                     +contentForDescription(m)
                 }
             }
@@ -88,13 +95,18 @@ open class DefaultPageCreator(
     protected open fun contentForPackage(p: DPackage) = contentBuilder.contentFor(p) {
         group(kind = ContentKind.Cover) {
             cover("Package ${p.name}")
-            if(contentForDescription(p).isNotEmpty()){
-                sourceSetDependentHint(p.dri, p.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = setOf(TextStyle.UnderCoverText)){
+            if (contentForDescription(p).isNotEmpty()) {
+                sourceSetDependentHint(
+                    p.dri,
+                    p.sourceSets.toSet(),
+                    kind = ContentKind.SourceSetDependantHint,
+                    styles = setOf(TextStyle.UnderCoverText)
+                ) {
                     +contentForDescription(p)
                 }
             }
         }
-        group(styles = setOf(ContentStyle.TabbedContent)){
+        group(styles = setOf(ContentStyle.TabbedContent)) {
             +contentForComments(p)
             +contentForScope(p, p.dri, p.sourceSets)
         }
@@ -103,15 +115,27 @@ open class DefaultPageCreator(
     protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
-        sourceSets: Set<SourceSetData>
+        sourceSets: Set<DokkaSourceSet>
     ) = contentBuilder.contentFor(s as Documentable) {
         val types = listOf(
             s.classlikes,
             (s as? DPackage)?.typealiases ?: emptyList()
         ).flatten()
         divergentBlock("Types", types, ContentKind.Classlikes, extra = mainExtra + SimpleAttr.header("Types"))
-        divergentBlock("Functions", s.functions, ContentKind.Functions, extra = mainExtra + SimpleAttr.header( "Functions"))
-        block("Properties", 2, ContentKind.Properties, s.properties, sourceSets.toSet(), extra = mainExtra + SimpleAttr.header( "Properties")) {
+        divergentBlock(
+            "Functions",
+            s.functions,
+            ContentKind.Functions,
+            extra = mainExtra + SimpleAttr.header("Functions")
+        )
+        block(
+            "Properties",
+            2,
+            ContentKind.Properties,
+            s.properties,
+            sourceSets.toSet(),
+            extra = mainExtra + SimpleAttr.header("Properties")
+        ) {
             link(it.name, it.dri, kind = ContentKind.Main)
             sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                 contentForBrief(it)
@@ -136,7 +160,7 @@ open class DefaultPageCreator(
                     DCI(setOf(dri), ContentKind.Inheritors),
                     sourceSets.toSet(),
                     style = emptySet(),
-                    extra = mainExtra + SimpleAttr.header( "Inheritors")
+                    extra = mainExtra + SimpleAttr.header("Inheritors")
                 )
             }
         }
@@ -150,7 +174,7 @@ open class DefaultPageCreator(
                 +buildSignature(e)
             }
         }
-        group(styles = setOf(ContentStyle.TabbedContent)){
+        group(styles = setOf(ContentStyle.TabbedContent)) {
             +contentForComments(e)
             +contentForScope(e, e.dri, e.sourceSets)
         }
@@ -177,14 +201,28 @@ open class DefaultPageCreator(
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
                     link(it.name, it.dri, kind = ContentKind.Main)
-                    sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint, styles = emptySet()) {
+                    sourceSetDependentHint(
+                        it.dri,
+                        it.sourceSets.toSet(),
+                        kind = ContentKind.SourceSetDependantHint,
+                        styles = emptySet()
+                    ) {
                         contentForBrief(it)
                         +buildSignature(it)
                     }
                 }
             }
             if (c is DEnum) {
-                block("Entries", 2, ContentKind.Classlikes, c.entries, c.sourceSets.toSet(), needsSorting = false, extra = mainExtra + SimpleAttr.header("Entries"), styles = emptySet()) {
+                block(
+                    "Entries",
+                    2,
+                    ContentKind.Classlikes,
+                    c.entries,
+                    c.sourceSets.toSet(),
+                    needsSorting = false,
+                    extra = mainExtra + SimpleAttr.header("Entries"),
+                    styles = emptySet()
+                ) {
                     link(it.name, it.dri)
                     sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         contentForBrief(it)
@@ -198,11 +236,11 @@ open class DefaultPageCreator(
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : TagWrapper> GroupedTags.withTypeUnnamed(): SourceSetDependent<T> =
-        (this[T::class] as List<Pair<SourceSetData, T>>?)?.toMap().orEmpty()
+        (this[T::class] as List<Pair<DokkaSourceSet, T>>?)?.toMap().orEmpty()
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : NamedTagWrapper> GroupedTags.withTypeNamed(): Map<String, SourceSetDependent<T>> =
-        (this[T::class] as List<Pair<SourceSetData, T>>?)
+        (this[T::class] as List<Pair<DokkaSourceSet, T>>?)
             ?.groupBy { it.second.name }
             ?.mapValues { (_, v) -> v.toMap() }
             ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
@@ -234,8 +272,8 @@ open class DefaultPageCreator(
 
             val unnamedTags: List<SourceSetDependent<TagWrapper>> =
                 tags.filterNot { (k, _) -> k.isSubclassOf(NamedTagWrapper::class) || k in specialTags }
-                    .map { (_, v) -> v.mapNotNull { (k,v) -> k?.let { it to v } }.toMap() }
-            if(unnamedTags.isNotEmpty()){
+                    .map { (_, v) -> v.mapNotNull { (k, v) -> k?.let { it to v } }.toMap() }
+            if (unnamedTags.isNotEmpty()) {
                 platforms.forEach { platform ->
                     unnamedTags.forEach { pdTag ->
                         pdTag[platform]?.also { tag ->
@@ -252,10 +290,10 @@ open class DefaultPageCreator(
         }.children
     }
 
-    private fun Documentable.getPossibleFallbackSourcesets(sourceSet: SourceSetData) =
+    private fun Documentable.getPossibleFallbackSourcesets(sourceSet: DokkaSourceSet) =
         this.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
 
-    private fun <V> Map<SourceSetData, V>.fallback(sourceSets: List<SourceSetData>) : V? =
+    private fun <V> Map<DokkaSourceSet, V>.fallback(sourceSets: List<DokkaSourceSet>): V? =
         sourceSets.firstOrNull { it in this.keys }.let { this[it] }
 
     protected open fun contentForComments(
@@ -270,7 +308,10 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForParams() {
             if (tags.isNotEmptyForTag<Param>()) {
                 header(2, "Parameters")
-                group(extra = mainExtra + SimpleAttr.header("Parameters"), styles = setOf(ContentStyle.WithExtraAttributes)){
+                group(
+                    extra = mainExtra + SimpleAttr.header("Parameters"),
+                    styles = setOf(ContentStyle.WithExtraAttributes)
+                ) {
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         val receiver = tags.withTypeUnnamed<Receiver>()
                         val params = tags.withTypeNamed<Param>()
@@ -287,7 +328,11 @@ open class DefaultPageCreator(
                                 val paramRows = params.mapNotNull { (_, param) ->
                                     (param[platform] ?: param.fallback(possibleFallbacks))?.let {
                                         buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
-                                            text(it.name, kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.RowTitle)
+                                            text(
+                                                it.name,
+                                                kind = ContentKind.Parameters,
+                                                styles = mainStyles + ContentStyle.RowTitle
+                                            )
                                             comment(it.root)
                                         }
                                     }
@@ -304,7 +349,10 @@ open class DefaultPageCreator(
         fun DocumentableContentBuilder.contentForSeeAlso() {
             if (tags.isNotEmptyForTag<See>()) {
                 header(2, "See also")
-                group(extra = mainExtra + SimpleAttr.header("See also"), styles = setOf(ContentStyle.WithExtraAttributes)){
+                group(
+                    extra = mainExtra + SimpleAttr.header("See also"),
+                    styles = setOf(ContentStyle.WithExtraAttributes)
+                ) {
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         val seeAlsoTags = tags.withTypeNamed<See>()
                         table(kind = ContentKind.Sample) {
@@ -312,8 +360,16 @@ open class DefaultPageCreator(
                                 val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
                                 seeAlsoTags.mapNotNull { (_, see) ->
                                     (see[platform] ?: see.fallback(possibleFallbacks))?.let {
-                                        buildGroup(sourceSets = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.RowTitle) {
-                                            if (it.address != null) link(it.name, it.address!!, kind = ContentKind.Comment)
+                                        buildGroup(
+                                            sourceSets = setOf(platform),
+                                            kind = ContentKind.Comment,
+                                            styles = mainStyles + ContentStyle.RowTitle
+                                        ) {
+                                            if (it.address != null) link(
+                                                it.name,
+                                                it.address!!,
+                                                kind = ContentKind.Comment
+                                            )
                                             else text(it.name, kind = ContentKind.Comment)
                                             comment(it.root)
                                         }
@@ -330,11 +386,18 @@ open class DefaultPageCreator(
             val samples = tags.withTypeNamed<Sample>()
             if (samples.isNotEmpty()) {
                 header(2, "Samples")
-                group(extra = mainExtra + SimpleAttr.header("Samples"), styles = setOf(ContentStyle.WithExtraAttributes)){
+                group(
+                    extra = mainExtra + SimpleAttr.header("Samples"),
+                    styles = setOf(ContentStyle.WithExtraAttributes)
+                ) {
                     sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
                         platforms.map { platformData ->
                             val content = samples.filter { it.value.isEmpty() || platformData in it.value }
-                            group(sourceSets = setOf(platformData), kind = ContentKind.Sample, styles = setOf(TextStyle.Monospace)) {
+                            group(
+                                sourceSets = setOf(platformData),
+                                kind = ContentKind.Sample,
+                                styles = setOf(TextStyle.Monospace)
+                            ) {
                                 content.forEach {
                                     text(it.key)
                                 }
@@ -413,29 +476,33 @@ open class DefaultPageCreator(
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
                     .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                    buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet(), kind = kind) {
-                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
-                        divergentGroup(
-                            ContentDivergentGroup.GroupID(name),
+                        buildGroup(
                             elements.map { it.dri }.toSet(),
+                            elements.flatMap { it.sourceSets }.toSet(),
                             kind = kind
                         ) {
-                            elements.map {
-                                instance(setOf(it.dri), it.sourceSets.toSet()) {
-                                    before {
-                                        contentForBrief(it)
-                                        contentForSinceKotlin(it)
-                                    }
-                                    divergent {
-                                        group {
-                                            +buildSignature(it)
+                            link(elementName.orEmpty(), elements.first().dri, kind = kind)
+                            divergentGroup(
+                                ContentDivergentGroup.GroupID(name),
+                                elements.map { it.dri }.toSet(),
+                                kind = kind
+                            ) {
+                                elements.map {
+                                    instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                        before {
+                                            contentForBrief(it)
+                                            contentForSinceKotlin(it)
+                                        }
+                                        divergent {
+                                            group {
+                                                +buildSignature(it)
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
             }
         }
     }

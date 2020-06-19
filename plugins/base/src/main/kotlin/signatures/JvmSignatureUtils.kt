@@ -1,10 +1,12 @@
 package org.jetbrains.dokka.base.signatures
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 
 interface JvmSignatureUtils {
 
@@ -73,7 +75,7 @@ interface JvmSignatureUtils {
                     is All -> All
                     is Never, is OnlyOnce -> Never
                 }.let { strategy ->
-                     valueToSignature(it.value, strategy, listBrackets, classExtension)
+                    valueToSignature(it.value, strategy, listBrackets, classExtension)
                 }
                 if (i != a.params.entries.size - 1) text(", ")
             }
@@ -130,11 +132,11 @@ interface JvmSignatureUtils {
         }
     }
 
-    fun <T : Documentable> WithExtraProperties<T>.stylesIfDeprecated(sourceSetData: SourceSetData): Set<TextStyle> =
+    fun <T : Documentable> WithExtraProperties<T>.stylesIfDeprecated(sourceSetData: DokkaSourceSet): Set<TextStyle> =
         if (extra[Annotations]?.content?.get(sourceSetData)?.any {
-            it.dri == DRI("kotlin", "Deprecated")
-                    || it.dri == DRI("java.lang", "Deprecated")
-        } == true) setOf(TextStyle.Strikethrough) else emptySet()
+                it.dri == DRI("kotlin", "Deprecated")
+                        || it.dri == DRI("java.lang", "Deprecated")
+            } == true) setOf(TextStyle.Strikethrough) else emptySet()
 }
 
 sealed class AtStrategy

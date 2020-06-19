@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.base.allModulePage
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.MultimoduleLocationProvider.Companion.MULTIMODULE_PACKAGE_PLACEHOLDER
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.pages.*
@@ -30,9 +30,13 @@ class MultimodulePageCreator(
         if (commentsConverter == null || signatureProvider == null)
             throw IllegalStateException("Both comments converter and signature provider must not be null")
 
-        val sourceSetData = emptySet<SourceSetData>()
+        val sourceSetData = emptySet<DokkaSourceSet>()
         val builder = PageContentBuilder(commentsConverter, signatureProvider, context.logger)
-        val contentNode = builder.contentFor(dri = DRI(MULTIMODULE_PACKAGE_PLACEHOLDER), kind = ContentKind.Cover, sourceSets = sourceSetData) {
+        val contentNode = builder.contentFor(
+            dri = DRI(MULTIMODULE_PACKAGE_PLACEHOLDER),
+            kind = ContentKind.Cover,
+            sourceSets = sourceSetData
+        ) {
             header(2, "All modules:")
             table(styles = setOf(MultimoduleTable)) {
                 modules.mapNotNull { module ->
