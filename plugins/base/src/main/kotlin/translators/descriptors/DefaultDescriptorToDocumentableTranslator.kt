@@ -554,19 +554,15 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
-        val superClasses = hashSetOf<ClassDescriptor>()
-
+        val interfaces = hashSetOf<DRI>()
         fun processSuperClasses(supers: List<ClassDescriptor>) {
             supers.forEach {
-                superClasses.add(it)
+                if(it.kind == ClassKind.INTERFACE) interfaces.add(DRI.from(it))
                 processSuperClasses(it.getSuperInterfaces() + it.getAllSuperclassesWithoutAny())
             }
         }
         processSuperClasses(getSuperInterfaces() + getAllSuperclassesWithoutAny())
-        return ClassInfo(
-            superClasses.map { Supertype(DRI.from(it), it.kind == ClassKind.INTERFACE) }.toList(),
-            resolveDescriptorData()
-        )
+        return ClassInfo(getAllSuperclassesWithoutAny().map { DRI.from(it) }, interfaces.toList(), resolveDescriptorData())
     }
 
     private fun TypeParameterDescriptor.toTypeParameter() =
@@ -739,12 +735,9 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map {it.text }.orEmpty()
 
-    private data class ClassInfo(private val allSupertypes: List<Supertype>, val docs: SourceSetDependent<DocumentationNode>){
+    private data class ClassInfo(val superclasses: List<DRI>, val interfaces: List<DRI>, val docs: SourceSetDependent<DocumentationNode>){
         val supertypes: List<DRI>
-            get() = allSupertypes.map { it.dri }
-
-        val interfaces: List<DRI>
-            get() = allSupertypes.filter { it.isInterface }.map { it.dri }
+            get() = (superclasses + interfaces).distinct()
     }
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {
@@ -759,8 +752,6 @@ private class DokkaDescriptorVisitor(
         "${this.enumClassId.relativeClassName.asString()}.${this.enumEntryName.identifier}"
 
     private fun fallbackPackageName(): String = "[${sourceSet.displayName} root]"// TODO: error-prone, find a better way to do it
-
-    private data class Supertype(val dri: DRI, val isInterface: Boolean)
 }
 
 private fun DRI.withPackageFallbackTo(fallbackPackage: String): DRI {

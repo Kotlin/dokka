@@ -12,6 +12,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedFunction
+import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
@@ -59,7 +60,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot,
             "kind" to "main",
-        ) + renderJavadocContentNode(node.content)
+        ) + ContentNodesRenderer(pathToRoot).renderJavadocContentNode(node.content)
 
         writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "tabPage.korte", contentMap.toList())
         node.children.forEach { renderNode(it, link) }
@@ -76,7 +77,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot,
             "dir" to dir
-        ) + renderContentNodes(node)
+        ) + ContentNodesRenderer(dir).renderContentNodes(node)
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
         node.children.forEach { renderNode(it, link.toNormalized()) }
     }
@@ -96,12 +97,6 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     fun Pair<String, String>.pairToTag() =
         "\n<th class=\"colFirst\" scope=\"row\">${first}</th>\n<td class=\"colLast\">${second}</td>"
 
-    fun LinkJavadocListEntry.toLinkTag(parent: String? = null) =
-        createLinkTag(locationProvider.resolve(dri.first(), sourceSets.toList()).let {
-            if (parent != null) it.relativizePath(parent)
-            else it
-        }, name)
-
     fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptyList(), context)
 
     fun createLinkTag(address: String, name: String) =
@@ -109,7 +104,6 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             """<a href="$it">$name</a>"""
         }
 
-    private fun String.parent() = Paths.get(this).parent.toNormalized()
     private fun Path.toNormalized() = this.normalize().toFile().toString()
     private fun String.toNormalized() = Paths.get(this).toNormalized()
     private fun String.relativizePath(parent: String) = Paths.get(parent).relativize(Paths.get(this)).toNormalized()
@@ -125,9 +119,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         writer.writeHtml(path, tmp)
     }
 
-
-    private fun htmlForContentNodes(content: List<ContentNode>): String =
-        content.joinToString("") { htmlForContentNode(it) }
+    private fun htmlForContentNodes(content: List<ContentNode>, render: (ContentNode) -> String): String =
+        content.joinToString("") { render(it) }
 
     fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
@@ -139,15 +132,15 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             TeFunction("createTabRow") { args ->
                 val (link, doc) = args.first() as RowJavadocListEntry
                 val dir = args[1] as String?
+                val renderer = ContentNodesRenderer(dir)
                 (createLinkTag(
                     locationProvider.resolve(link, dir.orEmpty()),
                     link.name
-                ) to htmlForContentNodes(doc)).pairToTag().trim()
+                ) to htmlForContentNodes(doc, renderer::htmlForContentNode)).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry
                 val dir = args[1] as String?
-//                link.toLinkTag(dir)
                 createLinkTag(locationProvider.resolve(link, dir.orEmpty()), link.name)
             },
             TeFunction("createPackageHierarchy") { args ->
@@ -205,171 +198,192 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
                 ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")
     }
 
-    private fun renderContentNodes(node: JavadocPageNode): TemplateMap =
-        when (node) {
-            is JavadocClasslikePageNode -> renderClasslikeNode(node)
-            is JavadocFunctionNode -> renderFunctionNode(node)
-            is JavadocPackagePageNode -> renderPackagePageNode(node)
-            is TreeViewPage -> renderTreeViewPage(node)
-            is AllClassesPage -> renderAllClassesPage(node)
-            else -> emptyMap()
+    private inner class ContentNodesRenderer(private val currentLocation: String?) {
+        fun renderContentNodes(node: JavadocPageNode): TemplateMap =
+            when (node) {
+                is JavadocClasslikePageNode -> renderClasslikeNode(node)
+                is JavadocFunctionNode -> renderFunctionNode(node)
+                is JavadocPackagePageNode -> renderPackagePageNode(node)
+                is TreeViewPage -> renderTreeViewPage(node)
+                is AllClassesPage -> renderAllClassesPage(node)
+                else -> emptyMap()
+            }
+
+
+        private fun renderAllClassesPage(node: AllClassesPage): TemplateMap {
+            return mapOf(
+                "title" to "All Classes",
+                "list" to node.classEntries
+            )
         }
 
+        private fun renderTreeViewPage(node: TreeViewPage): TemplateMap {
+            return mapOf(
+                "title" to node.title,
+                "name" to node.name,
+                "kind" to node.kind,
+                "list" to node.packages.orEmpty() + node.classes.orEmpty(),
+                "classGraph" to node.classGraph,
+                "interfaceGraph" to node.interfaceGraph
+            )
+        }
 
-    private fun renderAllClassesPage(node: AllClassesPage): TemplateMap {
-        return mapOf(
-            "title" to "All Classes",
-            "list" to node.classEntries
-        )
-    }
+        private fun renderPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
+            return mapOf(
+                "kind" to "package"
+            ) + renderJavadocContentNode(node.content)
+        }
 
-    private fun renderTreeViewPage(node: TreeViewPage): TemplateMap {
-        return mapOf(
-            "title" to node.title,
-            "name" to node.name,
-            "kind" to node.kind,
-            "list" to node.packages.orEmpty() + node.classes.orEmpty(),
-            "classGraph" to node.classGraph,
-            "interfaceGraph" to node.interfaceGraph
-        )
-    }
+        private fun renderFunctionNode(node: JavadocFunctionNode): TemplateMap {
+            val (modifiers, signature) = node.modifiersAndSignature
+            return mapOf(
+                "signature" to htmlForContentNode(node.signature),
+                "brief" to htmlForContentNode(node.brief),
+                "parameters" to node.parameters.map { renderParameterNode(it) },
+                "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
+                "modifiers" to htmlForContentNode(modifiers),
+                "signatureWithoutModifiers" to htmlForContentNode(signature),
+                "name" to node.name
+            )
+        }
 
-    private fun renderPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
-        return mapOf(
-            "kind" to "package"
-        ) + renderJavadocContentNode(node.content)
-    }
+        private fun renderParameterNode(node: JavadocParameterNode): TemplateMap =
+            mapOf(
+                "description" to htmlForContentNode(node.description),
+                "name" to node.name,
+                "type" to node.type
+            )
 
-    private fun renderFunctionNode(node: JavadocFunctionNode): TemplateMap {
-        val (modifiers, signature) = node.modifiersAndSignature
-        return mapOf(
-            "signature" to htmlForContentNode(node.signature),
-            "brief" to htmlForContentNode(node.brief),
-            "parameters" to node.parameters.map { renderParameterNode(it) },
-            "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
-            "modifiers" to htmlForContentNode(modifiers),
-            "signatureWithoutModifiers" to htmlForContentNode(signature),
-            "name" to node.name
-        )
-    }
+        private fun renderClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
+            mapOf(
+                "constructors" to node.constructors.map { renderContentNodes(it) },
+                "signature" to htmlForContentNode(node.signature),
+                "methods" to renderClasslikeMethods(node.methods),
+                "entries" to node.entries.map { renderEntryNode(it) },
+                "properties" to node.properties.map { renderPropertyNode(it) },
+                "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) },
+                "implementedInterfaces" to renderImplementedInterfaces(node),
+                "kind" to node.kind,
+                "packageName" to node.packageName,
+                "name" to node.name
+            ) + renderJavadocContentNode(node.content)
 
-    private fun renderParameterNode(node: JavadocParameterNode): TemplateMap =
-        mapOf(
-            "description" to htmlForContentNode(node.description),
-            "name" to node.name,
-            "type" to node.type
-        )
-
-    private fun renderClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
-        mapOf(
-            "constructors" to node.constructors.map { renderContentNodes(it) },
-            "signature" to htmlForContentNode(node.signature),
-            "methods" to renderClasslikeMethods(node.methods),
-            "entries" to node.entries.map { renderEntryNode(it) },
-            "properties" to node.properties.map { renderPropertyNode(it) },
-            "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) },
-            "implementedInterfaces" to renderImplementedInterfaces(node),
-            "kind" to node.kind,
-            "packageName" to node.packageName
-        ) + renderJavadocContentNode(node.content)
-
-    private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
-        node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
+        private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
+            node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
             .orEmpty()
 
-    private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
-        val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.inheritedFrom?.any {
-            it.key.platform == Platform.jvm // TODO: REMOVE HARDCODED JVM DEPENDENCY
-        } ?: false }
-        return mapOf(
-            "own" to own.map { renderContentNodes(it) },
-            "inherited" to inherited.map { renderInheritedMethod(it) }
-                .groupBy { it["inheritedFrom"] as String }.entries.map {
+        private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
+            val (inherited, own) = nodes.partition {
+                val extra = it.extras[InheritedFunction]
+                extra?.inheritedFrom?.keys?.first { it.platform == Platform.jvm }?.let { jvm ->
+                    extra.isInherited(jvm)
+                } ?: false
+            }
+            return mapOf(
+                "own" to own.map { renderContentNodes(it) },
+                "inherited" to inherited.map { renderInheritedMethod(it) }
+                    .groupBy { it["inheritedFrom"] as String }.entries.map {
                     mapOf(
                         "inheritedFrom" to it.key,
                         "names" to it.value.map { it["name"] as String }.sorted().joinToString()
                     )
                 }
-        )
-    }
+            )
+        }
 
-    private fun renderInheritedMethod(node: JavadocFunctionNode): TemplateMap {
-        val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
-        return mapOf(
-            "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
+        private fun renderInheritedMethod(node: JavadocFunctionNode): TemplateMap {
+            val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
+            return mapOf(
+                "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
                 .orEmpty(),
-            "name" to node.name
-        )
-    }
-
-    private fun renderNestedClasslikeNode(node: JavadocClasslikePageNode): TemplateMap {
-        return mapOf(
-            "modifiers" to (node.modifiers + "static" + node.kind).joinToString(separator = " "),
-            "signature" to node.name,
-            "description" to node.description
-        )
-    }
-
-    private fun renderPropertyNode(node: JavadocPropertyNode): TemplateMap {
-        val (modifiers, signature) = node.modifiersAndSignature
-        return mapOf(
-            "modifiers" to htmlForContentNode(modifiers),
-            "signature" to htmlForContentNode(signature),
-            "description" to htmlForContentNode(node.brief)
-        )
-    }
-
-    private fun renderEntryNode(node: JavadocEntryNode): TemplateMap {
-        return mapOf(
-            "signature" to htmlForContentNode(node.signature),
-            "brief" to node.brief
-        )
-    }
-
-
-    //TODO is it possible to use html renderer?
-    private fun htmlForContentNode(node: ContentNode): String =
-        when (node) {
-            is ContentGroup -> node.children.joinToString(separator = "") { htmlForContentNode(it) }
-            is ContentText -> node.text
-            is TextNode -> node.text
-            is ContentLink -> """<a href="TODO">${node.children.joinToString { htmlForContentNode(it) }} </a>"""
-            else -> ""
+                "name" to node.name
+            )
         }
 
-    private fun renderJavadocContentNode(node: JavadocContentNode): TemplateMap = when (node) {
-        is TitleNode -> renderTitleNode(node)
-        is JavadocContentGroup -> renderJavadocContentGroup(node)
-        is TextNode -> renderTextNode(node)
-        is ListNode -> renderListNode(node)
-        else -> emptyMap()
-    }
-
-    private fun renderTitleNode(node: TitleNode): TemplateMap {
-        return mapOf(
-            "title" to node.title,
-            "version" to node.version,
-            "packageName" to node.parent
-        )
-    }
-
-    private fun renderJavadocContentGroup(note: JavadocContentGroup): TemplateMap {
-        return note.children.fold(emptyMap<String, Any?>()) { map, child ->
-            map + renderJavadocContentNode(child)
+        private fun renderNestedClasslikeNode(node: JavadocClasslikePageNode): TemplateMap {
+            return mapOf(
+                "modifiers" to (node.modifiers + "static" + node.kind).joinToString(separator = " "),
+                "signature" to node.name,
+                "description" to node.description
+            )
         }
-    }
 
-    private fun renderTextNode(node: TextNode): TemplateMap {
-        return mapOf("text" to node.text)
-    }
+        private fun renderPropertyNode(node: JavadocPropertyNode): TemplateMap {
+            val (modifiers, signature) = node.modifiersAndSignature
+            return mapOf(
+                "modifiers" to htmlForContentNode(modifiers),
+                "signature" to htmlForContentNode(signature),
+                "description" to htmlForContentNode(node.brief)
+            )
+        }
 
-    private fun renderListNode(node: ListNode): TemplateMap {
-        return mapOf(
-            "tabTitle" to node.tabTitle,
-            "colTitle" to node.colTitle,
-            "list" to node.children
-        )
-    }
+        private fun renderEntryNode(node: JavadocEntryNode): TemplateMap {
+            return mapOf(
+                "signature" to htmlForContentNode(node.signature),
+                "brief" to node.brief
+            )
+        }
 
-    private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"
+        fun htmlForContentNode(node: ContentNode): String =
+            when (node) {
+                is ContentGroup -> node.children.joinToString(separator = "") { htmlForContentNode(it) }
+                is ContentText -> node.text
+                is TextNode -> node.text
+                is ContentDRILink -> """<a href="${resolveLink(
+                    node.address,
+                    node.sourceSets
+                )}">${node.children.joinToString { htmlForContentNode(it) }} </a>""".trimMargin()
+                else -> ""
+            }
+
+        fun renderJavadocContentNode(node: JavadocContentNode): TemplateMap = when (node) {
+            is TitleNode -> renderTitleNode(node)
+            is JavadocContentGroup -> renderJavadocContentGroup(node)
+            is TextNode -> renderTextNode(node)
+            is ListNode -> renderListNode(node)
+            else -> emptyMap()
+        }
+
+        private fun renderTitleNode(node: TitleNode): TemplateMap {
+            return mapOf(
+                "title" to node.title,
+                "version" to node.version,
+                "packageName" to node.parent
+            )
+        }
+
+        private fun renderJavadocContentGroup(note: JavadocContentGroup): TemplateMap {
+            return note.children.fold(emptyMap<String, Any?>()) { map, child ->
+                map + renderJavadocContentNode(child)
+            }
+        }
+
+        private fun renderTextNode(node: TextNode): TemplateMap {
+            return mapOf("text" to node.text)
+        }
+
+        private fun renderListNode(node: ListNode): TemplateMap {
+            return mapOf(
+                "tabTitle" to node.tabTitle,
+                "colTitle" to node.colTitle,
+                "list" to node.children
+            )
+        }
+
+        private fun resolveLink(address: DRI, sourceSets: Set<SourceSetData>) =
+            locationProvider.resolve(address, sourceSets.toList()).let {
+                val afterFormattingToHtml = formatToEndWithHtml(it)
+                if (currentLocation != null) afterFormattingToHtml.relativizePath(currentLocation)
+                else afterFormattingToHtml
+            }
+
+        private fun formatToEndWithHtml(address: String) =
+            if (address.endsWith(".html")) {
+                address
+            } else {
+                "$address.html"
+            }
+
+        private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"
+    }
 }
