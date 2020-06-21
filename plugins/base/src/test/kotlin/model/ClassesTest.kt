@@ -258,7 +258,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 modifier.values.forEach { it equals Final }
 
             }
-            D.supers.firstOrNull() equals C.dri
+            D.supers.single() equals C.dri
             E.supers.firstOrNull() equals D.dri
         }
     }

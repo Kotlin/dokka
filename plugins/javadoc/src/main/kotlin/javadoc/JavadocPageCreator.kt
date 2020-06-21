@@ -74,7 +74,7 @@ open class JavadocPageCreator(
             m.sourceSets.filter { it.platform == Platform.jvm }.toSet()
         ) {
             title(m.name, "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
-            list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.map { p ->
+            list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.sortedBy { it.name }.map { p ->
                 val description = p.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
                     it.children.firstIsInstanceOrNull<Description>()?.let { description ->
                         DocTagToContentConverter.buildContent(
@@ -98,7 +98,7 @@ open class JavadocPageCreator(
             p.sourceSets.filter { it.platform == Platform.jvm }.toSet()
         ) {
             title(p.name, "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
-            list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.map { c ->
+            list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.sortedBy { it.name }.map { c ->
                 RowJavadocListEntry(
                     LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
                     listOf(signatureProvider.signature(c))
