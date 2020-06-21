@@ -255,11 +255,14 @@
     z-index: 1000;
     background: white;
     font-weight: normal;
-    box-shadow: 0 2px 16px 0 var(--ring-popup-shadow-color);
     font-family: 'Inter', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     width: max-content;
     font-size: 14px;
     cursor: default;
+    border: 1px solid #D8DCE1;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 10px var(--ring-popup-shadow-color);
+    border-radius: 3px;
 }
 
 .copy-popup-wrapper.popup-to-left {
