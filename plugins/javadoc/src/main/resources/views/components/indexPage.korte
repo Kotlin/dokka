@@ -2,6 +2,12 @@
     <div class="header">
         <h1 {{ h1Title(kind)|raw }}class="title">{{ title }} {{ version }} API</h1>
     </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block">{{ subtitle }}</div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
     <div class="contentContainer">
         <div class="overviewSummary">
             {% include "components/indexTable.korte" %}

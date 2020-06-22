@@ -1,11 +1,12 @@
 package org.jetbrains.dokka.model.doc
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.WithChildren
 
 sealed class DocTag(
-    val children: List<DocTag>,
+    override val children: List<DocTag>,
     val params: Map<String, String>
-) {
+) : WithChildren {
     override fun equals(other: Any?): Boolean =
         (
             other != null &&
