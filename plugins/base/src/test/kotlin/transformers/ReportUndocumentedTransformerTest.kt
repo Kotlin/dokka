@@ -150,6 +150,35 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
         }
     }
 
+    @Test
+    fun `data class component functions do not get reported`() {
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    reportUndocumented = true
+                    sourceRoots = listOf("src/main/kotlin")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt    
+            |package sample
+            |
+            |/** Documented */
+            |data class X(val x: Int) {
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            pagesTransformationStage = {
+                assertNoUndocumentedReport(Regex("component"))
+                assertNumberOfUndocumentedReports(1)
+            }
+        }
+    }
+
     @Disabled
     @Test
     fun `undocumented secondary constructor gets reported`() {
