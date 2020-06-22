@@ -10,6 +10,7 @@ import org.gradle.api.tasks.*
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
+import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
@@ -19,7 +20,6 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
-import kotlin.system.exitProcess
 
 open class DokkaTask : DefaultTask(), Configurable {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
@@ -143,7 +143,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
 
     @TaskAction
-    fun generate() = config?.let { generate(it) } ?: getConfiguration()?.let { generate(it) } ?: exitProcess(0)
+    fun generate() = config?.let { generate(it) } ?: generate(getConfigurationOrThrow())
 
     protected open fun generate(configuration: GradleDokkaConfigurationImpl) {
         outputDiagnosticInfo = true
@@ -178,19 +178,18 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
-    internal open fun getConfiguration(): GradleDokkaConfigurationImpl? {
+    internal fun getConfigurationOrNull(): GradleDokkaConfigurationImpl? {
         val globalConfig = dokkaSourceSets.toList().find { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
-        val defaultModulesConfiguration = passConfigurations
-            .map { defaultPassConfiguration(it, globalConfig) }.takeIf { it.isNotEmpty() }
+        val defaultModulesConfiguration = configuredDokkaSourceSets
+            .map { configureDefault(it, globalConfig) }.takeIf { it.isNotEmpty() }
             ?: listOf(
-                defaultPassConfiguration(
-                    collectSinglePassConfiguration(GradleDokkaSourceSet("main")),
+                configureDefault(
+                    configureDokkaSourceSet(GradleDokkaSourceSet("main")),
                     null
                 )
             ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
 
         if (defaultModulesConfiguration.isEmpty()) {
-            logger.error("No source sets to document found, exiting")
             return null
         }
 
@@ -206,13 +205,31 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
+    internal fun getConfigurationOrThrow(): GradleDokkaConfigurationImpl {
+        return getConfigurationOrNull() ?: throw DokkaException(
+            """
+                No source sets to document found. 
+                Make source to configure at least one source set e.g.
+                
+                dokka {
+                    dokkaSourceSets {
+                        create("commonMain") {
+                            displayName = "common"
+                            platform = "common"
+                        }
+                    }
+                }
+                """
+        )
+    }
 
-    protected val passConfigurations: List<GradleDokkaSourceSet>
+
+    protected val configuredDokkaSourceSets: List<GradleDokkaSourceSet>
         get() = dokkaSourceSets
             .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
-            .map { collectSinglePassConfiguration(it) }
+            .map { configureDokkaSourceSet(it) }
 
-    protected fun collectSinglePassConfiguration(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
+    protected fun configureDokkaSourceSet(config: GradleDokkaSourceSet): GradleDokkaSourceSet {
         val userConfig = config
             .apply {
                 collectKotlinTasks?.let {
@@ -280,7 +297,7 @@ open class DokkaTask : DefaultTask(), Configurable {
                 platform = autoConfig.platform
         }
 
-    protected fun defaultPassConfiguration(
+    protected fun configureDefault(
         config: GradleDokkaSourceSet,
         globalConfig: GradleDokkaSourceSet?
     ): GradleDokkaSourceSet {
@@ -328,7 +345,7 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     // Needed for Gradle incremental build
     @InputFiles
-    fun getInputFiles(): FileCollection = passConfigurations.let { config ->
+    fun getInputFiles(): FileCollection = configuredDokkaSourceSets.let { config ->
         project.files(config.flatMap { it.sourceRoots }.map { project.fileTree(File(it.path)) }) +
                 project.files(config.flatMap { it.includes }) +
                 project.files(config.flatMap { it.samples }.map { project.fileTree(File(it)) })
@@ -336,7 +353,7 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     @Classpath
     fun getInputClasspath(): FileCollection =
-        project.files((passConfigurations.flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
+        project.files((configuredDokkaSourceSets.flatMap { it.classpath } as List<Any>).map { project.fileTree(File(it.toString())) })
 
     companion object {
         const val COLORS_ENABLED_PROPERTY = "kotlin.colors.enabled"
