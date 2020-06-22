@@ -243,7 +243,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         val (modifiers, signature) = node.modifiersAndSignature
         return mapOf(
             "signature" to htmlForContentNode(node.signature),
-            "brief" to htmlForContentNode(node.brief),
+            "brief" to htmlForContentNodes(node.brief),
             "parameters" to node.parameters.map { renderParameterNode(it) },
             "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
             "modifiers" to htmlForContentNode(modifiers),
@@ -254,7 +254,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
 
     private fun renderParameterNode(node: JavadocParameterNode): TemplateMap =
         mapOf(
-            "description" to htmlForContentNode(node.description),
+            "description" to htmlForContentNodes(node.description),
             "name" to node.name,
             "type" to node.type
         )
@@ -264,6 +264,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             "constructors" to node.constructors.map { renderContentNodes(it) },
             "signature" to htmlForContentNode(node.signature),
             "methods" to renderClasslikeMethods(node.methods),
+            "classlikeDocumentation" to renderContentNodes(node.description),
             "entries" to node.entries.map { renderEntryNode(it) },
             "properties" to node.properties.map { renderPropertyNode(it) },
             "classlikes" to node.classlikes.map { renderNestedClasslikeNode(it) },
@@ -301,7 +302,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         return mapOf(
             "modifiers" to (node.modifiers + "static" + node.kind).joinToString(separator = " "),
             "signature" to node.name,
-            "description" to node.description
+            "description" to renderContentNodes(node.description)
         )
     }
 
@@ -310,7 +311,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         return mapOf(
             "modifiers" to htmlForContentNode(modifiers),
             "signature" to htmlForContentNode(signature),
-            "description" to htmlForContentNode(node.brief)
+            "description" to htmlForContentNodes(node.brief)
         )
     }
 
@@ -321,6 +322,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         )
     }
 
+    private fun renderContentNodes(nodes: List<ContentNode>): String = nodes.joinToString(separator = "") { htmlForContentNode(it) }
 
     //TODO is it possible to use html renderer?
     private fun htmlForContentNode(node: ContentNode): String =
@@ -329,8 +331,17 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             is ContentText -> node.text
             is TextNode -> node.text
             is ContentLink -> """<a href="TODO">${node.children.joinToString { htmlForContentNode(it) }} </a>"""
+            is ContentCode -> renderCode(node.children)
             else -> ""
         }
+
+    private fun renderCode(code: List<ContentNode>) : String = code.map { element ->
+        when (element) {
+            is ContentText -> element.text
+            is ContentBreakLine -> ""
+            else -> run { context.logger.error("Cannot cast $element as ContentText!"); "" }
+        }
+    }.joinToString("<br>", "<span class=\"code\">", "</span>") { it }
 
     private fun renderJavadocContentNode(node: JavadocContentNode): TemplateMap = when (node) {
         is TitleNode -> renderTitleNode(node)
@@ -343,6 +354,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun renderTitleNode(node: TitleNode): TemplateMap {
         return mapOf(
             "title" to node.title,
+            "subtitle" to htmlForContentNodes(node.subtitle),
             "version" to node.version,
             "packageName" to node.parent
         )

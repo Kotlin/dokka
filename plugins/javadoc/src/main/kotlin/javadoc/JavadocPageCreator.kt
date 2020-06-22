@@ -8,20 +8,19 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
-import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.TagWrapper
-import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 open class JavadocPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
-    val signatureProvider: SignatureProvider,
+    private val signatureProvider: SignatureProvider,
     val logger: DokkaLogger
 ) {
 
@@ -39,81 +38,63 @@ open class JavadocPageCreator(
         )
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
-        c.sourceSets.firstOrNull { it.platform == Platform.jvm }?.let { jvm ->
+        c.mostTopSourceSet?.let { jvm ->
             JavadocClasslikePageNode(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
                 modifiers = listOfNotNull(c.visibility[jvm]?.name),
                 signature = signatureProvider.signature(c),
-                description = c.description(jvm),
+                description = c.descriptionToContentNodes(),
                 constructors = c.safeAs<WithConstructors>()?.constructors?.map { it.toJavadocFunction(jvm) }.orEmpty(),
                 methods = c.functions.map { it.toJavadocFunction(jvm) },
-                entries = c.safeAs<DEnum>()?.entries?.map {
-                    JavadocEntryNode(
-                        signatureProvider.signature(it),
-                        it.description(jvm)
-                    )
-                }.orEmpty(),
+                entries = c.safeAs<DEnum>()?.entries?.map { JavadocEntryNode(signatureProvider.signature(it), it.descriptionToContentNodes(jvm)) }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
-                properties = c.properties.map {
-                    JavadocPropertyNode(
-                        signatureProvider.signature(it),
-                        TextNode(it.description(jvm), setOf(jvm))
-                    )
-                },
+                properties = c.properties.map { JavadocPropertyNode(signatureProvider.signature(it), it.descriptionToContentNodes(jvm)) },
                 documentable = c,
                 extras = c.safeAs<WithExtraProperties<Documentable>>()?.extra ?: PropertyContainer.empty()
             )
         }
 
-    fun contentForModule(m: DModule): JavadocContentNode =
+    private fun contentForModule(m: DModule): JavadocContentNode =
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            m.jvmSource.toSet()
         ) {
-            title(m.name, "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
+            title(m.name, m.brief(),"0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.map { p ->
-                val description = p.documentation.entries.find { (k, _) -> k.platform == Platform.jvm }?.value?.let {
-                    it.children.firstIsInstanceOrNull<Description>()?.let { description ->
-                        DocTagToContentConverter.buildContent(
-                            description.root,
-                            DCI(setOf(p.dri), JavadocContentKind.OverviewSummary),
-                            sourceSets
-                        )
-                    }
-                }.orEmpty()
                 RowJavadocListEntry(
                     LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
-                    description
+                    p.brief()
                 )
             })
         }
 
-    fun contentForPackage(p: DPackage): JavadocContentNode =
+    private fun contentForPackage(p: DPackage): JavadocContentNode =
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            p.jvmSource.toSet()
         ) {
-            title(p.name, "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
+            title(p.name, p.brief(),"0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.map { c ->
                 RowJavadocListEntry(
                     LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
-                    listOf(signatureProvider.signature(c))
+                    c.brief()
                 )
             })
         }
 
-    fun contentForClasslike(c: DClasslike): JavadocContentNode =
+    private fun contentForClasslike(c: DClasslike): JavadocContentNode =
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.sourceSets.filter { it.platform == Platform.jvm }.toSet()
+            c.jvmSource.toSet()
         ) {
             title(
                 c.name.orEmpty(),
+                c.brief(),
                 "0.0.1",
                 parent = c.dri.packageName,
                 dri = setOf(c.dri),
@@ -148,21 +129,51 @@ open class JavadocPageCreator(
     private fun DFunction.toJavadocFunction(sourceSetData: SourceSetData) = JavadocFunctionNode(
         name = name,
         signature = signatureProvider.signature(this),
-        brief = TextNode(description(sourceSetData), setOf(sourceSetData)),
+        brief = brief(sourceSetData),
         parameters = parameters.map {
             JavadocParameterNode(
                 name = it.name.orEmpty(),
                 type = signatureForProjection(it.type),
-                description = TextNode(it.findNodeInDocumentation<Param>(sourceSetData), setOf(sourceSetData))
+                description = it.brief()
             )
         },
         extras = extra
     )
 
-    private fun Documentable.description(sourceSetData: SourceSetData): String =
-        findNodeInDocumentation<Description>(sourceSetData)
+    // THIS MUST BE DISCUSSED
+    private val Documentable.jvmSource
+        get() = sourceSets.filter { it.platform == Platform.jvm }
 
-    private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData): String =
-        documentation[sourceSetData]?.children?.firstIsInstanceOrNull<T>()?.root?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
+    private val Documentable.mostTopSourceSet
+        get() = jvmSource.let { sources ->
+            sources.firstOrNull { it !=  expectPresentInSet } ?: sources.firstOrNull()
+        }
+
+    private val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
+
+    private inline fun <reified T: TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData?): T? =
+        documentation[sourceSetData]?.firstChildOfType<T>()
+
+    private fun Documentable.descriptionToContentNodes(sourceSet: SourceSetData? = mostTopSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
+        DocTagToContentConverter.buildContent(
+            it.root,
+            DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+            sourceSets.toSet()
+        )
+    }.orEmpty()
+
+    private fun Documentable.brief(sourceSet: SourceSetData? = mostTopSourceSet): List<ContentNode> {
+        val description = descriptionToContentNodes(sourceSet)
+        val contents = mutableListOf<ContentNode>()
+        for (node in description) {
+            if ( node is ContentText && firstSentenceRegex.containsMatchIn(node.text) ) {
+                contents.add(node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty()))
+                break
+            } else {
+                contents.add(node)
+            }
+        }
+        return contents
+    }
 }
 

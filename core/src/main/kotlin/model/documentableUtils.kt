@@ -18,3 +18,13 @@ fun DTypeParameter.filter(filteredData: Set<SourceSetData>) =
             extra
         )
     }
+
+interface WithChildren {
+    val children: List<*>
+}
+
+inline fun <reified T> WithChildren.firstChildOfType() =
+    children.filterIsInstance<T>().firstOrNull()
+
+inline fun <reified T> WithChildren.firstChildOfType(predicate: (T) -> Boolean) =
+    children.filterIsInstance<T>().firstOrNull(predicate)
