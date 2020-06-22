@@ -83,18 +83,18 @@ class JavadocPackagePageNode(
 
 data class JavadocEntryNode(
     val signature: ContentNode,
-    val brief: String
+    val brief: List<ContentNode>
 )
 
 data class JavadocParameterNode(
     val name: String,
     val type: String,
-    val description: ContentNode
+    val description: List<ContentNode>
 )
 
 data class JavadocPropertyNode(
     val signature: ContentNode,
-    val brief: ContentNode
+    val brief: List<ContentNode>
 ) {
     val modifiersAndSignature: Pair<ContentNode, ContentNode>
         get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
@@ -102,7 +102,7 @@ data class JavadocPropertyNode(
 
 data class JavadocFunctionNode(
     val signature: ContentNode,
-    val brief: ContentNode,
+    val brief: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
     override val name: String,
     override val dri: Set<DRI> = emptySet(),
@@ -138,7 +138,7 @@ class JavadocClasslikePageNode(
     override val dri: Set<DRI>,
     val modifiers: List<String>,
     val signature: ContentNode,
-    val description: String,
+    val description: List<ContentNode>,
     val constructors: List<JavadocFunctionNode>,
     val methods: List<JavadocFunctionNode>,
     val entries: List<JavadocEntryNode>,
