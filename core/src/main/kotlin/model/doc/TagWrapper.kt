@@ -1,8 +1,12 @@
 package org.jetbrains.dokka.model.doc
 
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.WithChildren
 
-sealed class TagWrapper(val root: DocTag) {
+sealed class TagWrapper(val root: DocTag) : WithChildren {
+
+    override val children: List<DocTag>
+        get() =  root.children
 
     override fun equals(other: Any?): Boolean =
         (

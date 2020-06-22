@@ -37,7 +37,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
     override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
 
-        fun isFileInSourceRoots(file: File): Boolean {
+        fun isFileInSourceRoots(file: File) : Boolean {
             return sourceSetData.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
         }
 
@@ -180,7 +180,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     fields.filterIsInstance<PsiEnumConstant>().map { entry ->
                         DEnumEntry(
                             dri.withClass("$name.${entry.name}"),
-                            entry.name.orEmpty(),
+                            entry.name,
                             javadocParser.parseDocumentation(entry).toSourceSetDependent(),
                             null,
                             emptyList(),
@@ -250,7 +250,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             inheritedFrom: DRI? = null
         ): DFunction {
             val dri = DRI.from(psi)
-            val docs = javadocParser.parseDocumentation(psi).toSourceSetDependent()
+            val docs = javadocParser.parseDocumentation(psi)
             return DFunction(
                 dri,
                 if (isConstructor) "<init>" else psi.name,
@@ -259,13 +259,17 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     DParameter(
                         dri.copy(target = dri.target.nextTarget()),
                         psiParameter.name,
-                        DocumentationNode(docs.entries.mapNotNull { it.value.children.filterIsInstance<Param>().firstOrNull { it.root.children.firstIsInstanceOrNull<DocumentationLink>()?.children?.firstIsInstanceOrNull<Text>()?.body == psiParameter.name } }).toSourceSetDependent(),
+                        DocumentationNode(
+                            listOfNotNull(docs.firstChildOfType<Param> {
+                            it.firstChildOfType<DocumentationLink>()
+                                ?.firstChildOfType<Text>()?.body == psiParameter.name
+                        })).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),
                         setOf(sourceSetData)
                     )
                 },
-                docs,
+                docs.toSourceSetDependent(),
                 null,
                 PsiDocumentableSource(psi).toSourceSetDependent(),
                 psi.getVisibility().toSourceSetDependent(),
@@ -294,7 +298,6 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             ExtraModifiers.JavaOnlyModifiers.Volatile.takeIf { hasModifier(JvmModifier.VOLATILE) },
             ExtraModifiers.JavaOnlyModifiers.Transitive.takeIf { hasModifier(JvmModifier.TRANSITIVE) }
         ).toSet()
-
 
         private fun Set<ExtraModifiers>.toListOfAnnotations() = map {
             if (it !is ExtraModifiers.JavaOnlyModifiers.Static)
@@ -388,7 +391,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             val dri = DRI.from(psi)
             return DProperty(
                 dri,
-                psi.name!!, // TODO: Investigate if this is indeed nullable
+                psi.name,
                 javadocParser.parseDocumentation(psi).toSourceSetDependent(),
                 null,
                 PsiDocumentableSource(psi).toSourceSetDependent(),

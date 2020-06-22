@@ -6,13 +6,10 @@ import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.pages.dfs
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
-import utils.docs
 import utils.name
 
 class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
@@ -37,7 +34,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 with((this / "fn").cast<DFunction>()) {
                     name equals "fn"
                     val params = parameters.map { it.documentation.values.first().children.first() as Param }
-                    params.mapNotNull { it.root.children.firstIsInstanceOrNull<Text>()?.body } equals listOf("is String parameter", "is int parameter")
+                    params.mapNotNull { it.firstChildOfType<Text>()?.body } equals listOf("is String parameter", "is int parameter")
                 }
             }
         }
