@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.getByName
 import java.lang.IllegalStateException
 
 open class DokkaCollectorTask : DefaultTask() {
@@ -26,7 +25,7 @@ open class DokkaCollectorTask : DefaultTask() {
             } catch (e: UnknownTaskException) {
                 throw IllegalStateException("No dokka task declared in module ${it.name}")
             }
-            tasks.map { it.getConfiguration() }
+            tasks.map { it.getConfigurationOrNull() }
         }.filterNotNull()
 
         val initial = GradleDokkaConfigurationImpl().apply {
