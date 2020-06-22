@@ -14,11 +14,9 @@ abstract class JavadocContentNode(
     kind: Kind,
     override val sourceSets: Set<SourceSetData>
 ) : ContentNode {
-    abstract val contentMap: Map<String, Any?>
     override val dci: DCI = DCI(dri, kind)
     override val style: Set<Style> = emptySet()
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
-
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = this
 }
 
@@ -47,7 +45,6 @@ class JavadocContentGroup(
     sourceSets: Set<SourceSetData>,
     val children: List<JavadocContentNode>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-    override val contentMap: Map<String, Any?> by lazy { children.fold(emptyMap<String, Any?>()) { m, cv -> m + cv.contentMap } }
 
     companion object {
         operator fun invoke(
@@ -74,16 +71,7 @@ class TitleNode(
     val kind: Kind,
     sourceSets: Set<SourceSetData>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-
     override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank()
-
-    override val contentMap: Map<String, Any?> by lazy {
-        mapOf(
-            "title" to title,
-            "version" to version,
-            "packageName" to parent
-        )
-    }
 }
 
 fun JavaContentGroupBuilder.title(
@@ -100,12 +88,7 @@ data class TextNode(
     val text: String,
     override val sourceSets: Set<SourceSetData>
 ) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
-
     override fun hasAnyContent(): Boolean = !text.isBlank()
-
-    override val contentMap: Map<String, Any?> = mapOf(
-        "text" to text,
-    )
 }
 
 class ListNode(
@@ -116,16 +99,7 @@ class ListNode(
     val kind: Kind,
     sourceSets: Set<SourceSetData>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-
     override fun hasAnyContent(): Boolean = children.isNotEmpty()
-
-    override val contentMap: Map<String, Any?> by lazy {
-        mapOf(
-            "tabTitle" to tabTitle,
-            "colTitle" to colTitle,
-            "list" to children
-        )
-    }
 }
 
 fun JavaContentGroupBuilder.list(
@@ -138,9 +112,6 @@ fun JavaContentGroupBuilder.list(
     list.add(ListNode(tabTitle, colTitle, children, dri, kind, sourceSets))
 }
 
-data class SimpleJavadocListEntry(val content: String) : JavadocListEntry {
-    override val stringTag: String = content
-}
 
 class LinkJavadocListEntry(
     val name: String,
@@ -163,20 +134,4 @@ class LinkJavadocListEntry(
 
 data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: List<ContentNode>) : JavadocListEntry {
     override val stringTag: String = ""
-}
-
-data class CompoundJavadocListEntry(
-    val name: String,
-    val content: List<JavadocListEntry>
-) : JavadocListEntry {
-    override val stringTag: String
-        get() = if (builtString == null)
-            throw IllegalStateException("stringTag for CompoundJavadocListEntry accessed before build() call")
-        else builtString!!
-
-    private var builtString: String? = null
-
-    fun build(body: (List<JavadocListEntry>) -> String) {
-        builtString = body(content)
-    }
 }

@@ -27,10 +27,10 @@ open class JavadocPageCreator(
 
     fun pageForModule(m: DModule): JavadocModulePageNode =
         JavadocModulePageNode(
-            m.name.ifEmpty { "root" },
-            contentForModule(m),
-            m.packages.map { pageForPackage(it) },
-            setOf(m.dri)
+            name = m.name.ifEmpty { "root" },
+            content = contentForModule(m),
+            children = m.packages.map { pageForPackage(it) },
+            dri = setOf(m.dri)
         )
 
     fun pageForPackage(p: DPackage) =
@@ -39,7 +39,7 @@ open class JavadocPageCreator(
         )
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
-        c.sourceSets.firstOrNull { it.platform == Platform.jvm }?.let {jvm ->
+        c.sourceSets.firstOrNull { it.platform == Platform.jvm }?.let { jvm ->
             JavadocClasslikePageNode(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
@@ -49,9 +49,19 @@ open class JavadocPageCreator(
                 description = c.description(jvm),
                 constructors = c.safeAs<WithConstructors>()?.constructors?.map { it.toJavadocFunction(jvm) }.orEmpty(),
                 methods = c.functions.map { it.toJavadocFunction(jvm) },
-                entries = c.safeAs<DEnum>()?.entries?.map { JavadocEntryNode(signatureProvider.signature(it), it.description(jvm)) }.orEmpty(),
+                entries = c.safeAs<DEnum>()?.entries?.map {
+                    JavadocEntryNode(
+                        signatureProvider.signature(it),
+                        it.description(jvm)
+                    )
+                }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
-                properties = c.properties.map { JavadocPropertyNode(signatureProvider.signature(it), TextNode(it.description(jvm), setOf(jvm))) },
+                properties = c.properties.map {
+                    JavadocPropertyNode(
+                        signatureProvider.signature(it),
+                        TextNode(it.description(jvm), setOf(jvm))
+                    )
+                },
                 documentable = c,
                 extras = c.safeAs<WithExtraProperties<Documentable>>()?.extra ?: PropertyContainer.empty()
             )
@@ -117,7 +127,7 @@ open class JavadocPageCreator(
             is TypeConstructor -> if (p.function)
                 "TODO"
             else {
-                val other = if(p.projections.isNotEmpty()){
+                val other = if (p.projections.isNotEmpty()) {
                     p.projections.joinToString(prefix = "<", postfix = ">") { signatureForProjection(it) }
                 } else {
                     ""
@@ -149,9 +159,10 @@ open class JavadocPageCreator(
         extras = extra
     )
 
-    private fun Documentable.description(sourceSetData: SourceSetData): String = findNodeInDocumentation<Description>(sourceSetData)
+    private fun Documentable.description(sourceSetData: SourceSetData): String =
+        findNodeInDocumentation<Description>(sourceSetData)
 
-    private inline fun <reified T: TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData): String =
+    private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData): String =
         documentation[sourceSetData]?.children?.firstIsInstanceOrNull<T>()?.root?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
 }
 
