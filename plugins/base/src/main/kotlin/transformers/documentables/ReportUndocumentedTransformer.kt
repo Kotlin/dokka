@@ -7,6 +7,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 internal class ReportUndocumentedTransformer : DocumentableTransformer {
@@ -42,6 +43,10 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         }
 
         if (isFakeOverride(documentable, sourceSet)) {
+            return false
+        }
+
+        if (isSynthesized(documentable, sourceSet)) {
             return false
         }
 
@@ -124,16 +129,23 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
     }
 
     private fun isFakeOverride(documentable: Documentable, sourceSet: SourceSetData): Boolean {
-        if (documentable is WithExpectActual) {
-            val callableMemberDescriptor = documentable.sources[sourceSet]
-                .safeAs<DescriptorDocumentableSource>()?.descriptor
-                .safeAs<CallableMemberDescriptor>()
+        return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == FAKE_OVERRIDE
+    }
 
-            if (callableMemberDescriptor?.kind == FAKE_OVERRIDE) {
-                return true
-            }
+    private fun isSynthesized(documentable: Documentable, sourceSet: SourceSetData): Boolean {
+        return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == SYNTHESIZED
+    }
+
+    private fun callableMemberDescriptorOrNull(
+        documentable: Documentable, sourceSet: SourceSetData
+    ): CallableMemberDescriptor? {
+        if (documentable is WithExpectActual) {
+            return documentable.sources[sourceSet]
+                .safeAs<DescriptorDocumentableSource>()?.descriptor
+                .safeAs()
         }
-        return false
+
+        return null
     }
 
     private fun isPrivateOrInternalApi(documentable: Documentable, sourceSet: SourceSetData): Boolean {
