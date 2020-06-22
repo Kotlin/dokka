@@ -1,3 +1,5 @@
 package org.jetbrains.dokka.model.doc
 
-data class DocumentationNode(val children: List<TagWrapper>)
+import org.jetbrains.dokka.model.WithChildren
+
+data class DocumentationNode(override val children: List<TagWrapper>): WithChildren

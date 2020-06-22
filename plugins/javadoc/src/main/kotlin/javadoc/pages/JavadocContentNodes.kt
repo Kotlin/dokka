@@ -65,23 +65,25 @@ class JavaContentGroupBuilder(val sourceSets: Set<DokkaSourceSet>) {
 
 class TitleNode(
     val title: String,
+    val subtitle: List<ContentNode>,
     val version: String,
     val parent: String?,
     val dri: Set<DRI>,
     val kind: Kind,
     sourceSets: Set<DokkaSourceSet>
 ) : JavadocContentNode(dri, kind, sourceSets) {
-    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank()
+    override fun hasAnyContent(): Boolean = !title.isBlank() || !version.isBlank() || subtitle.isNotEmpty()
 }
 
 fun JavaContentGroupBuilder.title(
     title: String,
+    subtitle: List<ContentNode>,
     version: String,
     parent: String? = null,
     dri: Set<DRI>,
     kind: Kind
 ) {
-    list.add(TitleNode(title, version, parent, dri, kind, sourceSets))
+    list.add(TitleNode(title, subtitle, version, parent, dri, kind, sourceSets))
 }
 
 data class TextNode(
