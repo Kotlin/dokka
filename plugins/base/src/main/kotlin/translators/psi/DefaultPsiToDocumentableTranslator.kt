@@ -154,7 +154,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             val visibility = getVisibility().toSourceSetDependent()
             val ancestors = ancestorsSet.toList().map { it.dri }.toSourceSetDependent()
             val modifiers = getModifier().toSourceSetDependent()
-            val implementedInterfacesExtra = ImplementedInterfaces(ancestorsSet.filter { it.isInterface }.map { it.dri }.toList())
+            val implementedInterfacesExtra = ImplementedInterfaces(ancestorsSet.filter { it.isInterface }.map { it.dri }.toList().toSourceSetDependent())
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -276,7 +276,7 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                 setOf(sourceSetData),
                 psi.additionalExtras().let {
                     PropertyContainer.withAll(
-                        InheritedFunction(inheritedFrom),
+                        InheritedFunction(inheritedFrom.toSourceSetDependent()),
                         it.toSourceSetDependent().toAdditionalModifiers(),
                         (psi.annotations.toList().toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                             .toAnnotations()

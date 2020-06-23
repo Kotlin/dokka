@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
@@ -273,7 +274,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         ) + renderJavadocContentNode(node.content)
 
     private fun renderImplementedInterfaces(node: JavadocClasslikePageNode) =
-        node.extras[ImplementedInterfaces]?.interfaces?.map { it.displayable() }.orEmpty()
+        node.extras[ImplementedInterfaces]?.interfaces?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.map { it.displayable() } // TODO: REMOVE HARDCODED JVM DEPENDENCY
+            .orEmpty()
 
     private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
         val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.isInherited ?: false }
@@ -292,7 +294,8 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
     private fun renderInheritedMethod(node: JavadocFunctionNode): TemplateMap {
         val inheritedFrom = node.extras[InheritedFunction]?.inheritedFrom
         return mapOf(
-            "inheritedFrom" to inheritedFrom?.displayable().orEmpty(),
+            "inheritedFrom" to inheritedFrom?.entries?.firstOrNull { it.key.platform == Platform.jvm }?.value?.displayable() // TODO: REMOVE HARDCODED JVM DEPENDENCY
+                .orEmpty(),
             "name" to node.name
         )
     }
