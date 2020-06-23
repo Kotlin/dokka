@@ -39,19 +39,19 @@ open class JavadocPageCreator(
         )
 
     fun pageForClasslike(c: DClasslike): JavadocClasslikePageNode? =
-        c.mostTopSourceSet?.let { jvm ->
+        c.highestJvmSourceSet?.let { jvm ->
             JavadocClasslikePageNode(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
                 modifiers = listOfNotNull(c.visibility[jvm]?.name),
-                signature = signatureProvider.signature(c).jvmSignature(),
+                signature = signatureProvider.signature(c).nodeForJvm(jvm),
                 description = c.descriptionToContentNodes(),
                 constructors = c.safeAs<WithConstructors>()?.constructors?.map { it.toJavadocFunction(jvm) }.orEmpty(),
                 methods = c.functions.map { it.toJavadocFunction(jvm) },
-                entries = c.safeAs<DEnum>()?.entries?.map { JavadocEntryNode(signatureProvider.signature(it).jvmSignature(), it.descriptionToContentNodes(jvm)) }.orEmpty(),
+                entries = c.safeAs<DEnum>()?.entries?.map { JavadocEntryNode(signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)) }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
-                properties = c.properties.map { JavadocPropertyNode(signatureProvider.signature(it).jvmSignature(), it.descriptionToContentNodes(jvm)) },
+                properties = c.properties.map { JavadocPropertyNode(signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)) },
                 documentable = c,
                 extras = c.safeAs<WithExtraProperties<Documentable>>()?.extra ?: PropertyContainer.empty()
             )
@@ -129,7 +129,7 @@ open class JavadocPageCreator(
 
     private fun DFunction.toJavadocFunction(sourceSetData: DokkaSourceSet) = JavadocFunctionNode(
         name = name,
-        signature = signatureProvider.signature(this).jvmSignature(),
+        signature = signatureProvider.signature(this).nodeForJvm(sourceSetData),
         brief = brief(sourceSetData),
         parameters = parameters.map {
             JavadocParameterNode(
@@ -141,21 +141,20 @@ open class JavadocPageCreator(
         extras = extra
     )
 
-    // THIS MUST BE DISCUSSED
     private val Documentable.jvmSource
         get() = sourceSets.filter { it.analysisPlatform == Platform.jvm }
 
-    private val Documentable.mostTopSourceSet
+    private val Documentable.highestJvmSourceSet
         get() = jvmSource.let { sources ->
             sources.firstOrNull { it !=  expectPresentInSet } ?: sources.firstOrNull()
         }
 
     private val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
 
-    private inline fun <reified T: TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: SourceSetData?): T? =
+    private inline fun <reified T: TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
         documentation[sourceSetData]?.firstChildOfType<T>()
 
-    private fun Documentable.descriptionToContentNodes(sourceSet: SourceSetData? = mostTopSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
+    private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
         DocTagToContentConverter.buildContent(
             it.root,
             DCI(setOf(dri), JavadocContentKind.OverviewSummary),
@@ -163,7 +162,10 @@ open class JavadocPageCreator(
         )
     }.orEmpty()
 
-    private fun Documentable.brief(sourceSet: SourceSetData? = mostTopSourceSet): List<ContentNode> {
+    fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
+        first { it.sourceSets.contains(jvm) }
+
+    private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> {
         val description = descriptionToContentNodes(sourceSet)
         val contents = mutableListOf<ContentNode>()
         for (node in description) {

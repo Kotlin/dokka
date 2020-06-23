@@ -526,7 +526,7 @@ open class HtmlRenderer(
         platforms: List<DokkaSourceSet>,
         from: PageNode? = null,
         block: FlowContent.() -> Unit
-    ) = buildLink(locationProvider.resolve(to, platforms, from), block)
+    ) = buildLink(locationProvider.resolve(to, platforms.toSet(), from), block)
 
     override fun buildError(node: ContentNode) {
         context.logger.error("Unknown ContentNode type: $node")

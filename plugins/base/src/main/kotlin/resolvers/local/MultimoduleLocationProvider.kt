@@ -14,7 +14,7 @@ class MultimoduleLocationProvider(private val root: RootPageNode, context: Dokka
         it.name to it.path
     }.toMap()
 
-    override fun resolve(dri: DRI, sourceSets: List<DokkaSourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
         dri.takeIf { it.packageName == MULTIMODULE_PACKAGE_PLACEHOLDER }?.classNames?.let { paths[it] }?.let {
             "$it/${dri.classNames}/index.html"
         } ?: defaultLocationProvider.resolve(dri, sourceSets, context)

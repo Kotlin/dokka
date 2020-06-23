@@ -4,7 +4,7 @@
     </div>
         <div class="header">
             <div class="subtitle">
-                <div class="block">{{ subtitle }}</div>
+                <div class="block">{{ subtitle|raw }}</div>
             </div>
             <p>See: <a href="#overview_description">Description</a></p>
         </div>

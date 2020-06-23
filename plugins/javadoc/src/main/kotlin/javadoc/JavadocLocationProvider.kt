@@ -65,7 +65,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
 
     private operator fun IdentityHashMap<PageNode, List<String>>.get(dri: DRI) = this[nodeIndex[dri]]
 
-    override fun resolve(dri: DRI, sourceSets: List<DokkaSourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
         context?.let { resolve(it, skipExtension = false) } ?: nodeIndex[dri]?.let {
             resolve(it, skipExtension = true)
         } ?: with(externalLocationProvider!!) {
