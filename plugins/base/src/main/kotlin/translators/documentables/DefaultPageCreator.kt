@@ -14,6 +14,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import javax.print.Doc
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -22,7 +23,6 @@ private typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourc
 
 private val specialTags: Set<KClass<out TagWrapper>> =
     setOf(Property::class, Description::class, Constructor::class, Receiver::class, Param::class, See::class)
-
 
 open class DefaultPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
@@ -182,9 +182,10 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
+        val sourceSets = c.sourceSets.toSet()
         group(kind = ContentKind.Cover) {
             cover(c.name.orEmpty())
-            sourceSetDependentHint(c.dri, c.sourceSets.toSet()) {
+            sourceSetDependentHint(c.dri, sourceSets) {
                 +contentForDescription(c)
                 +buildSignature(c)
             }
@@ -198,7 +199,7 @@ open class DefaultPageCreator(
                     2,
                     ContentKind.Constructors,
                     c.constructors.filter { it.extra[PrimaryConstructorExtra] == null },
-                    c.sourceSets.toSet(),
+                    sourceSets,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
                     link(it.name, it.dri, kind = ContentKind.Main)
@@ -234,8 +235,11 @@ open class DefaultPageCreator(
             +contentForScope(c, c.dri, c.sourceSets)
 
             @Suppress("UNCHECKED_CAST")
-            val extensions = (c as WithExtraProperties<DClasslike>).extra[CallableExtensions]?.extensions?.filterIsInstance<Documentable>()
-            divergentBlock("Extensions", extensions.orEmpty(), ContentKind.Extensions, mainExtra + SimpleAttr.header("Extensions"))
+            val extensions = (c as WithExtraProperties<DClasslike>)
+                .extra[CallableExtensions]?.extensions
+                ?.filterIsInstance<Documentable>()
+
+            divergentBlock("Extensions", extensions.orEmpty(), ContentKind.Extensions, extra = mainExtra + SimpleAttr.header("Extensions"))
         }
     }
 
@@ -474,40 +478,41 @@ open class DefaultPageCreator(
     ) {
         if (collection.any()) {
             header(2, name)
-            table(kind, extra = extra) {
+            table(kind, extra = extra, styles = emptySet()) {
                 collection
                     .groupBy { it.name }
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
                     .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                        buildGroup(
+                    buildGroup(
+                        dri = elements.map { it.dri }.toSet(),
+                        sourceSets = elements.flatMap { it.sourceSets }.toSet(),
+                        kind = kind,
+                        styles = emptySet()
+                    ) {
+                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
+                        divergentGroup(
+                            ContentDivergentGroup.GroupID(name),
                             elements.map { it.dri }.toSet(),
-                            elements.flatMap { it.sourceSets }.toSet(),
                             kind = kind
                         ) {
-                            link(elementName.orEmpty(), elements.first().dri, kind = kind)
-                            divergentGroup(
-                                ContentDivergentGroup.GroupID(name),
-                                elements.map { it.dri }.toSet(),
-                                kind = kind
-                            ) {
-                                elements.map {
-                                    instance(setOf(it.dri), it.sourceSets.toSet()) {
-                                        before {
-                                            contentForBrief(it)
-                                            contentForSinceKotlin(it)
-                                        }
-                                        divergent {
-                                            group {
-                                                +buildSignature(it)
-                                            }
+                            elements.map {
+                                instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                    before {
+                                        contentForBrief(it)
+                                        contentForSinceKotlin(it)
+                                    }
+                                    divergent {
+                                        group {
+                                            +buildSignature(it)
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
             }
         }
     }
