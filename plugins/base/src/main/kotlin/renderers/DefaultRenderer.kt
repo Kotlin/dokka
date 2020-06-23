@@ -45,8 +45,11 @@ abstract class DefaultRenderer<T>(
     abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
     abstract fun buildError(node: ContentNode)
 
-    open fun T.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
-        buildContentNode(content.inner, pageContext)
+    open fun T.buildPlatformDependent(
+        content: PlatformHintedContent,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<SourceSetData>?
+    ) = buildContentNode(content.inner, pageContext)
 
     open fun T.buildGroup(
         node: ContentGroup,
@@ -110,7 +113,7 @@ abstract class DefaultRenderer<T>(
                 is ContentTable -> buildTable(node, pageContext, sourceSetRestriction)
                 is ContentGroup -> buildGroup(node, pageContext, sourceSetRestriction)
                 is ContentBreakLine -> buildNewLine()
-                is PlatformHintedContent -> buildPlatformDependent(node, pageContext)
+                is PlatformHintedContent -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
                 is ContentDivergentGroup -> buildDivergent(node, pageContext)
                 else -> buildError(node)
             }

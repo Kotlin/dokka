@@ -111,7 +111,11 @@ open class CommonmarkRenderer(
         append("\n\n")
     }
 
-    override fun StringBuilder.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) {
+    override fun StringBuilder.buildPlatformDependent(
+        content: PlatformHintedContent,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<SourceSetData>?
+    ) {
         val distinct = content.sourceSets.map {
             it to StringBuilder().apply {buildContentNode(content.inner, pageContext, setOf(it)) }.toString()
         }.groupBy(Pair<SourceSetData, String>::second, Pair<SourceSetData, String>::first)
