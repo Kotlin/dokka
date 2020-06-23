@@ -12,6 +12,7 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+
     implementation("com.google.code.gson:gson:2.8.5")
     implementation("org.jsoup:jsoup:1.12.1")
 
