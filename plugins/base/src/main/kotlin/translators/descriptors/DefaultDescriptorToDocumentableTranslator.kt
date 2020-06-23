@@ -148,7 +148,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces)
+                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
             )
         )
     }
@@ -175,7 +175,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces)
+                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
             )
         )
     }
@@ -204,7 +204,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces)
+                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
             )
         )
     }
@@ -288,7 +288,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces)
+                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
             )
         )
     }
@@ -356,7 +356,7 @@ private class DokkaDescriptorVisitor(
             type = descriptor.returnType!!.toBound(),
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
-                InheritedFunction(inheritedFrom),
+                InheritedFunction(inheritedFrom.toSourceSetDependent()),
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations()
             )
