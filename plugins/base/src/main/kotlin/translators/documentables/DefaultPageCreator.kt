@@ -246,6 +246,12 @@ open class DefaultPageCreator(
         }.children
     }
 
+    private fun Documentable.getPossibleFallbackSourcesets(sourceSet: SourceSetData) =
+        this.sourceSets.filter { it.sourceSetID in sourceSet.dependentSourceSets }
+
+    private fun <V> Map<SourceSetData, V>.fallback(sourceSets: List<SourceSetData>) : V? =
+        sourceSets.firstOrNull { it in this.keys }.let { this[it] }
+
     protected open fun contentForComments(
         d: Documentable
     ): List<ContentNode> {
@@ -264,7 +270,8 @@ open class DefaultPageCreator(
                         val params = tags.withTypeNamed<Param>()
                         table(kind = ContentKind.Parameters) {
                             platforms.flatMap { platform ->
-                                val receiverRow = receiver[platform]?.let {
+                                val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
+                                val receiverRow = (receiver[platform] ?: receiver.fallback(possibleFallbacks))?.let {
                                     buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
                                         text("<receiver>", styles = mainStyles + ContentStyle.RowTitle)
                                         comment(it.root)
@@ -272,7 +279,7 @@ open class DefaultPageCreator(
                                 }
 
                                 val paramRows = params.mapNotNull { (_, param) ->
-                                    param[platform]?.let {
+                                    (param[platform] ?: param.fallback(possibleFallbacks))?.let {
                                         buildGroup(sourceSets = setOf(platform), kind = ContentKind.Parameters) {
                                             text(it.name, kind = ContentKind.Parameters, styles = mainStyles + ContentStyle.RowTitle)
                                             comment(it.root)
@@ -296,8 +303,9 @@ open class DefaultPageCreator(
                         val seeAlsoTags = tags.withTypeNamed<See>()
                         table(kind = ContentKind.Sample) {
                             platforms.flatMap { platform ->
+                                val possibleFallbacks = d.getPossibleFallbackSourcesets(platform)
                                 seeAlsoTags.mapNotNull { (_, see) ->
-                                    see[platform]?.let {
+                                    (see[platform] ?: see.fallback(possibleFallbacks))?.let {
                                         buildGroup(sourceSets = setOf(platform), kind = ContentKind.Comment, styles = mainStyles + ContentStyle.RowTitle) {
                                             if (it.address != null) link(it.name, it.address!!, kind = ContentKind.Comment)
                                             else text(it.name, kind = ContentKind.Comment)
