@@ -82,7 +82,7 @@ object DocTagToContentConverter : CommentsToContentConverter {
                     docTag.dri,
                     DCI(
                         setOf(docTag.dri),
-                        ContentKind.Symbol
+                        ContentKind.Main
                     ),
                     sourceSets,
                     styles
