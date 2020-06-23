@@ -103,3 +103,4 @@ runners/**/out/
 .idea
 plugins/base/src/main/resources/dokka/scripts/main.js
 plugins/base/src/main/resources/dokka/scripts/main.js.map
+/.idea/compiler.xml
