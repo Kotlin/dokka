@@ -143,6 +143,7 @@
 
 .divergent-group .table-row {
     background-color: #F4F4F4;
+    border-bottom: 2px solid white;
 }
 
 .title > .divergent-group:first-of-type {

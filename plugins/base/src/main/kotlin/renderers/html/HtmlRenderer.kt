@@ -135,9 +135,15 @@ open class HtmlRenderer(
             }
         }
 
-    override fun FlowContent.buildPlatformDependent(content: PlatformHintedContent, pageContext: ContentPage) =
+    override fun FlowContent.buildPlatformDependent(
+        content: PlatformHintedContent,
+        pageContext: ContentPage,
+        sourceSetRestriction: Set<SourceSetData>?
+    ) =
         buildPlatformDependent(
-            content.sourceSets.map { it to setOf(content.inner) }.toMap(),
+            content.sourceSets.filter {
+                sourceSetRestriction == null || it in sourceSetRestriction
+            }.map { it to setOf(content.inner) }.toMap(),
             pageContext,
             content.extra,
             content.style
