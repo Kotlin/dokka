@@ -398,7 +398,6 @@ td:first-child {
 
 .symbol > a {
     color: var(--hover-link-color);
-    text-decoration: underline;
 }
 
 .identifier {
