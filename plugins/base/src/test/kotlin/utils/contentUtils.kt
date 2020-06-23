@@ -27,7 +27,7 @@ fun ContentMatcherBuilder<*>.bareSignature(
     name: String,
     returnType: String? = null,
     vararg params: Pair<String, ParamAttributes>
-) = group { // TODO: remove it when double wrapping for signatures will be resolved
+) = group {
     annotations.entries.forEach {
         group {
             unwrapAnnotation(it)
