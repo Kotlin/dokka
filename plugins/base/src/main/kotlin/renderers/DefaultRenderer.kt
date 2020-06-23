@@ -104,7 +104,7 @@ abstract class DefaultRenderer<T>(
                 is ContentHeader -> buildHeader(node, pageContext, sourceSetRestriction)
                 is ContentCode -> buildCode(node.children, node.language, pageContext)
                 is ContentDRILink ->
-                    buildLink(locationProvider.resolve(node.address, node.sourceSets.toList(), pageContext)) {
+                    buildLink(locationProvider.resolve(node.address, node.sourceSets, pageContext)) {
                         buildLinkText(node.children, pageContext, sourceSetRestriction)
                     }
                 is ContentResolvedLink -> buildLink(node.address) {

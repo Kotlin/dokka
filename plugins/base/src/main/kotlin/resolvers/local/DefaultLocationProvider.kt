@@ -46,7 +46,7 @@ open class DefaultLocationProvider(
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: List<DokkaSourceSet>, context: PageNode?): String =
+    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
         pagesIndex[dri]?.let { resolve(it, context) } ?:
         // Not found in PageGraph, that means it's an external link
         getLocation(
