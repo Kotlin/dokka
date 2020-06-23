@@ -467,7 +467,7 @@ open class PageContentBuilder(
         ) =
             ContentDivergentInstance(
                 before,
-                divergent!!,
+                divergent ?: throw IllegalStateException("Divergent block needs divergent part"),
                 after,
                 DCI(mainDRI, kind),
                 sourceSets,
