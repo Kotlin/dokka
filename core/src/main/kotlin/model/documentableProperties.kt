@@ -11,8 +11,7 @@ data class InheritedFunction(val inheritedFrom: SourceSetDependent<DRI?>): Extra
         )
     }
 
-    val isInherited: Boolean
-        get() = inheritedFrom != null
+    fun isInherited(sourceSetDependent: SourceSetData): Boolean = inheritedFrom[sourceSetDependent] != null
 
     override val key: ExtraProperty.Key<DFunction, *> = InheritedFunction
 }

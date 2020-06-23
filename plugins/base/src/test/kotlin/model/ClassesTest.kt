@@ -496,7 +496,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """.trimIndent()
         ){
             with((this / "classes" / "Tested").cast<DClass>()){
-                extra[ImplementedInterfaces]?.interfaces?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower", "LowerImplInterface").sorted()
+                extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower", "LowerImplInterface").sorted()
             }
         }
     }

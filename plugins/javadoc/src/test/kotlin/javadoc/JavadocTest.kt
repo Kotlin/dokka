@@ -14,7 +14,6 @@ class JavadocTest : AbstractCoreTest() {
                 pass {
                     sourceRoots = listOf("jvmSrc/")
                     analysisPlatform = "jvm"
-                    targets = listOf("jvm")
                 }
             }
         }
