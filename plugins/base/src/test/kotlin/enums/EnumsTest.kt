@@ -213,8 +213,10 @@ class EnumsTest : AbstractCoreTest() {
                             }
                         }
                         group {
-                            link { +"E1" }
-                            +"()"
+                            group {
+                                link { +"E1" }
+                                +"()"
+                            }
                         }
                     }
                 }
@@ -227,5 +229,5 @@ class EnumsTest : AbstractCoreTest() {
         this.parentMap.filterValues { it is ClasslikePageNode }.entries.groupBy({ it.value }) { it.key }
 
     private fun ContentGroup.constructorSignature(): String =
-        children.drop(1).joinToString(separator = "") { (it as ContentText).text }
+        (children.single() as ContentGroup).children.drop(1).joinToString(separator = "") { (it as ContentText).text }
 }
