@@ -10,9 +10,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.plugin
+import org.jetbrains.dokka.base.plugability.query
 import java.io.File
 import java.net.URI
 

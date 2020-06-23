@@ -3,16 +3,16 @@ package org.jetbrains.dokka.base.transformers.documentables
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
-import org.jetbrains.dokka.model.sourceSet
-import org.jetbrains.dokka.parsers.MarkdownParser
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
+import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.sourceSet
 import org.jetbrains.kotlin.name.FqName
 import java.nio.file.Files
 import java.nio.file.Paths
 
 
-internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
+internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContext) :
+    PreMergeDocumentableTransformer {
 
     override fun invoke(original: List<DModule>): List<DModule> {
 

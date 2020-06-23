@@ -1,8 +1,8 @@
 package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 object RootCreator : PageTransformer {
     override fun invoke(input: RootPageNode) =

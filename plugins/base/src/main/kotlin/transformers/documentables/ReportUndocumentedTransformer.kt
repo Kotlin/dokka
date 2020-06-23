@@ -3,14 +3,14 @@ package org.jetbrains.dokka.base.transformers.documentables
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-internal class ReportUndocumentedTransformer : DocumentableTransformer {
+internal class ReportUndocumentedTransformer :
+    DocumentableTransformer {
 
     override fun invoke(original: DModule, context: DokkaContext): DModule = original.apply {
         withDescendants().forEach { documentable -> invoke(documentable, context) }

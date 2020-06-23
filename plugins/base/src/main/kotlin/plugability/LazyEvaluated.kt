@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.plugability
+package org.jetbrains.dokka.base.plugability
 
 internal class LazyEvaluated<T : Any> private constructor(private val recipe: ((DokkaContext) -> T)? = null, private var value: T? = null) {
 
@@ -10,7 +10,9 @@ internal class LazyEvaluated<T : Any> private constructor(private val recipe: ((
     }
 
     companion object {
-        fun <T : Any> fromInstance(value: T) = LazyEvaluated(value = value)
-        fun <T : Any> fromRecipe(recipe: (DokkaContext) -> T) = LazyEvaluated(recipe = recipe)
+        fun <T : Any> fromInstance(value: T) =
+            LazyEvaluated(value = value)
+        fun <T : Any> fromRecipe(recipe: (DokkaContext) -> T) =
+            LazyEvaluated(recipe = recipe)
     }
 }

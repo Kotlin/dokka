@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.plugability
+package org.jetbrains.dokka.base.plugability
 
 import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration
@@ -20,10 +20,11 @@ abstract class DokkaPlugin {
 
     protected fun <T : Any> extensionPoint() =
         object : ReadOnlyProperty<DokkaPlugin, ExtensionPoint<T>> {
-            override fun getValue(thisRef: DokkaPlugin, property: KProperty<*>) = ExtensionPoint<T>(
-                thisRef::class.qualifiedName ?: throw AssertionError("Plugin must be named class"),
-                property.name
-            )
+            override fun getValue(thisRef: DokkaPlugin, property: KProperty<*>) =
+                ExtensionPoint<T>(
+                    thisRef::class.qualifiedName ?: throw AssertionError("Plugin must be named class"),
+                    property.name
+                )
         }
 
     protected fun <T : Any> extending(isFallback: Boolean = false, definition: ExtendingDSL.() -> Extension<T>) =

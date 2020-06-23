@@ -1,12 +1,12 @@
 package org.jetbrains.dokka.testApi.context
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.EnvironmentAndFacade
+import org.jetbrains.dokka.base.EnvironmentAndFacade
 import org.jetbrains.dokka.model.SourceSetCache
 import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.ExtensionPoint
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.ExtensionPoint
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty

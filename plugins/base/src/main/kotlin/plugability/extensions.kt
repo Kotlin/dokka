@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.plugability
+package org.jetbrains.dokka.base.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 
@@ -52,10 +52,25 @@ class ExtensionOrdered<T : Any> internal constructor(
     isFallback
 ) {
     override fun addCondition(condition: DokkaConfiguration.() -> Boolean) =
-        ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, ordering!!, conditions + condition)
+        ExtensionOrdered(
+            extensionPoint,
+            pluginClass,
+            extensionName,
+            action,
+            ordering!!,
+            conditions + condition
+        )
 
     override fun markedAsFallback() =
-        ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, ordering!!, conditions, true)
+        ExtensionOrdered(
+            extensionPoint,
+            pluginClass,
+            extensionName,
+            action,
+            ordering!!,
+            conditions,
+            true
+        )
 }
 
 class ExtensionUnordered<T : Any> internal constructor(
@@ -75,10 +90,23 @@ class ExtensionUnordered<T : Any> internal constructor(
     isFallback
 ) {
     override fun addCondition(condition: DokkaConfiguration.() -> Boolean) =
-        ExtensionUnordered(extensionPoint, pluginClass, extensionName, action, conditions + condition)
+        ExtensionUnordered(
+            extensionPoint,
+            pluginClass,
+            extensionName,
+            action,
+            conditions + condition
+        )
 
     override fun markedAsFallback() =
-        ExtensionUnordered(extensionPoint, pluginClass, extensionName, action, conditions, true)
+        ExtensionUnordered(
+            extensionPoint,
+            pluginClass,
+            extensionName,
+            action,
+            conditions,
+            true
+        )
 }
 
 internal data class Ordering(val previous: Set<Extension<*>>, val following: Set<Extension<*>>)
@@ -90,13 +118,29 @@ annotation class ExtensionsDsl
 class ExtendingDSL(private val pluginClass: String, private val extensionName: String) {
 
     infix fun <T : Any> ExtensionPoint<T>.with(action: T) =
-        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromInstance(action))
+        ExtensionUnordered(
+            this,
+            this@ExtendingDSL.pluginClass,
+            extensionName,
+            LazyEvaluated.fromInstance(action)
+        )
 
     infix fun <T : Any> ExtensionPoint<T>.providing(action: (DokkaContext) -> T) =
-        ExtensionUnordered(this, this@ExtendingDSL.pluginClass, extensionName, LazyEvaluated.fromRecipe(action))
+        ExtensionUnordered(
+            this,
+            this@ExtendingDSL.pluginClass,
+            extensionName,
+            LazyEvaluated.fromRecipe(action)
+        )
 
     infix fun <T : Any> ExtensionUnordered<T>.order(block: OrderDsl.() -> Unit) =
-        ExtensionOrdered(extensionPoint, pluginClass, extensionName, action, block)
+        ExtensionOrdered(
+            extensionPoint,
+            pluginClass,
+            extensionName,
+            action,
+            block
+        )
 
     infix fun <T : Any> Extension<T>.applyIf(condition: DokkaConfiguration.() -> Boolean): Extension<T> =
         this.addCondition(condition)

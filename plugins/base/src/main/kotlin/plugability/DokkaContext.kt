@@ -1,7 +1,7 @@
-package org.jetbrains.dokka.plugability
+package org.jetbrains.dokka.base.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.EnvironmentAndFacade
+import org.jetbrains.dokka.base.EnvironmentAndFacade
 import org.jetbrains.dokka.model.SourceSetCache
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -11,6 +11,8 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
+fun DokkaContext.sourceSet(pass: DokkaConfiguration.PassConfiguration): SourceSetData =
+    sourceSetCache.getSourceSet(pass)
 
 interface DokkaContext {
     fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
@@ -35,7 +37,12 @@ interface DokkaContext {
             sourceSetsCache: SourceSetCache,
             pluginOverrides: List<DokkaPlugin>
         ): DokkaContext =
-            DokkaContextConfigurationImpl(logger, configuration, sourceSets, sourceSetsCache).apply {
+            DokkaContextConfigurationImpl(
+                logger,
+                configuration,
+                sourceSets,
+                sourceSetsCache
+            ).apply {
                 // File(it.path) is a workaround for an incorrect filesystem in a File instance returned by Gradle.
                 configuration.pluginsClasspath.map { File(it.path).toURI().toURL() }
                     .toTypedArray()
@@ -61,7 +68,8 @@ private class DokkaContextConfigurationImpl(
     override val configuration: DokkaConfiguration,
     override val platforms: Map<SourceSetData, EnvironmentAndFacade>,
     override val sourceSetCache: SourceSetCache
-) : DokkaContext, DokkaContextConfiguration {
+) : DokkaContext,
+    DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
     internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
@@ -89,9 +97,11 @@ private class DokkaContextConfigurationImpl(
                 return
             if (state == State.VISITING)
                 throw Error("Detected cycle in plugins graph")
-            verticesWithState[n] = State.VISITING
+            verticesWithState[n] =
+                State.VISITING
             adjacencyList[n]?.forEach { visit(it) }
-            verticesWithState[n] = State.VISITED
+            verticesWithState[n] =
+                State.VISITED
             result += n
         }
 

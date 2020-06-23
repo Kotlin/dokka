@@ -1,11 +1,11 @@
 package model
 
-import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.CoreExtensions
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsExtractorTransformer
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.model.DInterface
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

@@ -2,9 +2,9 @@ package resourceLinks
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin

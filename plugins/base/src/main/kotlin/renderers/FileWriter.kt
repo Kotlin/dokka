@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.renderers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import java.io.File
 import java.io.IOException
 import java.net.URI

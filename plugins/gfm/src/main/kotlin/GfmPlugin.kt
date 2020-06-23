@@ -9,11 +9,9 @@ import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 import java.lang.StringBuilder
 
 

@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.base.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
@@ -8,9 +8,9 @@ import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.parsers.MarkdownParser
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
+import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
@@ -49,7 +49,8 @@ import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
 import kotlin.IllegalArgumentException
 
-object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
+object DefaultDescriptorToDocumentableTranslator :
+    SourceToDocumentableTranslator {
 
     override fun invoke(sourceSet: SourceSetData, context: DokkaContext): DModule {
 

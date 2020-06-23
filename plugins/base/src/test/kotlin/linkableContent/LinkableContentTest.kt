@@ -2,11 +2,11 @@ package linkableContent
 
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.plugability.plugin
 import org.jetbrains.dokka.base.transformers.pages.samples.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs

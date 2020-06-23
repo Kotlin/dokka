@@ -12,7 +12,7 @@ import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Path

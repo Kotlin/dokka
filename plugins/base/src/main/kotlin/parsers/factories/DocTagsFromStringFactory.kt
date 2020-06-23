@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.parsers.factories
+package org.jetbrains.dokka.base.parsers.factories
 
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.links.DRI

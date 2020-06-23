@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     api(project(":core"))
+    api(project(":plugins:base"))
     implementation("junit:junit:4.13") // TODO: remove dependency to junit
     implementation(kotlin("stdlib"))
 }

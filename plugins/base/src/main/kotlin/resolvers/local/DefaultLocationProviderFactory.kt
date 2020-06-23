@@ -2,7 +2,7 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.pages.MultimoduleRootPageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaContext
 
 class DefaultLocationProviderFactory(private val context: DokkaContext) : LocationProviderFactory {
 

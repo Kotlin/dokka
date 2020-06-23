@@ -9,10 +9,10 @@ import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.parsers.MarkdownParser
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.dokka.transformers.pages.PageCreator
+import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.querySingle
+import org.jetbrains.dokka.base.transformers.pages.PageCreator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
 

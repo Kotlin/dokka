@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.base.analysis
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.analyzer.ModuleInfo

@@ -4,9 +4,9 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.parent
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.plugin
+import org.jetbrains.dokka.base.plugability.querySingle
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 class PackageListService(val context: DokkaContext) {

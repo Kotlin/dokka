@@ -1,13 +1,16 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.base
 
-import org.jetbrains.dokka.analysis.AnalysisEnvironment
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaException
+import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.analysis.AnalysisEnvironment
+import org.jetbrains.dokka.base.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetCache
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -154,7 +157,10 @@ class DokkaGenerator(
         configuration: DokkaConfiguration,
         pass: DokkaConfiguration.PassConfiguration
     ): EnvironmentAndFacade =
-        AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
+        AnalysisEnvironment(
+            DokkaMessageCollector(logger),
+            pass.analysisPlatform
+        ).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }

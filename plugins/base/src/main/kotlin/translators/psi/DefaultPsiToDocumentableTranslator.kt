@@ -16,8 +16,8 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
@@ -33,15 +33,16 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
-object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
+object DefaultPsiToDocumentableTranslator :
+    SourceToDocumentableTranslator {
 
-    override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: SourceSetData, context: DokkaContext): DModule {
 
         fun isFileInSourceRoots(file: File): Boolean {
-            return sourceSetData.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
+            return sourceSet.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
         }
 
-        val (environment, _) = context.platforms.getValue(sourceSetData)
+        val (environment, _) = context.platforms.getValue(sourceSet)
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
@@ -59,11 +60,11 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         val docParser =
             DokkaPsiParser(
-                sourceSetData,
+                sourceSet,
                 context.logger
             )
         return DModule(
-            sourceSetData.moduleName,
+            sourceSet.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(
@@ -76,12 +77,12 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     emptyList(),
                     emptyMap(),
                     null,
-                    setOf(sourceSetData)
+                    setOf(sourceSet)
                 )
             },
             emptyMap(),
             null,
-            setOf(sourceSetData)
+            setOf(sourceSet)
         )
     }
 

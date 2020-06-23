@@ -9,9 +9,7 @@ import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import java.nio.file.Paths
 import java.util.*
 

@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.transformers.pages
+package org.jetbrains.dokka.base.transformers.pages
 
 import org.jetbrains.dokka.pages.RootPageNode
 

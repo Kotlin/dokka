@@ -9,12 +9,16 @@ dependencies {
     api(project(":coreDependencies", configuration = "shadow"))
 
     val kotlin_version: String by project
+
+    /*
     compileOnly("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
+     */
 
     api("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     api("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     implementation("com.google.code.gson:gson:2.8.5")
     implementation("org.jsoup:jsoup:1.12.1")
+    implementation("com.google.code.gson:gson:2.8.5")
 
     testImplementation(project(":testApi"))
     testImplementation(kotlin("test-junit"))

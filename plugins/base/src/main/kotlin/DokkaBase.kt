@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base
 
-import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.allModulePage.MultimodulePageCreator
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
@@ -27,8 +26,8 @@ import org.jetbrains.dokka.base.translators.descriptors.DefaultDescriptorToDocum
 import org.jetbrains.dokka.base.translators.documentables.DefaultDocumentableToPageTranslator
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.base.translators.psi.DefaultPsiToDocumentableTranslator
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 class DokkaBase : DokkaPlugin() {
     val pageMergerStrategy by extensionPoint<PageMergerStrategy>()

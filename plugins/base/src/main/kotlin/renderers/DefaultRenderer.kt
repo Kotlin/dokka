@@ -1,16 +1,15 @@
 package org.jetbrains.dokka.base.renderers
 
 import kotlinx.coroutines.*
-import kotlinx.html.FlowContent
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.base.plugability.plugin
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 abstract class DefaultRenderer<T>(
     protected val context: DokkaContext

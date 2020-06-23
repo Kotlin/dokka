@@ -3,10 +3,10 @@ package org.jetbrains.dokka.base.transformers.documentables
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
 
-class ActualTypealiasAdder : DocumentableTransformer {
+class ActualTypealiasAdder :
+    DocumentableTransformer {
 
     override fun invoke(modules: DModule, context: DokkaContext) = modules.generateTypealiasesMap().let { aliases ->
         modules.copy(packages = modules.packages.map { it.copy(classlikes = addActualTypeAliasToClasslikes(it.classlikes, aliases)) })

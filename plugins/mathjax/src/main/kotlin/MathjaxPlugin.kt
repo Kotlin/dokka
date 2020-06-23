@@ -5,8 +5,8 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.model.doc.CustomWrapperTag
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 class MathjaxPlugin : DokkaPlugin() {
     val transformer by extending {

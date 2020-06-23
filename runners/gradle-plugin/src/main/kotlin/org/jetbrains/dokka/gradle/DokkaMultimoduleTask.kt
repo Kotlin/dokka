@@ -7,11 +7,10 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.dokka.DokkaBootstrap
-import org.jetbrains.dokka.plugability.Configurable
 import java.net.URLClassLoader
 import java.util.function.BiConsumer
 
-open class DokkaMultimoduleTask : DefaultTask(), Configurable {
+open class DokkaMultimoduleTask : DefaultTask() {
 
     @Input
     var documentationFileName: String = "README.md"
@@ -27,7 +26,7 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
 
     var dokkaRuntime: Configuration? = null
 
-    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
+    val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @TaskAction
     fun dokkaMultiplatform() {

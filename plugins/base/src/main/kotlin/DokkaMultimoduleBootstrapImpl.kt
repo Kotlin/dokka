@@ -1,7 +1,9 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.base
 
 import com.google.gson.Gson
-import org.jetbrains.dokka.DokkaBootstrapImpl.DokkaProxyLogger
+import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.utilities.DokkaLogger
 import java.util.function.BiConsumer
 
@@ -14,7 +16,7 @@ class DokkaMultimoduleBootstrapImpl : DokkaBootstrap {
     }
 
     override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String) = configure(
-        DokkaProxyLogger(logger),
+        DokkaBootstrapImpl.DokkaProxyLogger(logger),
         Gson().fromJson(serializedConfigurationJSON, DokkaConfigurationImpl::class.java)
     )
 

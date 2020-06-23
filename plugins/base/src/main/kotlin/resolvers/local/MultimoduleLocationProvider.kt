@@ -4,7 +4,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaContext
 
 class MultimoduleLocationProvider(private val root: RootPageNode, context: DokkaContext) : LocationProvider {
 

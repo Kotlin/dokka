@@ -16,7 +16,7 @@
 
 @file:JvmName("JavaResolutionUtils")
 
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.base.analysis
 
 import com.intellij.psi.*
 import org.jetbrains.kotlin.asJava.unwrapped

@@ -8,8 +8,8 @@ import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 
 object SearchPageInstaller : PageTransformer {

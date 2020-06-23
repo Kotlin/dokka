@@ -1,20 +1,20 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.EnvironmentAndFacade
+import org.jetbrains.dokka.base.DokkaGenerator
+import org.jetbrains.dokka.base.EnvironmentAndFacade
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.AnalysisEnvironment
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.base.analysis.AnalysisEnvironment
+import org.jetbrains.dokka.base.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.model.sourceSet
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.sourceSet
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.PathUtil
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
@@ -41,7 +41,11 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun setUpAnalysis(context: DokkaContext) = context.configuration.passesConfigurations.map {
-        context.sourceSet(it) to AnalysisEnvironment(DokkaGenerator.DokkaMessageCollector(context.logger), it.analysisPlatform).run {
+        context.sourceSet(it) to AnalysisEnvironment(
+            DokkaGenerator.DokkaMessageCollector(
+                context.logger
+            ), it.analysisPlatform
+        ).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }

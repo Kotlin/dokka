@@ -2,11 +2,11 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.mergeExtras
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 
-internal object DefaultDocumentableMerger : DocumentableMerger {
+internal object DefaultDocumentableMerger :
+    DocumentableMerger {
 
     override fun invoke(modules: Collection<DModule>, context: DokkaContext): DModule {
 

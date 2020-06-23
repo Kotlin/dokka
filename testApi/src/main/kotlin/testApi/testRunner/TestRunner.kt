@@ -2,14 +2,13 @@ package org.jetbrains.dokka.testApi.testRunner
 
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.base.EnvironmentAndFacade
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetData
-import org.jetbrains.dokka.pages.ModulePageNode
 import org.jetbrains.dokka.pages.RootPageNode
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.rules.TemporaryFolder
 import testApi.logger.TestLogger
 import java.io.File

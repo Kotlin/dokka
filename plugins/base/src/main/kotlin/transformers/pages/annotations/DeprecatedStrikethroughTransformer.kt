@@ -5,8 +5,8 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
 
 class DeprecatedStrikethroughTransformer(val context: DokkaContext) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode = input.transformContentPagesTree { contentPage ->

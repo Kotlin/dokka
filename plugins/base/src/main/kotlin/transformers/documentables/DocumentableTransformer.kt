@@ -1,7 +1,7 @@
-package org.jetbrains.dokka.transformers.documentation
+package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.base.plugability.DokkaContext
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.plugability.DokkaContext
 
 interface DocumentableTransformer {
     operator fun invoke(original: DModule, context: DokkaContext): DModule

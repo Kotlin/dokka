@@ -1,16 +1,17 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.base
 
-import org.jetbrains.dokka.plugability.ExtensionPoint
+import org.jetbrains.dokka.base.plugability.ExtensionPoint
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
-import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
-import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
-import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
-import org.jetbrains.dokka.transformers.pages.PageCreator
-import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
+import org.jetbrains.dokka.base.transformers.documentables.DocumentableMerger
+import org.jetbrains.dokka.base.transformers.documentables.DocumentableToPageTranslator
+import org.jetbrains.dokka.base.transformers.documentables.DocumentableTransformer
+import org.jetbrains.dokka.base.transformers.documentables.PreMergeDocumentableTransformer
+import org.jetbrains.dokka.base.transformers.pages.PageCreator
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.transformers.sources.SourceToDocumentableTranslator
 import kotlin.reflect.KProperty
 
+// TODO NOW: rename to BaseExtensions?
 object CoreExtensions {
     val sourceToDocumentableTranslator by coreExtension<SourceToDocumentableTranslator>()
     val preMergeDocumentableTransformer by coreExtension<PreMergeDocumentableTransformer>()

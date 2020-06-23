@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.base.analysis
 
 import com.google.common.collect.ImmutableMap
 import com.intellij.core.CoreApplicationEnvironment
@@ -153,7 +153,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         )
 
         registerExtensionPoint(
-            IdePlatformKindResolution.Companion,
+            IdePlatformKindResolution,
             listOf(
                 CommonPlatformKindResolution(),
                 JvmPlatformKindResolution(),
@@ -253,10 +253,20 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
             resolverForProject.resolverForModule(library) // Required before module to initialize library properly
         val resolverForModule = resolverForProject.resolverForModule(module)
         val libraryResolutionFacade =
-            DokkaResolutionFacade(environment.project, libraryModuleDescriptor, resolverForLibrary)
-        val created = DokkaResolutionFacade(environment.project, moduleDescriptor, resolverForModule)
+            DokkaResolutionFacade(
+                environment.project,
+                libraryModuleDescriptor,
+                resolverForLibrary
+            )
+        val created = DokkaResolutionFacade(
+            environment.project,
+            moduleDescriptor,
+            resolverForModule
+        )
         val projectComponentManager = environment.project as MockComponentManager
-        projectComponentManager.registerService(KotlinCacheService::class.java, CoreKotlinCacheService(created))
+        projectComponentManager.registerService(KotlinCacheService::class.java,
+            CoreKotlinCacheService(created)
+        )
 
         return created to libraryResolutionFacade
     }
@@ -399,7 +409,7 @@ class AnalysisEnvironment(val messageCollector: MessageCollector, val analysisPl
         val javaRoots = classpath
             .mapNotNull {
                 val rootFile = when (it.extension) {
-                    "jar" -> StandardFileSystems.jar().findFileByPath("${it.absolutePath}${JAR_SEPARATOR}")
+                    "jar" -> StandardFileSystems.jar().findFileByPath("${it.absolutePath}$JAR_SEPARATOR")
                     else -> StandardFileSystems.local().findFileByPath(it.absolutePath)
                 }
                 rootFile?.let { JavaRoot(it, JavaRoot.RootType.BINARY) }

@@ -2,7 +2,7 @@ package utils
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import java.io.File
 
 class TestOutputWriterPlugin(failOnOverwrite: Boolean = true): DokkaPlugin() {

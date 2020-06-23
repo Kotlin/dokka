@@ -4,11 +4,11 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.single
-import org.jetbrains.dokka.transformers.descriptors.XMLMega
-import org.jetbrains.dokka.transformers.pages.PageNodeTransformer
+import org.jetbrains.dokka.base.plugability.DokkaContext
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.single
+import org.jetbrains.dokka.base.transformers.descriptors.XMLMega
+import org.jetbrains.dokka.base.transformers.pages.PageNodeTransformer
 
 class XmlPlugin : DokkaPlugin() {
     val transformer by extending {

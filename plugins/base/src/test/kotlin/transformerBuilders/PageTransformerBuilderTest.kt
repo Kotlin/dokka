@@ -1,15 +1,15 @@
 package transformerBuilders;
 
-import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.CoreExtensions
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RendererSpecificResourcePage
 import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.transformers.pages.pageMapper
-import org.jetbrains.dokka.transformers.pages.pageScanner
-import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
+import org.jetbrains.dokka.base.transformers.pages.PageTransformer
+import org.jetbrains.dokka.base.transformers.pages.pageMapper
+import org.jetbrains.dokka.base.transformers.pages.pageScanner
+import org.jetbrains.dokka.base.transformers.pages.pageStructureTransformer
 import org.junit.jupiter.api.Test
 
 class PageTransformerBuilderTest : AbstractCoreTest() {

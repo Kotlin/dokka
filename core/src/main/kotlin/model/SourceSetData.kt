@@ -2,7 +2,6 @@ package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.plugability.DokkaContext
 
 data class SourceSetData(
     val moduleName: String,
@@ -34,5 +33,3 @@ class SourceSetCache {
         )
 }
 
-fun DokkaContext.sourceSet(pass: DokkaConfiguration.PassConfiguration): SourceSetData =
-    sourceSetCache.getSourceSet(pass)

@@ -1,8 +1,8 @@
-package org.jetbrains.dokka
+package org.jetbrains.dokka.base
 
 import com.google.gson.Gson
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 import java.util.function.BiConsumer
@@ -87,13 +87,11 @@ class DokkaBootstrapImpl : DokkaBootstrap {
         fun defaultLinks(config: PassConfigurationImpl): List<ExternalDocumentationLinkImpl> {
             val links = mutableListOf<ExternalDocumentationLinkImpl>()
             if (!config.noJdkLink)
-                links += DokkaConfiguration.ExternalDocumentationLink
-                    .Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("https://docs.oracle.com/javase/${config.jdkVersion}/docs/api/")
                     .build() as ExternalDocumentationLinkImpl
 
             if (!config.noStdlibLink)
-                links += DokkaConfiguration.ExternalDocumentationLink
-                    .Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                links += DokkaConfiguration.ExternalDocumentationLink.Builder("https://kotlinlang.org/api/latest/jvm/stdlib/")
                     .build() as ExternalDocumentationLinkImpl
             return links
         }

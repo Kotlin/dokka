@@ -14,14 +14,13 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
-import org.jetbrains.dokka.plugability.Configurable
 import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
 import kotlin.system.exitProcess
 
-open class DokkaTask : DefaultTask(), Configurable {
+open class DokkaTask : DefaultTask() {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
     private val GLOBAL_CONFIGURATION_NAME = "global" // Used for copying perPackageOptions to other platforms
     private val configExtractor = ConfigurationExtractor(project)
@@ -58,7 +57,7 @@ open class DokkaTask : DefaultTask(), Configurable {
     var subProjects: List<String> = emptyList()
 
     @Input
-    override val pluginsConfiguration: Map<String, String> = mutableMapOf()
+    val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @Optional
     @Input

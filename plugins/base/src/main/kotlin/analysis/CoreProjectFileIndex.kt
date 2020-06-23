@@ -1,4 +1,4 @@
-package org.jetbrains.dokka.analysis
+package org.jetbrains.dokka.base.analysis
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.BaseComponent
@@ -32,6 +32,7 @@ import java.io.File
  * Workaround for the lack of ability to create a ProjectFileIndex implementation using only
  * classes from projectModel-{api,impl}.
  */
+@Suppress("NonExtendableApiUsage")
 class CoreProjectFileIndex(private val project: Project, contentRoots: List<ContentRoot>) : ProjectFileIndex, ModuleFileIndex {
     override fun iterateContent(p0: ContentIterator, p1: VirtualFileFilter?): Boolean {
         throw UnsupportedOperationException()
@@ -53,14 +54,6 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun getOptionValue(p0: String): String? {
-            throw UnsupportedOperationException()
-        }
-
-        override fun clearOption(p0: String) {
-            throw UnsupportedOperationException()
-        }
-
         override fun getName(): String = "<Dokka module>"
 
         override fun getModuleWithLibrariesScope(): GlobalSearchScope {
@@ -68,18 +61,6 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
         }
 
         override fun getModuleWithDependentsScope(): GlobalSearchScope {
-            throw UnsupportedOperationException()
-        }
-
-        override fun getModuleContentScope(): GlobalSearchScope {
-            throw UnsupportedOperationException()
-        }
-
-        override fun isLoaded(): Boolean {
-            throw UnsupportedOperationException()
-        }
-
-        override fun setOption(p0: String, p1: String?) {
             throw UnsupportedOperationException()
         }
 
@@ -91,15 +72,6 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun getProject(): Project = this@CoreProjectFileIndex.project
-
-        override fun getModuleContentWithDependenciesScope(): GlobalSearchScope {
-            throw UnsupportedOperationException()
-        }
-
-        override fun getModuleFilePath(): String {
-            throw UnsupportedOperationException()
-        }
 
         override fun getModuleTestsWithDependentsScope(): GlobalSearchScope {
             throw UnsupportedOperationException()
@@ -109,15 +81,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun getModuleScope(p0: Boolean): GlobalSearchScope {
-            throw UnsupportedOperationException()
-        }
-
         override fun getModuleRuntimeScope(p0: Boolean): GlobalSearchScope {
-            throw UnsupportedOperationException()
-        }
-
-        override fun getModuleFile(): VirtualFile? {
             throw UnsupportedOperationException()
         }
 
@@ -125,13 +89,6 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun getComponent(p0: String): BaseComponent? {
-            throw UnsupportedOperationException()
-        }
-
-        override fun <T : Any?> getComponent(p0: Class<T>, p1: T): T {
-            throw UnsupportedOperationException()
-        }
 
         override fun <T : Any?> getComponent(interfaceClass: Class<T>): T? {
             if (interfaceClass == ModuleRootManager::class.java) {
@@ -144,15 +101,7 @@ class CoreProjectFileIndex(private val project: Project, contentRoots: List<Cont
             throw UnsupportedOperationException()
         }
 
-        override fun <T : Any?> getComponents(p0: Class<T>): Array<out T> {
-            throw UnsupportedOperationException()
-        }
-
         override fun getPicoContainer(): PicoContainer {
-            throw UnsupportedOperationException()
-        }
-
-        override fun hasComponent(p0: Class<*>): Boolean {
             throw UnsupportedOperationException()
         }
 

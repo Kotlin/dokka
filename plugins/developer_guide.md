@@ -35,7 +35,7 @@ Following sample provides custom translator object as a `DokkaCore.sourceToDocum
 ```kotlin
 package org.jetbrains.dokka.sample
 
-import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.base.plugability.DokkaPlugin
 
 class SamplePlugin : DokkaPlugin() {
     extension by extending {
