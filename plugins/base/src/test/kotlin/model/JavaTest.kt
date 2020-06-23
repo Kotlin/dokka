@@ -52,7 +52,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |class Tested extends Extendable implements Lower { }
         """){
             with((this / "java" / "Tested").cast<DClass>()){
-                extra[ImplementedInterfaces]?.interfaces?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
+                extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
             }
         }
     }

@@ -278,7 +278,9 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             .orEmpty()
 
     private fun renderClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
-        val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.isInherited ?: false }
+        val (inherited, own) = nodes.partition { it.extras[InheritedFunction]?.inheritedFrom?.any {
+            it.key.platform == Platform.jvm // TODO: REMOVE HARDCODED JVM DEPENDENCY
+        } ?: false }
         return mapOf(
             "own" to own.map { renderContentNodes(it) },
             "inherited" to inherited.map { renderInheritedMethod(it) }
