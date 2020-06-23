@@ -5,6 +5,9 @@ plugins {
 }
 
 dependencies {
+    val coroutines_version: String by project
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+
     api(project(":kotlin-analysis"))
     implementation("org.jsoup:jsoup:1.12.1")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.10")
