@@ -41,6 +41,7 @@ open class DokkaPlugin : Plugin<Project> {
     private fun addConfiguration(project: Project) =
         project.configurations.create("dokkaRuntime").apply {
             defaultDependencies { dependencies ->
+                dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-base:${DokkaVersion.version}"))
                 dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
             }
         }
