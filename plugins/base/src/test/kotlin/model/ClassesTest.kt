@@ -426,7 +426,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
             """@Suppress("abc") class Foo() {}"""
         ) {
             with((this / "classes" / "Foo").cast<DClass>()) {
-                with(extra[Annotations]?.content?.firstOrNull().assertNotNull("annotations")) {
+                with(extra[Annotations]?.content?.values?.firstOrNull()?.firstOrNull().assertNotNull("annotations")) {
                     dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
                     (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("\"abc\""))
                 }
