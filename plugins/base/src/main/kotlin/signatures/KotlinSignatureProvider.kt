@@ -289,7 +289,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             is OtherParameter -> link(p.name, p.declarationDRI)
 
             is TypeConstructor -> if (p.function)
-                +funType(mainDRI.single(), mainPlatformData, p)
+                +funType(mainDRI.single(), mainSourcesetData, p)
             else
                 group(styles = emptySet()) {
                     link(p.dri.classNames.orEmpty(), p.dri)
