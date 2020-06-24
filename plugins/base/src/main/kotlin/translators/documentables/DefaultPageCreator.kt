@@ -145,7 +145,9 @@ open class DefaultPageCreator(
             if (map.values.any()) {
                 header(2, "Inheritors") { }
                 +ContentTable(
-                    emptyList(),
+                    listOf(contentBuilder.contentFor(mainDRI, mainSourcesetData){
+                            text("Name")
+                    }),
                     map.entries.flatMap { entry -> entry.value.map { Pair(entry.key, it) } }
                         .groupBy({ it.second }, { it.first }).map { (classlike, platforms) ->
                             buildGroup(setOf(dri), platforms.toSet(), ContentKind.Inheritors) {

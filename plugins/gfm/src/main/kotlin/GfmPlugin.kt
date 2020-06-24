@@ -15,7 +15,6 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-
 class GfmPlugin : DokkaPlugin() {
 
     val gfmPreprocessors by extensionPoint<PageTransformer>()
@@ -49,6 +48,20 @@ open class CommonmarkRenderer(
 
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
+    override fun StringBuilder.wrapGroup(
+        node: ContentGroup,
+        pageContext: ContentPage,
+        childrenCallback: StringBuilder.() -> Unit
+    ) {
+        return when {
+            node.hasStyle(TextStyle.Block) -> {
+                childrenCallback()
+                buildNewLine()
+            }
+            else -> childrenCallback()
+        }
+    }
+
     override fun StringBuilder.buildHeader(level: Int, node: ContentHeader, content: StringBuilder.() -> Unit) {
         buildParagraph()
         append("#".repeat(level) + " ")
@@ -57,48 +70,40 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
-        append("[")
+        append("""<a href="$address">""")
         content()
-        append("]($address)")
+        append("</a>")
     }
 
     override fun StringBuilder.buildList(
         node: ContentList,
         pageContext: ContentPage,
-        platformRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
-        buildParagraph()
         buildListLevel(node, pageContext)
-        buildParagraph()
     }
 
-    private val indent = " ".repeat(4)
-
-    private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage, bullet: String = "*") {
+    private fun StringBuilder.buildListItem(items: List<ContentNode>, pageContext: ContentPage) {
         items.forEach {
             if (it is ContentList) {
-                val builder = StringBuilder()
-                builder.append(indent)
-                builder.buildListLevel(it, pageContext)
-                append(builder.toString().replace(Regex("  \n(?!$)"), "  \n$indent"))
+                buildList(it, pageContext)
             } else {
-                append("$bullet ")
+                append("<li>")
                 it.build(this, pageContext)
-                buildNewLine()
+                append("</li>")
             }
         }
     }
 
     private fun StringBuilder.buildListLevel(node: ContentList, pageContext: ContentPage) {
         if (node.ordered) {
-            buildListItem(
-                node.children,
-                pageContext,
-                "${node.extra.allOfType<SimpleAttr>().find { it.extraKey == "start" }?.extraValue
-                    ?: 1.also { context.logger.error("No starting number specified for ordered list in node ${pageContext.dri.first()}!") }}."
-            )
+            append("<ol>")
+            buildListItem(node.children, pageContext)
+            append("</ol>")
         } else {
-            buildListItem(node.children, pageContext, "*")
+            append("<ul>")
+            buildListItem(node.children, pageContext)
+            append("</ul>")
         }
     }
 
@@ -115,20 +120,30 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
-        val distinct = content.sourceSets.map {
-            it to StringBuilder().apply { buildContentNode(content.inner, pageContext, setOf(it)) }.toString()
-        }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
+        buildPlatformDependentItem(content.inner, content.sourceSets, pageContext)
+    }
 
-        if (distinct.size == 1)
-            append(distinct.keys.single())
-        else
-            distinct.forEach { text, platforms ->
+    private fun StringBuilder.buildPlatformDependentItem(
+        content: ContentNode,
+        sourceSets: Set<DokkaSourceSet>,
+        pageContext: ContentPage,
+    ) {
+        if(content is ContentGroup && content.children.firstOrNull{ it is ContentTable } != null){
+            buildContentNode(content, pageContext)
+        } else {
+            val distinct = sourceSets.map {
+                it to StringBuilder().apply { buildContentNode(content, pageContext, setOf(it)) }.toString()
+            }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
+
+            distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
                 append(
                     platforms.joinToString(
                         prefix = " [",
-                        postfix = "] $text"
+                        postfix = "] $text "
                     ) { "${it.moduleName}/${it.sourceSetID}" })
+                buildNewLine()
             }
+        }
     }
 
     override fun StringBuilder.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage) {
@@ -138,43 +153,53 @@ open class CommonmarkRenderer(
     override fun StringBuilder.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
-        platformRestriction: Set<DokkaSourceSet>?
+        sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
-
-        buildParagraph()
-        val size = node.children.firstOrNull()?.children?.size ?: 0
-
-        if (node.header.size > 0) {
-            node.header.forEach {
-                it.children.forEach {
-                    append("| ")
-                    it.build(this, pageContext)
-                }
-                append("|\n")
+        if(node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters){
+            node.sourceSets.forEach {sourcesetData ->
+                append("${sourcesetData.moduleName}/${sourcesetData.sourceSetID}")
+                buildNewLine()
+                buildTable(node.copy(children = node.children.filter { it.sourceSets.contains(sourcesetData) }, dci = node.dci.copy(kind = ContentKind.Main)), pageContext, sourceSetRestriction)
+                buildNewLine()
             }
         } else {
-            append("| ".repeat(size))
-            if (size > 0) append("|\n")
-        }
+            val size = node.header.size
 
-        append("|---".repeat(size))
-        if (size > 0) append("|\n")
-
-        node.children.forEach {
-            it.children.forEach {
+            if (node.header.isNotEmpty()) {
                 append("| ")
-                it.build(this, pageContext)
+                node.header.forEach {
+                    it.children.forEach {
+                        append(" ")
+                        it.build(this, pageContext)
+                    }
+                    append("| ")
+                }
+                append("\n")
+            } else {
+                append("| ".repeat(size))
+                if (size > 0) append("|\n")
             }
-            append("|\n")
-        }
 
-        buildParagraph()
+            append("|---".repeat(size))
+            if (size > 0) append("|\n")
+
+            node.children.forEach {
+                val builder = StringBuilder()
+                it.children.forEach {
+                    builder.append("| ")
+                    it.build(builder, pageContext)
+                }
+                append(builder.toString().withEntersAsHtml())
+                append(" | ".repeat(size - it.children.size))
+                append("\n")
+            }
+        }
     }
 
     override fun StringBuilder.buildText(textNode: ContentText) {
         val decorators = decorators(textNode.style)
         append(decorators)
-        append(textNode.text.replace(Regex("[<>]"), ""))
+        append(textNode.text)
         append(decorators.reversed())
     }
 
@@ -194,6 +219,19 @@ open class CommonmarkRenderer(
 
     override fun buildError(node: ContentNode) {
         context.logger.warn("Markdown renderer has encountered problem. The unmatched node is $node")
+    }
+
+    override fun StringBuilder.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
+        node.before?.let {
+            buildPlatformDependentItem(it, it.sourceSets, pageContext)
+            buildNewLine()
+        }
+        node.divergent.build(this, pageContext)
+        buildNewLine()
+        node.after?.let {
+            buildPlatformDependentItem(it, it.sourceSets, pageContext)
+            buildNewLine()
+        }
     }
 
     private fun decorators(styles: Set<Style>) = StringBuilder().apply {
@@ -231,6 +269,8 @@ open class CommonmarkRenderer(
             )
         }
     }
+
+    private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
 }
 
 class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {

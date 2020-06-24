@@ -117,9 +117,16 @@ abstract class DefaultRenderer<T>(
                 is ContentBreakLine -> buildNewLine()
                 is PlatformHintedContent -> buildPlatformDependent(node, pageContext, sourceSetRestriction)
                 is ContentDivergentGroup -> buildDivergent(node, pageContext)
+                is ContentDivergentInstance -> buildDivergentInstance(node, pageContext)
                 else -> buildError(node)
             }
         }
+    }
+
+    open fun T.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
+        node.before?.build(this, pageContext)
+        node.divergent.build(this, pageContext)
+        node.after?.build(this, pageContext)
     }
 
     open fun buildPageContent(context: T, page: ContentPage) {
