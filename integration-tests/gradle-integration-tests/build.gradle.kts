@@ -14,7 +14,7 @@ dependencies {
     testImplementation(gradleTestKit())
 
     dokkaPlugin(project(path = ":runners:gradle-plugin"))
-    dokkaCore(project(path = ":coreDependencies", configuration = "shadow"))
+    dokkaCore(project(path = ":core:dependencies", configuration = "shadow"))
     dokkaCore(project(path = ":core"))
     kotlinGradle("org.jetbrains.kotlin:kotlin-gradle-plugin")
 }

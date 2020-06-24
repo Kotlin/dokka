@@ -6,12 +6,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":coreDependencies", configuration = "shadow"))
+    api(project("dependencies", configuration = "shadow"))
 
-    val kotlin_version: String by project
-    api("org.jetbrains.kotlin:kotlin-compiler:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    implementation(kotlin("reflect"))
     implementation("com.google.code.gson:gson:2.8.5")
     implementation("org.jsoup:jsoup:1.12.1")
 

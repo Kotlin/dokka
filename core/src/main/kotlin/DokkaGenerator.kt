@@ -1,7 +1,5 @@
 package org.jetbrains.dokka
 
-import org.jetbrains.dokka.analysis.AnalysisEnvironment
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetCache
 import org.jetbrains.dokka.model.SourceSetData
@@ -9,13 +7,7 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.utils.PathUtil
-import java.io.File
+
 
 /**
  * DokkaGenerator is the main entry point for generating documentation
@@ -26,15 +18,13 @@ class DokkaGenerator(
     private val logger: DokkaLogger
 ) {
     fun generate() = timed {
-        report("Setting up analysis environments")
         val sourceSetsCache = SourceSetCache()
-        val sourceSets: Map<SourceSetData, EnvironmentAndFacade> = setUpAnalysis(configuration, sourceSetsCache)
 
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
+        val context = initializePlugins(configuration, logger, sourceSetsCache)
 
         report("Creating documentation models")
-        val modulesFromPlatforms = createDocumentationModels(sourceSets, context)
+        val modulesFromPlatforms = createDocumentationModels(context, sourceSetsCache)
 
         report("Transforming documentation model before merging")
         val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms, context)
@@ -59,9 +49,8 @@ class DokkaGenerator(
 
     fun generateAllModulesPage() = timed {
         val sourceSetsCache = SourceSetCache()
-        val sourceSets = emptyMap<SourceSetData, EnvironmentAndFacade>()
         report("Initializing plugins")
-        val context = initializePlugins(configuration, logger, sourceSets, sourceSetsCache)
+        val context = initializePlugins(configuration, logger, sourceSetsCache)
 
         report("Creating all modules page")
         val pages = createAllModulePage(context)
@@ -73,26 +62,20 @@ class DokkaGenerator(
         render(transformedPages, context)
     }.dump("\n\n === TIME MEASUREMENT ===\n")
 
-    fun setUpAnalysis(
-        configuration: DokkaConfiguration,
-        sourceSetsCache: SourceSetCache
-    ): Map<SourceSetData, EnvironmentAndFacade> =
-        configuration.passesConfigurations.map {
-            sourceSetsCache.getSourceSet(it) to createEnvironmentAndFacade(configuration, it)
-        }.toMap()
 
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        sourceSets: Map<SourceSetData, EnvironmentAndFacade>,
         sourceSetsCache: SourceSetCache,
         pluginOverrides: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, sourceSets, sourceSetsCache, pluginOverrides)
+    ) = DokkaContext.create(configuration, logger, sourceSetsCache, pluginOverrides)
 
     fun createDocumentationModels(
-        platforms: Map<SourceSetData, EnvironmentAndFacade>,
-        context: DokkaContext
-    ) = platforms.flatMap { (pdata, _) -> translateSources(pdata, context) }
+        context: DokkaContext,
+        sourceSetsCache: SourceSetCache
+    ) = context.configuration.passesConfigurations
+        .map { passConfiguration -> sourceSetsCache.getSourceSet(passConfiguration) }
+        .flatMap { passConfiguration -> translateSources(passConfiguration, context) }
 
     fun transformDocumentationModelBeforeMerge(
         modulesFromPlatforms: List<DModule>,
@@ -150,56 +133,10 @@ class DokkaGenerator(
         }
     }
 
-    private fun createEnvironmentAndFacade(
-        configuration: DokkaConfiguration,
-        pass: DokkaConfiguration.PassConfiguration
-    ): EnvironmentAndFacade =
-        AnalysisEnvironment(DokkaMessageCollector(logger), pass.analysisPlatform).run {
-            if (analysisPlatform == Platform.jvm) {
-                addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
-            }
-            pass.classpath.forEach { addClasspath(File(it)) }
-
-            addSources(
-                (pass.sourceRoots + configuration.passesConfigurations.filter { it.sourceSetID in pass.dependentSourceSets }
-                    .flatMap { it.sourceRoots })
-                    .map { it.path }
-            )
-
-            loadLanguageVersionSettings(pass.languageVersion, pass.apiVersion)
-
-            val environment = createCoreEnvironment()
-            val (facade, _) = createResolutionFacade(environment)
-            EnvironmentAndFacade(environment, facade)
-        }
-
     private fun translateSources(platformData: SourceSetData, context: DokkaContext) =
         context[CoreExtensions.sourceToDocumentableTranslator].map {
             it.invoke(platformData, context)
         }
-
-    class DokkaMessageCollector(private val logger: DokkaLogger) : MessageCollector {
-        override fun clear() {
-            seenErrors = false
-        }
-
-        private var seenErrors = false
-
-        override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
-            if (severity == CompilerMessageSeverity.ERROR) {
-                seenErrors = true
-            }
-            logger.info(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
-        }
-
-        override fun hasErrors() = seenErrors
-    }
-}
-
-// It is not data class due to ill-defined equals
-class EnvironmentAndFacade(val environment: KotlinCoreEnvironment, val facade: DokkaResolutionFacade) {
-    operator fun component1() = environment
-    operator fun component2() = facade
 }
 
 private class Timer(startTime: Long, private val logger: DokkaLogger?) {

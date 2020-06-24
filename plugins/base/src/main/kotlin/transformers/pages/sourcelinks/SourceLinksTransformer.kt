@@ -3,11 +3,11 @@ package org.jetbrains.dokka.base.transformers.pages.sourcelinks
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
+import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
-import org.jetbrains.dokka.model.DescriptorDocumentableSource
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.DocumentableSource
-import org.jetbrains.dokka.model.PsiDocumentableSource
 import org.jetbrains.dokka.model.WithExpectActual
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext

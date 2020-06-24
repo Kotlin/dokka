@@ -1,7 +1,7 @@
-package org.jetbrains.dokka.parsers
+package org.jetbrains.dokka.base.parsers
 
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.parsers.factories.DocTagsFromStringFactory
+import org.jetbrains.dokka.base.parsers.factories.DocTagsFromStringFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Node
 import org.jsoup.select.NodeFilter

@@ -1,6 +1,9 @@
+@file:Suppress("unused")
+
 package org.jetbrains.dokka.base
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.base.allModulePage.MultimodulePageCreator
 import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.renderers.html.*
@@ -37,13 +40,19 @@ class DokkaBase : DokkaPlugin() {
     val externalLocationProviderFactory by extensionPoint<ExternalLocationProviderFactory>()
     val outputWriter by extensionPoint<OutputWriter>()
     val htmlPreprocessors by extensionPoint<PageTransformer>()
+    val kotlinAnalysis by extensionPoint<KotlinAnalysis>()
+
 
     val descriptorToDocumentableTranslator by extending {
-        CoreExtensions.sourceToDocumentableTranslator with DefaultDescriptorToDocumentableTranslator
+        CoreExtensions.sourceToDocumentableTranslator providing { ctx ->
+            DefaultDescriptorToDocumentableTranslator(ctx.single(kotlinAnalysis))
+        }
     }
 
     val psiToDocumentableTranslator by extending {
-        CoreExtensions.sourceToDocumentableTranslator with DefaultPsiToDocumentableTranslator
+        CoreExtensions.sourceToDocumentableTranslator providing { ctx ->
+            DefaultPsiToDocumentableTranslator(ctx.single(kotlinAnalysis))
+        }
     }
 
     val documentableMerger by extending(isFallback = true) {
@@ -69,7 +78,9 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val modulesAndPackagesDocumentation by extending(isFallback = true) {
-        CoreExtensions.preMergeDocumentableTransformer providing ::ModuleAndPackageDocumentationTransformer
+        CoreExtensions.preMergeDocumentableTransformer providing { ctx ->
+            ModuleAndPackageDocumentationTransformer(ctx, ctx.single(kotlinAnalysis))
+        }
     }
 
     val kotlinSignatureProvider by extending(isFallback = true) {
@@ -122,6 +133,10 @@ class DokkaBase : DokkaPlugin() {
 
     val htmlRenderer by extending {
         CoreExtensions.renderer providing ::HtmlRenderer applyIf { format == "html" }
+    }
+
+    val defaultKotlinAnalysis by extending(isFallback = true) {
+        kotlinAnalysis providing { ctx -> KotlinAnalysis(ctx) }
     }
 
     val locationProvider by extending(isFallback = true) {

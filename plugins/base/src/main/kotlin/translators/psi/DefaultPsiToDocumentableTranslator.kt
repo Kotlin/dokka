@@ -7,6 +7,10 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import org.jetbrains.dokka.analysis.KotlinAnalysis
+import org.jetbrains.dokka.analysis.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
@@ -17,6 +21,7 @@ import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
@@ -33,15 +38,17 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
-object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
+class DefaultPsiToDocumentableTranslator(
+    private val kotlinAnalysis: KotlinAnalysis
+) : SourceToDocumentableTranslator {
 
-    override fun invoke(sourceSetData: SourceSetData, context: DokkaContext): DModule {
+    override fun invoke(sourceSet: SourceSetData, context: DokkaContext): DModule {
 
         fun isFileInSourceRoots(file: File): Boolean {
-            return sourceSetData.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
+            return sourceSet.sourceRoots.any { root -> file.path.startsWith(File(root.path).absolutePath) }
         }
 
-        val (environment, _) = context.platforms.getValue(sourceSetData)
+        val (environment, _) = kotlinAnalysis[sourceSet]
 
         val sourceRoots = environment.configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
             ?.filterIsInstance<JavaSourceRoot>()
@@ -59,11 +66,11 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
 
         val docParser =
             DokkaPsiParser(
-                sourceSetData,
+                sourceSet,
                 context.logger
             )
         return DModule(
-            sourceSetData.moduleName,
+            sourceSet.moduleName,
             psiFiles.mapNotNull { it.safeAs<PsiJavaFile>() }.groupBy { it.packageName }.map { (packageName, psiFiles) ->
                 val dri = DRI(packageName = packageName)
                 DPackage(
@@ -76,12 +83,12 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
                     emptyList(),
                     emptyMap(),
                     null,
-                    setOf(sourceSetData)
+                    setOf(sourceSet)
                 )
             },
             emptyMap(),
             null,
-            setOf(sourceSetData)
+            setOf(sourceSet)
         )
     }
 

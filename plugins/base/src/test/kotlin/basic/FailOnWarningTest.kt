@@ -28,7 +28,7 @@ class FailOnWarningTest : AbstractCoreTest() {
                 |package sample
                 """.trimIndent(), configuration
             ) {
-                analysisSetupStage = {
+                pluginsSetupStage = {
                     logger.warn("Warning!")
                 }
             }
@@ -53,7 +53,7 @@ class FailOnWarningTest : AbstractCoreTest() {
                 |package sample
                 """.trimIndent(), configuration
             ) {
-                analysisSetupStage = {
+                pluginsSetupStage = {
                     logger.error("Error!")
                 }
             }
@@ -102,7 +102,7 @@ class FailOnWarningTest : AbstractCoreTest() {
                 |package sample
                 """.trimIndent(), configuration
         ) {
-            analysisSetupStage = {
+            pluginsSetupStage = {
                 logger.warn("Error!")
                 logger.error("Error!")
             }

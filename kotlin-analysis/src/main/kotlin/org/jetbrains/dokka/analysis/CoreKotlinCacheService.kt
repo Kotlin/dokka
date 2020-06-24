@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.analysis
 
 import com.intellij.psi.PsiFile
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
@@ -39,4 +40,3 @@ class CoreKotlinCacheService(private val resolutionFacade: DokkaResolutionFacade
     }
 
 }
-

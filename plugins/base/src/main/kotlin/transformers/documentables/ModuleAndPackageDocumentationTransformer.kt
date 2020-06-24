@@ -1,10 +1,13 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.analysis.EnvironmentAndFacade
+import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.SourceSetData
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.sourceSet
-import org.jetbrains.dokka.parsers.MarkdownParser
+import org.jetbrains.dokka.base.parsers.MarkdownParser
+import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.kotlin.name.FqName
@@ -12,9 +15,12 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 
-internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
+internal class ModuleAndPackageDocumentationTransformer(
+    private val context: DokkaContext,
+    private val kotlinAnalysis: KotlinAnalysis
+) : PreMergeDocumentableTransformer {
 
-    override fun invoke(original: List<DModule>): List<DModule> {
+    override fun invoke(modules: List<DModule>): List<DModule> {
 
         val modulesAndPackagesDocumentation =
             context.configuration.passesConfigurations
@@ -47,13 +53,12 @@ internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContex
                                 }
                 }.toMap()
 
-        return original.map { module ->
+        return modules.map { module ->
 
             val moduleDocumentation =
                 module.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
-                    val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetID}") }
+                    val facade = kotlinAnalysis[pd].facade
                     try {
                         doc?.get("Module")?.get(module.name)?.run {
                             pd to MarkdownParser(
@@ -71,8 +76,7 @@ internal class ModuleAndPackageDocumentationTransformer(val context: DokkaContex
             val packagesDocumentation = module.packages.map {
                 it.name to it.sourceSets.mapNotNull { pd ->
                     val doc = modulesAndPackagesDocumentation[Pair(module.name, pd)]
-                    val facade = context.platforms[pd]?.facade
-                        ?: return@mapNotNull null.also { context.logger.warn("Could not find platform data for ${pd.moduleName}/${pd.sourceSetID}") }
+                    val facade = kotlinAnalysis[pd].facade
                     val descriptor = facade.moduleDescriptor.getPackage(FqName(it.name.let { if(it == "[JS root]") "" else it }))
                     doc?.get("Package")?.get(it.name)?.run {
                         pd to MarkdownParser(

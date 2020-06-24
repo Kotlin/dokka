@@ -2,7 +2,6 @@ package org.jetbrains.dokka.plugability
 
 import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.kotlin.utils.addToStdlib.cast
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -60,8 +59,9 @@ interface ConfigurableBlock
 
 inline fun <reified P : DokkaPlugin, reified T : ConfigurableBlock> Configurable.pluginConfiguration(block: T.() -> Unit) {
     val instance = T::class.createInstance().apply(block)
-    pluginsConfiguration.cast<MutableMap<String, String>>()[P::class.qualifiedName!!] =
-        Gson().toJson(instance, T::class.java)
+
+    val mutablePluginsConfiguration = pluginsConfiguration as MutableMap<String, String>
+    mutablePluginsConfiguration[P::class.qualifiedName!!] = Gson().toJson(instance, T::class.java)
 }
 
 inline fun <reified P : DokkaPlugin, reified E : Any> P.query(extension: P.() -> ExtensionPoint<E>): List<E> =

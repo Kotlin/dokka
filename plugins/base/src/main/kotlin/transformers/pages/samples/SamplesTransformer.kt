@@ -1,11 +1,11 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.EnvironmentAndFacade
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
+import org.jetbrains.dokka.analysis.DokkaMessageCollector
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.analysis.EnvironmentAndFacade
 import org.jetbrains.dokka.base.renderers.platforms
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.SourceSetData
@@ -41,7 +41,7 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun setUpAnalysis(context: DokkaContext) = context.configuration.passesConfigurations.map {
-        context.sourceSet(it) to AnalysisEnvironment(DokkaGenerator.DokkaMessageCollector(context.logger), it.analysisPlatform).run {
+        context.sourceSet(it) to AnalysisEnvironment(DokkaMessageCollector(context.logger), it.analysisPlatform).run {
             if (analysisPlatform == Platform.jvm) {
                 addClasspath(PathUtil.getJdkClassesRootsFromCurrentJre())
             }
@@ -57,11 +57,16 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         }
     }.toMap()
 
-    private fun ContentNode.addSample(contentPage: ContentPage, platform: SourceSetData, fqName: String, analysis: Map<SourceSetData, EnvironmentAndFacade>): ContentNode {
-        val facade = analysis[platform]?.facade ?:
-            return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleName}")}
-        val psiElement = fqNameToPsiElement(facade, fqName) ?:
-            return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
+    private fun ContentNode.addSample(
+        contentPage: ContentPage,
+        platform: SourceSetData,
+        fqName: String,
+        analysis: Map<SourceSetData, EnvironmentAndFacade>
+    ): ContentNode {
+        val facade = analysis[platform]?.facade
+            ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleName}") }
+        val psiElement = fqNameToPsiElement(facade, fqName)
+            ?: return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
         val imports = processImports(psiElement) // TODO: Process somehow imports. Maybe just attach them at the top of each body
         val body = processBody(psiElement)
         val node = contentCode(contentPage.platforms(), contentPage.dri, body, "kotlin")
@@ -70,10 +75,14 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     }
 
     private fun ContentNode.dfs(fqName: String, node: ContentCode): ContentNode {
-        return when(this) {
+        return when (this) {
             is ContentHeader -> copy(children.map { it.dfs(fqName, node) })
             is ContentDivergentGroup -> copy(children.map { it.dfs(fqName, node) } as List<ContentDivergentInstance>)
-            is ContentDivergentInstance -> copy(before.let { it?.dfs(fqName, node) }, divergent.let { it.dfs(fqName, node) }, after.let { it?.dfs(fqName, node) })
+            is ContentDivergentInstance -> copy(
+                before.let { it?.dfs(fqName, node) },
+                divergent.dfs(fqName, node),
+                after.let { it?.dfs(fqName, node) }
+            )
             is ContentCode -> copy(children.map { it.dfs(fqName, node) })
             is ContentDRILink -> copy(children.map { it.dfs(fqName, node) })
             is ContentResolvedLink -> copy(children.map { it.dfs(fqName, node) })
@@ -90,10 +99,14 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private fun fqNameToPsiElement(resolutionFacade: DokkaResolutionFacade, functionName: String): PsiElement? {
         val packageName = functionName.takeWhile { it != '.' }
-        val descriptor = resolutionFacade.resolveSession.getPackageFragment(FqName(packageName)) ?:
-            return null.also { context.logger.warn("Cannot find descriptor for package $packageName") }
-        val symbol = resolveKDocSampleLink(BindingContext.EMPTY, resolutionFacade, descriptor, functionName.split(".")).firstOrNull() ?:
-            return null.also { context.logger.warn("Unresolved function $functionName in @sample") }
+        val descriptor = resolutionFacade.resolveSession.getPackageFragment(FqName(packageName))
+            ?: return null.also { context.logger.warn("Cannot find descriptor for package $packageName") }
+        val symbol = resolveKDocSampleLink(
+            BindingContext.EMPTY,
+            resolutionFacade,
+            descriptor,
+            functionName.split(".")
+        ).firstOrNull() ?: return null.also { context.logger.warn("Unresolved function $functionName in @sample") }
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 

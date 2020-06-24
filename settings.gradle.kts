@@ -1,13 +1,15 @@
 rootProject.name = "dokka"
 
 include("core")
+include("core:dependencies")
 include("plugins:base:search-component")
-include("coreDependencies")
 include("testApi")
 include("test-tools")
 include("runners:gradle-plugin")
 include("runners:cli")
 include("runners:maven-plugin")
+include("kotlin-analysis")
+include("kotlin-analysis:dependencies")
 include("plugins:base")
 include("plugins:base:frontend")
 include("plugins:mathjax")
@@ -27,7 +29,7 @@ pluginManagement {
     }
 
     repositories {
-        maven(url="https://dl.bintray.com/kotlin/kotlin-dev/")
+        maven(url = "https://dl.bintray.com/kotlin/kotlin-dev/")
         mavenLocal()
         mavenCentral()
         jcenter()

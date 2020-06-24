@@ -1,6 +1,6 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
-import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.analysis.*
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
@@ -8,7 +8,7 @@ import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.parsers.MarkdownParser
+import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -52,18 +52,19 @@ import org.jetbrains.kotlin.resolve.constants.EnumValue as ConstantsEnumValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue as ConstantsKtClassValue
 import kotlin.IllegalArgumentException
 
-object DefaultDescriptorToDocumentableTranslator : SourceToDocumentableTranslator {
+class DefaultDescriptorToDocumentableTranslator(
+    private val kotlinAnalysis: KotlinAnalysis
+) : SourceToDocumentableTranslator {
 
     override fun invoke(sourceSet: SourceSetData, context: DokkaContext): DModule {
-
-        val (environment, facade) = context.platforms.getValue(sourceSet)
+        val (environment, facade) = kotlinAnalysis[sourceSet]
         val packageFragments = environment.getSourceFiles().asSequence()
             .map { it.packageFqName }
             .distinct()
             .mapNotNull { facade.resolveSession.getPackageFragment(it) }
             .toList()
 
-        return DokkaDescriptorVisitor(sourceSet, context.platforms.getValue(sourceSet).facade, context.logger).run {
+        return DokkaDescriptorVisitor(sourceSet, kotlinAnalysis[sourceSet].facade, context.logger).run {
             packageFragments.mapNotNull { it.safeAs<PackageFragmentDescriptor>() }.map {
                 visitPackageFragmentDescriptor(
                     it,

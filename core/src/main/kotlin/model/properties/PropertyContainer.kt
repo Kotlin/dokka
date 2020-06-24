@@ -1,7 +1,5 @@
 package org.jetbrains.dokka.model.properties
 
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-
 class PropertyContainer<C : Any> internal constructor(
     @PublishedApi internal val map: Map<ExtraProperty.Key<C, *>, ExtraProperty<C>>
 ) {
@@ -45,7 +43,7 @@ fun <C> C.mergeExtras(left: C, right: C): C where C : Any, C : WithExtraProperti
         (l.key as ExtraProperty.Key<C, ExtraProperty<C>>).mergeStrategyFor(l, r)
     }
 
-    strategies.firstIsInstanceOrNull<MergeStrategy.Fail>()?.error?.invoke()
+    strategies.filterIsInstance<MergeStrategy.Fail>().firstOrNull()?.error?.invoke()
 
     val replaces: List<ExtraProperty<C>> =
         strategies.filterIsInstance<MergeStrategy.Replace<C>>().map { it.newProperty }

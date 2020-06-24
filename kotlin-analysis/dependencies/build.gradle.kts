@@ -1,12 +1,11 @@
 import org.jetbrains.configureBintrayPublication
 
+
 plugins {
     id("com.github.johnrengelman.shadow")
     `maven-publish`
     id("com.jfrog.bintray")
 }
-
-val intellijCore: Configuration by configurations.creating
 
 repositories {
     maven(url = "https://www.jetbrains.com/intellij-repository/snapshots")
@@ -14,31 +13,33 @@ repositories {
     maven(url = "https://kotlin.bintray.com/kotlin-plugin")
 }
 
+val intellijCore: Configuration by configurations.creating
+
 fun intellijCoreAnalysis() = zipTree(intellijCore.singleFile).matching {
     include("intellij-core-analysis.jar")
 }
 
 dependencies {
-    val idea_version: String by project
-    intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
     val kotlin_plugin_version: String by project
-    implementation(intellijCoreAnalysis())
-    implementation("org.jetbrains.kotlin:kotlin-plugin-ij193:$kotlin_plugin_version") {
+    api("org.jetbrains.kotlin:ide-common-ij193:$kotlin_plugin_version")
+    api("org.jetbrains.kotlin:kotlin-plugin-ij193:$kotlin_plugin_version") {
         //TODO: parametrize ij version after 1.3.70
         isTransitive = false
     }
+
+    val idea_version: String by project
+    intellijCore("com.jetbrains.intellij.idea:intellij-core:$idea_version")
+    implementation(intellijCoreAnalysis())
+
     implementation("org.jetbrains:markdown:0.1.41") {
         because("it's published only on bintray")
     }
-    implementation("org.jetbrains.kotlin:ide-common-ij193:$kotlin_plugin_version")
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
 }
 
 tasks {
     shadowJar {
         val dokka_version: String by project
-        archiveFileName.set("dokka-dependencies-$dokka_version.jar")
+        archiveFileName.set("dokka-kotlin-analysis-dependencies-$dokka_version.jar")
         archiveClassifier.set("")
 
         exclude("colorScheme/**")
@@ -53,13 +54,14 @@ tasks {
     }
 }
 
+
 publishing {
     publications {
-        register<MavenPublication>("dokkaCoreDependencies") {
-            artifactId = "dokka-core-dependencies"
+        register<MavenPublication>("kotlin-analysis-dependencies") {
+            artifactId = "kotlin-analysis-dependencies"
             project.shadow.component(this)
         }
     }
 }
 
-configureBintrayPublication("dokkaCoreDependencies")
+configureBintrayPublication("kotlin-analysis-dependencies")

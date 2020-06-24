@@ -1,15 +1,5 @@
 package org.jetbrains.dokka.links
 
-import com.intellij.psi.*
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
-import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.TypeProjection
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-
 /**
  * [DRI] stands for DokkaResourceIdentifier
  */
@@ -21,33 +11,10 @@ data class DRI(
     val extra: String? = null
 ) {
     override fun toString(): String =
-        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature().orEmpty()}/$target/${extra.orEmpty()}"
+        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature()
+            .orEmpty()}/$target/${extra.orEmpty()}"
 
     companion object {
-        fun from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
-            val callable = firstIsInstanceOrNull<CallableDescriptor>()
-            DRI(
-                firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString(),
-                (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
-                    .takeIf { it.isNotEmpty() }
-                    ?.asReversed()
-                    ?.joinToString(separator = ".") { it.name.asString() },
-                callable?.let { Callable.from(it) },
-                DriTarget.from(descriptor)
-            )
-        }
-
-        fun from(psi: PsiElement) = psi.parentsWithSelf.run {
-            val psiMethod = firstIsInstanceOrNull<PsiMethod>()
-            val psiField = firstIsInstanceOrNull<PsiField>()
-            val classes = filterIsInstance<PsiClass>().toList()
-            DRI(
-                classes.lastOrNull()?.qualifiedName?.substringBeforeLast('.', ""),
-                classes.toList().takeIf { it.isNotEmpty() }?.asReversed()?.mapNotNull { it.name }?.joinToString("."),
-                psiMethod?.let { Callable.from(it) }  ?: psiField?.let { Callable.from(it) } ,
-                DriTarget.from(psi)
-            )
-        }
         val topLevel = DRI()
     }
 }
@@ -78,71 +45,11 @@ data class Callable(
 ) {
     fun signature() = "${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
 
-    companion object {
-        fun from(descriptor: CallableDescriptor) = with(descriptor) {
-            Callable(
-                name.asString(),
-                extensionReceiverParameter?.let { TypeReference.from(it) },
-                valueParameters.mapNotNull { TypeReference.from(it) }
-            )
-        }
-
-        fun from(psi: PsiMethod) = with(psi) {
-            Callable(
-                name,
-                null,
-                parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) })
-        }
-
-        fun from(psi: PsiField): Callable {
-            return Callable(
-                name = psi.name,
-                receiver = null,
-                params = emptyList()
-            )
-        }
-    }
+    companion object
 }
 
 sealed class TypeReference {
-    companion object {
-        fun from(d: ReceiverParameterDescriptor): TypeReference? =
-            when (d.value) {
-                is ExtensionReceiver -> fromPossiblyNullable(d.type)
-                else -> run {
-                    println("Unknown value type for $d")
-                    null
-                }
-            }
-
-        fun from(d: ValueParameterDescriptor): TypeReference? =
-            fromPossiblyNullable(d.type)
-
-        fun from(p: PsiClass) = TypeReference
-
-        private fun fromPossiblyNullable(t: KotlinType, self: KotlinType? = null): TypeReference =
-            from(t, self).let { if (t.isMarkedNullable) Nullable(it) else it }
-
-        private fun from(t: KotlinType, self: KotlinType? = null): TypeReference =
-            if (self is KotlinType && self.constructor == t.constructor && self.arguments == t.arguments)
-                SelfType
-            else when (val d = t.constructor.declarationDescriptor) {
-                is TypeParameterDescriptor -> TypeParam(
-                    d.upperBounds.map { fromPossiblyNullable(it, self ?: t) }
-                )
-                else -> TypeConstructor(
-                    t.constructorName.orEmpty(),
-                    t.arguments.map { fromProjection(it, self) }
-                )
-            }
-
-        private fun fromProjection(t: TypeProjection, r: KotlinType? = null): TypeReference =
-            if (t.isStarProjection) {
-                StarProjection
-            } else {
-                fromPossiblyNullable(t.type, r)
-            }
-    }
+    companion object
 }
 
 data class JavaClassReference(val name: String) : TypeReference() {
@@ -171,39 +78,10 @@ object StarProjection : TypeReference() {
     override fun toString() = "*"
 }
 
-private val KotlinType.constructorName
-    get() = constructor.declarationDescriptor?.fqNameSafe?.asString()
-
 sealed class DriTarget {
     override fun toString(): String = this.javaClass.simpleName
 
-    companion object {
-        fun from(descriptor: DeclarationDescriptor): DriTarget = descriptor.parentsWithSelf.run {
-            return when (descriptor) {
-                is TypeParameterDescriptor -> PointingToGenericParameters(descriptor.index)
-                else -> {
-                    val callable = firstIsInstanceOrNull<CallableDescriptor>()
-                    val params =
-                        callable?.let { listOfNotNull(it.extensionReceiverParameter) + it.valueParameters }.orEmpty()
-                    val parameterDescriptor = firstIsInstanceOrNull<ParameterDescriptor>()
-
-                    parameterDescriptor?.let { PointingToCallableParameters(params.indexOf(it)) }
-                        ?: PointingToDeclaration
-                }
-            }
-        }
-
-        fun from(psi: PsiElement): DriTarget = psi.parentsWithSelf.run {
-            return when (psi) {
-                is PsiTypeParameter -> PointingToGenericParameters(psi.index)
-                else -> firstIsInstanceOrNull<PsiParameter>()?.let {
-                    val callable = firstIsInstanceOrNull<PsiMethod>()
-                    val params = (callable?.parameterList?.parameters).orEmpty()
-                    PointingToCallableParameters(params.indexOf(it))
-                } ?: PointingToDeclaration
-            }
-        }
-    }
+    companion object
 }
 
 data class PointingToGenericParameters(val parameterIndex: Int) : DriTarget() {

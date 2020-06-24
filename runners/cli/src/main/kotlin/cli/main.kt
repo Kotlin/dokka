@@ -5,7 +5,7 @@ import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.DokkaConfiguration.PassConfiguration.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
-import org.jetbrains.kotlin.utils.addToStdlib.cast
+import org.jetbrains.dokka.utilities.cast
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL

@@ -7,8 +7,10 @@ plugins {
 
 dependencies {
     api(project(":core"))
+    implementation(project(":kotlin-analysis"))
     implementation("junit:junit:4.13") // TODO: remove dependency to junit
     implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
 }
 
 val sourceJar by tasks.registering(Jar::class) {

@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.model
 
-import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.load.kotlin.toSourceElement
+
 
 abstract class Documentable {
     abstract val name: String?
@@ -405,12 +403,4 @@ fun <T> SourceSetDependent<T>?.orEmpty(): SourceSetDependent<T> = this ?: emptyM
 
 interface DocumentableSource {
     val path: String
-}
-
-class DescriptorDocumentableSource(val descriptor: DeclarationDescriptor) : DocumentableSource {
-    override val path = descriptor.toSourceElement.containingFile.toString()
-}
-
-class PsiDocumentableSource(val psi: PsiNamedElement) : DocumentableSource {
-    override val path = psi.containingFile.virtualFile.path
 }
