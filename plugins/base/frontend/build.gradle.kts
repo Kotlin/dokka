@@ -1,20 +1,20 @@
 plugins {
-    id("com.moowork.node") version "1.3.1"
+    id("com.github.node-gradle.node") version "2.2.4"
+}
+
+val npmRunBuild = tasks.getByName("npm_run_build") {
+    inputs.dir(file("src/main"))
+    inputs.files(file("package.json"), file("webpack.config.js"))
+    outputs.dir(file("dist/"))
+    outputs.cacheIf { true }
 }
 
 task("generateFrontendFiles") {
-    dependsOn("npmInstall", "npm_run_build")
+    dependsOn(npmRunBuild)
 }
 
 tasks {
-    val npmRunBuild by registering {
-        inputs.dir("$projectDir/src/main/")
-        inputs.files("$projectDir/package.json", "$projectDir/webpack.config.js")
-        outputs.dir("$projectDir/dist/")
-        outputs.cacheIf { true }
-    }
-
     clean {
-        delete = setOf("$projectDir/node_modules", "$projectDir/dist/")
+        delete(file("node_modules"), file("dist"))
     }
 }
