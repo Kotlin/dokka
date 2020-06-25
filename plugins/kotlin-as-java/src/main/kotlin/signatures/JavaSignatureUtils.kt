@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 object JavaSignatureUtils : JvmSignatureUtils {
 
-    val ignoredAnnotations = setOf(
+    private val ignoredAnnotations = setOf(
         Annotations.Annotation(DRI("kotlin.jvm", "Transient"), emptyMap()),
         Annotations.Annotation(DRI("kotlin.jvm", "Volatile"), emptyMap()),
         Annotations.Annotation(DRI("kotlin.jvm", "Transitive"), emptyMap()),

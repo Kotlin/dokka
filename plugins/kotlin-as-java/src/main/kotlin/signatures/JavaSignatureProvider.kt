@@ -39,7 +39,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + e.stylesForDeprecated(it),
+                setOf(TextStyle.Monospace) + e.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 link(e.name, e.dri)
@@ -51,7 +51,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 c,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesForDeprecated(it)
+                setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(it)
                     ?: emptySet()),
                 sourceSets = setOf(it)
             ) {
@@ -90,7 +90,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 p,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesForDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block) + p.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(p)
@@ -108,7 +108,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
             contentBuilder.contentFor(
                 f,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesForDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block) + f.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 annotationsBlock(f)
@@ -134,7 +134,7 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesForDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 text(t.name.substringAfterLast("."))
                 list(t.bounds, prefix = " extends ") {
                     signatureForProjection(it)

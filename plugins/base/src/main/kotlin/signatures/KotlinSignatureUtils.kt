@@ -10,7 +10,7 @@ object KotlinSignatureUtils : JvmSignatureUtils {
     private val strategy = OnlyOnce
     private val listBrackets = Pair('[', ']')
     private val classExtension = "::class"
-    val ignoredAnnotations = setOf(
+    private val ignoredAnnotations = setOf(
         Annotations.Annotation(DRI("kotlin", "SinceKotlin"), emptyMap()),
         Annotations.Annotation(DRI("kotlin", "Deprecated"), emptyMap())
     )

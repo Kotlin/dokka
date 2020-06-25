@@ -7,7 +7,6 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
-import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
@@ -60,7 +59,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             contentBuilder.contentFor(
                 e,
                 ContentKind.Symbol,
-                setOf(TextStyle.Monospace, TextStyle.Block) + e.stylesForDeprecated(it),
+                setOf(TextStyle.Monospace, TextStyle.Block) + e.stylesIfDeprecated(it),
                 sourceSets = setOf(it)
             ) {
                 group(styles = setOf(TextStyle.Block)) {
@@ -78,7 +77,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesForDeprecated(sourceSet)
+            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
@@ -102,7 +101,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
         contentBuilder.contentFor(
             c,
             ContentKind.Symbol,
-            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesForDeprecated(sourceSet)
+            setOf(TextStyle.Monospace) + ((c as? WithExtraProperties<out Documentable>)?.stylesIfDeprecated(sourceSet)
                 ?: emptySet()),
             sourceSets = setOf(sourceSet)
         ) {
@@ -187,7 +186,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map {
-            contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace) + p.stylesForDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 annotationsBlock(p)
                 text(p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                 text(
@@ -212,7 +211,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun functionSignature(f: DFunction) =
         f.sourceSets.map {
-            contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace) + f.stylesForDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 annotationsBlock(f)
                 text(f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
@@ -254,7 +253,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeAlias) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesForDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 t.underlyingType.entries.groupBy({ it.value }, { it.key }).map { (type, platforms) ->
                     +contentBuilder.contentFor(
                         t,
@@ -275,7 +274,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
-            contentBuilder.contentFor(t, styles = t.stylesForDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(t, styles = t.stylesIfDeprecated(it), sourceSets = setOf(it)) {
                 link(t.name, t.dri.withTargetToDeclaration())
                 list(t.bounds, prefix = " : ") {
                     signatureForProjection(it)

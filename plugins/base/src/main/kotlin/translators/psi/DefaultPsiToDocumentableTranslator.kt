@@ -429,12 +429,12 @@ object DefaultPsiToDocumentableTranslator : SourceToDocumentableTranslator {
             else -> StringValue(text ?: "")
         }
 
-        private fun PsiAnnotation.toAnnotation() = psiReference?.let {
+        private fun PsiAnnotation.toAnnotation() = psiReference?.let { psiElement ->
             Annotations.Annotation(
-                DRI.from(it),
+                DRI.from(psiElement),
                 attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
                     .toMap(),
-                (it as PsiClass).annotations.any {
+                (psiElement as PsiClass).annotations.any {
                     hasQualifiedName("java.lang.annotation.Documented")
                 }
             )
