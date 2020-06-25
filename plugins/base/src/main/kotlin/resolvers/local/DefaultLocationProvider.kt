@@ -76,7 +76,11 @@ open class DefaultLocationProvider(
             .takeWhile { (a, b) -> a == b }.count()
 
         return (List(contextPath.size - commonPathElements) { ".." } + nodePath.drop(commonPathElements) +
-                if (node.children.isNotEmpty()) listOf(PAGE_WITH_CHILDREN_SUFFIX) else emptyList()).joinToString("/")
+                    if (node is ClasslikePageNode || node.children.isNotEmpty())
+                        listOf(PAGE_WITH_CHILDREN_SUFFIX)
+                    else
+                        emptyList()
+                ).joinToString("/")
     }
 
     private fun PageNode.parent() = pageGraphRoot.parentMap[this]
