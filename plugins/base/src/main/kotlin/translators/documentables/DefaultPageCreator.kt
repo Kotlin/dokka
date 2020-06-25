@@ -34,8 +34,7 @@ open class DefaultPageCreator(
     open fun pageForPackage(p: DPackage): PackagePageNode = PackagePageNode(
         p.name, contentForPackage(p), setOf(p.dri), p,
         p.classlikes.map(::pageForClasslike) +
-                p.functions.map(::pageForFunction) +
-                p.typealiases.map(::pageForTypeAlias)
+                p.functions.map(::pageForFunction)
     )
 
     open fun pageForEnumEntry(e: DEnumEntry): ClasslikePageNode =
