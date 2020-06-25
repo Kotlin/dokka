@@ -1,7 +1,7 @@
 package javadoc.renderer
 
 import com.soywiz.korte.*
-import javadoc.JavadocLocationProvider
+import javadoc.location.JavadocLocationProvider
 import javadoc.pages.*
 import javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
 import kotlinx.coroutines.CoroutineScope
@@ -9,9 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.renderers.OutputWriter
+import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.nio.file.Path
@@ -20,14 +23,22 @@ import java.time.LocalDate
 
 typealias TemplateMap = Map<String, Any?>
 
-class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaContext, val resourceDir: String) :
+class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: DokkaContext, resourceDir: String) :
     Renderer {
     private lateinit var locationProvider: JavadocLocationProvider
 
-    override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { r ->
-        locationProvider = JavadocLocationProvider(r, context)
+    private val contentToHtmlTranslator by lazy {
+        JavadocContentToHtmlTranslator(locationProvider, context)
+    }
+
+    private val contentToTemplateMapTranslator by lazy {
+        JavadocContentToTemplateMapTranslator(locationProvider, context)
+    }
+
+    override fun render(root: RootPageNode) = root.let { preprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
+        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
         runBlocking(Dispatchers.IO) {
-            renderModulePageNode(r as JavadocModulePageNode)
+            renderModulePageNode(newRoot as JavadocModulePageNode)
         }
     }
 
@@ -53,7 +64,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         val name = "index"
         val pathToRoot = ""
 
-        val contentMap = JavadocContentToTemplateMapTranslator(locationProvider, context).templateMapForPageNode(node, pathToRoot)
+        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node, pathToRoot)
 
         writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "tabPage.korte", contentMap.toList())
         node.children.forEach { renderNode(it, link) }
@@ -66,12 +77,12 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             if (it.isNotEmpty()) "$it/" else it
         }
 
-        val contentMap = JavadocContentToTemplateMapTranslator(locationProvider, context).templateMapForPageNode(node, pathToRoot)
+        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node, pathToRoot)
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
         node.children.forEach { renderNode(it, link.toNormalized()) }
     }
 
-    fun CoroutineScope.renderSpecificPage(node: RendererSpecificPage, path: String) = launch {
+    private fun CoroutineScope.renderSpecificPage(node: RendererSpecificPage, path: String) = launch {
         when (val strategy = node.strategy) {
             is RenderingStrategy.Copy -> outputWriter.writeResources(strategy.from, "")
             is RenderingStrategy.Write -> outputWriter.writeHtml(path, strategy.text)
@@ -83,10 +94,10 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         }
     }
 
-    fun Pair<String, String>.pairToTag() =
-        """<th class="colFirst" scope="row">${first}</th>\n<td class="colLast">${second}</td>"""
+    private fun Pair<String, String>.pairToTag() =
+        """<th class="colFirst" scope="row">${first}</th><td class="colLast">${second}</td>"""
 
-    fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptySet(), context)
+    private fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptySet(), context)
 
     private fun Path.toNormalized() = this.normalize().toFile().toString()
     private fun String.toNormalized() = Paths.get(this).toNormalized()
@@ -102,7 +113,7 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         writer.writeHtml(path, tmp)
     }
 
-    fun getTemplateConfig() = TemplateConfig().also { config ->
+    private fun getTemplateConfig() = TemplateConfig().also { config ->
         listOf(
             TeFunction("curDate") { LocalDate.now() },
             TeFunction("jQueryVersion") { "3.1" },
@@ -111,18 +122,17 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
             TeFunction("h1Title") { args -> if ((args.first() as? String) == "package") "title=\"Package\" " else "" },
             TeFunction("createTabRow") { args ->
                 val (link, doc) = args.first() as RowJavadocListEntry
-                val dir = args[1] as String?
-                val translator = JavadocContentToHtmlTranslator(locationProvider, context)
+                val contextRoot = args[1] as PageNode?
                 (buildLink(
-                    locationProvider.resolve(link, dir.orEmpty()),
+                    locationProvider.resolve(link, contextRoot),
                     link.name
-                ) to translator.htmlForContentNodes(doc, dir)).pairToTag().trim()
+                ) to contentToHtmlTranslator.htmlForContentNodes(doc, contextRoot)).pairToTag().trim()
             },
             TeFunction("createListRow") { args ->
                 val link = args.first() as LinkJavadocListEntry
-                val dir = args[1] as String?
+                val contextRoot = args[1] as PageNode?
                 buildLink(
-                    locationProvider.resolve(link, dir.orEmpty()),
+                    locationProvider.resolve(link, contextRoot),
                     link.name
                 )
             },
@@ -171,13 +181,14 @@ class KorteJavadocRenderer(val outputWriter: OutputWriter, val context: DokkaCon
         }
     }
 
-    val config = getTemplateConfig()
-    val templateRenderer = Templates(
+    private val config = getTemplateConfig()
+    private val templateRenderer = Templates(
         ResourceTemplateProvider(
             resourceDir
-        ), config = config, cache = true)
+        ), config = config, cache = true
+    )
 
-    class ResourceTemplateProvider(val basePath: String) : TemplateProvider {
+    private class ResourceTemplateProvider(val basePath: String) : TemplateProvider {
         override suspend fun get(template: String): String =
             javaClass.classLoader.getResourceAsStream("$basePath/$template")?.bufferedReader()?.lines()?.toArray()
                 ?.joinToString("\n") ?: throw IllegalStateException("Template not found: $basePath/$template")

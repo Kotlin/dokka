@@ -1,41 +1,31 @@
 package javadoc.renderer
 
 import javadoc.pages.TextNode
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
-import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
-import java.nio.file.Path
-import java.nio.file.Paths
 
 internal class JavadocContentToHtmlTranslator(
     private val locationProvider: LocationProvider,
     private val context: DokkaContext
 ) {
 
-    fun <T> htmlForContentNode(node: ContentNode, relative: T?, locate: ContentDRILink.(T?) -> String): String =
+    fun htmlForContentNode(node: ContentNode, relative: PageNode?): String =
         when (node) {
-            is ContentGroup -> htmlForContentNodes(node.children, relative, locate)
+            is ContentGroup -> htmlForContentNodes(node.children, relative)
             is ContentText -> node.text
             is TextNode -> node.text
             is ContentDRILink -> buildLink(
-                node.locate(relative),
-                htmlForContentNodes(node.children, relative, locate)
+                locationProvider.resolve(node.address, node.sourceSets, relative),
+                htmlForContentNodes(node.children, relative)
             )
-            is ContentResolvedLink -> buildLink(node.address, htmlForContentNodes(node.children, relative, locate))
+            is ContentResolvedLink -> buildLink(node.address, htmlForContentNodes(node.children, relative))
             is ContentCode -> htmlForCode(node.children)
             else -> ""
         }
 
-    fun <T> htmlForContentNodes(list: List<ContentNode>, relative: T?, locate: ContentDRILink.(T?) -> String) =
-        list.joinToString(separator = "") { htmlForContentNode(it, relative, locate) }
-
-    private fun locate(link: ContentDRILink, relativePath: String?) =
-        resolveLink(link.address, link.sourceSets, relativePath)
-
-    fun htmlForContentNodes(list: List<ContentNode>, relative: String?) =
-        htmlForContentNodes(list, relative, ::locate)
+    fun htmlForContentNodes(list: List<ContentNode>, relative: PageNode?) =
+        list.joinToString(separator = "") { htmlForContentNode(it, relative) }
 
     private fun htmlForCode(code: List<ContentNode>): String = code.map { element ->
         when (element) {
@@ -44,16 +34,6 @@ internal class JavadocContentToHtmlTranslator(
             else -> run { context.logger.error("Cannot cast $element as ContentText!"); "" }
         }
     }.joinToString("<br>", """<span class="code">""", "</span>") { it }
-
-    private fun resolveLink(address: DRI, sourceSets: Set<DokkaConfiguration.DokkaSourceSet>, relativePath: String?) =
-        locationProvider.resolve(address, sourceSets).let {
-            val afterFormattingToHtml = it.formatToEndWithHtml()
-            if (relativePath != null) afterFormattingToHtml.relativizePath(relativePath)
-            else afterFormattingToHtml
-        }
-
-    private fun String.relativizePath(parent: String) =
-        Paths.get(parent).relativize(Paths.get(this)).normalize().toFile().toString()
 
     companion object {
 

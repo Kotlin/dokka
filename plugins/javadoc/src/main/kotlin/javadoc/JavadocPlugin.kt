@@ -1,16 +1,21 @@
 package org.jetbrains.dokka.javadoc
 
 import javadoc.JavadocDocumentableToPageTranslator
+import javadoc.location.JavadocLocationProviderFactory
 import javadoc.renderer.KorteJavadocRenderer
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureProvider
 
 class JavadocPlugin : DokkaPlugin() {
+
+    val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
+
+    val locationProviderFactory by extensionPoint<JavadocLocationProviderFactory>()
+
     val dokkaJavadocPlugin by extending {
-        val dokkaBasePlugin = plugin<DokkaBase>()
         CoreExtensions.renderer providing { ctx ->
             KorteJavadocRenderer(
                 dokkaBasePlugin.querySingle { outputWriter },
@@ -21,13 +26,18 @@ class JavadocPlugin : DokkaPlugin() {
     }
 
     val pageTranslator by extending {
-        val dokkaBasePlugin = plugin<DokkaBase>()
         CoreExtensions.documentableToPageTranslator providing { context ->
             JavadocDocumentableToPageTranslator(
                 dokkaBasePlugin.querySingle { commentsToContentConverter },
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )
+        }
+    }
+
+    val javadocLocationProviderFactory by extending {
+        locationProviderFactory providing { context ->
+            JavadocLocationProviderFactory(context)
         }
     }
 }

@@ -5,7 +5,7 @@
 <main role="main" class="indexContainer">
     <ul>
         {% for item in list %}
-            <li>{{ createListRow(item, dir)|raw }}</li>
+            <li>{{ createListRow(item, contextRoot)|raw }}</li>
         {% end -%}
     </ul>
 </main>
