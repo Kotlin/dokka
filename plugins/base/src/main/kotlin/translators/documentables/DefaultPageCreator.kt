@@ -409,6 +409,8 @@ open class DefaultPageCreator(
             table(kind, extra = extra) {
                 collection
                     .groupBy { it.name }
+                    // This hacks displaying actual typealias signatures along classlike ones
+                    .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
                     .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
                     buildGroup(elements.map { it.dri }.toSet(), elements.flatMap { it.sourceSets }.toSet(), kind = kind) {
