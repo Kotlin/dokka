@@ -111,8 +111,11 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             if (c is DClass) {
                 text(
                     if (c.modifier[sourceSet] !in ignoredModifiers)
-                        if (c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true) ""
-                        else (if (c.modifier[sourceSet] is JavaModifier.Empty) KotlinModifier.Open.name else c.name).let { "$it " }
+                        when {
+                            c.extra[AdditionalModifiers]?.content?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true -> ""
+                            c.modifier[sourceSet] is JavaModifier.Empty -> "${KotlinModifier.Open.name} "
+                            else -> c.modifier[sourceSet]?.name?.let { "$it " } ?: ""
+                        }
                     else
                         ""
                 )
