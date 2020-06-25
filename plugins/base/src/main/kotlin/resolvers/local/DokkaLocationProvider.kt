@@ -1,5 +1,6 @@
 package org.jetbrains.dokka.base.resolvers.local
 
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
@@ -26,35 +27,46 @@ open class DokkaLocationProvider(
         pageGraphRoot.children.forEach { registerPath(it, emptyList()) }
     }
 
-    protected open val pagesIndex: Map<DRI, ContentPage> =
+    protected val pagesIndex: Map<Pair<DRI, DisplaySourceSet>, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
-            .flatMap { it.dri.map { dri -> dri to it } }
+            .flatMap { page ->
+                page.dri.flatMap { dri ->
+                    page.sourceSets().map { sourceSet -> (dri to sourceSet) to page }
+                }
+            }
             .groupingBy { it.first }
-            .aggregate { dri, _, (_, page), first ->
-                if (first) page else throw AssertionError("Multiple pages associated with dri: $dri")
+            .aggregate { key, _, (_, page), first ->
+                if (first) page else throw AssertionError("Multiple pages associated with key: ${key.first}/${key.second}")
             }
 
-    protected open val anchorsIndex: Map<DRI, ContentPage> =
+    protected val anchorsIndex: Map<Pair<DRI, DisplaySourceSet>, ContentPage> =
         pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
             .flatMap { page ->
                 page.content.withDescendants()
                     .filter { it.extra[SymbolAnchorHint] != null }
                     .mapNotNull { it.dci.dri.singleOrNull() }
                     .distinct()
-                    .map { it to page }
+                    .flatMap { dri ->
+                        page.sourceSets().map { sourceSet ->
+                            (dri to sourceSet) to page
+                        }
+                    }
             }.toMap()
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
-    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?) =
-        getLocalLocation(dri, context)
-            ?: getLocalLocation(dri.copy(target = PointingToDeclaration), context)
-            // Not found in PageGraph, that means it's an external link
-            ?: getExternalLocation(dri, sourceSets)
-            ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
+    override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
+        sourceSets.mapNotNull { sourceSet ->
+            val driWithSourceSet = Pair(dri, sourceSet)
+            getLocalLocation(driWithSourceSet, context)
+                ?: getLocalLocation(driWithSourceSet.copy(first = dri.copy(target = PointingToDeclaration)), context)
+                // Not found in PageGraph, that means it's an external link
+                ?: getExternalLocation(dri, sourceSets)
+                ?: getExternalLocation(dri.copy(target = PointingToDeclaration), sourceSets)
+        }.distinct().singleOrNull()
 
-    private fun getLocalLocation(dri: DRI, context: PageNode?): String? =
+    private fun getLocalLocation(dri: Pair<DRI, DisplaySourceSet>, context: PageNode?): String? =
         pagesIndex[dri]?.let { resolve(it, context) }
             ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
 
