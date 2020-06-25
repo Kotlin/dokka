@@ -476,39 +476,42 @@ open class DefaultPageCreator(
             header(2, name)
             table(kind, extra = extra, styles = emptySet()) {
                 collection
-                    .groupBy { it.name }
+                    .groupBy { Pair(it::class, it.name) }
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-                    .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it})
-                    .map { (elementName, elements) -> // This groupBy should probably use LocationProvider
-                    buildGroup(
-                        dri = elements.map { it.dri }.toSet(),
-                        sourceSets = elements.flatMap { it.sourceSets }.toSet(),
-                        kind = kind,
-                        styles = emptySet()
-                    ) {
-                        link(elementName.orEmpty(), elements.first().dri, kind = kind)
-                        divergentGroup(
-                            ContentDivergentGroup.GroupID(name),
-                            elements.map { it.dri }.toSet(),
-                            kind = kind
-                        ) {
-                            elements.map {
-                                instance(setOf(it.dri), it.sourceSets.toSet()) {
-                                    before {
-                                        contentForBrief(it)
-                                        contentForSinceKotlin(it)
-                                    }
-                                    divergent {
-                                        group {
-                                            +buildSignature(it)
+                    .map { (typeNamePair, elements) -> // This groupBy should probably use LocationProvider
+                        Pair(
+                            typeNamePair.second,
+                            buildGroup(
+                                elements.map { it.dri }.toSet(),
+                                elements.flatMap { it.sourceSets }.toSet(),
+                                kind = kind,
+                                styles = emptySet()
+                            ) {
+                                link(typeNamePair.second.orEmpty(), elements.first().dri, kind = kind)
+                                divergentGroup(
+                                    ContentDivergentGroup.GroupID(name),
+                                    elements.map { it.dri }.toSet(),
+                                    kind = kind
+                                ) {
+                                    elements.map {
+                                        instance(setOf(it.dri), it.sourceSets.toSet()) {
+                                            before {
+                                                contentForBrief(it)
+                                                contentForSinceKotlin(it)
+                                            }
+                                            divergent {
+                                                group {
+                                                    +buildSignature(it)
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }
+                            })
                     }
-                }
+                    .sortedWith(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)){it.first})
+                    .map { it.second }
             }
         }
     }
