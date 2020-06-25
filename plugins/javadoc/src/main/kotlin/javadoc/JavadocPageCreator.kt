@@ -48,18 +48,9 @@ open class JavadocPageCreator(
                 description = c.descriptionToContentNodes(),
                 constructors = (c as? WithConstructors)?.constructors?.mapNotNull { it.toJavadocFunction() }.orEmpty(),
                 methods = c.functions.mapNotNull { it.toJavadocFunction() },
-                entries = (c as? DEnum)?.entries?.map {
-                    JavadocEntryNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)
-                    )
-                }.orEmpty(),
+                entries = (c as? DEnum)?.entries?.mapNotNull { it.toJavadocEnumEntry() }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
-                properties = c.properties.map {
-                    JavadocPropertyNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm),
-                        it.descriptionToContentNodes(jvm)
-                    )
-                },
+                properties = c.properties.mapNotNull { it.toJavadocProperty() },
                 documentable = c,
                 extras = (c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty()
             )
@@ -134,6 +125,19 @@ open class JavadocPageCreator(
             is Dynamic -> "dynamic"
             is UnresolvedBound -> p.name
         }
+
+    private fun DProperty.toJavadocProperty() = highestJvmSourceSet?.let { jvm ->
+        JavadocPropertyNode(
+            signatureProvider.signature(this).nodeForJvm(jvm),
+            this.descriptionToContentNodes(jvm)
+        )
+    }
+
+    private fun DEnumEntry.toJavadocEnumEntry() = highestJvmSourceSet?.let { jvm ->
+        JavadocEntryNode(
+            signatureProvider.signature(this).nodeForJvm(jvm), this.descriptionToContentNodes(jvm)
+        )
+    }
 
     private fun DFunction.toJavadocFunction() = highestJvmSourceSet?.let { jvm ->
         JavadocFunctionNode(

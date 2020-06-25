@@ -34,7 +34,7 @@ class JavadocPlugin : DokkaPlugin() {
     val javadocLocationProviderFactory by extending {
         locationProviderFactory providing { context ->
             JavadocLocationProviderFactory(context)
-        }
+        } applyIf { format == "javadoc" }
     }
 }
 

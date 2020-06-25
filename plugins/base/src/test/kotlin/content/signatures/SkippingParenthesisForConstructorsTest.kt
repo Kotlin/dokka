@@ -174,13 +174,13 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         header { +"Constructors" }
                         table {
                             group {
-                                link { +"<init>" }
+                                link { +"SomeClass" }
                                 functionSignature(
                                     annotations = emptyMap(),
                                     visibility = "",
                                     modifier = "",
                                     keywords = emptySet(),
-                                    name = "<init>"
+                                    name = "SomeClass"
                                 )
                             }
                         }
