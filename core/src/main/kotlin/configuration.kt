@@ -1,6 +1,7 @@
 package org.jetbrains.dokka
 
 import java.io.File
+import java.io.Serializable
 import java.net.URL
 
 object DokkaDefaults {
@@ -54,7 +55,7 @@ interface DokkaConfiguration {
     val pluginsClasspath: List<File>
     val pluginsConfiguration: Map<String, String>
 
-    interface DokkaSourceSet {
+    interface DokkaSourceSet : Serializable {
         val moduleName: String
         val displayName: String
         val sourceSetID: String

@@ -34,11 +34,10 @@ open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceS
     @Input
     override var displayName: String = ""
     @Input
-    override var sourceSetID: String = ""
-    @Input
     override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
     @Input
-    override var dependentSourceSets: MutableList<String> = mutableListOf()
+    @Transient
+    var dependentSourceSetsRefs: List<DokkaSourceSet> = mutableListOf()
     @Input
     override var samples: List<String> = emptyList()
     @Input
@@ -82,6 +81,9 @@ open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceS
     var platform: String? = null
     @Transient
     var collectKotlinTasks: (() -> List<Any?>?)? = null
+
+    override var sourceSetID: String = ""
+    override var dependentSourceSets: MutableList<String> = mutableListOf()
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }

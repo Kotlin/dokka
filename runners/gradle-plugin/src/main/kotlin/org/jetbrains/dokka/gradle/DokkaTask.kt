@@ -7,7 +7,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
 import org.jetbrains.dokka.DokkaException
@@ -20,6 +20,7 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.concurrent.Callable
 import java.util.function.BiConsumer
+import kotlin.random.Random
 
 open class DokkaTask : DefaultTask(), Configurable {
     private val ANDROID_REFERENCE_URL = Builder("https://developer.android.com/reference/").build()
@@ -193,12 +194,25 @@ open class DokkaTask : DefaultTask(), Configurable {
             return null
         }
 
+        val sourceSetIdCache: Map<String, String> = defaultModulesConfiguration.map {
+            it.sourceSetID to it.sourceSetID + (1..5).map { (Random.nextInt(50) + 48).toChar() }.joinToString("") { it.toString() }
+        }.toMap()
+
+        val transformedDefaultModulesConfiguration = defaultModulesConfiguration.map {
+            it.apply {
+                sourceSetID = sourceSetIdCache[it.sourceSetID]!!
+                dependentSourceSets = it.dependentSourceSets.map { name ->
+                    sourceSetIdCache[name] ?: name
+                }.toMutableList()
+            }
+        }
+
         return GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
             format = outputFormat
             cacheRoot = this@DokkaTask.cacheRoot
             offlineMode = this@DokkaTask.offlineMode
-            sourceSets = defaultModulesConfiguration
+            sourceSets = transformedDefaultModulesConfiguration
             pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
             failOnWarning = this@DokkaTask.failOnWarning
@@ -304,13 +318,12 @@ open class DokkaTask : DefaultTask(), Configurable {
         if (config.moduleName.isBlank()) {
             config.moduleName = project.name
         }
-        if (config.sourceSetID.isBlank()) {
-            config.sourceSetID = config.moduleName + "/" + config.name
-        }
-        config.dependentSourceSets = config.dependentSourceSets.map { config.moduleName + "/" + it }.toMutableList()
+        config.sourceSetID = config.moduleName + "/" + config.name
         if (config.displayName.isBlank()) {
             config.displayName = config.sourceSetID.substringBeforeLast("Main", config.platform.toString())
         }
+        config.dependentSourceSets =
+            (config.dependentSourceSets.map { config.moduleName + "/" + it } + config.dependentSourceSetsRefs.map { it.sourceSetID }) as MutableList<String>
         config.classpath =
             (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl
         config.sourceRoots = config.sourceRoots.distinct().toMutableList()
