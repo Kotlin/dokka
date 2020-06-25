@@ -56,7 +56,7 @@ open class DefaultLocationProvider(
         )
 
         val contextNode =
-            if (context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
+            if (context !is ClasslikePageNode && context?.children?.isEmpty() == true && context.parent() != null) context.parent() else context
         val nodePath = pathFor(node)
         val contextPath = contextNode?.let { pathFor(it) }.orEmpty()
 
