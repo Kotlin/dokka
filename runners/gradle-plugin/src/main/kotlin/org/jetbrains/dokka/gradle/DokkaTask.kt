@@ -199,7 +199,7 @@ open class DokkaTask : DefaultTask(), Configurable {
             format = outputFormat
             cacheRoot = this@DokkaTask.cacheRoot
             offlineMode = this@DokkaTask.offlineMode
-            sourceSets = passConfigurations
+            sourceSets = defaultModulesConfiguration
             pluginsClasspath = pluginsClasspathConfiguration.resolve().toList()
             pluginsConfiguration = this@DokkaTask.pluginsConfiguration
             failOnWarning = this@DokkaTask.failOnWarning
