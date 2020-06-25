@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     val coroutines_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version") // TODO: Enable this dependency after update to 1.4-M3
 
     api(project(":kotlin-analysis"))
     implementation("org.jsoup:jsoup:1.12.1")

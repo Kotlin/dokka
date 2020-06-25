@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.translators.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
@@ -14,7 +13,6 @@ import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
-import javax.print.Doc
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -182,10 +180,9 @@ open class DefaultPageCreator(
     }
 
     protected open fun contentForClasslike(c: DClasslike) = contentBuilder.contentFor(c) {
-        val sourceSets = c.sourceSets.toSet()
         group(kind = ContentKind.Cover) {
             cover(c.name.orEmpty())
-            sourceSetDependentHint(c.dri, sourceSets) {
+            sourceSetDependentHint(c.dri, c.sourceSets) {
                 +contentForDescription(c)
                 +buildSignature(c)
             }
@@ -199,7 +196,7 @@ open class DefaultPageCreator(
                     2,
                     ContentKind.Constructors,
                     c.constructors.filter { it.extra[PrimaryConstructorExtra] == null },
-                    sourceSets,
+                    c.sourceSets,
                     extra = PropertyContainer.empty<ContentNode>() + SimpleAttr.header("Constructors")
                 ) {
                     link(it.name, it.dri, kind = ContentKind.Main)
