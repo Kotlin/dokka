@@ -214,7 +214,7 @@ interface Kind
 enum class ContentKind : Kind {
 
     Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Symbol, Sample, Main, BriefComment,
-    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependantHint, Extensions, Annotations;
+    Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations;
 
     companion object {
         private val platformTagged =
@@ -229,7 +229,7 @@ enum class TextStyle : Style {
 }
 
 enum class ContentStyle : Style {
-    RowTitle, TabbedContent, WithExtraAttributes
+    RowTitle, TabbedContent, WithExtraAttributes, RunnableSample
 }
 
 object CommentTable : Style

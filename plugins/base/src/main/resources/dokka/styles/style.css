@@ -27,7 +27,7 @@
     color: var(--hover-link-color)
 }
 
-.tabs-section-body > *:not([data-active]){
+.tabs-section-body > *:not([data-active]) {
     display: none;
 }
 
@@ -210,6 +210,10 @@
 .monospace,
 .code {
     font-family: monospace;
+}
+
+code.paragraph {
+    display: block;
 }
 
 .overview > .navButton {
@@ -692,6 +696,7 @@ footer {
 [data-filterable-current=''] {
     display: none !important;
 }
+
 .platform-selector:not([data-active]) {
     border: 1px solid #DADFE6;
     background-color: transparent;

@@ -75,7 +75,7 @@ open class DefaultPageCreator(
                 sourceSetDependentHint(
                     m.dri,
                     m.sourceSets.toSet(),
-                    kind = ContentKind.SourceSetDependantHint,
+                    kind = ContentKind.SourceSetDependentHint,
                     styles = setOf(TextStyle.UnderCoverText)
                 ) {
                     +contentForDescription(m)
@@ -97,7 +97,7 @@ open class DefaultPageCreator(
                 sourceSetDependentHint(
                     p.dri,
                     p.sourceSets.toSet(),
-                    kind = ContentKind.SourceSetDependantHint,
+                    kind = ContentKind.SourceSetDependentHint,
                     styles = setOf(TextStyle.UnderCoverText)
                 ) {
                     +contentForDescription(p)
@@ -135,7 +135,7 @@ open class DefaultPageCreator(
             extra = mainExtra + SimpleAttr.header("Properties")
         ) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint) {
                 contentForBrief(it)
                 +buildSignature(it)
             }
@@ -202,7 +202,7 @@ open class DefaultPageCreator(
                     sourceSetDependentHint(
                         it.dri,
                         it.sourceSets.toSet(),
-                        kind = ContentKind.SourceSetDependantHint,
+                        kind = ContentKind.SourceSetDependentHint,
                         styles = emptySet()
                     ) {
                         contentForBrief(it)
@@ -222,7 +222,7 @@ open class DefaultPageCreator(
                     styles = emptySet()
                 ) {
                     link(it.name, it.dri)
-                    sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependantHint) {
+                    sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint) {
                         contentForBrief(it)
                         +buildSignature(it)
                     }
@@ -317,7 +317,7 @@ open class DefaultPageCreator(
                     extra = mainExtra + SimpleAttr.header("Parameters"),
                     styles = setOf(ContentStyle.WithExtraAttributes)
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
+                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                         val receiver = tags.withTypeUnnamed<Receiver>()
                         val params = tags.withTypeNamed<Param>()
                         table(kind = ContentKind.Parameters) {
@@ -358,7 +358,7 @@ open class DefaultPageCreator(
                     extra = mainExtra + SimpleAttr.header("See also"),
                     styles = setOf(ContentStyle.WithExtraAttributes)
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
+                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                         val seeAlsoTags = tags.withTypeNamed<See>()
                         table(kind = ContentKind.Sample) {
                             platforms.flatMap { platform ->
@@ -393,15 +393,15 @@ open class DefaultPageCreator(
                 header(2, "Samples")
                 group(
                     extra = mainExtra + SimpleAttr.header("Samples"),
-                    styles = setOf(ContentStyle.WithExtraAttributes)
+                    styles = emptySet()
                 ) {
-                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependantHint) {
+                    sourceSetDependentHint(sourceSets = platforms.toSet(), kind = ContentKind.SourceSetDependentHint) {
                         platforms.map { platformData ->
                             val content = samples.filter { it.value.isEmpty() || platformData in it.value }
                             group(
                                 sourceSets = setOf(platformData),
                                 kind = ContentKind.Sample,
-                                styles = setOf(TextStyle.Monospace)
+                                styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample)
                             ) {
                                 content.forEach {
                                     text(it.key)

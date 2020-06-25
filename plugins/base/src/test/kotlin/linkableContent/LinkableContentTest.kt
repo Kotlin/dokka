@@ -94,7 +94,8 @@ class LinkableContentTest : AbstractCoreTest() {
 
         testFromData(configuration) {
             renderingStage = { rootPageNode, dokkaContext ->
-                val newRoot = SourceLinksTransformer(dokkaContext,
+                val newRoot = SourceLinksTransformer(
+                    dokkaContext,
                     PageContentBuilder(
                         dokkaContext.single(dokkaContext.plugin<DokkaBase>().commentsToContentConverter),
                         dokkaContext.single(dokkaContext.plugin<DokkaBase>().signatureProvider),
@@ -109,7 +110,8 @@ class LinkableContentTest : AbstractCoreTest() {
                     val name = it.name.substringBefore("Class")
                     val crl = it.safeAs<ClasslikePageNode>()?.content?.safeAs<ContentGroup>()?.children?.last()
                         ?.safeAs<ContentGroup>()?.children?.last()?.safeAs<ContentGroup>()?.children?.lastOrNull()
-                        ?.safeAs<ContentTable>()?.children?.singleOrNull()?.safeAs<ContentGroup>()?.children?.singleOrNull().safeAs<ContentResolvedLink>()
+                        ?.safeAs<ContentTable>()?.children?.singleOrNull()
+                        ?.safeAs<ContentGroup>()?.children?.singleOrNull().safeAs<ContentResolvedLink>()
                     Assertions.assertEquals(
                         "https://github.com/user/repo/tree/master/src/${name.toLowerCase()}Main/kotlin/${name}Class.kt#L3",
                         crl?.address
@@ -166,7 +168,12 @@ class LinkableContentTest : AbstractCoreTest() {
                         .cast<ContentGroup>().children.single()
                         .cast<ContentCode>().children.single().cast<ContentText>().text
                     Assertions.assertEquals(
-                        "${name}Class().printWithExclamation(\"Hi, $name\")",
+                        """|import p2.${name}Class
+                                |fun main() { 
+                                |   //sampleStart 
+                                |   ${name}Class().printWithExclamation("Hi, $name") 
+                                |   //sampleEnd
+                                |}""".trimMargin(),
                         text
                     )
                 }
@@ -175,7 +182,7 @@ class LinkableContentTest : AbstractCoreTest() {
     }
 
     @Test
-    fun `Documenting return type for a function in inner class with generic parent`(){
+    fun `Documenting return type for a function in inner class with generic parent`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt

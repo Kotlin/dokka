@@ -540,23 +540,11 @@ open class HtmlRenderer(
         a(href = address, block = content)
 
     override fun FlowContent.buildCode(
-        code: List<ContentNode>,
-        language: String,
+        code: ContentCode,
         pageContext: ContentPage
     ) {
-        span(classes = "code") {
-            val iterator = code.iterator()
-            while (iterator.hasNext()) {
-                val element = iterator.next()
-                +(when (element) {
-                    is ContentText -> element.text
-                    is ContentBreakLine -> "\n"
-                    else -> run { context.logger.error("Cannot cast $element as ContentText!"); "" }
-                })
-                if (iterator.hasNext()) {
-                    buildNewLine()
-                }
-            }
+        code(code.style.joinToString(" ") { it.toString().toLowerCase() }) {
+            code.children.forEach { buildContentNode(it, pageContext) }
         }
     }
 
@@ -658,15 +646,20 @@ open class HtmlRenderer(
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
-                with(resources) {
-                    filter { it.substringBefore('?').substringAfterLast('.') == "css" }
-                        .forEach { link(rel = LinkRel.stylesheet, href = resolveLink(it, page)) }
-                    filter { it.substringBefore('?').substringAfterLast('.') == "js" }
-                        .forEach {
-                            script(type = ScriptType.textJavaScript, src = resolveLink(it, page)) {
-                                async = true
-                            }
+                resources.forEach {
+                    when {
+                        it.substringBefore('?').substringAfterLast('.') == "css" -> link(
+                            rel = LinkRel.stylesheet,
+                            href = resolveLink(it, page)
+                        )
+                        it.substringBefore('?').substringAfterLast('.') == "js" -> script(
+                            type = ScriptType.textJavaScript,
+                            src = resolveLink(it, page)
+                        ) {
+                            async = true
                         }
+                        else -> unsafe { +it }
+                    }
                 }
                 script { unsafe { +"""var pathToRoot = "${locationProvider.resolveRoot(page)}";""" } }
             }

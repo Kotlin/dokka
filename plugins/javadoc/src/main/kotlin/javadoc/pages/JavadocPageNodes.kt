@@ -5,7 +5,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
-import org.jetbrains.dokka.base.renderers.platforms
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -202,7 +202,7 @@ class JavadocClasslikePageNode(
 
 class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageNode {
     val classEntries =
-        classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.platforms().toSet()) }
+        classes.map { LinkJavadocListEntry(it.name, it.dri, ContentKind.Classlikes, it.sourceSets().toSet()) }
 
     override val name: String = "All Classes"
     override val dri: Set<DRI> = setOf(DRI.topLevel)
@@ -214,7 +214,7 @@ class AllClassesPage(val classes: List<JavadocClasslikePageNode>) : JavadocPageN
         EmptyNode(
             DRI.topLevel,
             ContentKind.Classlikes,
-            classes.flatMap { it.platforms() }.toSet()
+            classes.flatMap { it.sourceSets() }.toSet()
         )
 
     override fun modified(
