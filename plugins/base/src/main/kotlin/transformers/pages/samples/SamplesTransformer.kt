@@ -1,24 +1,24 @@
 package org.jetbrains.dokka.base.transformers.pages.samples
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.AnalysisEnvironment
 import org.jetbrains.dokka.analysis.DokkaMessageCollector
 import org.jetbrains.dokka.analysis.DokkaResolutionFacade
 import org.jetbrains.dokka.analysis.EnvironmentAndFacade
-import org.jetbrains.dokka.base.renderers.platforms
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.utils.PathUtil
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocSampleLink
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
 abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
@@ -27,13 +27,17 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
     abstract fun processImports(psiElement: PsiElement): String
 
     final override fun invoke(input: RootPageNode): RootPageNode {
-
         val analysis = setUpAnalysis(context)
+        val kotlinPlaygroundScript =
+            "<script src=\"https://unpkg.com/kotlin-playground@1\" data-selector=\"code.runnablesample\"></script>"
 
         return input.transformContentPagesTree { page ->
             page.documentable?.documentation?.entries?.fold(page) { acc, entry ->
                 entry.value.children.filterIsInstance<Sample>().fold(acc) { acc, sample ->
-                    acc.modified(content = acc.content.addSample(page, entry.key, sample.name, analysis))
+                    acc.modified(
+                        content = acc.content.addSample(page, entry.key, sample.name, analysis),
+                        embeddedResources = acc.embeddedResources + kotlinPlaygroundScript
+                    )
                 }
             } ?: page
         }
@@ -66,22 +70,32 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
             ?: return this.also { context.logger.warn("Cannot resolve facade for platform ${platform.moduleName}") }
         val psiElement = fqNameToPsiElement(facade, fqName)
             ?: return this.also { context.logger.warn("Cannot find PsiElement corresponding to $fqName") }
-        val imports = processImports(psiElement) // TODO: Process somehow imports. Maybe just attach them at the top of each body
+        val imports =
+            processImports(psiElement)
         val body = processBody(psiElement)
-        val node = contentCode(contentPage.platforms(), contentPage.dri, body, "kotlin")
+        val node = contentCode(contentPage.sourceSets(), contentPage.dri, createSampleBody(imports, body), "kotlin")
 
         return dfs(fqName, node)
     }
 
+    protected open fun createSampleBody(imports: String, body: String) =
+        """ |$imports
+            |fun main() { 
+            |   //sampleStart 
+            |   $body 
+            |   //sampleEnd
+            |}""".trimMargin()
+
     private fun ContentNode.dfs(fqName: String, node: ContentCode): ContentNode {
         return when (this) {
             is ContentHeader -> copy(children.map { it.dfs(fqName, node) })
-            is ContentDivergentGroup -> copy(children.map { it.dfs(fqName, node) } as List<ContentDivergentInstance>)
+            is ContentDivergentGroup -> @Suppress("UNCHECKED_CAST") copy(children.map {
+                it.dfs(fqName, node)
+            } as List<ContentDivergentInstance>)
             is ContentDivergentInstance -> copy(
                 before.let { it?.dfs(fqName, node) },
                 divergent.dfs(fqName, node),
-                after.let { it?.dfs(fqName, node) }
-            )
+                after.let { it?.dfs(fqName, node) })
             is ContentCode -> copy(children.map { it.dfs(fqName, node) })
             is ContentDRILink -> copy(children.map { it.dfs(fqName, node) })
             is ContentResolvedLink -> copy(children.map { it.dfs(fqName, node) })
@@ -109,21 +123,28 @@ abstract class SamplesTransformer(val context: DokkaContext) : PageTransformer {
         return DescriptorToSourceUtils.descriptorToDeclaration(symbol)
     }
 
-    private fun contentCode(sourceSets: List<DokkaSourceSet>, dri: Set<DRI>, content: String, language: String) =
+    private fun contentCode(
+        sourceSets: Set<DokkaSourceSet>,
+        dri: Set<DRI>,
+        content: String,
+        language: String,
+        styles: Set<Style> = emptySet(),
+        extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
+    ) =
         ContentCode(
             children = listOf(
                 ContentText(
                     text = content,
-                    dci = DCI(dri, ContentKind.BriefComment),
-                    sourceSets = sourceSets.toSet(),
+                    dci = DCI(dri, ContentKind.Sample),
+                    sourceSets = sourceSets,
                     style = emptySet(),
                     extra = PropertyContainer.empty()
                 )
             ),
             language = language,
-            extra = PropertyContainer.empty(),
-            dci = DCI(dri, ContentKind.Source),
-            sourceSets = sourceSets.toSet(),
-            style = emptySet()
+            dci = DCI(dri, ContentKind.Sample),
+            sourceSets = sourceSets,
+            style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
+            extra = extra
         )
 }

@@ -4,7 +4,7 @@ import kotlinx.html.h1
 import kotlinx.html.id
 import kotlinx.html.table
 import kotlinx.html.tbody
-import org.jetbrains.dokka.base.renderers.platforms
+import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DEnumEntry
 import org.jetbrains.dokka.pages.*
@@ -45,16 +45,17 @@ object NavigationPageInstaller : PageTransformer {
         NavigationNode(
             page.name,
             page.dri.first(),
-            page.platforms(),
+            page.sourceSets(),
             page.navigableChildren()
         )
 
     private fun ContentPage.navigableChildren(): List<NavigationNode> {
-        if(this !is ClasslikePageNode){
+        if (this !is ClasslikePageNode) {
             return children.filterIsInstance<ContentPage>()
                 .map { visit(it) }
-        } else if(documentable is DEnum) {
-            return children.filter { it is ContentPage && it.documentable is DEnumEntry }.map { visit(it as ContentPage) }
+        } else if (documentable is DEnum) {
+            return children.filter { it is ContentPage && it.documentable is DEnumEntry }
+                .map { visit(it as ContentPage) }
         }
 
         return emptyList()
@@ -84,18 +85,20 @@ object StyleAndScriptsAppender : PageTransformer {
     }
 }
 
-class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer{
+class SourcesetDependencyAppender(val context: DokkaContext) : PageTransformer {
     override fun invoke(input: RootPageNode): RootPageNode {
         val dependenciesMap = context.configuration.sourceSets.map {
             it.sourceSetID to it.dependentSourceSets
         }.toMap()
-        fun createDependenciesJson() : String = "sourceset_dependencies = '{${
-            dependenciesMap.entries.joinToString(", ") {
-                "\"${it.key}\": [${it.value.joinToString(","){
-                    "\"$it\""
-                }}]" 
-            }
+
+        fun createDependenciesJson(): String = "sourceset_dependencies = '{${
+        dependenciesMap.entries.joinToString(", ") {
+            "\"${it.key}\": [${it.value.joinToString(",") {
+                "\"$it\""
+            }}]"
+        }
         }}'"
+
         val deps = RendererSpecificResourcePage(
             name = "scripts/sourceset_dependencies.js",
             children = emptyList(),

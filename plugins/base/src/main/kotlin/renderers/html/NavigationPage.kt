@@ -25,7 +25,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
                 id = navId
                 attributes["pageId"] = node.dri.toString()
                 div("overview") {
-                    buildLink(node.dri, node.sourceSets) { +node.name }
+                    buildLink(node.dri, node.sourceSets.toList()) { +node.name }
                     if (node.children.isNotEmpty()) {
                         span("navButton") {
                             onClick = """document.getElementById("$navId").classList.toggle("hidden");"""
@@ -41,7 +41,7 @@ class NavigationPage(val root: NavigationNode) : RendererSpecificPage {
 class NavigationNode(
     val name: String,
     val dri: DRI,
-    val sourceSets: List<DokkaSourceSet>,
+    val sourceSets: Set<DokkaSourceSet>,
     val children: List<NavigationNode>
 )
 
