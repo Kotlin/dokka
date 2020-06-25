@@ -490,7 +490,7 @@ open class DefaultPageCreator(
             header(2, name, kind = kind)
             table(kind, extra = extra, styles = emptySet()) {
                 collection
-                    .groupBy { it.name }
+                    .groupBy { it.name } // This groupBy should probably use LocationProvider
                     // This hacks displaying actual typealias signatures along classlike ones
                     .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
                     .toSortedMap(compareBy(nullsLast(String.CASE_INSENSITIVE_ORDER)) { it })
