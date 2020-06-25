@@ -130,7 +130,7 @@ interface JvmSignatureUtils {
         }
     }
 
-    fun <T : Documentable> WithExtraProperties<T>.stylesForDeprecated(sourceSetData: SourceSetData): Set<TextStyle> =
+    fun <T : Documentable> WithExtraProperties<T>.stylesIfDeprecated(sourceSetData: SourceSetData): Set<TextStyle> =
         if (extra[Annotations]?.content?.get(sourceSetData)?.any {
             it.dri == DRI("kotlin", "Deprecated")
                     || it.dri == DRI("java.lang", "Deprecated")

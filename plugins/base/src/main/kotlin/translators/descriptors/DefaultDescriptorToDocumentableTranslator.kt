@@ -696,16 +696,15 @@ private class DokkaDescriptorVisitor(
         else -> StringValue(toString())
     }
 
-    private fun AnnotationDescriptor.toAnnotation(): Annotations.Annotation? =
-        DRI.from(annotationClass as DeclarationDescriptor).let {
-            Annotations.Annotation(
-                it,
-                allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
-                    it.second != null
-                }.toMap() as Map<String, AnnotationParameterValue>,
-                annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
-            )
-        }
+    private fun AnnotationDescriptor.toAnnotation(): Annotations.Annotation {
+        return Annotations.Annotation(
+            DRI.from(annotationClass as DeclarationDescriptor),
+            allValueArguments.map { it.key.asString() to it.value.toValue() }.filter {
+                it.second != null
+            }.toMap() as Map<String, AnnotationParameterValue>,
+            annotationClass!!.annotations.hasAnnotation(FqName("kotlin.annotation.MustBeDocumented"))
+        )
+    }
 
     private fun PropertyDescriptor.getAnnotationsWithBackingField(): List<Annotations.Annotation> =
         getAnnotations() + (backingField?.getAnnotations() ?: emptyList())
