@@ -370,8 +370,8 @@ open class DefaultPageCreator(
         }.run {
             documentable.sourceSets.forEach { sourceSet ->
                 this[sourceSet]?.also { tag ->
-                    group(sourceSets = setOf(sourceSet)) {
-                        header(4, (tag as CustomTagWrapper).name)
+                    group(sourceSets = setOf(sourceSet), kind = ContentKind.Comment, styles = setOf(TextStyle.Block)) {
+                        header(4, tag.name)
                         comment(tag.root)
                     }
                 }
