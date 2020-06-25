@@ -2,37 +2,26 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.DAnnotation
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-internal class DocumentableFilter(val context: DokkaContext) : PreMergeDocumentableTransformer {
+class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
 
-    override fun invoke(modules: List<DModule>): List<DModule> = modules.map { original ->
-        val packageOptions =
-            context.configuration.passesConfigurations.first { original.sourceSets.contains(context.sourceSet(it)) }
-                .perPackageOptions
+    override fun invoke(modules: List<DModule>) = modules.map { original ->
         val passOptions = context.configuration.passesConfigurations.first {
             original.sourceSets.contains(context.sourceSet(it))
         }
+        val packageOptions =
+            passOptions.perPackageOptions
         original.let {
-            DeprecationFilter(passOptions,packageOptions).processModule(it)
-        }.let {
-            VisibilityFilter(packageOptions, passOptions).processModule(it)
-        }.let {
-            EmptyPackagesFilter(passOptions).processModule(it)
+            DocumentableVisibilityFilter(packageOptions, passOptions).processModule(it)
         }
     }
 
-    private class VisibilityFilter(
+    private class DocumentableVisibilityFilter(
         val packageOptions: List<DokkaConfiguration.PackageOptions>,
         val globalOptions: DokkaConfiguration.PassConfiguration
     ) {
-
         fun Visibility.isAllowedInPackage(packageName: String?) = when (this) {
             is JavaVisibility.Public,
             is JavaVisibility.Default,
@@ -54,7 +43,6 @@ internal class DocumentableFilter(val context: DokkaContext) : PreMergeDocumenta
                         extra = original.extra
                     )
             }
-
 
 
         private fun filterPackages(packages: List<DPackage>): Pair<Boolean, List<DPackage>> {
@@ -339,263 +327,5 @@ internal class DocumentableFilter(val context: DokkaContext) : PreMergeDocumenta
             }
             return Pair(classlikesListChanged, filteredClasslikes)
         }
-
-
-    }
-
-    private class DeprecationFilter(
-        val globalOptions: DokkaConfiguration.PassConfiguration,
-        val packageOptions: List<DokkaConfiguration.PackageOptions>
-    ) {
-
-        fun <T> T.isAllowedInPackage(): Boolean where T : WithExtraProperties<T>, T : Documentable {
-            val packageName = this.dri.packageName
-            val condition = packageName != null && packageOptions.firstOrNull {
-                packageName.startsWith(it.prefix)
-            }?.skipDeprecated
-                    ?: globalOptions.skipDeprecated
-
-            fun T.isDeprecated() = extra[Annotations]?.let { annotations ->
-                annotations.content.values.flatten().any {
-                    it.dri.toString() == "kotlin/Deprecated///PointingToDeclaration/"
-                }
-            } ?: false
-
-            return !(condition && this.isDeprecated())
-        }
-
-        fun processModule(original: DModule) =
-            filterPackages(original.packages).let { (modified, packages) ->
-                if (!modified) original
-                else
-                    DModule(
-                        original.name,
-                        packages = packages,
-                        documentation = original.documentation,
-                        sourceSets = original.sourceSets,
-                        extra = original.extra
-                    )
-            }
-
-
-        private fun filterPackages(packages: List<DPackage>): Pair<Boolean, List<DPackage>> {
-            var packagesListChanged = false
-            val filteredPackages = packages.mapNotNull {
-                var modified = false
-                val functions = filterFunctions(it.functions).let { (listModified, list) ->
-                    modified = modified || listModified
-                    list
-                }
-                val properties = filterProperties(it.properties).let { (listModified, list) ->
-                    modified = modified || listModified
-                    list
-                }
-                val classlikes = filterClasslikes(it.classlikes).let { (listModified, list) ->
-                    modified = modified || listModified
-                    list
-                }
-                when {
-                    !modified -> it
-                    else -> {
-                        packagesListChanged = true
-                        DPackage(
-                            it.dri,
-                            functions,
-                            properties,
-                            classlikes,
-                            it.typealiases,
-                            it.documentation,
-                            it.expectPresentInSet,
-                            it.sourceSets,
-                            it.extra
-                        )
-                    }
-                }
-            }
-            return Pair(packagesListChanged, filteredPackages)
-        }
-
-        private fun filterFunctions(
-            functions: List<DFunction>
-        ) = functions.filter { it.isAllowedInPackage() }.let {
-            Pair(it.size != functions.size, it)
-        }
-
-        private fun filterProperties(
-            properties: List<DProperty>
-        ): Pair<Boolean, List<DProperty>> = properties.filter {
-            it.isAllowedInPackage()
-        }.let {
-            Pair(properties.size != it.size, it)
-        }
-
-        private fun filterEnumEntries(entries: List<DEnumEntry>) =
-            entries.filter { it.isAllowedInPackage() }.map { entry ->
-                DEnumEntry(
-                    entry.dri,
-                    entry.name,
-                    entry.documentation,
-                    entry.expectPresentInSet,
-                    filterFunctions(entry.functions).second,
-                    filterProperties(entry.properties).second,
-                    filterClasslikes(entry.classlikes).second,
-                    entry.sourceSets,
-                    entry.extra
-                )
-            }
-
-        private fun filterClasslikes(
-            classlikeList: List<DClasslike>
-        ): Pair<Boolean, List<DClasslike>> {
-            var modified = false
-            return classlikeList.filter {
-                when (it) {
-                    is DClass -> it.isAllowedInPackage()
-                    is DInterface -> it.isAllowedInPackage()
-                    is DEnum -> it.isAllowedInPackage()
-                    is DObject -> it.isAllowedInPackage()
-                    is DAnnotation -> it.isAllowedInPackage()
-                }
-            }.map {
-                fun helper(): DClasslike = when (it) {
-                    is DClass -> DClass(
-                        it.dri,
-                        it.name,
-                        filterFunctions(it.constructors).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterFunctions(it.functions).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterProperties(it.properties).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterClasslikes(it.classlikes).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.sources,
-                        it.visibility,
-                        it.companion,
-                        it.generics,
-                        it.supertypes,
-                        it.documentation,
-                        it.expectPresentInSet,
-                        it.modifier,
-                        it.sourceSets,
-                        it.extra
-                    )
-                    is DAnnotation -> DAnnotation(
-                        it.name,
-                        it.dri,
-                        it.documentation,
-                        it.expectPresentInSet,
-                        it.sources,
-                        filterFunctions(it.functions).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterProperties(it.properties).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterClasslikes(it.classlikes).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.visibility,
-                        it.companion,
-                        filterFunctions(it.constructors).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.generics,
-                        it.sourceSets,
-                        it.extra
-                    )
-                    is DEnum -> DEnum(
-                        it.dri,
-                        it.name,
-                        filterEnumEntries(it.entries),
-                        it.documentation,
-                        it.expectPresentInSet,
-                        it.sources,
-                        filterFunctions(it.functions).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterProperties(it.properties).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterClasslikes(it.classlikes).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.visibility,
-                        it.companion,
-                        filterFunctions(it.constructors).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.supertypes,
-                        it.sourceSets,
-                        it.extra
-                    )
-                    is DInterface -> DInterface(
-                        it.dri,
-                        it.name,
-                        it.documentation,
-                        it.expectPresentInSet,
-                        it.sources,
-                        filterFunctions(it.functions).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterProperties(it.properties).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterClasslikes(it.classlikes).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.visibility,
-                        it.companion,
-                        it.generics,
-                        it.supertypes,
-                        it.sourceSets,
-                        it.extra
-                    )
-                    is DObject -> DObject(
-                        it.name,
-                        it.dri,
-                        it.documentation,
-                        it.expectPresentInSet,
-                        it.sources,
-                        filterFunctions(it.functions).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterProperties(it.properties).let {
-                            modified = modified || it.first; it.second
-                        },
-                        filterClasslikes(it.classlikes).let {
-                            modified = modified || it.first; it.second
-                        },
-                        it.visibility,
-                        it.supertypes,
-                        it.sourceSets,
-                        it.extra
-                    )
-                }
-                helper()
-            }.let {
-                Pair(it.size != classlikeList.size || modified, it)
-            }
-        }
-    }
-
-    private class EmptyPackagesFilter(
-        val passOptions: DokkaConfiguration.PassConfiguration
-    ) {
-        fun DPackage.shouldBeSkipped() = passOptions.skipEmptyPackages &&
-                functions.isEmpty() &&
-                properties.isEmpty() &&
-                classlikes.isEmpty()
-
-        fun processModule(module: DModule) = module.copy(
-            packages = module.packages.mapNotNull { pckg ->
-                if (pckg.shouldBeSkipped()) null
-                else pckg
-            }
-        )
     }
 }
