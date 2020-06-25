@@ -14,6 +14,7 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -45,20 +46,20 @@ open class JavadocPageCreator(
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
                 modifiers = listOfNotNull(c.visibility[jvm]?.name),
-                signature = signatureProvider.signature(c),
+                signature = signatureProvider.signature(c).jvmSignature(),
                 description = c.description(jvm),
                 constructors = c.safeAs<WithConstructors>()?.constructors?.map { it.toJavadocFunction(jvm) }.orEmpty(),
                 methods = c.functions.map { it.toJavadocFunction(jvm) },
                 entries = c.safeAs<DEnum>()?.entries?.map {
                     JavadocEntryNode(
-                        signatureProvider.signature(it),
+                        signatureProvider.signature(it).jvmSignature(),
                         it.description(jvm)
                     )
                 }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
                 properties = c.properties.map {
                     JavadocPropertyNode(
-                        signatureProvider.signature(it),
+                        signatureProvider.signature(it).jvmSignature(),
                         TextNode(it.description(jvm), setOf(jvm))
                     )
                 },
@@ -101,7 +102,7 @@ open class JavadocPageCreator(
             list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.sortedBy { it.name }.map { c ->
                 RowJavadocListEntry(
                     LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
-                    listOf(signatureProvider.signature(c))
+                    listOf(signatureProvider.signature(c).jvmSignature())
                 )
             })
         }
@@ -147,7 +148,7 @@ open class JavadocPageCreator(
 
     private fun DFunction.toJavadocFunction(sourceSetData: SourceSetData) = JavadocFunctionNode(
         name = name,
-        signature = signatureProvider.signature(this),
+        signature = signatureProvider.signature(this).jvmSignature(),
         brief = TextNode(description(sourceSetData), setOf(sourceSetData)),
         parameters = parameters.map {
             JavadocParameterNode(
@@ -158,6 +159,9 @@ open class JavadocPageCreator(
         },
         extras = extra
     )
+
+    fun List<ContentNode>.jvmSignature(): ContentNode =
+        first { it.sourceSets.any { it.platform == Platform.jvm } }
 
     private fun Documentable.description(sourceSetData: SourceSetData): String =
         findNodeInDocumentation<Description>(sourceSetData)
