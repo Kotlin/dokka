@@ -17,7 +17,6 @@ import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 open class JavadocPageCreator(
     commentsToContentConverter: CommentsToContentConverter,
@@ -47,13 +46,22 @@ open class JavadocPageCreator(
                 modifiers = listOfNotNull(c.visibility[jvm]?.name),
                 signature = signatureProvider.signature(c).nodeForJvm(jvm),
                 description = c.descriptionToContentNodes(),
-                constructors = c.safeAs<WithConstructors>()?.constructors?.map { it.toJavadocFunction(jvm) }.orEmpty(),
-                methods = c.functions.map { it.toJavadocFunction(jvm) },
-                entries = c.safeAs<DEnum>()?.entries?.map { JavadocEntryNode(signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)) }.orEmpty(),
+                constructors = (c as? WithConstructors)?.constructors?.mapNotNull { it.toJavadocFunction() }.orEmpty(),
+                methods = c.functions.mapNotNull { it.toJavadocFunction() },
+                entries = (c as? DEnum)?.entries?.map {
+                    JavadocEntryNode(
+                        signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)
+                    )
+                }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
-                properties = c.properties.map { JavadocPropertyNode(signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)) },
+                properties = c.properties.map {
+                    JavadocPropertyNode(
+                        signatureProvider.signature(it).nodeForJvm(jvm),
+                        it.descriptionToContentNodes(jvm)
+                    )
+                },
                 documentable = c,
-                extras = c.safeAs<WithExtraProperties<Documentable>>()?.extra ?: PropertyContainer.empty()
+                extras = (c as? WithExtraProperties<Documentable>)?.extra ?: PropertyContainer.empty()
             )
         }
 
@@ -61,7 +69,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(m.dri),
             JavadocContentKind.OverviewSummary,
-            m.jvmSource.toSet()
+            m.jvmSourceSets.toSet()
         ) {
             title(m.name, m.brief(),"0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.sortedBy { it.name }.map { p ->
@@ -76,9 +84,9 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(p.dri),
             JavadocContentKind.PackageSummary,
-            p.jvmSource.toSet()
+            p.jvmSourceSets.toSet()
         ) {
-            title(p.name, p.brief(),"0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
+            title(p.name, p.brief(), "0.0.1", dri = setOf(p.dri), kind = ContentKind.Packages)
             list("Packages", "Package", setOf(p.dri), ContentKind.Packages, p.classlikes.sortedBy { it.name }.map { c ->
                 RowJavadocListEntry(
                     LinkJavadocListEntry(c.name.orEmpty(), setOf(c.dri), JavadocContentKind.Class, sourceSets),
@@ -91,7 +99,7 @@ open class JavadocPageCreator(
         JavadocContentGroup(
             setOf(c.dri),
             JavadocContentKind.Class,
-            c.jvmSource.toSet()
+            c.jvmSourceSets.toSet()
         ) {
             title(
                 c.name.orEmpty(),
@@ -127,31 +135,34 @@ open class JavadocPageCreator(
             is UnresolvedBound -> p.name
         }
 
-    private fun DFunction.toJavadocFunction(sourceSetData: DokkaSourceSet) = JavadocFunctionNode(
-        name = name,
-        signature = signatureProvider.signature(this).nodeForJvm(sourceSetData),
-        brief = brief(sourceSetData),
-        parameters = parameters.map {
-            JavadocParameterNode(
-                name = it.name.orEmpty(),
-                type = signatureForProjection(it.type),
-                description = it.brief()
-            )
-        },
-        extras = extra
-    )
+    private fun DFunction.toJavadocFunction() = highestJvmSourceSet?.let { jvm ->
+        JavadocFunctionNode(
+            name = name,
+            dri = dri,
+            signature = signatureProvider.signature(this).nodeForJvm(jvm),
+            brief = brief(jvm),
+            parameters = parameters.map {
+                JavadocParameterNode(
+                    name = it.name.orEmpty(),
+                    type = signatureForProjection(it.type),
+                    description = it.brief()
+                )
+            },
+            extras = extra
+        )
+    }
 
-    private val Documentable.jvmSource
+    private val Documentable.jvmSourceSets
         get() = sourceSets.filter { it.analysisPlatform == Platform.jvm }
 
     private val Documentable.highestJvmSourceSet
-        get() = jvmSource.let { sources ->
-            sources.firstOrNull { it !=  expectPresentInSet } ?: sources.firstOrNull()
+        get() = jvmSourceSets.let { sources ->
+            sources.firstOrNull { it != expectPresentInSet } ?: sources.firstOrNull()
         }
 
     private val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
 
-    private inline fun <reified T: TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
+    private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
         documentation[sourceSetData]?.firstChildOfType<T>()
 
     private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
@@ -169,7 +180,7 @@ open class JavadocPageCreator(
         val description = descriptionToContentNodes(sourceSet)
         val contents = mutableListOf<ContentNode>()
         for (node in description) {
-            if ( node is ContentText && firstSentenceRegex.containsMatchIn(node.text) ) {
+            if (node is ContentText && firstSentenceRegex.containsMatchIn(node.text)) {
                 contents.add(node.copy(text = firstSentenceRegex.find(node.text)?.value.orEmpty()))
                 break
             } else {
