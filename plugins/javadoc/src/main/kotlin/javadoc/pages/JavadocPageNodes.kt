@@ -104,28 +104,10 @@ data class JavadocFunctionNode(
     val signature: ContentNode,
     val brief: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
-    override val name: String,
-    override val dri: Set<DRI> = emptySet(),
-    override val children: List<PageNode> = emptyList(),
-    override val documentable: Documentable? = null,
-    override val embeddedResources: List<String> = emptyList(),
+    val name: String,
+    val dri: DRI,
     val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
-) : JavadocPageNode {
-
-    override val content: ContentNode = EmptyNode(DRI.topLevel, ContentKind.Classlikes, emptySet())
-
-    override fun modified(
-        name: String,
-        children: List<PageNode>
-    ): PageNode = TODO()
-
-    override fun modified(
-        name: String,
-        content: ContentNode,
-        dri: Set<DRI>,
-        embeddedResources: List<String>,
-        children: List<PageNode>
-    ): ContentPage = TODO()
+) {
 
     val modifiersAndSignature: Pair<ContentNode, ContentNode>
         get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
@@ -339,7 +321,6 @@ class TreeViewPage(
         fun gatherPsiClasses(psi: PsiClass): List<Pair<PsiClass, List<PsiClass>>> = psi.supers.toList().let { l ->
             listOf(psi to l) + l.flatMap { gatherPsiClasses(it) }
         }
-
 
         val psiInheritanceTree = documentables.flatMap { (_, v) -> (v as? WithExpectActual)?.sources?.values.orEmpty() }
             .filterIsInstance<PsiDocumentableSource>().mapNotNull { it.psi as? PsiClass }.flatMap(::gatherPsiClasses)

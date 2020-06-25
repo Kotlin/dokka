@@ -19,6 +19,7 @@ internal class JavadocContentToTemplateMapTranslator(
         mapOf<String, Any?>(
             "docName" to "docName", // todo docname
             "pathToRoot" to pathToRoot,
+            "contextRoot" to node,
             "kind" to "main",
         ) + templateMapForNode(node)
 
@@ -27,7 +28,6 @@ internal class JavadocContentToTemplateMapTranslator(
         when (node) {
             is JavadocModulePageNode -> InnerTranslator(node).templateMapForJavadocContentNode(node.content)
             is JavadocClasslikePageNode -> InnerTranslator(node).templateMapForClasslikeNode(node)
-            is JavadocFunctionNode -> InnerTranslator(node).templateMapForFunctionNode(node)
             is JavadocPackagePageNode -> InnerTranslator(node).templateMapForPackagePageNode(node)
             is TreeViewPage -> InnerTranslator(node).templateMapForTreeViewPage(node)
             is AllClassesPage -> InnerTranslator(node).templateMapForAllClassesPage(node)
@@ -65,19 +65,19 @@ internal class JavadocContentToTemplateMapTranslator(
         internal fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap {
             val (modifiers, signature) = node.modifiersAndSignature
             return mapOf(
-                "signature" to htmlForContentNode(node.signature, node),
-                "brief" to htmlForContentNodes(node.brief, node),
+                "signature" to htmlForContentNode(node.signature, contextNode),
+                "brief" to htmlForContentNodes(node.brief, contextNode),
                 "parameters" to node.parameters.map { templateMapForParameterNode(it) },
                 "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
-                "modifiers" to htmlForContentNode(modifiers, node),
-                "signatureWithoutModifiers" to htmlForContentNode(signature, node),
+                "modifiers" to htmlForContentNode(modifiers, contextNode),
+                "signatureWithoutModifiers" to htmlForContentNode(signature, contextNode),
                 "name" to node.name
             )
         }
 
         internal fun templateMapForClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
             mapOf(
-                "constructors" to node.constructors.map { templateMapForNode(it) },
+                "constructors" to node.constructors.map { templateMapForFunctionNode(it) },
                 "signature" to htmlForContentNode(node.signature, node),
                 "methods" to templateMapForClasslikeMethods(node.methods),
                 "classlikeDocumentation" to htmlForContentNodes(node.description, node),
@@ -113,12 +113,12 @@ internal class JavadocContentToTemplateMapTranslator(
         private fun templateMapForClasslikeMethods(nodes: List<JavadocFunctionNode>): TemplateMap {
             val (inherited, own) = nodes.partition {
                 val extra = it.extras[InheritedFunction]
-                extra?.inheritedFrom?.keys?.first { it.analysisPlatform == Platform.jvm }?.let { jvm ->
+                extra?.inheritedFrom?.keys?.firstOrNull { it.analysisPlatform == Platform.jvm }?.let { jvm ->
                     extra.isInherited(jvm)
                 } ?: false
             }
             return mapOf(
-                "own" to own.map { templateMapForNode(it) },
+                "own" to own.map { templateMapForFunctionNode(it) },
                 "inherited" to inherited.map { templateMapForInheritedMethod(it) }
                     .groupBy { it["inheritedFrom"] as String }.entries.map {
                         mapOf(
@@ -188,14 +188,12 @@ internal class JavadocContentToTemplateMapTranslator(
                 "list" to node.children
             )
         }
-        fun locate(link: ContentDRILink, relativeNode: PageNode?) =
-            locationProvider.resolve(link.address, link.sourceSets, relativeNode)
 
         private fun htmlForContentNode(node: ContentNode, relativeNode: PageNode) =
-            htmlTranslator.htmlForContentNode(node, relativeNode, ::locate)
+            htmlTranslator.htmlForContentNode(node, relativeNode)
 
         private fun htmlForContentNodes(nodes: List<ContentNode>, relativeNode: PageNode) =
-            htmlTranslator.htmlForContentNodes(nodes, relativeNode, ::locate)
+            htmlTranslator.htmlForContentNodes(nodes, relativeNode)
     }
 
     private fun DRI.displayable(): String = "${packageName}.${sureClassNames}"
