@@ -14,7 +14,6 @@ import org.jetbrains.dokka.base.transformers.documentables.DefaultDocumentableMe
 import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationTransformer
 import org.jetbrains.dokka.base.transformers.documentables.ReportUndocumentedTransformer
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
-import org.jetbrains.dokka.base.transformers.documentables.DocumentableFilter
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.merger.FallbackPageMergerStrategy
@@ -51,8 +50,18 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
     }
 
-    val preMergeDocumentableTransformer by extending(isFallback = true) {
-        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableFilter
+    val deprecatedDocumentableFilter by extending(isFallback = true) {
+        CoreExtensions.preMergeDocumentableTransformer providing ::DeprecatedDocumentableFilterTransformer
+    }
+
+    val documentableVisbilityFilter by extending(isFallback = true) {
+        CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilterTransformer
+    }
+
+    val emptyPackagesFilter by extending(isFallback = true) {
+        CoreExtensions.preMergeDocumentableTransformer providing ::EmptyPackagesFilterTransformer order {
+            after(deprecatedDocumentableFilter, documentableVisbilityFilter)
+        }
     }
 
     val actualTypealiasAdder by extending {
