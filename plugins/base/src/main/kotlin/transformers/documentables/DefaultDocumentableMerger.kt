@@ -1,10 +1,12 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 internal object DefaultDocumentableMerger : DocumentableMerger {
 
@@ -41,9 +43,16 @@ private fun <T> mergeExpectActual(
     reducer: (T, T) -> T
 ): List<T> where T : Documentable, T : WithExpectActual {
 
-    fun analyzeExpectActual(sameDriElements: List<T>) = sameDriElements.reduce(reducer)
+    fun analyzeExpectActual(sameDriAndTypeElements: List<T>) = sameDriAndTypeElements.reduce(reducer)
 
-    return elements.groupBy { it.dri }.values.map(::analyzeExpectActual)
+    return elements.groupBy {
+        val casted = it.safeAs<WithExtraProperties<T>>()
+        casted != null && casted.extra[IsExpectActual] != null
+    }.let {
+        (it[false] ?: listOf()) +
+                (it[true] ?: listOf())
+                    .groupBy { Pair(it.dri, it::class) }.values.map(::analyzeExpectActual)
+    }
 }
 
 fun DPackage.mergeWith(other: DPackage): DPackage = copy(
