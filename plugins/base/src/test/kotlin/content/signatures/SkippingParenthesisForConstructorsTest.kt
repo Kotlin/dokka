@@ -150,8 +150,8 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
             |package test
             |
             |class SomeClass(a: String) {
-            |    constructor
-            |
+            |    constructor()
+            |}
         """.trimIndent(), testConfiguration
         ) {
             pagesTransformationStage = { module ->
@@ -186,7 +186,6 @@ class ConstructorsSignaturesTest : AbstractCoreTest() {
                         }
                         skipAllNotMatching()
                     }
-
                 }
             }
         }
