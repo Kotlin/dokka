@@ -1,13 +1,15 @@
 package content.signatures
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.PackagePageNode
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.doc.Text
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Test
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
+import utils.typealiasSignature
 
 class ContentForSignaturesTest : AbstractCoreTest() {
 
@@ -366,6 +368,87 @@ class ContentForSignaturesTest : AbstractCoreTest() {
                 val page = module.children.single { it.name == "test" } as PackagePageNode
                 page.content.assertNode {
                     propertySignature(emptyMap(), "protected", "", setOf("lateinit"), "var", "property", "Int")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias to String`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |typealias Alias = String
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    typealiasSignature("Alias", "String")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias to Int`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |typealias Alias = Int
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    typealiasSignature("Alias", "Int")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias to type in same package`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |typealias Alias = X
+            |class X
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    typealiasSignature("Alias", "X")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias to type in different package`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |import other.X
+            |typealias Alias = X
+            |
+            |/src/main/kotlin/test/source2.kt
+            |package other
+            |class X
+            """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.children.single { it.name == "test" } as PackagePageNode
+                page.content.assertNode {
+                    typealiasSignature("Alias", "other.X")
                 }
             }
         }

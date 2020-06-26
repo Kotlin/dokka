@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.*
@@ -190,7 +192,12 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map {
-            contentBuilder.contentFor(p, ContentKind.Symbol, setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(
+                p,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace) + p.stylesIfDeprecated(it),
+                sourceSets = setOf(it)
+            ) {
                 annotationsBlock(p)
                 text(p.visibility[it].takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                 text(
@@ -215,12 +222,17 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 
     private fun functionSignature(f: DFunction) =
         f.sourceSets.map {
-            contentBuilder.contentFor(f, ContentKind.Symbol, setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it), sourceSets = setOf(it)) {
+            contentBuilder.contentFor(
+                f,
+                ContentKind.Symbol,
+                setOf(TextStyle.Monospace) + f.stylesIfDeprecated(it),
+                sourceSets = setOf(it)
+            ) {
                 annotationsBlock(f)
                 text(f.visibility[it]?.takeIf { it !in ignoredVisibilities }?.name?.let { "$it " } ?: "")
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.let {
-                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { "$it " } ?: ""
+                    if (it is JavaModifier.Empty) KotlinModifier.Open else it
+                }?.name?.let { "$it " } ?: ""
                 )
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
                 text("fun ")
@@ -270,7 +282,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                         text("typealias ")
                         signatureForProjection(t.type)
                         text(" = ")
-                        signatureForProjection(type)
+                        signatureForTypealiasTarget(t, type)
                     }
                 }
             }
@@ -286,7 +298,20 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             }
         }
 
-    private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit =
+    private fun PageContentBuilder.DocumentableContentBuilder.signatureForTypealiasTarget(
+        typeAlias: DTypeAlias, bound: Bound
+    ) {
+        signatureForProjection(
+            p = bound,
+            showFullyQualifiedName =
+            bound.driOrNull?.packageName != typeAlias.dri.packageName &&
+                    bound.driOrNull?.packageName != "kotlin"
+        )
+    }
+
+    private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(
+        p: Projection, showFullyQualifiedName: Boolean = false
+    ): Unit =
         when (p) {
             is OtherParameter -> link(p.name, p.declarationDRI)
 
@@ -294,27 +319,31 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
                 +funType(mainDRI.single(), mainSourcesetData, p)
             else
                 group(styles = emptySet()) {
-                    link(p.dri.classNames.orEmpty(), p.dri)
+                    val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
+                        "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
+                    } else p.dri.classNames.orEmpty()
+
+                    link(linkText, p.dri)
                     list(p.projections, prefix = "<", suffix = ">") {
-                        signatureForProjection(it)
+                        signatureForProjection(it, showFullyQualifiedName)
                     }
                 }
 
             is Variance -> group(styles = emptySet()) {
                 text(p.kind.toString() + " ")
-                signatureForProjection(p.inner)
+                signatureForProjection(p.inner, showFullyQualifiedName)
             }
 
             is Star -> text("*")
 
             is Nullable -> group(styles = emptySet()) {
-                signatureForProjection(p.inner)
+                signatureForProjection(p.inner, showFullyQualifiedName)
                 text("?")
             }
 
             is JavaObject -> link("Any", DriOfAny)
             is Void -> link("Unit", DriOfUnit)
-            is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin())
+            is PrimitiveJavaType -> signatureForProjection(p.translateToKotlin(), showFullyQualifiedName)
             is Dynamic -> text("dynamic")
             is UnresolvedBound -> text(p.name)
         }
@@ -342,7 +371,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
 }
 
 private fun PrimitiveJavaType.translateToKotlin() = TypeConstructor(
-    dri = DRI("kotlin", name.capitalize()),
+    dri = dri,
     projections = emptyList()
 )
 
