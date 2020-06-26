@@ -1028,3 +1028,7 @@ td.content {
     float: right;
     margin-left: auto
 }
+
+div.runnablesample {
+    height: fit-content;
+}
