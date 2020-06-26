@@ -167,6 +167,49 @@ fun ContentMatcherBuilder<*>.propertySignature(
     }
 }
 
+
+fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: String) {
+    group {
+        header { +"Package test" }
+        skipAllNotMatching()
+    }
+    group {
+        group {
+            skipAllNotMatching()
+            header { +"Types" }
+            table {
+                group {
+                    link { +name }
+                    divergentGroup {
+                        divergentInstance {
+                            group {
+                                group {
+                                    group {
+                                        group {
+                                            +"typealias "
+                                            group {
+                                                link { +name }
+                                                skipAllNotMatching()
+                                            }
+                                            +" = "
+                                            group {
+                                                link { +expressionTarget }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+                skipAllNotMatching()
+            }
+            skipAllNotMatching()
+        }
+    }
+}
+
 fun ContentMatcherBuilder<*>.pWrapped(text: String) =
     group {// TODO: remove it when double wrapping for descriptions will be resolved
         group { +text }

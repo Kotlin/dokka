@@ -2,6 +2,8 @@ package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriOfAny
+import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
@@ -26,4 +28,21 @@ object KotlinSignatureUtils : JvmSignatureUtils {
         extra[AdditionalModifiers]?.content?.entries?.map {
             it.key to it.value.filterIsInstance<ExtraModifiers.KotlinOnlyModifiers>().toSet()
         }?.toMap() ?: emptyMap()
+
+
+    val PrimitiveJavaType.dri: DRI get() = DRI("kotlin", name.capitalize())
+
+    val Bound.driOrNull: DRI?
+        get() {
+            return when (this) {
+                is OtherParameter -> this.declarationDRI
+                is TypeConstructor -> this.dri
+                is Nullable -> this.inner.driOrNull
+                is PrimitiveJavaType -> this.dri
+                is Void -> DriOfUnit
+                is JavaObject -> DriOfAny
+                is Dynamic -> null
+                is UnresolvedBound -> null
+            }
+        }
 }
