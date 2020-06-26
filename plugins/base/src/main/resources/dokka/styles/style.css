@@ -821,8 +821,7 @@ td.content {
 }
 
 .brief-with-platform-tags {
-    display: flex;
-    flex-direction: column;
+    display: inline-block;
     width: 100%;
 }
 
