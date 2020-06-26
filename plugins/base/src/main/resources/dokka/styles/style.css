@@ -734,8 +734,15 @@ td.content {
     color: var(--hover-link-color);
 }
 
+.main-subrow:hover .anchor-icon {
+    opacity: 1;
+    transition: 0.2s;
+}
+
 .main-subrow .anchor-icon {
     padding: 0 8px;
+    opacity: 0;
+    transition: 0.2s 0.5s;
 }
 
 .main-subrow .anchor-icon > svg path {
