@@ -56,8 +56,7 @@ abstract class AbstractCoreTest {
     ) {
         val testMethods = TestBuilder().apply(block).build()
         val testDirPath = getTempDir(cleanupOutput).root.toPath()
-        val fileMap = query//.replace("""\n\s*\n?""".toRegex(), "\n")
-            .replace("""\|/[^\w]""".toRegex()) { it.value.replace("|/", "| /") }.toFileMap()
+        val fileMap = query.toFileMap()
         fileMap.materializeFiles(testDirPath.toAbsolutePath())
         if (!cleanupOutput)
             logger.info("Output generated under: ${testDirPath.toAbsolutePath()}")
@@ -76,15 +75,36 @@ abstract class AbstractCoreTest {
         ).generate()
     }
 
-    private fun String.toFileMap(): Map<String, String> = this.trimMargin().removePrefix("|")
-        .replace("\r\n", "\n")
-        .split("\n/")
-        .map { fileString ->
-            fileString.split("\n", limit = 2)
-                .let {
-                    it.first().trim().removePrefix("/") to it.last().trim()
-                }
-        }.toMap()
+
+    private fun String.toFileMap(): Map<String, String> {
+        return this.trimIndent().trimMargin()
+            .replace("\r\n", "\n")
+            .sliceAt(filePathRegex)
+            .filter { it.isNotEmpty() && it.isNotBlank() && "\n" in it }
+            .map { fileDeclaration -> fileDeclaration.trim() }
+            .map { fileDeclaration ->
+                val filePathAndContent = fileDeclaration.split("\n", limit = 2)
+                val filePath = filePathAndContent.first().removePrefix("/").trim()
+                val content = filePathAndContent.last().trim()
+                filePath to content
+            }
+            .toMap()
+    }
+
+    private fun String.sliceAt(regex: Regex): List<String> {
+        val matchesStartIndices = regex.findAll(this).toList().map { match -> match.range.first }
+        return sequence {
+            yield(0)
+            yieldAll(matchesStartIndices)
+            yield(this@sliceAt.length)
+        }
+            .zipWithNext { startIndex: Int, endIndex: Int -> substring(startIndex, endIndex) }
+            .toList()
+            .also { slices ->
+                /* Post-condition verifying that no character is lost */
+                check(slices.sumBy { it.length } == length)
+            }
+    }
 
     private fun Map<String, String>.materializeFiles(
         root: Path = Paths.get("."),
@@ -232,6 +252,10 @@ abstract class AbstractCoreTest {
             ?.file
             ?.replace("file:", "")
             ?.replaceAfter(".jar", "")
+    }
+
+    companion object {
+        private val filePathRegex = Regex("""[\n^](/\w+)+(\.\w+)?\s*\n""")
     }
 }
 
