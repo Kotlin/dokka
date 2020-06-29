@@ -443,7 +443,7 @@ class DefaultPsiToDocumentableTranslator(
                 attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
                     .toMap(),
                 (psiElement as PsiClass).annotations.any {
-                    hasQualifiedName("java.lang.annotation.Documented")
+                    it.hasQualifiedName("java.lang.annotation.Documented")
                 }
             )
         }

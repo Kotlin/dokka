@@ -54,8 +54,8 @@ class JavadocTest : AbstractCoreTest() {
                 val testClass = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
                     .firstChildOfType<JavadocClasslikePageNode>()
                 assert(
-                    "public final class <a href=javadoc/Test.html>Test</a> extends <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Cloneable.html>Cloneable</a>"
-                    == transformer.htmlForContentNode(testClass.signature, null)
+                    "<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Cloneable.html>java.lang.Cloneable</a>"
+                    == transformer.htmlForContentNode(testClass.signature.supertypes!!, null)
                 )
             }
         }

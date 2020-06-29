@@ -32,7 +32,11 @@
                     </dl>
                     {% endif %}
                     <hr>
-                    <pre>{{ signature|raw }}</pre>
+                    <pre>
+{% if signature.annotations != null %}{{ signature.annotations|raw }} {% endif %}
+{{ signature.modifiers }} <span class="typeNameLabel">{{ signature.signatureWithoutModifiers|raw }}</span>
+{% if signature.supertypes != null %}extends {{signature.supertypes|raw}} {% endif %}
+                    </pre>
                     <div class="block">{{ classlikeDocumentation|raw }}</div>
                 </li>
             </ul>
@@ -114,7 +118,7 @@
                                     {% for constructor in constructors %}
                                         <tr class="{{ rowColor(loop.index0) }}">
                                             <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
-                                                    href="#%3Cinit%3E({{ constructor.inlineParameters }})">{{ constructor.name }}</a></span>({{ constructor.inlineParameters }})</code></th>
+                                                    href="#%3Cinit%3E({{ constructor.inlineParameters }})">{{ constructor.name }}</a></span>({{ constructor.inlineParameters|raw }})</code></th>
                                             <td class="colLast">{{ constructor.brief|raw }}</td>
                                         </tr>
                                     {% endfor %}
@@ -142,7 +146,7 @@
                                     {% for entry in entries %}
                                     <tr class="{{ rowColor(loop.index0) }}">
                                         <th class="colFirst" scope="row"><code><span class="memberNameLink"><a
-                                                href="TODO">{{ entry.signature|raw }}</a></span></code></th>
+                                                href="TODO">{{ entry.signature.signatureWithoutModifiers|raw }}</a></span></code></th>
                                         <td class="colLast">{{ entry.brief|raw }}</td>
                                     </tr>
                                     {% endfor %}
@@ -173,9 +177,9 @@
                                     </tr>
                                     {% for method in methods.own %}
                                     <tr id="i{{ loop.index0 }}" class="{{ rowColor(loop.index0) }}">
-                                        <td class="colFirst"><code>{{ method.modifiers|raw }}</code>
+                                        <td class="colFirst"><code>{{ method.signature.modifiers|raw }}</code>
                                         </td>
-                                        <th class="colSecond" scope="row"><code>{{ method.signatureWithoutModifiers|raw }} </code>
+                                        <th class="colSecond" scope="row"><code>{{ method.signature.signatureWithoutModifiers|raw }} </code>
                                         </th>
                                         <td class="colLast">{{ method.brief|raw }}</td>
                                     </tr>
@@ -222,14 +226,14 @@
                                 <ul class="blockList">
                                     <li class="blockList">
                                         <h4>{{ constructor.name }}</h4>
-                                        <pre>{{ constructor.name }}({{ constructor.inlineParameters }})</pre>
+                                        <pre>{{ constructor.name }}({{ constructor.inlineParameters|raw }})</pre>
                                         <div class="block">{{ constructor.brief|raw}}</div>
                                         {% if constructor.parameters.size != 0 && hasAnyDescription(constructor.parameters) %}
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             {% for parameter in constructor.parameters %}
                                             {% if parameter.description != "" %}
-                                            <dd><code>{{ parameter.name }}</code> - {{ parameter.description }}</dd>
+                                            <dd><code>{{ parameter.name }}</code> - {{ parameter.description|raw }}</dd>
                                             {% endif %}
                                             {% endfor %}
                                         </dl>
@@ -256,8 +260,18 @@
                                 <ul class="blockListLast">
                                     <li class="blockList">
                                         <h4>{{ method.name }}</h4>
-                                        <pre class="methodSignature">{{ method.signature|raw }}</pre>
+                                        <pre class="methodSignature">{{ method.signature.annotations|raw }} {{ method.signature.modifiers|raw }} {{ method.signature.signatureWithoutModifiers|raw}}</pre>
                                         <div class="block">{{ method.brief|raw }}</div>
+                                        {% if method.parameters.size != 0 && hasAnyDescription(method.parameters) %}
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            {% for parameter in method.parameters %}
+                                            {% if parameter.description != "" %}
+                                            <dd><code>{{ parameter.name }}</code> - {{ parameter.description|raw }}</dd>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </dl>
+                                        {% endif %}
                                         <!-- TODO missing return annotation -->
                                     </li>
                                 </ul>

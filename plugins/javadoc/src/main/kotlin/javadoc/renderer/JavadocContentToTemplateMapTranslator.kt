@@ -55,14 +55,14 @@ internal class JavadocContentToTemplateMapTranslator(
 
         private val htmlTranslator = JavadocContentToHtmlTranslator(locationProvider, context)
 
-        internal fun templateMapForAllClassesPage(node: AllClassesPage): TemplateMap {
+        fun templateMapForAllClassesPage(node: AllClassesPage): TemplateMap {
             return mapOf(
                 "title" to "All Classes",
                 "list" to node.classEntries
             )
         }
 
-        internal fun templateMapForTreeViewPage(node: TreeViewPage): TemplateMap {
+        fun templateMapForTreeViewPage(node: TreeViewPage): TemplateMap {
             return mapOf(
                 "title" to node.title,
                 "name" to node.name,
@@ -73,41 +73,46 @@ internal class JavadocContentToTemplateMapTranslator(
             )
         }
 
-        internal fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
+        fun templateMapForPackagePageNode(node: JavadocPackagePageNode): TemplateMap {
             return mapOf(
                 "kind" to "package"
             ) + templateMapForJavadocContentNode(node.content)
         }
 
-        internal fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap {
-            val (modifiers, signature) = node.modifiersAndSignature
+        fun templateMapForFunctionNode(node: JavadocFunctionNode): TemplateMap {
             return mapOf(
-                "signature" to htmlForContentNode(node.signature, contextNode),
                 "brief" to htmlForContentNodes(node.brief, contextNode),
                 "parameters" to node.parameters.map { templateMapForParameterNode(it) },
-                "inlineParameters" to node.parameters.joinToString { "${it.type} ${it.name}" },
-                "modifiers" to htmlForContentNode(modifiers, contextNode),
-                "signatureWithoutModifiers" to htmlForContentNode(signature, contextNode),
+                "inlineParameters" to node.parameters.joinToString { "${htmlForContentNode(it.type, contextNode)} ${it.name}" },
+                "signature" to templateMapForSignatureNode(node.signature),
                 "name" to node.name
             )
         }
 
-        internal fun templateMapForClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
+        fun templateMapForClasslikeNode(node: JavadocClasslikePageNode): TemplateMap =
             mapOf(
                 "constructors" to node.constructors.map { templateMapForFunctionNode(it) },
-                "signature" to htmlForContentNode(node.signature, node),
+                "signature" to templateMapForSignatureNode(node.signature),
                 "methods" to templateMapForClasslikeMethods(node.methods),
                 "classlikeDocumentation" to htmlForContentNodes(node.description, node),
                 "entries" to node.entries.map { templateMapForEntryNode(it) },
                 "properties" to node.properties.map { templateMapForPropertyNode(it) },
                 "classlikes" to node.classlikes.map { templateMapForNestedClasslikeNode(it) },
-                "implementedInterfaces" to templateMapForImplementedInterfaces(node),
+                "implementedInterfaces" to templateMapForImplementedInterfaces(node).sorted(),
                 "kind" to node.kind,
                 "packageName" to node.packageName,
                 "name" to node.name
             ) + templateMapForJavadocContentNode(node.content)
 
-        internal fun templateMapForJavadocContentNode(node: JavadocContentNode): TemplateMap =
+        fun templateMapForSignatureNode(node: JavadocSignatureContentNode): TemplateMap =
+            mapOf(
+                "annotations" to node.annotations?.let { htmlForContentNode(it, contextNode) },
+                "signatureWithoutModifiers" to htmlForContentNode(node.signatureWithoutModifiers, contextNode),
+                "modifiers" to node.modifiers?.let { htmlForContentNode(it, contextNode) },
+                "supertypes" to node.supertypes?.let { htmlForContentNode(it, contextNode) }
+            )
+
+        fun templateMapForJavadocContentNode(node: JavadocContentNode): TemplateMap =
             when (node) {
                 is TitleNode -> templateMapForTitleNode(node)
                 is JavadocContentGroup -> templateMapForJavadocContentGroup(node)
@@ -120,7 +125,7 @@ internal class JavadocContentToTemplateMapTranslator(
             mapOf(
                 "description" to htmlForContentNodes(node.description, contextNode),
                 "name" to node.name,
-                "type" to node.type
+                "type" to htmlForContentNode(node.type, contextNode)
             )
 
         private fun templateMapForImplementedInterfaces(node: JavadocClasslikePageNode) =
@@ -157,25 +162,24 @@ internal class JavadocContentToTemplateMapTranslator(
 
         private fun templateMapForNestedClasslikeNode(node: JavadocClasslikePageNode): TemplateMap {
             return mapOf(
-                "modifiers" to (node.modifiers + "static" + node.kind).joinToString(separator = " "),
+                "modifiers" to node.signature.modifiers?.let { htmlForContentNode(it, contextNode) },
                 "signature" to node.name,
                 "description" to htmlForContentNodes(node.description, node)
             )
         }
 
         private fun templateMapForPropertyNode(node: JavadocPropertyNode): TemplateMap {
-            val (modifiers, signature) = node.modifiersAndSignature
             return mapOf(
-                "modifiers" to htmlForContentNode(modifiers, contextNode),
-                "signature" to htmlForContentNode(signature, contextNode),
+                "modifiers" to node.signature.modifiers?.let { htmlForContentNode(it, contextNode) },
+                "signature" to htmlForContentNode(node.signature.signatureWithoutModifiers, contextNode),
                 "description" to htmlForContentNodes(node.brief, contextNode)
             )
         }
 
         private fun templateMapForEntryNode(node: JavadocEntryNode): TemplateMap {
             return mapOf(
-                "signature" to htmlForContentNode(node.signature, contextNode),
-                "brief" to node.brief
+                "signature" to templateMapForSignatureNode(node.signature),
+                "brief" to htmlForContentNodes(node.brief, contextNode)
             )
         }
 

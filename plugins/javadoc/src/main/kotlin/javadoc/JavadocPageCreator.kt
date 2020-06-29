@@ -9,13 +9,12 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.NamedTagWrapper
+import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.TagWrapper
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.ContentKind
-import org.jetbrains.dokka.pages.ContentNode
-import org.jetbrains.dokka.pages.ContentText
-import org.jetbrains.dokka.pages.DCI
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 open class JavadocPageCreator(
@@ -43,20 +42,20 @@ open class JavadocPageCreator(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
-                modifiers = listOfNotNull(c.visibility[jvm]?.name),
-                signature = signatureProvider.signature(c).nodeForJvm(jvm),
+                signature = signatureProvider.signature(c).nodeForJvm(jvm).asJavadocNode(),
                 description = c.descriptionToContentNodes(),
                 constructors = (c as? WithConstructors)?.constructors?.mapNotNull { it.toJavadocFunction() }.orEmpty(),
                 methods = c.functions.mapNotNull { it.toJavadocFunction() },
                 entries = (c as? DEnum)?.entries?.map {
                     JavadocEntryNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm), it.descriptionToContentNodes(jvm)
+                        signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode(),
+                        it.descriptionToContentNodes(jvm)
                     )
                 }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
                 properties = c.properties.map {
                     JavadocPropertyNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm),
+                        signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode(),
                         it.descriptionToContentNodes(jvm)
                     )
                 },
@@ -71,7 +70,7 @@ open class JavadocPageCreator(
             JavadocContentKind.OverviewSummary,
             m.jvmSourceSets.toSet()
         ) {
-            title(m.name, m.brief(),"0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
+            title(m.name, m.brief(), "0.0.1", dri = setOf(m.dri), kind = ContentKind.Main)
             list("Packages", "Package", setOf(m.dri), ContentKind.Packages, m.packages.sortedBy { it.name }.map { p ->
                 RowJavadocListEntry(
                     LinkJavadocListEntry(p.name, setOf(p.dri), JavadocContentKind.PackageSummary, sourceSets),
@@ -111,42 +110,21 @@ open class JavadocPageCreator(
             )
         }
 
-    private fun signatureForProjection(p: Projection): String =
-        when (p) {
-            is OtherParameter -> p.name
-            is TypeConstructor -> if (p.function)
-                "TODO"
-            else {
-                val other = if (p.projections.isNotEmpty()) {
-                    p.projections.joinToString(prefix = "<", postfix = ">") { signatureForProjection(it) }
-                } else {
-                    ""
-                }
-                "${p.dri.classNames.orEmpty()} $other"
-            }
-
-            is Variance -> "${p.kind} ${signatureForProjection(p.inner)}"
-            is Star -> "*"
-            is Nullable -> "${signatureForProjection(p.inner)}?"
-            is JavaObject -> "Object"
-            is Void -> "Void"
-            is PrimitiveJavaType -> p.name
-            is Dynamic -> "dynamic"
-            is UnresolvedBound -> p.name
-        }
-
     private fun DFunction.toJavadocFunction() = highestJvmSourceSet?.let { jvm ->
         JavadocFunctionNode(
             name = name,
             dri = dri,
-            signature = signatureProvider.signature(this).nodeForJvm(jvm),
+            signature = signatureProvider.signature(this).nodeForJvm(jvm).asJavadocNode(),
             brief = brief(jvm),
-            parameters = parameters.map {
-                JavadocParameterNode(
-                    name = it.name.orEmpty(),
-                    type = signatureForProjection(it.type),
-                    description = it.brief()
-                )
+            parameters = parameters.mapNotNull {
+                val signature = signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode()
+                signature.modifiers?.let { type ->
+                    JavadocParameterNode(
+                        name = it.name.orEmpty(),
+                        type = type,
+                        description = it.brief()
+                    )
+                }
             },
             extras = extra
         )
@@ -165,19 +143,28 @@ open class JavadocPageCreator(
     private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
         documentation[sourceSetData]?.firstChildOfTypeOrNull<T>()
 
-    private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
-        DocTagToContentConverter.buildContent(
-            it.root,
-            DCI(setOf(dri), JavadocContentKind.OverviewSummary),
-            sourceSets.toSet()
-        )
-    }.orEmpty()
+    private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
+        contentNodesFromType<Description>(sourceSet)
+
+    private fun DParameter.paramsToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
+        contentNodesFromType<Param>(sourceSet)
+
+    private inline fun <reified T : TagWrapper> Documentable.contentNodesFromType(sourceSet: DokkaSourceSet?) =
+        findNodeInDocumentation<T>(sourceSet)?.let {
+            DocTagToContentConverter.buildContent(
+                it.root,
+                DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                sourceSets.toSet()
+            )
+        }.orEmpty()
 
     fun List<ContentNode>.nodeForJvm(jvm: DokkaSourceSet): ContentNode =
         first { it.sourceSets.contains(jvm) }
 
-    private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> {
-        val description = descriptionToContentNodes(sourceSet)
+    private fun Documentable.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
+        briefFromContentNodes(descriptionToContentNodes(sourceSet))
+
+    private fun briefFromContentNodes(description: List<ContentNode>): List<ContentNode> {
         val contents = mutableListOf<ContentNode>()
         for (node in description) {
             if (node is ContentText && firstSentenceRegex.containsMatchIn(node.text)) {
@@ -189,5 +176,11 @@ open class JavadocPageCreator(
         }
         return contents
     }
+
+    private fun DParameter.brief(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<ContentNode> =
+        briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
+
+    private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
+        (this as ContentGroup).children.firstOrNull() as JavadocSignatureContentNode
 }
 

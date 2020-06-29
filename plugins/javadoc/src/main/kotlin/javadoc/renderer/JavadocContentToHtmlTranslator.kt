@@ -1,5 +1,7 @@
 package javadoc.renderer
 
+import javadoc.pages.JavadocContentNode
+import javadoc.pages.JavadocSignatureContentNode
 import javadoc.pages.TextNode
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.pages.*
@@ -21,6 +23,7 @@ internal class JavadocContentToHtmlTranslator(
             )
             is ContentResolvedLink -> buildLink(node.address, htmlForContentNodes(node.children, relative))
             is ContentCode -> htmlForCode(node.children)
+            is JavadocSignatureContentNode -> htmlForSignature(node, relative)
             else -> ""
         }
 
@@ -34,6 +37,13 @@ internal class JavadocContentToHtmlTranslator(
             else -> run { context.logger.error("Cannot cast $element as ContentText!"); "" }
         }
     }.joinToString("<br>", """<span class="code">""", "</span>") { it }
+
+    private fun htmlForSignature(node: JavadocSignatureContentNode, relative: PageNode?): String =
+        listOfNotNull(
+            node.annotations,
+            node.modifiers,
+            node.signatureWithoutModifiers,
+        ).joinToString(separator = " ") { htmlForContentNode(it, relative) }
 
     companion object {
 
