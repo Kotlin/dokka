@@ -62,7 +62,9 @@ object DocTagToContentConverter : CommentsToContentConverter {
             is H6 -> buildHeader(6)
             is Ul -> buildList(false)
             is Ol -> buildList(true, docTag.params["start"]?.toInt() ?: 1)
-            is Li -> buildChildren(docTag)
+            is Li -> listOf(
+                ContentGroup(children = buildChildren(docTag), dci, sourceSets, styles, extra)
+            )
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Strong))
             is I -> buildChildren(docTag, setOf(TextStyle.Italic))
