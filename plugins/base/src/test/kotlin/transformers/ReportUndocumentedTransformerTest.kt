@@ -26,7 +26,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |package sample
             |
             |class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -53,7 +53,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |package sample
             |
             |internal class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -82,7 +82,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |class X {
             |    fun x()
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -112,7 +112,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |class X {
             |    val x: Int = 0
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -141,7 +141,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/** Documented */
             |class X(private val x: Int) {
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -169,7 +169,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/** Documented */
             |data class X(val x: Int) {
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -200,7 +200,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |class X {
             |   constructor(unit: Unit) : this()
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -233,7 +233,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |
             |/** Documented */
             |class B : A()
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -266,7 +266,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |
             |/** Documented */
             |class B : A()
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -303,7 +303,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |class B : A() {
             |    override fun a() = throw Exception()
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -339,7 +339,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |class B : A() {
             |    override val a = 1
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -365,7 +365,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |package sample
             |
             |class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -395,7 +395,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |package sample
             |
             |class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -432,7 +432,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/main/kotlin/sample/enabled/Enabled.kt    
             |package sample.enabled
             |class Enabled
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -470,7 +470,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/main/kotlin/sample/enabled/Enabled.kt    
             |package sample.enabled
             |class Enabled
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -512,7 +512,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/jvmMain/kotlin/sample/JvmMain.kt    
             |package sample
             |actual class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -556,7 +556,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/jvmMain/kotlin/sample/JvmMain.kt    
             |package sample
             |actual class X
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -611,7 +611,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/jvmMain/kotlin/sample/JvmMain.kt    
             |package sample
             |actual fun x() = Unit
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -638,7 +638,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/main/java/sample/Test.java    
             |package sample
             |public class Test { }
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -665,7 +665,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |/src/main/java/sample/Test.java    
             |package sample
             |class Test { }
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -694,7 +694,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |   public Test() {
             |   }
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -722,7 +722,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |public class X {
             |   public void x { }
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -752,7 +752,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |public class X {
             |   public int x = 0;
             |}
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -790,7 +790,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |    public void x() {}
             |}
             |
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -830,7 +830,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |    
             |}
             |
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
@@ -868,7 +868,7 @@ class ReportUndocumentedTransformerTest : AbstractCoreTest() {
             |    public void x() {}
             |}
             |
-            """.trimIndent(),
+            """.trimMargin(),
             configuration
         ) {
             pagesTransformationStage = {
