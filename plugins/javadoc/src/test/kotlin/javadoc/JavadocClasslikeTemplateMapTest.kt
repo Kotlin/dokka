@@ -8,14 +8,13 @@ import testApi.utils.assertIsInstance
 
 internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
-    @Disabled("To be fixed")
     @Test
     fun `empty class`() {
         dualTestTemplateMapInline(
             kotlin =
             """
             /src/source0.kt
-            package com.test.package
+            package com.test.package0
             /**
             * Documentation for TestClass
             */
@@ -23,18 +22,18 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             """,
             java =
             """
-            /src/com/test/package/TestClass.java
-            package com.test.package;
+            /src/com/test/package0/TestClass.java
+            package com.test.package0;
             /**
             * Documentation for TestClass
             */
-            public class TestClass {}
+            public final class TestClass {}
             """
         ) {
             val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
             assertEquals("TestClass", map["name"])
             assertEquals("TestClass", map["title"])
-            assertEquals("com.test.package", map["packageName"])
+            assertEquals("com.test.package0", map["packageName"])
             assertEquals("Documentation for TestClass", map["classlikeDocumentation"])
             assertEquals("Documentation for TestClass", map["subtitle"])
             assertEquals("public final class <a href=TestClass.html>TestClass</a>", map["signature"])
