@@ -83,3 +83,6 @@ dokkaMultimodule {
 }
 ```
 
+### Maven
+
+There are no changes in maven configuration API for dokka, so all previous configurations should work without issues.
