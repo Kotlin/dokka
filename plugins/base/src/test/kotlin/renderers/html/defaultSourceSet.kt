@@ -1,15 +1,16 @@
 package renderers.html
 
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.DokkaSourceSetImpl
 import org.jetbrains.dokka.Platform
 
 internal val defaultSourceSet = DokkaSourceSetImpl(
-    moduleName = "DEFAULT",
+    moduleDisplayName = "DEFAULT",
     displayName = "DEFAULT",
-    sourceSetID = "DEFAULT",
+    sourceSetID = DokkaSourceSetID("DEFAULT", "DEFAULT"),
     classpath = emptyList(),
     sourceRoots = emptyList(),
-    dependentSourceSets = emptyList(),
+    dependentSourceSets = emptySet(),
     samples = emptyList(),
     includes = emptyList(),
     includeNonPublic = false,

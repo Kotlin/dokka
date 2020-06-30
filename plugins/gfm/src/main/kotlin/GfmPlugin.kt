@@ -140,7 +140,7 @@ open class CommonmarkRenderer(
                     platforms.joinToString(
                         prefix = " [",
                         postfix = "] $text "
-                    ) { "${it.moduleName}/${it.sourceSetID}" })
+                    ) { "${it.moduleDisplayName}/${it.sourceSetID}" })
                 buildNewLine()
             }
         }
@@ -157,7 +157,7 @@ open class CommonmarkRenderer(
     ) {
         if(node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters){
             node.sourceSets.forEach {sourcesetData ->
-                append("${sourcesetData.moduleName}/${sourcesetData.sourceSetID}")
+                append("${sourcesetData.moduleDisplayName}/${sourcesetData.sourceSetID}")
                 buildNewLine()
                 buildTable(node.copy(children = node.children.filter { it.sourceSets.contains(sourcesetData) }, dci = node.dci.copy(kind = ContentKind.Main)), pageContext, sourceSetRestriction)
                 buildNewLine()

@@ -14,8 +14,8 @@ import utils.typealiasSignature
 class ContentForSignaturesTest : AbstractCoreTest() {
 
     private val testConfiguration = dokkaConfiguration {
-        passes {
-            pass {
+        sourceSets {
+            sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
                 includeNonPublic = true

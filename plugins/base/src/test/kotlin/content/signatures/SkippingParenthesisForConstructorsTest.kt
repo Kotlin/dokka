@@ -8,8 +8,8 @@ import utils.functionSignature
 
 class ConstructorsSignaturesTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
-        passes {
-            pass {
+        sourceSets {
+            sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
             }

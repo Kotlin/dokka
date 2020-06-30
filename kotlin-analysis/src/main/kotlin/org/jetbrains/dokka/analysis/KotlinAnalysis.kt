@@ -3,6 +3,7 @@
 package org.jetbrains.dokka.analysis
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 
@@ -21,7 +22,7 @@ fun KotlinAnalysis(context: DokkaContext): KotlinAnalysis {
 
 interface KotlinAnalysis : SourceSetDependent<EnvironmentAndFacade> {
     override fun get(key: DokkaSourceSet): EnvironmentAndFacade
-    operator fun get(sourceSetID: String): EnvironmentAndFacade
+    operator fun get(sourceSetID: DokkaSourceSetID): EnvironmentAndFacade
 }
 
 internal class KotlinAnalysisImpl(
@@ -32,7 +33,7 @@ internal class KotlinAnalysisImpl(
         return environments[key] ?: throw IllegalStateException("Missing EnvironmentAndFacade for sourceSet $key")
     }
 
-    override fun get(sourceSetID: String): EnvironmentAndFacade {
+    override fun get(sourceSetID: DokkaSourceSetID): EnvironmentAndFacade {
         return environments.entries.first { (sourceSet, _) -> sourceSet.sourceSetID == sourceSetID }.value
     }
 }

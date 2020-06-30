@@ -1,12 +1,10 @@
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.analysis.EnvironmentAndFacade
 import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.parsers.MarkdownParser
-import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.kotlin.name.FqName
@@ -24,7 +22,7 @@ internal class ModuleAndPackageDocumentationTransformer(
         val modulesAndPackagesDocumentation =
             context.configuration.sourceSets
                 .map {
-                    Pair(it.moduleName, it) to
+                    Pair(it.moduleDisplayName, it) to
                             it.includes.map { Paths.get(it) }
                                 .also {
                                     it.forEach {

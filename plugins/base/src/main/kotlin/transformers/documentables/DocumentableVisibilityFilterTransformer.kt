@@ -9,11 +9,9 @@ import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
 
     override fun invoke(modules: List<DModule>) = modules.map { original ->
-        val passOptions = original.sourceSets.single()
-        val packageOptions = passOptions.perPackageOptions
-        original.let {
-            DocumentableVisibilityFilter(packageOptions, passOptions).processModule(it)
-        }
+        val sourceSet = original.sourceSets.single()
+        val packageOptions = sourceSet.perPackageOptions
+        DocumentableVisibilityFilter(packageOptions, sourceSet).processModule(original)
     }
 
     private class DocumentableVisibilityFilter(
@@ -45,7 +43,7 @@ class DocumentableVisibilityFilterTransformer(val context: DokkaContext) : PreMe
 
         private fun filterPackages(packages: List<DPackage>): Pair<Boolean, List<DPackage>> {
             var packagesListChanged = false
-            val filteredPackages = packages.mapNotNull {
+            val filteredPackages = packages.map {
                 var modified = false
                 val functions = filterFunctions(it.functions).let { (listModified, list) ->
                     modified = modified || listModified

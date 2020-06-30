@@ -9,8 +9,8 @@ class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `function with false global skipDeprecated`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     skipDeprecated = false
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
@@ -39,8 +39,8 @@ class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `deprecated function with false global skipDeprecated`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     skipDeprecated = false
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
@@ -69,8 +69,8 @@ class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `deprecated function with true global skipDeprecated`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     skipDeprecated = true
                 }
@@ -99,8 +99,8 @@ class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `deprecated function with false global true package skipDeprecated`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     skipDeprecated = false
                     perPackageOptions = mutableListOf(
@@ -136,8 +136,8 @@ class DeprecationFilterTest : AbstractCoreTest() {
     @Test
     fun `deprecated function with true global false package skipDeprecated`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     skipDeprecated = true
                     perPackageOptions = mutableListOf(

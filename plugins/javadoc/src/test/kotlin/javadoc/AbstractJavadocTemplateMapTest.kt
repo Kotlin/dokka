@@ -15,8 +15,8 @@ import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
     protected var config: DokkaConfigurationImpl = dokkaConfiguration {
         format = "javadoc"
-        passes {
-            pass {
+        sourceSets {
+            sourceSet {
                 sourceRoots = listOf("src")
                 analysisPlatform = "jvm"
             }
@@ -62,7 +62,6 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
     ) {
         testInline(query, configuration) {
             renderingStage = { rootPageNode, dokkaContext ->
-                // TODO NOW: Clarify preprocessors!
                 val transformedRootPageNode = preprocessors.fold(rootPageNode) { acc, pageTransformer ->
                     pageTransformer(acc)
                 }

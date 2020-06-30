@@ -19,6 +19,8 @@ dependencies {
     compileOnly(gradleKotlinDsl())
     testImplementation(gradleApi())
     testImplementation(kotlin("test-junit"))
+    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
+
     constraints {
         val kotlin_version: String by project
         compileOnly("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}") {

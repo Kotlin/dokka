@@ -1,6 +1,5 @@
 package org.jetbrains.dokka
 
-import com.google.gson.Gson
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet.*
@@ -34,7 +33,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     override val sourceSets by parser.option(
         ArgTypeArgument,
         description = "Single dokka source set",
-        fullName = "pass"
+        fullName = "sourceSet"
     ).multiple()
 
     override val pluginsConfiguration by parser.option(
@@ -60,7 +59,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     val globalPackageOptions by parser.option(
         ArgType.String,
-        description = "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
+        description = "List of package source sets in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
     ).delimiter(";")
 
     val globalLinks by parser.option(
@@ -73,9 +72,9 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Mapping between a source directory and a Web site for browsing the code (allows many paths separated by the semicolon `;`)"
     ).delimiter(";")
 
-    val helpPass by parser.option(
-        ArgTypeHelpPass,
-        description = "Prints help for single -pass"
+    val helpSourceSet by parser.option(
+        ArgTypeHelpSourceSet,
+        description = "Prints help for single -sourceSet"
     )
 
     override val modules: List<DokkaConfiguration.DokkaModuleDescription> = emptyList()
@@ -94,8 +93,8 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
         globalSrcLink.forEach {
             if (it.isNotEmpty() && it.contains("="))
-                sourceSets.all { pass ->
-                    pass.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>()
+                sourceSets.all { sourceSet ->
+                    sourceSet.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>()
                         .add(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
                 }
             else {
@@ -112,9 +111,9 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     }
 }
 
-fun passArguments(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
+private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
 
-    val parser = ArgParser("passConfiguration", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
+    val parser = ArgParser("sourceSet", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
     val moduleName by parser.option(
         ArgType.String,
@@ -122,15 +121,20 @@ fun passArguments(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
         fullName = "module"
     ).required()
 
-    val displayName by parser.option(
+    val moduleDisplayName by parser.option(
+        ArgType.String,
+        description = "Name of the documentation module"
+    )
+
+    val name by parser.option(
         ArgType.String,
         description = "Name of the source set"
-    ).default("JVM")
-
-    val sourceSetID by parser.option(
-        ArgType.String,
-        description = "ID of the source set"
     ).default("main")
+
+    val displayName by parser.option(
+        ArgType.String,
+        description = "Displayed name of the source set"
+    ).default("JVM")
 
     val classpath by parser.option(
         ArgType.String,
@@ -213,7 +217,7 @@ fun passArguments(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
 
     val perPackageOptions by parser.option(
         ArgType.String,
-        description = "List of package passConfiguration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
+        description = "List of package source set configuration in format \"prefix,-deprecated,-privateApi,+warnUndocumented,+suppress;...\" "
     ).delimiter(";")
 
     val externalDocumentationLinks by parser.option(
@@ -230,12 +234,14 @@ fun passArguments(args: Array<String>): DokkaConfiguration.DokkaSourceSet {
     parser.parse(args)
 
     return object : DokkaConfiguration.DokkaSourceSet {
-        override val moduleName = moduleName
+        override val moduleDisplayName = moduleDisplayName ?: moduleName
         override val displayName = displayName
-        override val sourceSetID = sourceSetID
+        override val sourceSetID = DokkaSourceSetID(moduleName, name)
         override val classpath = classpath
         override val sourceRoots = sourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
-        override val dependentSourceSets: List<String> = dependentSourceSets
+        override val dependentSourceSets: Set<DokkaSourceSetID> = dependentSourceSets
+            .map { dependentSourceSetName -> DokkaSourceSetID(moduleName, dependentSourceSetName)  }
+            .toSet()
         override val samples = samples.map { it.toAbsolutePath() }
         override val includes = includes.map { it.toAbsolutePath() }
         override val includeNonPublic = includeNonPublic
@@ -294,15 +300,15 @@ object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefini
 
 object ArgTypeArgument : ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.DokkaSourceSet =
-        passArguments(value.split(" ").filter { it.isNotBlank() }.toTypedArray())
+        parseSourceSet(value.split(" ").filter { it.isNotBlank() }.toTypedArray())
 
     override val description: kotlin.String
         get() = ""
 }
 
 // Workaround for printing nested parsers help
-object ArgTypeHelpPass : ArgType<Any>(false) {
-    override fun convert(value: kotlin.String, name: kotlin.String): Any = Any().also { passArguments(arrayOf("-h")) }
+object ArgTypeHelpSourceSet : ArgType<Any>(false) {
+    override fun convert(value: kotlin.String, name: kotlin.String): Any = Any().also { parseSourceSet(arrayOf("-h")) }
 
     override val description: kotlin.String
         get() = ""
@@ -345,9 +351,8 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
     val configuration = if (globalArguments.json != null)
-        Gson().fromJson(
-            Paths.get(globalArguments.json).toFile().readText(),
-            DokkaConfigurationImpl::class.java
+        DokkaConfigurationImpl(
+            Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
         )
     else
         globalArguments

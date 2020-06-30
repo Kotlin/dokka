@@ -23,8 +23,8 @@ class JavadocTest : AbstractCoreTest() {
 
         val config = dokkaConfiguration {
             format = "javadoc"
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("jvmSrc/")
                     externalDocumentationLinks = listOf(
                         externalLink("https://docs.oracle.com/javase/8/docs/api/"),

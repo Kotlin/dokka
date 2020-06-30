@@ -94,7 +94,7 @@ open class HtmlRenderer(
             group.sourceSets.forEach {
                 button(classes = "platform-tag platform-selector") {
                     attributes["data-active"] = ""
-                    attributes["data-filter"] = it.sourceSetID
+                    attributes["data-filter"] = it.sourceSetID.toString()
                     when (it.analysisPlatform.key) {
                         "common" -> classes = classes + "common-like"
                         "native" -> classes = classes + "native-like"
@@ -168,10 +168,10 @@ open class HtmlRenderer(
                     attributes["data-toggle-list"] = "data-toggle-list"
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
-                            attributes["data-filterable-current"] = pair.first.sourceSetID
-                            attributes["data-filterable-set"] = pair.first.sourceSetID
+                            attributes["data-filterable-current"] = pair.first.sourceSetID.toString()
+                            attributes["data-filterable-set"] = pair.first.sourceSetID.toString()
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.sourceSetID
+                            attributes["data-toggle"] = pair.first.sourceSetID.toString()
                             when (
                                 pair.first.analysisPlatform.key
                                 ) {
@@ -180,7 +180,7 @@ open class HtmlRenderer(
                                 "jvm" -> classes = classes + "jvm-like"
                                 "js" -> classes = classes + "js-like"
                             }
-                            attributes["data-toggle"] = pair.first.sourceSetID
+                            attributes["data-toggle"] = pair.first.sourceSetID.toString()
                             text(pair.first.displayName)
                         }
                     }
@@ -212,7 +212,7 @@ open class HtmlRenderer(
             }.map {
                 it to createHTML(prettyPrint = false).div(classes = "content sourceset-depenent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
-                    attributes["data-togglable"] = it.sourceSetID
+                    attributes["data-togglable"] = it.sourceSetID.toString()
                     unsafe {
                         +html
                     }
@@ -249,10 +249,10 @@ open class HtmlRenderer(
             consumer.onTagContentUnsafe {
                 +createHTML().div("divergent-group") {
                     attributes["data-filterable-current"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetID
+                        it.sourceSetID.toString()
                     }
                     attributes["data-filterable-set"] = groupedDivergent.keys.joinToString(" ") {
-                        it.sourceSetID
+                        it.sourceSetID.toString()
                     }
 
                     val divergentForPlatformDependent = groupedDivergent.map { (sourceSet, elements) ->
@@ -353,10 +353,10 @@ open class HtmlRenderer(
                     div(classes = "table-row") {
                         if (!style.contains(MultimoduleTable)) {
                             attributes["data-filterable-current"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetID
+                                it.sourceSetID.toString()
                             }
                             attributes["data-filterable-set"] = node.sourceSets.joinToString(" ") {
-                                it.sourceSetID
+                                it.sourceSetID.toString()
                             }
                         }
 

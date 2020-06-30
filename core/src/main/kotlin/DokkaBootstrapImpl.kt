@@ -1,8 +1,6 @@
 package org.jetbrains.dokka
 
-import com.google.gson.Gson
 import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
-import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 import java.util.function.BiConsumer
@@ -80,7 +78,6 @@ class DokkaBootstrapImpl : DokkaBootstrap {
     }
 
     private lateinit var generator: DokkaGenerator
-    val gson = Gson()
 
     fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) = with(configuration) {
 
@@ -113,7 +110,7 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
     override fun configure(logger: BiConsumer<String, String>, serializedConfigurationJSON: String) = configure(
         DokkaProxyLogger(logger),
-        gson.fromJson(serializedConfigurationJSON, DokkaConfigurationImpl::class.java)
+        DokkaConfigurationImpl(serializedConfigurationJSON)
     )
 
     override fun generate() = generator.generate()

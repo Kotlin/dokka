@@ -13,8 +13,8 @@ class LinkTest : AbstractCoreTest() {
     @Test
     fun linkToClassLoader() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/parser")
                 }
             }
@@ -46,8 +46,8 @@ class LinkTest : AbstractCoreTest() {
     @Test
     fun returnTypeShouldHaveLinkToOuterClassFromInner() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                 }
             }

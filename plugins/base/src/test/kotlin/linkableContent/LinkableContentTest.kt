@@ -23,23 +23,23 @@ class LinkableContentTest : AbstractCoreTest() {
         val includesDir = getTestDataDir("linkable/includes").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "js"
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "js"
+                    name = "js"
                     includes = listOf(Paths.get("$includesDir/include2.md").toString())
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
+                    name = "jvm"
                     includes = listOf(Paths.get("$includesDir/include1.md").toString())
                 }
             }
@@ -62,8 +62,8 @@ class LinkableContentTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("linkable/sources").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "js"
                     sourceRoots = listOf("$testDataDir/jsMain/kotlin")
@@ -74,9 +74,9 @@ class LinkableContentTest : AbstractCoreTest() {
                             lineSuffix = "#L"
                         )
                     )
-                    sourceSetID = "js"
+                    name = "js"
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("$testDataDir/jvmMain/kotlin")
@@ -87,7 +87,7 @@ class LinkableContentTest : AbstractCoreTest() {
                             lineSuffix = "#L"
                         )
                     )
-                    sourceSetID = "jvm"
+                    name = "jvm"
                 }
             }
         }
@@ -127,19 +127,19 @@ class LinkableContentTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("linkable/samples").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "js"
                     sourceRoots = listOf("$testDataDir/jsMain/kotlin")
-                    sourceSetID = "js"
+                    name = "js"
                     samples = listOf("$testDataDir/jsMain/resources/Samples.kt")
                 }
-                pass {
+                sourceSet {
                     moduleName = "example"
                     analysisPlatform = "jvm"
                     sourceRoots = listOf("$testDataDir/jvmMain/kotlin")
-                    sourceSetID = "jvm"
+                    name = "jvm"
                     samples = listOf("$testDataDir/jvmMain/resources/Samples.kt")
                 }
             }
@@ -196,11 +196,11 @@ class LinkableContentTest : AbstractCoreTest() {
             |
         """.trimIndent(),
             dokkaConfiguration {
-                passes {
-                    pass {
+                sourceSets {
+                    sourceSet {
                         sourceRoots = listOf("src/")
                         analysisPlatform = "jvm"
-                        sourceSetID = "js"
+                        name = "js"
                     }
                 }
             }

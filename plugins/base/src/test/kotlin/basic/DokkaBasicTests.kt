@@ -11,8 +11,8 @@ class DokkaBasicTests : AbstractCoreTest() {
     @Test
     fun basic1() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
             }
