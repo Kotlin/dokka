@@ -1,6 +1,7 @@
 package javadoc
 
 import javadoc.pages.JavadocPageNode
+import javadoc.pages.preprocessors
 import javadoc.renderer.JavadocContentToTemplateMapTranslator
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.javadoc.JavadocPlugin
@@ -61,7 +62,12 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
     ) {
         testInline(query, configuration) {
             renderingStage = { rootPageNode, dokkaContext ->
-                Result(rootPageNode, dokkaContext).assertions()
+                // TODO NOW: Clarify preprocessors!
+                val transformedRootPageNode = preprocessors.fold(rootPageNode) { acc, pageTransformer ->
+                    pageTransformer(acc)
+                }
+
+                Result(transformedRootPageNode, dokkaContext).assertions()
             }
         }
     }
@@ -93,9 +99,10 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
         }
 
         if (kotlinException != null && javaException != null) {
-            throw AssertionError("Kotlin and Java Code failed assertions\n" +
-                    "Kotlin: ${kotlinException.message}\n" +
-                    "Java: ${javaException.message}",
+            throw AssertionError(
+                "Kotlin and Java Code failed assertions\n" +
+                        "Kotlin: ${kotlinException.message}\n" +
+                        "Java: ${javaException.message}",
                 kotlinException
             )
         }
