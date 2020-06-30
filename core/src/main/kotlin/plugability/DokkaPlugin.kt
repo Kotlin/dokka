@@ -7,8 +7,6 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.createInstance
 
-private typealias ExtensionDelegate<T> = ReadOnlyProperty<DokkaPlugin, Extension<T>>
-
 abstract class DokkaPlugin {
     private val extensionDelegates = mutableListOf<KProperty<*>>()
 
@@ -25,15 +23,10 @@ abstract class DokkaPlugin {
             )
         }
 
-    protected fun <T : Any> extending(isFallback: Boolean = false, definition: ExtendingDSL.() -> Extension<T>) =
-        if (isFallback) {
-            ExtensionProvider { definition().markedAsFallback() }
-        } else {
-            ExtensionProvider(definition)
-        }
+    protected fun <T : Any> extending(definition: ExtendingDSL.() -> Extension<T, *, *>) = ExtensionProvider(definition)
 
     protected class ExtensionProvider<T : Any> internal constructor(
-        private val definition: ExtendingDSL.() -> Extension<T>
+        private val definition: ExtendingDSL.() -> Extension<T, *, *>
     ) {
         operator fun provideDelegate(thisRef: DokkaPlugin, property: KProperty<*>) = lazy {
             ExtendingDSL(
@@ -45,7 +38,7 @@ abstract class DokkaPlugin {
 
     internal fun internalInstall(ctx: DokkaContextConfiguration, configuration: DokkaConfiguration) {
         extensionDelegates.asSequence()
-            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*>>>() // should be always true
+            .filterIsInstance<KProperty1<DokkaPlugin, Extension<*, *, *>>>() // should be always true
             .map { it.get(this) }
             .forEach { if (it.condition.invoke(configuration)) ctx.addExtensionDependencies(it) }
     }
@@ -76,8 +69,8 @@ fun throwIllegalQuery(): Nothing =
 inline fun <reified T : DokkaPlugin, reified R : ConfigurableBlock> configuration(context: DokkaContext): ReadOnlyProperty<Any?, R> {
     return object : ReadOnlyProperty<Any?, R> {
         override fun getValue(thisRef: Any?, property: KProperty<*>): R {
-            return context.configuration.pluginsConfiguration.get(T::class.qualifiedName
-                ?: throw AssertionError("Plugin must be named class")).let {
+            return context.configuration.pluginsConfiguration[T::class.qualifiedName
+                ?: throw AssertionError("Plugin must be named class")].let {
                     Gson().fromJson(it, R::class.java)
             }
         }

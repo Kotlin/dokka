@@ -46,7 +46,7 @@ inline fun <reified T : DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
     ?: throw java.lang.IllegalStateException("Plugin ${T::class.qualifiedName} is not present in context.")
 
 interface DokkaContextConfiguration {
-    fun addExtensionDependencies(extension: Extension<*>)
+    fun addExtensionDependencies(extension: Extension<*, *, *>)
 }
 
 private class DokkaContextConfigurationImpl(
@@ -55,7 +55,7 @@ private class DokkaContextConfigurationImpl(
 ) : DokkaContext, DokkaContextConfiguration {
     private val plugins = mutableMapOf<KClass<*>, DokkaPlugin>()
     private val pluginStubs = mutableMapOf<KClass<*>, DokkaPlugin>()
-    internal val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*>>>()
+    val extensions = mutableMapOf<ExtensionPoint<*>, MutableList<Extension<*, *, *>>>()
     val pointsUsed: MutableSet<ExtensionPoint<*>> = mutableSetOf()
     val pointsPopulated: MutableSet<ExtensionPoint<*>> = mutableSetOf()
     override val unusedPoints: Set<ExtensionPoint<*>>
@@ -67,14 +67,14 @@ private class DokkaContextConfigurationImpl(
         VISITED;
     }
 
-    internal val verticesWithState = mutableMapOf<Extension<*>, State>()
-    internal val adjacencyList: MutableMap<Extension<*>, MutableList<Extension<*>>> = mutableMapOf()
+    val verticesWithState = mutableMapOf<Extension<*, *, *>, State>()
+    val adjacencyList: MutableMap<Extension<*, *, *>, MutableList<Extension<*, *, *>>> = mutableMapOf()
 
     private fun topologicalSort() {
 
-        val result: MutableList<Extension<*>> = mutableListOf()
+        val result: MutableList<Extension<*, *, *>> = mutableListOf()
 
-        fun visit(n: Extension<*>) {
+        fun visit(n: Extension<*, *, *>) {
             val state = verticesWithState[n]
             if (state == State.VISITED)
                 return
@@ -107,14 +107,11 @@ private class DokkaContextConfigurationImpl(
         )
         pointsUsed += point
 
-        val extensions = extensions[point].orEmpty() as List<Extension<T>>
+        val extensions = extensions[point].orEmpty() as List<Extension<T, *, *>>
         return when (extensions.size) {
             0 -> throwBadArity("none was")
             1 -> extensions.single().action.get(this)
-            else -> {
-                val notFallbacks = extensions.filterNot { it.isFallback }
-                if (notFallbacks.size == 1) notFallbacks.single().action.get(this) else throwBadArity("many were")
-            }
+            else -> throwBadArity("many were")
         }
     }
 
@@ -132,13 +129,15 @@ private class DokkaContextConfigurationImpl(
         plugin.internalInstall(this, this.configuration)
     }
 
-    override fun addExtensionDependencies(extension: Extension<*>) {
-        val orderDsl = OrderDsl()
-        extension.ordering?.invoke(orderDsl)
+    override fun addExtensionDependencies(extension: Extension<*, *, *>) {
+        if (extension.ordering is OrderingKind.ByDsl) {
+            val orderDsl = OrderDsl()
+            extension.ordering.block.invoke(orderDsl)
 
-        verticesWithState += extension to State.UNVISITED
-        adjacencyList.getOrPut(extension, ::mutableListOf) += orderDsl.following.toList()
-        orderDsl.previous.forEach { adjacencyList.getOrPut(it, ::mutableListOf) += extension }
+            verticesWithState += extension to State.UNVISITED
+            adjacencyList.getOrPut(extension, ::mutableListOf) += orderDsl.following.toList()
+            orderDsl.previous.forEach { adjacencyList.getOrPut(it, ::mutableListOf) += extension }
+        }
     }
 
     fun logInitialisationInfo() {
