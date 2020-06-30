@@ -65,5 +65,48 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
             }
         }
     }
+
+    fun dualTestTemplateMapInline(
+        kotlin: String? = null,
+        java: String? = null,
+        configuration: DokkaConfigurationImpl = config,
+        assertions: Result.() -> Unit
+    ) {
+        val kotlinException = kotlin?.let {
+            runCatching {
+                testTemplateMapInline(
+                    query = kotlin,
+                    configuration = configuration,
+                    assertions = assertions
+                )
+            }.exceptionOrNull()
+        }
+
+        val javaException = java?.let {
+            runCatching {
+                testTemplateMapInline(
+                    query = java,
+                    configuration = configuration,
+                    assertions = assertions
+                )
+            }.exceptionOrNull()
+        }
+
+        if (kotlinException != null && javaException != null) {
+            throw AssertionError("Kotlin and Java Code failed assertions\n" +
+                    "Kotlin: ${kotlinException.message}\n" +
+                    "Java: ${javaException.message}",
+                kotlinException
+            )
+        }
+
+        if (kotlinException != null) {
+            throw AssertionError("Kotlin Code failed assertions", kotlinException)
+        }
+
+        if (javaException != null) {
+            throw AssertionError("Java Code failed assertions", javaException)
+        }
+    }
 }
 
