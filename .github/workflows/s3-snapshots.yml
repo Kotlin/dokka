@@ -23,6 +23,10 @@ jobs:
         run: ./gradlew clean publishToMavenLocal --stacktrace
         working-directory: ./dokka
 
+      - name: Get current dokka version
+        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
+        working-directory: ./dokka
+
       - name: Checkout coroutines
         uses: actions/checkout@v2
         with:
@@ -31,7 +35,7 @@ jobs:
           path: coroutines
 
       - name: Document coroutines
-        run: ./gradlew clean :dokkaCollector --stacktrace
+        run: ./gradlew clean :dokkaCollector -Pdokka_version=$DOKKA_VERSION --stacktrace
         working-directory: ./coroutines
 
       - name: Configure AWS credentials for S3 access
@@ -65,6 +69,10 @@ jobs:
         run: ./gradlew clean publishToMavenLocal --stacktrace
         working-directory: ./dokka
 
+      - name: Get current dokka version
+        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
+        working-directory: ./dokka
+
       - name: Checkout stdlib
         uses: actions/checkout@v2
         with:
@@ -73,7 +81,7 @@ jobs:
           path: stdlib
 
       - name: Document stdlib
-        run: ./gradlew clean callDokka --stacktrace
+        run: ./gradlew clean callDokka -Pdokka_version=$DOKKA_VERSION --stacktrace
         working-directory: ./stdlib
 
       - name: Configure AWS credentials for S3 access
