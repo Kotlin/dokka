@@ -1,6 +1,7 @@
 package javadoc.renderer
 
 import javadoc.pages.*
+import javadoc.toNormalized
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
@@ -9,22 +10,23 @@ import org.jetbrains.dokka.model.ImplementedInterfaces
 import org.jetbrains.dokka.model.InheritedFunction
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import java.nio.file.Paths
 
 internal class JavadocContentToTemplateMapTranslator(
     private val locationProvider: LocationProvider,
     private val context: DokkaContext,
 ) {
 
-    fun templateMapForPageNode(node: JavadocPageNode, pathToRoot: String): TemplateMap =
+    fun templateMapForPageNode(node: JavadocPageNode): TemplateMap =
         mapOf<String, Any?>(
             "docName" to "docName", // todo docname
-            "pathToRoot" to pathToRoot,
+            "pathToRoot" to pathToRoot(node),
             "contextRoot" to node,
             "kind" to "main",
         ) + templateMapForNode(node)
 
 
-    fun templateMapForNode(node: JavadocPageNode): TemplateMap =
+    private fun templateMapForNode(node: JavadocPageNode): TemplateMap =
         when (node) {
             is JavadocModulePageNode -> InnerTranslator(node).templateMapForJavadocContentNode(node.content)
             is JavadocClasslikePageNode -> InnerTranslator(node).templateMapForClasslikeNode(node)
@@ -33,6 +35,21 @@ internal class JavadocContentToTemplateMapTranslator(
             is AllClassesPage -> InnerTranslator(node).templateMapForAllClassesPage(node)
             else -> emptyMap()
         }
+
+    private fun pathToRoot(node: JavadocPageNode): String {
+        return when(node){
+            is JavadocModulePageNode -> ""
+            else -> run {
+                val link = locationProvider.resolve(node, skipExtension = true)
+                val dir = Paths.get(link).parent?.toNormalized().orEmpty()
+                return dir.split("/").filter { it.isNotEmpty() }.joinToString("/") { ".." }.let {
+                    if (it.isNotEmpty()) "$it/" else it
+                }
+            }
+        }
+    }
+
+    private fun String.toNormalized() = Paths.get(this).toNormalized()
 
     private inner class InnerTranslator(val contextNode: PageNode) {
 

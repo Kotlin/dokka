@@ -3,6 +3,7 @@ package enums
 import matchers.content.*
 import org.jetbrains.dokka.model.ConstructorValues
 import org.jetbrains.dokka.model.DEnum
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions.*

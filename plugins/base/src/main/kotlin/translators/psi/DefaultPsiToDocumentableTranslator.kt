@@ -33,7 +33,6 @@ import org.jetbrains.kotlin.load.java.propertyNamesBySetMethodName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 
@@ -266,9 +265,9 @@ class DefaultPsiToDocumentableTranslator(
                         dri.copy(target = dri.target.nextTarget()),
                         psiParameter.name,
                         DocumentationNode(
-                            listOfNotNull(docs.firstChildOfType<Param> {
-                            it.firstChildOfType<DocumentationLink>()
-                                ?.firstChildOfType<Text>()?.body == psiParameter.name
+                            listOfNotNull(docs.firstChildOfTypeOrNull<Param> {
+                            it.firstChildOfTypeOrNull<DocumentationLink>()
+                                ?.firstChildOfTypeOrNull<Text>()?.body == psiParameter.name
                         })).toSourceSetDependent(),
                         null,
                         getBound(psiParameter.type),

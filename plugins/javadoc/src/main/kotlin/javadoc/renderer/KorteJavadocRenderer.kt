@@ -4,6 +4,7 @@ import com.soywiz.korte.*
 import javadoc.location.JavadocLocationProvider
 import javadoc.pages.*
 import javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
+import javadoc.toNormalized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,9 +63,8 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
     private fun CoroutineScope.renderModulePageNode(node: JavadocModulePageNode) {
         val link = "."
         val name = "index"
-        val pathToRoot = ""
 
-        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node, pathToRoot)
+        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node)
 
         writeFromTemplate(outputWriter, "$link/$name".toNormalized(), "tabPage.korte", contentMap.toList())
         node.children.forEach { renderNode(it, link) }
@@ -72,12 +72,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
 
     private fun CoroutineScope.renderJavadocPageNode(node: JavadocPageNode) {
         val link = locationProvider.resolve(node, skipExtension = true)
-        val dir = Paths.get(link).parent?.let { it.toNormalized() }.orEmpty()
-        val pathToRoot = dir.split("/").filter { it.isNotEmpty() }.joinToString("/") { ".." }.let {
-            if (it.isNotEmpty()) "$it/" else it
-        }
-
-        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node, pathToRoot)
+        val contentMap = contentToTemplateMapTranslator.templateMapForPageNode(node)
         writeFromTemplate(outputWriter, link, templateForNode(node), contentMap.toList())
         node.children.forEach { renderNode(it, link.toNormalized()) }
     }
@@ -98,9 +93,6 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         """<th class="colFirst" scope="row">${first}</th><td class="colLast">${second}</td>"""
 
     private fun DRI.toLink(context: PageNode? = null) = locationProvider.resolve(this, emptySet(), context)
-
-    private fun Path.toNormalized() = this.normalize().toFile().toString()
-    private fun String.toNormalized() = Paths.get(this).toNormalized()
 
     private suspend fun OutputWriter.writeHtml(path: String, text: String) = write(path, text, ".html")
     private fun CoroutineScope.writeFromTemplate(

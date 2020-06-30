@@ -4,6 +4,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.net.HttpURLConnection
@@ -19,7 +20,7 @@ open class DefaultLocationProvider(
 ) : BaseLocationProvider(dokkaContext) {
     protected open val extension = ".html"
 
-    protected val pagesIndex: Map<DRI, ContentPage> = pageGraphRoot.asSequence().filterIsInstance<ContentPage>()
+    protected val pagesIndex: Map<DRI, ContentPage> = pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
         .map { it.dri.map { dri -> dri to it } }.flatten()
         .groupingBy { it.first }
         .aggregate { dri, _, (_, page), first ->
