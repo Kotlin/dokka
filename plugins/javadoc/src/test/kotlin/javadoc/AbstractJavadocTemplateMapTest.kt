@@ -109,4 +109,3 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
         }
     }
 }
-
