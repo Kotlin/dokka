@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.kdoc.findKDoc
-import org.jetbrains.kotlin.idea.kdoc.isBoringBuiltinClass
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -36,7 +35,6 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
-import org.jetbrains.kotlin.resolve.jvm.isInlineClassThatRequiresMangling
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
@@ -71,7 +69,7 @@ class DefaultDescriptorToDocumentableTranslator(
                     DRIWithPlatformInfo(DRI.topLevel, emptyMap())
                 )
             }
-        }.let { DModule(sourceSet.moduleName, it, emptyMap(), null, setOf(sourceSet)) }
+        }.let { DModule(sourceSet.moduleDisplayName, it, emptyMap(), null, setOf(sourceSet)) }
     }
 }
 

@@ -10,8 +10,8 @@ class JavadocTest : AbstractCoreTest() {
     fun test() {
         val config = dokkaConfiguration {
             format = "javadoc"
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("jvmSrc/")
                     analysisPlatform = "jvm"
                 }

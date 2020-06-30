@@ -1,6 +1,5 @@
 package org.jetbrains.dokka.base.signatures
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*

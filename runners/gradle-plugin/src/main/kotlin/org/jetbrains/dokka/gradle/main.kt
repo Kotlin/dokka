@@ -53,7 +53,9 @@ open class DokkaPlugin : Plugin<Project> {
             project.tasks.create(DOKKA_TASK_NAME, taskClass)
         }
         project.tasks.withType(taskClass) { task ->
-            task.dokkaSourceSets = project.container(GradleDokkaSourceSet::class.java)
+            task.dokkaSourceSets = project.container(GradleDokkaSourceSet::class.java) { name ->
+                GradleDokkaSourceSet(name, project)
+            }
             task.dokkaRuntime = runtimeConfiguration
             task.pluginsClasspathConfiguration = pluginsConfiguration
             task.outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath

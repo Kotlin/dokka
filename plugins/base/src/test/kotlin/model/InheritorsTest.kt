@@ -44,12 +44,12 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
     @Test
     fun multiplatform() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("common/src/", "jvm/src/")
                     analysisPlatform = "jvm"
                 }
-                pass {
+                sourceSet {
                     sourceRoots = listOf("common/src/", "js/src/")
                     analysisPlatform = "js"
                 }

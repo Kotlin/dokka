@@ -1,13 +1,19 @@
+@file:Suppress("FunctionName")
+
 package org.jetbrains.dokka.gradle
 
+import com.android.build.gradle.api.AndroidSourceSet
 import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.api.Project
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.util.ConfigureUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.*
 import org.jetbrains.dokka.DokkaDefaults
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import java.io.File
 import java.io.Serializable
@@ -15,6 +21,8 @@ import java.net.URL
 import java.util.concurrent.Callable
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.memberProperties
+import org.gradle.api.tasks.SourceSet as GradleSourceSet
+import org.jetbrains.kotlin.gradle.model.SourceSet as KotlinSourceSet
 
 class GradleSourceRootImpl : SourceRoot, Serializable {
     override var path: String = ""
@@ -25,63 +33,112 @@ class GradleSourceRootImpl : SourceRoot, Serializable {
     override fun toString(): String = path
 }
 
-open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceSet {
+open class GradleDokkaSourceSet constructor(
+    @Transient val name: String,
+    @Transient internal val project: Project
+) : DokkaSourceSet {
+
     @Input
     @Optional
     override var classpath: List<String> = emptyList()
+
     @Input
-    override var moduleName: String = ""
+    override var moduleDisplayName: String = ""
+
     @Input
     override var displayName: String = ""
-    @Input
-    override var sourceSetID: String = ""
+
+    @get:Internal
+    override val sourceSetID: DokkaSourceSetID = DokkaSourceSetID(project, name)
+
     @Input
     override var sourceRoots: MutableList<SourceRoot> = mutableListOf()
+
     @Input
-    override var dependentSourceSets: MutableList<String> = mutableListOf()
+    override var dependentSourceSets: MutableSet<DokkaSourceSetID> = mutableSetOf()
+
     @Input
     override var samples: List<String> = emptyList()
+
     @Input
     override var includes: List<String> = emptyList()
+
     @Input
     override var includeNonPublic: Boolean = DokkaDefaults.includeNonPublic
+
     @Input
     override var includeRootPackage: Boolean = DokkaDefaults.includeRootPackage
+
     @Input
     override var reportUndocumented: Boolean = DokkaDefaults.reportUndocumented
+
     @Input
     override var skipEmptyPackages: Boolean = DokkaDefaults.skipEmptyPackages
+
     @Input
     override var skipDeprecated: Boolean = DokkaDefaults.skipDeprecated
+
     @Input
     override var jdkVersion: Int = DokkaDefaults.jdkVersion
+
     @Input
     override var sourceLinks: MutableList<SourceLinkDefinition> = mutableListOf()
+
     @Input
     override var perPackageOptions: MutableList<PackageOptions> = mutableListOf()
+
     @Input
     override var externalDocumentationLinks: MutableList<ExternalDocumentationLink> = mutableListOf()
+
     @Input
     @Optional
     override var languageVersion: String? = null
+
     @Input
     @Optional
     override var apiVersion: String? = null
+
     @Input
     override var noStdlibLink: Boolean = DokkaDefaults.noStdlibLink
+
     @Input
     override var noJdkLink: Boolean = DokkaDefaults.noJdkLink
+
     @Input
     var noAndroidSdkLink: Boolean = false
+
     @Input
     override var suppressedFiles: List<String> = emptyList()
+
     @Input
     override var analysisPlatform: Platform = DokkaDefaults.analysisPlatform
+
     @Input
     @Optional
     var platform: String? = null
+
     @Transient
     var collectKotlinTasks: (() -> List<Any?>?)? = null
+
+    fun DokkaSourceSetID(sourceSetName: String): DokkaSourceSetID {
+        return DokkaSourceSetID(project, sourceSetName)
+    }
+
+    fun dependsOn(sourceSet: GradleSourceSet) {
+        dependsOn(DokkaSourceSetID(sourceSet.name))
+    }
+
+    fun dependsOn(sourceSet: DokkaSourceSet) {
+        dependsOn(sourceSet.sourceSetID)
+    }
+
+    fun dependsOn(sourceSetName: String) {
+        dependsOn(DokkaSourceSetID(sourceSetName))
+    }
+
+    fun dependsOn(sourceSetID: DokkaSourceSetID) {
+        dependentSourceSets.add(sourceSetID)
+    }
 
     fun kotlinTasks(taskSupplier: Callable<List<Any>>) {
         collectKotlinTasks = { taskSupplier.call() }
@@ -136,6 +193,18 @@ open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceS
     }
 }
 
+fun GradleDokkaSourceSet.dependsOn(sourceSet: KotlinSourceSet) {
+    dependsOn(DokkaSourceSetID(sourceSet.name))
+}
+
+fun GradleDokkaSourceSet.dependsOn(sourceSet: org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet) {
+    dependsOn(DokkaSourceSetID(sourceSet.name))
+}
+
+fun GradleDokkaSourceSet.dependsOn(sourceSet: AndroidSourceSet) {
+    dependsOn(DokkaSourceSetID(sourceSet.name))
+}
+
 class GradleSourceLinkDefinitionImpl : SourceLinkDefinition, Serializable {
     override var path: String = ""
     override var url: String = ""
@@ -174,15 +243,15 @@ class GradlePackageOptionsImpl : PackageOptions, Serializable {
 }
 
 internal fun GradleDokkaSourceSet.copy(): GradleDokkaSourceSet {
-    val newObj = GradleDokkaSourceSet(this.name)
+    val newObj = GradleDokkaSourceSet(this.name, this.project)
     this::class.memberProperties.forEach { field ->
         if (field is KMutableProperty<*>) {
-            val value = field.getter.call(this)
-            if (value is Collection<*>) {
-                field.setter.call(newObj, value.toMutableList())
-            } else {
-                field.setter.call(newObj, field.getter.call(this))
+            when (val value = field.getter.call(this)) {
+                is List<*> -> field.setter.call(newObj, value.toMutableList())
+                is Set<*> -> field.setter.call(newObj, value.toMutableSet())
+                else -> field.setter.call(newObj, field.getter.call(this))
             }
+
         }
     }
     return newObj

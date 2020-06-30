@@ -68,7 +68,7 @@ class DokkaGenerator(
     fun createDocumentationModels(
         context: DokkaContext
     ) = context.configuration.sourceSets
-        .flatMap { passConfiguration -> translateSources(passConfiguration, context) }
+        .flatMap { sourceSet -> translateSources(sourceSet, context) }
 
     fun transformDocumentationModelBeforeMerge(
         modulesFromPlatforms: List<DModule>,

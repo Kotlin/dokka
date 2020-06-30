@@ -34,8 +34,8 @@ class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues"
             |}
         """,
             configuration = dokkaConfiguration {
-                passes {
-                    pass {
+                sourceSets {
+                    sourceSet {
                         sourceRoots = listOf("src/")
                         classpath = listOfNotNull(jvmStdlibPath)
                     }

@@ -11,8 +11,8 @@ class BasicMultiplatformTest : AbstractCoreTest() {
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("$testDataDir/jvmMain/")
                 }
             }
@@ -28,8 +28,8 @@ class BasicMultiplatformTest : AbstractCoreTest() {
     @Test
     fun inlineTestExample() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/multiplatform/Test.kt")
                 }
             }

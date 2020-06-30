@@ -91,9 +91,6 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
     var sourceRoots: List<SourceRoot> = emptyList()
 
     @Parameter
-    var dependentSourceSets: List<String> = emptyList()
-
-    @Parameter
     var samples: List<String> = emptyList()
 
     @Parameter
@@ -107,6 +104,9 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
 
     @Parameter(required = true, defaultValue = "\${project.artifactId}")
     var moduleName: String = ""
+
+    @Parameter
+    var moduleDisplayName: String = ""
 
     @Parameter(required = false, defaultValue = "false")
     var skip: Boolean = false
@@ -201,12 +201,12 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         }
 
         val sourceSet = DokkaSourceSetImpl(
-            moduleName = moduleName,
+            moduleDisplayName = moduleDisplayName.takeIf(String::isNotBlank) ?: moduleName,
             displayName = displayName,
-            sourceSetID = sourceSetName,
+            sourceSetID = DokkaSourceSetID(moduleName, sourceSetName),
             classpath = classpath,
             sourceRoots = sourceDirectories.map { SourceRootImpl(it) },
-            dependentSourceSets = dependentSourceSets,
+            dependentSourceSets = emptySet(),
             samples = samples,
             includes = includes,
             includeNonPublic = includeNonPublic,
@@ -246,7 +246,7 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
             offlineMode = offlineMode,
             cacheRoot = cacheRoot,
             sourceSets = listOf(sourceSet).also {
-                if (sourceSet.moduleName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
+                if (sourceSet.moduleDisplayName.isEmpty()) logger.warn("Not specified module name. It can result in unexpected behaviour while including documentation for module")
             },
             pluginsClasspath = getArtifactByAether("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByAether(it.groupId, it.artifactId, it.version) }.flatten(),

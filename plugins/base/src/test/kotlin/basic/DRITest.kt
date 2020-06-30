@@ -5,19 +5,19 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.pages.dfs
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
-
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class DRITest : AbstractCoreTest() {
     @Test
     fun issue634() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -52,8 +52,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun issue634WithImmediateNullableSelf() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -82,8 +82,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun issue634WithGenericNullableReceiver() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -112,8 +112,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun issue642WithStarAndAny() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     analysisPlatform = "js"
                     sourceRoots = listOf("src/")
                 }
@@ -171,8 +171,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun driForGenericClass(){
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -201,8 +201,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun driForGenericFunction(){
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                     classpath = listOfNotNull(jvmStdlibPath)
                 }
@@ -243,8 +243,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun driForFunctionNestedInsideInnerClass() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                     classpath = listOfNotNull(jvmStdlibPath)
                 }
@@ -280,8 +280,8 @@ class DRITest : AbstractCoreTest() {
     @Test
     fun driForGenericExtensionFunction(){
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }

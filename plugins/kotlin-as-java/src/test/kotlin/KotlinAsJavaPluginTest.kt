@@ -3,7 +3,6 @@ package kotlinAsJavaPlugin
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.junit.jupiter.api.Test
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
@@ -11,8 +10,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun topLevelTest() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -49,8 +48,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun topLevelWithClassTest() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -90,8 +89,8 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
     @Test
     fun kotlinAndJavaTest() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }

@@ -7,11 +7,9 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.*
-import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink.Builder
 import org.jetbrains.dokka.DokkaConfiguration.SourceRoot
-import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.ReflectDsl
 import org.jetbrains.dokka.ReflectDsl.isNotInstance
 import org.jetbrains.dokka.gradle.ConfigurationExtractor.PlatformData
@@ -183,10 +181,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         val defaultModulesConfiguration = configuredDokkaSourceSets
             .map { configureDefault(it, globalConfig) }.takeIf { it.isNotEmpty() }
             ?: listOf(
-                configureDefault(
-                    configureDokkaSourceSet(GradleDokkaSourceSet("main")),
-                    null
-                )
+                configureDefault(configureDokkaSourceSet(GradleDokkaSourceSet("main", project)), null)
             ).takeIf { project.isNotMultiplatformProject() } ?: emptyList()
 
         if (defaultModulesConfiguration.isEmpty()) {
@@ -288,28 +283,25 @@ open class DokkaTask : DefaultTask(), Configurable {
     protected fun mergeUserConfigurationAndPlatformData(
         userConfig: GradleDokkaSourceSet,
         autoConfig: PlatformData
-    ) =
-        userConfig.copy().apply {
-            sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
-            dependentSourceSets.addAll(userConfig.dependentSourceSets.union(autoConfig.dependentSourceSets).distinct())
-            classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
-            if (userConfig.platform == null && autoConfig.platform != "")
-                platform = autoConfig.platform
-        }
+    ) = userConfig.copy().apply {
+        sourceRoots.addAll(userConfig.sourceRoots.union(autoConfig.sourceRoots.toSourceRoots()).distinct())
+        dependentSourceSets.addAll(userConfig.dependentSourceSets)
+        dependentSourceSets.addAll(autoConfig.dependentSourceSets.map { DokkaSourceSetID(project, it) })
+        classpath = userConfig.classpath.union(autoConfig.classpath.map { it.absolutePath }).distinct()
+        if (userConfig.platform == null && autoConfig.platform != "")
+            platform = autoConfig.platform
+    }
 
     protected fun configureDefault(
         config: GradleDokkaSourceSet,
         globalConfig: GradleDokkaSourceSet?
     ): GradleDokkaSourceSet {
-        if (config.moduleName.isBlank()) {
-            config.moduleName = project.name
+        if (config.moduleDisplayName.isBlank()) {
+            config.moduleDisplayName = project.name
         }
-        if (config.sourceSetID.isBlank()) {
-            config.sourceSetID = config.moduleName + "/" + config.name
-        }
-        config.dependentSourceSets = config.dependentSourceSets.map { config.moduleName + "/" + it }.toMutableList()
+
         if (config.displayName.isBlank()) {
-            config.displayName = config.sourceSetID.substringBeforeLast("Main", config.platform.toString())
+            config.displayName = config.name.substringBeforeLast("Main", config.platform.toString())
         }
         config.classpath =
             (config.classpath as List<Any>).map { it.toString() }.distinct() // Workaround for Groovy's GStringImpl

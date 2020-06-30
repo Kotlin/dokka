@@ -10,8 +10,8 @@ class DefaultLocationProviderTest: AbstractCoreTest() {
     @Test
     fun `#644 same directory for module and package`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }

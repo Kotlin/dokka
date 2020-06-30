@@ -14,8 +14,8 @@ class FailOnWarningTest : AbstractCoreTest() {
     fun `throws exception if one or more warnings were emitted`() {
         val configuration = dokkaConfiguration {
             failOnWarning = true
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                 }
             }
@@ -39,8 +39,8 @@ class FailOnWarningTest : AbstractCoreTest() {
     fun `throws exception if one or more error were emitted`() {
         val configuration = dokkaConfiguration {
             failOnWarning = true
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                 }
             }
@@ -66,8 +66,8 @@ class FailOnWarningTest : AbstractCoreTest() {
 
         val configuration = dokkaConfiguration {
             failOnWarning = true
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                 }
             }
@@ -88,8 +88,8 @@ class FailOnWarningTest : AbstractCoreTest() {
     fun `does not throw if disabled`() {
         val configuration = dokkaConfiguration {
             failOnWarning = false
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
                 }
             }

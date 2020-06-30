@@ -15,21 +15,21 @@ class SourceSetDependentHintTest : RenderingOnlyTestBase() {
     private val pl1 = defaultSourceSet.copy(
         "root",
         "pl1",
-        "pl1",
+        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl1"),
         analysisPlatform = Platform.js,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
         "root",
         "pl2",
-        "pl2",
+        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl2"),
         analysisPlatform = Platform.jvm,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
         "root",
         "pl3",
-        "pl3",
+        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl3"),
         analysisPlatform = Platform.native,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
