@@ -55,19 +55,19 @@ class DokkaBase : DokkaPlugin() {
         }
     }
 
-    val documentableMerger by extending(isFallback = true) {
+    val documentableMerger by extending {
         CoreExtensions.documentableMerger with DefaultDocumentableMerger
     }
 
-    val deprecatedDocumentableFilter by extending(isFallback = true) {
+    val deprecatedDocumentableFilter by extending {
         CoreExtensions.preMergeDocumentableTransformer providing ::DeprecatedDocumentableFilterTransformer
     }
 
-    val documentableVisbilityFilter by extending(isFallback = true) {
+    val documentableVisbilityFilter by extending {
         CoreExtensions.preMergeDocumentableTransformer providing ::DocumentableVisibilityFilterTransformer
     }
 
-    val emptyPackagesFilter by extending(isFallback = true) {
+    val emptyPackagesFilter by extending {
         CoreExtensions.preMergeDocumentableTransformer providing ::EmptyPackagesFilterTransformer order {
             after(deprecatedDocumentableFilter, documentableVisbilityFilter)
         }
@@ -77,13 +77,13 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableTransformer with ActualTypealiasAdder()
     }
 
-    val modulesAndPackagesDocumentation by extending(isFallback = true) {
+    val modulesAndPackagesDocumentation by extending {
         CoreExtensions.preMergeDocumentableTransformer providing { ctx ->
             ModuleAndPackageDocumentationTransformer(ctx, ctx.single(kotlinAnalysis))
         }
     }
 
-    val kotlinSignatureProvider by extending(isFallback = true) {
+    val kotlinSignatureProvider by extending {
         signatureProvider providing { ctx ->
             KotlinSignatureProvider(ctx.single(commentsToContentConverter), ctx.logger)
         }
@@ -106,7 +106,7 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.documentableTransformer with ExtensionExtractorTransformer()
     }
 
-    val documentableToPageTranslator by extending(isFallback = true) {
+    val documentableToPageTranslator by extending {
         CoreExtensions.documentableToPageTranslator providing { ctx ->
             DefaultDocumentableToPageTranslator(
                 ctx.single(commentsToContentConverter),
@@ -116,7 +116,7 @@ class DokkaBase : DokkaPlugin() {
         }
     }
 
-    val docTagToContentConverter by extending(isFallback = true) {
+    val docTagToContentConverter by extending {
         commentsToContentConverter with DocTagToContentConverter
     }
 
@@ -138,11 +138,11 @@ class DokkaBase : DokkaPlugin() {
         CoreExtensions.renderer providing ::HtmlRenderer applyIf { format == "html" }
     }
 
-    val defaultKotlinAnalysis by extending(isFallback = true) {
+    val defaultKotlinAnalysis by extending {
         kotlinAnalysis providing { ctx -> KotlinAnalysis(ctx) }
     }
 
-    val locationProvider by extending(isFallback = true) {
+    val locationProvider by extending {
         locationProviderFactory providing ::DefaultLocationProviderFactory
     }
 
@@ -154,7 +154,7 @@ class DokkaBase : DokkaPlugin() {
         externalLocationProviderFactory with DokkaExternalLocationProviderFactory()
     }
 
-    val fileWriter by extending(isFallback = true) {
+    val fileWriter by extending {
         outputWriter providing ::FileWriter
     }
 
@@ -211,7 +211,7 @@ class DokkaBase : DokkaPlugin() {
         htmlPreprocessors providing ::SourcesetDependencyAppender order { after(rootCreator) }
     }
 
-    val allModulePageCreators by extending(isFallback = true) {
+    val allModulePageCreators by extending {
         CoreExtensions.allModulePageCreator providing {
             MultimodulePageCreator(it)
         }
