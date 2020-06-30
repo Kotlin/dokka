@@ -174,25 +174,26 @@ abstract class AbstractCoreTest {
             failOnWarning = failOnWarning
         )
 
-        fun passes(block: Passes.() -> Unit) {
-            sourceSets.addAll(Passes().apply(block))
+        fun sourceSets(block: SourceSetsBuilder.() -> Unit) {
+            sourceSets.addAll(SourceSetsBuilder().apply(block))
         }
     }
 
     @DokkaConfigurationDsl
-    protected class Passes : ArrayList<DokkaSourceSetImpl>() {
-        fun pass(block: DokkaSourceSetBuilder.() -> Unit) =
-            add(DokkaSourceSetBuilder().apply(block).build())
+    protected class SourceSetsBuilder : ArrayList<DokkaSourceSetImpl>() {
+        fun sourceSet(block: DokkaSourceSetBuilder.() -> Unit): DokkaSourceSet =
+            DokkaSourceSetBuilder().apply(block).build().apply(::add)
     }
 
     @DokkaConfigurationDsl
     protected class DokkaSourceSetBuilder(
         var moduleName: String = "root",
-        var sourceSetID: String = "main",
+        var moduleDisplayName: String? = null,
+        var name: String = "main",
         var displayName: String = "JVM",
         var classpath: List<String> = emptyList(),
         var sourceRoots: List<String> = emptyList(),
-        var dependentSourceSets: List<String> = emptyList(),
+        var dependentSourceSets: Set<DokkaSourceSetID> = emptySet(),
         var samples: List<String> = emptyList(),
         var includes: List<String> = emptyList(),
         var includeNonPublic: Boolean = false,
@@ -212,9 +213,9 @@ abstract class AbstractCoreTest {
         var sourceLinks: List<SourceLinkDefinitionImpl> = emptyList()
     ) {
         fun build() = DokkaSourceSetImpl(
-            moduleName = moduleName,
+            moduleDisplayName = moduleDisplayName ?: moduleName,
             displayName = displayName,
-            sourceSetID = sourceSetID,
+            sourceSetID = DokkaSourceSetID(moduleName, name),
             classpath = classpath,
             sourceRoots = sourceRoots.map { SourceRootImpl(it) },
             dependentSourceSets = dependentSourceSets,

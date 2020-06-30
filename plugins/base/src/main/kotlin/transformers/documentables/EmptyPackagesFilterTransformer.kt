@@ -14,9 +14,9 @@ class EmptyPackagesFilterTransformer(val context: DokkaContext) : PreMergeDocume
     }
 
     private class EmptyPackagesFilter(
-        val passOptions: DokkaConfiguration.DokkaSourceSet
+        val sourceSet: DokkaConfiguration.DokkaSourceSet
     ) {
-        fun DPackage.shouldBeSkipped() = passOptions.skipEmptyPackages &&
+        fun DPackage.shouldBeSkipped() = sourceSet.skipEmptyPackages &&
                 functions.isEmpty() &&
                 properties.isEmpty() &&
                 classlikes.isEmpty()

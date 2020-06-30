@@ -15,8 +15,8 @@ abstract class AbstractExpectTest(
     protected fun generateOutput(path: Path, outFormat: String): Path? {
         val config = dokkaConfiguration {
             format = outFormat
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf(path.toAbsolutePath().asString())
                 }
             }

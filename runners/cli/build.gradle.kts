@@ -10,7 +10,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.2.1")
-    implementation("com.google.code.gson:gson:2.8.5")
     implementation(project(":core"))
     implementation(kotlin("stdlib"))
 }

@@ -19,7 +19,7 @@ open class DokkaCollectorTask : DefaultTask() {
 
     @TaskAction
     fun collect() {
-        val passesConfigurations = getProjects(project).filter { it.name in modules }.flatMap {
+        val sourceSets = getProjects(project).filter { it.name in modules }.flatMap {
             val tasks = try {
                 it.tasks.withType(DokkaTask::class.java)
             } catch (e: UnknownTaskException) {
@@ -30,11 +30,11 @@ open class DokkaCollectorTask : DefaultTask() {
 
         val initial = GradleDokkaConfigurationImpl().apply {
             outputDir = outputDirectory
-            cacheRoot = passesConfigurations.first().cacheRoot
-            format = passesConfigurations.first().format
+            cacheRoot = sourceSets.first().cacheRoot
+            format = sourceSets.first().format
         }
 
-        configuration = passesConfigurations.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
+        configuration = sourceSets.fold(initial) { acc, it: GradleDokkaConfigurationImpl ->
             if(acc.format != it.format || acc.cacheRoot != it.cacheRoot)
                 throw IllegalStateException("Dokka task configurations differ on core arguments (format, cacheRoot)")
             acc.sourceSets = acc.sourceSets + it.sourceSets

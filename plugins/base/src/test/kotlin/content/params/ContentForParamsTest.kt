@@ -16,8 +16,8 @@ import utils.*
 
 class ContentForParamsTest : AbstractCoreTest() {
     private val testConfiguration = dokkaConfiguration {
-        passes {
-            pass {
+        sourceSets {
+            sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
             }

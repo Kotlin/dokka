@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import java.io.File
 import java.net.URL
 
@@ -16,12 +17,12 @@ data class DokkaConfigurationImpl(
 ) : DokkaConfiguration
 
 data class DokkaSourceSetImpl(
-    override val moduleName: String,
+    override val moduleDisplayName: String,
     override val displayName: String,
-    override val sourceSetID: String,
+    override val sourceSetID: DokkaSourceSetID,
     override val classpath: List<String>,
     override val sourceRoots: List<SourceRootImpl>,
-    override val dependentSourceSets: List<String>,
+    override val dependentSourceSets: Set<DokkaSourceSetID>,
     override val samples: List<String>,
     override val includes: List<String>,
     override val includeNonPublic: Boolean,
@@ -39,23 +40,23 @@ data class DokkaSourceSetImpl(
     override val noJdkLink: Boolean,
     override val suppressedFiles: List<String>,
     override val analysisPlatform: Platform
-) : DokkaConfiguration.DokkaSourceSet
+) : DokkaSourceSet
 
 data class DokkaModuleDescriptionImpl(
     override val name: String,
     override val path: String,
     override val docFile: String
-): DokkaConfiguration.DokkaModuleDescription
+) : DokkaConfiguration.DokkaModuleDescription
 
 data class SourceRootImpl(
     override val path: String
-): DokkaConfiguration.SourceRoot
+) : DokkaConfiguration.SourceRoot
 
 data class SourceLinkDefinitionImpl(
     override val path: String,
     override val url: String,
     override val lineSuffix: String?
-): DokkaConfiguration.SourceLinkDefinition {
+) : DokkaConfiguration.SourceLinkDefinition {
     companion object {
         fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
             val (path, urlAndLine) = srcLink.split('=')
@@ -73,9 +74,10 @@ data class PackageOptionsImpl(
     override val reportUndocumented: Boolean?,
     override val skipDeprecated: Boolean,
     override val suppress: Boolean
-): DokkaConfiguration.PackageOptions
+) : DokkaConfiguration.PackageOptions
 
 
-data class ExternalDocumentationLinkImpl(override val url: URL,
-                                         override val packageListUrl: URL
+data class ExternalDocumentationLinkImpl(
+    override val url: URL,
+    override val packageListUrl: URL
 ) : DokkaConfiguration.ExternalDocumentationLink

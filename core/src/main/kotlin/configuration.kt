@@ -1,5 +1,8 @@
+@file:Suppress("FunctionName")
+
 package org.jetbrains.dokka
 
+import com.google.gson.Gson
 import java.io.File
 import java.net.URL
 
@@ -43,6 +46,23 @@ enum class Platform(val key: String) {
     }
 }
 
+data class DokkaSourceSetID(
+    val moduleName: String,
+    val sourceSetName: String
+) {
+    override fun toString(): String {
+        return "$moduleName/$sourceSetName"
+    }
+}
+
+fun DokkaConfigurationImpl(json: String): DokkaConfigurationImpl {
+    return Gson().fromJson(json, DokkaConfigurationImpl::class.java)
+}
+
+fun DokkaConfiguration.toJson(): String {
+    return Gson().toJson(this)
+}
+
 interface DokkaConfiguration {
     val outputDir: String
     val format: String
@@ -55,12 +75,12 @@ interface DokkaConfiguration {
     val pluginsConfiguration: Map<String, String>
 
     interface DokkaSourceSet {
-        val moduleName: String
+        val sourceSetID: DokkaSourceSetID
         val displayName: String
-        val sourceSetID: String
+        val moduleDisplayName: String
         val classpath: List<String>
         val sourceRoots: List<SourceRoot>
-        val dependentSourceSets: List<String>
+        val dependentSourceSets: Set<DokkaSourceSetID>
         val samples: List<String>
         val includes: List<String>
         val includeNonPublic: Boolean

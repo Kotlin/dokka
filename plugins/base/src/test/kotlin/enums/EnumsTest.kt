@@ -13,8 +13,8 @@ class EnumsTest : AbstractCoreTest() {
     @Test
     fun basicEnum() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -44,8 +44,8 @@ class EnumsTest : AbstractCoreTest() {
     @Test
     fun enumWithCompanion() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -89,8 +89,8 @@ class EnumsTest : AbstractCoreTest() {
     @Test
     fun enumWithConstructor() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -135,8 +135,8 @@ class EnumsTest : AbstractCoreTest() {
     @Test
     fun enumWithMethods() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }
@@ -178,8 +178,8 @@ class EnumsTest : AbstractCoreTest() {
     @Test
     fun enumWithAnnotationsOnEntries(){
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/")
                 }
             }

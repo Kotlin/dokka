@@ -9,8 +9,8 @@ class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `public function with false global includeNonPublic`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     includeNonPublic = false
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
@@ -39,8 +39,8 @@ class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `private function with false global includeNonPublic`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     includeNonPublic = false
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
@@ -69,8 +69,8 @@ class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `private function with true global includeNonPublic`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     includeNonPublic = true
                 }
@@ -99,8 +99,8 @@ class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `private function with false global true package includeNonPublic`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     includeNonPublic = false
                     perPackageOptions = mutableListOf(
@@ -136,8 +136,8 @@ class VisibilityFilterTest : AbstractCoreTest() {
     @Test
     fun `private function with true global false package includeNonPublic`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                     includeNonPublic = true
                     perPackageOptions = mutableListOf(

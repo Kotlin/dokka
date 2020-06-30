@@ -1,6 +1,5 @@
 package filter
 
-import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -9,8 +8,8 @@ class EmptyPackagesFilterTest : AbstractCoreTest() {
     @Test
     fun `empty package with false skipEmptyPackages`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     skipEmptyPackages = false
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }
@@ -37,8 +36,8 @@ class EmptyPackagesFilterTest : AbstractCoreTest() {
     @Test
     fun `empty package with true skipEmptyPackages`() {
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     skipEmptyPackages = true
                     sourceRoots = listOf("src/main/kotlin/basic/Test.kt")
                 }

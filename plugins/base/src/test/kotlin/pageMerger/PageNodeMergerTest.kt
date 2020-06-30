@@ -39,8 +39,8 @@ class PageNodeMergerTest : AbstractCoreTest() {
     fun sameNameStrategyTest() {
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/pageMerger/Test.kt")
                 }
             }
@@ -82,8 +82,8 @@ class PageNodeMergerTest : AbstractCoreTest() {
         val strList: MutableList<String> = mutableListOf()
 
         val configuration = dokkaConfiguration {
-            passes {
-                pass {
+            sourceSets {
+                sourceSet {
                     sourceRoots = listOf("src/main/kotlin/pageMerger/Test.kt")
                 }
             }

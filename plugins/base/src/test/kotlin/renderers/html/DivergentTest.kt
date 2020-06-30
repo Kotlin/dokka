@@ -12,14 +12,14 @@ class DivergentTest : RenderingOnlyTestBase() {
     private val js = defaultSourceSet.copy(
         "root",
         "JS",
-        "js",
+        defaultSourceSet.sourceSetID.copy(sourceSetName = "js"),
         analysisPlatform = Platform.js,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val jvm = defaultSourceSet.copy(
         "root",
         "JVM",
-        "jvm",
+        defaultSourceSet.sourceSetID.copy(sourceSetName = "jvm"),
 
         analysisPlatform = Platform.jvm,
         sourceRoots = listOf(SourceRootImpl("pl1"))
@@ -27,7 +27,7 @@ class DivergentTest : RenderingOnlyTestBase() {
     private val native = defaultSourceSet.copy(
         "root",
         "NATIVE",
-        "native",
+        defaultSourceSet.sourceSetID.copy(sourceSetName = "native"),
         analysisPlatform = Platform.native,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
