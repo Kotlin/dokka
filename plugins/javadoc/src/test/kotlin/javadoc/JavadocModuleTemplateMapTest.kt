@@ -21,7 +21,7 @@ internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
             java =
             """
             /src/com/test/package/Source.java
-            package com.test.package
+            package com.test.package;
             public class Test { }
             """
         ) {
@@ -58,11 +58,11 @@ internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
             java =
             """
             /src/com/test/package0/Test0.java
-            package com.test.package0
+            package com.test.package0;
             public class Test0 {}
             
             /src/com/test/package1/Test1.java
-            package com.test.package1
+            package com.test.package1;
             public class Test1 {}
             """
         ) {
