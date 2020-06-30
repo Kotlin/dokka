@@ -3,7 +3,7 @@ package org.jetbrains.dokka.model.doc
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.WithChildren
 
-sealed class TagWrapper(val root: DocTag) : WithChildren {
+sealed class TagWrapper(val root: DocTag) : WithChildren<DocTag> {
 
     override val children: List<DocTag>
         get() =  root.children

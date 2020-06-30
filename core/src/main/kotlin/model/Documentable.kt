@@ -7,10 +7,9 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
 
-abstract class Documentable {
+abstract class Documentable : WithChildren<Documentable> {
     abstract val name: String?
     abstract val dri: DRI
-    abstract val children: List<Documentable>
     abstract val documentation: SourceSetDependent<DocumentationNode>
     abstract val sourceSets: Set<DokkaSourceSet>
     abstract val expectPresentInSet: DokkaSourceSet?
@@ -359,7 +358,7 @@ data class PrimitiveJavaType(val name: String) : Bound()
 object Void : Bound()
 object JavaObject : Bound()
 object Dynamic : Bound()
-data class UnresolvedBound(val name: String): Bound()
+data class UnresolvedBound(val name: String) : Bound()
 
 enum class FunctionModifiers {
     NONE, FUNCTION, EXTENSION
@@ -375,15 +374,6 @@ fun Documentable.dfs(predicate: (Documentable) -> Boolean): Documentable? =
     } else {
         this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
     }
-
-fun Documentable.withDescendants(): Sequence<Documentable> {
-    return sequence {
-        yield(this@withDescendants)
-        children.forEach { child ->
-            yieldAll(child.withDescendants())
-        }
-    }
-}
 
 sealed class Visibility(val name: String)
 sealed class KotlinVisibility(name: String) : Visibility(name) {

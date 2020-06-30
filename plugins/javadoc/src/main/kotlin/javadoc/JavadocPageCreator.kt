@@ -163,7 +163,7 @@ open class JavadocPageCreator(
     private val firstSentenceRegex = Regex("^((?:[^.?!]|[.!?](?!\\s))*[.!?])")
 
     private inline fun <reified T : TagWrapper> Documentable.findNodeInDocumentation(sourceSetData: DokkaSourceSet?): T? =
-        documentation[sourceSetData]?.firstChildOfType<T>()
+        documentation[sourceSetData]?.firstChildOfTypeOrNull<T>()
 
     private fun Documentable.descriptionToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) = findNodeInDocumentation<Description>(sourceSet)?.let {
         DocTagToContentConverter.buildContent(

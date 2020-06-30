@@ -3,6 +3,7 @@ package content.params
 import matchers.content.*
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text

@@ -1,11 +1,12 @@
 package basic
 
 import org.jetbrains.dokka.links.*
-import org.jetbrains.dokka.model.DClass
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.DParameter
-import org.jetbrains.dokka.model.OtherParameter
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.Nullable
+import org.jetbrains.dokka.links.TypeConstructor
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.dfs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 
@@ -158,7 +159,7 @@ class DRITest : AbstractCoreTest() {
                 )
 
                 val driCount = module
-                    .asSequence()
+                    .withDescendants()
                     .filterIsInstance<ContentPage>()
                     .sumBy { it.dri.count { dri -> dri == expectedDRI } }
 

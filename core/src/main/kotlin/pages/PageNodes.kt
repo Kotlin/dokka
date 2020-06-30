@@ -2,11 +2,11 @@ package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Documentable
+import org.jetbrains.dokka.model.WithChildren
 import java.util.*
 
-interface PageNode {
+interface PageNode: WithChildren<PageNode> {
     val name: String
-    val children: List<PageNode>
 
     fun modified(
         name: String = this.name,
@@ -149,16 +149,6 @@ class MemberPageNode(
         else MemberPageNode(name, content, dri, documentable, children, embeddedResources)
 }
 
-fun PageNode.dfs(predicate: (PageNode) -> Boolean): PageNode? = if (predicate(this)) {
-    this
-} else {
-    this.children.asSequence().mapNotNull { it.dfs(predicate) }.firstOrNull()
-}
-
-fun PageNode.asSequence(): Sequence<PageNode> = sequence {
-    yield(this@asSequence)
-    children.asSequence().flatMap { it.asSequence() }.forEach { yield(it) }
-}
 
 class MultimoduleRootPageNode(
     override val name: String,
