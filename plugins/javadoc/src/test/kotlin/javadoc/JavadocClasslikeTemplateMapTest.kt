@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import testApi.utils.assertIsInstance
 
-@Disabled("To be fixed")
 internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest() {
 
+    @Disabled("To be fixed")
     @Test
     fun `empty class`() {
         dualTestTemplateMapInline(
@@ -65,11 +65,11 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             /**
             * Documentation for TestClass
             */
-            public class TestClass {
+            public final class TestClass {
                 /**
                 * Documentation for testFunction
                 */
-                public String testFunction() {
+                public final String testFunction() {
                     return "";
                 }
             }

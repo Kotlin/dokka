@@ -122,12 +122,15 @@ class JavadocParser(
     private fun getSeeTagElementContent(tag: PsiDocTag): List<DocTag> =
         listOfNotNull(tag.referenceElement()?.toDocumentationLink())
 
-    private fun PsiDocComment.getDescription(): Description? =
-        convertJavadocElements(descriptionElements.dropWhile {
-            it.text.trim().isEmpty()
-        }).takeIf { it.isNotEmpty() }?.let { list ->
-            Description(P(list))
+    private fun PsiDocComment.getDescription(): Description? {
+        val nonEmptyDescriptionElements = descriptionElements.filter { it.text.trim().isNotEmpty() }
+        val convertedDescriptionElements = convertJavadocElements(nonEmptyDescriptionElements)
+        if (convertedDescriptionElements.isNotEmpty()) {
+            return Description(P(convertedDescriptionElements))
         }
+
+        return null
+    }
 
     private fun convertJavadocElements(elements: Iterable<PsiElement>): List<DocTag> =
         elements.mapNotNull {
@@ -136,7 +139,7 @@ class JavadocParser(
                 is PsiInlineDocTag -> listOfNotNull(convertInlineDocTag(it))
                 is PsiDocParamRef -> listOfNotNull(it.toDocumentationLink())
                 is PsiDocTagValue,
-                is LeafPsiElement -> Jsoup.parse(it.text).body().childNodes().mapNotNull { convertHtmlNode(it) }
+                is LeafPsiElement -> Jsoup.parse(it.text.trim()).body().childNodes().mapNotNull(::convertHtmlNode)
                 else -> null
             }
         }.flatten()
