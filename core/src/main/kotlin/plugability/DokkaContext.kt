@@ -68,10 +68,13 @@ private class DokkaContextConfigurationImpl(
     }
 
     private sealed class Suppression {
-        data class ByExtension(val extension: Extension<*, *, *>) : Suppression()
+        data class ByExtension(val extension: Extension<*, *, *>) : Suppression() {
+            override fun toString() = extension.toString()
+        }
 
-
-        data class ByPlugin(val plugin: DokkaPlugin) : Suppression()
+        data class ByPlugin(val plugin: DokkaPlugin) : Suppression() {
+            override fun toString() = "Plugin ${plugin::class.qualifiedName}"
+        }
     }
 
     private val rawExtensions = mutableListOf<Extension<*, *, *>>()
@@ -197,9 +200,14 @@ private class DokkaContextConfigurationImpl(
         val loadedListForDebug = extensions.run { keys + values.flatten() }.toList()
             .joinToString(prefix = "[\n", separator = ",\n", postfix = "\n]") { "\t$it" }
 
+        val suppressedList = suppressedExtensions.asSequence()
+            .joinToString(prefix = "[\n", separator = ",\n", postfix = "\n]") {
+                "\t${it.key} by " + (it.value.singleOrNull() ?: it.value)
+            }
+
         logger.progress("Loaded plugins: $pluginNames")
         logger.progress("Loaded: $loadedListForDebug")
-
+        logger.progress("Suppressed: $suppressedList")
     }
 }
 
