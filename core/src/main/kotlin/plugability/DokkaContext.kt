@@ -131,8 +131,8 @@ private class DokkaContextConfigurationImpl(
         overridesInfo: Map<Extension<*, *, *>, Set<Extension<*, *, *>>>
     ): Map<Extension<*, *, *>, List<Extension<*, *, *>>> {
         val reverseOverrideInfo = overridesInfo.flatMap { (ext, set) -> set.map { it to ext } }.toMap()
-        return rawAdjacencyList.map { (ext, list) ->
-            reverseOverrideInfo.getValue(ext) to list.map { reverseOverrideInfo.getValue(it) }
+        return rawAdjacencyList.mapNotNull { (ext, list) ->
+            reverseOverrideInfo[ext]?.to(list.mapNotNull { reverseOverrideInfo[it] })
         }.toMap()
     }
 
