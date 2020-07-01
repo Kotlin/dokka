@@ -15,13 +15,10 @@ class JavadocPlugin : DokkaPlugin() {
     val locationProviderFactory by extensionPoint<JavadocLocationProviderFactory>()
 
     val dokkaJavadocPlugin by extending {
-        CoreExtensions.renderer providing { ctx ->
-            KorteJavadocRenderer(
-                dokkaBasePlugin.querySingle { outputWriter },
-                ctx,
-                "views"
-            )
-        } applyIf { format == "javadoc" }
+        (CoreExtensions.renderer
+                providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
+                applyIf { format == "javadoc" }
+                override dokkaBasePlugin.htmlRenderer)
     }
 
     val pageTranslator by extending {
@@ -31,7 +28,7 @@ class JavadocPlugin : DokkaPlugin() {
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )
-        }
+        } override dokkaBasePlugin.documentableToPageTranslator
     }
 
     val javadocLocationProviderFactory by extending {

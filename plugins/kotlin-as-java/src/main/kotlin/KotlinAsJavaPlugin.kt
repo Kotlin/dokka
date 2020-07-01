@@ -13,11 +13,7 @@ class KotlinAsJavaPlugin : DokkaPlugin() {
     val javaSignatureProvider by extending {
         val dokkaBasePlugin = plugin<DokkaBase>()
         dokkaBasePlugin.signatureProvider providing { ctx ->
-            JavaSignatureProvider(
-                ctx.single(
-                    dokkaBasePlugin.commentsToContentConverter
-                ), ctx.logger
-            )
-        }
+            JavaSignatureProvider(ctx.single(dokkaBasePlugin.commentsToContentConverter), ctx.logger)
+        } override dokkaBasePlugin.kotlinSignatureProvider
     }
 }

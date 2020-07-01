@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
@@ -18,7 +19,10 @@ class JekyllPlugin : DokkaPlugin() {
     val jekyllPreprocessors by extensionPoint<PageTransformer>()
 
     val renderer by extending {
-        CoreExtensions.renderer providing { JekyllRenderer(it) } applyIf { format == "jekyll" }
+        (CoreExtensions.renderer
+                providing { JekyllRenderer(it) }
+                applyIf { format == "jekyll" }
+                override plugin<DokkaBase>().htmlRenderer)
     }
 
     val rootCreator by extending {
