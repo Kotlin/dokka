@@ -91,5 +91,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://dl.bintray.com/jetbrains/markdown/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://dl.bintray.com/kotlin/kotlin-dev/" />
+    </remote-repository>
   </component>
 </project>

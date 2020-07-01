@@ -18,6 +18,7 @@ include("plugins:jekyll")
 include("plugins:kotlin-as-java")
 include("plugins:javadoc")
 include("integration-tests:gradle-integration-tests")
+include("integration-tests:gradle")
 
 pluginManagement {
     val kotlin_version: String by settings

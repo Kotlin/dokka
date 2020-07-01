@@ -2,7 +2,8 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+        mavenLocal()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-dev" }
     }
     dependencies {
@@ -21,7 +22,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven {
-        url "https://dl.bintray.com/kotlin/kotlin-eap-1.1"
+        url "https://dl.bintray.com/kotlin/kotlin-eap"
     }
     maven {
         url "https://dl.bintray.com/kotlin/kotlin-dev"
@@ -35,8 +36,11 @@ dependencies {
 }
 
 
+/*
 dokka {
     configuration {
         classpath += "$projectDir/classDir"
     }
 }
+
+ */
