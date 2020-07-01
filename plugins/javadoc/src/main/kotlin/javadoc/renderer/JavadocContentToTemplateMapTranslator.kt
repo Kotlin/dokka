@@ -1,5 +1,6 @@
 package javadoc.renderer
 
+import javadoc.location.JavadocLocationProvider
 import javadoc.pages.*
 import javadoc.toNormalized
 import org.jetbrains.dokka.Platform
@@ -13,7 +14,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import java.nio.file.Paths
 
 internal class JavadocContentToTemplateMapTranslator(
-    private val locationProvider: LocationProvider,
+    private val locationProvider: JavadocLocationProvider,
     private val context: DokkaContext,
 ) {
 
@@ -82,6 +83,7 @@ internal class JavadocContentToTemplateMapTranslator(
                 "brief" to htmlForContentNodes(node.brief, contextNode),
                 "parameters" to node.parameters.map { templateMapForParameterNode(it) },
                 "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
+                "anchorLink" to locationProvider.anchorForFunctionNode(node),
                 "signature" to templateMapForSignatureNode(node.signature),
                 "name" to node.name
             )

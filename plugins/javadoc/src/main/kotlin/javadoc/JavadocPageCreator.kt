@@ -48,6 +48,8 @@ open class JavadocPageCreator(
                 methods = c.functions.mapNotNull { it.toJavadocFunction() },
                 entries = (c as? DEnum)?.entries?.map {
                     JavadocEntryNode(
+                        it.dri,
+                        it.name,
                         signatureForNode(it, jvm),
                         it.descriptionToContentNodes(jvm)
                     )
@@ -55,6 +57,8 @@ open class JavadocPageCreator(
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
                 properties = c.properties.map {
                     JavadocPropertyNode(
+                        it.dri,
+                        it.name,
                         signatureForNode(it, jvm),
                         it.descriptionToContentNodes(jvm)
                     )
@@ -142,7 +146,9 @@ open class JavadocPageCreator(
                     JavadocParameterNode(
                         name = it.name.orEmpty(),
                         type = type,
-                        description = it.brief()
+                        description = it.brief(),
+                        typeBound = it.type,
+                        dri = it.dri
                     )
                 }
             },

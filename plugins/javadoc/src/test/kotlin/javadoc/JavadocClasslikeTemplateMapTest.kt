@@ -2,7 +2,6 @@ package javadoc
 
 import javadoc.pages.JavadocClasslikePageNode
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import testApi.utils.assertIsInstance
 
@@ -94,8 +93,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
                 0, assertIsInstance<List<*>>(method["parameters"]).size,
                 "Expected no parameters"
             )
-            assertEquals("final <a href=.html>java.lang.String</a>", method.modifiers())
-            assertEquals("<a href=.html>testFunction</a>()", method.signatureWithoutModifiers())
+            assertEquals("final <a href=.html>String</a>", method.modifiers())
+            assertEquals("<a href=TestClass.html#testFunction-->testFunction</a>()", method.signatureWithoutModifiers())
         }
     }
 
@@ -204,8 +203,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Sample docs for first", first["brief"])
             assertEquals("Sample docs for second", second["brief"])
 
-            assertEquals("<a href=.html>FIRST</a>", first.signatureWithoutModifiers())
-            assertEquals("<a href=.html>SECOND</a>", second.signatureWithoutModifiers())
+            assertEquals("<a href=ClockDays.html#FIRST>FIRST</a>", first.signatureWithoutModifiers())
+            assertEquals("<a href=ClockDays.html#SECOND>SECOND</a>", second.signatureWithoutModifiers())
         }
     }
 
@@ -258,19 +257,19 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertParameterNode(
                 node = first,
                 expectedName = "simple",
-                expectedType = "<a href=.html>java.lang.String</a>",
+                expectedType = "<a href=.html>String</a>",
                 expectedDescription = "simple String parameter"
             )
             assertParameterNode(
                 node = second,
                 expectedName = "parameters",
-                expectedType = "<a href=.html>java.lang.Integer</a>",
+                expectedType = "<a href=.html>Integer</a>",
                 expectedDescription = "simple Integer parameter"
             )
             assertParameterNode(
                 node = third,
                 expectedName = "list",
-                expectedType = "<a href=.html>java.lang.Boolean</a>",
+                expectedType = "<a href=.html>Boolean</a>",
                 expectedDescription = "simple Boolean parameter"
             )
         }
@@ -306,14 +305,14 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Generic", map["name"])
 
             assertEquals(
-                "public final class <a href=Generic.html>Generic</a>&lt;T extends <a href=.html>java.io.Serializable</a>&gt;",
+                "public final class <a href=Generic.html>Generic</a>&lt;T extends <a href=.html>Serializable</a>&gt;",
                 map.signatureWithModifiers()
             )
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
             val ownMethods = assertIsInstance<List<*>>(methods["own"]).first()
             val sampleFunction = assertIsInstance<Map<String, Any?>>(ownMethods)
 
-            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=.html>D</a> <a href=.html>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
+            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=Generic.html#sampleFunction-->D</a> <a href=Generic.html#sampleFunction-->sampleFunction</a>()", sampleFunction.signatureWithModifiers())
         }
     }
 
