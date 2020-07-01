@@ -3,15 +3,20 @@ package utils
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import java.io.File
 
-class TestOutputWriterPlugin(failOnOverwrite: Boolean = true): DokkaPlugin() {
+class TestOutputWriterPlugin(failOnOverwrite: Boolean = true) : DokkaPlugin() {
     val writer = TestOutputWriter(failOnOverwrite)
 
-    val testWriter by extending { plugin<DokkaBase>().outputWriter with writer }
+    private val dokkaBase by lazy { plugin<DokkaBase>() }
+
+    val testWriter by extending {
+        (dokkaBase.outputWriter
+                with writer
+                override dokkaBase.fileWriter)
+    }
 }
 
-class TestOutputWriter(private val failOnOverwrite: Boolean = true): OutputWriter {
+class TestOutputWriter(private val failOnOverwrite: Boolean = true) : OutputWriter {
     val contents: Map<String, String> get() = _contents
 
     private val _contents = mutableMapOf<String, String>()
@@ -23,5 +28,6 @@ class TestOutputWriter(private val failOnOverwrite: Boolean = true): OutputWrite
         }
     }
 
-    override suspend fun writeResources(pathFrom: String, pathTo: String) = write(pathTo, "*** content of $pathFrom ***", "")
+    override suspend fun writeResources(pathFrom: String, pathTo: String) =
+        write(pathTo, "*** content of $pathFrom ***", "")
 }

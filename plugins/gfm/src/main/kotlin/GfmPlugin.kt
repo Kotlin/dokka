@@ -19,12 +19,20 @@ class GfmPlugin : DokkaPlugin() {
 
     val gfmPreprocessors by extensionPoint<PageTransformer>()
 
+    private val dokkaBase by lazy { plugin<DokkaBase>() }
+
     val renderer by extending {
-        CoreExtensions.renderer providing { CommonmarkRenderer(it) } applyIf { format == "gfm" }
+        (CoreExtensions.renderer
+                providing { CommonmarkRenderer(it) }
+                applyIf { format == "gfm" }
+                override dokkaBase.htmlRenderer)
     }
 
     val locationProvider by extending {
-        plugin<DokkaBase>().locationProviderFactory providing { MarkdownLocationProviderFactory(it) } applyIf { format == "gfm" }
+        (dokkaBase.locationProviderFactory
+                providing { MarkdownLocationProviderFactory(it) }
+                applyIf { format == "gfm" }
+                override dokkaBase.locationProvider)
     }
 
     val rootCreator by extending {
@@ -32,13 +40,9 @@ class GfmPlugin : DokkaPlugin() {
     }
 
     val packageListCreator by extending {
-        gfmPreprocessors providing {
-            PackageListCreator(
-                it,
-                "gfm",
-                "md"
-            )
-        } order { after(rootCreator) }
+        (gfmPreprocessors
+                providing { PackageListCreator(it, "gfm", "md") }
+                order { after(rootCreator) })
     }
 }
 
@@ -128,7 +132,7 @@ open class CommonmarkRenderer(
         sourceSets: Set<DokkaSourceSet>,
         pageContext: ContentPage,
     ) {
-        if(content is ContentGroup && content.children.firstOrNull{ it is ContentTable } != null){
+        if (content is ContentGroup && content.children.firstOrNull { it is ContentTable } != null) {
             buildContentNode(content, pageContext)
         } else {
             val distinct = sourceSets.map {
@@ -155,11 +159,16 @@ open class CommonmarkRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DokkaSourceSet>?
     ) {
-        if(node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters){
-            node.sourceSets.forEach {sourcesetData ->
+        if (node.dci.kind == ContentKind.Sample || node.dci.kind == ContentKind.Parameters) {
+            node.sourceSets.forEach { sourcesetData ->
                 append("${sourcesetData.moduleDisplayName}/${sourcesetData.sourceSetID}")
                 buildNewLine()
-                buildTable(node.copy(children = node.children.filter { it.sourceSets.contains(sourcesetData) }, dci = node.dci.copy(kind = ContentKind.Main)), pageContext, sourceSetRestriction)
+                buildTable(
+                    node.copy(
+                        children = node.children.filter { it.sourceSets.contains(sourcesetData) },
+                        dci = node.dci.copy(kind = ContentKind.Main)
+                    ), pageContext, sourceSetRestriction
+                )
                 buildNewLine()
             }
         } else {
