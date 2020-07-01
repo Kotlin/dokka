@@ -167,6 +167,12 @@ private class DokkaContextConfigurationImpl(
         plugins[plugin::class] = plugin
         plugin.context = this
         plugin.internalInstall(this, this.configuration)
+
+        if (plugin is WithUnsafeExtensionSuppression) {
+            plugin.extensionsSuppressed.forEach {
+                suppressedExtensions.listFor(it) += Suppression.ByPlugin(plugin)
+            }
+        }
     }
 
     override fun installExtension(extension: Extension<*, *, *>) {

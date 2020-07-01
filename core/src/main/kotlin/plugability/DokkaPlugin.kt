@@ -44,6 +44,10 @@ abstract class DokkaPlugin {
     }
 }
 
+interface WithUnsafeExtensionSuppression {
+    val extensionsSuppressed: List<Extension<*, *, *>>
+}
+
 interface Configurable {
     val pluginsConfiguration: Map<String, String>
 }
