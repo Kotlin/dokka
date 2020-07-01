@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.dokka
-
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
@@ -18,5 +16,5 @@ dependencies {
 
 afterEvaluate {
     logger.quiet("Gradle version: ${gradle.gradleVersion}")
-    logger.quiet("Kotlin version: ${findProperty("kotlin_version")}")
+    logger.quiet("Kotlin version: ${properties["dokka_it_kotlin_version"]}")
 }

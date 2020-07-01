@@ -23,7 +23,11 @@ abstract class AbstractGradleIntegrationTest {
             .withProjectDir(projectDir)
             .withGradleVersion(buildVersions.gradleVersion)
             .forwardOutput()
-            .withArguments("-Pkotlin_version=${buildVersions.kotlinVersion}", *arguments)
+            .withArguments(
+                "-Pkotlin_version=${buildVersions.kotlinVersion}",
+                "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
+                * arguments
+            )
             .withDebug(true)
 
     }

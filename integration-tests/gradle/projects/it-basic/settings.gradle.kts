@@ -1,11 +1,11 @@
 @file:Suppress("LocalVariableName", "UnstableApiUsage")
 
 pluginManagement {
-    val kotlin_version = "1.3.72"
+    val dokka_it_kotlin_version: String by settings
     val dokka_version = "0.11.0-SNAPSHOT"
 
     plugins {
-        id("org.jetbrains.kotlin.jvm") version kotlin_version
+        id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
         id("org.jetbrains.dokka") version dokka_version
     }
 
