@@ -37,7 +37,7 @@ interface DokkaContext {
                     .let { ServiceLoader.load(DokkaPlugin::class.java, it) }
                     .let { it + pluginOverrides }
                     .forEach { install(it) }
-                applyExtensions()
+                topologicallySortAndPrune()
             }.also { it.logInitialisationInfo() }
     }
 }
@@ -46,7 +46,7 @@ inline fun <reified T : DokkaPlugin> DokkaContext.plugin(): T = plugin(T::class)
     ?: throw java.lang.IllegalStateException("Plugin ${T::class.qualifiedName} is not present in context.")
 
 interface DokkaContextConfiguration {
-    fun addExtensionDependencies(extension: Extension<*, *, *>)
+    fun installExtension(extension: Extension<*, *, *>)
 }
 
 private class DokkaContextConfigurationImpl(
@@ -67,11 +67,26 @@ private class DokkaContextConfigurationImpl(
         VISITED;
     }
 
-    val verticesWithState = mutableMapOf<Extension<*, *, *>, State>()
-    val adjacencyList: MutableMap<Extension<*, *, *>, MutableList<Extension<*, *, *>>> = mutableMapOf()
+    private sealed class Suppression {
+        data class ByExtension(val extension: Extension<*, *, *>) : Suppression()
 
-    private fun topologicalSort() {
 
+        data class ByPlugin(val plugin: DokkaPlugin) : Suppression()
+    }
+
+    private val rawExtensions = mutableListOf<Extension<*, *, *>>()
+    private val rawAdjacencyList = mutableMapOf<Extension<*, *, *>, MutableList<Extension<*, *, *>>>()
+    private val suppressedExtensions = mutableMapOf<Extension<*, *, *>, MutableList<Suppression>>()
+
+    fun topologicallySortAndPrune() {
+        pointsPopulated.clear()
+        extensions.clear()
+
+        val overridesInfo = processOverrides()
+        val extensionsToSort = overridesInfo.keys
+        val adjacencyList = translateAdjacencyList(overridesInfo)
+
+        val verticesWithState = extensionsToSort.associateWithTo(mutableMapOf()) { State.UNVISITED }
         val result: MutableList<Extension<*, *, *>> = mutableListOf()
 
         fun visit(n: Extension<*, *, *>) {
@@ -86,14 +101,39 @@ private class DokkaContextConfigurationImpl(
             result += n
         }
 
-        for ((vertex, state) in verticesWithState) {
-            if (state == State.UNVISITED)
-                visit(vertex)
+        extensionsToSort.forEach(::visit)
+
+        val filteredResult = result.asReversed().filterNot { it in suppressedExtensions }
+
+        filteredResult.mapTo(pointsPopulated) { it.extensionPoint }
+        filteredResult.groupByTo(extensions) { it.extensionPoint }
+    }
+
+    private fun processOverrides(): Map<Extension<*, *, *>, Set<Extension<*, *, *>>> {
+        val buckets = rawExtensions.associateWithTo(mutableMapOf()) { setOf(it) }
+        suppressedExtensions.forEach { (extension, suppressions) ->
+            val mergedBucket = suppressions.filterIsInstance<Suppression.ByExtension>()
+                .map { it.extension }
+                .plus(extension)
+                .flatMap { buckets[it].orEmpty() }
+                .toSet()
+            mergedBucket.forEach { buckets[it] = mergedBucket }
         }
-        result.asReversed().forEach {
-            pointsPopulated += it.extensionPoint
-            extensions.getOrPut(it.extensionPoint, ::mutableListOf) += it
-        }
+        return buckets.values.distinct().associateBy(::findNotOverridden)
+    }
+
+    private fun findNotOverridden(bucket: Set<Extension<*, *, *>>): Extension<*, *, *> {
+        val filtered = bucket.filter { it !in suppressedExtensions }
+        return filtered.singleOrNull() ?: throw Error("Conflicting overrides: $filtered")
+    }
+
+    private fun translateAdjacencyList(
+        overridesInfo: Map<Extension<*, *, *>, Set<Extension<*, *, *>>>
+    ): Map<Extension<*, *, *>, List<Extension<*, *, *>>> {
+        val reverseOverrideInfo = overridesInfo.flatMap { (ext, set) -> set.map { it to ext } }.toMap()
+        return rawAdjacencyList.map { (ext, list) ->
+            reverseOverrideInfo.getValue(ext) to list.map { reverseOverrideInfo.getValue(it) }
+        }.toMap()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -129,14 +169,19 @@ private class DokkaContextConfigurationImpl(
         plugin.internalInstall(this, this.configuration)
     }
 
-    override fun addExtensionDependencies(extension: Extension<*, *, *>) {
+    override fun installExtension(extension: Extension<*, *, *>) {
+        rawExtensions += extension
+
         if (extension.ordering is OrderingKind.ByDsl) {
             val orderDsl = OrderDsl()
-            extension.ordering.block.invoke(orderDsl)
+            orderDsl.(extension.ordering.block)()
 
-            verticesWithState += extension to State.UNVISITED
-            adjacencyList.getOrPut(extension, ::mutableListOf) += orderDsl.following.toList()
-            orderDsl.previous.forEach { adjacencyList.getOrPut(it, ::mutableListOf) += extension }
+            rawAdjacencyList.listFor(extension) += orderDsl.following.toList()
+            orderDsl.previous.forEach { rawAdjacencyList.listFor(it) += extension }
+        }
+
+        if (extension.override is OverrideKind.Present) {
+            suppressedExtensions.listFor(extension.override.overriden) += Suppression.ByExtension(extension)
         }
     }
 
@@ -150,10 +195,6 @@ private class DokkaContextConfigurationImpl(
         logger.progress("Loaded: $loadedListForDebug")
 
     }
-
-    fun applyExtensions() {
-        topologicalSort()
-    }
 }
 
 private fun checkClasspath(classLoader: URLClassLoader) {
@@ -164,3 +205,5 @@ private fun checkClasspath(classLoader: URLClassLoader) {
         )
     }
 }
+
+private fun <K, V> MutableMap<K, MutableList<V>>.listFor(key: K) = getOrPut(key, ::mutableListOf)
