@@ -10,6 +10,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
 
 /**
  * DokkaGenerator is the main entry point for generating documentation
+ *
  * [generate] method has been split into submethods for test reasons
  */
 class DokkaGenerator(
@@ -62,8 +63,8 @@ class DokkaGenerator(
     fun initializePlugins(
         configuration: DokkaConfiguration,
         logger: DokkaLogger,
-        pluginOverrides: List<DokkaPlugin> = emptyList()
-    ) = DokkaContext.create(configuration, logger, pluginOverrides)
+        additionalPlugins: List<DokkaPlugin> = emptyList()
+    ) = DokkaContext.create(configuration, logger, additionalPlugins)
 
     fun createDocumentationModels(
         context: DokkaContext
