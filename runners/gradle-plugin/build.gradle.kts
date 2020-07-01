@@ -2,6 +2,7 @@ import org.jetbrains.configureBintrayPublication
 
 plugins {
     id("com.gradle.plugin-publish")
+    `java-gradle-plugin`
 }
 
 repositories {
@@ -26,19 +27,6 @@ dependencies {
     }
 }
 
-tasks {
-    processResources {
-        val dokka_version: String by project
-        eachFile {
-            if (name == "org.jetbrains.dokka.properties") {
-                filter { line ->
-                    line.replace("<version>", dokka_version)
-                }
-            }
-        }
-    }
-}
-
 val sourceJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
@@ -56,6 +44,15 @@ publishing {
 
 configureBintrayPublication("dokkaGradlePlugin") // TODO check if this publishes correctly
 
+gradlePlugin {
+    plugins {
+        create("dokkaGradlePlugin") {
+            id = "org.jetbrains.dokka"
+            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+        }
+    }
+}
+
 pluginBundle {
     // TODO check if this publishes correctly
     website = "https://www.kotlinlang.org/"
@@ -64,8 +61,7 @@ pluginBundle {
     tags = listOf("dokka", "kotlin", "kdoc", "android")
 
     plugins {
-        create("dokkaGradlePlugin") {
-            id = "org.jetbrains.dokka"
+        getByName("dokkaGradlePlugin") {
             displayName = "Dokka plugin"
         }
     }

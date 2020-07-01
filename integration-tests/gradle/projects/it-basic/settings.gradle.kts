@@ -1,19 +1,12 @@
 @file:Suppress("LocalVariableName", "UnstableApiUsage")
 
 pluginManagement {
-    val kotlin_version: String by settings
-    val dokka_version: String by settings
+    val kotlin_version = "1.3.72"
+    val dokka_version = "0.11.0-SNAPSHOT"
 
     plugins {
         id("org.jetbrains.kotlin.jvm") version kotlin_version
-    }
-
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version")
-            }
-        }
+        id("org.jetbrains.dokka") version dokka_version
     }
 
     repositories {
@@ -26,3 +19,4 @@ pluginManagement {
 }
 
 rootProject.name = "it-basic"
+

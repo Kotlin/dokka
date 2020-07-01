@@ -21,6 +21,19 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
+tasks {
+    processResources {
+        val dokka_version: String by project
+        eachFile {
+            if (name == "dokka-version.properties") {
+                filter { line ->
+                    line.replace("<dokka-version>", dokka_version)
+                }
+            }
+        }
+    }
+}
+
 publishing {
     publications {
         register<MavenPublication>("dokkaCore") {

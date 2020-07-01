@@ -18,5 +18,5 @@ dependencies {
 
 afterEvaluate {
     logger.quiet("Gradle version: ${gradle.gradleVersion}")
-    logger.quiet("Kotlin version: ${property("kotlin_version")}")
+    logger.quiet("Kotlin version: ${findProperty("kotlin_version")}")
 }
