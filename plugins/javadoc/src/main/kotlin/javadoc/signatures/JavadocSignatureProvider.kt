@@ -99,10 +99,10 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 text("(")
                 list(f.parameters) {
                     annotationsInline(it)
-                    text(it.modifiers()[it]?.toSignatureString() ?: "")
+                    text(it.modifiers()[it]?.toSignatureString().orEmpty())
                     signatureForProjection(it.type)
                     text(Typography.nbsp.toString())
-                    link(it.name!!, it.dri)
+                    text(it.name.orEmpty())
                 }
                 text(")")
             }
@@ -180,7 +180,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
         is OtherParameter -> link(p.name, p.declarationDRI)
         is TypeConstructor -> group {
-            link(p.dri.fqName(), p.dri)
+            link(p.dri.classNames.orEmpty(), p.dri)
             list(p.projections, prefix = "<", suffix = ">") {
                 signatureForProjection(it)
             }
@@ -191,7 +191,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
         }
         is Star -> text("?")
         is Nullable -> signatureForProjection(p.inner)
-        is JavaObject, is Dynamic -> link("java.lang.Object", DRI("java.lang", "Object"))
+        is JavaObject, is Dynamic -> link("Object", DRI("java.lang", "Object"))
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)
         is UnresolvedBound -> text(p.name)

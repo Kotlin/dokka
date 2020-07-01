@@ -254,9 +254,7 @@
                             </a>
                                 <h3>Method Detail</h3>
                                 {% for method in methods.own %}
-                                <a id="transform(model.ModelGraph,transformation.Transformation)">
-                                    <!-- TODO  -->
-                                </a>
+                                <a name="{{ method.anchorLink }}">
                                 <ul class="blockListLast">
                                     <li class="blockList">
                                         <h4>{{ method.name }}</h4>

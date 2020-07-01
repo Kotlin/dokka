@@ -79,30 +79,38 @@ class JavadocPackagePageNode(
         )
 }
 
+sealed class AnchorableJavadocNode(open val dri: DRI)
+
 data class JavadocEntryNode(
+    override val dri: DRI,
+    val name: String,
     val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>
-)
+): AnchorableJavadocNode(dri)
 
 data class JavadocParameterNode(
+    override val dri: DRI,
     val name: String,
     val type: ContentNode,
-    val description: List<ContentNode>
-)
+    val description: List<ContentNode>,
+    val typeBound: Bound
+): AnchorableJavadocNode(dri)
 
 data class JavadocPropertyNode(
+    override val dri: DRI,
+    val name: String,
     val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>
-)
+): AnchorableJavadocNode(dri)
 
 data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
     val name: String,
-    val dri: DRI,
+    override val dri: DRI,
     val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
-)
+): AnchorableJavadocNode(dri)
 
 class JavadocClasslikePageNode(
     override val name: String,

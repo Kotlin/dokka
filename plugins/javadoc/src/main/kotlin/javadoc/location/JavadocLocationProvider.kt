@@ -2,18 +2,22 @@ package javadoc.location
 
 import javadoc.pages.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.resolvers.local.BaseLocationProvider
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.Nullable
+import org.jetbrains.dokka.links.parent
+import org.jetbrains.dokka.model.OtherParameter
+import org.jetbrains.dokka.model.PrimitiveJavaType
+import org.jetbrains.dokka.model.TypeConstructor
+import org.jetbrains.dokka.model.UnresolvedBound
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
-class JavadocLocationProvider(pageRoot: RootPageNode, private val context: DokkaContext) : BaseLocationProvider(context) {
+class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext) :
+    BaseLocationProvider(dokkaContext) {
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String> = emptyList()) {
@@ -53,13 +57,46 @@ class JavadocLocationProvider(pageRoot: RootPageNode, private val context: Dokka
 
     private fun List<String>.relativeTo(context: List<String>): String {
         val contextPath = context.dropLast(1)
-        val commonPathElements = zip(contextPath).takeWhile { (a,b) -> a == b }.count()
-        return (List(contextPath.size - commonPathElements ) { ".." } + this.drop(commonPathElements)).joinToString("/")
+        val commonPathElements = zip(contextPath).takeWhile { (a, b) -> a == b }.count()
+        return (List(contextPath.size - commonPathElements) { ".." } + this.drop(commonPathElements)).joinToString("/")
     }
 
-    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
-        nodeIndex[dri]?.let { resolve(it, context) }
+    private fun JavadocClasslikePageNode.findAnchorableByDRI(dri: DRI): AnchorableJavadocNode? =
+        (constructors + methods + entries + properties).firstOrNull { it.dri == dri }
+
+    override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String {
+        return nodeIndex[dri]?.let { resolve(it, context) }
+            ?: nodeIndex[dri.parent]?.let {
+                val anchor = when (val anchorElement = (it as? JavadocClasslikePageNode)?.findAnchorableByDRI(dri)) {
+                    is JavadocFunctionNode -> anchorElement.getAnchor()
+                    is JavadocEntryNode -> anchorElement.name
+                    is JavadocPropertyNode -> anchorElement.name
+                    else -> anchorForDri(dri)
+                }
+                "${resolve(it, context, skipExtension = true)}.html#$anchor"
+            }
             ?: getExternalLocation(dri, sourceSets)
+    }
+
+    private fun JavadocFunctionNode.getAnchor(): String =
+        "$name-${parameters.joinToString(",%20") {
+            when (val bound = it.typeBound) {
+                is TypeConstructor -> bound.dri.classNames.orEmpty()
+                is OtherParameter -> bound.name
+                is PrimitiveJavaType -> bound.name
+                is UnresolvedBound -> bound.name
+                else -> bound.toString()
+            }
+        }}-"
+
+    fun anchorForFunctionNode(node: JavadocFunctionNode) = node.getAnchor()
+
+    private fun anchorForDri(dri: DRI): String =
+        dri.callable?.let { callable ->
+            "${callable.name}-${callable.params.joinToString(",%20") {
+                ((it as? Nullable)?.wrapped ?: it).toString()
+            }}-"
+        } ?: dri.classNames.orEmpty()
 
     override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathIndex[node]?.relativeTo(pathIndex[context].orEmpty())?.let {

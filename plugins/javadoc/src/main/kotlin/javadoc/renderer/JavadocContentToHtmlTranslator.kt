@@ -1,5 +1,6 @@
 package javadoc.renderer
 
+import javadoc.location.JavadocLocationProvider
 import javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.pages.*
@@ -7,7 +8,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
 internal class JavadocContentToHtmlTranslator(
-    private val locationProvider: LocationProvider,
+    private val locationProvider: JavadocLocationProvider,
     private val context: DokkaContext
 ) {
 
@@ -50,6 +51,6 @@ internal class JavadocContentToHtmlTranslator(
             """<a href=${address.formatToEndWithHtml()}>$content</a>"""
 
         private fun String.formatToEndWithHtml() =
-            if (endsWith(".html")) this else "$this.html"
+            if (endsWith(".html") || contains(Regex("\\.html#"))) this else "$this.html"
     }
 }
