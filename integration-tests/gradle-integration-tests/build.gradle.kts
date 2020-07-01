@@ -40,6 +40,5 @@ tasks {
     test {
         systemProperty("android.licenses.overwrite", project.findProperty("android.licenses.overwrite") ?: "")
         inputs.dir(file("testData"))
-        exclude("*") // TODO: Remove this exclude when tests are migrated
     }
 }
