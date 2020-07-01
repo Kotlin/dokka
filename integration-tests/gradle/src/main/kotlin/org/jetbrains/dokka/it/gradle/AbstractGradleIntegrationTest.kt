@@ -5,7 +5,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 abstract class AbstractGradleIntegrationTest {
 
