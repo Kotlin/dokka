@@ -32,11 +32,10 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
-configureBintrayPublication("dokkaGradlePlugin") // TODO check if this publishes correctly
+// TODO: https://github.com/Kotlin/dokka/issues/1052
+tasks.getByName("validatePlugins").enabled = false
 
 val gradlePluginImplementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
-
-val gradlePluginId = "org.jetbrains.dokka"
 
 publishing {
     publications {
@@ -55,6 +54,8 @@ publishing {
     }
 }
 
+configureBintrayPublication("dokkaGradlePlugin")
+
 gradlePlugin {
     plugins {
         create("dokkaGradlePlugin") {
@@ -64,9 +65,7 @@ gradlePlugin {
     }
 }
 
-
 pluginBundle {
-    // TODO check if this publishes correctly
     website = "https://www.kotlinlang.org/"
     vcsUrl = "https://github.com/kotlin/dokka.git"
     description = "Dokka, the Kotlin documentation tool"
