@@ -29,7 +29,7 @@ abstract class AbstractGradleIntegrationTest {
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
-            .withGradleVersion(buildVersions.gradleVersion)
+            .withGradleVersion(buildVersions.gradleVersion.version)
             .forwardOutput()
             .withArguments(
                 "-Pkotlin_version=${buildVersions.kotlinVersion}",
@@ -38,6 +38,14 @@ abstract class AbstractGradleIntegrationTest {
             )
             .withDebug(true)
 
+    }
+
+    fun File.allDescendentsWithExtension(extension: String): Sequence<File> {
+        return this.walkTopDown().filter { it.isFile && it.extension == extension }
+    }
+
+    fun File.allHtmlFiles(): Sequence<File> {
+        return allDescendentsWithExtension("html")
     }
 
     protected fun assertContainsNoErrorClass(file: File) {

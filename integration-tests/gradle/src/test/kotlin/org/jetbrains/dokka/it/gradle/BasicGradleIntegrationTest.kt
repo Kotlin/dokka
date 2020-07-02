@@ -54,11 +54,9 @@ class BasicGradleIntegrationTest : AbstractDefaultVersionsGradleIntegrationTest(
         val moduleJavaPackageDir = File(moduleOutputDir, "it.basic.java")
         assertTrue(moduleJavaPackageDir.isDirectory, "Missing it.basic.java package directory")
 
-        dokkaOutputDir.walkTopDown()
-            .filter { file -> file.extension == "html" }
-            .forEach { file ->
-                assertContainsNoErrorClass(file)
-                assertNoUnresolvedLInks(file)
-            }
+        dokkaOutputDir.allHtmlFiles().forEach { file ->
+            assertContainsNoErrorClass(file)
+            assertNoUnresolvedLInks(file)
+        }
     }
 }
