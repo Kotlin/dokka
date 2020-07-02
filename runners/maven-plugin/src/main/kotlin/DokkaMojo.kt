@@ -81,8 +81,8 @@ abstract class AbstractDokkaMojo : AbstractMojo() {
         override var suppress: Boolean = DokkaDefaults.suppress
     }
 
-    @Parameter(required = true, defaultValue = "\${project.sourceSet}")
-    var sourceSetName: String = ""
+    @Parameter
+    var sourceSetName: String = "JVM"
 
     @Parameter(required = true, defaultValue = "\${project.compileSourceRoots}")
     var sourceDirectories: List<String> = emptyList()
