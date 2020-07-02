@@ -1,25 +1,27 @@
-package renderers.html
+package renderers.gfm
 
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.SourceRootImpl
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
-import renderers.*
+import renderers.gfm.GfmRenderingOnlyTestBase
+import renderers.defaultSourceSet
+import renderers.TestPage
 
-class DivergentTest : HtmlRenderingOnlyTestBase() {
+class DivergentTest : GfmRenderingOnlyTestBase() {
     private val js = defaultSourceSet.copy(
         "root",
         "JS",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "js"),
+        "js",
         analysisPlatform = Platform.js,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val jvm = defaultSourceSet.copy(
         "root",
         "JVM",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "jvm"),
+        "jvm",
 
         analysisPlatform = Platform.jvm,
         sourceRoots = listOf(SourceRootImpl("pl1"))
@@ -27,7 +29,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
     private val native = defaultSourceSet.copy(
         "root",
         "NATIVE",
-        defaultSourceSet.sourceSetID.copy(sourceSetName = "native"),
+        "native",
         analysisPlatform = Platform.native,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
@@ -43,8 +45,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("a")))))
+        val expect = "//[testPage](test-page.md)\n\n#### [root/js]  \n##### Content  \na  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -58,8 +61,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("a")))
+        val expect = "//[testPage](test-page.md)\n\n#### [root/js]  \n##### Content  \na  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -83,9 +87,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("a"), Div("b"), Div("c")))))
+        val expect = "//[testPage](test-page.md)\n\n#### [root/js, root/jvm, root/native]  \n##### Content  \n###### [root/js]  \na  \n###### [root/jvm]  \nb  \n###### [root/native]  \nc  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -109,9 +113,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div((Div(Div("abc"))))))
+        val expect = "//[testPage](test-page.md)\n\n#### [root/js]  \n##### Content  \na  \nb  \nc  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -145,9 +149,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("ae"), Div("bd"), Div("c")))))
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native, root/js, root/jvm]  \n##### Content  \n###### [root/native]  \na  \n###### [root/js]  \nb  \n###### [root/jvm]  \nc  \n###### [root/js]  \nd  \n###### [root/native]  \ne  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -193,14 +197,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))), "a+"),
-            Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))), "bd+"),
-            Div(Div(Span(Div(Div("JVM")))), Div(Div(Div("c")))),
-            Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("e"))), "e+"),
-        )
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Content  \na  \n##### More info  \na+  \n#### [root/js]  \n##### Content  \nb  \nd  \n##### More info  \nbd+  \n#### [root/jvm]  \n##### Content  \nc  \n#### [root/native]  \n##### Content  \ne  \n##### More info  \ne+  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -225,17 +224,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div(
-                    "ab-",
-                    Span()
-                ),
-                Div(Div(Div("ab")))
-            )
-        )
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Brief description  \nab-  \n##### Content  \na  \nb  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -260,14 +251,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div(Div(Div("ab"))),
-                "ab+"
-            )
-        )
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Content  \na  \nb  \n##### More info  \nab+  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -298,15 +284,9 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-
-        HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(
-                Div("ab-", Span()),
-                Div(Div(Div("ab"))),
-                "ab+"
-            )
-        )
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Brief description  \nab-  \n##### Content  \na  \nb  \n##### More info  \nab+  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 
     @Test
@@ -337,11 +317,59 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Brief description  \na-  \n##### Content  \na  \n##### More info  \nab+  \n#### [root/native]  \n##### Brief description  \nb-  \n##### Content  \nb  \n##### More info  \nab+  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
+    }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(
-            Div(Div("a-", Span()), Div(Div(Div("a"))), "ab+"),
-            Div(Div("b-", Span()), Div(Div(Div(("b")))), "ab+")
-        )
+    @Test
+    fun divergentInAndBetweenSourceSetsWithGroupingAncCommonParts() {
+        val page = TestPage {
+            divergentGroup(ContentDivergentGroup.GroupID("test")) {
+                instance(setOf(DRI("test", "Test")), setOf(native)) {
+                    divergent {
+                        text("a")
+                    }
+                    after {
+                        text("a+")
+                    }
+                }
+                instance(setOf(DRI("test", "Test")), setOf(js)) {
+                    divergent {
+                        text("b")
+                    }
+                    after {
+                        text("bd+")
+                    }
+                }
+                instance(setOf(DRI("test", "Test")), setOf(jvm)) {
+                    divergent {
+                        text("c")
+                    }
+                    after {
+                        text("bd+")
+                    }
+                }
+                instance(setOf(DRI("test", "Test2")), setOf(js)) {
+                    divergent {
+                        text("d")
+                    }
+                    after {
+                        text("bd+")
+                    }
+                }
+                instance(setOf(DRI("test", "Test3")), setOf(native)) {
+                    divergent {
+                        text("e")
+                    }
+                    after {
+                        text("e+")
+                    }
+                }
+            }
+        }
+        val expect = "//[testPage](test-page.md)\n\n#### [root/native]  \n##### Content  \na  \n##### More info  \na+  \n#### [root/js, root/jvm]  \n##### Content  \n###### [root/js]  \nb  \n###### [root/jvm]  \nc  \n###### [root/js]  \nd  \n##### More info  \nbd+  \n#### [root/native]  \n##### Content  \ne  \n##### More info  \ne+  \n"
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == expect)
     }
 }
