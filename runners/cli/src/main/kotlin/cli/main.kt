@@ -105,6 +105,9 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
         sourceSets.forEach {
             it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().addAll(defaultLinks(it))
+            it.externalDocumentationLinks.cast<MutableList<ExternalDocumentationLink>>().replaceAll { link ->
+                ExternalDocumentationLink.Builder(link.url, link.packageListUrl).build()
+            }
         }
     }
 }

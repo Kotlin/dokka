@@ -126,13 +126,13 @@ open class GradleDokkaSourceSet(@Transient val name: String = "") : DokkaSourceS
 
     fun externalDocumentationLink(c: Closure<Unit>) {
         val link = ConfigureUtil.configure(c, GradleExternalDocumentationLinkImpl())
-        externalDocumentationLinks.add(link)
+        externalDocumentationLinks.add(ExternalDocumentationLink.Builder(link.url, link.packageListUrl).build())
     }
 
     fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkImpl>) {
         val link = GradleExternalDocumentationLinkImpl()
         action.execute(link)
-        externalDocumentationLinks.add(link)
+        externalDocumentationLinks.add(ExternalDocumentationLink.Builder(link.url, link.packageListUrl).build())
     }
 }
 
