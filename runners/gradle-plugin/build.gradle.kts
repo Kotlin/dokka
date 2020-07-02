@@ -32,6 +32,12 @@ val sourceJar by tasks.registering(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
+configureBintrayPublication("dokkaGradlePlugin") // TODO check if this publishes correctly
+
+val gradlePluginImplementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+
+val gradlePluginId = "org.jetbrains.dokka"
+
 publishing {
     publications {
         register<MavenPublication>("dokkaGradlePlugin") {
@@ -39,19 +45,25 @@ publishing {
             from(components["java"])
             artifact(sourceJar.get())
         }
+
+        register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
+            artifactId = "dokka-gradle-plugin"
+            from(components["java"])
+            artifact(sourceJar.get())
+            version = "for-integration-tests-SNAPSHOT"
+        }
     }
 }
-
-configureBintrayPublication("dokkaGradlePlugin") // TODO check if this publishes correctly
 
 gradlePlugin {
     plugins {
         create("dokkaGradlePlugin") {
             id = "org.jetbrains.dokka"
-            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+            implementationClass = gradlePluginImplementationClass
         }
     }
 }
+
 
 pluginBundle {
     // TODO check if this publishes correctly
