@@ -9,4 +9,6 @@ publishing {
 
 dependencies {
     compileOnly(project(":plugins:base"))
+    testImplementation(project(":plugins:base"))
+    testImplementation(project(":plugins:base", configuration = "testUtils"))
 }

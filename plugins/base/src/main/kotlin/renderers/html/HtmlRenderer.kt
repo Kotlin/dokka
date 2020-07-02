@@ -222,26 +222,21 @@ open class HtmlRenderer(
     }
 
     override fun FlowContent.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+
         val distinct =
-            node.children.flatMap { instance ->
-                instance.sourceSets.map { sourceSet ->
-                    Pair(instance, sourceSet) to Pair(
-                        createHTML(prettyPrint = false).div {
-                            instance.before?.let { before ->
-                                buildContentNode(before, pageContext, setOf(sourceSet))
-                            }
-                        }.stripDiv(),
-                        createHTML(prettyPrint = false).div {
-                            instance.after?.let { after ->
-                                buildContentNode(after, pageContext, setOf(sourceSet))
-                            }
-                        }.stripDiv()
-                    )
-                }
-            }.groupBy(
-                Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::second,
-                Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::first
-            )
+            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+                createHTML(prettyPrint = false).div {
+                    instance.before?.let { before ->
+                        buildContentNode(before, pageContext, setOf(sourceSet))
+                    }
+                }.stripDiv()
+            }, { instance, contentPage, sourceSet ->
+                createHTML(prettyPrint = false).div {
+                    instance.after?.let { after ->
+                        buildContentNode(after, pageContext, setOf(sourceSet))
+                    }
+                }.stripDiv()
+            })
 
         distinct.forEach {
             val groupedDivergent = it.value.groupBy { it.second }

@@ -170,6 +170,23 @@ abstract class DefaultRenderer<T>(
             renderPages(newRoot)
         }
     }
+
+    protected fun ContentDivergentGroup.groupDivergentInstances(
+        pageContext: ContentPage,
+        beforeTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String,
+        afterTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String
+    ): Map<Pair<String, String>, List<Pair<ContentDivergentInstance, DokkaSourceSet>>> =
+        children.flatMap { instance ->
+            instance.sourceSets.map { sourceSet ->
+                Pair(instance, sourceSet) to Pair(
+                    beforeTransformer(instance, pageContext, sourceSet),
+                    afterTransformer(instance, pageContext, sourceSet)
+                )
+            }
+        }.groupBy(
+            Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::second,
+            Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::first
+        )
 }
 
 fun ContentPage.sourceSets() = this.content.sourceSets

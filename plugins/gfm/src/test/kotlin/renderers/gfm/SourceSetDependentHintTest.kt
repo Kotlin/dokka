@@ -1,33 +1,34 @@
-package renderers.html
+package renderers.gfm
 
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.SourceRootImpl
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import renderers.gfm.GfmRenderingOnlyTestBase
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.TestPage
 import renderers.defaultSourceSet
 
-class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
+class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
 
     private val pl1 = defaultSourceSet.copy(
         "root",
         "pl1",
-        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl1"),
+        "pl1",
         analysisPlatform = Platform.js,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
         "root",
         "pl2",
-        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl2"),
+        "pl2",
         analysisPlatform = Platform.jvm,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
         "root",
         "pl3",
-        defaultSourceSet.sourceSetID.copy(sourceSetName =  "pl3"),
+        "pl3",
         analysisPlatform = Platform.native,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
@@ -42,8 +43,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div("abc"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2, root/pl3] abc  \n ")
     }
 
     @Test
@@ -56,8 +57,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div("a")), Div(Div("b")), Div(Div("c"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] a  \n  [root/pl2] b  \n  [root/pl3] c  \n ")
     }
 
     @Test
@@ -70,8 +71,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div("ab")), Div(Div("bc"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n  [root/pl2] bc  \n ")
     }
 
     @Test
@@ -84,8 +85,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div("ab"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab  \n ")
     }
 
     @Test
@@ -100,8 +101,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div(Div("ab"))), Div(Div(Div("a"), "b"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n  \n  [root/pl2] a  \nb  \n ")
     }
 
     @Test
@@ -116,8 +117,8 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div("ab")))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab ")
     }
 
     @Test
@@ -130,7 +131,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
-        renderedContent.match(Div(Div(Div("a")), Div(Div("b"))))
+        CommonmarkRenderer(context).render(page)
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] a  \n  [root/pl3] b  \n ")
     }
 }

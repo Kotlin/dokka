@@ -62,6 +62,11 @@ open class CommonmarkRenderer(
                 childrenCallback()
                 buildNewLine()
             }
+            node.hasStyle(TextStyle.Paragraph) -> {
+                buildParagraph()
+                childrenCallback()
+                buildParagraph()
+            }
             else -> childrenCallback()
         }
     }
@@ -74,9 +79,9 @@ open class CommonmarkRenderer(
     }
 
     override fun StringBuilder.buildLink(address: String, content: StringBuilder.() -> Unit) {
-        append("""<a href="$address">""")
+        append("[")
         content()
-        append("</a>")
+        append("]($address)")
     }
 
     override fun StringBuilder.buildList(
@@ -136,7 +141,7 @@ open class CommonmarkRenderer(
             buildContentNode(content, pageContext)
         } else {
             val distinct = sourceSets.map {
-                it to StringBuilder().apply { buildContentNode(content, pageContext, setOf(it)) }.toString()
+                it to buildString { buildContentNode(content, pageContext, setOf(it)) }
             }.groupBy(Pair<DokkaSourceSet, String>::second, Pair<DokkaSourceSet, String>::first)
 
             distinct.filter { it.key.isNotBlank() }.forEach { (text, platforms) ->
@@ -222,28 +227,61 @@ open class CommonmarkRenderer(
     }
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String =
-        StringBuilder().apply {
+        buildString {
             content(this, page)
-        }.toString()
+        }
 
     override fun buildError(node: ContentNode) {
         context.logger.warn("Markdown renderer has encountered problem. The unmatched node is $node")
     }
 
-    override fun StringBuilder.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
-        node.before?.let {
-            buildPlatformDependentItem(it, it.sourceSets, pageContext)
+    override fun StringBuilder.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
+
+        val distinct =
+            node.groupDivergentInstances(pageContext, { instance, contentPage, sourceSet ->
+                instance.before?.let { before ->
+                    buildString { buildContentNode(before, pageContext, setOf(sourceSet)) }
+                } ?: ""
+            }, { instance, contentPage, sourceSet ->
+                instance.after?.let { after ->
+                    buildString { buildContentNode(after, pageContext, setOf(sourceSet)) }
+                } ?: ""
+            })
+
+        distinct.values.forEach { entry ->
+            val (instance, sourceSets) = entry.getInstanceAndSourceSets()
+
+            append(sourceSets.joinToString(prefix = "#### [", postfix = "]") { "${it.moduleName}/${it.sourceSetID}" })
             buildNewLine()
-        }
-        node.divergent.build(this, pageContext)
-        buildNewLine()
-        node.after?.let {
-            buildPlatformDependentItem(it, it.sourceSets, pageContext)
+            instance.before?.let {
+                append("##### Brief description")
+                buildNewLine()
+                buildContentNode(it, pageContext)
+                buildNewLine()
+            }
+
+            append("##### Content")
             buildNewLine()
+            entry.groupBy { buildString { buildContentNode(it.first.divergent, pageContext, setOf(it.second)) } }
+                .values.forEach { innerEntry ->
+                    val (innerInstance, innerSourceSets) = innerEntry.getInstanceAndSourceSets()
+                    if(sourceSets.size > 1) {
+                        append(innerSourceSets.joinToString(prefix = "###### [", postfix = "]") { "${it.moduleName}/${it.sourceSetID}" })
+                        buildNewLine()
+                    }
+                    innerInstance.divergent.build(this@buildDivergent, pageContext)
+                    buildNewLine()
+                }
+            instance.after?.let {
+                append("##### More info")
+                buildNewLine()
+                buildContentNode(it, pageContext)
+                buildNewLine()
+            }
         }
     }
 
-    private fun decorators(styles: Set<Style>) = StringBuilder().apply {
+    private fun decorators(styles: Set<Style>) = buildString {
         styles.forEach {
             when (it) {
                 TextStyle.Bold -> append("**")
@@ -253,7 +291,7 @@ open class CommonmarkRenderer(
                 else -> Unit
             }
         }
-    }.toString()
+    }
 
     private val PageNode.isNavigable: Boolean
         get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
@@ -280,6 +318,8 @@ open class CommonmarkRenderer(
     }
 
     private fun String.withEntersAsHtml(): String = replace("\n", "<br>")
+
+    private fun List<Pair<ContentDivergentInstance, DokkaSourceSet>>.getInstanceAndSourceSets() = this.let { Pair(it.first().first, it.map { it.second }.toSet()) }
 }
 
 class MarkdownLocationProviderFactory(val context: DokkaContext) : LocationProviderFactory {

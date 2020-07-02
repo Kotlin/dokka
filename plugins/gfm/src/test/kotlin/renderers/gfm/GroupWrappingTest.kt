@@ -1,11 +1,12 @@
-package renderers.html
+package renderers.gfm
 
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import renderers.gfm.GfmRenderingOnlyTestBase
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.*
 
-class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
+class GroupWrappingTest : GfmRenderingOnlyTestBase() {
 
     @Test
     fun notWrapped() {
@@ -17,9 +18,9 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        CommonmarkRenderer(context).render(page)
 
-        renderedContent.match("abc")
+        assert(renderedContent == "//[testPage](test-page.md)\n\nabc")
     }
 
     @Test
@@ -32,9 +33,9 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        CommonmarkRenderer(context).render(page)
 
-        renderedContent.match(P("ab"), "c")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n\n\nab\n\nc")
     }
 
     @Test
@@ -47,9 +48,9 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        CommonmarkRenderer(context).render(page)
 
-        renderedContent.match(Div("ab"), "c")
+        assert(renderedContent == "//[testPage](test-page.md)\n\nab  \nc")
     }
 
     @Test
@@ -67,9 +68,10 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        CommonmarkRenderer(context).render(page)
 
-        renderedContent.match(Div("a", Div(Div("bc")), "d"))
+//        renderedContent.match(Div("a", Div(Div("bc")), "d"))
+        assert(renderedContent == "//[testPage](test-page.md)\n\nabc  \n  \nd  \n")
     }
 
 }
