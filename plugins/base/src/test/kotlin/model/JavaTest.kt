@@ -54,38 +54,19 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
-    //@Test fun function() {
-    //        verifyJavaPackageMember("testdata/java/member.java", defaultModelConfig) { cls ->
-    //            assertEquals("Test", cls.name)
-    //            assertEquals(NodeKind.Class, cls.kind)
-    //            with(cls.members(NodeKind.Function).single()) {
-    //                assertEquals("fn", name)
-    //                assertEquals("Summary for Function", content.summary.toTestString().trimEnd())
-    //                assertEquals(3, content.sections.size)
-    //                with(content.sections[0]) {
-    //                    assertEquals("Parameters", tag)
-    //                    assertEquals("name", subjectName)
-    //                    assertEquals("render(Type:String,SUMMARY): is String parameter", toTestString())
-    //                }
-    //                with(content.sections[1]) {
-    //                    assertEquals("Parameters", tag)
-    //                    assertEquals("value", subjectName)
-    //                    assertEquals("render(Type:Int,SUMMARY): is int parameter", toTestString())
-    //                }
-    //                assertEquals("Unit", detail(NodeKind.Type).name)
-    //                assertTrue(members.none())
-    //                assertTrue(links.none())
-    //                with(details.first { it.name == "name" }) {
-    //                    assertEquals(NodeKind.Parameter, kind)
-    //                    assertEquals("String", detail(NodeKind.Type).name)
-    //                }
-    //                with(details.first { it.name == "value" }) {
-    //                    assertEquals(NodeKind.Parameter, kind)
-    //                    assertEquals("Int", detail(NodeKind.Type).name)
-    //                }
-    //            }
-    //        }
-    //    }
+    @Test fun multipleClassInheritanceWithInterface() {
+        inlineModelTest(
+            """
+            |interface Highest { }
+            |interface Lower extends Highest { }
+            |class Extendable { }
+            |class Tested extends Extendable implements Lower { }
+        """){
+            with((this / "java" / "Tested").cast<DClass>()) {
+                supertypes.entries.single().value.map { it.dri.sureClassNames to it.kind }.sortedBy { it.first } equals listOf("Extendable" to JavaClassKindTypes.CLASS, "Lower" to JavaClassKindTypes.INTERFACE)
+            }
+        }
+    }
 
     @Test // todo
     fun memberWithModifiers() {
@@ -107,19 +88,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
-    //    @Test fun memberWithModifiers() {
-    //        verifyJavaPackageMember("testdata/java/memberWithModifiers.java", defaultModelConfig) { cls ->
-    //            val modifiers = cls.details(NodeKind.Modifier).map { it.name }
-    //            assertTrue("abstract" in modifiers)
-    //            with(cls.members.single { it.name == "fn" }) {
-    //                assertEquals("protected", details[0].name)
-    //            }
-    //            with(cls.members.single { it.name == "openFn" }) {
-    //                assertEquals("open", details[1].name)
-    //            }
-    //        }
-    //    }
-
     @Test
     fun superClass() {
         inlineModelTest(
@@ -130,7 +98,7 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             with((this / "java" / "Foo").cast<DClass>()) {
                 val sups = listOf("Exception", "Cloneable")
                 assertTrue(
-                    sups.all { s -> supertypes.values.flatten().any { it.classNames == s } })
+                    sups.all { s -> supertypes.values.flatten().any { it.dri.classNames == s } })
                 "Foo must extend ${sups.joinToString(", ")}"
             }
         }
@@ -177,25 +145,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             }
         }
     }
-
-    //    @Test fun typeParameter() {
-    //        verifyJavaPackageMember("testdata/java/typeParameter.java", defaultModelConfig) { cls ->
-    //            val typeParameters = cls.details(NodeKind.TypeParameter)
-    //            with(typeParameters.single()) {
-    //                assertEquals("T", name)
-    //                with(detail(NodeKind.UpperBound)) {
-    //                    assertEquals("Comparable", name)
-    //                    assertEquals("T", detail(NodeKind.Type).name)
-    //                }
-    //            }
-    //            with(cls.members(NodeKind.Function).single()) {
-    //                val methodTypeParameters = details(NodeKind.TypeParameter)
-    //                with(methodTypeParameters.single()) {
-    //                    assertEquals("E", name)
-    //                }
-    //            }
-    //        }
-    //    }
 
     @Test
     fun constructors() {
@@ -290,19 +239,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
-    //    @Test fun fields() {
-    //        verifyJavaPackageMember("testdata/java/field.java", defaultModelConfig) { cls ->
-    //            val i = cls.members(NodeKind.Property).single { it.name == "i" }
-    //            assertEquals("Int", i.detail(NodeKind.Type).name)
-    //            assertTrue("var" in i.details(NodeKind.Modifier).map { it.name })
-    //
-    //            val s = cls.members(NodeKind.Property).single { it.name == "s" }
-    //            assertEquals("String", s.detail(NodeKind.Type).name)
-    //            assertFalse("var" in s.details(NodeKind.Modifier).map { it.name })
-    //            assertTrue("static" in s.details(NodeKind.Modifier).map { it.name })
-    //        }
-    //    }
-
     @Test
     fun staticMethod() {
         inlineModelTest(
@@ -320,25 +256,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             }
         }
     }
-
-    //    @Test fun staticMethod() { todo
-    //        verifyJavaPackageMember("testdata/java/staticMethod.java", defaultModelConfig) { cls ->
-    //            val m = cls.members(NodeKind.Function).single { it.name == "foo" }
-    //            assertTrue("static" in m.details(NodeKind.Modifier).map { it.name })
-    //        }
-    //    }
-    //
-    //    /**
-    //     *  `@suppress` not supported in Java!
-    //     *
-    //     *  [Proposed tags](https://www.oracle.com/technetwork/java/javase/documentation/proposed-tags-142378.html)
-    //     *  Proposed tag `@exclude` for it, but not supported yet
-    //     */
-    //    @Ignore("@suppress not supported in Java!") @Test fun suppressTag() {
-    //        verifyJavaPackageMember("testdata/java/suppressTag.java", defaultModelConfig) { cls ->
-    //            assertEquals(1, cls.members(NodeKind.Function).size)
-    //        }
-    //    }
 
     @Test
     fun annotatedAnnotation() {
@@ -367,13 +284,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
-    //    @Test fun deprecation() {
-    //        verifyJavaPackageMember("testdata/java/deprecation.java", defaultModelConfig) { cls ->
-    //            val fn = cls.members(NodeKind.Function).single()
-    //            assertEquals("This should no longer be used", fn.deprecation!!.content.toTestString())
-    //        }
-    //    }
-
     @Test
     fun javaLangObject() {
         inlineModelTest(
@@ -388,13 +298,6 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             }
         }
     }
-
-    //    @Test fun javaLangObject() {
-    //        verifyJavaPackageMember("testdata/java/javaLangObject.java", defaultModelConfig) { cls ->
-    //            val fn = cls.members(NodeKind.Function).single()
-    //            assertEquals("Any", fn.detail(NodeKind.Type).name)
-    //        }
-    //    }
 
     @Test
     fun enumValues() {
@@ -440,13 +343,4 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             }
         }
     }
-
-    //    todo
-    //    @Test fun inheritorLinks() {
-    //        verifyJavaPackageMember("testdata/java/InheritorLinks.java", defaultModelConfig) { cls ->
-    //            val fooClass = cls.members.single { it.name == "Foo" }
-    //            val inheritors = fooClass.references(RefKind.Inheritor)
-    //            assertEquals(1, inheritors.size)
-    //        }
-    //    }
 }

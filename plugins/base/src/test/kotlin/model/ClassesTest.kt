@@ -221,7 +221,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 with((this / "f").cast<DFunction>()) {
                     modifier.values.forEach { it equals Open }
                 }
-                D.supertypes.flatMap { it.component2() }.firstOrNull() equals C.dri
+                D.supertypes.flatMap { it.component2() }.firstOrNull()?.dri equals C.dri
             }
         }
     }
@@ -258,8 +258,8 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 modifier.values.forEach { it equals Final }
 
             }
-            D.supers.single() equals C.dri
-            E.supers.firstOrNull() equals D.dri
+            D.supers.single().dri equals C.dri
+            E.supers.single().dri equals D.dri
         }
     }
 
@@ -497,6 +497,36 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         ){
             with((this / "classes" / "Tested").cast<DClass>()){
                 extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.sureClassNames }?.sorted() equals listOf("Highest", "Lower", "LowerImplInterface").sorted()
+            }
+        }
+    }
+
+    @Test fun multipleClassInheritance() {
+        inlineModelTest(
+            """
+                | open class A { }
+                | open class B: A() { }
+                | class Tested : B() { }
+            """.trimIndent()
+        ) {
+            with((this / "classes" / "Tested").cast<DClass>()) {
+                supertypes.entries.single().value.map { it.dri.sureClassNames }.single() equals "B"
+            }
+        }
+    }
+
+    @Test fun multipleClassInheritanceWithInterface(){
+        inlineModelTest(
+            """
+               | open class A { }
+               | open class B: A() { }
+               | interface X { }
+               | interface Y : X { }
+               | class Tested : B(), Y { }
+            """.trimIndent()
+        ){
+            with((this / "classes" / "Tested").cast<DClass>()) {
+                supertypes.entries.single().value.map { it.dri.sureClassNames to it.kind }.sortedBy { it.first } equals listOf("B" to KotlinClassKindTypes.CLASS, "Y" to KotlinClassKindTypes.INTERFACE)
             }
         }
     }

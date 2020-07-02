@@ -8,6 +8,7 @@ import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentCon
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureUtils
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.ContentKind
@@ -68,8 +69,12 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
             supertypes {
                 if (c is WithSupertypes) {
                     c.supertypes.map { (p, dris) ->
-                        list(dris, sourceSets = setOf(p)) {
-                            link(it.fqName(), it, sourceSets = setOf(p))
+                        val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
+                        list(classes, prefix = " extends ", sourceSets = setOf(p)) {
+                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                        }
+                        list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
+                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
                         }
                     }
                 }

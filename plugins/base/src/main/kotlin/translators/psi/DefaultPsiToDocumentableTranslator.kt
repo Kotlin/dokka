@@ -12,6 +12,7 @@ import org.jetbrains.dokka.analysis.KotlinAnalysis
 import org.jetbrains.dokka.analysis.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.from
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriWithKind
 import org.jetbrains.dokka.links.nextTarget
 import org.jetbrains.dokka.links.withClass
 import org.jetbrains.dokka.model.*
@@ -127,11 +128,23 @@ class DefaultPsiToDocumentableTranslator(
 
         fun parseClasslike(psi: PsiClass, parent: DRI): DClasslike = with(psi) {
             val dri = parent.withClass(name.toString())
-            val ancestorsSet = hashSetOf<Ancestor>()
+            val inheritanceTree = mutableListOf<AncestorLevel>()
             val superMethodsKeys = hashSetOf<Int>()
             val superMethods = mutableListOf<Pair<PsiMethod, DRI>>()
             methods.forEach { superMethodsKeys.add(it.hash) }
-            fun parseSupertypes(superTypes: Array<PsiClassType>) {
+            fun parseSupertypes(superTypes: Array<PsiClassType>, level: Int = 0) {
+                if(superTypes.isEmpty()) return
+                val parsedClasses = superTypes.filter { !it.shouldBeIgnored }.mapNotNull {
+                    it.resolve()?.let {
+                        when {
+                            it.isInterface -> DRI.from(it) to JavaClassKindTypes.INTERFACE
+                            else -> DRI.from(it) to JavaClassKindTypes.CLASS
+                        }
+                    }
+                }
+                val (classes, interfaces) = parsedClasses.partition { it.second == JavaClassKindTypes.CLASS }
+                inheritanceTree.add(AncestorLevel(level, classes.firstOrNull()?.first, interfaces.map { it.first }))
+
                 superTypes.forEach { type ->
                     (type as? PsiClassType)?.takeUnless { type.shouldBeIgnored }?.resolve()?.let {
                         val definedAt = DRI.from(it)
@@ -144,8 +157,7 @@ class DefaultPsiToDocumentableTranslator(
                                 superMethods.add(Pair(method, definedAt))
                             }
                         }
-                        ancestorsSet.add(Ancestor(DRI.from(it), it.isInterface))
-                        parseSupertypes(it.superTypes)
+                        parseSupertypes(it.superTypes, level + 1)
                     }
                 }
             }
@@ -157,9 +169,16 @@ class DefaultPsiToDocumentableTranslator(
             val source = PsiDocumentableSource(this).toSourceSetDependent()
             val classlikes = innerClasses.map { parseClasslike(it, dri) }
             val visibility = getVisibility().toSourceSetDependent()
-            val ancestors = ancestorsSet.toList().map { it.dri }.toSourceSetDependent()
+            val ancestors = inheritanceTree.filter { it.level == 0 }.flatMap {
+                listOfNotNull(it.superclass?.let {
+                    DriWithKind(
+                        dri = it,
+                        kind = JavaClassKindTypes.CLASS
+                    )
+                }) + it.interfaces.map { DriWithKind(dri = it, kind = JavaClassKindTypes.INTERFACE) }
+            }.toSourceSetDependent()
             val modifiers = getModifier().toSourceSetDependent()
-            val implementedInterfacesExtra = ImplementedInterfaces(ancestorsSet.filter { it.isInterface }.map { it.dri }.toList().toSourceSetDependent())
+            val implementedInterfacesExtra = ImplementedInterfaces(inheritanceTree.flatMap { it.interfaces }.distinct().toSourceSetDependent())
             return when {
                 isAnnotationType ->
                     DAnnotation(
@@ -457,5 +476,5 @@ class DefaultPsiToDocumentableTranslator(
             get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
     }
 
-    private data class Ancestor(val dri: DRI, val isInterface: Boolean)
+    private data class AncestorLevel(val level: Int, val superclass: DRI?, val interfaces: List<DRI>)
 }

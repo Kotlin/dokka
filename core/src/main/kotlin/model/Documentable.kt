@@ -2,6 +2,7 @@ package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DriWithKind
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
@@ -75,7 +76,7 @@ interface WithGenerics {
 }
 
 interface WithSupertypes {
-    val supertypes: SourceSetDependent<List<DRI>>
+    val supertypes: SourceSetDependent<List<DriWithKind>>
 }
 
 interface Callable : WithVisibility, WithType, WithAbstraction, WithExpectActual {
@@ -128,7 +129,7 @@ data class DClass(
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
-    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val supertypes: SourceSetDependent<List<DriWithKind>>,
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet?,
     override val modifier: SourceSetDependent<Modifier>,
@@ -156,7 +157,7 @@ data class DEnum(
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
-    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val supertypes: SourceSetDependent<List<DriWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DEnum> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum> {
@@ -217,7 +218,7 @@ data class DInterface(
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
-    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val supertypes: SourceSetDependent<List<DriWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DInterface> = PropertyContainer.empty()
 ) : DClasslike(), WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface> {
@@ -237,7 +238,7 @@ data class DObject(
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
     override val visibility: SourceSetDependent<Visibility>,
-    override val supertypes: SourceSetDependent<List<DRI>>,
+    override val supertypes: SourceSetDependent<List<DriWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DObject> = PropertyContainer.empty()
 ) : DClasslike(), WithSupertypes, WithExtraProperties<DObject> {
