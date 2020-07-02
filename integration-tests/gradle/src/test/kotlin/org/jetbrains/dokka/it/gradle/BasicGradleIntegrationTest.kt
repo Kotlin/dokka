@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import java.io.File
 import kotlin.test.*
 
-class BasicTest : AbstractDefaultVersionsGradleIntegrationTest() {
+class BasicGradleIntegrationTest : AbstractDefaultVersionsGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -46,10 +46,13 @@ class BasicTest : AbstractDefaultVersionsGradleIntegrationTest() {
         assertTrue(moduleIndexHtml.isFile, "Missing module index.html")
 
         val modulePackageDir = File(moduleOutputDir, "it.basic")
-        assertTrue(modulePackageDir.isDirectory, "Missing module package directory")
+        assertTrue(modulePackageDir.isDirectory, "Missing it.basic package directory")
 
         val modulePackageIndexHtml = File(modulePackageDir, "index.html")
         assertTrue(modulePackageIndexHtml.isFile, "Missing module package index.html")
+
+        val moduleJavaPackageDir = File(moduleOutputDir, "it.basic.java")
+        assertTrue(moduleJavaPackageDir.isDirectory, "Missing it.basic.java package directory")
 
         dokkaOutputDir.walkTopDown()
             .filter { file -> file.extension == "html" }
