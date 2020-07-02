@@ -1,4 +1,4 @@
-name: CI
+name: CI (Test)
 
 on: pull_request
 
@@ -13,4 +13,4 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew clean build --stacktrace
+      - run: ./gradlew clean test --stacktrace

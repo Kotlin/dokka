@@ -2,15 +2,20 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
+import org.junit.runners.Parameterized
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
-class Multiplatform0GradleIntegrationTest : AbstractDefaultVersionsGradleIntegrationTest(
-    minGradleVersion = GradleVersion.version("6.0.0")
-) {
+class Multiplatform0GradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+
+    companion object {
+        @get:JvmStatic
+        @get:Parameterized.Parameters(name = "{0}")
+        val versions = BuildVersions.permutations(
+            gradleVersions = listOf("6.5.1", "6.1.1"),
+            kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M2-eap-70")
+        )
+    }
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -21,11 +26,9 @@ class Multiplatform0GradleIntegrationTest : AbstractDefaultVersionsGradleIntegra
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    override fun execute(versions: BuildVersions) {
-        val result = createGradleRunner(
-            buildVersions = versions,
-            arguments = arrayOf("dokka", "--stacktrace")
-        ).build()
+    @Test
+    fun execute() {
+        val result = createGradleRunner("dokka", "--stacktrace").build()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokka")).outcome)
 
@@ -37,5 +40,4 @@ class Multiplatform0GradleIntegrationTest : AbstractDefaultVersionsGradleIntegra
             assertNoUnresolvedLInks(file)
         }
     }
-
 }

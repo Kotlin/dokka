@@ -1,15 +1,22 @@
+import org.jetbrains.invokeWhenEvaluated
+
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("test-junit"))
     implementation(gradleTestKit())
 }
 
-tasks {
-    test {
-        inputs.dir(file("projects"))
+val integrationTest by tasks.integrationTest
+integrationTest.inputs.dir(file("projects"))
 
-        rootProject.allprojects
-            .mapNotNull { project -> project.tasks.findByName("publishToMavenLocal") }
-            .forEach { publishTask -> this.dependsOn(publishTask) }
+rootProject.allprojects.forEach { otherProject ->
+    otherProject.invokeWhenEvaluated { evaluatedProject ->
+        evaluatedProject.tasks.findByName("publishToMavenLocal")?.let { publishingTask ->
+            integrationTest.dependsOn(publishingTask)
+        }
     }
+}
+
+tasks.clean {
+    delete(File(buildDir, "gradle-test-kit"))
 }

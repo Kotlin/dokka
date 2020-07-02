@@ -1,20 +1,25 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertFalse
 
+@RunWith(Parameterized::class)
 abstract class AbstractGradleIntegrationTest {
+
+    abstract val versions: BuildVersions
 
     @get:Rule
     val temporaryTestFolder = TemporaryFolder()
 
     val projectDir get() = File(temporaryTestFolder.root, "project")
-
-    val projectPath get() = projectDir.toPath()
 
     @BeforeTest
     fun copyTemplates() {
@@ -25,19 +30,24 @@ abstract class AbstractGradleIntegrationTest {
     }
 
     fun createGradleRunner(
-        buildVersions: BuildVersions, arguments: Array<String>
+        vararg arguments: String
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
-            .withGradleVersion(buildVersions.gradleVersion.version)
+            .withGradleVersion(versions.gradleVersion.version)
             .forwardOutput()
+            .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withArguments(
-                "-Pkotlin_version=${buildVersions.kotlinVersion}",
-                "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
-                * arguments
-            )
-            .withDebug(true)
-
+                listOfNotNull(
+                    "-Pkotlin_version=${versions.kotlinVersion}",
+                    "-Pdokka_it_kotlin_version=${versions.kotlinVersion}",
+                    versions.androidGradlePluginVersion?.let { androidVersion ->
+                        "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
+                    },
+                    * arguments
+                )
+            ).run { this as DefaultGradleRunner }
+            .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=512M")
     }
 
     fun File.allDescendentsWithExtension(extension: String): Sequence<File> {
