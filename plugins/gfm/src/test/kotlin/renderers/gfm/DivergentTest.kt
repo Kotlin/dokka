@@ -6,7 +6,6 @@ import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
-import renderers.gfm.GfmRenderingOnlyTestBase
 import renderers.defaultSourceSet
 import renderers.TestPage
 

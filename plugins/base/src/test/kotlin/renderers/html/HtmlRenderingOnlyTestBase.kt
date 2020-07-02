@@ -19,7 +19,7 @@ import org.jsoup.nodes.TextNode
 import renderers.RenderingOnlyTestBase
 import utils.TestOutputWriter
 
-abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase() {
+abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
 
     val files = TestOutputWriter()
     override val context = MockContext(
@@ -33,7 +33,7 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase() {
         )
     )
 
-    protected val renderedContent: Element by lazy {
+    override val renderedContent: Element by lazy {
         files.contents.getValue("test-page.html").let { Jsoup.parse(it) }.select("#content").single()
     }
 

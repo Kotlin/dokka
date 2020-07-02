@@ -12,8 +12,9 @@ import org.jetbrains.dokka.testApi.context.MockContext
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import renderers.html.EmptyCommentConverter
 
-abstract class RenderingOnlyTestBase {
+abstract class RenderingOnlyTestBase<T> {
     abstract val context: MockContext
+    abstract val renderedContent: T
 }
 
 class TestPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit) : RootPageNode(), ContentPage {
