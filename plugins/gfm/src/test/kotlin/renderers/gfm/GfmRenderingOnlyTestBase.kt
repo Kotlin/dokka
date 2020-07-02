@@ -11,7 +11,7 @@ import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProvid
 import renderers.RenderingOnlyTestBase
 import utils.TestOutputWriter
 
-abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase() {
+abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase<String>() {
 
     val files = TestOutputWriter()
     override val context = MockContext(
@@ -26,7 +26,7 @@ abstract class GfmRenderingOnlyTestBase : RenderingOnlyTestBase() {
         )
     )
 
-    protected val renderedContent: String by lazy {
+    override val renderedContent: String by lazy {
         files.contents.getValue("test-page.md")
     }
 }

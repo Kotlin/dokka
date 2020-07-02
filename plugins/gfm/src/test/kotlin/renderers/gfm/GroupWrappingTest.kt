@@ -1,7 +1,6 @@
 package renderers.gfm
 
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
-import renderers.gfm.GfmRenderingOnlyTestBase
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.*

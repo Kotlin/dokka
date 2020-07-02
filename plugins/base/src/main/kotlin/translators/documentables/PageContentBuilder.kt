@@ -244,8 +244,8 @@ open class PageContentBuilder(
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) =
-            ContentResolvedLink(
+        ) {
+            contents += ContentResolvedLink(
                 children = listOf(createText(text, kind, sourceSets, styles, extra)),
                 address = address,
                 extra = PropertyContainer.empty(),
@@ -253,6 +253,7 @@ open class PageContentBuilder(
                 sourceSets = sourceSets,
                 style = emptySet()
             )
+        }
 
         fun link(
             address: DRI,
