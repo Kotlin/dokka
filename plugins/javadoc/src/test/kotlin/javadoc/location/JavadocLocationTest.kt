@@ -39,6 +39,7 @@ class JavadocTest : AbstractCoreTest() {
             """
             |/jvmSrc/javadoc/Test.kt
             |package javadoc
+            |import java.io.Serializable
             |class Test() : Serializable, Cloneable 
         """.trimIndent(),
             config,
@@ -54,7 +55,7 @@ class JavadocTest : AbstractCoreTest() {
                 val testClass = rootPageNode.firstChildOfType<JavadocPackagePageNode>()
                     .firstChildOfType<JavadocClasslikePageNode>()
                 assert(
-                    "<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Cloneable.html>java.lang.Cloneable</a>"
+                    " implements <a href=https://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html>Serializable</a>, <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/Cloneable.html>Cloneable</a>"
                     == transformer.htmlForContentNode(testClass.signature.supertypes!!, null)
                 )
             }

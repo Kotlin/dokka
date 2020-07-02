@@ -184,7 +184,7 @@ class KotlinSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLog
             if (c is WithSupertypes) {
                 c.supertypes.filter { it.key == sourceSet }.map { (s, dris) ->
                     list(dris, prefix = " : ", sourceSets = setOf(s)) {
-                        link(it.sureClassNames, it, sourceSets = setOf(s))
+                        link(it.dri.sureClassNames, it.dri, sourceSets = setOf(s))
                     }
                 }
             }

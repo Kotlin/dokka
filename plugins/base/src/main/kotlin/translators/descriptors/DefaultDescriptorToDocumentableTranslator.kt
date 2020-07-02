@@ -1,7 +1,11 @@
 package org.jetbrains.dokka.base.translators.descriptors
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.*
+import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
+import org.jetbrains.dokka.analysis.DokkaResolutionFacade
+import org.jetbrains.dokka.analysis.KotlinAnalysis
+import org.jetbrains.dokka.analysis.from
+import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
@@ -9,7 +13,6 @@ import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.TypeConstructor
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.base.parsers.MarkdownParser
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -33,7 +36,7 @@ import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.LocalClass
 import org.jetbrains.kotlin.resolve.constants.KClassValue.Value.NormalClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
-import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
+import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -150,7 +153,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
+                ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
             )
         )
     }
@@ -177,7 +180,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
+                ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
             )
         )
     }
@@ -206,7 +209,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
+                ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
             )
         )
     }
@@ -290,7 +293,7 @@ private class DokkaDescriptorVisitor(
             extra = PropertyContainer.withAll(
                 descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                 descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                ImplementedInterfaces(info.interfaces.toSourceSetDependent())
+                ImplementedInterfaces(info.allImplementedInterfaces.toSourceSetDependent())
             )
         )
     }
@@ -535,11 +538,6 @@ private class DokkaDescriptorVisitor(
             .filter { it is ClassDescriptor && it.kind != ClassKind.ENUM_ENTRY }
             .map { visitClassDescriptor(it as ClassDescriptor, parent) }
 
-    private fun MemberScope.packages(parent: DRIWithPlatformInfo): List<DPackage> =
-        getContributedDescriptors(DescriptorKindFilter.PACKAGES) { true }
-            .filterIsInstance<PackageFragmentDescriptor>()
-            .map { visitPackageFragmentDescriptor(it, parent) }
-
     private fun MemberScope.typealiases(parent: DRIWithPlatformInfo, packageLevel: Boolean = false): List<DTypeAlias> =
         getContributedDescriptors(DescriptorKindFilter.TYPE_ALIASES, packageLevel)
             .filterIsInstance<TypeAliasDescriptor>()
@@ -556,15 +554,30 @@ private class DokkaDescriptorVisitor(
         getDocumentation()?.toSourceSetDependent() ?: emptyMap()
 
     private fun ClassDescriptor.resolveClassDescriptionData(): ClassInfo {
-        val interfaces = hashSetOf<DRI>()
-        fun processSuperClasses(supers: List<ClassDescriptor>) {
-            supers.forEach {
-                if(it.kind == ClassKind.INTERFACE) interfaces.add(DRI.from(it))
-                processSuperClasses(it.getSuperInterfaces() + it.getAllSuperclassesWithoutAny())
-            }
+        tailrec fun processSuperClasses(
+            inheritorClass: ClassDescriptor?,
+            interfaces: List<ClassDescriptor>,
+            level: Int = 0,
+            inheritanceTree: Set<InheritanceLevel> = emptySet()
+        ): Set<InheritanceLevel> {
+            if (inheritorClass == null && interfaces.isEmpty()) return inheritanceTree
+
+            val updatedTree = inheritanceTree + InheritanceLevel(
+                level,
+                inheritorClass?.let { DRI.from(it) },
+                interfaces.map { DRI.from(it) })
+            val superInterfacesFromClass = inheritorClass?.getSuperInterfaces().orEmpty()
+            return processSuperClasses(
+                inheritorClass = inheritorClass?.getSuperClassNotAny(),
+                interfaces = interfaces.flatMap { it.getSuperInterfaces() } + superInterfacesFromClass,
+                level = level + 1,
+                inheritanceTree = updatedTree
+            )
         }
-        processSuperClasses(getSuperInterfaces() + getAllSuperclassesWithoutAny())
-        return ClassInfo(getAllSuperclassesWithoutAny().map { DRI.from(it) }, interfaces.toList(), resolveDescriptorData())
+        return ClassInfo(
+            processSuperClasses(getSuperClassNotAny(), getSuperInterfaces()).sortedBy { it.level },
+            resolveDescriptorData()
+        )
     }
 
     private fun TypeParameterDescriptor.toTypeParameter() =
@@ -733,9 +746,16 @@ private class DokkaDescriptorVisitor(
 
     private fun ValueArgument.childrenAsText() = this.safeAs<KtValueArgument>()?.children?.map { it.text }.orEmpty()
 
-    private data class ClassInfo(val superclasses: List<DRI>, val interfaces: List<DRI>, val docs: SourceSetDependent<DocumentationNode>){
-        val supertypes: List<DRI>
-            get() = (superclasses + interfaces).distinct()
+    private data class InheritanceLevel(val level: Int, val superclass: DRI?, val interfaces: List<DRI>)
+
+    private data class ClassInfo(val inheritance: List<InheritanceLevel>, val docs: SourceSetDependent<DocumentationNode>){
+        val supertypes: List<DriWithKind>
+            get() = inheritance.firstOrNull { it.level == 0 }?.let {
+                    listOfNotNull(it.superclass?.let { DriWithKind(it, KotlinClassKindTypes.CLASS) }) + it.interfaces.map { DriWithKind(it, KotlinClassKindTypes.INTERFACE) }
+                }.orEmpty()
+
+        val allImplementedInterfaces: List<DRI>
+            get() = inheritance.flatMap { it.interfaces }.distinct()
     }
 
     private fun Visibility.toDokkaVisibility(): org.jetbrains.dokka.model.Visibility = when (this) {

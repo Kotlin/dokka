@@ -77,8 +77,12 @@ class JavaSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogge
                 }
                 if (c is WithSupertypes) {
                     c.supertypes.map { (p, dris) ->
-                        list(dris, prefix = " extends ", sourceSets = setOf(p)) {
-                            link(it.sureClassNames, it, sourceSets = setOf(p))
+                        val (classes, interfaces) = dris.partition { it.kind == JavaClassKindTypes.CLASS }
+                        list(classes, prefix = " extends ", sourceSets = setOf(p)) {
+                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
+                        }
+                        list(interfaces, prefix = " implements ", sourceSets = setOf(p)){
+                            link(it.dri.sureClassNames, it.dri, sourceSets = setOf(p))
                         }
                     }
                 }
