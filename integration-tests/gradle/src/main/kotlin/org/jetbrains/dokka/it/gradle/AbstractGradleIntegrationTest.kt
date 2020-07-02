@@ -4,17 +4,25 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.test.BeforeTest
 import kotlin.test.assertFalse
 
 abstract class AbstractGradleIntegrationTest {
 
     @get:Rule
-    val projectTemporaryFolder = TemporaryFolder()
+    val temporaryTestFolder = TemporaryFolder()
 
-    val projectPath get() = projectTemporaryFolder.root.toPath()
+    val projectDir get() = File(temporaryTestFolder.root, "project")
 
-    val projectDir get() = projectTemporaryFolder.root
+    val projectPath get() = projectDir.toPath()
 
+    @BeforeTest
+    fun copyTemplates() {
+        File("projects").listFiles().orEmpty()
+            .filter { it.isFile }
+            .filter { it.name.startsWith("template.") }
+            .forEach { file -> file.copyTo(File(temporaryTestFolder.root, file.name)) }
+    }
 
     fun createGradleRunner(
         buildVersions: BuildVersions, arguments: Array<String>
