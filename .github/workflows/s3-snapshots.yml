@@ -7,6 +7,28 @@ env:
   bucket-name: 'dokka-snapshots'
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v2
+        with:
+          path: dokka
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Publish dokka locally
+        run: ./gradlew clean publishToMavenLocal --stacktrace
+        working-directory: ./dokka
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dokka
+          path: ~/.m2/repository/org/jetbrains/dokka/**
+
   coroutines:
     runs-on: ubuntu-latest
     steps:
