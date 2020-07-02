@@ -5,6 +5,7 @@ pluginManagement {
 
     plugins {
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
+        id("org.jetbrains.kotlin.multiplatform") version dokka_it_kotlin_version
     }
 
     resolutionStrategy {

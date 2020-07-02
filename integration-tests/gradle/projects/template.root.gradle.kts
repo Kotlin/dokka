@@ -1,8 +1,10 @@
-repositories {
-    maven("https://dl.bintray.com/kotlin/kotlin-dev/")
-    jcenter()
-    mavenLocal()
-    mavenCentral()
+allprojects {
+    repositories {
+        maven("https://dl.bintray.com/kotlin/kotlin-dev/")
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+    }
 }
 
 afterEvaluate {
