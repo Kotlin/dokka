@@ -1,10 +1,21 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 import java.io.File
 import kotlin.test.*
 
-class BasicGradleIntegrationTest : AbstractDefaultVersionsGradleIntegrationTest() {
+class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+
+    companion object {
+        @get:JvmStatic
+        @get:Parameters(name = "{0}")
+        val versions = BuildVersions.permutations(
+            gradleVersions = listOf("6.5.1", "6.4.1", "6.3", "6.2.2", "6.1.1", "6.0", "5.6.4"),
+            kotlinVersions = listOf("1.3.30", "1.3.72", "1.4-M2-eap-70")
+        )
+    }
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -17,11 +28,9 @@ class BasicGradleIntegrationTest : AbstractDefaultVersionsGradleIntegrationTest(
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    override fun execute(versions: BuildVersions) {
-        val result = createGradleRunner(
-            buildVersions = versions,
-            arguments = arrayOf("dokka", "--stacktrace")
-        ).build()
+    @Test
+    fun execute() {
+        val result = createGradleRunner("dokka", "--stacktrace").build()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokka")).outcome)
 
         val dokkaOutputDir = File(projectDir, "build/dokka")
