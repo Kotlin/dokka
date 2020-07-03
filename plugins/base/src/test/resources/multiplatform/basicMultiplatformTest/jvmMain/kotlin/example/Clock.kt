@@ -2,6 +2,9 @@ package example
 
 import greeteer.Greeter
 
+/**
+ * Documentation for actual class Clock in JVM
+ */
 actual open class Clock {
     actual fun getTime(): String = System.currentTimeMillis().toString()
     actual fun getTimesInMillis(): String = System.currentTimeMillis().toString()

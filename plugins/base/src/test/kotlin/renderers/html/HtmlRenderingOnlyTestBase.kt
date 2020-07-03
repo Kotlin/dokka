@@ -1,16 +1,11 @@
 package renderers.html
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.external.DokkaExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProviderFactory
-import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
-import org.jetbrains.dokka.model.doc.DocTag
-import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
