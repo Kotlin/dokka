@@ -100,3 +100,50 @@ jobs:
       - name: Print link
         run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/stdlib/latest/kotlin-stdlib/kotlin-stdlib/index.html
 
+  biojava:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v2
+        with:
+          path: dokka
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Publish dokka locally
+        run: ./gradlew clean publishToMavenLocal --stacktrace
+        working-directory: ./dokka
+
+      - name: Get current dokka version
+        run: echo "::set-env name=DOKKA_VERSION::`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`"
+        working-directory: ./dokka
+
+      - name: Checkout biojava
+        uses: actions/checkout@v2
+        with:
+          repository: 'kamildoleglo/biojava'
+          ref: 'aws'
+          path: biojava
+
+      - name: Document biojava-core
+        run: mvn site -pl biojava-core "-Ddokka-version=0.11.0-SNAPSHOT"
+        working-directory: ./biojava
+
+      - name: Configure AWS credentials for S3 access
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Copy files to dokka's S3 bucket
+        run: |
+          aws s3 --recursive rm s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/prev
+          aws s3 --recursive mv s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/latest s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/prev
+          aws s3 sync ./biojava/biojava-core/target/dokkaJavadoc s3://${{ env.bucket-name }}/${{ env.branch-name }}/biojava/latest
+
+      - name: Print link
+        run: echo http://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/biojava/latest/index.html
+
