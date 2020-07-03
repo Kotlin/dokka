@@ -4,10 +4,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Assume
 import org.junit.runners.Parameterized.Parameters
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 class Android0GradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
 
@@ -19,7 +16,7 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
             kotlinVersions = listOf("1.3.72", "1.4-M2-eap-70"),
             androidGradlePluginVersions = listOf("3.5.3", "3.6.3")
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("6.5.1","6.1.1"),
+            gradleVersions = listOf("6.5.1", "6.1.1"),
             kotlinVersions = listOf("1.3.72", "1.4-M2-eap-70"),
             androidGradlePluginVersions = listOf("4.0.0")
         ) + BuildVersions.permutations(
@@ -64,6 +61,16 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
     fun execute() {
         val result = createGradleRunner("dokka", "--stacktrace").build()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokka")).outcome)
-    }
 
+        projectDir.allHtmlFiles().forEach { file ->
+            assertContainsNoErrorClass(file)
+            assertNoUnresolvedLInks(file)
+        }
+
+        assertTrue(
+            projectDir.allHtmlFiles().any { file ->
+                "https://developer.android.com/reference/android/content/Context.html" in file.readText()
+            }, "Expected link to developer.android.com"
+        )
+    }
 }
