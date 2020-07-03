@@ -7,6 +7,9 @@ import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.TestPage
 import renderers.defaultSourceSet
+import renderers.RenderingOnlyTestBase
+import utils.Div
+import utils.match
 
 class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
 

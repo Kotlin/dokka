@@ -7,6 +7,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
 import renderers.*
+import utils.Div
+import utils.Span
+import utils.match
 
 class DivergentTest : HtmlRenderingOnlyTestBase() {
     private val js = defaultSourceSet.copy(
