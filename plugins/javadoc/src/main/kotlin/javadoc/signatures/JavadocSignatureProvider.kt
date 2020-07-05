@@ -84,14 +84,13 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
             modifiers {
                 text(f.modifier[it]?.takeIf { it !in ignoredModifiers }?.name?.plus(" ") ?: "")
                 text(f.modifiers()[it]?.toSignatureString() ?: "")
-                val returnType = f.type
-                signatureForProjection(returnType)
+                list(f.generics, prefix = "<", suffix = "> ") {
+                    +buildSignature(it)
+                }
+                signatureForProjection(f.type)
             }
             signatureWithoutModifiers {
                 link(f.name, f.dri)
-                list(f.generics, prefix = "<", suffix = ">") {
-                    +buildSignature(it)
-                }
                 text("(")
                 list(f.parameters) {
                     annotationsInline(it)
@@ -142,7 +141,7 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
                 text(t.name)
             }
             supertypes {
-                list(t.bounds, prefix = " extends ") {
+                list(t.bounds, prefix = "extends ") {
                     signatureForProjection(it)
                 }
             }
@@ -175,23 +174,18 @@ class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLo
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(p: Projection): Unit = when (p) {
         is OtherParameter -> link(p.name, p.declarationDRI)
-
-        is TypeConstructor -> group(styles = emptySet()) {
+        is TypeConstructor -> group {
             link(p.dri.fqName(), p.dri)
             list(p.projections, prefix = "<", suffix = ">") {
                 signatureForProjection(it)
             }
         }
-
-        is Variance -> group(styles = emptySet()) {
+        is Variance -> group {
             text(p.kind.toString() + " ")
             signatureForProjection(p.inner)
         }
-
         is Star -> text("?")
-
         is Nullable -> signatureForProjection(p.inner)
-
         is JavaObject, is Dynamic -> link("java.lang.Object", DRI("java.lang", "Object"))
         is Void -> text("void")
         is PrimitiveJavaType -> text(p.name)

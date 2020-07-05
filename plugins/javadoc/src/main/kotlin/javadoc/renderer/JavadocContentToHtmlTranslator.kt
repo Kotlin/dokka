@@ -1,6 +1,5 @@
 package javadoc.renderer
 
-import javadoc.pages.JavadocContentNode
 import javadoc.pages.JavadocSignatureContentNode
 import javadoc.pages.TextNode
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
@@ -43,6 +42,7 @@ internal class JavadocContentToHtmlTranslator(
             node.annotations,
             node.modifiers,
             node.signatureWithoutModifiers,
+            node.supertypes
         ).joinToString(separator = " ") { htmlForContentNode(it, relative) }
 
     companion object {

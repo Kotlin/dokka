@@ -276,6 +276,47 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
+    @Test
+    fun `with generic parameters`(){
+        dualTestTemplateMapInline(
+            kotlin =
+            """
+            /src/source0.kt
+            package com.test.package0
+            import java.io.Serializable
+
+            class Generic<T : Serializable?> {
+                fun <D : T> sampleFunction(): D = TODO()
+            }
+            """,
+            java =
+            """
+            /src/com/test/package0/Generic.java
+            package com.test.package0;
+            import java.io.Serializable;
+
+            public final class Generic<T extends Serializable> {
+                public final <D extends T> D sampleFunction(){
+                    return null;
+                }
+            }
+            """
+        ) {
+            val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
+            assertEquals("Generic", map["name"])
+
+            assertEquals(
+                "public final class <a href=Generic.html>Generic</a><T extends <a href=.html>java.io.Serializable</a>>",
+                map.signatureWithModifiers()
+            )
+            val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
+            val ownMethods = assertIsInstance<List<*>>(methods["own"]).first()
+            val sampleFunction = assertIsInstance<Map<String, Any?>>(ownMethods)
+
+            assertEquals("final <D extends <a href=Generic.html>T</a>> <a href=.html>D</a> <a href=.html>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
+        }
+    }
+
     private fun assertParameterNode(node: Map<String, Any?>, expectedName: String, expectedType: String, expectedDescription: String){
         assertEquals(expectedName, node["name"])
         assertEquals(expectedType, node["type"])
