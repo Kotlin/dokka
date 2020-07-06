@@ -67,12 +67,8 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         } else {
             dri.withClass(relocateToClass)
         },
-        modifier = if (setter == null) {
-            sourceSets.map { it to JavaModifier.Final }.toMap()
-        } else {
-            sourceSets.map { it to JavaModifier.Empty }.toMap()
-        },
-        visibility = visibility.mapValues { JavaVisibility.Private },
+        modifier = javaModifierFromSetter(),
+        visibility = visibility.mapValues { it.value.propertyVisibilityAsJava() },
         type = type.asJava(), // TODO: check
         setter = null,
         getter = null, // Removing getters and setters as they will be available as functions
@@ -85,6 +81,15 @@ internal fun DProperty.asJava(isTopLevel: Boolean = false, relocateToClass: Stri
         else extra
     )
 
+internal fun DProperty.javaModifierFromSetter() =
+    modifier.mapValues {
+        when {
+            it.value is JavaModifier -> it.value
+            setter == null -> JavaModifier.Final
+            else -> JavaModifier.Empty
+        }
+    }
+
 internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClass: String? = null): List<DFunction> =
     listOfNotNull(
         getter?.copy(
@@ -94,11 +99,7 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 dri.withClass(relocateToClass)
             },
             name = "get" + name.capitalize(),
-            modifier = if (setter == null) {
-                sourceSets.map { it to JavaModifier.Final }.toMap()
-            } else {
-                sourceSets.map { it to JavaModifier.Empty }.toMap()
-            },
+            modifier = javaModifierFromSetter(),
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
             extra = if (isTopLevel) getter!!.extra +
@@ -116,11 +117,7 @@ internal fun DProperty.javaAccessors(isTopLevel: Boolean = false, relocateToClas
                 dri.withClass(relocateToClass)
             },
             name = "set" + name.capitalize(),
-            modifier = if (setter == null) {
-                sourceSets.map { it to JavaModifier.Final }.toMap()
-            } else {
-                sourceSets.map { it to JavaModifier.Empty }.toMap()
-            },
+            modifier = javaModifierFromSetter(),
             visibility = visibility.mapValues { JavaVisibility.Public },
             type = type.asJava(), // TODO: check
             extra = if (isTopLevel) setter!!.extra + setter!!.extra.mergeAdditionalModifiers(
@@ -248,6 +245,10 @@ internal fun DParameter.asJava(): DParameter = copy(
     type = type.asJava(),
     name = if (name.isNullOrBlank()) "\$self" else name
 )
+
+internal fun Visibility.propertyVisibilityAsJava(): Visibility =
+    if(this is JavaVisibility) this
+    else JavaVisibility.Private
 
 internal fun String.getAsPrimitive(): JvmPrimitiveType? = org.jetbrains.kotlin.builtins.PrimitiveType.values()
     .find { it.typeFqName.asString() == this }

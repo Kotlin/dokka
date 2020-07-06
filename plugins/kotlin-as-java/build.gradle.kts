@@ -11,6 +11,9 @@ publishing {
 
 dependencies {
     implementation(project(":plugins:base"))
+    testImplementation(project(":plugins:base"))
+    testImplementation(project(":plugins:base:test-utils"))
+    testImplementation(project(":test-tools"))
 }
 
 configureBintrayPublication("kotlinAsJavaPlugin")
