@@ -17,12 +17,14 @@ class JavadocPlugin : DokkaPlugin() {
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
     val kotinAsJavaPlugin by lazy { plugin<KotlinAsJavaPlugin>() }
 
+    val javadocFormat = "javadoc"
+
     val locationProviderFactory by extensionPoint<JavadocLocationProviderFactory>()
 
     val dokkaJavadocPlugin by extending {
         (CoreExtensions.renderer
                 providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
-                applyIf { format == "javadoc" }
+                applyIf { format == javadocFormat }
                 override dokkaBasePlugin.htmlRenderer)
     }
 
@@ -33,13 +35,13 @@ class JavadocPlugin : DokkaPlugin() {
                 dokkaBasePlugin.querySingle { signatureProvider },
                 context.logger
             )
-        } override dokkaBasePlugin.documentableToPageTranslator
+        } override dokkaBasePlugin.documentableToPageTranslator applyIf { format == javadocFormat }
     }
 
     val javadocLocationProviderFactory by extending {
         locationProviderFactory providing { context ->
             JavadocLocationProviderFactory(context)
-        } applyIf { format == "javadoc" }
+        } applyIf { format == javadocFormat }
     }
 
     val javadocSignatureProvider by extending {
@@ -50,7 +52,7 @@ class JavadocPlugin : DokkaPlugin() {
                     dokkaBasePlugin.commentsToContentConverter
                 ), ctx.logger
             )
-        } override kotinAsJavaPlugin.javaSignatureProvider applyIf { format == "javadoc" }
+        } override kotinAsJavaPlugin.javaSignatureProvider applyIf { format == javadocFormat }
     }
 }
 

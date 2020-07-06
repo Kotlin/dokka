@@ -318,18 +318,14 @@ class DefaultPsiToDocumentableTranslator(
                         val resolved: PsiClass = type.resolve()
                             ?: return UnresolvedBound(type.presentableText)
                         when {
-                            resolved.qualifiedName == "java.lang.Object" -> {
-                                JavaObject
-                            }
-                            resolved is PsiTypeParameter -> {
+                            resolved.qualifiedName == "java.lang.Object" -> JavaObject
+                            resolved is PsiTypeParameter && resolved.owner != null ->
                                 OtherParameter(
                                     declarationDRI = DRI.from(resolved.owner!!),
                                     name = resolved.name.orEmpty()
                                 )
-                            }
-                            else -> {
+                            else ->
                                 TypeConstructor(DRI.from(resolved), type.parameters.map { getProjection(it) })
-                            }
                         }
                     }
                     is PsiArrayType -> TypeConstructor(

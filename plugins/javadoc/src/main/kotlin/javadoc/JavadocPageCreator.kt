@@ -181,6 +181,6 @@ open class JavadocPageCreator(
         briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
 
     private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
-        (this as ContentGroup).children.firstOrNull() as JavadocSignatureContentNode
+        (this as ContentGroup).children.firstOrNull() as? JavadocSignatureContentNode ?: throw IllegalStateException("JavadocPageCreator should be used only with JavadocSignatureProvider")
 }
 
