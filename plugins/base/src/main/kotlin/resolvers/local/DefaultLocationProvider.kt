@@ -2,6 +2,7 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.withDescendants
@@ -27,6 +28,16 @@ open class DefaultLocationProvider(
             if (first) page else throw AssertionError("Multiple pages associated with dri: $dri")
         }
 
+    protected val anchorsIndex = pageGraphRoot.withDescendants().filterIsInstance<ContentPage>()
+        .flatMap { page ->
+            page.content.withDescendants()
+                .filter { it.extra[SymbolAnchorHint] != null }
+                .mapNotNull { it.dci.dri.singleOrNull() }
+                .distinct()
+                .map { it to page }
+        }.toMap()
+
+
     protected val pathsIndex: Map<PageNode, List<String>> = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String>) {
             val newPrefix = prefix + page.pathName
@@ -41,9 +52,10 @@ open class DefaultLocationProvider(
         pathTo(node, context) + if (!skipExtension) extension else ""
 
     override fun resolve(dri: DRI, sourceSets: Set<DokkaSourceSet>, context: PageNode?): String =
-        pagesIndex[dri]?.let { resolve(it, context) } ?:
+        pagesIndex[dri]?.let { resolve(it, context) }
+            ?: anchorsIndex[dri]?.let { resolve(it, context) + "#$dri" }
         // Not found in PageGraph, that means it's an external link
-        getExternalLocation(dri, sourceSets)
+            ?: getExternalLocation(dri, sourceSets)
 
     override fun resolveRoot(node: PageNode): String =
         pathTo(pageGraphRoot, node).removeSuffix(PAGE_WITH_CHILDREN_SUFFIX)
