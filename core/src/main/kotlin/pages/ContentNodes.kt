@@ -2,6 +2,7 @@ package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
@@ -9,12 +10,15 @@ data class DCI(val dri: Set<DRI>, val kind: Kind) {
     override fun toString() = "$dri[$kind]"
 }
 
-interface ContentNode : WithExtraProperties<ContentNode> {
+interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNode> {
     val dci: DCI
     val sourceSets: Set<DokkaSourceSet>
     val style: Set<Style>
 
     fun hasAnyContent(): Boolean
+
+    override val children: List<ContentNode>
+        get() = emptyList()
 }
 
 /** Simple text */
@@ -112,7 +116,7 @@ data class ContentEmbeddedResource(
 
 /** Logical grouping of [ContentNode]s  */
 interface ContentComposite : ContentNode {
-    val children: List<ContentNode>
+    override val children: List<ContentNode> // overwrite to make it abstract once again
 
     override fun hasAnyContent(): Boolean = children.any { it.hasAnyContent() }
 }

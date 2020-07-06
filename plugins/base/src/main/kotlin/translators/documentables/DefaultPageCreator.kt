@@ -132,6 +132,7 @@ open class DefaultPageCreator(
             ContentKind.Properties,
             s.properties,
             sourceSets.toSet(),
+            needsAnchors = true,
             extra = mainExtra + SimpleAttr.header("Properties")
         ) {
             link(it.name, it.dri, kind = ContentKind.Main)

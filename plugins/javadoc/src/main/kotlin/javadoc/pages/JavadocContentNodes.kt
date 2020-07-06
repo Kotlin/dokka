@@ -43,7 +43,7 @@ class JavadocContentGroup(
     val dri: Set<DRI>,
     val kind: Kind,
     sourceSets: Set<DokkaSourceSet>,
-    val children: List<JavadocContentNode>
+    override val children: List<JavadocContentNode>
 ) : JavadocContentNode(dri, kind, sourceSets) {
 
     companion object {
@@ -96,7 +96,7 @@ data class TextNode(
 class ListNode(
     val tabTitle: String,
     val colTitle: String,
-    val children: List<JavadocListEntry>,
+    val entries: List<JavadocListEntry>,
     val dri: Set<DRI>,
     val kind: Kind,
     sourceSets: Set<DokkaSourceSet>

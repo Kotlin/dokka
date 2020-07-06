@@ -20,7 +20,6 @@ class TestOutputWriter(private val failOnOverwrite: Boolean = true) : OutputWrit
     val contents: Map<String, String> get() = _contents
 
     private val _contents = mutableMapOf<String, String>()
-
     override suspend fun write(path: String, text: String, ext: String) {
         val fullPath = "$path$ext"
         _contents.putIfAbsent(fullPath, text)?.also {

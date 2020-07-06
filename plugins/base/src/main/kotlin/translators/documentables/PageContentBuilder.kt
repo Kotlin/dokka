@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.links.DRI
@@ -167,6 +168,7 @@ open class PageContentBuilder(
             renderWhenEmpty: Boolean = false,
             needsSorting: Boolean = true,
             headers: List<ContentGroup>? = null,
+            needsAnchors: Boolean = false,
             operation: DocumentableContentBuilder.(T) -> Unit
         ) {
             if (renderWhenEmpty || elements.any()) {
@@ -180,7 +182,8 @@ open class PageContentBuilder(
                             else it
                         }
                         .map {
-                            buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, extra) {
+                            val newExtra = if (needsAnchors) extra + SymbolAnchorHint else extra
+                            buildGroup(setOf(it.dri), it.sourceSets.toSet(), kind, styles, newExtra) {
                                 operation(it)
                             }
                         },
