@@ -1,9 +1,11 @@
 package kotlinAsJavaPlugin
 
+import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 import org.junit.jupiter.api.Test
+import matchers.content.*
 
 class KotlinAsJavaPluginTest : AbstractCoreTest() {
 
@@ -125,6 +127,111 @@ class KotlinAsJavaPluginTest : AbstractCoreTest() {
                     it?.children.orEmpty().assertCount(1, "(Java) TestJ members: ")
                     it!!.children.first()
                         .let { assert(it.name == "testF") { "(Java) Expected method name: testF, got: ${it.name}" } }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `public kotlin properties should have a getter with same visibilities`(){
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |class Test {
+            |   public val publicProperty: String = ""
+            |}
+        """,
+            configuration,
+            cleanupOutput = true
+        ) {
+            pagesTransformationStage = { rootPageNode ->
+                val propertyGetter = rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
+                assert(propertyGetter != null)
+                propertyGetter!!.content.assertNode {
+                    group {
+                        header(1) {
+                            +"getPublicProperty"
+                        }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                group {
+                                    +"final"
+                                    group {
+                                        link {
+                                            +" String"
+                                        }
+                                    }
+                                    group {
+                                        link {
+                                            +"getPublicProperty"
+                                        }
+                                        +"()"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `java properties should keep its modifiers`(){
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/TestJ.java
+            |package kotlinAsJavaPlugin
+            |
+            |class TestJ {
+            |   public Int publicProperty = 1;
+            |}
+        """,
+            configuration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val testClass = root.dfs { it.name == "TestJ" } as? ClasslikePageNode
+                assert(testClass != null)
+                (testClass!!.content as ContentGroup).children.last().assertNode {
+                    group {
+                        header(2){
+                            +"Properties"
+                        }
+                        table {
+                            group {
+                                link {
+                                    +"publicProperty"
+                                }
+                                platformHinted {
+                                    group {
+                                        +"public Int"
+                                        link {
+                                            +"publicProperty"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
