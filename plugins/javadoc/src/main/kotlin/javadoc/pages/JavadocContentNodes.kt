@@ -86,13 +86,6 @@ fun JavaContentGroupBuilder.title(
     list.add(TitleNode(title, subtitle, version, parent, dri, kind, sourceSets))
 }
 
-data class TextNode(
-    val text: String,
-    override val sourceSets: Set<DokkaSourceSet>
-) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
-    override fun hasAnyContent(): Boolean = !text.isBlank()
-}
-
 class ListNode(
     val tabTitle: String,
     val colTitle: String,

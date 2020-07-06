@@ -306,14 +306,14 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("Generic", map["name"])
 
             assertEquals(
-                "public final class <a href=Generic.html>Generic</a><T extends <a href=.html>java.io.Serializable</a>>",
+                "public final class <a href=Generic.html>Generic</a>&lt;T extends <a href=.html>java.io.Serializable</a>&gt;",
                 map.signatureWithModifiers()
             )
             val methods = assertIsInstance<Map<Any, Any?>>(map["methods"])
             val ownMethods = assertIsInstance<List<*>>(methods["own"]).first()
             val sampleFunction = assertIsInstance<Map<String, Any?>>(ownMethods)
 
-            assertEquals("final <D extends <a href=Generic.html>T</a>> <a href=.html>D</a> <a href=.html>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
+            assertEquals("final &lt;D extends <a href=Generic.html>T</a>&gt; <a href=.html>D</a> <a href=.html>sampleFunction</a>()", sampleFunction.signatureWithModifiers())
         }
     }
 

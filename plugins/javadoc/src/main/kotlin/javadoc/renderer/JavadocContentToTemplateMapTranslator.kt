@@ -49,8 +49,6 @@ internal class JavadocContentToTemplateMapTranslator(
         }
     }
 
-    private fun String.toNormalized() = Paths.get(this).toNormalized()
-
     private inner class InnerTranslator(val contextNode: PageNode) {
 
         private val htmlTranslator = JavadocContentToHtmlTranslator(locationProvider, context)
@@ -116,7 +114,6 @@ internal class JavadocContentToTemplateMapTranslator(
             when (node) {
                 is TitleNode -> templateMapForTitleNode(node)
                 is JavadocContentGroup -> templateMapForJavadocContentGroup(node)
-                is TextNode -> templateMapForTextNode(node)
                 is ListNode -> templateMapForListNode(node)
                 else -> emptyMap()
             }
@@ -196,10 +193,6 @@ internal class JavadocContentToTemplateMapTranslator(
             return note.children.fold(emptyMap()) { map, child ->
                 map + templateMapForJavadocContentNode(child)
             }
-        }
-
-        private fun templateMapForTextNode(node: TextNode): TemplateMap {
-            return mapOf("text" to node.text)
         }
 
         private fun templateMapForListNode(node: ListNode): TemplateMap {
