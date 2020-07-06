@@ -17,8 +17,10 @@ interface ExternalLocationProviderFactory {
 
 class ExternalLocationProviderFactoryWithCache(val ext: ExternalLocationProviderFactory) : ExternalLocationProviderFactory {
 
-    private val locationProviders = ConcurrentHashMap<String, ExternalLocationProvider>()
+    private val locationProviders = ConcurrentHashMap<String, CacheWrapper>()
 
     override fun getExternalLocationProvider(param: String): ExternalLocationProvider? =
-        locationProviders.getOrPut(param) { ext.getExternalLocationProvider(param) }
+        locationProviders.getOrPut(param) { CacheWrapper(ext.getExternalLocationProvider(param)) }.provider
 }
+
+private class CacheWrapper(val provider: ExternalLocationProvider?)
