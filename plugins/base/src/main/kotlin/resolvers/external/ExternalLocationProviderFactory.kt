@@ -1,6 +1,7 @@
 package org.jetbrains.dokka.base.resolvers.external
 
 import org.jetbrains.dokka.links.DRI
+import java.util.concurrent.ConcurrentHashMap
 
 
 interface ExternalLocationProvider {
@@ -16,8 +17,8 @@ interface ExternalLocationProviderFactory {
 
 class ExternalLocationProviderFactoryWithCache(val ext: ExternalLocationProviderFactory) : ExternalLocationProviderFactory {
 
-    private val locationProviders: MutableList<ExternalLocationProvider> = mutableListOf()
+    private val locationProviders = ConcurrentHashMap<String, ExternalLocationProvider>()
 
     override fun getExternalLocationProvider(param: String): ExternalLocationProvider? =
-        locationProviders.find { it.param == param } ?: ext.getExternalLocationProvider(param)?.also { locationProviders.add(it) }
+        locationProviders.getOrPut(param) { ext.getExternalLocationProvider(param) }
 }
