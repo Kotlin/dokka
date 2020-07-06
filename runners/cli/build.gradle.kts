@@ -2,6 +2,7 @@ import org.jetbrains.configureBintrayPublication
 
 plugins {
     id("com.github.johnrengelman.shadow")
+    id("com.jfrog.bintray")
 }
 
 repositories {

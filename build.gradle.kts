@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") apply false
-    id("com.jfrog.bintray") apply false
     id("java")
 }
 
@@ -50,3 +49,11 @@ subprojects {
 }
 
 println("Publication version: $dokka_version")
+
+// Workaround for https://github.com/bintray/gradle-bintray-plugin/issues/267
+//  Manually disable bintray tasks added to the root project
+tasks.whenTaskAdded {
+    if ("bintray" in name) {
+        enabled = false
+    }
+}
