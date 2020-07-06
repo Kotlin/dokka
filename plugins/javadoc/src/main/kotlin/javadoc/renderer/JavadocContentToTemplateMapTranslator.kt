@@ -81,7 +81,7 @@ internal class JavadocContentToTemplateMapTranslator(
             return mapOf(
                 "brief" to htmlForContentNodes(node.brief, contextNode),
                 "parameters" to node.parameters.map { templateMapForParameterNode(it) },
-                "inlineParameters" to node.parameters.joinToString { "${htmlForContentNode(it.type, contextNode)} ${it.name}" },
+                "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
                 "signature" to templateMapForSignatureNode(node.signature),
                 "name" to node.name
             )
@@ -202,6 +202,9 @@ internal class JavadocContentToTemplateMapTranslator(
                 "list" to node.entries
             )
         }
+
+        private fun renderInlineParameter(parameter: JavadocParameterNode): String =
+            "${htmlForContentNode(parameter.type, contextNode)} ${parameter.name}"
 
         private fun htmlForContentNode(node: ContentNode, relativeNode: PageNode) =
             htmlTranslator.htmlForContentNode(node, relativeNode)

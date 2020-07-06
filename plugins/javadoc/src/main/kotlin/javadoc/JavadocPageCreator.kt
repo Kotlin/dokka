@@ -42,20 +42,20 @@ open class JavadocPageCreator(
                 name = c.name.orEmpty(),
                 content = contentForClasslike(c),
                 dri = setOf(c.dri),
-                signature = signatureProvider.signature(c).nodeForJvm(jvm).asJavadocNode(),
+                signature = signatureForNode(c, jvm),
                 description = c.descriptionToContentNodes(),
                 constructors = (c as? WithConstructors)?.constructors?.mapNotNull { it.toJavadocFunction() }.orEmpty(),
                 methods = c.functions.mapNotNull { it.toJavadocFunction() },
                 entries = (c as? DEnum)?.entries?.map {
                     JavadocEntryNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode(),
+                        signatureForNode(it, jvm),
                         it.descriptionToContentNodes(jvm)
                     )
                 }.orEmpty(),
                 classlikes = c.classlikes.mapNotNull { pageForClasslike(it) },
                 properties = c.properties.map {
                     JavadocPropertyNode(
-                        signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode(),
+                        signatureForNode(it, jvm),
                         it.descriptionToContentNodes(jvm)
                     )
                 },
@@ -114,10 +114,10 @@ open class JavadocPageCreator(
         JavadocFunctionNode(
             name = name,
             dri = dri,
-            signature = signatureProvider.signature(this).nodeForJvm(jvm).asJavadocNode(),
+            signature = signatureForNode(this, jvm),
             brief = brief(jvm),
             parameters = parameters.mapNotNull {
-                val signature = signatureProvider.signature(it).nodeForJvm(jvm).asJavadocNode()
+                val signature = signatureForNode(it, jvm)
                 signature.modifiers?.let { type ->
                     JavadocParameterNode(
                         name = it.name.orEmpty(),
@@ -182,5 +182,8 @@ open class JavadocPageCreator(
 
     private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
         (this as ContentGroup).children.firstOrNull() as? JavadocSignatureContentNode ?: throw IllegalStateException("JavadocPageCreator should be used only with JavadocSignatureProvider")
+
+    private fun signatureForNode(documentable: Documentable, sourceSet: DokkaSourceSet): JavadocSignatureContentNode =
+        signatureProvider.signature(documentable).nodeForJvm(sourceSet).asJavadocNode()
 }
 
