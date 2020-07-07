@@ -2,6 +2,11 @@ export type Page = {
     name: string;
     kind: string;
     location: string;
+    searchKey: string;
+    level: number;
+    index: string;
+    description: string;
+    disabled: boolean;
 }
 
 export type Option = Page & {
