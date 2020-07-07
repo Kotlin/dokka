@@ -1,5 +1,0 @@
-rootProject.name = "androidLibDependsOnJavaLib"
-
-
-include(":lib")
-include(":jlib")
