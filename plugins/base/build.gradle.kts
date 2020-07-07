@@ -23,6 +23,10 @@ tasks {
     processResources {
         dependsOn("copy_frontend")
     }
+
+    test {
+        maxHeapSize = "4G"
+    }
 }
 
 publishing {
