@@ -118,7 +118,7 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
     val moduleName by parser.option(
         ArgType.String,
         description = "Name of the documentation module",
-        fullName = "module"
+        fullName = "moduleName"
     ).required()
 
     val moduleDisplayName by parser.option(
@@ -126,12 +126,12 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
         description = "Name of the documentation module"
     )
 
-    val name by parser.option(
+    val sourceSetName by parser.option(
         ArgType.String,
         description = "Name of the source set"
     ).default("main")
 
-    val displayName by parser.option(
+    val sourceSetDisplayName by parser.option(
         ArgType.String,
         description = "Displayed name of the source set"
     ).default("JVM")
@@ -235,8 +235,8 @@ private fun parseSourceSet(args: Array<String>): DokkaConfiguration.DokkaSourceS
 
     return object : DokkaConfiguration.DokkaSourceSet {
         override val moduleDisplayName = moduleDisplayName ?: moduleName
-        override val displayName = displayName
-        override val sourceSetID = DokkaSourceSetID(moduleName, name)
+        override val displayName = sourceSetDisplayName
+        override val sourceSetID = DokkaSourceSetID(moduleName, sourceSetName)
         override val classpath = classpath
         override val sourceRoots = sourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
         override val dependentSourceSets: Set<DokkaSourceSetID> = dependentSourceSets

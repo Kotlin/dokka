@@ -2,24 +2,16 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.DefaultGradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
 import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertFalse
 
 @RunWith(Parameterized::class)
-abstract class AbstractGradleIntegrationTest {
+abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     abstract val versions: BuildVersions
-
-    @get:Rule
-    val temporaryTestFolder = TemporaryFolder()
-
-    val projectDir get() = File(temporaryTestFolder.root, "project")
 
     @BeforeTest
     fun copyTemplates() {
@@ -48,31 +40,6 @@ abstract class AbstractGradleIntegrationTest {
                 )
             ).run { this as DefaultGradleRunner }
             .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=512M")
-    }
-
-    fun File.allDescendentsWithExtension(extension: String): Sequence<File> {
-        return this.walkTopDown().filter { it.isFile && it.extension == extension }
-    }
-
-    fun File.allHtmlFiles(): Sequence<File> {
-        return allDescendentsWithExtension("html")
-    }
-
-    protected fun assertContainsNoErrorClass(file: File) {
-        val fileText = file.readText()
-        assertFalse(
-            fileText.contains("ERROR CLASS", ignoreCase = true),
-            "Unexpected `ERROR CLASS` in ${file.path}\n" + fileText
-        )
-    }
-
-    protected fun assertNoUnresolvedLInks(file: File) {
-        val regex = Regex("[\"']#[\"']")
-        val fileText = file.readText()
-        assertFalse(
-            fileText.contains(regex),
-            "Unexpected unresolved link in ${file.path}\n" + fileText
-        )
     }
 }
 
