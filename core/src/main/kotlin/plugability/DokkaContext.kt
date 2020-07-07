@@ -127,7 +127,7 @@ private class DokkaContextConfigurationImpl(
 
     private fun findNotOverridden(bucket: Set<Extension<*, *, *>>): Extension<*, *, *> {
         val filtered = bucket.filter { it !in suppressedExtensions }
-        return filtered.singleOrNull() ?: throw Error("Conflicting overrides: $filtered")
+        return filtered.singleOrNull() ?: throw IllegalStateException("Conflicting overrides: $filtered")
     }
 
     private fun translateAdjacencyList(
