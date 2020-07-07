@@ -181,7 +181,7 @@ open class JavadocPageCreator(
         briefFromContentNodes(paramsToContentNodes(sourceSet).dropWhile { it is ContentDRILink })
 
     private fun ContentNode.asJavadocNode(): JavadocSignatureContentNode =
-        (this as ContentGroup).children.firstOrNull() as? JavadocSignatureContentNode ?: throw IllegalStateException("JavadocPageCreator should be used only with JavadocSignatureProvider")
+        (this as ContentGroup).firstChildOfTypeOrNull<JavadocSignatureContentNode>() ?: throw IllegalStateException("No content for javadoc signature found")
 
     private fun signatureForNode(documentable: Documentable, sourceSet: DokkaSourceSet): JavadocSignatureContentNode =
         signatureProvider.signature(documentable).nodeForJvm(sourceSet).asJavadocNode()

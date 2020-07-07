@@ -6,9 +6,7 @@ import javadoc.renderer.KorteJavadocRenderer
 import javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.resolvers.external.JavadocExternalLocationProviderFactory
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
-import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureProvider
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
 
@@ -16,8 +14,6 @@ class JavadocPlugin : DokkaPlugin() {
 
     val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
     val kotinAsJavaPlugin by lazy { plugin<KotlinAsJavaPlugin>() }
-
-    val javadocFormat = "javadoc"
 
     val locationProviderFactory by extensionPoint<JavadocLocationProviderFactory>()
 
@@ -53,6 +49,10 @@ class JavadocPlugin : DokkaPlugin() {
                 ), ctx.logger
             )
         } override kotinAsJavaPlugin.javaSignatureProvider applyIf { format == javadocFormat }
+    }
+
+    companion object {
+        private val javadocFormat = "javadoc"
     }
 }
 

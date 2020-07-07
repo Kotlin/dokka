@@ -204,7 +204,7 @@ internal class JavadocContentToTemplateMapTranslator(
         }
 
         private fun renderInlineParameter(parameter: JavadocParameterNode): String =
-            "${htmlForContentNode(parameter.type, contextNode)} ${parameter.name}"
+            htmlForContentNode(parameter.type, contextNode) + " ${parameter.name}"
 
         private fun htmlForContentNode(node: ContentNode, relativeNode: PageNode) =
             htmlTranslator.htmlForContentNode(node, relativeNode)
