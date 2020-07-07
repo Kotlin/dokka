@@ -175,7 +175,7 @@ abstract class DefaultRenderer<T>(
         pageContext: ContentPage,
         beforeTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String,
         afterTransformer: (ContentDivergentInstance, ContentPage, DokkaSourceSet) -> String
-    ): Map<Pair<String, String>, List<Pair<ContentDivergentInstance, DokkaSourceSet>>> =
+    ): Map<SerializedInstanceWithSource, List<InstanceWithSource>> =
         children.flatMap { instance ->
             instance.sourceSets.map { sourceSet ->
                 Pair(instance, sourceSet) to Pair(
@@ -188,5 +188,8 @@ abstract class DefaultRenderer<T>(
             Pair<Pair<ContentDivergentInstance, DokkaSourceSet>, Pair<String, String>>::first
         )
 }
+
+internal typealias SerializedInstanceWithSource = Pair<String, String>
+internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DokkaSourceSet>
 
 fun ContentPage.sourceSets() = this.content.sourceSets
