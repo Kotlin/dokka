@@ -5,12 +5,17 @@ subprojects {
             runtimeClasspath += sourceSets.main.get().output
         }
     }
+
     configurations.getByName("integrationTestImplementation") {
         extendsFrom(configurations.implementation.get())
     }
 
     configurations.getByName("integrationTestRuntimeOnly") {
         extendsFrom(configurations.runtimeOnly.get())
+    }
+
+    dependencies {
+        implementation(project(":integration-tests"))
     }
 
     val integrationTest = task<Test>("integrationTest") {
@@ -27,4 +32,9 @@ subprojects {
     tasks.check {
         dependsOn(integrationTest)
     }
+}
+
+dependencies {
+    implementation(kotlin("stdlib"))
+    implementation(kotlin("test-junit"))
 }
