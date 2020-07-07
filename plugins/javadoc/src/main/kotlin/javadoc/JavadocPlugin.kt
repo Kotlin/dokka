@@ -4,6 +4,7 @@ import javadoc.JavadocDocumentableToPageTranslator
 import javadoc.location.JavadocLocationProviderFactory
 import javadoc.renderer.KorteJavadocRenderer
 import javadoc.signatures.JavadocSignatureProvider
+import javadoc.transformers.documentables.JavadocDocumentableSourceSetFilterTransformer
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
@@ -38,6 +39,10 @@ class JavadocPlugin : DokkaPlugin() {
         locationProviderFactory providing { context ->
             JavadocLocationProviderFactory(context)
         } applyIf { format == javadocFormat }
+    }
+
+    val documentableVisbilityFilter by extending {
+        CoreExtensions.preMergeDocumentableTransformer providing { _ -> JavadocDocumentableSourceSetFilterTransformer() } applyIf { format == javadocFormat }
     }
 
     val javadocSignatureProvider by extending {
