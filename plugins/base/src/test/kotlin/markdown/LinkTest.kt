@@ -49,6 +49,7 @@ class LinkTest : AbstractCoreTest() {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
+                    displayName = "JVM"
                 }
             }
         }

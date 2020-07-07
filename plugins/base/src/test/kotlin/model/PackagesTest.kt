@@ -12,7 +12,15 @@ class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "pac
             """
                 |
             """.trimIndent(),
-            prependPackage = false
+            prependPackage = false,
+            configuration = dokkaConfiguration {
+                passes {
+                    pass {
+                        sourceRoots = listOf("src/main/kotlin")
+                        displayName = "JVM"
+                    }
+                }
+            }
         ) {
             with((this / "[JVM root]").cast<DPackage>()) {
                 name equals "[JVM root]"
