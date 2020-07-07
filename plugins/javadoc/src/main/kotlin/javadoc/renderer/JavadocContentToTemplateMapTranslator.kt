@@ -202,7 +202,7 @@ internal class JavadocContentToTemplateMapTranslator(
             return mapOf(
                 "tabTitle" to node.tabTitle,
                 "colTitle" to node.colTitle,
-                "list" to node.children
+                "list" to node.entries
             )
         }
 
