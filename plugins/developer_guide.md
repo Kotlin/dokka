@@ -22,13 +22,12 @@ tasks.withType<KotlinCompile> {
 
 In order to load a plugin into dokka, your class must extend `DokkaPlugin` class. All instances are automatically loaded during dokka setup using `java.util.ServiceLoader`.
 
-Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using `DokkaPlugin.extending(isFallback: Boolean = false, definition: ExtendingDSL.() -> Extension<T>)` function,that returns a delegate `ExtensionProvider` with supplied definition. 
-
-The function receives optional `isFallback` parameter that determines whether the provided implementation can be overriden by other plugin.   
+Dokka provides a set of entry points, for which user can create their own implementations. They must be delegated using `DokkaPlugin.extending(definition: ExtendingDSL.() -> Extension<T, *, *>)` function,that returns a delegate `ExtensionProvider` with supplied definition. 
 
 To create a definition, you can use one of two infix functions`with(T)` or `providing( (DokkaContext) -> T)` where `T` is the type of an extended endpoint. You can also use infix functions:
-* `applyIf( () -> Boolean )` to add additional condition whether or not the extension should be used
+* `applyIf( () -> Boolean )` to add additional condition specifying whether or not the extension should be used
 * `order((OrderDsl.() -> Unit))` to determine if your extension should be used before or after another particular extension for the same endpoint
+* `override( Extension<T, *, *> )` to override other extension. Overridden extension won't be loaded and overridding one will inherit ordering from it.
 
 Following sample provides custom translator object as a `DokkaCore.sourceToDocumentableTranslator`
 
@@ -249,7 +248,7 @@ By default, three transformers are created:
 
 All `DModule` instances are merged into one.
 
-This step uses `DokkaCore.documentableMerger` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless all except one will have parameter `isFallback` set to true, in which case the non-fallback extension will be used.
+This step uses `DokkaCore.documentableMerger` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.
 
 The extension is required to implement `DocumentableMerger` interface:
 
@@ -259,7 +258,7 @@ interface DocumentableMerger {
 }
 ```
 
-By default, `DefaultDocumentableMerger` is created. This extension is a fallback, so it could be replaced by a custom non-fallback one.
+By default, `DefaultDocumentableMerger` is created. This extension is treated as a fallback, so it can be overridden by a custom one.
 
 #### Merged data transformation
 
@@ -279,7 +278,7 @@ By default, `InheritorsExtractorTransformer` is created, that extracts inherited
 
 The documentable model is translated into page format, that aggregates all tha data that will be available for different pages of documentation.
 
-This step uses `DokkaCore.documentableToPageTranslator` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless all except one will have parameter `isFallback` set to true, in which case the non-fallback extension will be used.
+This step uses `DokkaCore.documentableToPageTranslator` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.
 
 The extension is required to implement `DocumentableToPageTranslator` interface:
 
@@ -289,7 +288,7 @@ interface DocumentableToPageTranslator {
 }
 ```
 
-By default, `DefaultDocumentableToPageTranslator` is created.  This extension is a fallback, so it could be replaced by a custom non-fallback one.
+By default, `DefaultDocumentableToPageTranslator` is created.  This extension is treated as a fallback, so it can be overridden by a custom one.
 
 #### Transforming page models
 
@@ -310,7 +309,7 @@ By default, two transformers are created:
 
 All pages are rendered to desired format.
 
-This step uses `DokkaCore.renderer` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless all except one will have parameter `isFallback` set to true, in which case the non-fallback extension will be used.
+This step uses `DokkaCore.renderer` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.
                                     
 The extension is required to implement  `Renderer` interface:
 
@@ -330,7 +329,7 @@ Multimodule page generation is a separate process, that declares two additional 
 
 Generation of the page that points to all module for which we generates documentation.
 
-This step uses `CoreExtensions.allModulePageCreator` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless all except one will have parameter `isFallback` set to true, in which case the non-fallback extension will be used.
+This step uses `CoreExtensions.allModulePageCreator` entry point. It is required to have exactly one extension registered for this entry point. Having more will trigger an error, unless only one is not overridden.
 
 The extension is required to implement  `PageCreator` interface:
 
@@ -340,7 +339,7 @@ interface PageCreator {
 }
 ```
 
-By default, `MultimodulePageCreator` is created.  This extension is a fallback, so it could be replaced by a custom non-fallback one. 
+By default, `MultimodulePageCreator` is created.  This extension is treated as a fallback, so it can be replaced by a custom one. 
 
 #### Multimodule page transformation
 
@@ -403,11 +402,11 @@ object SamplePageMergerStrategy: PageMergerStrategy {
 | Entry point | Function | Required interface | Used by | Singular | Preregistered extensions
 |---|:---|:---:|:---:|:---:|:---:|
 | `pageMergerStrategy` |  determines what kind of pages should be merged | `PageMergerStrategy` | `PageMerger` | false | `FallbackPageMergerStrategy` `SameMethodNamePageMergerStrategy`   |
-| `commentsToContentConverter` | transforms comment model into page content model | `CommentsToContentConverter` | `DefaultDocumentableToPageTransformer` `SignatureProvider` | true | `DocTagToContentConverter`(fallback) |
-| `signatureProvider`  | provides representation of methods signatures | `SignatureProvider` | `DefaultDocumentableToPageTransformer` | true | `KotlinSignatureProvider`(fallback) |
-| `locationProviderFactory` | provides `LocationProvider` instance that returns paths for requested elements | `LocationProviderFactory` | `DefaultRenderer` `HtmlRenderer` `PackageListService` | true | `DefaultLocationProviderFactory`(fallback) which returns `DefaultLocationProvider` |
+| `commentsToContentConverter` | transforms comment model into page content model | `CommentsToContentConverter` | `DefaultDocumentableToPageTransformer` `SignatureProvider` | true | `DocTagToContentConverter` |
+| `signatureProvider`  | provides representation of methods signatures | `SignatureProvider` | `DefaultDocumentableToPageTransformer` | true | `KotlinSignatureProvider` |
+| `locationProviderFactory` | provides `LocationProvider` instance that returns paths for requested elements | `LocationProviderFactory` | `DefaultRenderer` `HtmlRenderer` `PackageListService` | true | `DefaultLocationProviderFactory` which returns `DefaultLocationProvider` |
 | `externalLocationProviderFactory` | provides `ExternalLocationProvider` instance that returns paths for elements that are not part of generated documentation | `ExternalLocationProviderFactory` | `DefaultLocationProvider` | false | `JavadocExternalLocationProviderFactory` `DokkaExternalLocationProviderFactory` |
-| `outputWriter` | writes rendered pages files | `OutputWriter` | `DefaultRenderer` `HtmlRenderer` | true | `FileWriter`(fallback)|
+| `outputWriter` | writes rendered pages files | `OutputWriter` | `DefaultRenderer` `HtmlRenderer` | true | `FileWriter`|
 | `htmlPreprocessors` | transforms page content before HTML rendering | `PageTransformer`| `DefaultRenderer` `HtmlRenderer` | false | `RootCreator` `SourceLinksTransformer` `NavigationPageInstaller` `SearchPageInstaller` `ResourceInstaller` `StyleAndScriptsAppender` `PackageListCreator` |
 | `samplesTransformer` | transforms content for code samples for HTML rendering | `SamplesTransformer` | `HtmlRenderer` | true | `DefaultSamplesTransformer` |
 
