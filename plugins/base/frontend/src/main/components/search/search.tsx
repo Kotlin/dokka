@@ -1,8 +1,9 @@
 import React, {useCallback, useState} from 'react';
 import {Select} from '@jetbrains/ring-ui';
+import {List} from '@jetbrains/ring-ui';
 import '@jetbrains/ring-ui/components/input-size/input-size.scss';
 import './search.scss';
-import {IWindow, Option, Props} from "./types";
+import {IWindow, Option, Props, Page} from "./types";
 
 const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
     const [selected, onSelected] = useState<Option>(data[0]);
@@ -43,15 +44,30 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({data}: Props) => {
     )
 }
 
+const templateGenerator = (page:Page) => {
+    let classGenerator = (page:Page) => {
+        let classes = ""
+        if(page.level !== undefined) classes = classes + " indented"
+        if(page.disabled) classes = classes + " disabled"
+        return classes
+    }
+    return <div className="template-wrapper">
+        <span className= {classGenerator(page)}>{page.name}</span>
+        <span className="template-description">{page.description}</span>
+    </div>
+}
+
 export const WithFuzzySearchFilter = () => {
     let data: Option[] = [];
     const pages = (window as IWindow).pages;
     if (pages) {
         data = pages.map((page, i) => ({
             ...page,
-            label: page.name,
+            label: page.searchKey,
             key: i + 1,
-            type: page.kind
+            type: page.kind,
+            template: templateGenerator(page),
+            rgItemType: List.ListProps.Type.CUSTOM
         }));
     }
 
