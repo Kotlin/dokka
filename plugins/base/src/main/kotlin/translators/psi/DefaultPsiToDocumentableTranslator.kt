@@ -317,10 +317,15 @@ class DefaultPsiToDocumentableTranslator(
                     is PsiClassReferenceType -> {
                         val resolved: PsiClass = type.resolve()
                             ?: return UnresolvedBound(type.presentableText)
-                        if (resolved.qualifiedName == "java.lang.Object") {
-                            JavaObject
-                        } else {
-                            TypeConstructor(DRI.from(resolved), type.parameters.map { getProjection(it) })
+                        when {
+                            resolved.qualifiedName == "java.lang.Object" -> JavaObject
+                            resolved is PsiTypeParameter && resolved.owner != null ->
+                                OtherParameter(
+                                    declarationDRI = DRI.from(resolved.owner!!),
+                                    name = resolved.name.orEmpty()
+                                )
+                            else ->
+                                TypeConstructor(DRI.from(resolved), type.parameters.map { getProjection(it) })
                         }
                     }
                     is PsiArrayType -> TypeConstructor(
@@ -443,7 +448,7 @@ class DefaultPsiToDocumentableTranslator(
                 attributes.filter { it !is KtLightAbstractAnnotation }.mapNotNull { it.attributeName to it.toValue() }
                     .toMap(),
                 (psiElement as PsiClass).annotations.any {
-                    hasQualifiedName("java.lang.annotation.Documented")
+                    it.hasQualifiedName("java.lang.annotation.Documented")
                 }
             )
         }

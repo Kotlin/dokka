@@ -101,7 +101,7 @@ internal abstract class AbstractJavadocTemplateMapTest : AbstractCoreTest() {
             throw AssertionError(
                 "Kotlin and Java Code failed assertions\n" +
                         "Kotlin: ${kotlinException.message}\n" +
-                        "Java: ${javaException.message}",
+                        "Java  : ${javaException.message}",
                 kotlinException
             )
         }

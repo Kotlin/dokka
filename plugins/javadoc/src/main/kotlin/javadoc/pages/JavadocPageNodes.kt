@@ -26,8 +26,6 @@ class JavadocModulePageNode(
     RootPageNode(),
     JavadocPageNode {
 
-    val version: String = "0.0.1"
-
     override val documentable: Documentable? = null
     override val embeddedResources: List<String> = emptyList()
     override fun modified(name: String, children: List<PageNode>): RootPageNode =
@@ -82,44 +80,35 @@ class JavadocPackagePageNode(
 }
 
 data class JavadocEntryNode(
-    val signature: ContentNode,
+    val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>
 )
 
 data class JavadocParameterNode(
     val name: String,
-    val type: String,
+    val type: ContentNode,
     val description: List<ContentNode>
 )
 
 data class JavadocPropertyNode(
-    val signature: ContentNode,
+    val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>
-) {
-    val modifiersAndSignature: Pair<ContentNode, ContentNode>
-        get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
-}
+)
 
 data class JavadocFunctionNode(
-    val signature: ContentNode,
+    val signature: JavadocSignatureContentNode,
     val brief: List<ContentNode>,
     val parameters: List<JavadocParameterNode>,
     val name: String,
     val dri: DRI,
     val extras: PropertyContainer<DFunction> = PropertyContainer.empty()
-) {
-
-    val modifiersAndSignature: Pair<ContentNode, ContentNode>
-        get() = (signature as ContentGroup).splitSignatureIntoModifiersAndName()
-
-}
+)
 
 class JavadocClasslikePageNode(
     override val name: String,
     override val content: JavadocContentNode,
     override val dri: Set<DRI>,
-    val modifiers: List<String>,
-    val signature: ContentNode,
+    val signature: JavadocSignatureContentNode,
     val description: List<ContentNode>,
     val constructors: List<JavadocFunctionNode>,
     val methods: List<JavadocFunctionNode>,
@@ -142,7 +131,6 @@ class JavadocClasslikePageNode(
         name,
         content,
         dri,
-        modifiers,
         signature,
         description,
         constructors,
@@ -167,7 +155,6 @@ class JavadocClasslikePageNode(
             name,
             content as JavadocContentNode,
             dri,
-            modifiers,
             signature,
             description,
             constructors,
@@ -411,15 +398,6 @@ class TreeViewPage(
         override fun equals(other: Any?): Boolean = other is InheritanceNode && other.dri == dri
         override fun hashCode(): Int = dri.hashCode()
     }
-}
-
-private fun ContentGroup.splitSignatureIntoModifiersAndName(): Pair<ContentNode, ContentNode> {
-    val signature = children.firstIsInstance<ContentGroup>()
-    val modifiers = signature.children.takeWhile { it !is ContentLink }
-    return Pair(
-        signature.copy(children = modifiers),
-        signature.copy(children = signature.children.drop(modifiers.size))
-    )
 }
 
 private fun Documentable.kind(): String? =

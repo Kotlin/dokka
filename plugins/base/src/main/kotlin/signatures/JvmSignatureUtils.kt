@@ -21,9 +21,6 @@ interface JvmSignatureUtils {
     fun <T : Documentable> WithExtraProperties<T>.annotations(): SourceSetDependent<List<Annotations.Annotation>> =
         extra[Annotations]?.content ?: emptyMap()
 
-    private fun Annotations.Annotation.toSignatureString(): String =
-        "@" + this.dri.classNames + "(" + this.params.entries.joinToString { it.key + "=" + it.value } + ")"
-
     private fun PageContentBuilder.DocumentableContentBuilder.annotations(
         d: Documentable,
         ignored: Set<Annotations.Annotation>,

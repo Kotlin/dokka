@@ -86,13 +86,6 @@ fun JavaContentGroupBuilder.title(
     list.add(TitleNode(title, subtitle, version, parent, dri, kind, sourceSets))
 }
 
-data class TextNode(
-    val text: String,
-    override val sourceSets: Set<DokkaSourceSet>
-) : JavadocContentNode(emptySet(), ContentKind.Main, sourceSets) {
-    override fun hasAnyContent(): Boolean = !text.isBlank()
-}
-
 class ListNode(
     val tabTitle: String,
     val colTitle: String,
@@ -136,4 +129,15 @@ class LinkJavadocListEntry(
 
 data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: List<ContentNode>) : JavadocListEntry {
     override val stringTag: String = ""
+}
+
+data class JavadocSignatureContentNode(
+    val dri: DRI,
+    val kind: Kind = ContentKind.Symbol,
+    val annotations: ContentNode?,
+    val modifiers: ContentNode?,
+    val signatureWithoutModifiers: ContentNode,
+    val supertypes: ContentNode?
+): JavadocContentNode(setOf(dri), kind, signatureWithoutModifiers.sourceSets) {
+    override fun hasAnyContent(): Boolean = true
 }
