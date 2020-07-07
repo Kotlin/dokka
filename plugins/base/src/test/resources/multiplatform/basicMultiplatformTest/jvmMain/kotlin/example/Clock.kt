@@ -25,6 +25,10 @@ actual open class Clock {
     open fun getDayOfTheWeek(): String {
         TODO("not implemented")
     }
+
+    /**
+     * JVM custom kdoc
+     */
     actual fun getYear(): String {
         TODO("not implemented")
     }

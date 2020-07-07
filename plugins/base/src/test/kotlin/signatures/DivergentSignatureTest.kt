@@ -2,6 +2,8 @@ package signatures
 
 import org.jetbrains.dokka.testApi.testRunner.AbstractCoreTest
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import org.junit.jupiter.api.Test
 import utils.*
 import java.nio.file.Paths
@@ -9,10 +11,9 @@ import java.nio.file.Paths
 class DivergentSignatureTest : AbstractCoreTest() {
 
     @Test
-    fun `three divergent signatures for class`() {
+    fun `group { common + jvm + js }`() {
 
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
-
 
         val configuration = dokkaConfiguration {
             passes {
@@ -35,10 +36,10 @@ class DivergentSignatureTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "common"
-                    sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                    sourceRoots = listOf("commonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
+                    sourceSetID = "common"
                 }
             }
         }
@@ -50,25 +51,18 @@ class DivergentSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                assert(writerPlugin.writer.contents.getValue("example/example/-clock/index.html")
-                    .let { Jsoup.parse(it) }.select("#content").single()
-                    .select("div.sourceset-depenent-content")
-                    .fold(0) { acc, elem ->
-                        acc + if (elem.child(0).html().contains(
-                                Regex("Documentation for (expected|actual) class Clock .*")
-                            )
-                        ) 1 else 0
-                    } == 3
-                )
+                val content = writerPlugin.renderedContent("example/example/-clock/get-time.html")
+
+                assert(content.count() == 1)
+                assert(content.select("[data-filterable-current=js jvm common]").single().brief == "")
             }
         }
     }
 
     @Test
-    fun `three divergent signatures for class`() {
+    fun `group { common + jvm }, group { js }`() {
 
         val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
-
 
         val configuration = dokkaConfiguration {
             passes {
@@ -91,10 +85,10 @@ class DivergentSignatureTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "common"
-                    sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                    sourceRoots = listOf("commonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
-                    sourceSetID = "jvm"
+                    sourceSetID = "common"
                 }
             }
         }
@@ -106,17 +100,67 @@ class DivergentSignatureTest : AbstractCoreTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                assert(writerPlugin.writer.contents.getValue("example/example/-clock/index.html")
-                    .let { Jsoup.parse(it) }.select("#content").single()
-                    .select("div.sourceset-depenent-content")
-                    .fold(0) { acc, elem ->
-                        acc + if (elem.child(0).html().contains(
-                                Regex("Documentation for (expected|actual) class Clock .*")
-                            )
-                        ) 1 else 0
-                    } == 3
-                )
+                val content = writerPlugin.renderedContent("example/example/-clock/get-times-in-millis.html")
+                assert(content.count() == 2)
+                assert(content.select("[data-filterable-current=jvm common]").single().brief == "Time in minis")
+                assert(content.select("[data-filterable-current=js]").single().brief == "JS implementation of getTimeInMillis example/js" )
             }
         }
     }
+
+    @Test
+    fun `group { js }, group { jvm }, group { js }`() {
+
+        val testDataDir = getTestDataDir("multiplatform/basicMultiplatformTest").toAbsolutePath()
+
+        val configuration = dokkaConfiguration {
+            passes {
+                pass {
+                    moduleName = "example"
+                    analysisPlatform = "js"
+                    sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                        Paths.get("$testDataDir/$it/kotlin").toString()
+                    }
+                    sourceSetID = "js"
+                }
+                pass {
+                    moduleName = "example"
+                    analysisPlatform = "jvm"
+                    sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                        Paths.get("$testDataDir/$it/kotlin").toString()
+                    }
+                    sourceSetID = "jvm"
+                }
+                pass {
+                    moduleName = "example"
+                    analysisPlatform = "common"
+                    sourceRoots = listOf("commonMain").map {
+                        Paths.get("$testDataDir/$it/kotlin").toString()
+                    }
+                    sourceSetID = "common"
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testFromData(
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.renderedContent("example/example/-clock/get-year.html")
+                assert(content.count() == 3)
+                assert(content.select("[data-filterable-current=jvm]").single().brief == "JVM custom kdoc example/jvm")
+                assert(content.select("[data-filterable-current=js]").single().brief == "JS custom kdoc example/js")
+                assert(content.select("[data-filterable-current=common]").single().brief == "example/common")
+            }
+        }
+    }
+
+    private fun TestOutputWriterPlugin.renderedContent(path: String) = writer.contents.getValue(path)
+            .let { Jsoup.parse(it) }.select("#content").single().select("div.divergent-group")
+
+    private val Element.brief: String
+        get() = children().select(".brief-with-platform-tags").text()
 }
