@@ -23,7 +23,7 @@ val basePluginShadow: Configuration by configurations.creating
 dependencies {
     basePluginShadow(project(":plugins:base"))
 }
-val basePluginShadowJar = tasks.create("basePluginShadowJar", ShadowJar::class) {
+val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)
     archiveFileName.set("fat-base-plugin-$dokka_version.jar")
     archiveClassifier.set("")
