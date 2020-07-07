@@ -50,7 +50,9 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = ""
 
-    var dokkaRuntime: Configuration? = null
+    @get:Classpath
+    lateinit var dokkaRuntime: Configuration
+        internal set
 
     @Input
     var subProjects: List<String> = emptyList()
@@ -62,9 +64,11 @@ open class DokkaTask : DefaultTask(), Configurable {
     @Input
     var cacheRoot: String? = null
 
-    @Classpath
+    @get:Classpath
     lateinit var pluginsClasspathConfiguration: Configuration
+        internal set
 
+    @get:Internal
     internal var config: GradleDokkaConfigurationImpl? = null
 
     var dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSet>
@@ -94,7 +98,7 @@ open class DokkaTask : DefaultTask(), Configurable {
 
     private fun loadCore() {
         if (ClassloaderContainer.coreClassLoader == null) {
-            val jars = dokkaRuntime!!.resolve()
+            val jars = dokkaRuntime.resolve()
             ClassloaderContainer.coreClassLoader = URLClassLoader(
                 jars.map { it.toURI().toURL() }.toTypedArray(),
                 ClassLoader.getSystemClassLoader().parent
@@ -176,6 +180,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
+    @Internal
     internal fun getConfigurationOrNull(): GradleDokkaConfigurationImpl? {
         val globalConfig = dokkaSourceSets.toList().find { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }
         val defaultModulesConfiguration = configuredDokkaSourceSets
@@ -200,6 +205,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         }
     }
 
+    @Internal
     internal fun getConfigurationOrThrow(): GradleDokkaConfigurationImpl {
         return getConfigurationOrNull() ?: throw DokkaException(
             """
@@ -218,7 +224,7 @@ open class DokkaTask : DefaultTask(), Configurable {
         )
     }
 
-
+    @get:Internal
     protected val configuredDokkaSourceSets: List<GradleDokkaSourceSet>
         get() = dokkaSourceSets
             .filterNot { it.name.toLowerCase() == GLOBAL_CONFIGURATION_NAME }

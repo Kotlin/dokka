@@ -5,6 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.plugability.Configurable
@@ -22,11 +23,15 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
     @Input
     var outputDirectory: String = ""
 
-    @Classpath
+    @get:Classpath
     lateinit var pluginsConfig: Configuration
+        internal set
 
-    var dokkaRuntime: Configuration? = null
+    @get:Classpath
+    lateinit var dokkaRuntime: Configuration
+        internal set
 
+    @Input
     override val pluginsConfiguration: Map<String, String> = mutableMapOf()
 
     @TaskAction
@@ -64,6 +69,7 @@ open class DokkaMultimoduleTask : DefaultTask(), Configurable {
         }
     }
 
+    @Internal
     internal fun getConfiguration(): GradleDokkaConfigurationImpl =
         GradleDokkaConfigurationImpl().apply {
             outputDir = project.file(outputDirectory).absolutePath
