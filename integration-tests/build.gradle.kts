@@ -18,7 +18,7 @@ subprojects {
         implementation(project(":integration-tests"))
     }
 
-    val integrationTest = task<Test>("integrationTest") {
+    val integrationTest by tasks.register<Test>("integrationTest") {
         maxHeapSize = "2G"
         description = "Runs integration tests."
         group = "verification"
