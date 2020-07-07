@@ -39,7 +39,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     * arguments
                 )
             ).run { this as DefaultGradleRunner }
-            .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=512M")
+            .withJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=1G")
     }
 }
 
