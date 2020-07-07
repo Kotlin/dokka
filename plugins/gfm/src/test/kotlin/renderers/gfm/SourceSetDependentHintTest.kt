@@ -1,5 +1,6 @@
 package renderers.gfm
 
+import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.SourceRootImpl
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
@@ -13,21 +14,21 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
     private val pl1 = defaultSourceSet.copy(
         "root",
         "pl1",
-        "pl1",
+        DokkaSourceSetID("root", "pl1"),
         analysisPlatform = Platform.js,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl2 = defaultSourceSet.copy(
         "root",
         "pl2",
-        "pl2",
+        DokkaSourceSetID("root", "pl2"),
         analysisPlatform = Platform.jvm,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
     private val pl3 = defaultSourceSet.copy(
         "root",
         "pl3",
-        "pl3",
+        DokkaSourceSetID("root", "pl3"),
         analysisPlatform = Platform.native,
         sourceRoots = listOf(SourceRootImpl("pl1"))
     )
@@ -43,7 +44,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2, root/pl3] abc  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2, root/pl3] abc  \n   \n")
     }
 
     @Test
@@ -57,7 +58,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] a  \n  [root/pl2] b  \n  [root/pl3] c  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] a  \n   \n [root/pl2] b  \n   \n [root/pl3] c  \n   \n")
     }
 
     @Test
@@ -71,7 +72,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n  [root/pl2] bc  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n   \n [root/pl2] bc  \n   \n")
     }
 
     @Test
@@ -85,7 +86,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab  \n   \n")
     }
 
     @Test
@@ -101,7 +102,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n  \n  [root/pl2] a  \nb  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1] ab  \n  \n   \n [root/pl2] a  \nb  \n   \n")
     }
 
     @Test
@@ -117,7 +118,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] ab   \n")
     }
 
     @Test
@@ -131,6 +132,6 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
         }
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] a  \n  [root/pl3] b  \n ")
+        assert(renderedContent == "//[testPage](test-page.md)\n\n [root/pl1, root/pl2] a  \n   \n [root/pl3] b  \n   \n")
     }
 }
