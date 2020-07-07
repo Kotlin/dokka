@@ -1,4 +1,3 @@
-import org.jetbrains.configureDistMaven
 import org.jetbrains.configureDokkaVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,8 +31,6 @@ allprojects {
         maven(url = "https://dl.bintray.com/jetbrains/markdown/")
         maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
     }
-
-    configureDistMaven()
 }
 
 subprojects {
